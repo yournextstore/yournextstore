@@ -1,0 +1,35 @@
+name: tests
+on:
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm --version && pnpm install --frozen-lockfile
+
+      - name: Check prettier
+        run: pnpm prettier --cache --check .
+
+      - name: Eslint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
