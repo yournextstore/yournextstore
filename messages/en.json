@@ -1,0 +1,192 @@
+{
+	"Global": {
+		"metadata": {
+			"title": "Your Next Store - Demo",
+			"description": "A Next.js boilerplate for building your online store instantly: simple, quick, powerful."
+		},
+		"notFound": {
+			"title": "Not found",
+			"description": "The page you were looking for does not exist.",
+			"goBackLink": "Go back home"
+		},
+		"globalError": {
+			"title": "Something went wrong!",
+			"moreDetails": "More details",
+			"tryAgainButton": "Try again"
+		},
+		"error": {
+			"title": "Ooops, something went wrong!",
+			"goBackLink": "Try again"
+		},
+		"footer": {
+			"newsletterTitle": "Subscribe to our newsletter",
+			"categoriesTitle": "Products"
+		},
+		"newsletter": {
+			"emailPlaceholder": "Enter your email",
+			"subscribeButton": "Subscribe",
+			"success": "You have successfully subscribed to our newsletter.",
+			"error": "Failed to subscribe to our newsletter."
+		},
+		"nav": {
+			"search": {
+				"title": "Search",
+				"placeholder": "Search for products…"
+			},
+			"cartSummary": {
+				"itemsInCart": "Items in cart",
+				"total": "Total",
+				"totalItems": "{count, plural, =0 {No items} =1 {# item} other {# items}} in cart"
+			}
+		},
+		"addToCart": {
+			"success": "Added {productName} to cart",
+			"actionButton": "Add to cart"
+		},
+		"deliveryEstimates": {
+			"atLeast": "At least",
+			"upTo": "Up to",
+			"businessDay": "{count, plural, =1 {# business day} other {# business days}}",
+			"day": "{count, plural, =1 {# day} other {# days}}",
+			"hour": "{count, plural, =1 {# hour} other {# hours}}",
+			"month": "{count, plural, =1 {# month} other {# months}}",
+			"week": "{count, plural, =1 {# week} other {# weeks}}"
+		}
+	},
+	"/": {
+		"hero": {
+			"title": "Discover our Curated Collection",
+			"description": "Explore our carefully selected products for your home and lifestyle.",
+			"action": "Shop Now",
+			"link": "/category/accessories"
+		}
+	},
+	"/search": {
+		"notFound": {
+			"title": "No Results Found for \"{query}\"",
+			"description": "Sorry, we couldn't find any results that match your search query. Please try refining your search."
+		},
+		"metadata": {
+			"title": "Search: {query} · Your Next Store"
+		},
+		"page": {
+			"title": "Searching for \"{query}\""
+		},
+		"loading": {
+			"title": "Searching for"
+		}
+	},
+	"/products": {
+		"metadata": {
+			"title": "All Products · Your Next Store"
+		},
+		"page": {
+			"title": "All Products"
+		}
+	},
+	"/product": {
+		"metadata": {
+			"title": "{productName} · Your Next Store"
+		},
+		"page": {
+			"allProducts": "All products",
+			"imagesTitle": "Images",
+			"descriptionTitle": "Description",
+			"variantTitle": "Variant"
+		}
+	},
+	"/category": {
+		"metadata": {
+			"title": "{categoryName} Category · Your Next Store"
+		},
+		"page": {
+			"title": "Category: {categoryName}"
+		}
+	},
+	"/cart": {
+		"modal": {
+			"title": "Shopping Cart",
+			"openFullView": "(open full view)",
+			"quantity": "Quantity: {quantity}",
+			"total": "Total",
+			"shippingAndTaxesInfo": "Shipping and taxes will be added at the next step",
+			"goToPaymentButton": "Go to payment"
+		},
+		"metadata": {
+			"title": "Shopping Cart · Your Next Store"
+		},
+		"page": {
+			"title": "Your cart",
+			"checkoutTitle": "Checkout",
+			"checkoutDescription": "Provide billing and shipping details below.",
+			"summaryTable": {
+				"imageCol": "Image",
+				"productCol": "Product",
+				"priceCol": "Price",
+				"quantityCol": "Quantity",
+				"totalCol": "Total",
+				"totalSummary": "TOTAL"
+			},
+			"stripePayment": {
+				"fillRequiredFields": "Please fill in the required fields.",
+				"unexpectedError": "An unexpected error occured.",
+				"billingSameAsShipping": "Billing address same as shipping",
+				"billingAddressTitle": "Billing address",
+				"payNowButton": "Pay now",
+				"errorTitle": "Error",
+				"fullName": "Full name",
+				"address1": "Address",
+				"address2": "Address (cont.)",
+				"postalCode": "Postal Code",
+				"city": "City",
+				"state": "State / Region",
+				"country": "Country",
+				"phone": "Phone number",
+				"taxId": "Tax ID",
+				"taxIdPlaceholder": "eg. PL123456789"
+			},
+			"formErrors": {
+				"nameRequired": "Name is required",
+				"cityRequired": "City is required",
+				"countryRequired": "Country is required",
+				"line1Required": "Address is required",
+				"postalCodeRequired": "Postal code is required"
+			}
+		},
+		"empty": {
+			"title": "Your cart is empty",
+			"description": "Looks like you haven't added anything to your cart yet.",
+			"continueShoppingButton": "Continue shopping"
+		}
+	},
+	"/order": {
+		"metadata": {
+			"title": "Order Confirmation · Your Next Store"
+		},
+		"page": {
+			"title": "Order Confirmation",
+			"description": "Thank you! You'll find the details of your order below.",
+			"orderNumberTitle": "Order number",
+			"productsTitle": "Products in this order",
+			"price": "Price",
+			"quantity": "Quantity",
+			"total": "Total",
+			"detailsTitle": "Order details",
+			"shippingAddress": "Shipping address",
+			"billingAddress": "Billing address",
+			"taxId": "Tax ID",
+			"paymentMethod": "Payment method",
+			"cardBrand": "Card brand",
+			"last4CardDigitsLabel": "Card number ending in"
+		},
+		"paymentStatus": {
+			"canceled": "Canceled",
+			"processing": "Processing",
+			"requires_action": "Requires Action",
+			"requires_capture": "Requires Capture",
+			"requires_confirmation": "Requires Confirmation",
+			"requires_payment_method": "Requires Payment Method",
+			"succeeded": "Succeeded"
+		}
+	}
+}
