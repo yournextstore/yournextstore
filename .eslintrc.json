@@ -1,0 +1,112 @@
+{
+	"$schema": "https://json.schemastore.org/eslintrc.json",
+	"plugins": ["@typescript-eslint", "import", "eslint-plugin-react-compiler"],
+	"parserOptions": {
+		"project": "tsconfig.json"
+	},
+	"extends": [
+		"plugin:@typescript-eslint/recommended-type-checked",
+		"plugin:@typescript-eslint/stylistic-type-checked",
+		"plugin:import/recommended",
+		"plugin:import/typescript",
+		"prettier",
+		"next/core-web-vitals"
+	],
+	"rules": {
+		// these rules are too slow
+		"import/no-cycle": "off",
+		"react-compiler/react-compiler": "off",
+		"@typescript-eslint/no-unsafe-assignment": "off",
+		"@typescript-eslint/no-unused-vars": "off",
+
+		// this doesn't make any sense
+		"@typescript-eslint/prefer-nullish-coalescing": "off",
+
+		// no
+		"@typescript-eslint/consistent-type-definitions": "off",
+
+		// why tho
+		"@typescript-eslint/array-type": "off",
+
+		// sort imports
+		"import/order": "error",
+
+		// no let exports
+		"import/no-mutable-exports": "error",
+
+		"import/no-default-export": "error",
+
+		// allow {} even though it's unsafe but comes handy
+		"@typescript-eslint/ban-types": [
+			"error",
+			{
+				"types": {
+					"{}": false
+				}
+			}
+		],
+
+		"@typescript-eslint/consistent-type-imports": [
+			"error",
+			{
+				"prefer": "type-imports",
+				"fixStyle": "inline-type-imports",
+				"disallowTypeAnnotations": false
+			}
+		],
+
+		"import/no-duplicates": ["error", { "prefer-inline": true }],
+
+		// false negatives
+		"import/namespace": ["off"],
+
+		// we allow empty interfaces
+		"no-empty-pattern": "off",
+		"@typescript-eslint/no-empty-interface": "off",
+
+		// we allow empty functions
+		"@typescript-eslint/no-empty-function": "off",
+
+		// we sometimes use async functions that don't await anything
+		"@typescript-eslint/require-await": "off",
+
+		// make sure to `await` inside try…catch
+		"@typescript-eslint/return-await": ["error", "in-try-catch"],
+
+		"react/no-unescaped-entities": "off",
+
+		// numbers and booleans are fine in template strings
+		"@typescript-eslint/restrict-template-expressions": [
+			"error",
+			{ "allowNumber": true, "allowBoolean": true }
+		],
+
+		"@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
+
+		"no-restricted-imports": [
+			"error",
+			{
+				"name": "next/router",
+				"message": "Please use next/navigation instead."
+			}
+		]
+	},
+	"overrides": [
+		{
+			"files": [
+				"src/app/**/{page,layout,loading,route,not-found,error,global-error,default,robots,sitemap,opengraph-image}.ts?(x)",
+				"src/i18n.ts",
+				"*.d.ts",
+				"tailwind.config.ts",
+				"prettier.config.js",
+				"middleware.ts",
+				"commitlint.config.ts",
+				"vitest.config.ts"
+			],
+			"rules": {
+				"import/no-default-export": "off"
+			}
+		}
+	],
+	"ignorePatterns": ["*.js", "*.jsx", "*.mjs", "src/script/**/*.ts"]
+}
