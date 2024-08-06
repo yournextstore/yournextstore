@@ -8,6 +8,7 @@ import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Toaster } from "@/ui/shadcn/sonner";
 import { env } from "@/env.mjs";
 import { Footer } from "@/ui/footer/Footer";
+import { pickClientMessages } from "@/lib/messages";
 
 export const generateMetadata = async (): Promise<Metadata> => {
 	const t = await getTranslations("Global.metadata");
@@ -25,7 +26,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 	return (
 		<html lang={locale} className="h-full antialiased">
 			<body className="flex min-h-full flex-col">
-				<NextIntlClientProvider messages={messages}>
+				<NextIntlClientProvider messages={pickClientMessages(messages)}>
 					<div className="flex min-h-full flex-col bg-white" vaul-drawer-wrapper="">
 						{children}
 						<Footer />

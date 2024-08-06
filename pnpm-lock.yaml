@@ -95,6 +95,9 @@ importers:
       commerce-kit:
         specifier: 0.0.8
         version: 0.0.8(@types/node@20.14.14)(next@15.0.0-canary.102(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-334f00b-20240725)(react-dom@19.0.0-rc-65903583-20240805(react@19.0.0-rc-65903583-20240805))(react@19.0.0-rc-65903583-20240805))(react-dom@19.0.0-rc-65903583-20240805(react@19.0.0-rc-65903583-20240805))(react@19.0.0-rc-65903583-20240805)(server-only@0.0.1)(stripe@16.6.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8)
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
       lucide-react:
         specifier: 0.424.0
         version: 0.424.0(react@19.0.0-rc-65903583-20240805)
@@ -186,6 +189,9 @@ importers:
       '@testing-library/react':
         specifier: 16.0.0
         version: 16.0.0(@testing-library/dom@10.4.0)(react-dom@19.0.0-rc-65903583-20240805(react@19.0.0-rc-65903583-20240805))(react@19.0.0-rc-65903583-20240805)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
+      '@types/lodash':
+        specifier: 4.17.7
+        version: 4.17.7
       '@types/mdx':
         specifier: 2.0.13
         version: 2.0.13
@@ -1805,6 +1811,9 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+
+  '@types/lodash@4.17.7':
+    resolution: {integrity: sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==}
 
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
@@ -6969,6 +6978,8 @@ snapshots:
       '@types/istanbul-lib-report': 3.0.3
 
   '@types/json5@0.0.29': {}
+
+  '@types/lodash@4.17.7': {}
 
   '@types/mdast@4.0.4':
     dependencies:
