@@ -1,10 +1,19 @@
 # Your Next Store
 
-[![semantic-release: yournextstore](https://img.shields.io/badge/semantic--release-yournextstore-c084fc?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+<a href="https://www.producthunt.com/posts/your-next-store?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-your&#0045;next&#0045;store">
+	<picture>
+		<source
+			media="(prefers-color-scheme: dark)"
+			srcSet="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=459751&theme=dark"
+		/>
+		<img
+			src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=459751&theme=light"
+			alt="Your&#0032;Next&#0032;Store - E&#0045;Commerce&#0032;with&#0032;Stripe&#0032;as&#0032;the&#0032;backend | Product Hunt"
+		/>
+	</picture>
+</a><br/><br/>
 
-👉 [demo.yournextstore.com](https://demo.yournextstore.com/)
-
-<a href="https://vercel.com?utm_source=typeofweb&utm_campaign=oss"><img src="public/powered-by-vercel.svg" height="30" alt="Powered by Vercel"/></a>
+👉 [demo.yournextstore.com](https://demo.yournextstore.com/) 👈
 
 ## Prerequisites
 
