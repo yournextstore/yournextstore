@@ -123,7 +123,7 @@ Your Next Store uses Stripe Webhooks to handle events from Stripe. Currently, th
 
 The endpoint for the webhook is `https://{YOUR_DOMAIN}/api/stripe-webhook`. The only required event is `payment_intent.succeeded`. When the webhook is configured in Stripe, set the `STRIPE_WEBHOOK_SECRET` environment variable to the secret key created by Stripe.
 
-> [!INFO]
+> [!NOTE]
 > In the future, we plan to add more events to the webhook to improve the user experience.
 
 ## Stripe Tax
