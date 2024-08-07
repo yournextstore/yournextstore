@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
 import { ProductList } from "@/ui/products/productList";
 import { deslugify } from "@/lib/utils";
-import { env } from "@/env.mjs";
+import { publicUrl } from "@/env.mjs";
 
 export const generateMetadata = async ({
 	params,
@@ -24,7 +24,7 @@ export const generateMetadata = async ({
 
 	return {
 		title: t("title", { categoryName: deslugify(params.slug) }),
-		alternates: { canonical: `${env.NEXT_PUBLIC_URL}/category/${params.slug}` },
+		alternates: { canonical: `${publicUrl}/category/${params.slug}` },
 	};
 };
 

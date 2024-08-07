@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { ProductList } from "@/ui/products/productList";
 import { ProductNotFound } from "@/ui/products/ProductNotFound";
 import { Search } from "@/lib/api";
-import { env } from "@/env.mjs";
+import { publicUrl } from "@/env.mjs";
 
 export const generateMetadata = async ({
 	searchParams,
@@ -16,7 +16,7 @@ export const generateMetadata = async ({
 	const t = await getTranslations("/search.metadata");
 	return {
 		title: t("title", { query: searchParams.q }),
-		alternates: { canonical: `${env.NEXT_PUBLIC_URL}/search` },
+		alternates: { canonical: `${publicUrl}/search` },
 	};
 };
 
