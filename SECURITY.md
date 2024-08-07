@@ -1,15 +1,11 @@
 # Security Policy
 
-## Supported Versions
-
-This project does not follow a traditional versioning scheme.  
-Security updates are provided only for the latest state of the codebase.
-
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it to:
+**Do not open public issues with security vulnerabilities.** Please email security@yournextstore.com with details of the issue.
 
-**support@yournextstore.com**
+-	We’ll confirm receipt within 7 days.
+-	We’ll inform you about the next steps, i.e., if and when we’ll work on a fix or whether we're open to accepting a PR.
+-	With your permission, we’ll acknowledge your contribution.
 
-Include as much detail as possible to help us investigate the issue.  
-We will acknowledge the report and follow up if additional information is required.
+Thank you for helping us improve our security!
