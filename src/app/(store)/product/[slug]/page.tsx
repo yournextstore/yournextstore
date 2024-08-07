@@ -15,7 +15,7 @@ import {
 } from "@/ui/shadcn/breadcrumb";
 import { AddToCartButton } from "@/ui/AddToCartButton";
 import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
-import { env } from "@/env.mjs";
+import { publicUrl } from "@/env.mjs";
 import { YnsLink } from "@/ui/YnsLink";
 
 export const generateMetadata = async ({
@@ -34,7 +34,7 @@ export const generateMetadata = async ({
 	}
 	const t = await getTranslations("/product.metadata");
 
-	const canonical = new URL(`${env.NEXT_PUBLIC_URL}/product/${product.metadata.slug}`);
+	const canonical = new URL(`${publicUrl}/product/${product.metadata.slug}`);
 	if (selectedVariant) {
 		canonical.searchParams.set("variant", selectedVariant);
 	}

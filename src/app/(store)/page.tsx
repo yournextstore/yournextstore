@@ -7,10 +7,10 @@ import { CategoryBox } from "@/ui/CategoryBox";
 import AccessoriesImage from "@/images/accessories.jpg";
 import ApparelImage from "@/images/apparel.jpg";
 import { YnsLink } from "@/ui/YnsLink";
-import { env } from "@/env.mjs";
+import { publicUrl } from "@/env.mjs";
 
 export const metadata = {
-	alternates: { canonical: env.NEXT_PUBLIC_URL },
+	alternates: { canonical: publicUrl },
 } satisfies Metadata;
 
 export default async function Home() {
