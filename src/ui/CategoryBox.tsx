@@ -15,6 +15,7 @@ export function CategoryBox({
 				<Image
 					alt="Cover image"
 					className="w-full scale-105 object-cover transition-all group-hover:scale-100 group-hover:opacity-75"
+					sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 620px"
 					src={src}
 				/>
 			</div>
