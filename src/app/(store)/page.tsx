@@ -45,6 +45,7 @@ export default async function Home() {
 						style={{
 							objectFit: "cover",
 						}}
+						sizes="(max-width: 640px) 70vw, 450px"
 					/>
 				</div>
 			</section>
