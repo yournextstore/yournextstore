@@ -129,7 +129,7 @@
 			},
 			"stripePayment": {
 				"fillRequiredFields": "Please fill in the required fields.",
-				"unexpectedError": "An unexpected error occured.",
+				"unexpectedError": "An unexpected error occurred.",
 				"billingSameAsShipping": "Billing address same as shipping",
 				"billingAddressTitle": "Billing address",
 				"payNowButton": "Pay now",
