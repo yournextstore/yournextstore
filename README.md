@@ -74,7 +74,7 @@ https://github.com/yournextstore/.github/assets/200613/01d27f69-00dc-446e-bc81-5
 - `NEXT_PUBLIC_UMAMI_WEBSITE_ID` – Umami website ID for analytics
 - `NEXT_PUBLIC_NEWSLETTER_ENDPOINT` – **Preview**: The endpoint for the newsletter form in the future. It should accept POST requests with a JSON `{ email: string }` and return JSON `{ status: number }`.
 - `STRIPE_WEBHOOK_SECRET` – **Preview**: Stripe Webhook secret for handling events from Stripe. Read more below.
-- `ENABLE_STRIPE_TAXES` – **Preview**: Set to any value (i.e., `1`) to enable Stripe Tax in YNS. Read more below.
+- `ENABLE_STRIPE_TAX` – **Preview**: Set to any value (i.e., `1`) to enable Stripe Tax in YNS. Read more below.
 - `NEXT_PUBLIC_LANGUAGE` - The language of the store.
 
 ## Run the store
@@ -130,7 +130,7 @@ The endpoint for the webhook is `https://{YOUR_DOMAIN}/api/stripe-webhook`. The 
 
 ## Stripe Tax
 
-Your Next Store comes with a preview of Stripe Tax support. To enable it, set the `ENABLE_STRIPE_TAXES` environment variable to any value (i.e., `1`).
+Your Next Store comes with a preview of Stripe Tax support. To enable it, set the `ENABLE_STRIPE_TAX` environment variable to any value (i.e., `1`).
 
 For this feature to work, you must set your Tax settings in Stripe Dashboard: [dashboard.stripe.com/register/tax](https://dashboard.stripe.com/register/tax). When enabled and configured, taxes will be automatically calculated and added to the total price of the product based on:
 
