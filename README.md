@@ -130,7 +130,7 @@ The endpoint for the webhook is `https://{YOUR_DOMAIN}/api/stripe-webhook`. The 
 
 ## Stripe Tax
 
-Your Next Store comes with a preview of Stripe Tax support. To enable it, set the `ENABLE_STRIPE_TAXES` environment variable to any value (i.e., `1`).
+Your Next Store comes with a preview of Stripe Tax support. To enable it, set the `ENABLE_STRIPE_TAX` environment variable to any value (i.e., `1`).
 
 For this feature to work, you must set your Tax settings in Stripe Dashboard: [dashboard.stripe.com/register/tax](https://dashboard.stripe.com/register/tax). When enabled and configured, taxes will be automatically calculated and added to the total price of the product based on:
 
