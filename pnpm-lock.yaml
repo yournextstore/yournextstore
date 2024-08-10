@@ -93,8 +93,8 @@ importers:
         specifier: 0.2.1
         version: 0.2.1(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806)(types-react@19.0.0-rc.1)
       commerce-kit:
-        specifier: 0.0.11
-        version: 0.0.11(@types/node@20.14.14)(next@15.0.0-canary.110(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-334f00b-20240725)(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806))(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806)(server-only@0.0.1)(stripe@16.7.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8)
+        specifier: 0.0.12
+        version: 0.0.12(@types/node@20.14.14)(next@15.0.0-canary.110(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-334f00b-20240725)(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806))(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806)(server-only@0.0.1)(stripe@16.7.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8)
       lucide-react:
         specifier: 0.427.0
         version: 0.427.0(react@19.0.0-rc-187dd6a7-20240806)
@@ -2561,8 +2561,8 @@ packages:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
 
-  commerce-kit@0.0.11:
-    resolution: {integrity: sha512-4BbakxOdOJdPIIQqx9t8MfVh1K2eOKZCS5O4M5C/Y8OsisTxHrjeWE57+9A0tJLLMAJIOjWgFeWQTDIZPHWfxQ==}
+  commerce-kit@0.0.12:
+    resolution: {integrity: sha512-i+zx8UE4V/C12cQ+1SXYqLVzr7CucfSIDj5dtdrA+KMqObADP37PmFng9FCey7GT2KJh5TOu9fUtjAG7q0IXJQ==}
     peerDependencies:
       '@types/node': ^20.14.8
       '@types/react': npm:types-react@19.0.0-rc.1
@@ -7936,7 +7936,7 @@ snapshots:
 
   commander@4.1.1: {}
 
-  commerce-kit@0.0.11(@types/node@20.14.14)(next@15.0.0-canary.110(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-334f00b-20240725)(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806))(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806)(server-only@0.0.1)(stripe@16.7.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8):
+  commerce-kit@0.0.12(@types/node@20.14.14)(next@15.0.0-canary.110(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-334f00b-20240725)(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806))(react-dom@19.0.0-rc-187dd6a7-20240806(react@19.0.0-rc-187dd6a7-20240806))(react@19.0.0-rc-187dd6a7-20240806)(server-only@0.0.1)(stripe@16.7.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8):
     dependencies:
       '@types/node': 20.14.14
       '@types/react': types-react@19.0.0-rc.1
