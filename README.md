@@ -66,6 +66,10 @@ Open [localhost:3000](http://localhost:3000) — your store is running.
 - **TypeScript** — Strict type-safe development
 - **Biome** — Lightning-fast linter and formatter
 
+## Demo
+
+https://github.com/user-attachments/assets/64197310-29bd-4dd3-a736-1494340e20e8
+
 ## Prerequisites
 
 - [Node.js 24+](https://nodejs.org/)
