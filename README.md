@@ -19,6 +19,10 @@
 
 👉 [demo.yournextstore.com](https://demo.yournextstore.com/) 👈
 
+## Demo
+
+https://github.com/user-attachments/assets/64197310-29bd-4dd3-a736-1494340e20e8
+
 ## Prerequisites
 
 ### Node.js 20+
