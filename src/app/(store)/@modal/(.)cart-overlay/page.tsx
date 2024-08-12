@@ -28,7 +28,7 @@ export default async function CartModalPage({ searchParams }: { searchParams: { 
 			<div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
 				<div className="flex items-center justify-between">
 					<h2 className="text-lg font-semibold text-neutral-700">{t("title")}</h2>
-					<YnsLink href="/cart" className="text-sm text-muted-foreground underline">
+					<YnsLink replace href="/cart" className="text-sm text-muted-foreground underline">
 						{t("openFullView")}
 					</YnsLink>
 				</div>
