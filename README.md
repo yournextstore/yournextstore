@@ -174,7 +174,12 @@ Description coming soon.
 
 ### Docker
 
-Description coming soon.
+To deploy on Docker, follow these steps:
+
+1. Clone this repository into an empty folder and create the .env file in the repository as described [here](#add-environment-variables).
+2. Set the variable DOCKER=1 in .env
+3. Execute `pnpm run docker:build`.
+4. After that, you can start the container with `pnpm run docker:run`.
 
 ## That's all
 

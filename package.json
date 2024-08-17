@@ -11,7 +11,9 @@
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest",
-		"prepare": "husky"
+		"prepare": "husky",
+		"docker:build": "docker build -t yournextstore .",
+		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
 	"dependencies": {
 		"@next/mdx": "15.0.0-canary.152",
