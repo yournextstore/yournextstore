@@ -14,7 +14,11 @@ export async function POST(request: Request) {
 		return new Response("No signature", { status: 401 });
 	}
 
-	const stripe = Commerce.StripeClient({ cache: "no-store" });
+	const stripe = Commerce.provider({
+		tagPrefix: undefined,
+		secretKey: undefined,
+		cache: "no-store",
+	});
 
 	const [error, event] = await unpackPromise(
 		stripe.webhooks.constructEventAsync(await request.text(), signature, env.STRIPE_WEBHOOK_SECRET),
