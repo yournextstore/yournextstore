@@ -13,22 +13,8 @@ import {
 	NavigationMenuLink,
 	NavigationMenuList,
 	NavigationMenuTrigger,
-	navigationMenuTriggerStyle,
 } from "@/ui/shadcn/navigation-menu";
 import { YnsLink } from "@/ui/YnsLink";
-
-const links = [
-	{
-		title: "Features",
-		href: "https://yournextstore.com/#features",
-		description: "A list of all the features of Your Next Store.",
-	},
-	{
-		title: "Where to buy",
-		href: "https://yournextstore.com",
-		description: "Join our community and get the latest news about our products.",
-	},
-];
 
 export function NavMenu() {
 	const [value, setValue] = useState<string | undefined>(undefined);
@@ -67,29 +53,6 @@ export function NavMenu() {
 							</ListItem>
 						</ul>
 					</NavigationMenuContent>
-				</NavigationMenuItem>
-				<NavigationMenuItem value="about">
-					<NavigationMenuTriggerWithFixedUX
-						onKeyboardOpen={() => setValue((value) => (value === "about" ? undefined : "about"))}
-					>
-						About
-					</NavigationMenuTriggerWithFixedUX>
-					<NavigationMenuContent>
-						<ul className="grid gap-3 p-4 md:w-[400px] md:grid-cols-2 lg:w-[500px] xl:w-[600px]">
-							{links.map((link) => (
-								<ListItem key={link.title} title={link.title} href={link.href} target="_blank">
-									{link.description}
-								</ListItem>
-							))}
-						</ul>
-					</NavigationMenuContent>
-				</NavigationMenuItem>
-				<NavigationMenuItem value="documentation">
-					<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-						<YnsLink href="https://yournextstore.com/docs" target="_blank">
-							Documentation
-						</YnsLink>
-					</NavigationMenuLink>
 				</NavigationMenuItem>
 			</NavigationMenuList>
 		</NavigationMenu>
