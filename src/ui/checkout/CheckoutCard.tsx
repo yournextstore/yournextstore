@@ -31,7 +31,7 @@ export const CheckoutCard = async ({ cart }: { cart: Commerce.Cart["cart"] }) =>
 			<p className="mb-4 mt-2 text-sm text-muted-foreground">{t("checkoutDescription")}</p>
 			<StripePayment
 				shippingRateId={cart.metadata.shippingRateId}
-				shippingRates={structuredClone(shippingRates.data)}
+				shippingRates={structuredClone(shippingRates)}
 			/>
 		</section>
 	);
