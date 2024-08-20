@@ -5,7 +5,9 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		STRIPE_SECRET_KEY: z.string(),
+		// Can be provided via env or parameters to Commerce Kit, thus optional
+		STRIPE_SECRET_KEY: z.string().optional(),
+		// Required in Commerce Kit
 		STRIPE_CURRENCY: z.string(),
 		STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
