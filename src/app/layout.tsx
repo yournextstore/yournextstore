@@ -26,8 +26,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 		<html lang={locale} className="h-full antialiased">
 			<body className="flex min-h-full flex-col">
 				<NextIntlClientProvider messages={messages}>
-					<div className="flex min-h-full flex-col bg-white" vaul-drawer-wrapper="">
-						{children}
+					<div className="flex min-h-full flex-1 flex-col bg-white" vaul-drawer-wrapper="">
+						<div className="flex-1">{children}</div>
 						<Footer />
 					</div>
 					<Toaster position="top-center" offset={10} />
