@@ -3,6 +3,7 @@ import Image from "next/image";
 import { type Metadata } from "next/types";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
+import { Suspense } from "react";
 import { Markdown } from "@/ui/Markdown";
 import { JsonLd, mappedProductToJsonLd } from "@/ui/JsonLd";
 import {
@@ -17,6 +18,14 @@ import { AddToCartButton } from "@/ui/AddToCartButton";
 import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
 import { publicUrl } from "@/env.mjs";
 import { YnsLink } from "@/ui/YnsLink";
+import { ReviewList } from "@/ui/review/ReviewList";
+import { ReviewListSkeleton } from "@/ui/review/ReviewListSkeleton";
+
+export type Review = {
+	description: string;
+	author: string;
+	date: string;
+};
 
 export const generateMetadata = async ({
 	params,
@@ -185,6 +194,9 @@ export default async function SingleProductPage({
 					<AddToCartButton productId={product.id} />
 				</div>
 			</div>
+			<Suspense fallback={<ReviewListSkeleton size={4} />}>
+				<ReviewList productId={product.id} />
+			</Suspense>
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>
 	);
