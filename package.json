@@ -40,7 +40,7 @@
 		"class-variance-authority": "0.7.0",
 		"clsx": "2.1.1",
 		"cmdk": "0.2.1",
-		"commerce-kit": "0.0.17",
+		"commerce-kit": "0.0.18",
 		"lucide-react": "0.429.0",
 		"nanoid": "5.0.7",
 		"next": "15.0.0-canary.121",
