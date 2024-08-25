@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import * as Commerce from "commerce-kit";
 import { getCartFromCookiesAction } from "@/actions/cartActions";
 
 import { CartSummaryTable } from "@/ui/checkout/CartSummaryTable";
@@ -11,10 +12,11 @@ export default async function CartLayout({ children }: { children: ReactNode }) 
 	if (!cart?.cart.client_secret || cart.lines.length === 0) {
 		return <CartEmpty />;
 	}
+	const { publishableKey } = await Commerce.contextGet();
 	const t = await getTranslations("/cart.page");
 
 	return (
-		<StripeElementsContainer client_secret={cart.cart.client_secret}>
+		<StripeElementsContainer clientSecret={cart.cart.client_secret} publishableKey={publishableKey}>
 			<div className="min-h-[calc(100dvh-7rem)] xl:grid xl:grid-cols-12 xl:gap-x-8">
 				<div className="my-8 xl:col-span-7">
 					<div className="sticky top-1">

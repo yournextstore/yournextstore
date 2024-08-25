@@ -17,7 +17,8 @@ export const env = createEnv({
 			.transform((str) => !!str),
 	},
 	client: {
-		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string(),
+		// Can be provided via env or parameters to Commerce Kit, thus optional
+		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 		NEXT_PUBLIC_URL: z.string().url().optional(),
 
 		NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),

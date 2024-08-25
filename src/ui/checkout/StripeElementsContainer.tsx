@@ -1,7 +1,7 @@
 "use client";
 
 import { Elements } from "@stripe/react-stripe-js";
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import {
 	loadStripe,
 	type StripeElementLocale,
@@ -9,25 +9,31 @@ import {
 } from "@stripe/stripe-js";
 import { useLocale } from "next-intl";
 import { env } from "@/env.mjs";
-
-const stripePromise = loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+import { invariant } from "@/lib/invariant";
 
 export const StripeElementsContainer = ({
 	children,
-	client_secret,
+	clientSecret,
+	publishableKey,
 }: {
 	children: ReactNode;
-	client_secret?: string;
+	clientSecret?: string;
+	publishableKey?: string;
 }) => {
 	const currentLocale = useLocale();
-	if (!client_secret) {
+
+	const stripePublishableKey = publishableKey || env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+	invariant(stripePublishableKey, "Stripe publishable key is required");
+	const stripePromise = useMemo(() => loadStripe(stripePublishableKey), [stripePublishableKey]);
+
+	if (!clientSecret) {
 		return null;
 	}
 
 	const locale = supportedStripeLocales.includes(currentLocale) ? currentLocale : ("auto" as const);
 
 	const options = {
-		clientSecret: client_secret,
+		clientSecret: clientSecret,
 		appearance: {
 			variables: {
 				fontFamily: `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`,
