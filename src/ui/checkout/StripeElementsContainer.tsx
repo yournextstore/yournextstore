@@ -15,16 +15,21 @@ export const StripeElementsContainer = ({
 	children,
 	clientSecret,
 	publishableKey,
+	stripeAccount,
 }: {
 	children: ReactNode;
 	clientSecret?: string;
 	publishableKey?: string;
+	stripeAccount?: string;
 }) => {
 	const currentLocale = useLocale();
 
 	const stripePublishableKey = publishableKey || env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 	invariant(stripePublishableKey, "Stripe publishable key is required");
-	const stripePromise = useMemo(() => loadStripe(stripePublishableKey), [stripePublishableKey]);
+	const stripePromise = useMemo(
+		() => loadStripe(stripePublishableKey, { stripeAccount }),
+		[stripePublishableKey],
+	);
 
 	if (!clientSecret) {
 		return null;

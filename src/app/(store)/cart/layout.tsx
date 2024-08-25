@@ -12,11 +12,15 @@ export default async function CartLayout({ children }: { children: ReactNode }) 
 	if (!cart?.cart.client_secret || cart.lines.length === 0) {
 		return <CartEmpty />;
 	}
-	const { publishableKey } = await Commerce.contextGet();
+	const { stripeAccount, publishableKey } = await Commerce.contextGet();
 	const t = await getTranslations("/cart.page");
 
 	return (
-		<StripeElementsContainer clientSecret={cart.cart.client_secret} publishableKey={publishableKey}>
+		<StripeElementsContainer
+			clientSecret={cart.cart.client_secret}
+			publishableKey={publishableKey}
+			stripeAccount={stripeAccount}
+		>
 			<div className="min-h-[calc(100dvh-7rem)] xl:grid xl:grid-cols-12 xl:gap-x-8">
 				<div className="my-8 xl:col-span-7">
 					<div className="sticky top-1">
