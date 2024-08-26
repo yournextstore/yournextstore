@@ -3,6 +3,7 @@ import * as Commerce from "commerce-kit";
 import { Nav } from "@/ui/nav/Nav";
 import { JsonLd, accountToWebsiteJsonLd } from "@/ui/JsonLd";
 import { TooltipProvider } from "@/ui/shadcn/tooltip";
+import { Footer } from "@/ui/footer/Footer";
 
 export default async function StoreLayout({
 	children,
@@ -24,6 +25,7 @@ export default async function StoreLayout({
 					{children}
 					{modal}
 				</main>
+				<Footer />
 			</TooltipProvider>
 			<JsonLd
 				jsonLd={accountToWebsiteJsonLd({
