@@ -40,7 +40,7 @@ export async function Footer() {
 			</div>
 			<div className="container mt-8 flex max-w-7xl flex-col items-center justify-between gap-4 text-sm text-neutral-500 md:flex-row">
 				<div>
-					<p>© 2024 {config.footer.name}.</p>
+					<p>© 2024 {config.footer.name}</p>
 					<p>{config.footer.tagline}</p>
 				</div>
 				{config.footer.credits && (
