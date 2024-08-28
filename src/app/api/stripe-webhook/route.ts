@@ -39,7 +39,23 @@ export async function POST(request: Request) {
 					reference: event.data.object.id.slice(3),
 				});
 			}
+
+			const products = await Commerce.getProductsFromMetadata(metadata);
+
+			for (const { product } of products) {
+				if (product && product.metadata.stock !== Infinity) {
+					await stripe.products.update(product.id, {
+						metadata: {
+							stock: product.metadata.stock - 1,
+						},
+					});
+
+					revalidateTag(`product-${product.id}`);
+				}
+			}
+
 			revalidateTag(`cart-${event.data.object.id}`);
+
 			break;
 
 		default:
