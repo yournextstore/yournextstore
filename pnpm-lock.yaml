@@ -94,8 +94,8 @@ importers:
         specifier: 0.2.1
         version: 0.2.1(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822)(types-react@19.0.0-rc.1)
       commerce-kit:
-        specifier: 0.0.20
-        version: 0.0.20(@neondatabase/serverless@0.9.4)(@types/node@20.16.1)(next@15.0.0-canary.129(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-48eb8f4-20240822)(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822))(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822)(server-only@0.0.1)(stripe@16.8.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8)
+        specifier: 0.0.21
+        version: 0.0.21(@neondatabase/serverless@0.9.4)(@types/node@20.16.1)(next@15.0.0-canary.129(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-48eb8f4-20240822)(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822))(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822)(server-only@0.0.1)(stripe@16.8.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8)
       lucide-react:
         specifier: 0.436.0
         version: 0.436.0(react@19.0.0-rc-b57d2823-20240822)
@@ -2035,9 +2035,6 @@ packages:
   '@types/node@20.16.1':
     resolution: {integrity: sha512-zJDo7wEadFtSyNz5QITDfRcrhqDvQI1xQNQ0VoizPjM/dVAODqqIUWbJPkvsxmTI0MYRGRikcdjMPhOssnPejQ==}
 
-  '@types/node@20.16.2':
-    resolution: {integrity: sha512-91s/n4qUPV/wg8eE9KHYW1kouTfDk2FPGjXbBMfRWP/2vg1rCXNQL1OCabwGs0XSdukuK+MwCDXE30QpSeMUhQ==}
-
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -2563,8 +2560,8 @@ packages:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
 
-  commerce-kit@0.0.20:
-    resolution: {integrity: sha512-ykryCGDWNHfQ5QkEky3YLoFeRxJzQGhXbK7om9B358y81niwv1mdWbaZsK6wTohAVtFvZwOpmLbD+LXsI7T+xg==}
+  commerce-kit@0.0.21:
+    resolution: {integrity: sha512-aQzm7/IGBwONq3JTwFxzu5HFLHwIYVJmqCQxLxdYdQSR/be7Vn1rGKSOJbeFWN+uzHUWtPLGW7f6cSFrOnAoPg==}
     peerDependencies:
       '@neondatabase/serverless': ^0.9.4
       '@types/node': ^20.0.0
@@ -7426,15 +7423,11 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
-  '@types/node@20.16.2':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/pg@8.11.6':
     dependencies:
-      '@types/node': 20.16.2
+      '@types/node': 20.16.1
       pg-protocol: 1.6.1
       pg-types: 4.0.2
 
@@ -8010,7 +8003,7 @@ snapshots:
 
   commander@4.1.1: {}
 
-  commerce-kit@0.0.20(@neondatabase/serverless@0.9.4)(@types/node@20.16.1)(next@15.0.0-canary.129(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-48eb8f4-20240822)(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822))(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822)(server-only@0.0.1)(stripe@16.8.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8):
+  commerce-kit@0.0.21(@neondatabase/serverless@0.9.4)(@types/node@20.16.1)(next@15.0.0-canary.129(@babel/core@7.24.9)(babel-plugin-react-compiler@0.0.0-experimental-48eb8f4-20240822)(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822))(react-dom@19.0.0-rc-b57d2823-20240822(react@19.0.0-rc-b57d2823-20240822))(react@19.0.0-rc-b57d2823-20240822)(server-only@0.0.1)(stripe@16.8.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.5.4)(zod@3.23.8):
     dependencies:
       '@neondatabase/serverless': 0.9.4
       '@types/node': 20.16.1
