@@ -5,7 +5,13 @@ import { useTransition } from "react";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
 
-export const AddToCartButton = ({ productId }: { productId: string }) => {
+export const AddToCartButton = ({
+	productId,
+	disabled,
+}: {
+	productId: string;
+	disabled?: boolean;
+}) => {
 	const t = useTranslations("Global.addToCart");
 	const router = useRouter();
 	const [pending, startTransition] = useTransition();
@@ -19,8 +25,15 @@ export const AddToCartButton = ({ productId }: { productId: string }) => {
 				startTransition(() => router.push(`/cart-overlay?add=${productId}`));
 			}}
 			aria-disabled={pending}
+			disabled={pending || disabled}
 		>
-			{pending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : t("actionButton")}
+			{pending ? (
+				<Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+			) : disabled ? (
+				t("disabled")
+			) : (
+				t("actionButton")
+			)}
 		</Button>
 	);
 };

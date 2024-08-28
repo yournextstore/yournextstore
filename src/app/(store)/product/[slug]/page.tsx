@@ -123,6 +123,7 @@ export default async function SingleProductPage({
 							})}
 						</p>
 					)}
+					<div className="mt-2">{product.metadata.stock <= 0 && <div>Out of stock</div>}</div>
 				</div>
 
 				<div className="lg:col-span-7 lg:row-span-3 lg:row-start-1">
@@ -187,7 +188,7 @@ export default async function SingleProductPage({
 						</div>
 					)}
 
-					<AddToCartButton productId={product.id} />
+					<AddToCartButton productId={product.id} disabled={product.metadata.stock <= 0} />
 				</div>
 			</div>
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />

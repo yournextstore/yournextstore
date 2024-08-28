@@ -36,7 +36,8 @@ export const mappedProductToJsonLd = (product: Commerce.MappedProduct): WithCont
 				currency: product.default_price.currency,
 			}),
 			priceCurrency: product.default_price.currency,
-			availability: product.active ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+			availability:
+				product.metadata.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
 		},
 	};
 };
