@@ -14,7 +14,7 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.0-canary.129",
+		"@next/mdx": "15.0.0-canary.132",
 		"@radix-ui/react-checkbox": "1.1.1",
 		"@radix-ui/react-collapsible": "1.1.0",
 		"@radix-ui/react-dialog": "1.1.1",
@@ -43,12 +43,12 @@
 		"commerce-kit": "0.0.21",
 		"lucide-react": "0.436.0",
 		"nanoid": "5.0.7",
-		"next": "15.0.0-canary.129",
+		"next": "15.0.0-canary.132",
 		"next-intl": "3.17.6",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
-		"react": "19.0.0-rc-b57d2823-20240822",
-		"react-dom": "19.0.0-rc-b57d2823-20240822",
+		"react": "19.0.0-rc-f90a6bcc-20240827",
+		"react-dom": "19.0.0-rc-f90a6bcc-20240827",
 		"schema-dts": "1.1.2",
 		"server-only": "0.0.1",
 		"sonner": "1.5.0",
@@ -62,7 +62,7 @@
 		"@commitlint/cli": "19.4.1",
 		"@commitlint/config-conventional": "19.4.1",
 		"@commitlint/types": "19.0.3",
-		"@next/env": "15.0.0-canary.129",
+		"@next/env": "15.0.0-canary.132",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -81,9 +81,9 @@
 		"@typescript-eslint/parser": "7.18.0",
 		"@vitejs/plugin-react": "4.3.1",
 		"autoprefixer": "10.4.20",
-		"babel-plugin-react-compiler": "0.0.0-experimental-48eb8f4-20240822",
+		"babel-plugin-react-compiler": "0.0.0-experimental-9e9694c-20240827",
 		"eslint": "8.57.0",
-		"eslint-config-next": "15.0.0-canary.129",
+		"eslint-config-next": "15.0.0-canary.132",
 		"eslint-config-prettier": "9.1.0",
 		"eslint-plugin-import": "2.29.1",
 		"eslint-plugin-react-compiler": "0.0.0-experimental-9ed098e-20240725",
@@ -111,9 +111,9 @@
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.0-canary.129",
-				"react": "19.0.0-rc-b57d2823-20240822",
-				"react-dom": "19.0.0-rc-b57d2823-20240822",
+				"next": "15.0.0-canary.132",
+				"react": "19.0.0-rc-f90a6bcc-20240827",
+				"react-dom": "19.0.0-rc-f90a6bcc-20240827",
 				"@stripe/stripe-js": "4.1.0"
 			},
 			"allowAny": [
