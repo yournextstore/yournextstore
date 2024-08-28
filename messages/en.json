@@ -41,7 +41,8 @@
 		},
 		"addToCart": {
 			"success": "Added {productName} to cart",
-			"actionButton": "Add to cart"
+			"actionButton": "Add to cart",
+			"disabled": "Out of stock"
 		},
 		"deliveryEstimates": {
 			"atLeast": "At least",
