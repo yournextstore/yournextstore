@@ -128,19 +128,24 @@ export default async function SingleProductPage({
 				<div className="lg:col-span-7 lg:row-span-3 lg:row-start-1">
 					<h2 className="sr-only">{t("imagesTitle")}</h2>
 
-					{product.images.map((image) => (
-						<Image
-							key={image}
-							className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-							src={image}
-							width={700}
-							height={700}
-							sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
-							loading="eager"
-							priority
-							alt=""
-						/>
-					))}
+					<div className="grid gap-4 lg:grid-cols-3">
+						{product.images.map((image, idx) => (
+							<Image
+								key={image}
+								className={cn(
+									idx === 0 ? "lg:col-span-3" : "col-span-1",
+									"w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity",
+								)}
+								src={image}
+								width={idx === 0 ? 700 : 700 / 3}
+								height={idx === 0 ? 700 : 700 / 3}
+								sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
+								loading="eager"
+								priority
+								alt=""
+							/>
+						))}
+					</div>
 				</div>
 
 				<div className="grid gap-8 lg:col-span-5">
