@@ -1,11 +1,11 @@
 import Image from "next/image";
 import type { Metadata } from "next/types";
 import * as Commerce from "commerce-kit";
-import { ProductList } from "@/ui/products/productList";
-import { CategoryBox } from "@/ui/CategoryBox";
+import { ProductList } from "@/ui/products/product-list";
+import { CategoryBox } from "@/ui/category-box";
 import AccessoriesImage from "@/images/accessories.jpg";
 import ApparelImage from "@/images/apparel.jpg";
-import { YnsLink } from "@/ui/YnsLink";
+import { YnsLink } from "@/ui/yns-link";
 import { publicUrl } from "@/env.mjs";
 
 export const metadata = {

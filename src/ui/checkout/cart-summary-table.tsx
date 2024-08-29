@@ -17,10 +17,10 @@ import {
 	CartItemLineTotal,
 	CartItemQuantity,
 	CartAmountWithSpinner,
-} from "@/ui/checkout/CartItems.client";
+} from "@/ui/checkout/cart-items.client";
 import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
-import { YnsLink } from "@/ui/YnsLink";
-import { FormatDeliveryEstimate } from "@/ui/checkout/ShippingRatesSection";
+import { YnsLink } from "@/ui/yns-link";
+import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
 
 export const CartSummaryTable = ({ cart }: { cart: Commerce.Cart }) => {
 	const t = useTranslations("/cart.page.summaryTable");
