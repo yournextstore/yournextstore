@@ -13,7 +13,7 @@ import {
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from "@/ui/shadcn/navigation-menu";
-import { YnsLink } from "@/ui/YnsLink";
+import { YnsLink } from "@/ui/yns-link";
 
 type NavLink = Config["nav"]["links"][number];
 
