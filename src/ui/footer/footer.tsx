@@ -1,8 +1,8 @@
 import { type SVGAttributes } from "react";
 import { getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
-import { YnsLink } from "@/ui/YnsLink";
-import { Newsletter } from "@/ui/footer/Newsletter.client";
+import { YnsLink } from "@/ui/yns-link";
+import { Newsletter } from "@/ui/footer/newsletter.client";
 
 export async function Footer() {
 	const t = await getTranslations("Global.footer");

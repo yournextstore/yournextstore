@@ -2,9 +2,9 @@ import { Suspense } from "react";
 import { ShoppingBagIcon } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
-import { getCartFromCookiesAction } from "@/actions/cartActions";
+import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/ui/shadcn/tooltip";
-import { YnsLink } from "@/ui/YnsLink";
+import { YnsLink } from "@/ui/yns-link";
 import { formatMoney } from "@/lib/utils";
 
 const CartFallback = () => (

@@ -1,8 +1,8 @@
 import { type Metadata } from "next/types";
 import { RedirectType, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ProductList } from "@/ui/products/productList";
-import { ProductNotFound } from "@/ui/products/ProductNotFound";
+import { ProductList } from "@/ui/products/product-list";
+import { ProductNotFound } from "@/ui/products/product-not-found";
 import { Search } from "@/lib/api";
 import { publicUrl } from "@/env.mjs";
 

@@ -15,8 +15,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@ui/shadcn/popover";
 
 import { countries, findMatchingCountry } from "@/lib/countries";
-import { ElWithErrors, type ElWithErrorsProps } from "@/ui/InputWithErrors";
-import { useMediaQuery } from "@/ui/shadcn/hooks/useMediaQuery";
+import { ElWithErrors, type ElWithErrorsProps } from "@/ui/input-errors";
+import { useMediaQuery } from "@/ui/shadcn/hooks/use-media-query";
 
 type ListItem = (typeof countries)[number];
 

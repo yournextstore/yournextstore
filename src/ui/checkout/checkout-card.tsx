@@ -8,7 +8,7 @@ import link from "@/images/payments/link.svg";
 import mastercard from "@/images/payments/mastercard.svg";
 import p24 from "@/images/payments/p24.svg";
 import visa from "@/images/payments/visa.svg";
-import { StripePayment } from "@/ui/checkout/stripePayment";
+import { StripePayment } from "@/ui/checkout/stripe-payment";
 
 export const paymentMethods = {
 	amex,

@@ -2,12 +2,12 @@ import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
-import { CartAsideContainer } from "./CartAside";
-import { CartModalAddSideEffect } from "./CartSideEffect";
-import { getCartFromCookiesAction } from "@/actions/cartActions";
+import { CartAsideContainer } from "./cart-aside";
+import { CartModalAddSideEffect } from "./cart-side-effect";
+import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import { Button } from "@/ui/shadcn/button";
 import { formatMoney, formatProductName } from "@/lib/utils";
-import { YnsLink } from "@/ui/YnsLink";
+import { YnsLink } from "@/ui/yns-link";
 
 export default async function CartModalPage({ searchParams }: { searchParams: { add?: string } }) {
 	const originalCart = await getCartFromCookiesAction();

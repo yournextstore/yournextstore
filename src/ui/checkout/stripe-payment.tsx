@@ -14,17 +14,17 @@ import { useTranslations } from "next-intl";
 import type * as Commerce from "commerce-kit";
 import { Button } from "@/ui/shadcn/button";
 import { Alert, AlertTitle, AlertDescription } from "@/ui/shadcn/alert";
-import { clearCartCookieAction } from "@/actions/cartActions";
+import { clearCartCookieAction } from "@/actions/cart-actions";
 import { Label } from "@/ui/shadcn/label";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Collapsible, CollapsibleContent } from "@/ui/shadcn/collapsible";
-import { InputWithErrors } from "@/ui/InputWithErrors";
-import { getAddressSchema, type AddressSchema } from "@/ui/checkout/checkoutFormSchema";
-import { ShippingRatesSection } from "@/ui/checkout/ShippingRatesSection";
-import { saveTaxIdAction } from "@/ui/checkout/taxAction";
-import { CountrySelect } from "@/ui/CountrySelect";
+import { InputWithErrors } from "@/ui/input-errors";
+import { getAddressSchema, type AddressSchema } from "@/ui/checkout/checkout-form-schema";
+import { ShippingRatesSection } from "@/ui/checkout/shipping-rates-section";
+import { saveTaxIdAction } from "@/ui/checkout/tax-action";
+import { CountrySelect } from "@/ui/country-select";
 import { useDebouncedValue } from "@/lib/hooks";
-import { saveBillingAddressAction, saveShippingRateAction } from "@/ui/checkout/checkoutActions";
+import { saveBillingAddressAction, saveShippingRateAction } from "@/ui/checkout/checkout-actions";
 
 export const StripePayment = ({
 	shippingRateId,
