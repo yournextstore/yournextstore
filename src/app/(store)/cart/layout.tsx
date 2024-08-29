@@ -1,11 +1,11 @@
 import { type ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
-import { getCartFromCookiesAction } from "@/actions/cartActions";
+import { getCartFromCookiesAction } from "@/actions/cart-actions";
 
-import { CartSummaryTable } from "@/ui/checkout/CartSummaryTable";
-import { CartEmpty } from "@/ui/checkout/CartEmpty";
-import { StripeElementsContainer } from "@/ui/checkout/StripeElementsContainer";
+import { CartSummaryTable } from "@/ui/checkout/cart-summary-table";
+import { CartEmpty } from "@/ui/checkout/cart-empty";
+import { StripeElementsContainer } from "@/ui/checkout/stripe-elements-container";
 
 export default async function CartLayout({ children }: { children: ReactNode }) {
 	const cart = await getCartFromCookiesAction();

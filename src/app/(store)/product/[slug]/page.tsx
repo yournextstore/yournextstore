@@ -3,8 +3,8 @@ import Image from "next/image";
 import { type Metadata } from "next/types";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
-import { Markdown } from "@/ui/Markdown";
-import { JsonLd, mappedProductToJsonLd } from "@/ui/JsonLd";
+import { Markdown } from "@/ui/markdown";
+import { JsonLd, mappedProductToJsonLd } from "@/ui/json-ld";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -13,10 +13,10 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/ui/shadcn/breadcrumb";
-import { AddToCartButton } from "@/ui/AddToCartButton";
+import { AddToCartButton } from "@/ui/add-to-cart-button";
 import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
 import { publicUrl } from "@/env.mjs";
-import { YnsLink } from "@/ui/YnsLink";
+import { YnsLink } from "@/ui/yns-link";
 
 export const generateMetadata = async ({
 	params,
