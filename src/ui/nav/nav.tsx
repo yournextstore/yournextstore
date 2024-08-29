@@ -1,9 +1,9 @@
 import * as Commerce from "commerce-kit";
-import { CartSummaryNav } from "@/ui/nav/CartSummaryNav";
-import { SeoH1 } from "@/ui/SeoH1";
-import { SearchNav } from "@/ui/nav/SearchNav";
-import { NavMenu } from "@/ui/nav/NavMenu";
-import { YnsLink } from "@/ui/YnsLink";
+import { CartSummaryNav } from "@/ui/nav/cart-summary-nav";
+import { SeoH1 } from "@/ui/seo-h1";
+import { SearchNav } from "@/ui/nav/search-nav";
+import { NavMenu } from "@/ui/nav/nav-menu";
+import { YnsLink } from "@/ui/yns-link";
 
 export const Nav = async () => {
 	const { config } = await Commerce.contextGet();

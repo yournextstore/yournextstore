@@ -6,7 +6,7 @@ import { useElements } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { Button } from "@/ui/shadcn/button";
-import { setQuantity } from "@/actions/addToCartAction";
+import { setQuantity } from "@/actions/cart-actions";
 import { formatMoney } from "@/lib/utils";
 
 export const CartItemQuantity = ({
