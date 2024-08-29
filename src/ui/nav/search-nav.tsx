@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { SearchIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { SearchInput, SearchInputPlaceholder } from "@/ui/nav/SearchInput.client";
+import { SearchInput, SearchInputPlaceholder } from "@/ui/nav/search-input.client";
 
 export const SearchNav = async () => {
 	const t = await getTranslations("Global.nav.search");

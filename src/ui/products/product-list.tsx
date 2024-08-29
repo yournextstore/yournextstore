@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { getLocale } from "next-intl/server";
 import type * as Commerce from "commerce-kit";
-import { JsonLd, mappedProductsToJsonLd } from "@/ui/JsonLd";
-import { YnsLink } from "@/ui/YnsLink";
+import { JsonLd, mappedProductsToJsonLd } from "@/ui/json-ld";
+import { YnsLink } from "@/ui/yns-link";
 import { formatMoney } from "@/lib/utils";
 
 export const ProductList = async ({ products }: { products: Commerce.MappedProduct[] }) => {

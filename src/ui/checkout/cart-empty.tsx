@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { YnsLink } from "@/ui/YnsLink";
+import { YnsLink } from "@/ui/yns-link";
 
 export async function CartEmpty() {
 	const t = await getTranslations("/cart.empty");

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CartAsideDrawer } from "./CartAsideDrawer";
+import { CartAsideDrawer } from "./cart-aside-drawer";
 
 export const CartAsideContainer = ({
 	children,
