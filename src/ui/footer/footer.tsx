@@ -1,28 +1,56 @@
 import { type SVGAttributes } from "react";
 import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
 import { YnsLink } from "@/ui/yns-link";
 import { Newsletter } from "@/ui/footer/newsletter.client";
 
+const sections = [
+	{
+		header: "Products",
+		links: [
+			{
+				label: "Apparel",
+				href: "/category/apparel",
+			},
+			{
+				label: "Accessories",
+				href: "/category/accessories",
+			},
+		],
+	},
+	{
+		header: "Support",
+		links: [
+			{
+				label: "Features",
+				href: "https://yournextstore.com/#features",
+			},
+			{
+				label: "Pricing",
+				href: "https://yournextstore.com/#pricing",
+			},
+			{
+				label: "Contact Us",
+				href: "mailto:hi@yournextstore.com",
+			},
+		],
+	},
+];
+
 export async function Footer() {
 	const t = await getTranslations("Global.footer");
-
-	const { config } = await Commerce.contextGet();
 
 	return (
 		<footer className="w-full bg-neutral-50 p-6 text-neutral-800 md:py-12">
 			<div className="container flex max-w-7xl flex-row flex-wrap justify-center gap-16 text-sm sm:justify-between">
 				<div className="">
-					{config.footer.newsletter.show && (
-						<div className="flex w-full max-w-sm flex-col gap-2">
-							<h3 className="font-semibold">{t("newsletterTitle")}</h3>
-							<Newsletter />
-						</div>
-					)}
+					<div className="flex w-full max-w-sm flex-col gap-2">
+						<h3 className="font-semibold">{t("newsletterTitle")}</h3>
+						<Newsletter />
+					</div>
 				</div>
 
 				<nav className="grid grid-cols-2 gap-16">
-					{config.footer.sections.map((section) => (
+					{sections.map((section) => (
 						<section key={section.header}>
 							<h3 className="mb-2 font-semibold">{section.header}</h3>
 							<ul role="list" className="grid gap-1">
@@ -40,27 +68,25 @@ export async function Footer() {
 			</div>
 			<div className="container mt-8 flex max-w-7xl flex-col items-center justify-between gap-4 text-sm text-neutral-500 md:flex-row">
 				<div>
-					<p>© 2024 {config.footer.name}</p>
-					<p>{config.footer.tagline}</p>
+					<p>© 2024 Your Next Store</p>
+					<p>Delightfully commerce for everyone</p>
 				</div>
-				{config.footer.credits && (
-					<div className="flex items-center gap-4">
-						<YnsLink
-							className="inline-flex items-center gap-1 transition-colors hover:text-neutral-700"
-							href="https://x.com/zaiste"
-						>
-							<TwitterIcon className="h-4 w-4" /> @zaiste
-							<span className="sr-only">Twitter</span>
-						</YnsLink>
-						<YnsLink
-							className="inline-flex items-center gap-1 transition-colors hover:text-neutral-700"
-							href="https://x.com/typeofweb"
-						>
-							<TwitterIcon className="h-4 w-4" /> @typeofweb
-							<span className="sr-only">Twitter</span>
-						</YnsLink>
-					</div>
-				)}
+				<div className="flex items-center gap-4">
+					<YnsLink
+						className="inline-flex items-center gap-1 transition-colors hover:text-neutral-700"
+						href="https://x.com/zaiste"
+					>
+						<TwitterIcon className="h-4 w-4" /> @zaiste
+						<span className="sr-only">Twitter</span>
+					</YnsLink>
+					<YnsLink
+						className="inline-flex items-center gap-1 transition-colors hover:text-neutral-700"
+						href="https://x.com/typeofweb"
+					>
+						<TwitterIcon className="h-4 w-4" /> @typeofweb
+						<span className="sr-only">Twitter</span>
+					</YnsLink>
+				</div>
 			</div>
 		</footer>
 	);
