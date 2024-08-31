@@ -1,0 +1,192 @@
+{
+	"Global": {
+		"metadata": {
+			"title": "Your Next Store - Demo",
+			"description": "Ein Next.js- Grundgerüst für den sofortigen Aufbau Ihres Online-Shops: einfach, schnell, leistungsstark."
+		},
+		"notFound": {
+			"title": "Nicht gefunden",
+			"description": "Die gesuchte Seite existiert nicht.",
+			"goBackLink": "Zur Startseite"
+		},
+		"globalError": {
+			"title": "Etwas ist schiefgelaufen!",
+			"moreDetails": "Weitere Infos",
+			"tryAgainButton": "Erneut versuchen"
+		},
+		"error": {
+			"title": "Ups, etwas ist schiefgelaufen!",
+			"goBackLink": "Erneut versuchen"
+		},
+		"footer": {
+			"newsletterTitle": "Abonniere unseren Newsletter",
+			"categoriesTitle": "Produkte"
+		},
+		"newsletter": {
+			"emailPlaceholder": "Gib deine E-Mail-Adresse ein",
+			"subscribeButton": "Abonnieren",
+			"success": "Du hast den Newsletter abonniert.",
+			"error": "Beim Abonnieren des Newsletters ist ein Fehler aufgetreten."
+		},
+		"nav": {
+			"search": {
+				"title": "Suche",
+				"placeholder": "Suche nach Produkten..."
+			},
+			"cartSummary": {
+				"itemsInCart": "Produkte im Warenkorb",
+				"total": "Gesamt",
+				"totalItems": "{count, plural, =0 {Keine Produkte} =1 {# Produkt} other {# Produkte}} im Warenkorb"
+			}
+		},
+		"addToCart": {
+			"success": "{productName} zum Warenkorb hinzugefügt",
+			"actionButton": "In den Warenkorb"
+		},
+		"deliveryEstimates": {
+			"atLeast": "Mindestens",
+			"upTo": "Bis zu",
+			"businessDay": "{count, plural, =1 {# Werktag} other {# Werktage}}",
+			"day": "{count, plural, =1 {# Tag} other {# Tage}}",
+			"hour": "{count, plural, =1 {# Stunde} other {# Stunden}}",
+			"month": "{count, plural, =1 {# Monat} other {# Monate}}",
+			"week": "{count, plural, =1 {# Woche} other {# Wochen}}"
+		}
+	},
+	"/": {
+		"hero": {
+			"title": "Entdecke unsere kuratierte Kollektion",
+			"description": "Entdecke unsere sorgfältig ausgewählten Produkte für Dein Zuhause und Deinen Lifestyle.",
+			"action": "Jetzt einkaufen",
+			"link": "/category/accessories"
+		}
+	},
+	"/search": {
+		"notFound": {
+			"title": "Keine Ergebnisse für \"{query}\"",
+			"description": "Wir konnten keine passenden Produkte für Deine Suche finden. Überprüfe die Rechtschreibung oder verwende allgemeinere Begriffe."
+		},
+		"metadata": {
+			"title": "Suche: {query} · Your Next Store"
+		},
+		"page": {
+			"title": "Suche nach \"{query}\""
+		},
+		"loading": {
+			"title": "Suche nach"
+		}
+	},
+	"/products": {
+		"metadata": {
+			"title": "Alle Produkte · Your Next Store"
+		},
+		"page": {
+			"title": "Alle Produkte"
+		}
+	},
+	"/product": {
+		"metadata": {
+			"title": "{productName} · Your Next Store"
+		},
+		"page": {
+			"allProducts": "Alle Produkte",
+			"imagesTitle": "Bilder",
+			"descriptionTitle": "Bescheibung",
+			"variantTitle": "Varianten"
+		}
+	},
+	"/category": {
+		"metadata": {
+			"title": "{categoryName} Kategorie · Your Next Store"
+		},
+		"page": {
+			"title": "Kategorie: {categoryName}"
+		}
+	},
+	"/cart": {
+		"modal": {
+			"title": "Warenkorb",
+			"openFullView": "(Vollansicht öffnen)",
+			"quantity": "Anzahl: {quantity}",
+			"total": "Gesamt",
+			"shippingAndTaxesInfo": "Die Versandkosten und Steuern werden im nächsten Schritt hinzugefügt.",
+			"goToPaymentButton": "Weiter zur Bezahlung"
+		},
+		"metadata": {
+			"title": "Warenkorb · Your Next Store"
+		},
+		"page": {
+			"title": "Dein Warenkorb",
+			"checkoutTitle": "Zur Kasse",
+			"checkoutDescription": "Geben Sie unten die Rechnungs- und Versanddaten an.",
+			"summaryTable": {
+				"imageCol": "Bild",
+				"productCol": "Produkt",
+				"priceCol": "Preis",
+				"quantityCol": "Anzahl",
+				"totalCol": "Gesamt",
+				"totalSummary": "GESAMT"
+			},
+			"stripePayment": {
+				"fillRequiredFields": "Bitte fülle alle benötigten Felder aus.",
+				"unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+				"billingSameAsShipping": "Gleiche Rechnungsadresse wie Lieferadresse",
+				"billingAddressTitle": "Rechnungsadresse",
+				"payNowButton": "Jetzt bezahlen",
+				"errorTitle": "Fehler",
+				"fullName": "Vor- und Nachname",
+				"address1": "Adresse 1",
+				"address2": "Adresse 2 (optional)",
+				"postalCode": "PLZ",
+				"city": "Wohnort",
+				"state": "Bundesland",
+				"country": "Land",
+				"phone": "Telefonnummer",
+				"taxId": "Steuer-ID",
+				"taxIdPlaceholder": "eg. DE123456789"
+			},
+			"formErrors": {
+				"nameRequired": "Der Name ist notwendig",
+				"cityRequired": "Der Wohnort ist notwendig",
+				"countryRequired": "Das Land ist notwendig",
+				"line1Required": "Die Adresse ist notwendig",
+				"postalCodeRequired": "Die PLZ ist notwendig"
+			}
+		},
+		"empty": {
+			"title": "Dein Warenkorb ist leer",
+			"description": "Bis jetzt hast Du noch keine Produkte in den Warenkorb gelegt.",
+			"continueShoppingButton": "Weiter einkaufen"
+		}
+	},
+	"/order": {
+		"metadata": {
+			"title": "Bestellbestätigung · Your Next Store"
+		},
+		"page": {
+			"title": "Bestellbestätigung",
+			"description": "Vielen Dank. Du findest die Bestelldetails unten.",
+			"orderNumberTitle": "Auftragsnummer",
+			"productsTitle": "Produkte in dieser Bestellung",
+			"price": "Preis",
+			"quantity": "Menge",
+			"total": "Gesamt",
+			"detailsTitle": "Bestelldetails",
+			"shippingAddress": "Lieferadresse",
+			"billingAddress": "Rechnungsadresse",
+			"taxId": "Steuer-ID",
+			"paymentMethod": "Zahlungsart",
+			"cardBrand": "Kreditkarte",
+			"last4CardDigitsLabel": "Kreditkarte endet mit"
+		},
+		"paymentStatus": {
+			"canceled": "Abgebrochen",
+			"processing": "Bearbeitung",
+			"requires_action": "Erfordert eine Aktion",
+			"requires_capture": "Erdordert Erfassung",
+			"requires_confirmation": "Erfordert Bestätigung",
+			"requires_payment_method": "Erfordert Zahlungsart",
+			"succeeded": "Erfolgreich"
+		}
+	}
+}
