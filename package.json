@@ -14,7 +14,7 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.0-canary.132",
+		"@next/mdx": "15.0.0-canary.138",
 		"@radix-ui/react-checkbox": "1.1.1",
 		"@radix-ui/react-collapsible": "1.1.0",
 		"@radix-ui/react-dialog": "1.1.1",
@@ -41,10 +41,10 @@
 		"clsx": "2.1.1",
 		"cmdk": "0.2.1",
 		"commerce-kit": "0.0.21",
-		"lucide-react": "0.436.0",
+		"lucide-react": "0.438.0",
 		"nanoid": "5.0.7",
-		"next": "15.0.0-canary.132",
-		"next-intl": "3.18.1",
+		"next": "15.0.0-canary.138",
+		"next-intl": "3.19.0",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
 		"react": "19.0.0-rc-f90a6bcc-20240827",
@@ -62,7 +62,7 @@
 		"@commitlint/cli": "19.4.1",
 		"@commitlint/config-conventional": "19.4.1",
 		"@commitlint/types": "19.0.3",
-		"@next/env": "15.0.0-canary.132",
+		"@next/env": "15.0.0-canary.138",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -74,7 +74,7 @@
 		"@testing-library/jest-dom": "6.5.0",
 		"@testing-library/react": "16.0.1",
 		"@types/mdx": "2.0.13",
-		"@types/node": "^20.16.2",
+		"@types/node": "^20.16.3",
 		"@types/react": "npm:types-react@19.0.0-rc.1",
 		"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
 		"@typescript-eslint/eslint-plugin": "7.18.0",
@@ -83,7 +83,7 @@
 		"autoprefixer": "10.4.20",
 		"babel-plugin-react-compiler": "0.0.0-experimental-9e9694c-20240827",
 		"eslint": "8.57.0",
-		"eslint-config-next": "15.0.0-canary.132",
+		"eslint-config-next": "15.0.0-canary.138",
 		"eslint-config-prettier": "9.1.0",
 		"eslint-plugin-import": "2.29.1",
 		"eslint-plugin-react-compiler": "0.0.0-experimental-9ed098e-20240725",
@@ -111,7 +111,7 @@
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.0-canary.132",
+				"next": "15.0.0-canary.138",
 				"react": "19.0.0-rc-f90a6bcc-20240827",
 				"react-dom": "19.0.0-rc-f90a6bcc-20240827",
 				"@stripe/stripe-js": "4.1.0"
