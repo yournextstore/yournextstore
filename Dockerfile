@@ -22,8 +22,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Disable Next.js telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+# Uncomment to disable Next.js telemetry
+# ENV NEXT_TELEMETRY_DISABLED 1
 
 # Build the Next.js application
 RUN \
@@ -39,7 +39,8 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
-ENV NEXT_TELEMETRY_DISABLED 1
+# Uncomment to disable Next.js telemetry
+# ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
