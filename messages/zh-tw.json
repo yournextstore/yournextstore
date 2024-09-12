@@ -36,7 +36,7 @@
 			"cartSummary": {
 				"itemsInCart": "購物車商品",
 				"total": "總計",
-                "totalItems": "{count, plural, =0 {購物車是空的} =1 {購物車中有 # 件商品} other {購物車中有 # 件商品}}"
+				"totalItems": "{count, plural, =0 {購物車是空的} =1 {購物車中有 # 件商品} other {購物車中有 # 件商品}}"
 			}
 		},
 		"addToCart": {

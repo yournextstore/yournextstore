@@ -14,7 +14,7 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.0-canary.144",
+		"@next/mdx": "15.0.0-canary.152",
 		"@radix-ui/react-checkbox": "1.1.1",
 		"@radix-ui/react-collapsible": "1.1.0",
 		"@radix-ui/react-dialog": "1.1.1",
@@ -40,15 +40,15 @@
 		"class-variance-authority": "0.7.0",
 		"clsx": "2.1.1",
 		"cmdk": "0.2.1",
-		"commerce-kit": "0.0.21",
-		"lucide-react": "0.439.0",
+		"commerce-kit": "0.0.24",
+		"lucide-react": "0.441.0",
 		"nanoid": "5.0.7",
-		"next": "15.0.0-canary.144",
+		"next": "15.0.0-canary.152",
 		"next-intl": "3.19.1",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
-		"react": "19.0.0-rc-f90a6bcc-20240827",
-		"react-dom": "19.0.0-rc-f90a6bcc-20240827",
+		"react": "19.0.0-rc-d6cb4e77-20240911",
+		"react-dom": "19.0.0-rc-d6cb4e77-20240911",
 		"schema-dts": "1.1.2",
 		"server-only": "0.0.1",
 		"sonner": "1.5.0",
@@ -59,10 +59,10 @@
 		"zod": "3.23.8"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "19.4.1",
-		"@commitlint/config-conventional": "19.4.1",
-		"@commitlint/types": "19.0.3",
-		"@next/env": "15.0.0-canary.144",
+		"@commitlint/cli": "19.5.0",
+		"@commitlint/config-conventional": "19.5.0",
+		"@commitlint/types": "19.5.0",
+		"@next/env": "15.0.0-canary.152",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -81,9 +81,9 @@
 		"@typescript-eslint/parser": "7.18.0",
 		"@vitejs/plugin-react": "4.3.1",
 		"autoprefixer": "10.4.20",
-		"babel-plugin-react-compiler": "0.0.0-experimental-9e9694c-20240827",
+		"babel-plugin-react-compiler": "0.0.0-experimental-fe484b5-20240911",
 		"eslint": "8.57.0",
-		"eslint-config-next": "15.0.0-canary.144",
+		"eslint-config-next": "15.0.0-canary.152",
 		"eslint-config-prettier": "9.1.0",
 		"eslint-plugin-import": "2.30.0",
 		"eslint-plugin-react-compiler": "0.0.0-experimental-9ed098e-20240725",
@@ -96,10 +96,10 @@
 		"semantic-release": "24.1.0",
 		"sharp": "0.33.5",
 		"tailwindcss": "3.4.10",
-		"tsx": "4.19.0",
-		"typescript": "5.5.4",
+		"tsx": "4.19.1",
+		"typescript": "5.6.2",
 		"vite-tsconfig-paths": "5.0.1",
-		"vitest": "2.0.5"
+		"vitest": "2.1.0"
 	},
 	"pnpm": {
 		"overrides": {
@@ -111,7 +111,7 @@
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.0-canary.144",
+				"next": "15.0.0-canary.152",
 				"react": "19.0.0-rc-f90a6bcc-20240827",
 				"react-dom": "19.0.0-rc-f90a6bcc-20240827",
 				"@stripe/stripe-js": "4.1.0"

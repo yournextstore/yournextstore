@@ -36,7 +36,7 @@
 			"cartSummary": {
 				"itemsInCart": "购物车商品",
 				"total": "总计",
-                "totalItems": "{count, plural, =0 {购物车为空} =1 {购物车中有 # 件商品} other {购物车中有 # 件商品}}"
+				"totalItems": "{count, plural, =0 {购物车为空} =1 {购物车中有 # 件商品} other {购物车中有 # 件商品}}"
 			}
 		},
 		"addToCart": {
