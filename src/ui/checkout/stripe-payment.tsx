@@ -73,6 +73,7 @@ const PaymentForm = ({
 		state: "",
 		phone: "",
 		taxId: "",
+		email: "",
 	});
 
 	const [isBillingAddressPending, debouncedBillingAddress] = useDebouncedValue(
@@ -235,6 +236,7 @@ const PaymentForm = ({
 						state: e.value.address.state ?? null,
 						phone: e.value.phone ?? null,
 						taxId: "",
+						email: "",
 					});
 				}}
 				onReady={() => setIsAddressReady(true)}
