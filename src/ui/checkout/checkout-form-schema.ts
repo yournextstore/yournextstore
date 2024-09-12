@@ -17,7 +17,7 @@ export const getAddressSchema = (tr: {
 		state: string().optional().nullable().default(""),
 		phone: string().optional().nullable().default(""),
 		taxId: string().optional().nullable().default(""),
-		// email: string({ required_error: "Email is required" })
+		email: string().optional().nullable().default(""),
 		// 	.email("Email is required")
 		// 	.min(1, "Email is required"),
 	});
