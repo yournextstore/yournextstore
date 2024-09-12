@@ -10,6 +10,7 @@ const withMDX = MDX();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: true,
+	output: process.env.DOCKER ? "standalone" : undefined,
 	logging: {
 		fetches: {
 			fullUrl: true,
