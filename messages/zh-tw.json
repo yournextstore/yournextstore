@@ -1,0 +1,193 @@
+{
+	"Global": {
+		"metadata": {
+			"title": "Your Next Store - 示範",
+			"description": "一個快速構建線上商店的 Next.js 模板：簡單、快速、強大。"
+		},
+		"notFound": {
+			"title": "找不到頁面",
+			"description": "您尋找的頁面不存在。",
+			"goBackLink": "返回首頁"
+		},
+		"globalError": {
+			"title": "發生錯誤！",
+			"moreDetails": "更多詳情",
+			"tryAgainButton": "重試"
+		},
+		"error": {
+			"title": "喔，不好意思，出了一點問題！",
+			"goBackLink": "重試"
+		},
+		"footer": {
+			"newsletterTitle": "訂閱我們",
+			"categoriesTitle": "產品"
+		},
+		"newsletter": {
+			"emailPlaceholder": "輸入您的電子郵件",
+			"subscribeButton": "訂閱",
+			"success": "訂閱成功。",
+			"error": "訂閱失敗。"
+		},
+		"nav": {
+			"search": {
+				"title": "搜尋",
+				"placeholder": "搜尋產品…"
+			},
+			"cartSummary": {
+				"itemsInCart": "購物車商品",
+				"total": "總計",
+                "totalItems": "{count, plural, =0 {購物車是空的} =1 {購物車中有 # 件商品} other {購物車中有 # 件商品}}"
+			}
+		},
+		"addToCart": {
+			"success": "{productName}已加入購物車",
+			"actionButton": "加入購物車",
+			"disabled": "缺貨"
+		},
+		"deliveryEstimates": {
+			"atLeast": "至少",
+			"upTo": "最多",
+			"businessDay": "{count, plural, =1 {# 個工作天} other {# 個工作天}}",
+			"day": "{count, plural, =1 {# 天} other {# 天}}",
+			"hour": "{count, plural, =1 {# 小時} other {# 小時}}",
+			"month": "{count, plural, =1 {# 個月} other {# 個月}}",
+			"week": "{count, plural, =1 {# 週} other {# 週}}"
+		}
+	},
+	"/": {
+		"hero": {
+			"title": "探索精選系列",
+			"description": "探索我們精心挑選的家居和生活產品。",
+			"action": "立即選購",
+			"link": "/category/accessories"
+		}
+	},
+	"/search": {
+		"notFound": {
+			"title": "沒有與 \"{query}\" 相關的結果",
+			"description": "抱歉，我們找不到與您的搜尋匹配的結果。請嘗試優化您的搜尋條件。"
+		},
+		"metadata": {
+			"title": "搜尋：{query} · Your Next Store"
+		},
+		"page": {
+			"title": "搜尋 \"{query}\""
+		},
+		"loading": {
+			"title": "搜尋中"
+		}
+	},
+	"/products": {
+		"metadata": {
+			"title": "所有產品 · Your Next Store"
+		},
+		"page": {
+			"title": "所有產品"
+		}
+	},
+	"/product": {
+		"metadata": {
+			"title": "{productName} · Your Next Store"
+		},
+		"page": {
+			"allProducts": "所有產品",
+			"imagesTitle": "圖片",
+			"descriptionTitle": "描述",
+			"variantTitle": "變體"
+		}
+	},
+	"/category": {
+		"metadata": {
+			"title": "{categoryName} 類別 · Your Next Store"
+		},
+		"page": {
+			"title": "類別：{categoryName}"
+		}
+	},
+	"/cart": {
+		"modal": {
+			"title": "購物車",
+			"openFullView": "（展開完整視圖）",
+			"quantity": "數量：{quantity}",
+			"total": "總計",
+			"shippingAndTaxesInfo": "運費和稅金將在下一步添加",
+			"goToPaymentButton": "前往付款"
+		},
+		"metadata": {
+			"title": "購物車 · Your Next Store"
+		},
+		"page": {
+			"title": "您的購物車",
+			"checkoutTitle": "結帳",
+			"checkoutDescription": "請在下方提供帳單和送貨詳細資訊。",
+			"summaryTable": {
+				"imageCol": "圖片",
+				"productCol": "產品",
+				"priceCol": "價格",
+				"quantityCol": "數量",
+				"totalCol": "總計",
+				"totalSummary": "總計"
+			},
+			"stripePayment": {
+				"fillRequiredFields": "請填寫必填欄位。",
+				"unexpectedError": "發生了意外錯誤。",
+				"billingSameAsShipping": "帳單地址與送貨地址相同",
+				"billingAddressTitle": "帳單地址",
+				"payNowButton": "立即支付",
+				"errorTitle": "錯誤",
+				"fullName": "全名",
+				"address1": "地址",
+				"address2": "地址（第二行）",
+				"postalCode": "郵遞區號",
+				"city": "城市",
+				"state": "省份/地區",
+				"country": "國家",
+				"phone": "電話號碼",
+				"taxId": "稅號",
+				"taxIdPlaceholder": "例如：PL123456789"
+			},
+			"formErrors": {
+				"nameRequired": "姓名是必填項",
+				"cityRequired": "城市是必填項",
+				"countryRequired": "國家是必填項",
+				"line1Required": "地址是必填項",
+				"postalCodeRequired": "郵遞區號是必填項"
+			}
+		},
+		"empty": {
+			"title": "您的購物車是空的",
+			"description": "看起來您還沒有向購物車添加任何商品。",
+			"continueShoppingButton": "繼續購物"
+		}
+	},
+	"/order": {
+		"metadata": {
+			"title": "訂單確認 · Your Next Store"
+		},
+		"page": {
+			"title": "訂單確認",
+			"description": "謝謝您！您可以在下方找到您的訂單詳細資訊。",
+			"orderNumberTitle": "訂單號",
+			"productsTitle": "此訂單中的產品",
+			"price": "價格",
+			"quantity": "數量",
+			"total": "總計",
+			"detailsTitle": "訂單詳情",
+			"shippingAddress": "送貨地址",
+			"billingAddress": "帳單地址",
+			"taxId": "稅號",
+			"paymentMethod": "支付方式",
+			"cardBrand": "支付卡品牌",
+			"last4CardDigitsLabel": "卡號末四位"
+		},
+		"paymentStatus": {
+			"canceled": "已取消",
+			"processing": "處理中",
+			"requires_action": "需要操作",
+			"requires_capture": "需要扣款",
+			"requires_confirmation": "需要確認",
+			"requires_payment_method": "需要支付方式",
+			"succeeded": "已成功"
+		}
+	}
+}

@@ -1,0 +1,193 @@
+{
+	"Global": {
+		"metadata": {
+			"title": "Your Next Store - デモ",
+			"description": "オンラインストアを瞬時に構築するためのNext.jsボイラープレート：シンプル、迅速、強力。"
+		},
+		"notFound": {
+			"title": "見つかりません",
+			"description": "お探しのページは存在しません。",
+			"goBackLink": "ホームに戻る"
+		},
+		"globalError": {
+			"title": "問題が発生しました！",
+			"moreDetails": "詳細",
+			"tryAgainButton": "再試行"
+		},
+		"error": {
+			"title": "おっと、問題が発生しました！",
+			"goBackLink": "再試行"
+		},
+		"footer": {
+			"newsletterTitle": "ニュースレターを購読する",
+			"categoriesTitle": "製品"
+		},
+		"newsletter": {
+			"emailPlaceholder": "メールアドレスを入力",
+			"subscribeButton": "購読",
+			"success": "ニュースレターの購読に成功しました。",
+			"error": "ニュースレターの購読に失敗しました。"
+		},
+		"nav": {
+			"search": {
+				"title": "検索",
+				"placeholder": "製品を検索…"
+			},
+			"cartSummary": {
+				"itemsInCart": "カートのアイテム",
+				"total": "合計",
+				"totalItems": "{count, plural, =0 {アイテムなし} =1 {# アイテム} other {# アイテム}} カート内"
+			}
+		},
+		"addToCart": {
+			"success": "{productName}をカートに追加しました",
+			"actionButton": "カートに追加",
+			"disabled": "在庫切れ"
+		},
+		"deliveryEstimates": {
+			"atLeast": "少なくとも",
+			"upTo": "最大",
+			"businessDay": "{count, plural, =1 {# 営業日} other {# 営業日}}",
+			"day": "{count, plural, =1 {# 日} other {# 日}}",
+			"hour": "{count, plural, =1 {# 時間} other {# 時間}}",
+			"month": "{count, plural, =1 {# ヶ月} other {# ヶ月}}",
+			"week": "{count, plural, =1 {# 週間} other {# 週間}}"
+		}
+	},
+	"/": {
+		"hero": {
+			"title": "厳選されたコレクションを発見",
+			"description": "家庭やライフスタイルのために慎重に選ばれた製品を探る。",
+			"action": "今すぐ購入",
+			"link": "/category/accessories"
+		}
+	},
+	"/search": {
+		"notFound": {
+			"title": "\"{query}\"の結果は見つかりませんでした",
+			"description": "申し訳ありませんが、検索クエリに一致する結果が見つかりませんでした。検索条件を変更してみてください"
+		},
+		"metadata": {
+			"title": "検索: {query} · Your Next Store"
+		},
+		"page": {
+			"title": "\"{query}\"を検索中"
+		},
+		"loading": {
+			"title": "検索中"
+		}
+	},
+	"/products": {
+		"metadata": {
+			"title": "すべての製品 · Your Next Store"
+		},
+		"page": {
+			"title": "すべての製品"
+		}
+	},
+	"/product": {
+		"metadata": {
+			"title": "{productName} · Your Next Store"
+		},
+		"page": {
+			"allProducts": "すべての製品",
+			"imagesTitle": "画像",
+			"descriptionTitle": "説明",
+			"variantTitle": "バリアント"
+		}
+	},
+	"/category": {
+		"metadata": {
+			"title": "{categoryName}カテゴリー · Your Next Store"
+		},
+		"page": {
+			"title": "カテゴリー: {categoryName}"
+		}
+	},
+    "/cart": {
+		"modal": {
+			"title": "ショッピングカート",
+			"openFullView": "（全体を見る）",
+			"quantity": "数量: {quantity}",
+			"total": "合計",
+			"shippingAndTaxesInfo": "送料と税金は次のステップで追加されます",
+			"goToPaymentButton": "支払いに進む"
+		},
+		"metadata": {
+			"title": "ショッピングカート · Your Next Store"
+		},
+		"page": {
+			"title": "あなたのカート",
+			"checkoutTitle": "チェックアウト",
+			"checkoutDescription": "以下に請求先と配送先の詳細を入力してください。",
+			"summaryTable": {
+				"imageCol": "画像",
+			"productCol": "製品",
+				"priceCol": "価格",
+				"quantityCol": "数量",
+				"totalCol": "合計",
+				"totalSummary": "合計"
+			},
+			"stripePayment": {
+				"fillRequiredFields": "必須項目を入力してください。",
+				"unexpectedError": "予期しないエラーが発生しました。",
+				"billingSameAsShipping": "請求先住所は配送先住所と同じ",
+				"billingAddressTitle": "請求先住所",
+				"payNowButton": "今すぐ支払う",
+				"errorTitle": "エラー",
+				"fullName": "氏名",
+				"address1": "住所",
+				"address2": "住所（続き）",
+				"postalCode": "郵便番号",
+				"city": "市区町村",
+				"state": "都道府県",
+				"country": "国",
+				"phone": "電話番号",
+				"taxId": "税番号",
+				"taxIdPlaceholder": "例：T1234567890123"
+			},
+			"formErrors": {
+				"nameRequired": "名前は必須です",
+				"cityRequired": "市区町村は必須です",
+				"countryRequired": "国は必須です",
+				"line1Required": "住所は必須です",
+                "postalCodeRequired": "郵便番号は必須です"
+			}
+		},
+		"empty": {
+			"title": "カートは空です",
+			"description": "カートに商品がまだ追加されていないようです。",
+			"continueShoppingButton": "ショッピングを続ける"
+		}
+	},
+	"/order": {
+		"metadata": {
+			"title": "注文確認 · Your Next Store"
+		},
+		"page": {
+			"title": "注文確認",
+			"description": "ありがとうございます！以下に注文の詳細が表示されます。",
+			"orderNumberTitle": "注文番号",
+			"productsTitle": "この注文の製品",
+			"price": "価格",
+			"quantity": "数量",
+			"total": "合計",
+			"detailsTitle": "注文詳細",
+			"shippingAddress": "配送先住所",
+			"billingAddress": "請求先住所",
+			"taxId": "税番号",
+			"paymentMethod": "支払い方法",
+			"cardBrand": "カード会社",
+			"last4CardDigitsLabel": "カード番号（末尾4桁）"
+		},
+		"paymentStatus": {
+			"canceled": "キャンセル済み",
+			"processing": "処理中",
+			"requires_action": "アクションが必要です",
+			"requires_capture": "キャプチャが必要です",
+			"requires_confirmation": "確認が必要です",
+			"requires_payment_method": "支払い方法が必要です",
+			"succeeded": "成功しました"
+		}
+	}
+}
