@@ -64,14 +64,14 @@
 	},
 	"/search": {
 		"notFound": {
-			"title": "没有与\"{query}\"相关的结果",
+			"title": "没有与 \"{query}\" 相关的结果",
 			"description": "抱歉，我们找不到与您的搜索匹配的结果。请尝试优化您的搜索条件。"
 		},
 		"metadata": {
 			"title": "搜索：{query} · Your Next Store"
 		},
 		"page": {
-			"title": "搜索\"{query}\""
+			"title": "搜索 \"{query}\""
 		},
 		"loading": {
 			"title": "搜索中"
@@ -187,7 +187,7 @@
 			"requires_capture": "需要扣款",
 			"requires_confirmation": "需要确认",
 			"requires_payment_method": "需要支付方式",
-			"succeeded": "已成功"
+			"succeeded": "成功"
 		}
 	}
 }
