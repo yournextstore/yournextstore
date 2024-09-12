@@ -65,7 +65,7 @@
 	"/search": {
 		"notFound": {
 			"title": "\"{query}\"の結果は見つかりませんでした",
-			"description": "申し訳ありませんが、検索クエリに一致する結果が見つかりませんでした。検索条件を絞り込んでください。"
+			"description": "申し訳ありませんが、検索クエリに一致する結果が見つかりませんでした。検索条件を変更してみてください"
 		},
 		"metadata": {
 			"title": "検索: {query} · Your Next Store"
@@ -144,7 +144,7 @@
 				"country": "国",
 				"phone": "電話番号",
 				"taxId": "税番号",
-				"taxIdPlaceholder": "例：PL123456789"
+				"taxIdPlaceholder": "例：T1234567890123"
 			},
 			"formErrors": {
 				"nameRequired": "名前は必須です",
@@ -177,7 +177,7 @@
 			"billingAddress": "請求先住所",
 			"taxId": "税番号",
 			"paymentMethod": "支払い方法",
-			"cardBrand": "カードブランド",
+			"cardBrand": "カード会社",
 			"last4CardDigitsLabel": "カード番号（末尾4桁）"
 		},
 		"paymentStatus": {
