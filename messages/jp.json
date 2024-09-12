@@ -104,7 +104,7 @@
 			"title": "カテゴリー: {categoryName}"
 		}
 	},
-    "/cart": {
+	"/cart": {
 		"modal": {
 			"title": "ショッピングカート",
 			"openFullView": "（全体を見る）",
@@ -122,7 +122,7 @@
 			"checkoutDescription": "以下に請求先と配送先の詳細を入力してください。",
 			"summaryTable": {
 				"imageCol": "画像",
-			"productCol": "製品",
+				"productCol": "製品",
 				"priceCol": "価格",
 				"quantityCol": "数量",
 				"totalCol": "合計",
@@ -151,7 +151,7 @@
 				"cityRequired": "市区町村は必須です",
 				"countryRequired": "国は必須です",
 				"line1Required": "住所は必須です",
-                "postalCodeRequired": "郵便番号は必須です"
+				"postalCodeRequired": "郵便番号は必須です"
 			}
 		},
 		"empty": {
