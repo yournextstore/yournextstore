@@ -174,7 +174,12 @@ Your Next Store 集成了 Stripe 税务的预览功能。要启用它，请将 `
 
 ### Docker
 
-即将发布。
+要在 Docker 上部署，请参照以下步骤：
+
+1. 复制本仓库到一个空白文件夹中，并按[此处描述](#add-environment-variables)在仓库中创建 .env 文件
+2. 在 .env 文件中设置变量 DOCKER=1
+3. 运行 `pnpm run docker:build`
+4. 然后，运行 `pnpm run docker:run` 启动容器
 
 ## 以上
 
