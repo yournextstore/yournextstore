@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import * as Commerce from "commerce-kit";
 import { clearCartCookie, getCartCookieJson, setCartCookieJson } from "@/lib/cart";
 
@@ -29,7 +29,6 @@ export async function findOrCreateCartIdFromCookiesAction() {
 		linesCount: 0,
 	});
 	revalidateTag(`cart-${newCart.id}`);
-	revalidatePath("/cart");
 
 	return newCart.id;
 }
@@ -44,7 +43,6 @@ export async function clearCartCookieAction() {
 	revalidateTag(`cart-${cookie.id}`);
 	// FIXME not ideal, revalidate per domain instead (multi-tenant)
 	revalidateTag(`admin-orders`);
-	revalidatePath("/cart");
 }
 
 export async function addToCartAction(formData: FormData) {
@@ -65,7 +63,6 @@ export async function addToCartAction(formData: FormData) {
 
 		revalidateTag(`cart-${updatedCart.id}`);
 	}
-	revalidatePath("/cart");
 }
 
 export async function increaseQuantity(productId: string) {
