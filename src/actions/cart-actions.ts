@@ -30,7 +30,6 @@ export async function findOrCreateCartIdFromCookiesAction() {
 	});
 	revalidateTag(`cart-${newCart.id}`);
 	revalidatePath("/cart");
-	revalidatePath("/cart-overlay");
 
 	return newCart.id;
 }
@@ -46,7 +45,6 @@ export async function clearCartCookieAction() {
 	// FIXME not ideal, revalidate per domain instead (multi-tenant)
 	revalidateTag(`admin-orders`);
 	revalidatePath("/cart");
-	revalidatePath("/cart-overlay");
 }
 
 export async function addToCartAction(formData: FormData) {
@@ -68,7 +66,6 @@ export async function addToCartAction(formData: FormData) {
 		revalidateTag(`cart-${updatedCart.id}`);
 	}
 	revalidatePath("/cart");
-	revalidatePath("/cart-overlay");
 }
 
 export async function increaseQuantity(productId: string) {
