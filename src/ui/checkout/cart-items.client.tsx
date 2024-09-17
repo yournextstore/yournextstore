@@ -136,18 +136,18 @@ export const CartAmountWithSpinner = ({ total, currency }: { total: number; curr
 	return (
 		<span
 			className={clsx(
-				"relative",
-				pending ? "cursor-wait tabular-nums text-foreground/50" : "tabular-nums text-foreground",
+				"relative tabular-nums",
+				pending ? "cursor-wait text-foreground/50" : "text-foreground",
 			)}
 		>
+			{pending && (
+				<Loader2 className="absolute -left-[.85rem] top-[.1rem] inline-block size-3 animate-spin text-foreground" />
+			)}
 			{formatMoney({
 				amount: total,
 				currency,
 				locale,
 			})}
-			{pending && (
-				<Loader2 className="absolute top-[.1rem] ml-1 inline-block h-3 w-3 animate-spin text-foreground" />
-			)}
 		</span>
 	);
 };
