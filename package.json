@@ -16,7 +16,7 @@
 		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.0-canary.158",
+		"@next/mdx": "15.0.0-canary.159",
 		"@radix-ui/react-checkbox": "1.1.1",
 		"@radix-ui/react-collapsible": "1.1.0",
 		"@radix-ui/react-dialog": "1.1.1",
@@ -45,12 +45,12 @@
 		"commerce-kit": "0.0.26",
 		"lucide-react": "0.441.0",
 		"nanoid": "5.0.7",
-		"next": "15.0.0-canary.158",
+		"next": "15.0.0-canary.159",
 		"next-intl": "3.19.3",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
-		"react": "19.0.0-rc-a99d8e8d-20240916",
-		"react-dom": "19.0.0-rc-a99d8e8d-20240916",
+		"react": "19.0.0-rc-5dcb0097-20240918",
+		"react-dom": "19.0.0-rc-5dcb0097-20240918",
 		"schema-dts": "1.1.2",
 		"server-only": "0.0.1",
 		"sonner": "1.5.0",
@@ -61,10 +61,11 @@
 		"zod": "3.23.8"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "1.9.2",
 		"@commitlint/cli": "19.5.0",
 		"@commitlint/config-conventional": "19.5.0",
 		"@commitlint/types": "19.5.0",
-		"@next/env": "15.0.0-canary.158",
+		"@next/env": "15.0.0-canary.159",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -79,16 +80,9 @@
 		"@types/node": "^20.16.5",
 		"@types/react": "npm:types-react@19.0.0-rc.1",
 		"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
-		"@typescript-eslint/eslint-plugin": "7.18.0",
-		"@typescript-eslint/parser": "7.18.0",
 		"@vitejs/plugin-react": "4.3.1",
 		"autoprefixer": "10.4.20",
-		"babel-plugin-react-compiler": "0.0.0-experimental-ca8e0be-20240916",
-		"eslint": "8.57.0",
-		"eslint-config-next": "15.0.0-canary.158",
-		"eslint-config-prettier": "9.1.0",
-		"eslint-plugin-import": "2.30.0",
-		"eslint-plugin-react-compiler": "0.0.0-experimental-9ed098e-20240725",
+		"babel-plugin-react-compiler": "0.0.0-experimental-24ec0eb-20240918",
 		"husky": "9.1.6",
 		"lint-staged": "15.2.10",
 		"mdx": "0.3.1",
@@ -106,7 +100,6 @@
 	"pnpm": {
 		"overrides": {
 			"cmdk": "0.2.1",
-			"eslint": "8.57.0",
 			"@types/node": "^20.0.0",
 			"@types/react": "npm:types-react@19.0.0-rc.1",
 			"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"

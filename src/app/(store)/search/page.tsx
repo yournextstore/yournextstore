@@ -1,4 +1,4 @@
-import { type Metadata } from "next/types";
+import type { Metadata } from "next/types";
 import { RedirectType, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ProductList } from "@/ui/products/product-list";

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { type Metadata } from "next/types";
+import type { Metadata } from "next/types";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
 import { Markdown } from "@/ui/markdown";

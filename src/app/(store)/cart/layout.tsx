@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";

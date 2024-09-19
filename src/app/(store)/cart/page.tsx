@@ -1,4 +1,4 @@
-import { type Metadata } from "next/types";
+import type { Metadata } from "next/types";
 import { getTranslations } from "next-intl/server";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import { CheckoutCard } from "@/ui/checkout/checkout-card";

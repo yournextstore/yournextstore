@@ -1,11 +1,5 @@
 import type Stripe from "stripe";
-import {
-	type WebSite,
-	type ItemList,
-	type Product,
-	type Thing,
-	type WithContext,
-} from "schema-dts";
+import type { WebSite, ItemList, Product, Thing, WithContext } from "schema-dts";
 import type * as Commerce from "commerce-kit";
 import { getDecimalFromStripeAmount } from "commerce-kit/currencies";
 import { formatProductName } from "@/lib/utils";
