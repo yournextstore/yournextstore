@@ -1,4 +1,4 @@
-import { type Metadata } from "next/types";
+import type { Metadata } from "next/types";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
