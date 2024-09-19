@@ -3,11 +3,9 @@
 import Path from "node:path";
 
 const buildEslintCommand = (filenames) =>
-	`next lint --fix --file ${filenames
-		.map((f) => Path.relative(process.cwd(), f))
-		.join(" --file ")}`;
+	`biome lint --write ${filenames.map((f) => Path.relative(process.cwd(), f)).join(" ")}`;
 
 export default {
 	"*.{js,mjs,jsx,ts,tsx}": [buildEslintCommand],
-	"*.*": "prettier --write --ignore-unknown",
+	"*.*": "biome format --write",
 };

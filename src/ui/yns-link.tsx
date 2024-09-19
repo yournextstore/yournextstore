@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 export const YnsLink = (props: ComponentPropsWithRef<typeof Link>) => {
 	const router = useRouter();

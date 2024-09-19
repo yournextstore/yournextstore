@@ -1,4 +1,4 @@
-import { type MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import * as Commerce from "commerce-kit";
 import { publicUrl } from "@/env.mjs";
 
