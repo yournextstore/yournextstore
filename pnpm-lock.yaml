@@ -94,8 +94,8 @@ importers:
         specifier: 0.2.1
         version: 0.2.1(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916)(types-react@19.0.0-rc.1)
       commerce-kit:
-        specifier: 0.0.25
-        version: 0.0.25(@neondatabase/serverless@0.9.5)(@types/node@20.16.5)(next@15.0.0-canary.158(@babel/core@7.25.2)(babel-plugin-react-compiler@0.0.0-experimental-ca8e0be-20240916)(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916))(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916)(server-only@0.0.1)(stripe@16.11.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.2)(zod@3.23.8)
+        specifier: 0.0.26
+        version: 0.0.26(@neondatabase/serverless@0.9.5)(@types/node@20.16.5)(next@15.0.0-canary.158(@babel/core@7.25.2)(babel-plugin-react-compiler@0.0.0-experimental-ca8e0be-20240916)(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916))(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916)(server-only@0.0.1)(stripe@16.11.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.2)(zod@3.23.8)
       lucide-react:
         specifier: 0.441.0
         version: 0.441.0(react@19.0.0-rc-a99d8e8d-20240916)
@@ -2469,8 +2469,8 @@ packages:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
 
-  commerce-kit@0.0.25:
-    resolution: {integrity: sha512-TunU+sZi9Yb7lbyJBogo6jZI5jYZnIbfTYCdMoRrJ+WlFoRUmAVAA+X6Rz29TtspYJGEH/IdPBtWhhU0hD2evA==}
+  commerce-kit@0.0.26:
+    resolution: {integrity: sha512-DOm3EBVj+XxdQmQEFCxRxP1wWZXgz20TLsgvYF7uVqt0w1Am2zhQ+xJ/sntCE0KnxuM/IlnztYrvcbBgCgsYww==}
     peerDependencies:
       '@neondatabase/serverless': ^0.9.4
       '@types/node': ^20.0.0
@@ -7772,7 +7772,7 @@ snapshots:
 
   commander@4.1.1: {}
 
-  commerce-kit@0.0.25(@neondatabase/serverless@0.9.5)(@types/node@20.16.5)(next@15.0.0-canary.158(@babel/core@7.25.2)(babel-plugin-react-compiler@0.0.0-experimental-ca8e0be-20240916)(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916))(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916)(server-only@0.0.1)(stripe@16.11.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.2)(zod@3.23.8):
+  commerce-kit@0.0.26(@neondatabase/serverless@0.9.5)(@types/node@20.16.5)(next@15.0.0-canary.158(@babel/core@7.25.2)(babel-plugin-react-compiler@0.0.0-experimental-ca8e0be-20240916)(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916))(react-dom@19.0.0-rc-a99d8e8d-20240916(react@19.0.0-rc-a99d8e8d-20240916))(react@19.0.0-rc-a99d8e8d-20240916)(server-only@0.0.1)(stripe@16.11.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@neondatabase/serverless': 0.9.5
       '@types/node': 20.16.5
