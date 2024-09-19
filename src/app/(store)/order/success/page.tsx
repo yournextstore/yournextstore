@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { type ComponentProps, Fragment } from "react";
-import { type PaymentIntent } from "@stripe/stripe-js";
+import type { PaymentIntent } from "@stripe/stripe-js";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as Commerce from "commerce-kit";
