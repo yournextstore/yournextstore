@@ -93,6 +93,7 @@ https://github.com/yournextstore/.github/assets/200613/01d27f69-00dc-446e-bc81-5
 - `NEXT_PUBLIC_NEWSLETTER_ENDPOINT` – **Preview**: The endpoint for the newsletter form in the future. It should accept POST requests with a JSON `{ email: string }` and return JSON `{ status: number }`.
 - `STRIPE_WEBHOOK_SECRET` – **Preview**: Stripe Webhook secret for handling events from Stripe. Read more below.
 - `ENABLE_STRIPE_TAX` – **Preview**: Set to any value (i.e., `1`) to enable Stripe Tax in YNS. Read more below.
+- `ENABLE_LEGAL_PAGES` - Set to `1` to enable the legal pages. Read more below.
 - `NEXT_PUBLIC_LANGUAGE` - The language of the store.
 
 ## Run the store
@@ -159,6 +160,22 @@ For this feature to work, you must set your Tax settings in Stripe Dashboard: [d
 
 > [!WARNING]
 > This feature is still in the early stage, and there could be edge cases that are not supported. We're actively working on it, so if you encounter any problems or have any suggestions, please let us know!
+
+## Legal Pages
+
+Your Next Store has several legal pages:
+
+- Imprint
+- Privacy Policy
+- Return & Refund Policy
+- Shipping Policy
+- Terms of Service
+
+To enable them, set the `ENABLE_LEGAL_PAGES` environment variable to `1`.
+
+You have to configure them in a `legal-config.json`. Just rename the `legal-config.json.example` and fill in the required values.
+You don't have to provide all values in the `general` section.
+To make a line break, type `\n` in one of the `text` values.
 
 ## Production Deployment
 

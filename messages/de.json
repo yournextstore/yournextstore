@@ -22,6 +22,15 @@
 			"newsletterTitle": "Abonniere unseren Newsletter",
 			"categoriesTitle": "Produkte"
 		},
+		"legal": {
+			"imprintLabel": "Impressum",
+			"privacyPolicyLabel": "Datenschutzerklärung",
+			"termsOfServiceLabel": "Allgemeine Geschäftsbedingungen",
+			"shippingPolicyLabel": "Versandinformationen",
+			"returnRefundPolicyLabel": "Widerrufsbelehrung",
+			"email": "E-Mail:",
+			"telephone": "Telefon:"
+		},
 		"newsletter": {
 			"emailPlaceholder": "Gib deine E-Mail-Adresse ein",
 			"subscribeButton": "Abonnieren",

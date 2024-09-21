@@ -1,0 +1,25 @@
+{
+  "general": {
+    "companyName": "",
+    "address1": "",
+    "address2": "",
+    "address3": "",
+    "email": "",
+    "telephone": ""
+  },
+  "imprint": {
+    "text": ""
+  },
+  "terms_of_service":{
+    "text": ""
+  },
+  "privacy_policy": {
+    "text": ""
+  },
+  "return_refund_policy": {
+    "text": ""
+  },
+  "shipping_policy": {
+    "text": ""
+  }
+}

@@ -3,6 +3,8 @@ src/gql/
 
 .env
 
+legal-config.json
+
 # dependencies
 /node_modules
 /.pnp

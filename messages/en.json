@@ -22,6 +22,15 @@
 			"newsletterTitle": "Subscribe to our newsletter",
 			"categoriesTitle": "Products"
 		},
+		"legal": {
+			"imprintLabel": "Imprint",
+			"privacyPolicyLabel": "Privacy Policy",
+			"termsOfServiceLabel": "Terms of Service",
+			"shippingPolicyLabel": "Shipping Policy",
+			"returnRefundPolicyLabel": "Return & Refund Policy",
+			"email": "E-Mail:",
+			"telephone": "Phone:"
+		},
 		"newsletter": {
 			"emailPlaceholder": "Enter your email",
 			"subscribeButton": "Subscribe",
