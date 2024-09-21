@@ -2,6 +2,9 @@ import type { SVGAttributes } from "react";
 import { getTranslations } from "next-intl/server";
 import { YnsLink } from "@/ui/yns-link";
 import { Newsletter } from "@/ui/footer/newsletter.client";
+import { env } from "@/env.mjs";
+
+const l = await getTranslations("Global.legal");
 
 const sections = [
 	{
@@ -39,6 +42,34 @@ const sections = [
 export async function Footer() {
 	const t = await getTranslations("Global.footer");
 
+	if (env.ENABLE_LEGAL_PAGES === "1") {
+		sections.splice(1, 0, {
+			header: "Legal",
+			links: [
+				{
+					label: l("imprintLabel"),
+					href: "/legal/imprint",
+				},
+				{
+					label: l("privacyPolicyLabel"),
+					href: "/legal/privacy-policy",
+				},
+				{
+					label: l("returnRefundPolicyLabel"),
+					href: "/legal/return-refund-policy",
+				},
+				{
+					label: l("shippingPolicyLabel"),
+					href: "/legal/shipping-policy",
+				},
+				{
+					label: l("termsOfServiceLabel"),
+					href: "/legal/terms-of-service",
+				},
+			],
+		});
+	}
+
 	return (
 		<footer className="w-full bg-neutral-50 p-6 text-neutral-800 md:py-12">
 			<div className="container flex max-w-7xl flex-row flex-wrap justify-center gap-16 text-sm sm:justify-between">
@@ -49,7 +80,9 @@ export async function Footer() {
 					</div>
 				</div>
 
-				<nav className="grid grid-cols-2 gap-16">
+				<nav
+					className={`grid ${env.ENABLE_LEGAL_PAGES === "1" ? "grid-cols-3" : "grid-cols-2"} gap-16`}
+				>
 					{sections.map((section) => (
 						<section key={section.header}>
 							<h3 className="mb-2 font-semibold">{section.header}</h3>

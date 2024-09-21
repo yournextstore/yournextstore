@@ -15,6 +15,8 @@ export const env = createEnv({
 			.string()
 			.optional()
 			.transform((str) => !!str),
+
+		ENABLE_LEGAL_PAGES: z.string().optional().default("0"),
 	},
 	client: {
 		// Can be provided via env or parameters to Commerce Kit, thus optional
@@ -38,6 +40,8 @@ export const env = createEnv({
 		NEXT_PUBLIC_NEWSLETTER_ENDPOINT: process.env.NEXT_PUBLIC_NEWSLETTER_ENDPOINT,
 
 		ENABLE_STRIPE_TAX: process.env.ENABLE_STRIPE_TAX,
+
+		ENABLE_LEGAL_PAGES: process.env.ENABLE_LEGAL_PAGES,
 
 		NEXT_PUBLIC_LANGUAGE: process.env.NEXT_PUBLIC_LANGUAGE,
 	},
