@@ -1,10 +1,8 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import type { Metadata } from "next/types";
-import { getLocale, getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
-import { Markdown } from "@/ui/markdown";
+import { publicUrl } from "@/env.mjs";
+import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
+import { AddToCartButton } from "@/ui/add-to-cart-button";
 import { JsonLd, mappedProductToJsonLd } from "@/ui/json-ld";
+import { Markdown } from "@/ui/markdown";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -13,10 +11,12 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/ui/shadcn/breadcrumb";
-import { AddToCartButton } from "@/ui/add-to-cart-button";
-import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
-import { publicUrl } from "@/env.mjs";
 import { YnsLink } from "@/ui/yns-link";
+import * as Commerce from "commerce-kit";
+import { getLocale, getTranslations } from "next-intl/server";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next/types";
 
 export const generateMetadata = async ({
 	params,

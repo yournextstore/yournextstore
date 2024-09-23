@@ -1,6 +1,6 @@
-import type { MetadataRoute } from "next";
-import * as Commerce from "commerce-kit";
 import { publicUrl } from "@/env.mjs";
+import * as Commerce from "commerce-kit";
+import type { MetadataRoute } from "next";
 
 const Categories = [
 	{ name: "Apparel", slug: "apparel" },
