@@ -1,13 +1,13 @@
-import Image from "next/image";
-import { getTranslations } from "next-intl/server";
-import type { Metadata } from "next/types";
-import * as Commerce from "commerce-kit";
-import { ProductList } from "@/ui/products/product-list";
-import { CategoryBox } from "@/ui/category-box";
+import { publicUrl } from "@/env.mjs";
 import AccessoriesImage from "@/images/accessories.jpg";
 import ApparelImage from "@/images/apparel.jpg";
+import { CategoryBox } from "@/ui/category-box";
+import { ProductList } from "@/ui/products/product-list";
 import { YnsLink } from "@/ui/yns-link";
-import { publicUrl } from "@/env.mjs";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
+import Image from "next/image";
+import type { Metadata } from "next/types";
 
 export const metadata = {
 	alternates: { canonical: publicUrl },

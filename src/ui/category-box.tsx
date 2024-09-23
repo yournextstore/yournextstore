@@ -1,6 +1,6 @@
-import Image, { type ImageProps } from "next/image";
 import { deslugify } from "@/lib/utils";
 import { YnsLink } from "@/ui/yns-link";
+import Image, { type ImageProps } from "next/image";
 
 export function CategoryBox({
 	categorySlug,

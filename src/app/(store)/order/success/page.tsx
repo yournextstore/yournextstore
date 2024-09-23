@@ -1,16 +1,16 @@
-import Image from "next/image";
-import { type ComponentProps, Fragment } from "react";
+import { getCartCookieJson } from "@/lib/cart";
+import { findMatchingCountry } from "@/lib/countries";
+import { formatMoney, formatProductName } from "@/lib/utils";
+import { paymentMethods } from "@/ui/checkout/checkout-card";
+import { ClearCookieClientComponent } from "@/ui/checkout/clear-cookie-client-component";
+import { Markdown } from "@/ui/markdown";
+import { Badge } from "@/ui/shadcn/badge";
 import type { PaymentIntent } from "@stripe/stripe-js";
+import * as Commerce from "commerce-kit";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
-import { Markdown } from "@/ui/markdown";
-import { findMatchingCountry } from "@/lib/countries";
-import { paymentMethods } from "@/ui/checkout/checkout-card";
-import { Badge } from "@/ui/shadcn/badge";
-import { formatMoney, formatProductName } from "@/lib/utils";
-import { getCartCookieJson } from "@/lib/cart";
-import { ClearCookieClientComponent } from "@/ui/checkout/clear-cookie-client-component";
+import Image from "next/image";
+import { type ComponentProps, Fragment } from "react";
 
 export const generateMetadata = async (): Promise<Metadata> => {
 	const t = await getTranslations("/order.metadata");

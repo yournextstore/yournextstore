@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
 import amex from "@/images/payments/amex.svg";
 import blik from "@/images/payments/blik.svg";
 import google_pay from "@/images/payments/google_pay.svg";
@@ -9,6 +7,8 @@ import mastercard from "@/images/payments/mastercard.svg";
 import p24 from "@/images/payments/p24.svg";
 import visa from "@/images/payments/visa.svg";
 import { StripePayment } from "@/ui/checkout/stripe-payment";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
 
 export const paymentMethods = {
 	amex,
