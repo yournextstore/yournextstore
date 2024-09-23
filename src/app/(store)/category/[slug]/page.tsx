@@ -1,10 +1,10 @@
-import type { Metadata } from "next/types";
-import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
-import { ProductList } from "@/ui/products/product-list";
-import { deslugify } from "@/lib/utils";
 import { publicUrl } from "@/env.mjs";
+import { deslugify } from "@/lib/utils";
+import { ProductList } from "@/ui/products/product-list";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next/types";
 
 export const generateMetadata = async ({
 	params,
