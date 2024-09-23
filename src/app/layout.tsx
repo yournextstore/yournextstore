@@ -1,12 +1,12 @@
 import "@/app/globals.css";
-import type { Metadata } from "next";
-import Script from "next/script";
+import { env, publicUrl } from "@/env.mjs";
+import { Toaster } from "@/ui/shadcn/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
-import { Toaster } from "@/ui/shadcn/sonner";
-import { env, publicUrl } from "@/env.mjs";
+import Script from "next/script";
 
 export const generateMetadata = async (): Promise<Metadata> => {
 	const t = await getTranslations("Global.metadata");

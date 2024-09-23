@@ -1,8 +1,8 @@
-import type { Metadata } from "next/types";
-import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
-import { ProductList } from "@/ui/products/product-list";
 import { publicUrl } from "@/env.mjs";
+import { ProductList } from "@/ui/products/product-list";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next/types";
 
 export const generateMetadata = async (): Promise<Metadata> => {
 	const t = await getTranslations("/products.metadata");

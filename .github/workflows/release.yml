@@ -42,8 +42,8 @@ jobs:
       - name: Install dependencies
         run: pnpm --version && pnpm install --frozen-lockfile
 
-      - name: Check prettier
-        run: pnpm prettier --check .
+      - name: Check Biome
+        run: pnpm biome check
 
       - name: Build
         run: pnpm build

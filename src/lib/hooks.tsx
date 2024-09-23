@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useDeferredValue } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 
 export const useDebouncedValue = <T,>(value: T, delay = 300) => {
 	const [isPending, setIsPending] = useState(false);
