@@ -1,8 +1,8 @@
 "use server";
 
-import * as Commerce from "commerce-kit";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import type { AddressSchema } from "@/ui/checkout/checkout-form-schema";
+import * as Commerce from "commerce-kit";
 
 export const saveShippingRateAction = async ({ shippingRateId }: { shippingRateId: string }) => {
 	const cart = await getCartFromCookiesAction();

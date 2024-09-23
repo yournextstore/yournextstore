@@ -1,7 +1,7 @@
 import { CartSummaryNav } from "@/ui/nav/cart-summary-nav";
-import { SeoH1 } from "@/ui/seo-h1";
-import { SearchNav } from "@/ui/nav/search-nav";
 import { NavMenu } from "@/ui/nav/nav-menu";
+import { SearchNav } from "@/ui/nav/search-nav";
+import { SeoH1 } from "@/ui/seo-h1";
 import { YnsLink } from "@/ui/yns-link";
 
 const links = [

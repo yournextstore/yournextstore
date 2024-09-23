@@ -6,13 +6,13 @@
 	],
 	"tailwindCSS.classAttributes": ["className", "tw", "class"],
 	"typescript.preferences.importModuleSpecifier": "non-relative",
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.defaultFormatter": "biomejs.biome",
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
 	"editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "always"
+		"source.fixAll.biome": "always"
 	},
 	"editor.quickSuggestions": {
 		"strings": true

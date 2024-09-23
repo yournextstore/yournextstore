@@ -1,10 +1,10 @@
-import type { Metadata } from "next/types";
-import { RedirectType, redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { publicUrl } from "@/env.mjs";
+import { Search } from "@/lib/api";
 import { ProductList } from "@/ui/products/product-list";
 import { ProductNotFound } from "@/ui/products/product-not-found";
-import { Search } from "@/lib/api";
-import { publicUrl } from "@/env.mjs";
+import { getTranslations } from "next-intl/server";
+import { RedirectType, redirect } from "next/navigation";
+import type { Metadata } from "next/types";
 
 export const generateMetadata = async ({
 	searchParams,

@@ -1,13 +1,13 @@
-import { useFormStatus } from "react-dom";
-import clsx from "clsx";
-import { Loader2 } from "lucide-react";
-import { useRef } from "react";
-import { useElements } from "@stripe/react-stripe-js";
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
-import { Button } from "@/ui/shadcn/button";
 import { setQuantity } from "@/actions/cart-actions";
 import { formatMoney } from "@/lib/utils";
+import { Button } from "@/ui/shadcn/button";
+import { useElements } from "@stripe/react-stripe-js";
+import clsx from "clsx";
+import { Loader2 } from "lucide-react";
+import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import { useFormStatus } from "react-dom";
 
 export const CartItemQuantity = ({
 	quantity,

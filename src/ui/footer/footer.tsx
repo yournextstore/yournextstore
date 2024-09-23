@@ -1,7 +1,7 @@
-import type { SVGAttributes } from "react";
-import { getTranslations } from "next-intl/server";
-import { YnsLink } from "@/ui/yns-link";
 import { Newsletter } from "@/ui/footer/newsletter.client";
+import { YnsLink } from "@/ui/yns-link";
+import { getTranslations } from "next-intl/server";
+import type { SVGAttributes } from "react";
 
 const sections = [
 	{

@@ -1,9 +1,9 @@
 import "@/app/globals.css";
-import * as Commerce from "commerce-kit";
-import { Nav } from "@/ui/nav/nav";
-import { JsonLd, accountToWebsiteJsonLd } from "@/ui/json-ld";
-import { TooltipProvider } from "@/ui/shadcn/tooltip";
 import { Footer } from "@/ui/footer/footer";
+import { JsonLd, accountToWebsiteJsonLd } from "@/ui/json-ld";
+import { Nav } from "@/ui/nav/nav";
+import { TooltipProvider } from "@/ui/shadcn/tooltip";
+import * as Commerce from "commerce-kit";
 
 export default async function StoreLayout({
 	children,

@@ -1,5 +1,5 @@
-import { unstable_cache } from "next/cache";
 import * as Commerce from "commerce-kit";
+import { unstable_cache } from "next/cache";
 import { simpleSearch } from "./simplesearch";
 
 export const searchProducts = unstable_cache(

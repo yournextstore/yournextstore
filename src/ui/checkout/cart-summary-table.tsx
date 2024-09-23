@@ -1,9 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { useOptimistic } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import type * as Commerce from "commerce-kit";
+import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
+import {
+	CartAmountWithSpinner,
+	CartItemLineTotal,
+	CartItemQuantity,
+} from "@/ui/checkout/cart-items.client";
+import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
 import {
 	Table,
 	TableBody,
@@ -13,14 +16,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/ui/shadcn/table";
-import {
-	CartItemLineTotal,
-	CartItemQuantity,
-	CartAmountWithSpinner,
-} from "@/ui/checkout/cart-items.client";
-import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
 import { YnsLink } from "@/ui/yns-link";
-import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
+import type * as Commerce from "commerce-kit";
+import { useLocale, useTranslations } from "next-intl";
+import Image from "next/image";
+import { useOptimistic } from "react";
 
 export const CartSummaryTable = ({ cart }: { cart: Commerce.Cart }) => {
 	const t = useTranslations("/cart.page.summaryTable");
