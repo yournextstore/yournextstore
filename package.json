@@ -42,11 +42,11 @@
 		"class-variance-authority": "0.7.0",
 		"clsx": "2.1.1",
 		"cmdk": "0.2.1",
-		"commerce-kit": "0.0.26",
-		"lucide-react": "0.445.0",
+		"commerce-kit": "0.0.27",
+		"lucide-react": "0.446.0",
 		"nanoid": "5.0.7",
 		"next": "15.0.0-canary.162",
-		"next-intl": "3.19.4",
+		"next-intl": "3.20.0",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
 		"react": "19.0.0-rc-e4953922-20240919",
@@ -57,7 +57,7 @@
 		"stripe": "16.12.0",
 		"tailwind-merge": "2.5.2",
 		"tailwindcss-animate": "1.0.7",
-		"vaul": "0.9.4",
+		"vaul": "0.9.6",
 		"zod": "3.23.8"
 	},
 	"devDependencies": {
@@ -69,7 +69,7 @@
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
-		"@semantic-release/github": "10.3.5",
+		"@semantic-release/github": "11.0.0",
 		"@semantic-release/npm": "12.0.1",
 		"@semantic-release/release-notes-generator": "14.0.1",
 		"@tailwindcss/forms": "0.5.9",
@@ -108,7 +108,10 @@
 				"react-dom": "19.0.0-rc-a99d8e8d-20240916",
 				"@stripe/stripe-js": "4.1.0"
 			},
-			"allowAny": ["@types/react", "@types/react-dom"]
+			"allowAny": [
+				"@types/react",
+				"@types/react-dom"
+			]
 		}
 	},
 	"engines": {
@@ -117,7 +120,9 @@
 	},
 	"packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
 	"release": {
-		"branches": ["main"],
+		"branches": [
+			"main"
+		],
 		"plugins": [
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",
