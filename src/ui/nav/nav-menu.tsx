@@ -12,10 +12,12 @@ import {
 	navigationMenuTriggerStyle,
 } from "@/ui/shadcn/navigation-menu";
 import { YnsLink } from "@/ui/yns-link";
-import type { Config } from "commerce-kit/browser";
 import { useState } from "react";
 
-type NavLink = Config["nav"]["links"][number];
+type NavLink = {
+	label: string;
+	href: string;
+}
 
 export function NavMenu({ links }: { links: NavLink[] }) {
 	const [value, setValue] = useState<string | undefined>(undefined);
