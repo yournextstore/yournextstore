@@ -16,7 +16,7 @@
 		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.0-canary.162",
+		"@next/mdx": "15.0.0-canary.173",
 		"@radix-ui/react-checkbox": "1.1.1",
 		"@radix-ui/react-collapsible": "1.1.0",
 		"@radix-ui/react-dialog": "1.1.1",
@@ -45,19 +45,19 @@
 		"commerce-kit": "0.0.27",
 		"lucide-react": "0.446.0",
 		"nanoid": "5.0.7",
-		"next": "15.0.0-canary.162",
+		"next": "15.0.0-canary.173",
 		"next-intl": "3.20.0",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
-		"react": "19.0.0-rc-e4953922-20240919",
-		"react-dom": "19.0.0-rc-e4953922-20240919",
+		"react": "19.0.0-rc-3edc000d-20240926",
+		"react-dom": "19.0.0-rc-3edc000d-20240926",
 		"schema-dts": "1.1.2",
 		"server-only": "0.0.1",
 		"sonner": "1.5.0",
 		"stripe": "16.12.0",
 		"tailwind-merge": "2.5.2",
 		"tailwindcss-animate": "1.0.7",
-		"vaul": "0.9.6",
+		"vaul": "1.0.0",
 		"zod": "3.23.8"
 	},
 	"devDependencies": {
@@ -65,7 +65,7 @@
 		"@commitlint/cli": "19.5.0",
 		"@commitlint/config-conventional": "19.5.0",
 		"@commitlint/types": "19.5.0",
-		"@next/env": "15.0.0-canary.162",
+		"@next/env": "15.0.0-canary.173",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -80,9 +80,9 @@
 		"@types/node": "^20.16.5",
 		"@types/react": "npm:types-react@19.0.0-rc.1",
 		"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
-		"@vitejs/plugin-react": "4.3.1",
+		"@vitejs/plugin-react": "4.3.2",
 		"autoprefixer": "10.4.20",
-		"babel-plugin-react-compiler": "0.0.0-experimental-6067d4e-20240919",
+		"babel-plugin-react-compiler": "0.0.0-experimental-b12479e-20240926",
 		"husky": "9.1.6",
 		"mdx": "0.3.1",
 		"postcss": "8.4.47",
@@ -108,10 +108,7 @@
 				"react-dom": "19.0.0-rc-a99d8e8d-20240916",
 				"@stripe/stripe-js": "4.1.0"
 			},
-			"allowAny": [
-				"@types/react",
-				"@types/react-dom"
-			]
+			"allowAny": ["@types/react", "@types/react-dom"]
 		}
 	},
 	"engines": {
@@ -120,9 +117,7 @@
 	},
 	"packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
 	"release": {
-		"branches": [
-			"main"
-		],
+		"branches": ["main"],
 		"plugins": [
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",

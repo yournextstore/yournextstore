@@ -19,14 +19,13 @@ export const generateMetadata = async (): Promise<Metadata> => {
 	};
 };
 
-export default async function OrderDetailsPage({
-	searchParams,
-}: {
-	searchParams: {
+export default async function OrderDetailsPage(props: {
+	searchParams: Promise<{
 		payment_intent?: string | string[] | undefined | null;
 		payment_intent_client_secret?: string | string[] | undefined | null;
-	};
+	}>;
 }) {
+	const searchParams = await props.searchParams;
 	if (
 		typeof searchParams.payment_intent !== "string" ||
 		typeof searchParams.payment_intent_client_secret !== "string"

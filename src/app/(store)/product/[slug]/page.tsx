@@ -18,13 +18,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
 
-export const generateMetadata = async ({
-	params,
-	searchParams,
-}: {
-	params: { slug: string };
-	searchParams: { variant?: string };
+export const generateMetadata = async (props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<{ variant?: string }>;
 }): Promise<Metadata> => {
+	const searchParams = await props.searchParams;
+	const params = await props.params;
 	const variants = await Commerce.productGet({ slug: params.slug });
 
 	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
@@ -49,13 +48,12 @@ export const generateMetadata = async ({
 	} satisfies Metadata;
 };
 
-export default async function SingleProductPage({
-	params,
-	searchParams,
-}: {
-	params: { slug: string };
-	searchParams: { variant?: string };
+export default async function SingleProductPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<{ variant?: string }>;
 }) {
+	const searchParams = await props.searchParams;
+	const params = await props.params;
 	const variants = await Commerce.productGet({ slug: params.slug });
 	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
 	const product = variants.find((variant) => variant.metadata.variant === selectedVariant);
