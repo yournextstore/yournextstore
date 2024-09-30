@@ -6,10 +6,10 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
+		"dev": "next dev --turbo",
+		"build": "pnpm biome check && next build",
 		"start": "next start",
-		"lint": "next lint",
+		"lint": "pnpm biome check --write",
 		"test": "vitest",
 		"prepare": "husky",
 		"docker:build": "docker build -t yournextstore .",
@@ -84,6 +84,7 @@
 		"autoprefixer": "10.4.20",
 		"babel-plugin-react-compiler": "0.0.0-experimental-b12479e-20240926",
 		"husky": "9.1.6",
+		"lint-staged": "15.2.10",
 		"mdx": "0.3.1",
 		"postcss": "8.4.47",
 		"semantic-release": "24.1.2",
@@ -108,10 +109,7 @@
 				"react-dom": "19.0.0-rc-a99d8e8d-20240916",
 				"@stripe/stripe-js": "4.1.0"
 			},
-			"allowAny": [
-				"@types/react",
-				"@types/react-dom"
-			]
+			"allowAny": ["@types/react", "@types/react-dom"]
 		}
 	},
 	"engines": {
@@ -120,9 +118,7 @@
 	},
 	"packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
 	"release": {
-		"branches": [
-			"main"
-		],
+		"branches": ["main"],
 		"plugins": [
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",
@@ -131,5 +127,8 @@
 			"@semantic-release/git",
 			"@semantic-release/github"
 		]
+	},
+	"lint-staged": {
+		"*": ["pnpm biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true"]
 	}
 }

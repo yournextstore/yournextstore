@@ -1,1 +1,1 @@
-pnpm biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true
+lint-staged
