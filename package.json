@@ -77,7 +77,7 @@
 		"@testing-library/jest-dom": "6.5.0",
 		"@testing-library/react": "16.0.1",
 		"@types/mdx": "2.0.13",
-		"@types/node": "^20.16.5",
+		"@types/node": "^20.16.10",
 		"@types/react": "npm:types-react@19.0.0-rc.1",
 		"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
 		"@vitejs/plugin-react": "4.3.2",
@@ -86,9 +86,9 @@
 		"husky": "9.1.6",
 		"mdx": "0.3.1",
 		"postcss": "8.4.47",
-		"semantic-release": "24.1.1",
+		"semantic-release": "24.1.2",
 		"sharp": "0.33.5",
-		"tailwindcss": "3.4.11",
+		"tailwindcss": "3.4.13",
 		"tsx": "4.19.1",
 		"typescript": "5.6.2",
 		"vite-tsconfig-paths": "5.0.1",
@@ -108,7 +108,10 @@
 				"react-dom": "19.0.0-rc-a99d8e8d-20240916",
 				"@stripe/stripe-js": "4.1.0"
 			},
-			"allowAny": ["@types/react", "@types/react-dom"]
+			"allowAny": [
+				"@types/react",
+				"@types/react-dom"
+			]
 		}
 	},
 	"engines": {
@@ -117,7 +120,9 @@
 	},
 	"packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
 	"release": {
-		"branches": ["main"],
+		"branches": [
+			"main"
+		],
 		"plugins": [
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",
