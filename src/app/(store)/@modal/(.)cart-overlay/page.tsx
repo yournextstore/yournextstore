@@ -9,7 +9,8 @@ import Image from "next/image";
 import { CartAsideContainer } from "./cart-aside";
 import { CartModalAddSideEffect } from "./cart-side-effect";
 
-export default async function CartModalPage({ searchParams }: { searchParams: { add?: string } }) {
+export default async function CartModalPage(props: { searchParams: Promise<{ add?: string }> }) {
+	const searchParams = await props.searchParams;
 	const originalCart = await getCartFromCookiesAction();
 	// TODO fix type
 	const cart = await Commerce.cartAddOptimistic({ add: searchParams.add, cart: originalCart! });
