@@ -6,11 +6,10 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
 
-export const generateMetadata = async ({
-	params,
-}: {
-	params: { slug: string };
+export const generateMetadata = async (props: {
+	params: Promise<{ slug: string }>;
 }): Promise<Metadata> => {
+	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,
 		filter: { category: params.slug },
@@ -28,7 +27,8 @@ export const generateMetadata = async ({
 	};
 };
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
+export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,
 		filter: { category: params.slug },

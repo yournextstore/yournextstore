@@ -6,13 +6,12 @@ import { getTranslations } from "next-intl/server";
 import { RedirectType, redirect } from "next/navigation";
 import type { Metadata } from "next/types";
 
-export const generateMetadata = async ({
-	searchParams,
-}: {
-	searchParams: {
+export const generateMetadata = async (props: {
+	searchParams: Promise<{
 		q?: string;
-	};
+	}>;
 }): Promise<Metadata> => {
+	const searchParams = await props.searchParams;
 	const t = await getTranslations("/search.metadata");
 	return {
 		title: t("title", { query: searchParams.q }),
@@ -20,13 +19,12 @@ export const generateMetadata = async ({
 	};
 };
 
-export default async function SearchPage({
-	searchParams,
-}: {
-	searchParams: {
+export default async function SearchPage(props: {
+	searchParams: Promise<{
 		q?: string;
-	};
+	}>;
 }) {
+	const searchParams = await props.searchParams;
 	const query = searchParams.q;
 
 	if (!query) {
