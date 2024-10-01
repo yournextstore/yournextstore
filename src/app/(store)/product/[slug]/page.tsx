@@ -1,4 +1,5 @@
 import { publicUrl } from "@/env.mjs";
+import { trieve } from "@/lib/search/trieve";
 import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
 import { AddToCartButton } from "@/ui/add-to-cart-button";
 import { JsonLd, mappedProductToJsonLd } from "@/ui/json-ld";
@@ -17,6 +18,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
+import type { ChunkMetadata } from "trieve-ts-sdk";
 
 export const generateMetadata = async (props: {
 	params: Promise<{ slug: string }>;
@@ -189,7 +191,63 @@ export default async function SingleProductPage(props: {
 					<AddToCartButton productId={product.id} disabled={product.metadata.stock <= 0} />
 				</div>
 			</div>
+			<SimilarProducts id={product.id} />
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>
+	);
+}
+
+async function SimilarProducts({ id }: { id: string }) {
+	if (!trieve) {
+		return null;
+	}
+
+	const response = await trieve.getRecommendedChunks({
+		positive_tracking_ids: [id],
+		strategy: "best_score",
+		recommend_type: "semantic",
+		limit: 4,
+	});
+
+	const chunks = Array.isArray(response) ? null : response.chunks;
+	if (!chunks) {
+		return null;
+	}
+
+	const products = chunks.map((chunk) => chunk.chunk as ChunkMetadata);
+	console.log(products);
+
+	return (
+		<section className="py-12">
+			<div className="mb-8">
+				<h2 className="text-2xl font-bold tracking-tight">You May Also Like</h2>
+			</div>
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+				{products.map((product) => (
+					<div className="bg-card rounded overflow-hidden shadow group">
+						<YnsLink href="#" className="block" prefetch={false}>
+							<img
+								src={(product.metadata as { image_url: string }).image_url}
+								alt="Product Image"
+								width={400}
+								height={400}
+								className="w-full h-64 object-cover group-hover:opacity-80 transition-opacity"
+								style={{ aspectRatio: "400/400", objectFit: "cover" }}
+							/>
+						</YnsLink>
+						<div className="p-4">
+							<h3 className="text-lg font-semibold mb-2">
+								<YnsLink href="#" className="hover:text-primary" prefetch={false}>
+									{(product.metadata as { name: string }).name}
+								</YnsLink>
+							</h3>
+							<div className="flex items-center justify-between">
+								<span className="text ">$29.99</span>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		</section>
 	);
 }
