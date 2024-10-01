@@ -27,8 +27,8 @@ This is the About page.
 	},
 };
 
-export default async function Page(props0: { params: Promise<{ segments?: string[] }> }) {
-	const params = await props0.params;
+export default async function Page(props: { params: Promise<{ segments?: string[] }> }) {
+	const params = await props.params;
 	if (!params.segments) {
 		return notFound();
 	}
