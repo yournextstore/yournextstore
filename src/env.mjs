@@ -15,6 +15,9 @@ export const env = createEnv({
 			.string()
 			.optional()
 			.transform((str) => !!str),
+
+		TRIEVE_DATASET_ID: z.string().optional(),
+		TRIEVE_API_KEY: z.string().optional(),
 	},
 	client: {
 		// Can be provided via env or parameters to Commerce Kit, thus optional
@@ -38,6 +41,9 @@ export const env = createEnv({
 		NEXT_PUBLIC_NEWSLETTER_ENDPOINT: process.env.NEXT_PUBLIC_NEWSLETTER_ENDPOINT,
 
 		ENABLE_STRIPE_TAX: process.env.ENABLE_STRIPE_TAX,
+
+		TRIEVE_DATASET_ID: process.env.TRIEVE_DATASET_ID,
+		TRIEVE_API_KEY: process.env.TRIEVE_API_KEY,
 
 		NEXT_PUBLIC_LANGUAGE: process.env.NEXT_PUBLIC_LANGUAGE,
 	},
