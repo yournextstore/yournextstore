@@ -17,7 +17,7 @@ import { useState } from "react";
 type NavLink = {
 	label: string;
 	href: string;
-}
+};
 
 export function NavMenu({ links }: { links: NavLink[] }) {
 	const [value, setValue] = useState<string | undefined>(undefined);
