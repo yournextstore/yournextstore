@@ -32,8 +32,8 @@ const chunks = mapProducts(data).flatMap((product): ChunkReqPayload | ChunkReqPa
 		return [];
 	}
 	const link = product.metadata.variant
-		? `${publicUrl}/product/${product.metadata.slug}?variant=${product.metadata.variant}`
-		: `${publicUrl}/product/${product.metadata.slug}`;
+		? `/product/${product.metadata.slug}?variant=${product.metadata.variant}`
+		: `/product/${product.metadata.slug}`;
 	return {
 		chunk_html: `
 Product Name: ${product.name}

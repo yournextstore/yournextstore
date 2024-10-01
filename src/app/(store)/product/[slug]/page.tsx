@@ -30,9 +30,7 @@ export const generateMetadata = async (props: {
 	const variants = await Commerce.productGet({ slug: params.slug });
 
 	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
-	const product = variants.find(
-		(variant) => variant.metadata.variant === selectedVariant,
-	);
+	const product = variants.find((variant) => variant.metadata.variant === selectedVariant);
 	if (!product) {
 		return notFound();
 	}
@@ -61,9 +59,7 @@ export default async function SingleProductPage(props: {
 	const params = await props.params;
 	const variants = await Commerce.productGet({ slug: params.slug });
 	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
-	const product = variants.find(
-		(variant) => variant.metadata.variant === selectedVariant,
-	);
+	const product = variants.find((variant) => variant.metadata.variant === selectedVariant);
 
 	if (!product) {
 		return notFound();
@@ -94,9 +90,7 @@ export default async function SingleProductPage(props: {
 									className="inline-flex min-h-12 min-w-12 items-center justify-center"
 									asChild
 								>
-									<YnsLink href={`/category/${category}`}>
-										{deslugify(category)}
-									</YnsLink>
+									<YnsLink href={`/category/${category}`}>{deslugify(category)}</YnsLink>
 								</BreadcrumbLink>
 							</BreadcrumbItem>
 						</>
@@ -130,9 +124,7 @@ export default async function SingleProductPage(props: {
 							})}
 						</p>
 					)}
-					<div className="mt-2">
-						{product.metadata.stock <= 0 && <div>Out of stock</div>}
-					</div>
+					<div className="mt-2">{product.metadata.stock <= 0 && <div>Out of stock</div>}</div>
 				</div>
 
 				<div className="lg:col-span-7 lg:row-span-3 lg:row-start-1">
@@ -171,14 +163,9 @@ export default async function SingleProductPage(props: {
 							<p className="text-base font-medium" id="variant-label">
 								{t("variantTitle")}
 							</p>
-							<ul
-								role="list"
-								className="grid grid-cols-4 gap-2"
-								aria-labelledby="variant-label"
-							>
+							<ul role="list" className="grid grid-cols-4 gap-2" aria-labelledby="variant-label">
 								{variants.map((variant) => {
-									const isSelected =
-										selectedVariant === variant.metadata.variant;
+									const isSelected = selectedVariant === variant.metadata.variant;
 									return (
 										variant.metadata.variant && (
 											<li key={variant.id}>
@@ -188,8 +175,7 @@ export default async function SingleProductPage(props: {
 													href={`/product/${variant.metadata.slug}?variant=${variant.metadata.variant}`}
 													className={cn(
 														"flex cursor-pointer items-center justify-center gap-2 rounded-md border p-2 transition-colors hover:bg-neutral-100",
-														isSelected &&
-															"border-black bg-neutral-50 font-medium",
+														isSelected && "border-black bg-neutral-50 font-medium",
 													)}
 													aria-selected={isSelected}
 												>
@@ -203,10 +189,7 @@ export default async function SingleProductPage(props: {
 						</div>
 					)}
 
-					<AddToCartButton
-						productId={product.id}
-						disabled={product.metadata.stock <= 0}
-					/>
+					<AddToCartButton productId={product.id} disabled={product.metadata.stock <= 0} />
 				</div>
 			</div>
 			<Suspense>
@@ -232,16 +215,9 @@ async function SimilarProducts({ id }: { id: string }) {
 				{products.map((product) => {
 					const trieveMetadata = product.metadata as TrieveProductMetadata;
 					return (
-						<div
-							key={product.tracking_id}
-							className="bg-card rounded overflow-hidden shadow group"
-						>
+						<div key={product.tracking_id} className="bg-card rounded overflow-hidden shadow group">
 							{trieveMetadata.image_url && (
-								<YnsLink
-									href={product.link || "#"}
-									className="block"
-									prefetch={false}
-								>
+								<YnsLink href={`${publicUrl}${product.link}`} className="block" prefetch={false}>
 									<Image
 										className={
 											"w-full rounded-lg bg-neutral-100 object-cover object-center group-hover:opacity-80 transition-opacity"
