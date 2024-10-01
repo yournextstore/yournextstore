@@ -1,5 +1,5 @@
 import { publicUrl } from "@/env.mjs";
-import { trieve } from "@/lib/search/trieve";
+import { getRecommendedProducts } from "@/lib/search/trieve";
 import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
 import type { TrieveProductMetadata } from "@/scripts/upload-trieve";
 import { AddToCartButton } from "@/ui/add-to-cart-button";
@@ -19,7 +19,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
-import type { ChunkMetadata } from "trieve-ts-sdk";
+import { Suspense } from "react";
 
 export const generateMetadata = async (props: {
 	params: Promise<{ slug: string }>;
@@ -192,30 +192,19 @@ export default async function SingleProductPage(props: {
 					<AddToCartButton productId={product.id} disabled={product.metadata.stock <= 0} />
 				</div>
 			</div>
-			<SimilarProducts id={product.id} />
+			<Suspense>
+				<SimilarProducts id={product.id} />
+			</Suspense>
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>
 	);
 }
 
 async function SimilarProducts({ id }: { id: string }) {
-	if (!trieve) {
+	const products = await getRecommendedProducts({ productId: id, limit: 4 });
+	if (!products) {
 		return null;
 	}
-
-	const response = await trieve.getRecommendedChunks({
-		positive_tracking_ids: [id],
-		strategy: "best_score",
-		recommend_type: "semantic",
-		limit: 4,
-	});
-
-	const chunks = Array.isArray(response) ? null : response.chunks;
-	if (!chunks) {
-		return null;
-	}
-
-	const products = chunks.map((chunk) => chunk.chunk as ChunkMetadata);
 
 	return (
 		<section className="py-12">
@@ -230,12 +219,14 @@ async function SimilarProducts({ id }: { id: string }) {
 							{trieveMetadata.image_url && (
 								<YnsLink href={product.link || "#"} className="block" prefetch={false}>
 									<Image
+										className={
+											"w-full rounded-lg bg-neutral-100 object-cover object-center group-hover:opacity-80 transition-opacity"
+										}
 										src={trieveMetadata.image_url}
-										alt="Product Image"
-										width={400}
-										height={400}
-										className="w-full h-64 object-cover group-hover:opacity-80 transition-opacity"
-										style={{ aspectRatio: "400/400", objectFit: "cover" }}
+										width={300}
+										height={300}
+										sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
+										alt=""
 									/>
 								</YnsLink>
 							)}
