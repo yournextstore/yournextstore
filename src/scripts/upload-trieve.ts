@@ -5,7 +5,7 @@ import { mapProducts } from "commerce-kit/internal";
 import { type ChunkReqPayload, TrieveSDK } from "trieve-ts-sdk";
 NextEnv.loadEnvConfig(".");
 
-const { env, publicUrl } = await import("@/env.mjs");
+const { env } = await import("@/env.mjs");
 
 const datasetId = env.TRIEVE_DATASET_ID;
 const apiKey = env.TRIEVE_API_KEY;
