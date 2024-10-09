@@ -1,5 +1,6 @@
 import { deslugify } from "@/lib/utils";
 import { YnsLink } from "@/ui/yns-link";
+import { useTranslations } from "next-intl";
 import Image, { type ImageProps } from "next/image";
 
 export function CategoryBox({
@@ -9,6 +10,8 @@ export function CategoryBox({
 	categorySlug: string;
 	src: ImageProps["src"];
 }) {
+	const t = useTranslations("Global.actions");
+
 	return (
 		<YnsLink href={`/category/${categorySlug}`} className="group relative">
 			<div className="relative overflow-hidden rounded-lg">
@@ -21,7 +24,7 @@ export function CategoryBox({
 			</div>
 			<div className="justify-end gap-2 px-4 py-2 text-neutral-600">
 				<h3 className="text-lg font-bold tracking-tight">{deslugify(categorySlug)}</h3>
-				<p>Shop now</p>
+				<p>{t("shopNow")}</p>
 			</div>
 		</YnsLink>
 	);
