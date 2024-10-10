@@ -16,5 +16,5 @@ export default async function CartPage() {
 		return null;
 	}
 
-	return <CheckoutCard cart={cart.cart} />;
+	return <CheckoutCard cart={cart} />;
 }
