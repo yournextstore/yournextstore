@@ -22,10 +22,7 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
 	// const geistBold = fetch(new URL("./Geist-Bold.ttf", import.meta.url)).then((res) =>
 	// 	res.arrayBuffer(),
 	// );
-	const [accountResult, [product]] = await Promise.all([
-		accountGet(),
-		productGet({ slug: params.slug }),
-	]);
+	const [accountResult, [product]] = await Promise.all([accountGet(), productGet({ slug: params.slug })]);
 
 	if (!product) {
 		return null;
