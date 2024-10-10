@@ -5,12 +5,7 @@ import type { ItemList, Product, Thing, WebSite, WithContext } from "schema-dts"
 import type Stripe from "stripe";
 
 export const JsonLd = <T extends Thing>({ jsonLd }: { jsonLd: WithContext<T> }) => {
-	return (
-		<script
-			type="application/ld+json"
-			dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-		/>
-	);
+	return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
 };
 
 export const mappedProductToJsonLd = (product: Commerce.MappedProduct): WithContext<Product> => {

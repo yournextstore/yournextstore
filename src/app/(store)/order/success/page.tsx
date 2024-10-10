@@ -140,9 +140,7 @@ export default async function OrderDetailsPage(props: {
 				<div className="grid gap-8 sm:grid-cols-2">
 					{order.order.shipping?.address && (
 						<div>
-							<h3 className="font-semibold leading-none text-neutral-700">
-								{t("shippingAddress")}
-							</h3>
+							<h3 className="font-semibold leading-none text-neutral-700">{t("shippingAddress")}</h3>
 							<p className="mt-3 text-sm">
 								{[
 									order.order.shipping.name,
@@ -178,8 +176,7 @@ export default async function OrderDetailsPage(props: {
 									order.order.payment_method.billing_details.address.postal_code,
 									order.order.payment_method.billing_details.address.city,
 									order.order.payment_method.billing_details.address.state,
-									findMatchingCountry(order.order.payment_method?.billing_details?.address?.country)
-										?.label,
+									findMatchingCountry(order.order.payment_method?.billing_details?.address?.country)?.label,
 									"\n",
 									order.order.payment_method.billing_details.phone,
 									order.order.receipt_email,
@@ -204,9 +201,7 @@ export default async function OrderDetailsPage(props: {
 									order.order.payment_method.card.brand in paymentMethods && (
 										<Image
 											src={
-												paymentMethods[
-													order.order.payment_method.card.brand as keyof typeof paymentMethods
-												]
+												paymentMethods[order.order.payment_method.card.brand as keyof typeof paymentMethods]
 											}
 											className="mr-1 inline-block w-6 align-text-bottom"
 											alt=""
