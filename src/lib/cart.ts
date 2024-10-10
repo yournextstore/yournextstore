@@ -7,10 +7,7 @@ export type CartCookieJson = { id: string; linesCount: number };
 
 export function setCartCookieJson(cartCookieJson: CartCookieJson): void {
 	try {
-		(cookies() as unknown as UnsafeUnwrappedCookies).set(
-			CART_COOKIE,
-			JSON.stringify(cartCookieJson),
-		);
+		(cookies() as unknown as UnsafeUnwrappedCookies).set(CART_COOKIE, JSON.stringify(cartCookieJson));
 	} catch (error) {
 		console.error("Failed to set cart cookie", error);
 	}

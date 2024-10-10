@@ -21,11 +21,7 @@ export async function POST(request: Request) {
 	});
 
 	const [error, event] = await unpackPromise(
-		stripe.webhooks.constructEventAsync(
-			await (await request.text)(),
-			signature,
-			env.STRIPE_WEBHOOK_SECRET,
-		),
+		stripe.webhooks.constructEventAsync(await (await request.text)(), signature, env.STRIPE_WEBHOOK_SECRET),
 	);
 
 	if (error) {
