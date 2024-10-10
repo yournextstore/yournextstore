@@ -75,10 +75,7 @@ export default async function SingleProductPage(props: {
 			<Breadcrumb>
 				<BreadcrumbList>
 					<BreadcrumbItem>
-						<BreadcrumbLink
-							asChild
-							className="inline-flex min-h-12 min-w-12 items-center justify-center"
-						>
+						<BreadcrumbLink asChild className="inline-flex min-h-12 min-w-12 items-center justify-center">
 							<YnsLink href="/">{t("allProducts")}</YnsLink>
 						</BreadcrumbLink>
 					</BreadcrumbItem>
@@ -86,10 +83,7 @@ export default async function SingleProductPage(props: {
 						<>
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
-								<BreadcrumbLink
-									className="inline-flex min-h-12 min-w-12 items-center justify-center"
-									asChild
-								>
+								<BreadcrumbLink className="inline-flex min-h-12 min-w-12 items-center justify-center" asChild>
 									<YnsLink href={`/category/${category}`}>{deslugify(category)}</YnsLink>
 								</BreadcrumbLink>
 							</BreadcrumbItem>
@@ -112,9 +106,7 @@ export default async function SingleProductPage(props: {
 
 			<div className="mt-4 grid gap-4 lg:grid-cols-12">
 				<div className="lg:col-span-5 lg:col-start-8">
-					<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">
-						{product.name}
-					</h1>
+					<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">{product.name}</h1>
 					{product.default_price.unit_amount && (
 						<p className="mt-2 text-2xl font-medium leading-none tracking-tight text-foreground/70">
 							{formatMoney({
@@ -202,6 +194,7 @@ export default async function SingleProductPage(props: {
 
 async function SimilarProducts({ id }: { id: string }) {
 	const products = await getRecommendedProducts({ productId: id, limit: 4 });
+
 	if (!products) {
 		return null;
 	}
@@ -232,11 +225,7 @@ async function SimilarProducts({ id }: { id: string }) {
 							)}
 							<div className="p-4">
 								<h3 className="text-lg font-semibold mb-2">
-									<YnsLink
-										href={product.link || "#"}
-										className="hover:text-primary"
-										prefetch={false}
-									>
+									<YnsLink href={product.link || "#"} className="hover:text-primary" prefetch={false}>
 										{trieveMetadata.name}
 									</YnsLink>
 								</h3>

@@ -7,14 +7,14 @@ const datasetId = process.env.TRIEVE_DATASET_ID;
 
 export const trieve = apiKey && datasetId ? new TrieveSDK({ apiKey, datasetId }) : null;
 
-export const getRecommendedProducts = cache(
-	({ productId, limit }: { productId: string; limit: number }) =>
-		unstable_cache(
-			async () => {
-				if (!trieve) {
-					return null;
-				}
+export const getRecommendedProducts = cache(({ productId, limit }: { productId: string; limit: number }) =>
+	unstable_cache(
+		async () => {
+			if (!trieve) {
+				return null;
+			}
 
+			try {
 				const response = await trieve.getRecommendedChunks({
 					positive_tracking_ids: [productId],
 					strategy: "best_score",
@@ -34,8 +34,14 @@ export const getRecommendedProducts = cache(
 					return [];
 				});
 				return products;
-			},
-			[`getRecommendedProducts-${productId}-${limit}`],
-			{ tags: ["getRecommendedProducts", `getRecommendedProducts-${productId}`] },
-		)(),
+			} catch (error) {
+				console.error(error);
+				return null;
+			}
+		},
+		[`getRecommendedProducts-${productId}-${limit}`],
+		{
+			tags: ["getRecommendedProducts", `getRecommendedProducts-${productId}`],
+		},
+	)(),
 );

@@ -95,9 +95,7 @@ export const FormatDeliveryEstimate = ({
 type i18n = ReturnType<typeof useTranslations<"Global.deliveryEstimates">>;
 const deliveryUnitToText = (
 	value: number,
-	unit:
-		| Stripe.ShippingRate.DeliveryEstimate.Maximum.Unit
-		| Stripe.ShippingRate.DeliveryEstimate.Minimum.Unit,
+	unit: Stripe.ShippingRate.DeliveryEstimate.Maximum.Unit | Stripe.ShippingRate.DeliveryEstimate.Minimum.Unit,
 	t: i18n,
 ) => {
 	switch (unit) {

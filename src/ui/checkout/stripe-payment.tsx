@@ -76,10 +76,7 @@ const PaymentForm = ({
 		email: "",
 	});
 
-	const [isBillingAddressPending, debouncedBillingAddress] = useDebouncedValue(
-		billingAddressValues,
-		1000,
-	);
+	const [isBillingAddressPending, debouncedBillingAddress] = useDebouncedValue(billingAddressValues, 1000);
 	const [shippingRateId, setShippingRateId] = useState<string | null>(cartShippingRateId);
 
 	const [sameAsShipping, setSameAsShipping] = useState(true);
@@ -96,8 +93,7 @@ const PaymentForm = ({
 		});
 	}, [debouncedBillingAddress, elements, router]);
 
-	const readyToRender =
-		stripe && elements && isAddressReady && isLinkAuthenticationReady && isPaymentReady;
+	const readyToRender = stripe && elements && isAddressReady && isLinkAuthenticationReady && isPaymentReady;
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
@@ -126,9 +122,7 @@ const PaymentForm = ({
 				phone: shippingAddressObject.value.phone,
 			};
 
-			const billingAddress: Partial<AddressSchema> = sameAsShipping
-				? shippingAddress
-				: billingAddressValues;
+			const billingAddress: Partial<AddressSchema> = sameAsShipping ? shippingAddress : billingAddressValues;
 
 			const validatedBillingAddress = addressSchema.safeParse(billingAddress);
 			const validatedShippingAddress = addressSchema.safeParse(shippingAddress);

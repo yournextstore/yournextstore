@@ -50,10 +50,7 @@ export const pluralize = (count: number, words: CardinalWords) => {
 	return words[rule] ?? words.other;
 };
 
-export const getFieldsByPrefix = <Prefix extends string, Obj extends object>(
-	obj: Obj,
-	prefix: Prefix,
-) => {
+export const getFieldsByPrefix = <Prefix extends string, Obj extends object>(obj: Obj, prefix: Prefix) => {
 	const prefixWithDot = prefix + ".";
 	return Object.fromEntries(
 		Object.entries(obj)
@@ -64,14 +61,9 @@ export const getFieldsByPrefix = <Prefix extends string, Obj extends object>(
 	};
 };
 
-export const addPrefixToFields = <Prefix extends string, Obj extends object>(
-	obj: Obj,
-	prefix: Prefix,
-) => {
+export const addPrefixToFields = <Prefix extends string, Obj extends object>(obj: Obj, prefix: Prefix) => {
 	const prefixWithDot = prefix + ".";
-	return Object.fromEntries(
-		Object.entries(obj).map(([key, value]) => [prefixWithDot + key, value]),
-	) as {
+	return Object.fromEntries(Object.entries(obj).map(([key, value]) => [prefixWithDot + key, value])) as {
 		[K in keyof Obj as `${Prefix}.${K & string}`]: Obj[K];
 	};
 };
@@ -120,9 +112,7 @@ export const calculateCartTotalPossiblyWithTax = (cart: {
 		return cart.cart.amount;
 	}
 
-	return (
-		(cart.shippingRate?.fixed_amount?.amount ?? 0) + calculateCartTotalNetWithoutShipping(cart)
-	);
+	return (cart.shippingRate?.fixed_amount?.amount ?? 0) + calculateCartTotalNetWithoutShipping(cart);
 };
 
 export const calculateCartTotalNetWithoutShipping = (cart: {
@@ -176,11 +166,7 @@ export const getDecimalFromStripeAmount = ({ amount: minor, currency }: Money) =
 	return Number.parseFloat((minor / multiplier).toFixed(decimals));
 };
 
-export const formatMoney = ({
-	amount: minor,
-	currency,
-	locale = "en-US",
-}: Money & { locale?: string }) => {
+export const formatMoney = ({ amount: minor, currency, locale = "en-US" }: Money & { locale?: string }) => {
 	const amount = getDecimalFromStripeAmount({ amount: minor, currency });
 	return new Intl.NumberFormat(locale, {
 		style: "currency",

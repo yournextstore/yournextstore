@@ -1,6 +1,4 @@
-export const findMatchingCountry = (
-	value: null | undefined | string | number | readonly string[],
-) => {
+export const findMatchingCountry = (value: null | undefined | string | number | readonly string[]) => {
 	if (typeof value !== "string") {
 		return null;
 	}

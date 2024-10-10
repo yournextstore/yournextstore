@@ -1,11 +1,7 @@
 "use client";
 
 import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
-import {
-	CartAmountWithSpinner,
-	CartItemLineTotal,
-	CartItemQuantity,
-} from "@/ui/checkout/cart-items.client";
+import { CartAmountWithSpinner, CartItemLineTotal, CartItemQuantity } from "@/ui/checkout/cart-items.client";
 import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
 import {
 	Table,

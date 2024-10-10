@@ -16,7 +16,7 @@
 		"indentStyle": "tab",
 		"indentWidth": 2,
 		"lineEnding": "lf",
-		"lineWidth": 100,
+		"lineWidth": 110,
 		"attributePosition": "auto",
 		"bracketSpacing": true,
 		"ignore": ["**/.next", "**/node_modules", "**/pnpm-lock.yaml"]
