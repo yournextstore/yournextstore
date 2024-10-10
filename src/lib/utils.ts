@@ -1,6 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+export const isDefined = <T>(value: T | null | undefined): value is T =>
+	value !== null && value !== undefined;
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -43,7 +46,9 @@ export const stringToInt = (str: string | number | null | undefined) => {
 	return parsed;
 };
 
-type CardinalWords = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
+type CardinalWords = Partial<Record<Intl.LDMLPluralRule, string>> & {
+	other: string;
+};
 export const pluralize = (count: number, words: CardinalWords) => {
 	const cardinalRules = new Intl.PluralRules("en-US");
 	const rule = cardinalRules.select(count);
@@ -102,7 +107,10 @@ export const calculateCartTotalPossiblyWithTax = (cart: {
 		amount: number;
 		metadata?: { taxCalculationId?: string };
 	};
-	lines: Array<{ product: { default_price?: { unit_amount?: number | null } }; quantity: number }>;
+	lines: Array<{
+		product: { default_price?: { unit_amount?: number | null } };
+		quantity: number;
+	}>;
 	shippingRate?: { fixed_amount?: { amount?: number } } | null;
 }) => {
 	if (!cart) {
@@ -120,7 +128,10 @@ export const calculateCartTotalNetWithoutShipping = (cart: {
 		amount: number;
 		metadata?: { taxCalculationId?: string };
 	};
-	lines: Array<{ product: { default_price?: { unit_amount?: number | null } }; quantity: number }>;
+	lines: Array<{
+		product: { default_price?: { unit_amount?: number | null } };
+		quantity: number;
+	}>;
 	shippingRate?: { fixed_amount?: { amount?: number } } | null;
 }) => {
 	if (!cart) {
