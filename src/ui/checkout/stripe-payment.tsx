@@ -29,19 +29,29 @@ import { type ChangeEvent, type FormEventHandler, useEffect, useState, useTransi
 export const StripePayment = ({
 	shippingRateId,
 	shippingRates,
+	allProductsDigital,
 }: {
 	shippingRateId?: string | null;
 	shippingRates: Commerce.MappedShippingRate[];
+	allProductsDigital: boolean;
 }) => {
-	return <PaymentForm shippingRates={shippingRates} cartShippingRateId={shippingRateId ?? null} />;
+	return (
+		<PaymentForm
+			shippingRates={shippingRates}
+			cartShippingRateId={shippingRateId ?? null}
+			allProductsDigital={allProductsDigital}
+		/>
+	);
 };
 
 const PaymentForm = ({
 	shippingRates,
 	cartShippingRateId,
+	allProductsDigital,
 }: {
 	shippingRates: Commerce.MappedShippingRate[];
 	cartShippingRateId: string | null;
+	allProductsDigital: boolean;
 }) => {
 	const t = useTranslations("/cart.page.stripePayment");
 
@@ -87,7 +97,9 @@ const PaymentForm = ({
 
 	useEffect(() => {
 		transition(async () => {
-			await saveBillingAddressAction({ billingAddress: debouncedBillingAddress });
+			await saveBillingAddressAction({
+				billingAddress: debouncedBillingAddress,
+			});
 			await elements?.fetchUpdates();
 			router.refresh();
 		});
@@ -236,7 +248,7 @@ const PaymentForm = ({
 				onReady={() => setIsAddressReady(true)}
 			/>
 
-			{readyToRender && (
+			{readyToRender && !allProductsDigital && (
 				<ShippingRatesSection
 					onChange={(value) => {
 						transition(async () => {
