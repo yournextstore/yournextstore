@@ -9,9 +9,7 @@ export type NestedPick<
 		? { [NewKey in TObjectKey]: TObj[TObjectKey] }
 		: never;
 
-export type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
-	k: infer I,
-) => void
+export type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void
 	? I
 	: never;
 
