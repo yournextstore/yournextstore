@@ -54,7 +54,7 @@
 			"week": "{count, plural, =1 {# week} other {# weeks}}"
 		},
 		"actions": {
-			"shopNow": "Magasinez maintenant"
+			"shopNow": "Shop now"
 		}
 	},
 	"/": {
