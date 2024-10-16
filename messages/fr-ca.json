@@ -1,0 +1,196 @@
+{
+	"Global": {
+		"metadata": {
+			"title": "Your Next Store - Démo",
+			"description": "Un modèle Next.js pour créer instantanément votre boutique en ligne : simple, rapide et puissant."
+		},
+		"notFound": {
+			"title": "Page introuvable",
+			"description": "La page que vous souhaitez n'existe pas.",
+			"goBackLink": "Retour à l'accueil"
+		},
+		"globalError": {
+			"title": "Une erreur s'est produite!",
+			"moreDetails": "Plus de détail",
+			"tryAgainButton": "Réessayer"
+		},
+		"error": {
+			"title": "Oups, une erreur s'est produite!",
+			"goBackLink": "Réessayer"
+		},
+		"footer": {
+			"newsletterTitle": "Abonnez-vous à notre infolettre",
+			"categoriesTitle": "Produits"
+		},
+		"newsletter": {
+			"emailPlaceholder": "Entrez votre courriel",
+			"subscribeButton": "S'abonner",
+			"success": "Vous vous êtes abonné(e) avec succès à notre infolettre.",
+			"error": "L'abonnement à notre infolettre a échoué."
+		},
+		"nav": {
+			"search": {
+				"title": "Recherche",
+				"placeholder": "Rechercher des produits…"
+			},
+			"cartSummary": {
+				"itemsInCart": "Articles dans le panier",
+				"total": "Total",
+				"totalItems": "{count, plural, =0 {Aucun article} =1 {# article} other {# articles}} dans le panier"
+			}
+		},
+		"addToCart": {
+			"success": "L'article « {productName} » a été ajouté au panier",
+			"actionButton": "Ajouter au panier",
+			"disabled": "En rupture de stock"
+		},
+		"deliveryEstimates": {
+			"atLeast": "Au moins",
+			"upTo": "Jusqu'à",
+			"businessDay": "{count, plural, =1 {# jour ouvrable} other {# jours ouvrables}}",
+			"day": "{count, plural, =1 {# jour} other {# jours}}",
+			"hour": "{count, plural, =1 {# heure} other {# heures}}",
+			"month": "{count, plural, =1 {# mois} other {# mois}}",
+			"week": "{count, plural, =1 {# semaine} other {# semaines}}"
+		},
+		"actions": {
+			"shopNow": "Magasinez maintenant"
+		}
+	},
+	"/": {
+		"hero": {
+			"title": "Découvrez notre collection",
+			"description": "Explorez nos produits soigneusement sélectionnés pour votre maison et votre style de vie.",
+			"action": "Magasiner maintenant",
+			"link": "/category/accessoires"
+		}
+	},
+	"/search": {
+		"notFound": {
+			"title": "Aucun résultat trouvé pour « {query} »",
+			"description": "Désolé, nous n'avons trouvé aucun résultat correspondant à votre recherche. Veuillez affiner votre recherche."
+		},
+		"metadata": {
+			"title": "Recherche : {query} · Your Next Store"
+		},
+		"page": {
+			"title": "Recherche de « {query} »"
+		},
+		"loading": {
+			"title": "Recherche en cours"
+		}
+	},
+	"/products": {
+		"metadata": {
+			"title": "Tous les produits · Your Next Store"
+		},
+		"page": {
+			"title": "Tous les produits"
+		}
+	},
+	"/product": {
+		"metadata": {
+			"title": "{productName} · Your Next Store"
+		},
+		"page": {
+			"allProducts": "Tous les produits",
+			"imagesTitle": "Images",
+			"descriptionTitle": "Description",
+			"variantTitle": "Variante"
+		}
+	},
+	"/category": {
+		"metadata": {
+			"title": "Catégorie {categoryName} · Your Next Store"
+		},
+		"page": {
+			"title": "Catégorie : {categoryName}"
+		}
+	},
+	"/cart": {
+		"modal": {
+			"title": "Panier",
+			"openFullView": "(ouvrir la vue complète)",
+			"quantity": "Quantité : {quantity}",
+			"total": "Total",
+			"shippingAndTaxesInfo": "Les frais de livraison et les taxes seront ajoutés à l'étape suivante",
+			"goToPaymentButton": "Procéder au paiement"
+		},
+		"metadata": {
+			"title": "Panier · Your Next Store"
+		},
+		"page": {
+			"title": "Votre panier",
+			"checkoutTitle": "Paiement",
+			"checkoutDescription": "Veuillez entrer les informations de facturation et d'expédition ci-dessous.",
+			"summaryTable": {
+				"imageCol": "Image",
+				"productCol": "Produit",
+				"priceCol": "Prix",
+				"quantityCol": "Quantité",
+				"totalCol": "Total",
+				"totalSummary": "TOTAL"
+			},
+			"stripePayment": {
+				"fillRequiredFields": "Veuillez remplir les champs requis.",
+				"unexpectedError": "Une erreur inattendue s'est produite.",
+				"billingSameAsShipping": "Adresse de facturation identique à celle de livraison",
+				"billingAddressTitle": "Adresse de facturation",
+				"payNowButton": "Payer maintenant",
+				"errorTitle": "Erreur",
+				"fullName": "Nom complet",
+				"address1": "Adresse",
+				"address2": "Adresse (suite)",
+				"postalCode": "Code postal",
+				"city": "Ville",
+				"state": "Province / Région",
+				"country": "Pays",
+				"phone": "Numéro de téléphone",
+				"taxId": "Numéro d'identification fiscale",
+				"taxIdPlaceholder": "ex. PL123456789"
+			},
+			"formErrors": {
+				"nameRequired": "Le nom est requis",
+				"cityRequired": "La ville est requise",
+				"countryRequired": "Le pays est requis",
+				"line1Required": "L'adresse est requise",
+				"postalCodeRequired": "Le code postal est requis"
+			}
+		},
+		"empty": {
+			"title": "Votre panier est vide",
+			"description": "Il semble que vous n'ayez encore rien ajouté à votre panier.",
+			"continueShoppingButton": "Continuer vos achats"
+		}
+	},
+	"/order": {
+		"metadata": {
+			"title": "Confirmation de commande · Your Next Store"
+		},
+		"page": {
+			"title": "Confirmation de commande",
+			"description": "Merci! Vous trouverez ci-dessous les détails de votre commande.",
+			"orderNumberTitle": "Numéro de commande",
+			"productsTitle": "Produits dans cette commande",
+			"price": "Prix",
+			"quantity": "Quantité",
+			"total": "Total",
+			"detailsTitle": "Détails de la commande",
+			"shippingAddress": "Adresse de livraison",
+			"billingAddress": "Adresse de facturation",
+			"taxId": "Numéro de taxe",
+			"paymentMethod": "Méthode de paiement",
+			"cardBrand": "Marque de la carte",
+			"last4CardDigitsLabel": "Numéro de carte se terminant par"
+		},
+		"paymentStatus": {
+			"canceled": "Annulé",
+			"processing": "En traitement",
+			"requires_action": "Action requise",
+			"requires_capture": "Capture requise",
+			"requires_confirmation": "Confirmation requise",
+			"requires_payment_method": "Méthode de paiement requise",
+			"succeeded": "Réussi"
+		}
+	}
+}

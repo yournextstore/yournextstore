@@ -52,6 +52,9 @@
 			"hour": "{count, plural, =1 {# hour} other {# hours}}",
 			"month": "{count, plural, =1 {# month} other {# months}}",
 			"week": "{count, plural, =1 {# week} other {# weeks}}"
+		},
+		"actions": {
+			"shopNow": "Shop now"
 		}
 	},
 	"/": {
