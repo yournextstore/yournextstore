@@ -14,13 +14,17 @@ export function setCartCookieJson(cartCookieJson: CartCookieJson): void {
 }
 
 export function clearCartCookie(): void {
-	(cookies() as unknown as UnsafeUnwrappedCookies).set(CART_COOKIE, "", { maxAge: 0 });
+	(cookies() as unknown as UnsafeUnwrappedCookies).set(CART_COOKIE, "", {
+		maxAge: 0,
+	});
 }
 
-export function getCartCookieJson(): null | CartCookieJson {
+export async function getCartCookieJson(): Promise<null | CartCookieJson> {
+	const cookiesValue = await cookies();
 	const cartCookieJson = safeJsonParse(
-		(cookies() as unknown as UnsafeUnwrappedCookies).get(CART_COOKIE)?.value,
+		(cookiesValue as unknown as UnsafeUnwrappedCookies).get(CART_COOKIE)?.value,
 	);
+
 	if (
 		!cartCookieJson ||
 		typeof cartCookieJson !== "object" ||

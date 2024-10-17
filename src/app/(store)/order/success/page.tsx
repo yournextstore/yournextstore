@@ -37,7 +37,7 @@ export default async function OrderDetailsPage(props: {
 	if (!order) {
 		return <div>Order not found</div>;
 	}
-	const cookie = getCartCookieJson();
+	const cookie = await getCartCookieJson();
 	const t = await getTranslations("/order.page");
 	const locale = await getLocale();
 
