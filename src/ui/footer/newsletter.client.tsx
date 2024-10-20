@@ -1,12 +1,12 @@
 "use client";
 
-import { toast } from "sonner";
-import { useState } from "react";
-import { Loader2Icon } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { signForNewsletter } from "@/ui/footer/actions";
 import { Button } from "@/ui/shadcn/button";
 import { Input } from "@/ui/shadcn/input";
-import { signForNewsletter } from "@/ui/footer/actions";
+import { Loader2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const Newsletter = () => {
 	const t = useTranslations("Global.newsletter");

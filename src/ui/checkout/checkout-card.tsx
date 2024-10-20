@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
 import amex from "@/images/payments/amex.svg";
 import blik from "@/images/payments/blik.svg";
 import google_pay from "@/images/payments/google_pay.svg";
@@ -8,7 +6,10 @@ import link from "@/images/payments/link.svg";
 import mastercard from "@/images/payments/mastercard.svg";
 import p24 from "@/images/payments/p24.svg";
 import visa from "@/images/payments/visa.svg";
+import { isDefined } from "@/lib/utils";
 import { StripePayment } from "@/ui/checkout/stripe-payment";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
 
 export const paymentMethods = {
 	amex,
@@ -21,7 +22,7 @@ export const paymentMethods = {
 	visa,
 };
 
-export const CheckoutCard = async ({ cart }: { cart: Commerce.Cart["cart"] }) => {
+export const CheckoutCard = async ({ cart }: { cart: Commerce.Cart }) => {
 	const shippingRates = await Commerce.shippingBrowse();
 	const t = await getTranslations("/cart.page");
 
@@ -30,8 +31,11 @@ export const CheckoutCard = async ({ cart }: { cart: Commerce.Cart["cart"] }) =>
 			<h2 className="text-3xl font-bold leading-none tracking-tight">{t("checkoutTitle")}</h2>
 			<p className="mb-4 mt-2 text-sm text-muted-foreground">{t("checkoutDescription")}</p>
 			<StripePayment
-				shippingRateId={cart.metadata.shippingRateId}
+				shippingRateId={cart.cart.metadata.shippingRateId}
 				shippingRates={structuredClone(shippingRates)}
+				allProductsDigital={cart.lines.every((line) =>
+					isDefined(line.product.shippable) ? !line.product.shippable : false,
+				)}
 			/>
 		</section>
 	);

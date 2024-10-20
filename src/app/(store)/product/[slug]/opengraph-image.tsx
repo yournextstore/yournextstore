@@ -1,7 +1,7 @@
-import { ImageResponse } from "next/og";
-import { getLocale } from "next-intl/server";
-import { accountGet, productGet } from "commerce-kit";
 import { formatMoney } from "@/lib/utils";
+import { accountGet, productGet } from "commerce-kit";
+import { getLocale } from "next-intl/server";
+import { ImageResponse } from "next/og";
 
 export const size = {
 	width: 1200,
@@ -13,7 +13,8 @@ export const runtime = "edge";
 export const contentType = "image/png";
 export const alt = "";
 
-export default async function Image({ params }: { params: { slug: string } }) {
+export default async function Image(props: { params: Promise<{ slug: string }> }) {
+	const params = await props.params;
 	const locale = await getLocale();
 	const geistRegular = fetch(new URL("./Geist-Regular.ttf", import.meta.url)).then((res) =>
 		res.arrayBuffer(),
@@ -21,10 +22,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
 	// const geistBold = fetch(new URL("./Geist-Bold.ttf", import.meta.url)).then((res) =>
 	// 	res.arrayBuffer(),
 	// );
-	const [accountResult, [product]] = await Promise.all([
-		accountGet(),
-		productGet({ slug: params.slug }),
-	]);
+	const [accountResult, [product]] = await Promise.all([accountGet(), productGet({ slug: params.slug })]);
 
 	if (!product) {
 		return null;

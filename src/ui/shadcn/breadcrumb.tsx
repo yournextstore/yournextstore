@@ -1,6 +1,6 @@
-import * as React from "react";
 import { ChevronRightIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Slot } from "@radix-ui/react-slot";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -41,13 +41,7 @@ const BreadcrumbLink = React.forwardRef<
 >(({ asChild, className, ...props }, ref) => {
 	const Comp = asChild ? Slot : "a";
 
-	return (
-		<Comp
-			ref={ref}
-			className={cn("transition-colors hover:text-foreground", className)}
-			{...props}
-		/>
-	);
+	return <Comp ref={ref} className={cn("transition-colors hover:text-foreground", className)} {...props} />;
 });
 BreadcrumbLink.displayName = "BreadcrumbLink";
 
@@ -66,12 +60,7 @@ const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWit
 BreadcrumbPage.displayName = "BreadcrumbPage";
 
 const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentProps<"li">) => (
-	<li
-		role="presentation"
-		aria-hidden="true"
-		className={cn("[&>svg]:size-3.5", className)}
-		{...props}
-	>
+	<li role="presentation" aria-hidden="true" className={cn("[&>svg]:size-3.5", className)} {...props}>
 		{children ?? <ChevronRightIcon />}
 	</li>
 );

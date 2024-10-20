@@ -1,16 +1,11 @@
-import type Stripe from "stripe";
-import type { WebSite, ItemList, Product, Thing, WithContext } from "schema-dts";
+import { formatProductName } from "@/lib/utils";
 import type * as Commerce from "commerce-kit";
 import { getDecimalFromStripeAmount } from "commerce-kit/currencies";
-import { formatProductName } from "@/lib/utils";
+import type { ItemList, Product, Thing, WebSite, WithContext } from "schema-dts";
+import type Stripe from "stripe";
 
 export const JsonLd = <T extends Thing>({ jsonLd }: { jsonLd: WithContext<T> }) => {
-	return (
-		<script
-			type="application/ld+json"
-			dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-		/>
-	);
+	return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
 };
 
 export const mappedProductToJsonLd = (product: Commerce.MappedProduct): WithContext<Product> => {

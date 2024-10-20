@@ -1,16 +1,15 @@
-import type { Metadata } from "next/types";
-import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
-import { ProductList } from "@/ui/products/product-list";
-import { deslugify } from "@/lib/utils";
 import { publicUrl } from "@/env.mjs";
+import { deslugify } from "@/lib/utils";
+import { ProductList } from "@/ui/products/product-list";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next/types";
 
-export const generateMetadata = async ({
-	params,
-}: {
-	params: { slug: string };
+export const generateMetadata = async (props: {
+	params: Promise<{ slug: string }>;
 }): Promise<Metadata> => {
+	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,
 		filter: { category: params.slug },
@@ -28,7 +27,8 @@ export const generateMetadata = async ({
 	};
 };
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
+export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,
 		filter: { category: params.slug },

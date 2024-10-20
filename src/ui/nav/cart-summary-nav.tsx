@@ -1,11 +1,11 @@
-import { Suspense } from "react";
-import { ShoppingBagIcon } from "lucide-react";
-import { getLocale, getTranslations } from "next-intl/server";
-import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { formatMoney } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/ui/shadcn/tooltip";
 import { YnsLink } from "@/ui/yns-link";
-import { formatMoney } from "@/lib/utils";
+import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
+import { ShoppingBagIcon } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
 const CartFallback = () => (
 	<div className="mr-2.5 h-6 w-6 opacity-30">

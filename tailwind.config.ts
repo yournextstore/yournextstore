@@ -1,6 +1,6 @@
-import type { Config } from "tailwindcss";
 import FormsPlugin from "@tailwindcss/forms";
 import TypographyPlugin from "@tailwindcss/typography";
+import type { Config } from "tailwindcss";
 import Animate from "tailwindcss-animate";
 
 const config = {

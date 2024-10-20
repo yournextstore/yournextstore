@@ -1,5 +1,5 @@
-import { getRequestConfig } from "next-intl/server";
 import { env } from "@/env.mjs";
+import { getRequestConfig } from "next-intl/server";
 type En = typeof import("../messages/en.json");
 
 export default getRequestConfig(async () => {

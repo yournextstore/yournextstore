@@ -1,5 +1,18 @@
 "use client";
 
+import { clearCartCookieAction } from "@/actions/cart-actions";
+import { useDebouncedValue } from "@/lib/hooks";
+import { saveBillingAddressAction, saveShippingRateAction } from "@/ui/checkout/checkout-actions";
+import { type AddressSchema, getAddressSchema } from "@/ui/checkout/checkout-form-schema";
+import { ShippingRatesSection } from "@/ui/checkout/shipping-rates-section";
+import { saveTaxIdAction } from "@/ui/checkout/tax-action";
+import { CountrySelect } from "@/ui/country-select";
+import { InputWithErrors } from "@/ui/input-errors";
+import { Alert, AlertDescription, AlertTitle } from "@/ui/shadcn/alert";
+import { Button } from "@/ui/shadcn/button";
+import { Checkbox } from "@/ui/shadcn/checkbox";
+import { Collapsible, CollapsibleContent } from "@/ui/shadcn/collapsible";
+import { Label } from "@/ui/shadcn/label";
 import {
 	AddressElement,
 	LinkAuthenticationElement,
@@ -7,41 +20,38 @@ import {
 	useElements,
 	useStripe,
 } from "@stripe/react-stripe-js";
-import { useEffect, useState, useTransition, type ChangeEvent, type FormEventHandler } from "react";
-import { Loader2, AlertCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import type * as Commerce from "commerce-kit";
-import { Button } from "@/ui/shadcn/button";
-import { Alert, AlertTitle, AlertDescription } from "@/ui/shadcn/alert";
-import { clearCartCookieAction } from "@/actions/cart-actions";
-import { Label } from "@/ui/shadcn/label";
-import { Checkbox } from "@/ui/shadcn/checkbox";
-import { Collapsible, CollapsibleContent } from "@/ui/shadcn/collapsible";
-import { InputWithErrors } from "@/ui/input-errors";
-import { getAddressSchema, type AddressSchema } from "@/ui/checkout/checkout-form-schema";
-import { ShippingRatesSection } from "@/ui/checkout/shipping-rates-section";
-import { saveTaxIdAction } from "@/ui/checkout/tax-action";
-import { CountrySelect } from "@/ui/country-select";
-import { useDebouncedValue } from "@/lib/hooks";
-import { saveBillingAddressAction, saveShippingRateAction } from "@/ui/checkout/checkout-actions";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { type ChangeEvent, type FormEventHandler, useEffect, useState, useTransition } from "react";
 
 export const StripePayment = ({
 	shippingRateId,
 	shippingRates,
+	allProductsDigital,
 }: {
 	shippingRateId?: string | null;
 	shippingRates: Commerce.MappedShippingRate[];
+	allProductsDigital: boolean;
 }) => {
-	return <PaymentForm shippingRates={shippingRates} cartShippingRateId={shippingRateId ?? null} />;
+	return (
+		<PaymentForm
+			shippingRates={shippingRates}
+			cartShippingRateId={shippingRateId ?? null}
+			allProductsDigital={allProductsDigital}
+		/>
+	);
 };
 
 const PaymentForm = ({
 	shippingRates,
 	cartShippingRateId,
+	allProductsDigital,
 }: {
 	shippingRates: Commerce.MappedShippingRate[];
 	cartShippingRateId: string | null;
+	allProductsDigital: boolean;
 }) => {
 	const t = useTranslations("/cart.page.stripePayment");
 
@@ -76,10 +86,7 @@ const PaymentForm = ({
 		email: "",
 	});
 
-	const [isBillingAddressPending, debouncedBillingAddress] = useDebouncedValue(
-		billingAddressValues,
-		1000,
-	);
+	const [isBillingAddressPending, debouncedBillingAddress] = useDebouncedValue(billingAddressValues, 1000);
 	const [shippingRateId, setShippingRateId] = useState<string | null>(cartShippingRateId);
 
 	const [sameAsShipping, setSameAsShipping] = useState(true);
@@ -90,14 +97,15 @@ const PaymentForm = ({
 
 	useEffect(() => {
 		transition(async () => {
-			await saveBillingAddressAction({ billingAddress: debouncedBillingAddress });
+			await saveBillingAddressAction({
+				billingAddress: debouncedBillingAddress,
+			});
 			await elements?.fetchUpdates();
 			router.refresh();
 		});
 	}, [debouncedBillingAddress, elements, router]);
 
-	const readyToRender =
-		stripe && elements && isAddressReady && isLinkAuthenticationReady && isPaymentReady;
+	const readyToRender = stripe && elements && isAddressReady && isLinkAuthenticationReady && isPaymentReady;
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
@@ -126,9 +134,7 @@ const PaymentForm = ({
 				phone: shippingAddressObject.value.phone,
 			};
 
-			const billingAddress: Partial<AddressSchema> = sameAsShipping
-				? shippingAddress
-				: billingAddressValues;
+			const billingAddress: Partial<AddressSchema> = sameAsShipping ? shippingAddress : billingAddressValues;
 
 			const validatedBillingAddress = addressSchema.safeParse(billingAddress);
 			const validatedShippingAddress = addressSchema.safeParse(shippingAddress);
@@ -242,7 +248,7 @@ const PaymentForm = ({
 				onReady={() => setIsAddressReady(true)}
 			/>
 
-			{readyToRender && (
+			{readyToRender && !allProductsDigital && (
 				<ShippingRatesSection
 					onChange={(value) => {
 						transition(async () => {

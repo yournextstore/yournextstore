@@ -1,9 +1,9 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useTransition } from "react";
-import { Loader2Icon } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
+import { Loader2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 export const AddToCartButton = ({
 	productId,

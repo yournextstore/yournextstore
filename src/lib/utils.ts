@@ -1,6 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+export const isDefined = <T>(value: T | null | undefined): value is T =>
+	value !== null && value !== undefined;
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -43,17 +46,16 @@ export const stringToInt = (str: string | number | null | undefined) => {
 	return parsed;
 };
 
-type CardinalWords = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
+type CardinalWords = Partial<Record<Intl.LDMLPluralRule, string>> & {
+	other: string;
+};
 export const pluralize = (count: number, words: CardinalWords) => {
 	const cardinalRules = new Intl.PluralRules("en-US");
 	const rule = cardinalRules.select(count);
 	return words[rule] ?? words.other;
 };
 
-export const getFieldsByPrefix = <Prefix extends string, Obj extends object>(
-	obj: Obj,
-	prefix: Prefix,
-) => {
+export const getFieldsByPrefix = <Prefix extends string, Obj extends object>(obj: Obj, prefix: Prefix) => {
 	const prefixWithDot = prefix + ".";
 	return Object.fromEntries(
 		Object.entries(obj)
@@ -64,14 +66,9 @@ export const getFieldsByPrefix = <Prefix extends string, Obj extends object>(
 	};
 };
 
-export const addPrefixToFields = <Prefix extends string, Obj extends object>(
-	obj: Obj,
-	prefix: Prefix,
-) => {
+export const addPrefixToFields = <Prefix extends string, Obj extends object>(obj: Obj, prefix: Prefix) => {
 	const prefixWithDot = prefix + ".";
-	return Object.fromEntries(
-		Object.entries(obj).map(([key, value]) => [prefixWithDot + key, value]),
-	) as {
+	return Object.fromEntries(Object.entries(obj).map(([key, value]) => [prefixWithDot + key, value])) as {
 		[K in keyof Obj as `${Prefix}.${K & string}`]: Obj[K];
 	};
 };
@@ -110,7 +107,10 @@ export const calculateCartTotalPossiblyWithTax = (cart: {
 		amount: number;
 		metadata?: { taxCalculationId?: string };
 	};
-	lines: Array<{ product: { default_price?: { unit_amount?: number | null } }; quantity: number }>;
+	lines: Array<{
+		product: { default_price?: { unit_amount?: number | null } };
+		quantity: number;
+	}>;
 	shippingRate?: { fixed_amount?: { amount?: number } } | null;
 }) => {
 	if (!cart) {
@@ -120,9 +120,7 @@ export const calculateCartTotalPossiblyWithTax = (cart: {
 		return cart.cart.amount;
 	}
 
-	return (
-		(cart.shippingRate?.fixed_amount?.amount ?? 0) + calculateCartTotalNetWithoutShipping(cart)
-	);
+	return (cart.shippingRate?.fixed_amount?.amount ?? 0) + calculateCartTotalNetWithoutShipping(cart);
 };
 
 export const calculateCartTotalNetWithoutShipping = (cart: {
@@ -130,7 +128,10 @@ export const calculateCartTotalNetWithoutShipping = (cart: {
 		amount: number;
 		metadata?: { taxCalculationId?: string };
 	};
-	lines: Array<{ product: { default_price?: { unit_amount?: number | null } }; quantity: number }>;
+	lines: Array<{
+		product: { default_price?: { unit_amount?: number | null } };
+		quantity: number;
+	}>;
 	shippingRate?: { fixed_amount?: { amount?: number } } | null;
 }) => {
 	if (!cart) {
@@ -176,11 +177,7 @@ export const getDecimalFromStripeAmount = ({ amount: minor, currency }: Money) =
 	return Number.parseFloat((minor / multiplier).toFixed(decimals));
 };
 
-export const formatMoney = ({
-	amount: minor,
-	currency,
-	locale = "en-US",
-}: Money & { locale?: string }) => {
+export const formatMoney = ({ amount: minor, currency, locale = "en-US" }: Money & { locale?: string }) => {
 	const amount = getDecimalFromStripeAmount({ amount: minor, currency });
 	return new Intl.NumberFormat(locale, {
 		style: "currency",

@@ -36,11 +36,8 @@ jobs:
       - name: Install dependencies
         run: pnpm --version && pnpm install --frozen-lockfile
 
-      - name: Check prettier
-        run: pnpm prettier --cache --check .
-
-      - name: Eslint
-        run: pnpm lint
+      - name: Check Biome
+        run: pnpm biome check
 
       - name: Test
         run: pnpm test

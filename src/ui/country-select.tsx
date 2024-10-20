@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import { CaretSortIcon } from "@radix-ui/react-icons";
-import { Drawer, DrawerContent, DrawerTrigger } from "@ui/shadcn/drawer";
 import { Button } from "@ui/shadcn/button";
 import {
 	Command,
@@ -12,7 +10,9 @@ import {
 	CommandItem,
 	CommandList,
 } from "@ui/shadcn/command";
+import { Drawer, DrawerContent, DrawerTrigger } from "@ui/shadcn/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@ui/shadcn/popover";
+import { useState } from "react";
 
 import { countries, findMatchingCountry } from "@/lib/countries";
 import { ElWithErrors, type ElWithErrorsProps } from "@/ui/input-errors";
@@ -43,10 +43,7 @@ export function CountrySelect({
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className="w-[200px] p-0" align="start">
-								<CountryList
-									setOpen={setOpen}
-									setSelectedCountry={(c) => onChangeValue?.(c?.value ?? "")}
-								/>
+								<CountryList setOpen={setOpen} setSelectedCountry={(c) => onChangeValue?.(c?.value ?? "")} />
 							</PopoverContent>
 						</Popover>
 					);
@@ -61,10 +58,7 @@ export function CountrySelect({
 						</DrawerTrigger>
 						<DrawerContent>
 							<div className="mt-4 border-t">
-								<CountryList
-									setOpen={setOpen}
-									setSelectedCountry={(c) => onChangeValue?.(c?.value ?? "")}
-								/>
+								<CountryList setOpen={setOpen} setSelectedCountry={(c) => onChangeValue?.(c?.value ?? "")} />
 							</div>
 						</DrawerContent>
 					</Drawer>

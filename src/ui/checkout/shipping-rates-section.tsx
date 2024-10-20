@@ -1,9 +1,9 @@
-import type Stripe from "stripe";
-import { useOptimistic, useTransition } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import type * as Commerce from "commerce-kit";
-import { RadioGroup, RadioGroupItem } from "@/ui/shadcn/radio-group";
 import { cn, formatMoney } from "@/lib/utils";
+import { RadioGroup, RadioGroupItem } from "@/ui/shadcn/radio-group";
+import type * as Commerce from "commerce-kit";
+import { useLocale, useTranslations } from "next-intl";
+import { useOptimistic, useTransition } from "react";
+import type Stripe from "stripe";
 
 export const ShippingRatesSection = ({
 	shippingRates,
@@ -95,9 +95,7 @@ export const FormatDeliveryEstimate = ({
 type i18n = ReturnType<typeof useTranslations<"Global.deliveryEstimates">>;
 const deliveryUnitToText = (
 	value: number,
-	unit:
-		| Stripe.ShippingRate.DeliveryEstimate.Maximum.Unit
-		| Stripe.ShippingRate.DeliveryEstimate.Minimum.Unit,
+	unit: Stripe.ShippingRate.DeliveryEstimate.Maximum.Unit | Stripe.ShippingRate.DeliveryEstimate.Minimum.Unit,
 	t: i18n,
 ) => {
 	switch (unit) {

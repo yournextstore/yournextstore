@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import type { Metadata } from "next/types";
-import { getLocale, getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
-import { Markdown } from "@/ui/markdown";
+import { publicUrl } from "@/env.mjs";
+import { getRecommendedProducts } from "@/lib/search/trieve";
+import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
+import type { TrieveProductMetadata } from "@/scripts/upload-trieve";
+import { AddToCartButton } from "@/ui/add-to-cart-button";
 import { JsonLd, mappedProductToJsonLd } from "@/ui/json-ld";
+import { Markdown } from "@/ui/markdown";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -13,18 +13,20 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/ui/shadcn/breadcrumb";
-import { AddToCartButton } from "@/ui/add-to-cart-button";
-import { cn, deslugify, formatMoney, formatProductName } from "@/lib/utils";
-import { publicUrl } from "@/env.mjs";
 import { YnsLink } from "@/ui/yns-link";
+import * as Commerce from "commerce-kit";
+import { getLocale, getTranslations } from "next-intl/server";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next/types";
+import { Suspense } from "react";
 
-export const generateMetadata = async ({
-	params,
-	searchParams,
-}: {
-	params: { slug: string };
-	searchParams: { variant?: string };
+export const generateMetadata = async (props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<{ variant?: string }>;
 }): Promise<Metadata> => {
+	const searchParams = await props.searchParams;
+	const params = await props.params;
 	const variants = await Commerce.productGet({ slug: params.slug });
 
 	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
@@ -49,13 +51,12 @@ export const generateMetadata = async ({
 	} satisfies Metadata;
 };
 
-export default async function SingleProductPage({
-	params,
-	searchParams,
-}: {
-	params: { slug: string };
-	searchParams: { variant?: string };
+export default async function SingleProductPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<{ variant?: string }>;
 }) {
+	const searchParams = await props.searchParams;
+	const params = await props.params;
 	const variants = await Commerce.productGet({ slug: params.slug });
 	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
 	const product = variants.find((variant) => variant.metadata.variant === selectedVariant);
@@ -74,10 +75,7 @@ export default async function SingleProductPage({
 			<Breadcrumb>
 				<BreadcrumbList>
 					<BreadcrumbItem>
-						<BreadcrumbLink
-							asChild
-							className="inline-flex min-h-12 min-w-12 items-center justify-center"
-						>
+						<BreadcrumbLink asChild className="inline-flex min-h-12 min-w-12 items-center justify-center">
 							<YnsLink href="/">{t("allProducts")}</YnsLink>
 						</BreadcrumbLink>
 					</BreadcrumbItem>
@@ -85,10 +83,7 @@ export default async function SingleProductPage({
 						<>
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
-								<BreadcrumbLink
-									className="inline-flex min-h-12 min-w-12 items-center justify-center"
-									asChild
-								>
+								<BreadcrumbLink className="inline-flex min-h-12 min-w-12 items-center justify-center" asChild>
 									<YnsLink href={`/category/${category}`}>{deslugify(category)}</YnsLink>
 								</BreadcrumbLink>
 							</BreadcrumbItem>
@@ -111,9 +106,7 @@ export default async function SingleProductPage({
 
 			<div className="mt-4 grid gap-4 lg:grid-cols-12">
 				<div className="lg:col-span-5 lg:col-start-8">
-					<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">
-						{product.name}
-					</h1>
+					<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">{product.name}</h1>
 					{product.default_price.unit_amount && (
 						<p className="mt-2 text-2xl font-medium leading-none tracking-tight text-foreground/70">
 							{formatMoney({
@@ -191,7 +184,64 @@ export default async function SingleProductPage({
 					<AddToCartButton productId={product.id} disabled={product.metadata.stock <= 0} />
 				</div>
 			</div>
+			<Suspense>
+				<SimilarProducts id={product.id} />
+			</Suspense>
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>
+	);
+}
+
+async function SimilarProducts({ id }: { id: string }) {
+	const products = await getRecommendedProducts({ productId: id, limit: 4 });
+
+	if (!products) {
+		return null;
+	}
+
+	return (
+		<section className="py-12">
+			<div className="mb-8">
+				<h2 className="text-2xl font-bold tracking-tight">You May Also Like</h2>
+			</div>
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+				{products.map((product) => {
+					const trieveMetadata = product.metadata as TrieveProductMetadata;
+					return (
+						<div key={product.tracking_id} className="bg-card rounded overflow-hidden shadow group">
+							{trieveMetadata.image_url && (
+								<YnsLink href={`${publicUrl}${product.link}`} className="block" prefetch={false}>
+									<Image
+										className={
+											"w-full rounded-lg bg-neutral-100 object-cover object-center group-hover:opacity-80 transition-opacity"
+										}
+										src={trieveMetadata.image_url}
+										width={300}
+										height={300}
+										sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
+										alt=""
+									/>
+								</YnsLink>
+							)}
+							<div className="p-4">
+								<h3 className="text-lg font-semibold mb-2">
+									<YnsLink href={product.link || "#"} className="hover:text-primary" prefetch={false}>
+										{trieveMetadata.name}
+									</YnsLink>
+								</h3>
+								<div className="flex items-center justify-between">
+									<span>
+										{formatMoney({
+											amount: trieveMetadata.amount,
+											currency: trieveMetadata.currency,
+										})}
+									</span>
+								</div>
+							</div>
+						</div>
+					);
+				})}
+			</div>
+		</section>
 	);
 }

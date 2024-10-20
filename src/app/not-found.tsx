@@ -1,5 +1,5 @@
-import { getTranslations } from "next-intl/server";
 import { YnsLink } from "@/ui/yns-link";
+import { getTranslations } from "next-intl/server";
 
 export default async function NotFound() {
 	const t = await getTranslations("Global.notFound");

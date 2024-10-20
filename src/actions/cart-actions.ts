@@ -1,11 +1,11 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
-import * as Commerce from "commerce-kit";
 import { clearCartCookie, getCartCookieJson, setCartCookieJson } from "@/lib/cart";
+import * as Commerce from "commerce-kit";
+import { revalidateTag } from "next/cache";
 
 export async function getCartFromCookiesAction() {
-	const cartJson = getCartCookieJson();
+	const cartJson = await getCartCookieJson();
 	if (!cartJson) {
 		return null;
 	}
@@ -34,7 +34,7 @@ export async function findOrCreateCartIdFromCookiesAction() {
 }
 
 export async function clearCartCookieAction() {
-	const cookie = getCartCookieJson();
+	const cookie = await getCartCookieJson();
 	if (!cookie) {
 		return;
 	}

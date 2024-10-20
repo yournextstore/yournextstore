@@ -1,9 +1,8 @@
-import type { SVGAttributes } from "react";
-import { getTranslations } from "next-intl/server";
-import { YnsLink } from "@/ui/yns-link";
 import { Newsletter } from "@/ui/footer/newsletter.client";
 import { env } from "@/env.mjs";
-
+import { YnsLink } from "@/ui/yns-link";
+import { getTranslations } from "next-intl/server";
+import type { SVGAttributes } from "react";
 const l = await getTranslations("Global.legal");
 
 const sections = [

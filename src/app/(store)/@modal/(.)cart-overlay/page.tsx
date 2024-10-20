@@ -1,15 +1,16 @@
-import Image from "next/image";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { formatMoney, formatProductName } from "@/lib/utils";
+import { Button } from "@/ui/shadcn/button";
+import { YnsLink } from "@/ui/yns-link";
 import * as Commerce from "commerce-kit";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
+import { getLocale, getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { CartAsideContainer } from "./cart-aside";
 import { CartModalAddSideEffect } from "./cart-side-effect";
-import { getCartFromCookiesAction } from "@/actions/cart-actions";
-import { Button } from "@/ui/shadcn/button";
-import { formatMoney, formatProductName } from "@/lib/utils";
-import { YnsLink } from "@/ui/yns-link";
 
-export default async function CartModalPage({ searchParams }: { searchParams: { add?: string } }) {
+export default async function CartModalPage(props: { searchParams: Promise<{ add?: string }> }) {
+	const searchParams = await props.searchParams;
 	const originalCart = await getCartFromCookiesAction();
 	// TODO fix type
 	const cart = await Commerce.cartAddOptimistic({ add: searchParams.add, cart: originalCart! });

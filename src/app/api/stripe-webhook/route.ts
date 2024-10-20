@@ -1,15 +1,15 @@
-import { revalidateTag } from "next/cache";
-import * as Commerce from "commerce-kit";
-import { cartMetadataSchema } from "commerce-kit/internal";
 import { env } from "@/env.mjs";
 import { unpackPromise } from "@/lib/utils";
+import * as Commerce from "commerce-kit";
+import { cartMetadataSchema } from "commerce-kit/internal";
+import { revalidateTag } from "next/cache";
 
 export async function POST(request: Request) {
 	if (!env.STRIPE_WEBHOOK_SECRET) {
 		return new Response("STRIPE_WEBHOOK_SECRET is not configured", { status: 500 });
 	}
 
-	const signature = request.headers.get("Stripe-Signature");
+	const signature = (await request.headers).get("Stripe-Signature");
 	if (!signature) {
 		return new Response("No signature", { status: 401 });
 	}
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 	});
 
 	const [error, event] = await unpackPromise(
-		stripe.webhooks.constructEventAsync(await request.text(), signature, env.STRIPE_WEBHOOK_SECRET),
+		stripe.webhooks.constructEventAsync(await (await request.text)(), signature, env.STRIPE_WEBHOOK_SECRET),
 	);
 
 	if (error) {

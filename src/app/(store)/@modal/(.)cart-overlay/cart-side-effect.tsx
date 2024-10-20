@@ -1,8 +1,8 @@
 "use client";
 
-import { startTransition, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/actions/cart-actions";
+import { useRouter } from "next/navigation";
+import { startTransition, useEffect, useRef } from "react";
 
 // This is a side effect that is triggered when the user clicks on the "Add to cart" button.
 // It will add the product to the cart in the background while the cart renders optimistically updated UI

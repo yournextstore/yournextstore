@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
-import * as Commerce from "commerce-kit";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import * as Commerce from "commerce-kit";
+import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
-import { CartSummaryTable } from "@/ui/checkout/cart-summary-table";
 import { CartEmpty } from "@/ui/checkout/cart-empty";
+import { CartSummaryTable } from "@/ui/checkout/cart-summary-table";
 import { StripeElementsContainer } from "@/ui/checkout/stripe-elements-container";
 
 export default async function CartLayout({ children }: { children: ReactNode }) {
