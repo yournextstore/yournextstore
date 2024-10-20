@@ -51,6 +51,8 @@
 		"next-themes": "0.3.0",
 		"react": "19.0.0-rc-b8ae38f8-20241018",
 		"react-dom": "19.0.0-rc-b8ae38f8-20241018",
+		"remark": "15.0.1",
+		"remark-html": "16.0.1",
 		"schema-dts": "1.1.2",
 		"server-only": "0.0.1",
 		"sonner": "1.5.0",

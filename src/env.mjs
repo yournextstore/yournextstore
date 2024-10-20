@@ -16,6 +16,7 @@ export const env = createEnv({
 			.optional()
 			.transform((str) => !!str),
 
+		ENABLE_LEGAL_PAGES: z.string().optional().default("0"),
 		TRIEVE_DATASET_ID: z.string().optional(),
 		TRIEVE_API_KEY: z.string().optional(),
 	},
@@ -41,7 +42,8 @@ export const env = createEnv({
 		NEXT_PUBLIC_NEWSLETTER_ENDPOINT: process.env.NEXT_PUBLIC_NEWSLETTER_ENDPOINT,
 
 		ENABLE_STRIPE_TAX: process.env.ENABLE_STRIPE_TAX,
-
+    
+		ENABLE_LEGAL_PAGES: process.env.ENABLE_LEGAL_PAGES,
 		TRIEVE_DATASET_ID: process.env.TRIEVE_DATASET_ID,
 		TRIEVE_API_KEY: process.env.TRIEVE_API_KEY,
 
