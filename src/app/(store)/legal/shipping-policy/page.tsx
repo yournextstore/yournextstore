@@ -1,15 +1,18 @@
+import { markdownToHtml } from "@/lib/md2html";
 import { getTranslations } from "next-intl/server";
-import { ShippingPolicy } from "@ui/legal/shipping-policy";
 
-export default async function ImprintPage() {
+export default async function ShippingPolicyPage() {
 	const t = await getTranslations("Global.legal");
+
+	const imprint = await markdownToHtml("shipping-policy.md");
 
 	return (
 		<article className="pb-12">
 			<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">
 				{t("shippingPolicyLabel")}
 			</h1>
-			<ShippingPolicy />
+			<br />
+			<div dangerouslySetInnerHTML={{ __html: imprint }} />
 		</article>
 	);
 }

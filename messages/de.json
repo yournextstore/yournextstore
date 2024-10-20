@@ -60,6 +60,9 @@
 			"hour": "{count, plural, =1 {# Stunde} other {# Stunden}}",
 			"month": "{count, plural, =1 {# Monat} other {# Monate}}",
 			"week": "{count, plural, =1 {# Woche} other {# Wochen}}"
+		},
+		"actions": {
+			"shopNow": "Jetzt einkaufen"
 		}
 	},
 	"/": {

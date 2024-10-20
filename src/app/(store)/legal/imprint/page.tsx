@@ -1,15 +1,16 @@
+import { markdownToHtml } from "@/lib/md2html";
 import { getTranslations } from "next-intl/server";
-import { Imprint } from "@ui/legal/imprint";
 
 export default async function ImprintPage() {
 	const t = await getTranslations("Global.legal");
 
+	const imprint = await markdownToHtml("imprint.md");
+
 	return (
 		<article className="pb-12">
-			<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">
-				{t("imprintLabel")}
-			</h1>
-			<Imprint />
+			<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">{t("imprintLabel")}</h1>
+			<br />
+			<div dangerouslySetInnerHTML={{ __html: imprint }} />
 		</article>
 	);
 }

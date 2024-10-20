@@ -1,8 +1,9 @@
-import { Newsletter } from "@/ui/footer/newsletter.client";
 import { env } from "@/env.mjs";
+import { Newsletter } from "@/ui/footer/newsletter.client";
 import { YnsLink } from "@/ui/yns-link";
 import { getTranslations } from "next-intl/server";
 import type { SVGAttributes } from "react";
+const t = await getTranslations("Global.footer");
 const l = await getTranslations("Global.legal");
 
 const sections = [
@@ -39,9 +40,7 @@ const sections = [
 ];
 
 export async function Footer() {
-	const t = await getTranslations("Global.footer");
-
-	if (env.ENABLE_LEGAL_PAGES === "1") {
+	if (env.ENABLE_LEGAL_PAGES === "1" && !sections.some((section) => section.header === "Legal")) {
 		sections.splice(1, 0, {
 			header: "Legal",
 			links: [
@@ -68,6 +67,7 @@ export async function Footer() {
 			],
 		});
 	}
+	console.log(sections);
 
 	return (
 		<footer className="w-full bg-neutral-50 p-6 text-neutral-800 md:py-12">
@@ -79,9 +79,7 @@ export async function Footer() {
 					</div>
 				</div>
 
-				<nav
-					className={`grid ${env.ENABLE_LEGAL_PAGES === "1" ? "grid-cols-3" : "grid-cols-2"} gap-16`}
-				>
+				<nav className={`grid ${env.ENABLE_LEGAL_PAGES === "1" ? "grid-cols-3" : "grid-cols-2"} gap-16`}>
 					{sections.map((section) => (
 						<section key={section.header}>
 							<h3 className="mb-2 font-semibold">{section.header}</h3>
