@@ -173,9 +173,7 @@ Your Next Store has several legal pages:
 
 To enable them, set the `ENABLE_LEGAL_PAGES` environment variable to `1`.
 
-You have to configure them in a `legal-config.json`. Just rename the `legal-config.json.example` and fill in the required values.
-You don't have to provide all values in the `general` section.
-To make a line break, type `\n` in one of the `text` values.
+You can configure the content of the pages by modifying the Markdown files at messages/legal-pages.
 
 ## Production Deployment
 
