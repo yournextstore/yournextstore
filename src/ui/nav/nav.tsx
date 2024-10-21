@@ -1,3 +1,5 @@
+import { CATEGORIES } from "@/app/config.yns";
+import { deslugify } from "@/lib/utils";
 import { CartSummaryNav } from "@/ui/nav/cart-summary-nav";
 import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "@/ui/nav/search-nav";
@@ -9,18 +11,10 @@ const links = [
 		label: "Home",
 		href: "/",
 	},
-	{
-		label: "Apparel",
-		href: "/category/apparel",
-	},
-	{
-		label: "Accessories",
-		href: "/category/accessories",
-	},
-	{
-		label: "Digital",
-		href: "/category/digital",
-	},
+	...CATEGORIES.map(({ slug }) => ({
+		label: deslugify(slug),
+		href: `/category/${slug}`,
+	})),
 ];
 
 export const Nav = async () => {
