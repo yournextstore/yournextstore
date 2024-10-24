@@ -1,11 +1,11 @@
 import "@/app/globals.css";
 import { env, publicUrl } from "@/env.mjs";
+import { IntlClientProvider } from "@/i18n/client";
+import { getLocale, getMessages, getTranslations } from "@/i18n/server";
 import { Toaster } from "@/ui/shadcn/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import Script from "next/script";
 
 export const generateMetadata = async (): Promise<Metadata> => {
@@ -24,12 +24,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 	return (
 		<html lang={locale} className="h-full antialiased">
 			<body className="flex min-h-full flex-col">
-				<NextIntlClientProvider messages={messages}>
+				<IntlClientProvider messages={messages} locale={locale}>
 					<div className="flex min-h-full flex-1 flex-col bg-white" vaul-drawer-wrapper="">
 						{children}
 					</div>
 					<Toaster position="top-center" offset={10} />
-				</NextIntlClientProvider>
+				</IntlClientProvider>
 				{env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
 					<Script
 						async

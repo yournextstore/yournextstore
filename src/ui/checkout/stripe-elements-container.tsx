@@ -4,7 +4,6 @@ import { env } from "@/env.mjs";
 import { invariant } from "@/lib/invariant";
 import { Elements } from "@stripe/react-stripe-js";
 import { type StripeElementLocale, type StripeElementsOptions, loadStripe } from "@stripe/stripe-js";
-import { useLocale } from "next-intl";
 import { type ReactNode, useMemo } from "react";
 
 export const StripeElementsContainer = ({
@@ -12,14 +11,14 @@ export const StripeElementsContainer = ({
 	clientSecret,
 	publishableKey,
 	stripeAccount,
+	locale: currentLocale,
 }: {
 	children: ReactNode;
 	clientSecret?: string;
 	publishableKey?: string;
 	stripeAccount?: string;
+	locale: string;
 }) => {
-	const currentLocale = useLocale();
-
 	const stripePublishableKey = publishableKey || env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 	invariant(stripePublishableKey, "Stripe publishable key is required");
 	const stripePromise = useMemo(

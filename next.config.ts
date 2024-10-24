@@ -1,45 +1,55 @@
-import type { NextConfig } from "next";
+import MDX from "@next/mdx";
+import type { NextConfig } from "next/types";
+
+const withMDX = MDX();
 
 const nextConfig: NextConfig = {
-	/* config options here */
-	reactCompiler: true,
-	cacheComponents: true,
-	experimental: {
-		typedEnv: true,
-		optimizePackageImports: [
-			"lucide-react",
-			"@radix-ui/react-accordion",
-			"@radix-ui/react-alert-dialog",
-			"@radix-ui/react-avatar",
-			"@radix-ui/react-checkbox",
-			"@radix-ui/react-collapsible",
-			"@radix-ui/react-context-menu",
-			"@radix-ui/react-dialog",
-			"@radix-ui/react-dropdown-menu",
-			"@radix-ui/react-hover-card",
-			"@radix-ui/react-label",
-			"@radix-ui/react-menubar",
-			"@radix-ui/react-navigation-menu",
-			"@radix-ui/react-popover",
-			"@radix-ui/react-progress",
-			"@radix-ui/react-radio-group",
-			"@radix-ui/react-scroll-area",
-			"@radix-ui/react-select",
-			"@radix-ui/react-separator",
-			"@radix-ui/react-slider",
-			"@radix-ui/react-slot",
-			"@radix-ui/react-switch",
-			"@radix-ui/react-tabs",
-			"@radix-ui/react-toggle",
-			"@radix-ui/react-toggle-group",
-			"@radix-ui/react-tooltip",
-			"date-fns",
-			"class-variance-authority",
-		],
+	reactStrictMode: true,
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
+	output: process.env.DOCKER ? "standalone" : undefined,
+	logging: {
+		fetches: {
+			fullUrl: true,
+		},
 	},
 	images: {
-		remotePatterns: [{ protocol: "https", hostname: "**" }],
+		remotePatterns: [
+			{ hostname: "files.stripe.com" },
+			{ hostname: "d1wqzb5bdbcre6.cloudfront.net" },
+			{ hostname: "*.blob.vercel-storage.com" },
+		],
+		formats: ["image/avif", "image/webp"],
 	},
+	transpilePackages: ["next-mdx-remote", "commerce-kit"],
+	experimental: {
+		esmExternals: true,
+		mdxRs: true,
+		scrollRestoration: true,
+		ppr: true,
+		after: true,
+		reactCompiler: true,
+		// dynamicIO: true,
+	},
+	webpack: (config) => {
+		return {
+			...config,
+			resolve: {
+				...config.resolve,
+				extensionAlias: {
+					".js": [".js", ".ts"],
+					".jsx": [".jsx", ".tsx"],
+				},
+			},
+		};
+	},
+	rewrites: async () => [
+		{
+			source: "/stats/:match*",
+			destination: "https://eu.umami.is/:match*",
+		},
+	],
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);
