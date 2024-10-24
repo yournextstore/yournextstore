@@ -1,6 +1,6 @@
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { getTranslations } from "@/i18n/server";
 import { CheckoutCard } from "@/ui/checkout/checkout-card";
-import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next/types";
 
 export const generateMetadata = async (): Promise<Metadata> => {
