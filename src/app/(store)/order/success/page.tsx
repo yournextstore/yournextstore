@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "@/i18n/server";
 import { getCartCookieJson } from "@/lib/cart";
 import { findMatchingCountry } from "@/lib/countries";
 import { formatMoney, formatProductName } from "@/lib/utils";
@@ -8,7 +9,6 @@ import { Badge } from "@/ui/shadcn/badge";
 import type { PaymentIntent } from "@stripe/stripe-js";
 import * as Commerce from "commerce-kit";
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { type ComponentProps, Fragment } from "react";
 

@@ -1,8 +1,8 @@
 import { publicUrl } from "@/env.mjs";
+import { getTranslations } from "@/i18n/server";
 import { deslugify } from "@/lib/utils";
 import { ProductList } from "@/ui/products/product-list";
 import * as Commerce from "commerce-kit";
-import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
 
