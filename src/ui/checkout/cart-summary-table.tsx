@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "@/i18n/client";
 import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
 import { CartAmountWithSpinner, CartItemLineTotal, CartItemQuantity } from "@/ui/checkout/cart-items.client";
 import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
@@ -14,13 +15,11 @@ import {
 } from "@/ui/shadcn/table";
 import { YnsLink } from "@/ui/yns-link";
 import type * as Commerce from "commerce-kit";
-import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useOptimistic } from "react";
 
-export const CartSummaryTable = ({ cart }: { cart: Commerce.Cart }) => {
+export const CartSummaryTable = ({ cart, locale }: { cart: Commerce.Cart; locale: string }) => {
 	const t = useTranslations("/cart.page.summaryTable");
-	const locale = useLocale();
 
 	const [optimisticCart, dispatchOptimisticCartAction] = useOptimistic(
 		cart,
@@ -105,6 +104,7 @@ export const CartSummaryTable = ({ cart }: { cart: Commerce.Cart }) => {
 										quantity={line.quantity}
 										unitAmount={line.product.default_price.unit_amount ?? 0}
 										productId={line.product.id}
+										locale={locale}
 									/>
 								</TableCell>
 							</TableRow>
@@ -138,7 +138,7 @@ export const CartSummaryTable = ({ cart }: { cart: Commerce.Cart }) => {
 								{tax.taxType.toLocaleUpperCase()} {tax.taxPercentage}%
 							</TableCell>
 							<TableCell className="text-right">
-								<CartAmountWithSpinner total={tax.taxAmount} currency={currency} />
+								<CartAmountWithSpinner total={tax.taxAmount} currency={currency} locale={locale} />
 							</TableCell>
 						</TableRow>
 					))}
@@ -148,7 +148,7 @@ export const CartSummaryTable = ({ cart }: { cart: Commerce.Cart }) => {
 							{t("totalSummary")}
 						</TableCell>
 						<TableCell className="text-right">
-							<CartAmountWithSpinner total={total} currency={currency} />
+							<CartAmountWithSpinner total={total} currency={currency} locale={locale} />
 						</TableCell>
 					</TableRow>
 				</TableFooter>
