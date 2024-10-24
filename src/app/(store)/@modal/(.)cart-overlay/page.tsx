@@ -1,10 +1,10 @@
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { getLocale, getTranslations } from "@/i18n/server";
 import { formatMoney, formatProductName } from "@/lib/utils";
 import { Button } from "@/ui/shadcn/button";
 import { YnsLink } from "@/ui/yns-link";
 import * as Commerce from "commerce-kit";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
-import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { CartAsideContainer } from "./cart-aside";
 import { CartModalAddSideEffect } from "./cart-side-effect";
@@ -25,7 +25,7 @@ export default async function CartModalPage(props: { searchParams: Promise<{ add
 	const locale = await getLocale();
 
 	return (
-		<CartAsideContainer withAnimations={true}>
+		<CartAsideContainer>
 			<div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
 				<div className="flex items-center justify-between">
 					<h2 className="text-lg font-semibold text-neutral-700">{t("title")}</h2>
