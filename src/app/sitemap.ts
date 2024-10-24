@@ -1,11 +1,10 @@
+import { CATEGORIES } from "@/app/config.yns";
 import { publicUrl } from "@/env.mjs";
+import { deslugify } from "@/lib/utils";
 import * as Commerce from "commerce-kit";
 import type { MetadataRoute } from "next";
 
-const Categories = [
-	{ name: "Apparel", slug: "apparel" },
-	{ name: "Accessories", slug: "accessories" },
-];
+const Categories = CATEGORIES.map(({ slug }) => ({ name: deslugify(slug), slug }));
 
 type Item = MetadataRoute.Sitemap[number];
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
