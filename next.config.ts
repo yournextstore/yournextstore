@@ -1,14 +1,9 @@
-// @ts-check
-
-import createNextIntlPlugin from "next-intl/plugin";
-
 import MDX from "@next/mdx";
+import type { NextConfig } from "next/types";
 
-const withNextIntl = createNextIntlPlugin();
 const withMDX = MDX();
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
 	reactStrictMode: true,
 	eslint: {
 		ignoreDuringBuilds: true,
@@ -35,6 +30,7 @@ const nextConfig = {
 		ppr: true,
 		after: true,
 		reactCompiler: true,
+		// dynamicIO: true,
 	},
 	webpack: (config) => {
 		return {
@@ -56,4 +52,4 @@ const nextConfig = {
 	],
 };
 
-export default withNextIntl(withMDX(nextConfig));
+export default withMDX(nextConfig);

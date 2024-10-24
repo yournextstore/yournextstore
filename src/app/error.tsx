@@ -1,8 +1,8 @@
 "use client";
 
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/ui/shadcn/button";
 import { YnsLink } from "@/ui/yns-link";
-import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 export default function Error({

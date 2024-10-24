@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations } from "@/i18n/server";
 
 export async function ProductNotFound({ query }: { query: string | undefined }) {
 	const t = await getTranslations("/search.notFound");

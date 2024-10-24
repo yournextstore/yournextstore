@@ -1,7 +1,7 @@
+import { useTranslations } from "@/i18n/client";
 import { cn, formatMoney } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/ui/shadcn/radio-group";
 import type * as Commerce from "commerce-kit";
-import { useLocale, useTranslations } from "next-intl";
 import { useOptimistic, useTransition } from "react";
 import type Stripe from "stripe";
 
@@ -9,15 +9,16 @@ export const ShippingRatesSection = ({
 	shippingRates,
 	value,
 	onChange,
+	locale,
 }: {
 	shippingRates: Commerce.MappedShippingRate[];
 	value: string | null | undefined;
 	onChange: (value: string) => void;
+	locale: string;
 }) => {
 	const [isTransitioning, transition] = useTransition();
 	const [optimisticValue, setOptimisticValue] = useOptimistic(value);
 	const isPending = isTransitioning || optimisticValue !== value;
-	const locale = useLocale();
 
 	return (
 		<fieldset className={cn(`grid gap-6 rounded-lg`, isPending && "cursor-wait")}>
