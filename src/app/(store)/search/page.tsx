@@ -1,8 +1,8 @@
 import { publicUrl } from "@/env.mjs";
+import { getTranslations } from "@/i18n/server";
 import { Search } from "@/lib/api";
 import { ProductList } from "@/ui/products/product-list";
 import { ProductNotFound } from "@/ui/products/product-not-found";
-import { getTranslations } from "next-intl/server";
 import { RedirectType, redirect } from "next/navigation";
 import type { Metadata } from "next/types";
 
