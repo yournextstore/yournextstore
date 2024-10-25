@@ -30,7 +30,8 @@ const nextConfig: NextConfig = {
 		ppr: true,
 		after: true,
 		reactCompiler: true,
-		// dynamicIO: true,
+		dynamicIO: true,
+		cpus: 1,
 	},
 	webpack: (config) => {
 		return {
