@@ -29,6 +29,7 @@
 	"Global.deliveryEstimates.hour": "{count, plural, =1 {# Stunde} other {# Stunden}}",
 	"Global.deliveryEstimates.month": "{count, plural, =1 {# Monat} other {# Monate}}",
 	"Global.deliveryEstimates.week": "{count, plural, =1 {# Woche} other {# Wochen}}",
+	"Global.actions.shopNow": "Jetzt einkaufen",
 	"/.hero.title": "Entdecke unsere kuratierte Kollektion",
 	"/.hero.description": "Entdecke unsere sorgfältig ausgewählten Produkte für Dein Zuhause und Deinen Lifestyle.",
 	"/.hero.action": "Jetzt einkaufen",
