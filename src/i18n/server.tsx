@@ -2,11 +2,15 @@ import { env } from "@/env.mjs";
 import { IntlMessageFormat } from "intl-messageformat";
 import type { IntlNamespaceKeys, NamespacedKeys } from "./types";
 
-type En = typeof import("../../messages/en.json");
+type En = typeof import("../../messages/en-US.json");
 
 export const getLocale = async () => env.NEXT_PUBLIC_LANGUAGE;
 export const getMessages = async () =>
-	((await import(`../../messages/${await getLocale()}.json`)) as { default: En }).default;
+	(
+		(await import(`../../messages/${await getLocale()}.json`)) as {
+			default: En;
+		}
+	).default;
 
 export const getTranslations = async <TNamespaceKey extends IntlNamespaceKeys = never>(
 	namespaceKey: TNamespaceKey,
