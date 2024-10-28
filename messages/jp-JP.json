@@ -30,6 +30,7 @@
 	"Global.deliveryEstimates.hour": "{count, plural, =1 {# 時間} other {# 時間}}",
 	"Global.deliveryEstimates.month": "{count, plural, =1 {# ヶ月} other {# ヶ月}}",
 	"Global.deliveryEstimates.week": "{count, plural, =1 {# 週間} other {# 週間}}",
+	"Global.actions.shopNow": "今すぐ購入",
 	"/.hero.title": "厳選されたコレクションを発見",
 	"/.hero.description": "家庭やライフスタイルのために慎重に選ばれた製品を探る。",
 	"/.hero.action": "今すぐ購入",
