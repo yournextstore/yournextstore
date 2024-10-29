@@ -28,7 +28,7 @@ export const env = createEnv({
 
 		NEXT_PUBLIC_NEWSLETTER_ENDPOINT: z.string().optional(),
 
-		NEXT_PUBLIC_LANGUAGE: z.string().optional().default("en"),
+		NEXT_PUBLIC_LANGUAGE: z.string().optional().default("en-US"),
 	},
 	runtimeEnv: {
 		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
