@@ -93,7 +93,7 @@ https://github.com/yournextstore/.github/assets/200613/01d27f69-00dc-446e-bc81-5
 - `NEXT_PUBLIC_NEWSLETTER_ENDPOINT` – **Preview**: The endpoint for the newsletter form in the future. It should accept POST requests with a JSON `{ email: string }` and return JSON `{ status: number }`.
 - `STRIPE_WEBHOOK_SECRET` – **Preview**: Stripe Webhook secret for handling events from Stripe. Read more below.
 - `ENABLE_STRIPE_TAX` – **Preview**: Set to any value (i.e., `1`) to enable Stripe Tax in YNS. Read more below.
-- `NEXT_PUBLIC_LANGUAGE` - The language of the store.
+- `NEXT_PUBLIC_LANGUAGE` - The locale of the store (i.e., `en-US`)
 
 ## Run the store
 
