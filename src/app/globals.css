@@ -146,3 +146,20 @@ input[type="search" i]::-webkit-search-cancel-button {
 		transform: translateX(0);
 	}
 }
+
+.nav-border-reveal::after {
+	@apply content-[''] w-full h-px absolute bottom-0 bg-neutral-200;
+
+	animation: nav-border-reveal;
+	animation-timeline: scroll();
+	animation-range: 0 100px;
+}
+
+@keyframes nav-border-reveal {
+	0% {
+		opacity: 0%;
+	}
+	100% {
+		opacity: 100%;
+	}
+}
