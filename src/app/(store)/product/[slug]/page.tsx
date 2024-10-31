@@ -46,8 +46,7 @@ export const generateMetadata = async (props: {
 	return {
 		title: t("title", { productName }),
 		description: product.description,
-		// https://github.com/vercel/next.js/pull/65366
-		alternates: { canonical: canonical.toString() },
+		alternates: { canonical: canonical },
 	} satisfies Metadata;
 };
 
