@@ -15,17 +15,21 @@ export const AddToCartButton = ({
 	const t = useTranslations("Global.addToCart");
 	const router = useRouter();
 	const [pending, startTransition] = useTransition();
+	const isDisabled = disabled || pending;
 
 	return (
 		<Button
 			size="lg"
 			type="submit"
 			className="w-full rounded-full text-lg"
-			onClick={async () => {
+			onClick={async (e) => {
+				if (isDisabled) {
+					e.preventDefault();
+					return;
+				}
 				startTransition(() => router.push(`/cart-overlay?add=${productId}`));
 			}}
-			aria-disabled={pending}
-			disabled={pending || disabled}
+			aria-disabled={isDisabled}
 		>
 			{pending ? (
 				<Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
