@@ -46,7 +46,7 @@ export const generateMetadata = async (props: {
 	return {
 		title: t("title", { productName }),
 		description: product.description,
-		alternates: { canonical: canonical },
+		alternates: { canonical },
 	} satisfies Metadata;
 };
 
