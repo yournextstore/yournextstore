@@ -48,7 +48,7 @@
 	"/product.page.descriptionTitle": "Description",
 	"/product.page.variantTitle": "Variant",
 	"/category.metadata.title": "{categoryName} Category · Your Next Store",
-	"/category.page.title": "Category: {categoryName}",
+	"/category.page.title": "Category",
 	"/cart.modal.title": "Shopping Cart",
 	"/cart.modal.openFullView": "(open full view)",
 	"/cart.modal.quantity": "Quantity: {quantity}",
