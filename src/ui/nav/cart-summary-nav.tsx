@@ -8,7 +8,7 @@ import { ShoppingBagIcon } from "lucide-react";
 import { Suspense } from "react";
 
 const CartFallback = () => (
-	<div className="mr-2.5 h-6 w-6 opacity-30">
+	<div className="mr-2.5 h-6 w-6">
 		<ShoppingBagIcon />
 	</div>
 );

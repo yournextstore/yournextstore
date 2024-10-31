@@ -3,12 +3,14 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "@/lib/hooks";
+import { cn } from "@/lib/utils";
+import { Input } from "@/ui/shadcn/input";
 
 const inputClasses = cn(
 	"min-w-14 md:max-w-72 appearance-none rounded-md border bg-white py-2 pl-4 pr-10 md:pl-2 md:pr-8 lg:pl-4 lg:pr-10 transition-opacity inline-block",
 );
 
-export const SearchInputPlaceholder = ({ placeholder }: { placeholder: string }) => {
+export const MobileSearchInputPlaceholder = ({ placeholder }: { placeholder: string }) => {
 	return (
 		<Input
 			className={cn("pointer-events-none", inputClasses)}
@@ -20,7 +22,7 @@ export const SearchInputPlaceholder = ({ placeholder }: { placeholder: string })
 	);
 };
 
-export const SearchInput = ({ placeholder }: { placeholder: string }) => {
+export const MobileSearchInput = ({ placeholder }: { placeholder: string }) => {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
@@ -35,10 +37,10 @@ export const SearchInput = ({ placeholder }: { placeholder: string }) => {
 	}, [query, router]);
 
 	useEffect(() => {
-		if (debouncedQuery) {
+		if (debouncedQuery && query !== " ") {
 			router.push(`/search?q=${encodeURIComponent(debouncedQuery)}`, { scroll: false });
 		}
-	}, [debouncedQuery, router]);
+	}, [debouncedQuery, query, router, searchParams]);
 
 	useEffect(() => {
 		if (pathname === "/search" && !query) {

@@ -3,7 +3,8 @@ import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "@/ui/nav/search-nav";
 import { SeoH1 } from "@/ui/seo-h1";
 import { YnsLink } from "@/ui/yns-link";
-
+import { MobileSearchNav } from "@/ui/nav/Mobile/mobile-search-nav";
+import { MobileSearchNavComponent } from "@/ui/nav/Mobile/mobile-search-nav-comp";
 const links = [
 	{
 		label: "Home",
@@ -25,20 +26,28 @@ const links = [
 
 export const Nav = async () => {
 	return (
-		<header className="z-50 py-4 sticky top-0 bg-white/90 backdrop-blur-md nav-border-reveal">
-			<div className="mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6 md:flex-nowrap lg:px-8">
-				<YnsLink href="/">
-					<SeoH1 className="-mt-0.5 whitespace-nowrap text-xl font-bold">Your Next Store</SeoH1>
-				</YnsLink>
+		<header className="border-b py-4">
+			<div className="invisible h-0 md:visible">
+				<div className="sm:items-centerm mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6 md:flex-nowrap lg:px-8">
+					<YnsLink href="/">
+						<SeoH1 className="-mt-0.5 whitespace-nowrap text-xl font-bold">Your Next Store</SeoH1>
+					</YnsLink>
 
-				<div className="sm:mr-auto">
-					<NavMenu links={links} />
+					<div className="sm:mr-auto">
+						<NavMenu links={links} />
+					</div>
+
+					<div className="flex items-center justify-start gap-x-6">
+						<SearchNav />
+						<CartSummaryNav />
+					</div>
 				</div>
-
-				<div className="flex items-center justify-start gap-x-6">
-					<SearchNav />
+			</div>
+			<div className="md:invisible">
+				<MobileSearchNav links={links}>
+					<MobileSearchNavComponent />
 					<CartSummaryNav />
-				</div>
+				</MobileSearchNav>
 			</div>
 		</header>
 	);
