@@ -41,7 +41,7 @@
 		"@vercel/speed-insights": "1.0.14",
 		"class-variance-authority": "0.7.0",
 		"clsx": "2.1.1",
-		"cmdk": "1.0.1",
+		"cmdk": "1.0.0",
 		"commerce-kit": "0.0.34",
 		"intl-messageformat": "10.7.3",
 		"lucide-react": "0.454.0",
@@ -75,10 +75,10 @@
 		"@semantic-release/release-notes-generator": "14.0.1",
 		"@tailwindcss/forms": "0.5.9",
 		"@tailwindcss/typography": "0.5.15",
-		"@testing-library/jest-dom": "6.6.2",
+		"@testing-library/jest-dom": "6.6.3",
 		"@testing-library/react": "16.0.1",
 		"@types/mdx": "2.0.13",
-		"@types/node": "^20.17.1",
+		"@types/node": "^20.17.4",
 		"@types/react": "npm:types-react@19.0.0-rc.1",
 		"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
 		"@vitejs/plugin-react": "4.3.3",
@@ -98,17 +98,17 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"cmdk": "0.2.1",
 			"@types/node": "^20.0.0",
 			"@types/react": "npm:types-react@19.0.0-rc.1",
-			"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+			"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+			"trim-newlines@<3.0.1": ">=3.0.1"
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.2-canary.6",
-				"react": "19.0.0-rc-1631855f-20241023",
-				"react-dom": "19.0.0-rc-1631855f-20241023",
-				"@stripe/stripe-js": "4.1.0"
+				"next": "15.0.3-canary.2",
+				"react": "19.0.0-rc-603e6108-20241029",
+				"react-dom": "19.0.0-rc-603e6108-20241029",
+				"@stripe/stripe-js": ">=4.9.0"
 			},
 			"allowAny": ["@types/react", "@types/react-dom"]
 		}
