@@ -27,7 +27,9 @@ export const generateMetadata = async (props: {
 	};
 };
 
-export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+export default async function CategoryPage(props: {
+	params: Promise<{ slug: string }>;
+}) {
 	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,
@@ -43,7 +45,8 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
 	return (
 		<main className="pb-8">
 			<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">
-				{t("title", { categoryName: deslugify(params.slug) })}
+				{deslugify(params.slug)}
+				<div className="text-lg font-semibold text-muted-foreground">Category</div>
 			</h1>
 			<ProductList products={products} />
 		</main>
