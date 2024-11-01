@@ -4,25 +4,6 @@ import { SearchNav } from "@/ui/nav/search-nav";
 import { SeoH1 } from "@/ui/seo-h1";
 import { YnsLink } from "@/ui/yns-link";
 
-const links = [
-	{
-		label: "Home",
-		href: "/",
-	},
-	{
-		label: "Apparel",
-		href: "/category/apparel",
-	},
-	{
-		label: "Accessories",
-		href: "/category/accessories",
-	},
-	{
-		label: "Digital",
-		href: "/category/digital",
-	},
-];
-
 export const Nav = async () => {
 	return (
 		<header className="z-50 py-4 sticky top-0 bg-white/90 backdrop-blur-md nav-border-reveal">
@@ -31,11 +12,10 @@ export const Nav = async () => {
 					<SeoH1 className="-mt-0.5 whitespace-nowrap text-xl font-bold">Your Next Store</SeoH1>
 				</YnsLink>
 
-				<div className="max-w-full flex flex-shrink w-auto mr-auto overflow-scroll">
-					<NavMenu links={links} />
-					<NavMenu links={links} />
+				<div className="max-w-full flex flex-shrink w-auto sm:mr-auto overflow-scroll max-sm:order-2">
+					<NavMenu />
 				</div>
-				<div className="mr-3">
+				<div className="mr-3 ml-auto sm:ml-0">
 					<SearchNav />
 				</div>
 				<CartSummaryNav />
