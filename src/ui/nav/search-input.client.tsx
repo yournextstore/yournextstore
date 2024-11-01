@@ -1,8 +1,10 @@
 "use client";
 
+import { useDebouncedValue } from "@/lib/hooks";
+import { cn } from "@/lib/utils";
+import { Input } from "@/ui/shadcn/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDebouncedValue } from "@/lib/hooks";
 
 const inputClasses = cn(
 	"appearance-none rounded-md absolute border bg-white py-2 pl-4 pr-10 w-9 opacity-0 transition-opacity ease-linear",
