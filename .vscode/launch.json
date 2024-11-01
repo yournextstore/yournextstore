@@ -17,7 +17,7 @@
 			"name": "Next.js: debug full stack",
 			"type": "node-terminal",
 			"request": "launch",
-			"command": "pnpm dev",
+			"command": "pnpm dev --turbo",
 			"serverReadyAction": {
 				"pattern": "- Local:.+(https?://.+)",
 				"uriFormat": "%s",

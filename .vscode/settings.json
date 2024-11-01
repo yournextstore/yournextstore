@@ -17,6 +17,8 @@
 	"editor.quickSuggestions": {
 		"strings": true
 	},
+	"terminal.integrated.defaultProfile.windows": "PowerShell"
+	},
 	"[javascript]": {
 		"editor.defaultFormatter": "biomejs.biome"
 	},
