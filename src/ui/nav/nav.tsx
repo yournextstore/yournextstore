@@ -26,19 +26,19 @@ const links = [
 export const Nav = async () => {
 	return (
 		<header className="z-50 py-4 sticky top-0 bg-white/90 backdrop-blur-md nav-border-reveal">
-			<div className="mx-auto flex max-w-7xl flex-col items-start gap-2 px-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6 md:flex-nowrap lg:px-8">
+			<div className="mx-auto flex max-w-7xl items-center gap-2 px-4 flex-row sm:px-6 lg:px-8">
 				<YnsLink href="/">
 					<SeoH1 className="-mt-0.5 whitespace-nowrap text-xl font-bold">Your Next Store</SeoH1>
 				</YnsLink>
 
-				<div className="sm:mr-auto">
+				<div className="max-w-full flex flex-shrink w-auto mr-auto overflow-scroll">
+					<NavMenu links={links} />
 					<NavMenu links={links} />
 				</div>
-
-				<div className="flex items-center justify-start gap-x-6">
+				<div className="mr-3">
 					<SearchNav />
-					<CartSummaryNav />
 				</div>
+				<CartSummaryNav />
 			</div>
 		</header>
 	);
