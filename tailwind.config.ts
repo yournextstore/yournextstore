@@ -72,6 +72,7 @@ const config = {
 			},
 			screens: {
 				xs: "400px",
+				smb: "720px",
 			},
 		},
 	},

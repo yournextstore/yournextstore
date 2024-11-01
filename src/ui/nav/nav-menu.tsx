@@ -23,7 +23,7 @@ export function NavMenu({ links }: { links: NavLink[] }) {
 	const [value, setValue] = useState<string | undefined>(undefined);
 
 	return (
-		<NavigationMenu value={value} onValueChange={setValue}>
+		<NavigationMenu value={value} onValueChange={setValue} className="-ml-4 sm:ml-0">
 			<NavigationMenuList>
 				{links.map((link) => (
 					<NavigationMenuItem key={link.label} value={link.label}>
