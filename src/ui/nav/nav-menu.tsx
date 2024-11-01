@@ -1,13 +1,4 @@
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
-import {
-	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerHeader,
-	DrawerTitle,
-	DrawerTrigger,
-} from "@/ui/shadcn/drawer";
-import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 
 const links = [
