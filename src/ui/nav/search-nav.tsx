@@ -6,12 +6,12 @@ import { Suspense } from "react";
 export const SearchNav = async () => {
 	const t = await getTranslations("Global.nav.search");
 	return (
-		<label className="flex w-full items-center">
+		<label className="flex w-full items-center min-w-9 justify-end">
 			<span className="sr-only">{t("title")}</span>
 			<Suspense fallback={<SearchInputPlaceholder placeholder={t("placeholder")} />}>
 				<SearchInput placeholder={t("placeholder")} />
 			</Suspense>
-			<SearchIcon className="-ml-7 block h-5 w-5" />
+			<SearchIcon className="xs:-ml-7 block h-5 w-5" />
 		</label>
 	);
 };

@@ -4,7 +4,7 @@
 	"tailwindCSS.experimental.classRegex": [
 		["(?:twMerge|twJoin|cva|cn|clsx)\\(([^\\);]*)[\\);]", "[`'\"]([^'\"`,;]*)[`'\"]"]
 	],
-	"tailwindCSS.classAttributes": ["className", "tw", "class"],
+	"tailwindCSS.classAttributes": ["className", "tw", "class", "cn"],
 	"typescript.preferences.importModuleSpecifier": "non-relative",
 	"editor.defaultFormatter": "biomejs.biome",
 	"files.associations": {
