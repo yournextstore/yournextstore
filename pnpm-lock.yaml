@@ -94,10 +94,10 @@ importers:
         version: 1.0.3(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
       commerce-kit:
         specifier: 0.0.34
-        version: 0.0.34(@neondatabase/serverless@0.10.1)(@types/node@20.17.4)(next@15.0.3-canary.4(@babel/core@7.26.0)(babel-plugin-react-compiler@19.0.0-beta-6fc168f-20241025)(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101))(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)(server-only@0.0.1)(stripe@17.3.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.3)(zod@3.23.8)
+        version: 0.0.34(@neondatabase/serverless@0.10.1)(@types/node@20.17.4)(next@15.0.3-canary.4(@babel/core@7.26.0)(babel-plugin-react-compiler@19.0.0-beta-6fc168f-20241025)(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101))(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)(server-only@0.0.1)(stripe@17.3.1)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.3)(zod@3.23.8)
       intl-messageformat:
-        specifier: 10.7.3
-        version: 10.7.3
+        specifier: 10.7.4
+        version: 10.7.4
       lucide-react:
         specifier: 0.454.0
         version: 0.454.0(react@19.0.0-rc-7c8e5e7a-20241101)
@@ -126,11 +126,11 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
       sonner:
-        specifier: 1.5.0
-        version: 1.5.0(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)
+        specifier: 1.6.1
+        version: 1.6.1(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)
       stripe:
-        specifier: 17.3.0
-        version: 17.3.0
+        specifier: 17.3.1
+        version: 17.3.1
       tailwind-merge:
         specifier: 2.5.4
         version: 2.5.4
@@ -138,8 +138,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(tailwindcss@3.4.14)
       trieve-ts-sdk:
-        specifier: 0.0.14
-        version: 0.0.14
+        specifier: 0.0.15
+        version: 0.0.15
       vaul:
         specifier: 1.1.1
         version: 1.1.1(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)
@@ -773,20 +773,20 @@ packages:
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
 
-  '@formatjs/ecma402-abstract@2.2.1':
-    resolution: {integrity: sha512-O4ywpkdJybrjFc9zyL8qK5aklleIAi5O4nYhBVJaOFtCkNrnU+lKFeJOFC48zpsZQmR8Aok2V79hGpHnzbmFpg==}
+  '@formatjs/ecma402-abstract@2.2.2':
+    resolution: {integrity: sha512-zReeOJo3gA6Lgk4gTsUUdCwwTBa+Tw0LcqKHD84JCAJdPSxsxKdKPAPXihVgKDZevIWFGi4UTpy7JJ3D5EWeSw==}
 
-  '@formatjs/fast-memoize@2.2.2':
-    resolution: {integrity: sha512-mzxZcS0g1pOzwZTslJOBTmLzDXseMLLvnh25ymRilCm8QLMObsQ7x/rj9GNrH0iUhZMlFisVOD6J1n6WQqpKPQ==}
+  '@formatjs/fast-memoize@2.2.3':
+    resolution: {integrity: sha512-3jeJ+HyOfu8osl3GNSL4vVHUuWFXR03Iz9jjgI7RwjG6ysu/Ymdr0JRCPHfF5yGbTE6JCrd63EpvX1/WybYRbA==}
 
-  '@formatjs/icu-messageformat-parser@2.9.1':
-    resolution: {integrity: sha512-7AYk4tjnLi5wBkxst2w7qFj38JLMJoqzj7BhdEl7oTlsWMlqwgx4p9oMmmvpXWTSDGNwOKBRc1SfwMh5MOHeNg==}
+  '@formatjs/icu-messageformat-parser@2.9.2':
+    resolution: {integrity: sha512-WAQ2zGbroadkWXUDDjbGUOBN0TeDUEC47lcXV8wTtFN1QYCI1T26AVWOHqvVMVBqXHheKa82myjEVaXWVTwBNA==}
 
-  '@formatjs/icu-skeleton-parser@1.8.5':
-    resolution: {integrity: sha512-zRZ/e3B5qY2+JCLs7puTzWS1Jb+t/K+8Jur/gEZpA2EjWeLDE17nsx8thyo9P48Mno7UmafnPupV2NCJXX17Dg==}
+  '@formatjs/icu-skeleton-parser@1.8.6':
+    resolution: {integrity: sha512-rQXThZE7lxhw1eaOyu4mmFdKBYlh/dyYPSFB6hR3lZqPOm5vYdyHekQaxld9WIofZK2e3rxfel81RfAuy8kdIw==}
 
-  '@formatjs/intl-localematcher@0.5.6':
-    resolution: {integrity: sha512-roz1+Ba5e23AHX6KUAWmLEyTRZegM5YDuxuvkHCyK3RJddf/UXB2f+s7pOMm9ktfPGla0g+mQXOn5vsuYirnaA==}
+  '@formatjs/intl-localematcher@0.5.7':
+    resolution: {integrity: sha512-GGFtfHGQVFe/niOZp24Kal5b2i36eE2bNL0xi9Sg/yd0TR8aLjcteApZdHmismP5QQax1cMnZM9yWySUUjJteA==}
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2764,8 +2764,8 @@ packages:
   inline-style-parser@0.2.4:
     resolution: {integrity: sha512-0aO8FkhNZlj/ZIbNi7Lxxr12obT7cL1moPfE4tg1LkX7LlLfC6DeX4l2ZEud1ukP9jNQyNnfzQVqwbwmAATY4Q==}
 
-  intl-messageformat@10.7.3:
-    resolution: {integrity: sha512-AAo/3oyh7ROfPhDuh7DxTTydh97OC+lv7h1Eq5LuHWuLsUMKOhtzTYuyXlUReuwZ9vANDHo4CS1bGRrn7TZRtg==}
+  intl-messageformat@10.7.4:
+    resolution: {integrity: sha512-D4wGk8/XAp/5YMLtTXR+BUyGeSl4+28N43cwXXmIGQ8Tt+STA/oUsz9KUerzgiwBlJ+2dRDsQ3qQvvlVF6jzFA==}
 
   into-stream@7.0.0:
     resolution: {integrity: sha512-2dYz766i9HprMBasCMvHMuazJ7u4WzhJwo5kb3iPSiW/iRYV6uPari3zHoqZlnuaR7V1bEiNMxikhp37rdBXbw==}
@@ -3972,11 +3972,11 @@ packages:
     resolution: {integrity: sha512-bSiSngZ/jWeX93BqeIAbImyTbEihizcwNjFoRUIY/T1wWQsfsm2Vw1agPKylXvQTU7iASGdHhyqRlqQzfz+Htg==}
     engines: {node: '>=18'}
 
-  sonner@1.5.0:
-    resolution: {integrity: sha512-FBjhG/gnnbN6FY0jaNnqZOMmB73R+5IiyYAw8yBj7L54ER7HB3fOSE5OFiQiE2iXWxeXKvg6fIP4LtVppHEdJA==}
+  sonner@1.6.1:
+    resolution: {integrity: sha512-0iD+eDJHyJitl069BC6wVDykQD56FMKk4TD6XkcCcikcDYaGsFKlSU0mZQXYWKPpFof3jlV/u4vGZc2KCqz8OQ==}
     peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -4091,8 +4091,8 @@ packages:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
 
-  stripe@17.3.0:
-    resolution: {integrity: sha512-WACmytj1MssbIwGwPfAomo61jgldb2B/cB6A3W/Bqs9zId1olVcAa8X7HERkqpw4190GSsbvrD7KnkZogatyvw==}
+  stripe@17.3.1:
+    resolution: {integrity: sha512-E9/u+GFBPkYnTmfFCoKX3+gP4R3SkZoGunHe4cw9J+sqkj5uxpLFf1LscuI9BuEyIQ0PFAgPTHavgQwRtOvnag==}
     engines: {node: '>=12.*'}
 
   style-to-object@0.4.4:
@@ -4207,8 +4207,8 @@ packages:
     resolution: {integrity: sha512-aXJDbk6SnumuaZSANd21XAo15ucCDE38H4fkqiGsc3MhCK+wOlZvLP9cB/TvpHT0mOyWgC4Z8EwRlzqYSUzdsA==}
     engines: {node: '>= 0.4'}
 
-  trieve-ts-sdk@0.0.14:
-    resolution: {integrity: sha512-fAMZPZOPxs+ufuqQnE14dEX3Xd0RDjTBOmDqh7r4KzfHvrbCTiQimwdHgohSqmCT1/12SIqXEDVX1NUJxrNVJw==}
+  trieve-ts-sdk@0.0.15:
+    resolution: {integrity: sha512-xvwMytyXLRSy8gW9frdZLx56v1IIjSS2xNxkaU5JHvLHRFw77fUmOaxOLRG+H1opu/jwizkF8NE4DukvL9qlfw==}
 
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
@@ -4971,30 +4971,30 @@ snapshots:
 
   '@floating-ui/utils@0.2.8': {}
 
-  '@formatjs/ecma402-abstract@2.2.1':
+  '@formatjs/ecma402-abstract@2.2.2':
     dependencies:
-      '@formatjs/fast-memoize': 2.2.2
-      '@formatjs/intl-localematcher': 0.5.6
-      tslib: 2.8.0
+      '@formatjs/fast-memoize': 2.2.3
+      '@formatjs/intl-localematcher': 0.5.7
+      tslib: 2.8.1
 
-  '@formatjs/fast-memoize@2.2.2':
+  '@formatjs/fast-memoize@2.2.3':
     dependencies:
-      tslib: 2.8.0
+      tslib: 2.8.1
 
-  '@formatjs/icu-messageformat-parser@2.9.1':
+  '@formatjs/icu-messageformat-parser@2.9.2':
     dependencies:
-      '@formatjs/ecma402-abstract': 2.2.1
-      '@formatjs/icu-skeleton-parser': 1.8.5
-      tslib: 2.8.0
+      '@formatjs/ecma402-abstract': 2.2.2
+      '@formatjs/icu-skeleton-parser': 1.8.6
+      tslib: 2.8.1
 
-  '@formatjs/icu-skeleton-parser@1.8.5':
+  '@formatjs/icu-skeleton-parser@1.8.6':
     dependencies:
-      '@formatjs/ecma402-abstract': 2.2.1
-      tslib: 2.8.0
+      '@formatjs/ecma402-abstract': 2.2.2
+      tslib: 2.8.1
 
-  '@formatjs/intl-localematcher@0.5.6':
+  '@formatjs/intl-localematcher@0.5.7':
     dependencies:
-      tslib: 2.8.0
+      tslib: 2.8.1
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
@@ -6422,7 +6422,7 @@ snapshots:
 
   commander@4.1.1: {}
 
-  commerce-kit@0.0.34(@neondatabase/serverless@0.10.1)(@types/node@20.17.4)(next@15.0.3-canary.4(@babel/core@7.26.0)(babel-plugin-react-compiler@19.0.0-beta-6fc168f-20241025)(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101))(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)(server-only@0.0.1)(stripe@17.3.0)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.3)(zod@3.23.8):
+  commerce-kit@0.0.34(@neondatabase/serverless@0.10.1)(@types/node@20.17.4)(next@15.0.3-canary.4(@babel/core@7.26.0)(babel-plugin-react-compiler@19.0.0-beta-6fc168f-20241025)(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101))(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)(server-only@0.0.1)(stripe@17.3.1)(types-react-dom@19.0.0-rc.1)(types-react@19.0.0-rc.1)(typescript@5.6.3)(zod@3.23.8):
     dependencies:
       '@neondatabase/serverless': 0.10.1
       '@types/node': 20.17.4
@@ -6432,7 +6432,7 @@ snapshots:
       react: 19.0.0-rc-7c8e5e7a-20241101
       react-dom: 19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101)
       server-only: 0.0.1
-      stripe: 17.3.0
+      stripe: 17.3.1
       typescript: 5.6.3
       zod: 3.23.8
 
@@ -7060,12 +7060,12 @@ snapshots:
 
   inline-style-parser@0.2.4: {}
 
-  intl-messageformat@10.7.3:
+  intl-messageformat@10.7.4:
     dependencies:
-      '@formatjs/ecma402-abstract': 2.2.1
-      '@formatjs/fast-memoize': 2.2.2
-      '@formatjs/icu-messageformat-parser': 2.9.1
-      tslib: 2.8.0
+      '@formatjs/ecma402-abstract': 2.2.2
+      '@formatjs/fast-memoize': 2.2.3
+      '@formatjs/icu-messageformat-parser': 2.9.2
+      tslib: 2.8.1
 
   into-stream@7.0.0:
     dependencies:
@@ -8417,7 +8417,7 @@ snapshots:
       ansi-styles: 6.2.1
       is-fullwidth-code-point: 5.0.0
 
-  sonner@1.5.0(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101):
+  sonner@1.6.1(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101):
     dependencies:
       react: 19.0.0-rc-7c8e5e7a-20241101
       react-dom: 19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101)
@@ -8522,7 +8522,7 @@ snapshots:
 
   strip-json-comments@2.0.1: {}
 
-  stripe@17.3.0:
+  stripe@17.3.1:
     dependencies:
       '@types/node': 20.17.4
       qs: 6.13.0
@@ -8651,7 +8651,7 @@ snapshots:
 
   traverse@0.6.8: {}
 
-  trieve-ts-sdk@0.0.14: {}
+  trieve-ts-sdk@0.0.15: {}
 
   trim-lines@3.0.1: {}
 
