@@ -16,7 +16,7 @@
 		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.3-canary.3",
+		"@next/mdx": "15.0.3-canary.4",
 		"@radix-ui/react-checkbox": "1.1.2",
 		"@radix-ui/react-collapsible": "1.1.1",
 		"@radix-ui/react-dialog": "1.1.2",
@@ -46,11 +46,11 @@
 		"intl-messageformat": "10.7.3",
 		"lucide-react": "0.454.0",
 		"nanoid": "5.0.8",
-		"next": "15.0.3-canary.3",
+		"next": "15.0.3-canary.4",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.3.0",
-		"react": "19.0.0-rc-603e6108-20241029",
-		"react-dom": "19.0.0-rc-603e6108-20241029",
+		"react": "19.0.0-rc-7c8e5e7a-20241101",
+		"react-dom": "19.0.0-rc-7c8e5e7a-20241101",
 		"schema-dts": "1.1.2",
 		"server-only": "0.0.1",
 		"sonner": "1.5.0",
@@ -66,7 +66,7 @@
 		"@commitlint/cli": "19.5.0",
 		"@commitlint/config-conventional": "19.5.0",
 		"@commitlint/types": "19.5.0",
-		"@next/env": "15.0.3-canary.3",
+		"@next/env": "15.0.3-canary.4",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -105,9 +105,9 @@
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.3-canary.3",
-				"react": "19.0.0-rc-603e6108-20241029",
-				"react-dom": "19.0.0-rc-603e6108-20241029",
+				"next": "15.0.3-canary.4",
+				"react": "19.0.0-rc-7c8e5e7a-20241101",
+				"react-dom": "19.0.0-rc-7c8e5e7a-20241101",
 				"@stripe/stripe-js": ">=4.9.0"
 			},
 			"allowAny": ["@types/react", "@types/react-dom"]
