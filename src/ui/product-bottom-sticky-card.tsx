@@ -8,8 +8,8 @@ export const ProductBottomStickyCard = ({
 	locale,
 }: { product: Commerce.MappedProduct; locale: string }) => {
 	return (
-		<div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t p-4 shadow-lg transition-all duration-300 ease-in-out transform translate-y-0 z-10">
-			<div className="container mx-auto flex justify-between items-center">
+		<div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t py-4 shadow-lg transition-all duration-300 ease-in-out transform translate-y-0 z-10">
+			<div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto flex justify-between items-center">
 				<div className="flex items-center gap-x-4">
 					<div>
 						<Image
