@@ -167,7 +167,7 @@ export default async function SingleProductPage(props: {
 										src={image}
 										width={700 / 3}
 										height={700 / 3}
-										sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
+										sizes="(max-width: 1024x) 33vw, (max-width: 1280px) 20vw, 225px"
 										loading="eager"
 										priority
 										alt=""
