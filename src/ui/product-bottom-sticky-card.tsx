@@ -15,9 +15,9 @@ export const ProductBottomStickyCard = ({
 						<Image
 							className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
 							src={product.images[0]!}
-							width={50}
-							height={50}
-							sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 70px"
+							width={72}
+							height={72}
+							sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 72px"
 							loading="eager"
 							priority
 							alt=""
