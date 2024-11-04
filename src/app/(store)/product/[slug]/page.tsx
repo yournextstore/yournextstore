@@ -15,6 +15,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/ui/shadcn/breadcrumb";
 import { YnsLink } from "@/ui/yns-link";
+import Spline from "@splinetool/react-spline/next";
 import * as Commerce from "commerce-kit";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -121,14 +122,35 @@ export default async function SingleProductPage(props: {
 				<div className="lg:col-span-7 lg:row-span-3 lg:row-start-1">
 					<h2 className="sr-only">{t("imagesTitle")}</h2>
 
-					<div className="grid gap-4 lg:grid-cols-3">
+					<div className="grid gap-4 lg:grid-cols-3 [&>*:first-child]:col-span-3">
+						{product.metadata.preview && (
+							<div>
+								<Suspense
+									fallback={
+										<Image
+											key={product.images[0]}
+											className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
+											src={product.images[0]!}
+											width={700}
+											height={700}
+											sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
+											loading="eager"
+											priority
+											alt=""
+										/>
+									}
+								>
+									<Spline
+										className="w-full object-cover object-center aspect-square"
+										scene={product.metadata.preview}
+									/>
+								</Suspense>
+							</div>
+						)}
 						{product.images.map((image, idx) => (
 							<Image
 								key={image}
-								className={cn(
-									idx === 0 ? "lg:col-span-3" : "col-span-1",
-									"w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity",
-								)}
+								className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
 								src={image}
 								width={idx === 0 ? 700 : 700 / 3}
 								height={idx === 0 ? 700 : 700 / 3}
@@ -183,9 +205,11 @@ export default async function SingleProductPage(props: {
 					<AddToCartButton productId={product.id} disabled={product.metadata.stock <= 0} />
 				</div>
 			</div>
+
 			<Suspense>
 				<SimilarProducts id={product.id} />
 			</Suspense>
+
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>
 	);
