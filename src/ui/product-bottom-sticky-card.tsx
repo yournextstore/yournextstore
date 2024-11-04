@@ -1,3 +1,4 @@
+import { MainProductImage } from "@/ui/products/main-product-image";
 import type * as Commerce from "commerce-kit";
 import { formatMoney } from "commerce-kit/currencies";
 import Image from "next/image";
@@ -12,16 +13,15 @@ export const ProductBottomStickyCard = ({
 			<div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto flex justify-between items-center">
 				<div className="flex items-center gap-x-4">
 					<div>
-						<Image
-							className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-							src={product.images[0]!}
-							width={72}
-							height={72}
-							sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 72px"
-							loading="eager"
-							priority
-							alt=""
-						/>
+						{product.images[0] && (
+							<MainProductImage
+								className="w-16 h-16 rounded-lg bg-neutral-100 object-cover object-center"
+								src={product.images[0]}
+								loading="eager"
+								priority
+								alt=""
+							/>
+						)}
 					</div>
 					<div>
 						<h3 className="font-semibold text-lg">{product.name}</h3>

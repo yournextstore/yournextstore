@@ -6,6 +6,7 @@ import type { TrieveProductMetadata } from "@/scripts/upload-trieve";
 import { AddToCartButton } from "@/ui/add-to-cart-button";
 import { JsonLd, mappedProductToJsonLd } from "@/ui/json-ld";
 import { Markdown } from "@/ui/markdown";
+import { MainProductImage } from "@/ui/products/main-product-image";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -149,19 +150,30 @@ export default async function SingleProductPage(props: {
 									</Suspense>
 								</div>
 							)}
-							{product.images.map((image, idx) => (
-								<Image
-									key={image}
-									className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-									src={image}
-									width={idx === 0 ? 700 : 700 / 3}
-									height={idx === 0 ? 700 : 700 / 3}
-									sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
-									loading="eager"
-									priority
-									alt=""
-								/>
-							))}
+							{product.images.map((image, idx) =>
+								idx === 0 ? (
+									<MainProductImage
+										key={image}
+										className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
+										src={image}
+										loading="eager"
+										priority
+										alt=""
+									/>
+								) : (
+									<Image
+										key={image}
+										className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
+										src={image}
+										width={700 / 3}
+										height={700 / 3}
+										sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
+										loading="eager"
+										priority
+										alt=""
+									/>
+								),
+							)}
 						</div>
 					</div>
 
