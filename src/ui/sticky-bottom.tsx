@@ -14,10 +14,12 @@ export const StickyBottom = ({
 }>) => {
 	const [show, setShow] = useState(false);
 	useEffect(() => {
-		const button = document.getElementById("card-add-to-cart");
+		const button = document.getElementById("button-add-to-cart");
 		const observer = new IntersectionObserver(
 			([entry]) => {
-				if (entry) setShow(!entry.isIntersecting);
+				if (entry) {
+					setShow(!entry.isIntersecting);
+				}
 			},
 			{ threshold: 0, rootMargin: "-100px 0px 0px 0px" },
 		);
@@ -33,9 +35,9 @@ export const StickyBottom = ({
 		};
 	}, []);
 	return (
-		<div>
+		<>
 			{children}
-			{show && <ProductBottomStickyCard product={product} locale={locale} />}
-		</div>
+			<ProductBottomStickyCard product={product} locale={locale} show={show} />
+		</>
 	);
 };
