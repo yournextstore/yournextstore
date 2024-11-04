@@ -1,5 +1,6 @@
 "use client";
 import { useTranslations } from "@/i18n/client";
+import { cn } from "@/lib/utils";
 import { Button } from "@/ui/shadcn/button";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -8,9 +9,11 @@ import { useTransition } from "react";
 export const AddToCartButton = ({
 	productId,
 	disabled,
+	className,
 }: {
 	productId: string;
 	disabled?: boolean;
+	className?: string;
 }) => {
 	const t = useTranslations("Global.addToCart");
 	const router = useRouter();
@@ -19,9 +22,10 @@ export const AddToCartButton = ({
 
 	return (
 		<Button
+			id="card-add-to-cart"
 			size="lg"
 			type="submit"
-			className="w-full rounded-full text-lg"
+			className={cn("rounded-full text-lg", className)}
 			onClick={async (e) => {
 				if (isDisabled) {
 					e.preventDefault();
