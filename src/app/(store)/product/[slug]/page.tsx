@@ -78,7 +78,7 @@ export default async function SingleProductPage(props: {
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink asChild className="inline-flex min-h-12 min-w-12 items-center justify-center">
-							<YnsLink href="/">{t("allProducts")}</YnsLink>
+							<YnsLink href="/products">{t("allProducts")}</YnsLink>
 						</BreadcrumbLink>
 					</BreadcrumbItem>
 					{category && (
