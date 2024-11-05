@@ -12,7 +12,7 @@ export const Nav = async () => {
 					<SeoH1 className="-mt-0.5 whitespace-nowrap text-xl font-bold">Your Next Store</SeoH1>
 				</YnsLink>
 
-				<div className="max-w-full flex flex-shrink w-auto sm:mr-auto overflow-scroll max-sm:order-2">
+				<div className="max-w-full flex flex-shrink w-auto sm:mr-auto overflow-auto max-sm:order-2">
 					<NavMenu />
 				</div>
 				<div className="mr-3 ml-auto sm:ml-0">
