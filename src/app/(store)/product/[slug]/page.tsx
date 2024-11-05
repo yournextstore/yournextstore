@@ -146,7 +146,19 @@ export default async function SingleProductPage(props: {
 										<Spline
 											className="w-full object-cover object-center aspect-square"
 											scene={product.metadata.preview}
-										/>
+										>
+											<Image
+												key={product.images[0]}
+												className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
+												src={product.images[0]!}
+												width={700}
+												height={700}
+												sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
+												loading="eager"
+												priority
+												alt=""
+											/>
+										</Spline>
 									</Suspense>
 								</div>
 							)}
