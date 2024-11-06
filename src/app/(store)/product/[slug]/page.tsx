@@ -1,3 +1,4 @@
+import { ProductModel3D } from "@/app/(store)/product/[slug]/product-model3d";
 import { publicUrl } from "@/env.mjs";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { getRecommendedProducts } from "@/lib/search/trieve";
@@ -127,43 +128,10 @@ export default async function SingleProductPage(props: {
 
 						<div className="grid gap-4 lg:grid-cols-3 [&>*:first-child]:col-span-3">
 							{product.metadata.preview && (
-								<div>
-									<Suspense
-										fallback={
-											<Image
-												key={product.images[0]}
-												className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-												src={product.images[0]!}
-												width={700}
-												height={700}
-												sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
-												loading="eager"
-												priority
-												alt=""
-											/>
-										}
-									>
-										<Spline
-											className="w-full object-cover object-center aspect-square"
-											scene={product.metadata.preview}
-										>
-											<Image
-												key={product.images[0]}
-												className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-												src={product.images[0]!}
-												width={700}
-												height={700}
-												sizes="(max-width: 1024x) 100vw, (max-width: 1280px) 50vw, 700px"
-												loading="eager"
-												priority
-												alt=""
-											/>
-										</Spline>
-									</Suspense>
-								</div>
+								<ProductModel3D model3d={product.metadata.preview} imageSrc={product.images[0]} />
 							)}
 							{product.images.map((image, idx) =>
-								idx === 0 ? (
+								idx === 0 && !product.metadata.preview ? (
 									<MainProductImage
 										key={image}
 										className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
