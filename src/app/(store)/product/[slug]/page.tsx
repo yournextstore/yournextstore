@@ -18,7 +18,6 @@ import {
 } from "@/ui/shadcn/breadcrumb";
 import { StickyBottom } from "@/ui/sticky-bottom";
 import { YnsLink } from "@/ui/yns-link";
-import Spline from "@splinetool/react-spline/next";
 import * as Commerce from "commerce-kit";
 import Image from "next/image";
 import { notFound } from "next/navigation";
