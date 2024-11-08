@@ -41,6 +41,10 @@ export default async function OrderDetailsPage(props: {
 	const t = await getTranslations("/order.page");
 	const locale = await getLocale();
 
+	const isDigital = (lines: Commerce.Order["lines"]) => {
+		return lines.some(({ product }) => Boolean(product.metadata.digitalAsset));
+	};
+
 	return (
 		<article className="max-w-3xl pb-32">
 			<ClearCookieClientComponent cartId={order.order.id} cookieId={cookie?.id} />
@@ -136,32 +140,32 @@ export default async function OrderDetailsPage(props: {
 
 			<div className="pl-20 sm:pl-40">
 				<h2 className="sr-only">{t("detailsTitle")}</h2>
-
-				<div className="mb-8">
-					<h3 className="font-semibold leading-none text-neutral-700">Digital Asset</h3>
-					<ul className="mt-3">
-						{order.lines
-							.filter((line) => line.product.metadata.digitalAsset)
-							.map((line) => {
-								return (
-									<li key={line.product.id} className="text-sm">
-										<a
-											href={line.product.metadata.digitalAsset}
-											target="_blank"
-											download={true}
-											rel="noreferrer"
-											className="text-blue-500 hover:underline"
-										>
-											{line.product.name}
-										</a>
-									</li>
-								);
-							})}
-					</ul>
-				</div>
-
+				{isDigital(order.lines) && (
+					<div className="mb-8">
+						<h3 className="font-semibold leading-none text-neutral-700">Digital Asset</h3>
+						<ul className="mt-3">
+							{order.lines
+								.filter((line) => line.product.metadata.digitalAsset)
+								.map((line) => {
+									return (
+										<li key={line.product.id} className="text-sm">
+											<a
+												href={line.product.metadata.digitalAsset}
+												target="_blank"
+												download={true}
+												rel="noreferrer"
+												className="text-blue-500 hover:underline"
+											>
+												{line.product.name}
+											</a>
+										</li>
+									);
+								})}
+						</ul>
+					</div>
+				)}
 				<div className="grid gap-8 sm:grid-cols-2">
-					{order.order.shipping?.address && (
+					{!isDigital(order.lines) && order.order.shipping?.address && (
 						<div>
 							<h3 className="font-semibold leading-none text-neutral-700">{t("shippingAddress")}</h3>
 							<p className="mt-3 text-sm">
