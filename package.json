@@ -16,7 +16,7 @@
 		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
 	"dependencies": {
-		"@next/mdx": "15.0.3",
+		"@next/mdx": "15.0.4-canary.3",
 		"@radix-ui/react-checkbox": "1.1.2",
 		"@radix-ui/react-collapsible": "1.1.1",
 		"@radix-ui/react-dialog": "1.1.2",
@@ -46,9 +46,9 @@
 		"cmdk": "1.0.4",
 		"commerce-kit": "0.0.36",
 		"intl-messageformat": "10.7.6",
-		"lucide-react": "0.454.0",
+		"lucide-react": "0.456.0",
 		"nanoid": "5.0.8",
-		"next": "15.0.3",
+		"next": "15.0.4-canary.3",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.4.3",
 		"react": "19.0.0-rc-5c56b873-20241107",
@@ -68,7 +68,7 @@
 		"@commitlint/cli": "19.5.0",
 		"@commitlint/config-conventional": "19.5.0",
 		"@commitlint/types": "19.5.0",
-		"@next/env": "15.0.3",
+		"@next/env": "15.0.4-canary.3",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -94,7 +94,7 @@
 		"sharp": "0.33.5",
 		"tailwindcss": "3.4.14",
 		"tsx": "4.19.2",
-		"typescript": "5.6.3",
+		"typescript": "5.7.1-rc",
 		"vite-tsconfig-paths": "5.1.0",
 		"vitest": "2.1.4"
 	},
@@ -107,7 +107,7 @@
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.3-canary.7",
+				"next": "15.0.4-canary.3",
 				"react": "19.0.0-rc-33c7bd9a-20241104",
 				"react-dom": "19.0.0-rc-33c7bd9a-20241104",
 				"@stripe/stripe-js": ">=4.9.0"
