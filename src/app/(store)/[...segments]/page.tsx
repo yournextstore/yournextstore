@@ -33,7 +33,7 @@ export default async function Page(props: { params: Promise<{ segments?: string[
 		return notFound();
 	}
 
-	const path = `/ ${params.segments.join("/")}`;
+	const path = `/${params.segments.join("/")}`;
 	const page = pages[path];
 
 	if (!page) {
