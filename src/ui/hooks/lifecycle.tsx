@@ -5,7 +5,6 @@ export const useDidMount = (cb: EffectCallback) => useEffect(cb, []);
 export const useDidUpdate = (cb: EffectCallback, deps?: DependencyList) => {
 	const mountRef = useRef(false);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: on purpose
 	useEffect(() => {
 		if (!mountRef.current) {
 			mountRef.current = true;
