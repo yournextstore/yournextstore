@@ -29,6 +29,7 @@ export const Banner = () => {
 					onClick={() => setIsOpen(false)}
 					className="flex-none rounded-full justify-self-end bg-indigo-500 p-1 text-white shadow-sm hover:bg-indigo-600"
 					aria-label="Close banner"
+					type="button"
 				>
 					<X size={16} />
 				</button>
