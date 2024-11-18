@@ -68,6 +68,7 @@
 	"/cart.page.stripePayment.fillRequiredFields": "Please fill in the required fields.",
 	"/cart.page.stripePayment.unexpectedError": "An unexpected error occurred.",
 	"/cart.page.stripePayment.billingSameAsShipping": "Billing address same as shipping",
+	"/cart.page.stripePayment.billingSameAsPayment": "Billing address same as payment",
 	"/cart.page.stripePayment.billingAddressTitle": "Billing address",
 	"/cart.page.stripePayment.payNowButton": "Pay now",
 	"/cart.page.stripePayment.errorTitle": "Error",

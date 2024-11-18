@@ -8,6 +8,7 @@ import { type AddressSchema, getAddressSchema } from "@/ui/checkout/checkout-for
 import { ShippingRatesSection } from "@/ui/checkout/shipping-rates-section";
 import { saveTaxIdAction } from "@/ui/checkout/tax-action";
 import { CountrySelect } from "@/ui/country-select";
+import { useDidUpdate } from "@/ui/hooks/lifecycle";
 import { InputWithErrors } from "@/ui/input-errors";
 import { Alert, AlertDescription, AlertTitle } from "@/ui/shadcn/alert";
 import { Button } from "@/ui/shadcn/button";
@@ -24,7 +25,7 @@ import {
 import type * as Commerce from "commerce-kit";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type ChangeEvent, type FormEventHandler, useEffect, useState, useTransition } from "react";
+import { type ChangeEvent, type FormEventHandler, useRef, useState, useTransition } from "react";
 
 export const StripePayment = ({
 	shippingRateId,
@@ -39,10 +40,10 @@ export const StripePayment = ({
 }) => {
 	return (
 		<PaymentForm
+			locale={locale}
 			shippingRates={shippingRates}
 			cartShippingRateId={shippingRateId ?? null}
 			allProductsDigital={allProductsDigital}
-			locale={locale}
 		/>
 	);
 };
@@ -95,20 +96,24 @@ const PaymentForm = ({
 	const [shippingRateId, setShippingRateId] = useState<string | null>(cartShippingRateId);
 
 	const [sameAsShipping, setSameAsShipping] = useState(true);
+	const [email, setEmail] = useState("");
 
 	const stripe = useStripe();
-	const elements = useElements();
 	const router = useRouter();
 
-	useEffect(() => {
+	// elements are mutable and can change during the lifecycle of the component
+	// keep a mutable ref so that useEffects are not triggered when elements change
+	const elements = useElements();
+	const elementsRef = useRef(elements);
+	elementsRef.current = elements;
+
+	useDidUpdate(() => {
 		transition(async () => {
-			await saveBillingAddressAction({
-				billingAddress: debouncedBillingAddress,
-			});
-			await elements?.fetchUpdates();
+			await saveBillingAddressAction({ billingAddress: debouncedBillingAddress });
+			await elementsRef.current?.fetchUpdates();
 			router.refresh();
 		});
-	}, [debouncedBillingAddress, elements, router]);
+	}, [debouncedBillingAddress, router]);
 
 	const readyToRender = stripe && elements && isAddressReady && isLinkAuthenticationReady && isPaymentReady;
 
@@ -143,7 +148,6 @@ const PaymentForm = ({
 
 			const validatedBillingAddress = addressSchema.safeParse(billingAddress);
 			const validatedShippingAddress = addressSchema.safeParse(shippingAddress);
-			console.log({ validatedBillingAddress, validatedShippingAddress });
 
 			// when billing address form is visible we display billing errors inline under fields
 			if (!validatedBillingAddress.success && !sameAsShipping) {
@@ -167,6 +171,7 @@ const PaymentForm = ({
 					taxId: validatedBillingAddress.data.taxId,
 				});
 			}
+
 			const result = await stripe.confirmPayment({
 				elements,
 				redirect: "if_required",
@@ -174,6 +179,7 @@ const PaymentForm = ({
 					return_url: `${window.location.origin}/order/success`,
 					payment_method_data: {
 						billing_details: {
+							email: email ?? undefined,
 							name: validatedBillingAddress.data.name,
 							phone: validatedBillingAddress.data.phone ?? undefined,
 							address: {
@@ -224,7 +230,14 @@ const PaymentForm = ({
 
 	return (
 		<form onSubmit={handleSubmit} className="grid gap-4">
-			<LinkAuthenticationElement onReady={() => setIsLinkAuthenticationReady(true)} />
+			<LinkAuthenticationElement
+				onReady={() => setIsLinkAuthenticationReady(true)}
+				onChange={(event) => {
+					if (event.complete) {
+						setEmail(event.value.email);
+					}
+				}}
+			/>
 			<AddressElement
 				options={{
 					mode: "shipping",
@@ -234,6 +247,10 @@ const PaymentForm = ({
 				onChange={(e) => {
 					// do not override billing address if it's manually edited
 					if (!sameAsShipping) {
+						return;
+					}
+
+					if (!isAddressReady) {
 						return;
 					}
 
@@ -247,7 +264,7 @@ const PaymentForm = ({
 						state: e.value.address.state ?? null,
 						phone: e.value.phone ?? null,
 						taxId: "",
-						email: "",
+						email: email,
 					});
 				}}
 				onReady={() => setIsAddressReady(true)}
@@ -283,7 +300,7 @@ const PaymentForm = ({
 						name="sameAsShipping"
 						value={sameAsShipping ? "true" : "false"}
 					/>
-					{t("billingSameAsShipping")}
+					{allProductsDigital ? t("billingSameAsPayment") : t("billingSameAsShipping")}
 				</Label>
 			)}
 
