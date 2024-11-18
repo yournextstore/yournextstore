@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
-import { Input, type InputProps } from "@/ui/shadcn/input";
+import { Input } from "@/ui/shadcn/input";
 import { Label } from "@/ui/shadcn/label";
-import { type ReactNode, useMemo } from "react";
+import { type ComponentProps, type ReactNode, useMemo } from "react";
 
-export interface ElWithErrorsProps extends InputProps {
+export interface ElWithErrorsProps extends ComponentProps<"input"> {
 	errors: undefined | null | Record<string, string[] | undefined | null>;
 	label: string;
 }
@@ -15,7 +15,9 @@ export const ElWithErrors = ({
 	label,
 	children,
 	...props
-}: Omit<ElWithErrorsProps, "children"> & { children: (props: InputProps) => ReactNode }) => {
+}: Omit<ElWithErrorsProps, "children"> & {
+	children: (props: ComponentProps<"input">) => ReactNode;
+}) => {
 	const currentErrors = errors && name && name in errors ? errors[name] : null;
 	const id = name ? `input-${name}` : undefined;
 
