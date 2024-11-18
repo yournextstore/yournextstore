@@ -3,6 +3,7 @@
 	"style": "new-york",
 	"rsc": true,
 	"tsx": true,
+	"iconLibrary": "lucide",
 	"tailwind": {
 		"config": "tailwind.config.ts",
 		"css": "src/app/globals.css",
@@ -13,6 +14,8 @@
 	"aliases": {
 		"components": "@/ui",
 		"ui": "@/ui/shadcn",
+		"hooks": "@/ui/shadcn/hooks",
+		"lib": "@/lib",
 		"utils": "@/lib/utils"
 	}
 }

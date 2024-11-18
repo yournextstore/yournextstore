@@ -43,7 +43,7 @@
 		"@vercel/speed-insights": "1.1.0",
 		"class-variance-authority": "0.7.0",
 		"clsx": "2.1.1",
-		"cmdk": "1.0.4",
+		"cmdk": "1.0.0",
 		"commerce-kit": "0.0.36",
 		"intl-messageformat": "10.7.7",
 		"lucide-react": "0.460.0",
