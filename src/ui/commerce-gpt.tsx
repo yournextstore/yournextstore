@@ -5,9 +5,11 @@ import { Button } from "@/ui/shadcn/button";
 import { Card, CardContent } from "@/ui/shadcn/card";
 import { Input } from "@/ui/shadcn/input";
 import { useChat } from "ai/react";
+import { ArrowUp, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ProductList } from "./commercegpt/product-list";
+import { YnsLink } from "./yns-link";
 
 export function CommerceGPT() {
 	const { messages, input, handleInputChange, handleSubmit, append } = useChat({
@@ -54,10 +56,17 @@ export function CommerceGPT() {
 									setIsOpen(!isOpen);
 								}}
 							>
-								CommerceGPT
+								Commerce GPT <ChevronDown />
 							</Button>
 						</div>
 					</div>
+					<YnsLink
+						className="bg-black rounded-full text-white px-4 py-1 text-sm"
+						href="https://github.com/yournextstore/yournextstore"
+						target="_blank"
+					>
+						View on GitHub
+					</YnsLink>
 				</div>
 			</div>
 			<div
@@ -71,11 +80,16 @@ export function CommerceGPT() {
 							{messages.length === 0 && (
 								<div className="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-center space-y-6 h-full">
 									<h3 className="text-xl font-bold text-center">
-										Welcome to Commerce GPT in Your Next Store
+										Welcome to{" "}
+										<span className="bg-gradient-to-r from-orange-500 via-red-500 to-red-600 text-transparent bg-clip-text">
+											Commerce GPT
+										</span>{" "}
+										in Your Next Store
 									</h3>
-									<div className="flex flex-wrap justify-center gap-2">
+									<div className="flex flex-wrap justify-center gap-2 w-full">
 										<Button
 											variant="outline"
+											className="text-lg text-neutral-500"
 											size="lg"
 											onClick={() => append({ role: "user", content: "Show me some bags" })}
 										>
@@ -83,17 +97,11 @@ export function CommerceGPT() {
 										</Button>
 										<Button
 											variant="outline"
+											className="text-lg text-neutral-500"
 											size="lg"
-											onClick={() => append({ role: "user", content: "Add the first bag to the cart" })}
+											onClick={() => append({ role: "user", content: "Show me cool sunglasses" })}
 										>
-											Add the first bag to the cart
-										</Button>
-										<Button
-											variant="outline"
-											size="lg"
-											onClick={() => append({ role: "user", content: "Show me some glasses" })}
-										>
-											Show me some glasses
+											Looking for cool glasses
 										</Button>
 									</div>
 								</div>
@@ -101,11 +109,10 @@ export function CommerceGPT() {
 							{messages.map((m) => (
 								<div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
 									<div
-										className={`rounded-lg p-2 max-w-[80%] ${m.role === "user" ? "bg-blue-500 text-white" : "bg-neutral-100"}`}
+										className={`text-lg rounded px-2 py-1 max-w-[80%] ${m.role === "user" ? "bg-gradient-to-l from-orange-500 via-red-400 to-red-500 text-white" : (m.toolInvocations || []).length > 0 ? "bg-transparent" : "bg-neutral-100"}`}
 									>
 										{m.content}
 										{m.toolInvocations?.map((ti) => {
-											console.log(ti);
 											return (
 												ti.state === "result" && (
 													<div key={ti.toolCallId}>
@@ -113,7 +120,27 @@ export function CommerceGPT() {
 															switch (ti.toolName) {
 																case "productSearch":
 																	if (ti.result.length === 0) return <>No results</>;
-																	return <ProductList products={ti.result} />;
+																	return (
+																		<div className="grid cols-1 gap-4">
+																			<ProductList products={ti.result} />
+
+																			<div className="flex flex-wrap justify-center gap-2 w-full">
+																				<Button
+																					variant="outline"
+																					className="text-lg text-neutral-500"
+																					size="lg"
+																					onClick={() =>
+																						append({
+																							role: "user",
+																							content: "Add the first element to the cart",
+																						})
+																					}
+																				>
+																					Add the first bag to the cart
+																				</Button>
+																			</div>
+																		</div>
+																	);
 																default:
 																	return null;
 															}
@@ -134,8 +161,8 @@ export function CommerceGPT() {
 								className="flex-grow h-12 md:text-xl"
 								ref={ref}
 							/>
-							<Button type="submit" size="lg" className="rounded-full text-lg">
-								Send
+							<Button type="submit" size="lg" className="rounded-full text-lg h-12">
+								<ArrowUp />
 							</Button>
 						</form>
 					</CardContent>
