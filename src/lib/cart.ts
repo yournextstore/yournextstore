@@ -5,9 +5,9 @@ export const CART_COOKIE = "yns_cart";
 
 export type CartCookieJson = { id: string; linesCount: number };
 
-export function setCartCookieJson(cartCookieJson: CartCookieJson): void {
+export async function setCartCookieJson(cartCookieJson: CartCookieJson) {
 	try {
-		(cookies() as unknown as UnsafeUnwrappedCookies).set(CART_COOKIE, JSON.stringify(cartCookieJson));
+		(await cookies()).set(CART_COOKIE, JSON.stringify(cartCookieJson));
 	} catch (error) {
 		console.error("Failed to set cart cookie", error);
 	}
