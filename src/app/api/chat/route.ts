@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 					formData.append("productId", id);
 					await addToCartAction(formData);
 
-					return [];
+					return "OK. Done";
 				},
 			},
 		},
