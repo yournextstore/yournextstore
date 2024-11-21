@@ -7,12 +7,16 @@ import { z } from "zod";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
+	console.log("Request received");
 	const response = await req.json();
+	console.log("Request body");
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const messages = (response as any).messages;
+	console.log("Messages", messages);
 
 	const streamingData = new StreamData();
+	console.log("Streaming data created");
 
 	const result = streamText({
 		system: "Every search query should be changed to singular form",
@@ -49,6 +53,7 @@ export async function POST(req: Request) {
 			streamingData.close();
 		},
 	});
+	console.log("Streaming data created");
 
 	return result.toDataStreamResponse({ data: streamingData });
 }
