@@ -132,11 +132,11 @@ export function CommerceGPT() {
 																					onClick={() =>
 																						append({
 																							role: "user",
-																							content: "Add the first element to the cart",
+																							content: "Add the first product to the cart",
 																						})
 																					}
 																				>
-																					Add the first bag to the cart
+																					Add the first product to the cart
 																				</Button>
 																			</div>
 																		</div>
