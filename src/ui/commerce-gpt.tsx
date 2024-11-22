@@ -145,7 +145,11 @@ export function CommerceGPT() {
 																		</div>
 																	);
 																default:
-																	return null;
+																	return (
+																		<div className="text-lg rounded px-2 py-1 bg-neutral-100">
+																			{ti.result}
+																		</div>
+																	);
 															}
 														})()}
 													</div>
