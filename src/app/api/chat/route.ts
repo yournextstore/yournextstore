@@ -2,15 +2,18 @@ import { addToCartAction } from "@/actions/cart-actions";
 import { searchProducts } from "@/lib/search/search";
 import { openai } from "@ai-sdk/openai";
 import { StreamData, streamText } from "ai";
+import { cookies } from "next/headers";
 import { z } from "zod";
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const response = await req.json();
+	const cookieStore = await cookies();
+
+	const json = await req.json();
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const messages = (response as any).messages;
+	const messages = (json as any).messages;
 
 	const streamingData = new StreamData();
 
@@ -37,10 +40,14 @@ export async function POST(req: Request) {
 					id: z.string(),
 				}),
 				async execute({ id }) {
+					console.log("Adding product to cart", id);
 					const formData = new FormData();
 					formData.append("productId", id);
-					await addToCartAction(formData);
+					const cart = await addToCartAction(formData);
 
+					if (cart) {
+						streamingData.append({ operation: "cartAdd", id, cartId: cart.id });
+					}
 					return "OK. Done";
 				},
 			},
