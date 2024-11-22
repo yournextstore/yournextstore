@@ -5,9 +5,14 @@ import { useState } from "react";
 import { YnsLink } from "./yns-link";
 
 export const Banner = () => {
-	const [isOpen, setIsOpen] = useState(true);
+	const [isOpen, setIsOpen] = useState(() => localStorage.getItem("banner") !== "true");
 
 	if (!isOpen) return null;
+
+	const handleClose = () => {
+		setIsOpen(false);
+		localStorage.setItem("banner", "true");
+	};
 
 	return (
 		<div className="bg-gradient-to-r from-indigo-100 via-indigo-200 to-indigo-300 px-4 py-3 text-indigo-900">
@@ -26,7 +31,7 @@ export const Banner = () => {
 					</div>
 				</div>
 				<button
-					onClick={() => setIsOpen(false)}
+					onClick={handleClose}
 					className="flex-none rounded-full justify-self-end bg-indigo-500 p-1 text-white shadow-sm hover:bg-indigo-600"
 					aria-label="Close banner"
 					type="button"
