@@ -2,14 +2,11 @@ import { addToCartAction } from "@/actions/cart-actions";
 import { searchProducts } from "@/lib/search/search";
 import { openai } from "@ai-sdk/openai";
 import { StreamData, streamText } from "ai";
-import { cookies } from "next/headers";
 import { z } from "zod";
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const cookieStore = await cookies();
-
 	const json = await req.json();
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
