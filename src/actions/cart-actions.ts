@@ -24,7 +24,7 @@ export async function findOrCreateCartIdFromCookiesAction() {
 	}
 
 	const newCart = await Commerce.cartCreate();
-	setCartCookieJson({
+	await setCartCookieJson({
 		id: newCart.id,
 		linesCount: 0,
 	});
@@ -56,7 +56,7 @@ export async function addToCartAction(formData: FormData) {
 	const updatedCart = await Commerce.cartAdd({ productId, cartId: cart?.cart.id });
 
 	if (updatedCart) {
-		setCartCookieJson({
+		await setCartCookieJson({
 			id: updatedCart.id,
 			linesCount: Commerce.cartCount(updatedCart.metadata),
 		});
@@ -103,4 +103,9 @@ export async function setQuantity({
 		throw new Error("Cart not found");
 	}
 	await Commerce.cartSetQuantity({ productId, cartId, quantity });
+}
+
+export async function commerceGPTRevalidateAction() {
+	const cart = await getCartCookieJson();
+	if (cart) revalidateTag(`cart-${cart.id}`);
 }
