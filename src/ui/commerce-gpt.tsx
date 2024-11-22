@@ -1,26 +1,29 @@
 "use client";
 
-import { commerceGPTRevalidateAction } from "@/actions/cart-actions";
+import { commerceGPTRevalidateAction, setInitialCartCookiesAction } from "@/actions/cart-actions";
 import { Button } from "@/ui/shadcn/button";
 import { Card, CardContent } from "@/ui/shadcn/card";
 import { Input } from "@/ui/shadcn/input";
 import { useChat } from "ai/react";
 import { ArrowUp, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { ProductList } from "./commercegpt/product-list";
 import { YnsLink } from "./yns-link";
 
 export function CommerceGPT() {
-	const { messages, input, handleInputChange, handleSubmit, append } = useChat({
-		onFinish: async (message) => {
-			const tools = message.toolInvocations?.map((ti) => ti.toolName) || [];
+	const { messages, input, handleInputChange, handleSubmit, append, data } = useChat({});
 
-			if (tools.includes("cartAdd")) {
+	useEffect(() => {
+		const d = data as Array<{ operation?: "cartAdd"; cartId: string } | undefined> | undefined;
+		const cartId = d?.find((d) => d?.operation === "cartAdd")?.cartId;
+		if (cartId) {
+			startTransition(async () => {
+				await setInitialCartCookiesAction(cartId, 1);
 				await commerceGPTRevalidateAction();
-			}
-		},
-	});
+			});
+		}
+	}, [data]);
 	const [isOpen, setIsOpen] = useState(false);
 
 	const pathname = usePathname();
