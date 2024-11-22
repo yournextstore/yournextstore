@@ -17,6 +17,14 @@ export async function getCartFromCookiesAction() {
 	return null;
 }
 
+export async function setInitialCartCookiesAction(cartId: string, linesCount: number) {
+	await setCartCookieJson({
+		id: cartId,
+		linesCount,
+	});
+	revalidateTag(`cart-${cartId}`);
+}
+
 export async function findOrCreateCartIdFromCookiesAction() {
 	const cart = await getCartFromCookiesAction();
 	if (cart) {
@@ -62,6 +70,7 @@ export async function addToCartAction(formData: FormData) {
 		});
 
 		revalidateTag(`cart-${updatedCart.id}`);
+		return updatedCart;
 	}
 }
 
@@ -107,5 +116,8 @@ export async function setQuantity({
 
 export async function commerceGPTRevalidateAction() {
 	const cart = await getCartCookieJson();
-	if (cart) revalidateTag(`cart-${cart.id}`);
+	if (cart) {
+		console.log("Revalidating cart", cart);
+		revalidateTag(`cart-${cart.id}`);
+	}
 }
