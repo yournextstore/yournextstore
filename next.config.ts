@@ -32,6 +32,7 @@ const nextConfig: NextConfig = {
 		reactOwnerStack: true,
 		reactCompiler: true,
 		mdxRs: true,
+		inlineCss: true,
 	},
 	webpack: (config) => {
 		return {
