@@ -24,6 +24,8 @@ export const env = createEnv({
 		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 
 		NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
+		NEXT_PUBLIC_URL: z.string().url().optional(),
+
 
 		NEXT_PUBLIC_NEWSLETTER_ENDPOINT: z.string().optional(),
 
