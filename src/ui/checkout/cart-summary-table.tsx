@@ -135,7 +135,7 @@ export const CartSummaryTable = ({ cart, locale }: { cart: Commerce.Cart; locale
 						<TableRow key={idx + tax.taxAmount} className="font-normal">
 							<TableCell className="hidden w-24 sm:table-cell"></TableCell>
 							<TableCell colSpan={3} className="text-right">
-								{tax.taxType.toLocaleUpperCase()} {tax.taxPercentage}%
+								{tax.taxType.toString().toLocaleUpperCase()} {tax.taxPercentage}%
 							</TableCell>
 							<TableCell className="text-right">
 								<CartAmountWithSpinner total={tax.taxAmount} currency={currency} locale={locale} />
