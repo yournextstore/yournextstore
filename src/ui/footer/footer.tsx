@@ -1,4 +1,5 @@
 import { getTranslations } from "@/i18n/server";
+import StoreConfig from "@/store.config";
 import { Newsletter } from "@/ui/footer/newsletter.client";
 import { YnsLink } from "@/ui/yns-link";
 import type { SVGAttributes } from "react";
@@ -6,16 +7,10 @@ import type { SVGAttributes } from "react";
 const sections = [
 	{
 		header: "Products",
-		links: [
-			{
-				label: "Apparel",
-				href: "/category/apparel",
-			},
-			{
-				label: "Accessories",
-				href: "/category/accessories",
-			},
-		],
+		links: StoreConfig.categories.map(({ name, slug }) => ({
+			label: name,
+			href: `/category/${slug}`,
+		})),
 	},
 	{
 		header: "Support",

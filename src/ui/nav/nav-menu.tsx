@@ -1,3 +1,4 @@
+import StoreConfig from "@/store.config";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
 import Link from "next/link";
 
@@ -6,34 +7,15 @@ const links = [
 		label: "Home",
 		href: "/",
 	},
-	{
-		label: "Apparel",
-		href: "/category/apparel",
-	},
-	{
-		label: "Accessories",
-		href: "/category/accessories",
-	},
+	...StoreConfig.categories.map(({ name, slug }) => ({
+		label: name,
+		href: `/category/${slug}`,
+	})),
 	{
 		label: "Digital",
 		href: "/category/digital",
 	},
 ];
-
-{
-	/* <Drawer>
-  <DrawerTrigger>Open</DrawerTrigger>
-  <DrawerContent>
-    <DrawerHeader>
-      <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-      <DrawerDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </DrawerDescription>
-    </DrawerHeader>
-  </DrawerContent>
-</Drawer> */
-}
 
 export const NavMenu = () => {
 	return (
