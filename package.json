@@ -16,8 +16,8 @@
 		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
 	"dependencies": {
-		"@ai-sdk/openai": "1.0.6",
-		"@next/mdx": "15.0.4-canary.41",
+		"@ai-sdk/openai": "1.0.7",
+		"@next/mdx": "15.0.4-canary.45",
 		"@radix-ui/react-checkbox": "1.1.2",
 		"@radix-ui/react-collapsible": "1.1.1",
 		"@radix-ui/react-dialog": "1.1.2",
@@ -46,11 +46,11 @@
 		"class-variance-authority": "0.7.1",
 		"clsx": "2.1.1",
 		"cmdk": "1.0.4",
-		"commerce-kit": "0.0.37",
+		"commerce-kit": "0.0.39",
 		"intl-messageformat": "10.7.7",
 		"lucide-react": "0.468.0",
 		"nanoid": "5.0.9",
-		"next": "15.0.4-canary.41",
+		"next": "15.0.4-canary.45",
 		"next-mdx-remote": "5.0.0",
 		"next-themes": "0.4.3",
 		"react": "19.0.0-rc.1",
@@ -70,7 +70,7 @@
 		"@commitlint/cli": "19.6.0",
 		"@commitlint/config-conventional": "19.6.0",
 		"@commitlint/types": "19.5.0",
-		"@next/env": "15.0.4-canary.41",
+		"@next/env": "15.0.4-canary.45",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.0",
 		"@semantic-release/git": "10.0.1",
@@ -82,7 +82,7 @@
 		"@testing-library/jest-dom": "6.6.3",
 		"@testing-library/react": "16.0.1",
 		"@types/mdx": "2.0.13",
-		"@types/node": "^22.10.1",
+		"@types/node": "22.10.1",
 		"@types/react": "npm:types-react@19.0.0-rc.1",
 		"@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
 		"@vitejs/plugin-react": "4.3.4",
@@ -109,7 +109,7 @@
 		},
 		"peerDependencyRules": {
 			"allowedVersions": {
-				"next": "15.0.4-canary.15",
+				"next": "15.0.4-canary.45",
 				"react": "19.0.0-rc.1",
 				"react-dom": "19.0.0-rc.1",
 				"@stripe/stripe-js": ">=5.0.0"
