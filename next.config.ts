@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
 			{ hostname: "files.stripe.com" },
 			{ hostname: "d1wqzb5bdbcre6.cloudfront.net" },
 			{ hostname: "*.blob.vercel-storage.com" },
+			{ hostname: "robbreport.com" },
 		],
 		formats: ["image/avif", "image/webp"],
 	},

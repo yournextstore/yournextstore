@@ -47,6 +47,7 @@
 		"clsx": "2.1.1",
 		"cmdk": "1.0.4",
 		"commerce-kit": "0.0.37",
+		"framer-motion": "11.13.1",
 		"intl-messageformat": "10.7.7",
 		"lucide-react": "0.468.0",
 		"nanoid": "5.0.9",
