@@ -3,7 +3,7 @@ import { env, publicUrl } from "@/env.mjs";
 import { IntlClientProvider } from "@/i18n/client";
 import { getLocale, getMessages, getTranslations } from "@/i18n/server";
 import { Toaster } from "@/ui/shadcn/sonner";
-import { Analytics } from "@vercel/analytics/react";
+// import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import Script from "next/script";
@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 					/>
 				)}
 				<SpeedInsights />
-				<Analytics />
+				{/* <Analytics /> */}
 			</body>
 		</html>
 	);
