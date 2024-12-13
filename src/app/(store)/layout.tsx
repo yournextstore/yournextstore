@@ -1,17 +1,17 @@
 import "@/app/globals.css";
+import { CartModalProvider } from "@/context/cart-modal";
 import { CommerceGPT } from "@/ui/commerce-gpt";
 import { Footer } from "@/ui/footer/footer";
 import { JsonLd, accountToWebsiteJsonLd } from "@/ui/json-ld";
 import { Nav } from "@/ui/nav/nav";
 import { TooltipProvider } from "@/ui/shadcn/tooltip";
 import * as Commerce from "commerce-kit";
+import { CartModalPage } from "./cart/cart-modal";
 
 export default async function StoreLayout({
 	children,
-	modal,
 }: Readonly<{
 	children: React.ReactNode;
-	modal: React.ReactNode;
 }>) {
 	const accountResult = await Commerce.accountGet();
 	const logoLink =
@@ -21,14 +21,16 @@ export default async function StoreLayout({
 	return (
 		<>
 			<CommerceGPT />
-			<Nav />
-			<TooltipProvider>
-				<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pb-6 pt-2 sm:px-6 lg:px-8">
-					{children}
-					{modal}
-				</main>
-				<Footer />
-			</TooltipProvider>
+			<CartModalProvider>
+				<Nav />
+				<TooltipProvider>
+					<main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pb-6 pt-2 sm:px-6 lg:px-8">
+						{children}
+						<CartModalPage />
+					</main>
+					<Footer />
+				</TooltipProvider>
+			</CartModalProvider>
 			<JsonLd
 				jsonLd={accountToWebsiteJsonLd({
 					account: accountResult?.account,
