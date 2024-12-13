@@ -3,17 +3,16 @@ import { getLocale, getTranslations } from "@/i18n/server";
 import { formatMoney, formatProductName } from "@/lib/utils";
 import { Button } from "@/ui/shadcn/button";
 import { YnsLink } from "@/ui/yns-link";
-import * as Commerce from "commerce-kit";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
 import Image from "next/image";
 import { CartAsideContainer } from "./cart-aside";
-import { CartModalAddSideEffect } from "./cart-side-effect";
 
-export default async function CartModalPage(props: { searchParams: Promise<{ add?: string }> }) {
-	const searchParams = await props.searchParams;
+export async function CartModalPage() {
+	// const searchParams = await props.searchParams;
 	const originalCart = await getCartFromCookiesAction();
 	// TODO fix type
-	const cart = await Commerce.cartAddOptimistic({ add: searchParams.add, cart: originalCart! });
+	// const cart = await Commerce.cartAddOptimistic({ add: searchParams.add, cart: originalCart! });
+	const cart = originalCart;
 
 	if (!cart || cart.lines.length === 0) {
 		return null;
@@ -93,7 +92,7 @@ export default async function CartModalPage(props: { searchParams: Promise<{ add
 					<YnsLink href="/cart">{t("goToPaymentButton")}</YnsLink>
 				</Button>
 			</div>
-			{searchParams.add && <CartModalAddSideEffect productId={searchParams.add} />}
+			{/* {searchParams.add && <CartModalAddSideEffect productId={searchParams.add} />} } */}
 		</CartAsideContainer>
 	);
 }

@@ -12,7 +12,7 @@ export async function getCartFromCookiesAction() {
 
 	const cart = await Commerce.cartGet(cartJson.id);
 	if (cart) {
-		return cart;
+		return structuredClone(cart);
 	}
 	return null;
 }
@@ -28,7 +28,7 @@ export async function setInitialCartCookiesAction(cartId: string, linesCount: nu
 export async function findOrCreateCartIdFromCookiesAction() {
 	const cart = await getCartFromCookiesAction();
 	if (cart) {
-		return cart;
+		return structuredClone(cart);
 	}
 
 	const newCart = await Commerce.cartCreate();
@@ -70,7 +70,7 @@ export async function addToCartAction(formData: FormData) {
 		});
 
 		revalidateTag(`cart-${updatedCart.id}`);
-		return updatedCart;
+		return structuredClone(updatedCart);
 	}
 }
 
