@@ -1,5 +1,5 @@
 import { safeJsonParse } from "@/lib/utils";
-import { type UnsafeUnwrappedCookies, cookies } from "next/headers";
+import { cookies } from "next/headers";
 
 export const CART_COOKIE = "yns_cart";
 
@@ -13,17 +13,15 @@ export async function setCartCookieJson(cartCookieJson: CartCookieJson) {
 	}
 }
 
-export function clearCartCookie(): void {
-	(cookies() as unknown as UnsafeUnwrappedCookies).set(CART_COOKIE, "", {
+export async function clearCartCookie(): Promise<void> {
+	(await cookies()).set(CART_COOKIE, "", {
 		maxAge: 0,
 	});
 }
 
 export async function getCartCookieJson(): Promise<null | CartCookieJson> {
 	const cookiesValue = await cookies();
-	const cartCookieJson = safeJsonParse(
-		(cookiesValue as unknown as UnsafeUnwrappedCookies).get(CART_COOKIE)?.value,
-	);
+	const cartCookieJson = safeJsonParse(cookiesValue.get(CART_COOKIE)?.value);
 
 	if (
 		!cartCookieJson ||

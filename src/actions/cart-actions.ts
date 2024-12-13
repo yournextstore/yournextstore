@@ -47,7 +47,7 @@ export async function clearCartCookieAction() {
 		return;
 	}
 
-	clearCartCookie();
+	await clearCartCookie();
 	revalidateTag(`cart-${cookie.id}`);
 	// FIXME not ideal, revalidate per domain instead (multi-tenant)
 	revalidateTag(`admin-orders`);
