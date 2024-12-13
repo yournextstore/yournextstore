@@ -1,4 +1,6 @@
 "use client";
+import { addToCartAction } from "@/actions/cart-actions";
+import { useCartModal } from "@/context/cart-modal";
 import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/shadcn/button";
@@ -19,6 +21,7 @@ export const AddToCartButton = ({
 	const router = useRouter();
 	const [pending, startTransition] = useTransition();
 	const isDisabled = disabled || pending;
+	const { setOpen } = useCartModal();
 
 	return (
 		<Button
@@ -31,7 +34,14 @@ export const AddToCartButton = ({
 					e.preventDefault();
 					return;
 				}
-				startTransition(() => router.push(`/cart-overlay?add=${productId}`));
+
+				setOpen(true);
+
+				startTransition(async () => {
+					const formData = new FormData();
+					formData.append("productId", productId);
+					await addToCartAction(formData);
+				});
 			}}
 			aria-disabled={isDisabled}
 		>
