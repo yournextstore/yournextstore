@@ -2,7 +2,6 @@ import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { formatMoney } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/ui/shadcn/tooltip";
-import { YnsLink } from "@/ui/yns-link";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
 import { ShoppingBagIcon } from "lucide-react";
 import { Suspense } from "react";
