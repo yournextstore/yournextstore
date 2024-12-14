@@ -23,6 +23,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
 import { Suspense } from "react";
+import ProductImageModal from "./product-image-modal";
 
 export const generateMetadata = async (props: {
 	params: Promise<{ slug: string }>;
@@ -55,7 +56,7 @@ export const generateMetadata = async (props: {
 
 export default async function SingleProductPage(props: {
 	params: Promise<{ slug: string }>;
-	searchParams: Promise<{ variant?: string }>;
+	searchParams: Promise<{ variant?: string; image?: string }>;
 }) {
 	const searchParams = await props.searchParams;
 	const params = await props.params;
@@ -71,6 +72,8 @@ export default async function SingleProductPage(props: {
 	const locale = await getLocale();
 
 	const category = product.metadata.category;
+	const images = product.images;
+	const selectedImage = searchParams.image && images[Number(searchParams.image)];
 
 	return (
 		<article className="pb-12">
@@ -129,30 +132,32 @@ export default async function SingleProductPage(props: {
 							{product.metadata.preview && (
 								<ProductModel3D model3d={product.metadata.preview} imageSrc={product.images[0]} />
 							)}
-							{product.images.map((image, idx) =>
-								idx === 0 && !product.metadata.preview ? (
-									<MainProductImage
-										key={image}
-										className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-										src={image}
-										loading="eager"
-										priority
-										alt=""
-									/>
-								) : (
-									<Image
-										key={image}
-										className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
-										src={image}
-										width={700 / 3}
-										height={700 / 3}
-										sizes="(max-width: 1024x) 33vw, (max-width: 1280px) 20vw, 225px"
-										loading="eager"
-										priority
-										alt=""
-									/>
-								),
-							)}
+							{images.map((image, idx) => (
+								<YnsLink key={idx} href={`?image=${idx}`} scroll={false}>
+									{idx === 0 && !product.metadata.preview ? (
+										<MainProductImage
+											key={image}
+											className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
+											src={image}
+											loading="eager"
+											priority
+											alt=""
+										/>
+									) : (
+										<Image
+											key={image}
+											className="w-full rounded-lg bg-neutral-100 object-cover object-center transition-opacity"
+											src={image}
+											width={700 / 3}
+											height={700 / 3}
+											sizes="(max-width: 1024x) 33vw, (max-width: 1280px) 20vw, 225px"
+											loading="eager"
+											priority
+											alt=""
+										/>
+									)}
+								</YnsLink>
+							))}
 						</div>
 					</div>
 
@@ -203,6 +208,12 @@ export default async function SingleProductPage(props: {
 			<Suspense>
 				<SimilarProducts id={product.id} />
 			</Suspense>
+
+			{selectedImage && (
+				<Suspense fallback={<div>Loading...</div>}>
+					<ProductImageModal images={images} src={selectedImage} alt={product.name} slug={params.slug} />
+				</Suspense>
+			)}
 
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>

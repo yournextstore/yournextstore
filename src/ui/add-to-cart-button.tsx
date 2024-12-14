@@ -5,7 +5,6 @@ import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/shadcn/button";
 import { Loader2Icon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 export const AddToCartButton = ({
@@ -18,7 +17,6 @@ export const AddToCartButton = ({
 	className?: string;
 }) => {
 	const t = useTranslations("Global.addToCart");
-	const router = useRouter();
 	const [pending, startTransition] = useTransition();
 	const isDisabled = disabled || pending;
 	const { setOpen } = useCartModal();
