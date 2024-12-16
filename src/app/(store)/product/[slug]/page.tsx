@@ -1,4 +1,4 @@
-import { ProductModel3D } from "@/app/(store)/product/[slug]/product-model3d";
+// import { ProductModel3D } from "@/app/(store)/product/[slug]/product-model3d";
 import { publicUrl } from "@/env.mjs";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { getRecommendedProducts } from "@/lib/search/trieve";
@@ -58,10 +58,11 @@ export default async function SingleProductPage(props: {
 	params: Promise<{ slug: string }>;
 	searchParams: Promise<{ variant?: string; image?: string }>;
 }) {
-	const searchParams = await props.searchParams;
 	const params = await props.params;
+	const searchParams = await props.searchParams;
+
 	const variants = await Commerce.productGet({ slug: params.slug });
-	const selectedVariant = searchParams.variant || variants[0]?.metadata.variant;
+	const selectedVariant = (variants.length > 1 && searchParams.variant) || variants[0]?.metadata.variant;
 	const product = variants.find((variant) => variant.metadata.variant === selectedVariant);
 
 	if (!product) {
@@ -73,7 +74,7 @@ export default async function SingleProductPage(props: {
 
 	const category = product.metadata.category;
 	const images = product.images;
-	const selectedImage = searchParams.image && images[Number(searchParams.image)];
+	const src = searchParams.image && images[Number(searchParams.image)];
 
 	return (
 		<article className="pb-12">
@@ -129,9 +130,9 @@ export default async function SingleProductPage(props: {
 						<h2 className="sr-only">{t("imagesTitle")}</h2>
 
 						<div className="grid gap-4 lg:grid-cols-3 [&>*:first-child]:col-span-3">
-							{product.metadata.preview && (
+							{/* {product.metadata.preview && (
 								<ProductModel3D model3d={product.metadata.preview} imageSrc={product.images[0]} />
-							)}
+							)} */}
 							{images.map((image, idx) => (
 								<YnsLink key={idx} href={`?image=${idx}`} scroll={false}>
 									{idx === 0 && !product.metadata.preview ? (
@@ -209,9 +210,9 @@ export default async function SingleProductPage(props: {
 				<SimilarProducts id={product.id} />
 			</Suspense>
 
-			{selectedImage && (
+			{src && (
 				<Suspense fallback={<div>Loading...</div>}>
-					<ProductImageModal images={images} src={selectedImage} alt={product.name} slug={params.slug} />
+					<ProductImageModal src={src} images={images} alt={product.name} />
 				</Suspense>
 			)}
 
