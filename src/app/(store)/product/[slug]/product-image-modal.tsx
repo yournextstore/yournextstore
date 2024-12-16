@@ -19,31 +19,34 @@ export default function ProductImageModal({ src, alt, slug, images }: ImageModal
 	const router = useRouter();
 
 	const onDismiss = () => {
-		router.push(`/product/${slug}`);
+		router.push(`?`);
 	};
 
 	const handlePrevious = () => {
 		const pos = images.indexOf(src);
-		if (pos > 0) {
-			router.push(`?image=${images.indexOf(src) - 1}`);
+		if (pos >= 0) {
+			const newPos = (images.indexOf(src) - 1 + images.length) % images.length;
+			router.push(`?image=${newPos}`);
 		}
 	};
 
 	const handleNext = () => {
 		const pos = images.indexOf(src);
-		if (pos < images.length - 1) {
-			router.push(`?image=${images.indexOf(src) + 1}`);
+		if (pos <= images.length - 1) {
+			const newPos = (images.indexOf(src) + 1) % images.length;
+			router.push(`?image=${newPos}`);
 		}
 	};
 
-	const onKeyDown = (e: KeyboardEvent) => {
-		if (e.key === "Escape") onDismiss();
-	};
-
 	useEffect(() => {
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				onDismiss();
+			}
+		};
 		document.addEventListener("keydown", onKeyDown);
 		return () => document.removeEventListener("keydown", onKeyDown);
-	}, [onKeyDown]);
+	}, []);
 
 	return (
 		<AnimatePresence>
@@ -73,8 +76,7 @@ export default function ProductImageModal({ src, alt, slug, images }: ImageModal
 					</motion.div>
 
 					<button
-						onClick={(e) => {
-							e.stopPropagation();
+						onClick={() => {
 							handlePrevious();
 						}}
 						className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 hover:bg-gray-100 transition-colors"
@@ -82,8 +84,7 @@ export default function ProductImageModal({ src, alt, slug, images }: ImageModal
 						<ChevronLeft className="w-6 h-6" />
 					</button>
 					<button
-						onClick={(e) => {
-							e.stopPropagation();
+						onClick={() => {
 							handleNext();
 						}}
 						className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 hover:bg-gray-100 transition-colors"
@@ -97,9 +98,7 @@ export default function ProductImageModal({ src, alt, slug, images }: ImageModal
 						<YnsLink
 							className={cn(src === image && "border-black border rounded-lg overflow-hidden")}
 							key={idx}
-							onClick={() => {
-								router.push(`?image=${idx}`);
-							}}
+							prefetch={true}
 							href={`?image=${idx}`}
 							scroll={false}
 						>
