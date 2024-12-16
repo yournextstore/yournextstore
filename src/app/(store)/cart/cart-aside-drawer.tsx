@@ -3,22 +3,10 @@
 import { useCartModal } from "@/context/cart-modal";
 import { Drawer, DrawerContent, DrawerTitle } from "@/ui/shadcn/drawer";
 import { useMediaQuery } from "@/ui/shadcn/hooks/use-media-query";
-import { useRouter } from "next/navigation";
-import { type ReactNode, useEffect } from "react";
+import type { ReactNode } from "react";
 
 export const CartAsideDrawer = ({ children }: { children: ReactNode }) => {
-	const router = useRouter();
 	const { open, setOpen } = useCartModal();
-
-	useEffect(() => {
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "Escape") {
-				router.back();
-			}
-		};
-		document.addEventListener("keydown", onKeyDown);
-		return () => document.removeEventListener("keydown", onKeyDown);
-	}, [router]);
 
 	const isDesktop = useMediaQuery("(min-width: 640px)");
 
