@@ -11,22 +11,21 @@ import { useEffect } from "react";
 type ImageModalProps = {
 	src: string;
 	alt: string;
-	slug: string;
 	images: string[];
 };
 
-export default function ProductImageModal({ src, alt, slug, images }: ImageModalProps) {
+export default function ProductImageModal({ src, alt, images }: ImageModalProps) {
 	const router = useRouter();
 
 	const onDismiss = () => {
-		router.push(`?`);
+		router.replace(`?`);
 	};
 
 	const handlePrevious = () => {
 		const pos = images.indexOf(src);
 		if (pos >= 0) {
 			const newPos = (images.indexOf(src) - 1 + images.length) % images.length;
-			router.push(`?image=${newPos}`);
+			router.replace(`?image=${newPos}`);
 		}
 	};
 
@@ -34,7 +33,7 @@ export default function ProductImageModal({ src, alt, slug, images }: ImageModal
 		const pos = images.indexOf(src);
 		if (pos <= images.length - 1) {
 			const newPos = (images.indexOf(src) + 1) % images.length;
-			router.push(`?image=${newPos}`);
+			router.replace(`?image=${newPos}`);
 		}
 	};
 
@@ -96,7 +95,10 @@ export default function ProductImageModal({ src, alt, slug, images }: ImageModal
 				<div className="flex justify-center gap-4 py-2">
 					{images.map((image, idx) => (
 						<YnsLink
-							className={cn(src === image && "border-black border rounded-lg overflow-hidden")}
+							className={cn(
+								"border-transparent border rounded-lg overflow-hidden",
+								src === image && "border-black",
+							)}
 							key={idx}
 							prefetch={true}
 							href={`?image=${idx}`}
