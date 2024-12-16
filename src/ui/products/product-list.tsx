@@ -10,14 +10,14 @@ export const ProductList = async ({ products }: { products: Commerce.MappedProdu
 
 	return (
 		<>
-			<ul className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			<ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{products.map((product, idx) => {
 					return (
 						<li key={product.id} className="group">
 							<YnsLink href={`/product/${product.metadata.slug}`}>
-								<article className="overflow-hidden rounded border bg-white">
+								<article className="overflow-hidden bg-white">
 									{product.images[0] && (
-										<div className="aspect-square w-full overflow-hidden bg-neutral-100">
+										<div className="rounded-lg aspect-square w-full overflow-hidden bg-neutral-100">
 											<Image
 												className="group-hover:rotate hover-perspective w-full bg-neutral-100 object-cover object-center transition-opacity group-hover:opacity-75"
 												src={product.images[0]}
@@ -30,9 +30,9 @@ export const ProductList = async ({ products }: { products: Commerce.MappedProdu
 											/>
 										</div>
 									)}
-									<div className="p-4">
-										<h2 className="text-lg font-semibold text-neutral-700">{product.name}</h2>
-										<footer className="text-sm font-medium text-neutral-900">
+									<div className="p-2">
+										<h2 className="text-xl font-medium text-neutral-700">{product.name}</h2>
+										<footer className="text-base font-normal text-neutral-900">
 											{product.default_price.unit_amount && (
 												<p>
 													{formatMoney({
