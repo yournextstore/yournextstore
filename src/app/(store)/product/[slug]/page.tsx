@@ -74,7 +74,6 @@ export default async function SingleProductPage(props: {
 
 	const category = product.metadata.category;
 	const images = product.images;
-	const src = searchParams.image && images[Number(searchParams.image)];
 
 	return (
 		<article className="pb-12">
@@ -210,11 +209,9 @@ export default async function SingleProductPage(props: {
 				<SimilarProducts id={product.id} />
 			</Suspense>
 
-			{src && (
-				<Suspense fallback={<div>Loading...</div>}>
-					<ProductImageModal src={src} images={images} alt={product.name} />
-				</Suspense>
-			)}
+			<Suspense>
+				<ProductImageModal images={images} />
+			</Suspense>
 
 			<JsonLd jsonLd={mappedProductToJsonLd(product)} />
 		</article>
