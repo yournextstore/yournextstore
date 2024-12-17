@@ -1,31 +1,40 @@
 "use client";
 
+import { useRouterNoRender } from "@/lib/use-router-no-render";
 import { cn } from "@/lib/utils";
 import { YnsLink } from "@/ui/yns-link";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Fragment, startTransition, useEffect, useState } from "react";
 
 type ImageModalProps = {
 	images: string[];
 };
 
-export default function ProductImageModal({ images }: ImageModalProps) {
-	const router = useRouter();
+export function ProductImageModal({ images }: ImageModalProps) {
 	const searchParams = useSearchParams();
+	const routerNoRender = useRouterNoRender();
 
 	const searchParamsImageIndex = Number.parseInt(searchParams.get("image") ?? "", 10);
 	const initialImageIndex = Number.isNaN(searchParamsImageIndex) ? null : searchParamsImageIndex;
 	const [imageIndex, setImageIndex] = useState<null | number>(initialImageIndex);
 
 	const changeImageIndex = (index: number | null) => {
-		setImageIndex(index);
-		if (index !== null) {
-			router.replace(`?image=${index}`);
-		} else {
-			router.replace(`?`);
+		if (imageIndex === index) {
+			return;
 		}
+
+		setImageIndex(index);
+		startTransition(() => {
+			const params = new URLSearchParams(searchParams);
+			if (index !== null) {
+				params.set("image", index.toString());
+			} else {
+				params.delete("image");
+			}
+			routerNoRender.replace(`?${params}`);
+		});
 	};
 
 	const src = imageIndex !== null && images[Number(imageIndex)];
@@ -69,17 +78,18 @@ export default function ProductImageModal({ images }: ImageModalProps) {
 	};
 
 	const ImageElement = ({ src, className }: { src: string; className?: string }) => {
-		return <Image src={src} alt="" fill className={cn(className, "object-contain")} sizes="100vw" />;
+		return <Image src={src} alt="" fill className={cn(className, "object-contain")} sizes="100vh" />;
 	};
 
 	return (
 		<div className="fixed inset-0 bg-neutral-100 z-50 flex flex-col animate-in fade-in">
-			<div className="flex justify-between p-4">
-				<div />
-				<button onClick={() => onDismiss()} className="text-neutral-500 hover:text-neutral-700">
-					<X className="w-6 h-6" />
-				</button>
-			</div>
+			<button
+				type="button"
+				onClick={() => onDismiss()}
+				className="ml-auto text-neutral-500 hover:text-neutral-700 p-2"
+			>
+				<XIcon className="w-6 h-6" />
+			</button>
 
 			<div className="flex-grow flex items-center justify-center overflow-hidden">
 				<div key={src} className="relative w-full h-full animate-in fade-in">
@@ -87,20 +97,22 @@ export default function ProductImageModal({ images }: ImageModalProps) {
 				</div>
 
 				<button
+					type="button"
 					onClick={() => {
 						handlePrevious();
 					}}
 					className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 hover:bg-gray-100 transition-colors"
 				>
-					<ChevronLeft className="w-6 h-6" />
+					<ChevronLeftIcon className="w-6 h-6" />
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						handleNext();
 					}}
 					className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 hover:bg-gray-100 transition-colors"
 				>
-					<ChevronRight className="w-6 h-6" />
+					<ChevronRightIcon className="w-6 h-6" />
 				</button>
 			</div>
 
@@ -124,7 +136,9 @@ export default function ProductImageModal({ images }: ImageModalProps) {
 							<Image src={image} alt={""} width={80} height={80} className="object-cover" sizes="80px" />
 						</YnsLink>
 						{/* preload images */}
-						<ImageElement src={src} className="sr-only" />
+						<div className="relative pointer-events-none opacity-0">
+							<ImageElement src={src} />
+						</div>
 					</Fragment>
 				))}
 			</div>
