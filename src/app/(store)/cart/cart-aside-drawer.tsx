@@ -1,8 +1,8 @@
 "use client";
 
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useMediaQuery } from "@/components/ui/hooks/use-media-query";
 import { useCartModal } from "@/context/cart-modal";
-import { Drawer, DrawerContent, DrawerTitle } from "@/ui/shadcn/drawer";
-import { useMediaQuery } from "@/ui/shadcn/hooks/use-media-query";
 import type { ReactNode } from "react";
 
 export const CartAsideDrawer = ({ children }: { children: ReactNode }) => {
