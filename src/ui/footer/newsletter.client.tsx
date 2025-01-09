@@ -1,9 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useTranslations } from "@/i18n/client";
 import { signForNewsletter } from "@/ui/footer/actions";
-import { Button } from "@/ui/shadcn/button";
-import { Input } from "@/ui/shadcn/input";
 import { Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

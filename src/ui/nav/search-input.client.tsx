@@ -1,8 +1,8 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
-import { Input } from "@/ui/shadcn/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 

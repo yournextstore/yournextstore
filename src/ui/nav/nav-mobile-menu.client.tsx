@@ -7,7 +7,7 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 	DrawerTrigger,
-} from "@/ui/shadcn/drawer";
+} from "@/components/ui/drawer";
 import { MenuIcon } from "lucide-react";
 import { type ReactNode, useState } from "react";
 

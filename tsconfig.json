@@ -26,7 +26,8 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@ui/*": ["./src/ui/*"]
+			"@ui/*": ["./src/ui/*"],
+			"@/components/ui/*": ["./src/ui/shadcn/*"]
 		}
 	},
 	"include": ["next-fix.d.ts", "i18n.d.ts", "**/*.mjs", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

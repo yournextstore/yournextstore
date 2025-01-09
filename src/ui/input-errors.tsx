@@ -1,6 +1,6 @@
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Input } from "@/ui/shadcn/input";
-import { Label } from "@/ui/shadcn/label";
 import { type ComponentProps, type ReactNode, useMemo } from "react";
 
 export interface ElWithErrorsProps extends ComponentProps<"input"> {

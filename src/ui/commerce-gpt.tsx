@@ -1,9 +1,9 @@
 "use client";
 
 import { commerceGPTRevalidateAction, setInitialCartCookiesAction } from "@/actions/cart-actions";
-import { Button } from "@/ui/shadcn/button";
-import { Card, CardContent } from "@/ui/shadcn/card";
-import { Input } from "@/ui/shadcn/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
 import { ArrowUp, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";

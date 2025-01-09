@@ -1,7 +1,7 @@
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { formatMoney } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/ui/shadcn/tooltip";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
 import { ShoppingBagIcon } from "lucide-react";
 import { Suspense } from "react";

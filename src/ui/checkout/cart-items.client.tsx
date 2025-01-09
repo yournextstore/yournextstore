@@ -1,6 +1,6 @@
 import { setQuantity } from "@/actions/cart-actions";
+import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/utils";
-import { Button } from "@/ui/shadcn/button";
 import { useElements } from "@stripe/react-stripe-js";
 import clsx from "clsx";
 import { Loader2 } from "lucide-react";

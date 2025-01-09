@@ -1,7 +1,6 @@
 "use client";
 
-import { CaretSortIcon } from "@radix-ui/react-icons";
-import { Button } from "@ui/shadcn/button";
+import { Button } from "@/components/ui/button";
 import {
 	Command,
 	CommandEmpty,
@@ -9,14 +8,15 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from "@ui/shadcn/command";
-import { Drawer, DrawerContent, DrawerTrigger } from "@ui/shadcn/drawer";
-import { Popover, PopoverContent, PopoverTrigger } from "@ui/shadcn/popover";
+} from "@/components/ui/command";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
+import { useMediaQuery } from "@/components/ui/hooks/use-media-query";
 import { countries, findMatchingCountry } from "@/lib/countries";
 import { ElWithErrors, type ElWithErrorsProps } from "@/ui/input-errors";
-import { useMediaQuery } from "@/ui/shadcn/hooks/use-media-query";
 
 type ListItem = (typeof countries)[number];
 

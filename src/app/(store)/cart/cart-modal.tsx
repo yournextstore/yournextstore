@@ -1,7 +1,7 @@
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { Button } from "@/components/ui/button";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { formatMoney, formatProductName } from "@/lib/utils";
-import { Button } from "@/ui/shadcn/button";
 import { YnsLink } from "@/ui/yns-link";
 import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
 import Image from "next/image";

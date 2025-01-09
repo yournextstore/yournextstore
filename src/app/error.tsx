@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/i18n/client";
-import { Button } from "@/ui/shadcn/button";
 import { YnsLink } from "@/ui/yns-link";
 import { useEffect } from "react";
 
