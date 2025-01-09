@@ -1,6 +1,11 @@
 "use client";
 
 import { clearCartCookieAction } from "@/actions/cart-actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Label } from "@/components/ui/label";
 import { useTranslations } from "@/i18n/client";
 import { useDebouncedValue } from "@/lib/hooks";
 import { saveBillingAddressAction, saveShippingRateAction } from "@/ui/checkout/checkout-actions";
@@ -10,11 +15,6 @@ import { saveTaxIdAction } from "@/ui/checkout/tax-action";
 import { CountrySelect } from "@/ui/country-select";
 import { useDidUpdate } from "@/ui/hooks/lifecycle";
 import { InputWithErrors } from "@/ui/input-errors";
-import { Alert, AlertDescription, AlertTitle } from "@/ui/shadcn/alert";
-import { Button } from "@/ui/shadcn/button";
-import { Checkbox } from "@/ui/shadcn/checkbox";
-import { Collapsible, CollapsibleContent } from "@/ui/shadcn/collapsible";
-import { Label } from "@/ui/shadcn/label";
 import {
 	AddressElement,
 	LinkAuthenticationElement,

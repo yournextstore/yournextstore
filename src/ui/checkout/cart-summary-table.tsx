@@ -1,9 +1,5 @@
 "use client";
 
-import { useTranslations } from "@/i18n/client";
-import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
-import { CartAmountWithSpinner, CartItemLineTotal, CartItemQuantity } from "@/ui/checkout/cart-items.client";
-import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
 import {
 	Table,
 	TableBody,
@@ -12,7 +8,11 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/ui/shadcn/table";
+} from "@/components/ui/table";
+import { useTranslations } from "@/i18n/client";
+import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } from "@/lib/utils";
+import { CartAmountWithSpinner, CartItemLineTotal, CartItemQuantity } from "@/ui/checkout/cart-items.client";
+import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
 import { YnsLink } from "@/ui/yns-link";
 import type * as Commerce from "commerce-kit";
 import Image from "next/image";
