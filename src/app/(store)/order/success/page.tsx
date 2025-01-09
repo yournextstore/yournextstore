@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { getCartCookieJson } from "@/lib/cart";
 import { findMatchingCountry } from "@/lib/countries";
@@ -5,7 +6,6 @@ import { formatMoney, formatProductName } from "@/lib/utils";
 import { paymentMethods } from "@/ui/checkout/checkout-card";
 import { ClearCookieClientComponent } from "@/ui/checkout/clear-cookie-client-component";
 import { Markdown } from "@/ui/markdown";
-import { Badge } from "@/ui/shadcn/badge";
 import type { PaymentIntent } from "@stripe/stripe-js";
 import * as Commerce from "commerce-kit";
 import type { Metadata } from "next";
