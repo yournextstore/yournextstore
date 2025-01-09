@@ -1,9 +1,9 @@
 "use client";
 import { addToCartAction } from "@/actions/cart-actions";
+import { Button } from "@/components/ui/button";
 import { useCartModal } from "@/context/cart-modal";
 import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
-import { Button } from "@/ui/shadcn/button";
 import { Loader2Icon } from "lucide-react";
 import { useTransition } from "react";
 

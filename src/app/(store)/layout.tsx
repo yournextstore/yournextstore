@@ -1,10 +1,10 @@
 import "@/app/globals.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartModalProvider } from "@/context/cart-modal";
 import { CommerceGPT } from "@/ui/commerce-gpt";
 import { Footer } from "@/ui/footer/footer";
 import { JsonLd, accountToWebsiteJsonLd } from "@/ui/json-ld";
 import { Nav } from "@/ui/nav/nav";
-import { TooltipProvider } from "@/ui/shadcn/tooltip";
 import * as Commerce from "commerce-kit";
 import { CartModalPage } from "./cart/cart-modal";
 
