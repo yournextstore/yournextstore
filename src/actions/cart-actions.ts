@@ -117,7 +117,6 @@ export async function setQuantity({
 export async function commerceGPTRevalidateAction() {
 	const cart = await getCartCookieJson();
 	if (cart) {
-		console.log("Revalidating cart", cart);
 		revalidateTag(`cart-${cart.id}`);
 	}
 }
