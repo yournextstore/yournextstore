@@ -37,7 +37,6 @@ export async function POST(req: Request) {
 					id: z.string(),
 				}),
 				async execute({ id }) {
-					console.log("Adding product to cart", id);
 					const formData = new FormData();
 					formData.append("productId", id);
 					const cart = await addToCartAction(formData);
