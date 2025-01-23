@@ -38,7 +38,7 @@ export async function CartModalPage() {
 						{cart.lines.map((line) => (
 							<li
 								key={line.product.id}
-								className="grid grid-cols-[4rem,1fr,max-content] grid-rows-[auto,auto] gap-x-4 gap-y-2 py-6"
+								className="grid grid-cols-[4rem_1fr_max-content] grid-rows-[auto_auto] gap-x-4 gap-y-2 py-6"
 							>
 								{line.product.images[0] ? (
 									<div className="col-span-1 row-span-2 bg-neutral-100">

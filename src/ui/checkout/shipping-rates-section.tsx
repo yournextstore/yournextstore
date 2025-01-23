@@ -38,7 +38,7 @@ export const ShippingRatesSection = ({
 						key={rate.id}
 						className={cn(
 							"grid content-end items-end rounded-md border-2 border-muted px-2 py-2 transition-colors",
-							`has-[[aria-checked="true"]]:border-foreground/60`,
+							`has-aria-checked:border-foreground/60`,
 							isPending ? "cursor-wait" : "cursor-pointer hover:bg-neutral-50",
 						)}
 					>

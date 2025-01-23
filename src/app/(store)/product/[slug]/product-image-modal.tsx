@@ -91,7 +91,7 @@ export function ProductImageModal({ images }: ImageModalProps) {
 				<XIcon className="w-6 h-6" />
 			</button>
 
-			<div className="flex-grow flex items-center justify-center overflow-hidden">
+			<div className="grow flex items-center justify-center overflow-hidden">
 				<div key={src} className="relative w-full h-full animate-in fade-in">
 					<ImageElement src={src} />
 				</div>

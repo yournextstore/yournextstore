@@ -242,7 +242,7 @@ async function SimilarProducts({ id }: { id: string }) {
 				{products.map((product) => {
 					const trieveMetadata = product.metadata as TrieveProductMetadata;
 					return (
-						<div key={product.tracking_id} className="bg-card rounded overflow-hidden shadow group">
+						<div key={product.tracking_id} className="bg-card rounded overflow-hidden shadow-sm group">
 							{trieveMetadata.image_url && (
 								<YnsLink href={`${publicUrl}${product.link}`} className="block" prefetch={false}>
 									<Image

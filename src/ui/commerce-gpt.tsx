@@ -44,7 +44,7 @@ export function CommerceGPT() {
 
 	return (
 		<div className="flex flex-col">
-			<div className="bg-gradient-to-r from-orange-100 via-orange-200 to-red-300 px-4 py-3 text-indigo-900">
+			<div className="bg-linear-to-r from-orange-100 via-orange-200 to-red-300 px-4 py-3 text-indigo-900">
 				<div className="flex items-center justify-between gap-x-4">
 					<div className="mx-auto flex max-w-7xl items-center justify-between gap-x-4">
 						<div className="flex items-center gap-x-4">
@@ -53,7 +53,7 @@ export function CommerceGPT() {
 							</p>
 							<Button
 								size="sm"
-								className="flex-none rounded-full bg-orange-600 px-3 py-1 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 focus-visible:ring-0"
+								className="flex-none rounded-full bg-orange-600 px-3 py-1 text-sm font-semibold text-white shadow-xs hover:bg-orange-700 focus-visible:ring-0"
 								onClick={() => {
 									ref.current?.focus();
 									setIsOpen(!isOpen);
@@ -73,18 +73,18 @@ export function CommerceGPT() {
 				</div>
 			</div>
 			<div
-				className={`z-[100] overflow-clip fixed top-0 left-0 right-0 bg-neutral-50 transition-all duration-300 ease-in-out shadow-lg ${
+				className={`z-100 overflow-clip fixed top-0 left-0 right-0 bg-neutral-50 transition-all duration-300 ease-in-out shadow-lg ${
 					isOpen ? "h-2/3" : "h-0"
 				}`}
 			>
-				<Card className="w-full h-full rounded-none max-w-screen-lg mx-auto border-transparent">
+				<Card className="w-full h-full rounded-none max-w-(--breakpoint-lg) mx-auto border-transparent">
 					<CardContent className="p-4 h-full flex flex-col">
-						<div className="flex-grow overflow-auto space-y-4 mb-4">
+						<div className="grow overflow-auto space-y-4 mb-4">
 							{messages.length === 0 && (
 								<div className="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-center space-y-6 h-full">
 									<h3 className="text-xl font-bold text-center">
 										Welcome to{" "}
-										<span className="bg-gradient-to-r from-orange-500 via-red-500 to-red-600 text-transparent bg-clip-text">
+										<span className="bg-linear-to-r from-orange-500 via-red-500 to-red-600 text-transparent bg-clip-text">
 											Commerce GPT
 										</span>{" "}
 										in Your Next Store
@@ -112,7 +112,7 @@ export function CommerceGPT() {
 							{messages.map((m) => (
 								<div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
 									<div
-										className={`text-lg rounded px-2 py-1 max-w-[80%] ${m.role === "user" ? "bg-gradient-to-l from-orange-500 via-red-400 to-red-500 text-white" : (m.toolInvocations || []).length > 0 ? "bg-transparent" : "bg-neutral-100"}`}
+										className={`text-lg rounded px-2 py-1 max-w-[80%] ${m.role === "user" ? "bg-linear-to-l from-orange-500 via-red-400 to-red-500 text-white" : (m.toolInvocations || []).length > 0 ? "bg-transparent" : "bg-neutral-100"}`}
 									>
 										{m.content}
 										{m.toolInvocations?.map((ti) => {
@@ -165,7 +165,7 @@ export function CommerceGPT() {
 								value={input}
 								onChange={handleInputChange}
 								placeholder="What do you want to buy today?"
-								className="flex-grow h-12 md:text-xl"
+								className="grow h-12 md:text-xl"
 								ref={ref}
 							/>
 							<Button type="submit" size="lg" className="rounded-full text-lg h-12">

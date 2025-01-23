@@ -8,7 +8,7 @@ import Image from "next/image";
 export const ProductList = ({ products }: { products: Commerce.MappedProduct[] }) => {
 	return (
 		<>
-			<ul className="max-w-screen-lg grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+			<ul className="max-w-(--breakpoint-lg) grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
 				{products.map((product, idx) => {
 					return (
 						<li key={product.id} className="group">

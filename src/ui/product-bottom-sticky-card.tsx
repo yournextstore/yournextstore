@@ -13,7 +13,7 @@ export const ProductBottomStickyCard = ({
 		<div
 			tabIndex={show ? 0 : -1}
 			className={cn(
-				"fixed bottom-0 max-w-[100vw] left-0 right-0 bg-white/90 backdrop-blur-sm border-t py-2 sm:py-4 transition-all duration-300 ease-out z-10",
+				"fixed bottom-0 max-w-[100vw] left-0 right-0 bg-white/90 backdrop-blur-xs border-t py-2 sm:py-4 transition-all duration-300 ease-out z-10",
 				show
 					? "transform translate-y-0 shadow-[0_-4px_6px_-1px_rgb(0_0_0_/_0.1),_0_-2px_4px_-2px_rgb(0_0_0_/_0.1)]"
 					: "transform translate-y-full",

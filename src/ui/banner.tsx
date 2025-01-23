@@ -15,7 +15,7 @@ export const Banner = () => {
 	};
 
 	return (
-		<div className="bg-gradient-to-r from-indigo-100 via-indigo-200 to-indigo-300 px-4 py-3 text-indigo-900">
+		<div className="bg-linear-to-r from-indigo-100 via-indigo-200 to-indigo-300 px-4 py-3 text-indigo-900">
 			<div className="flex items-center justify-between gap-x-4">
 				<div className="mx-auto flex max-w-7xl items-center justify-between gap-x-4">
 					<div className="flex items-center gap-x-4">
@@ -24,7 +24,7 @@ export const Banner = () => {
 						</p>
 						<YnsLink
 							href="/product/horizon-gaze-sunglasses"
-							className="flex-none rounded-full bg-indigo-500 px-3 py-1 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600"
+							className="flex-none rounded-full bg-indigo-500 px-3 py-1 text-sm font-semibold text-white shadow-xs hover:bg-indigo-600"
 						>
 							Check it out
 						</YnsLink>
@@ -32,7 +32,7 @@ export const Banner = () => {
 				</div>
 				<button
 					onClick={handleClose}
-					className="flex-none rounded-full justify-self-end bg-indigo-500 p-1 text-white shadow-sm hover:bg-indigo-600"
+					className="flex-none rounded-full justify-self-end bg-indigo-500 p-1 text-white shadow-xs hover:bg-indigo-600"
 					aria-label="Close banner"
 					type="button"
 				>

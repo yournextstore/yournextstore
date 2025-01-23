@@ -84,7 +84,7 @@ function CountryList({
 		>
 			<CommandInput
 				placeholder="Find country…"
-				className="my-2 h-8 border border-neutral-200 py-0 focus:border-neutral-300 focus:outline-none focus:ring focus:ring-neutral-100"
+				className="my-2 h-8 border border-neutral-200 py-0 focus:border-neutral-300 focus:outline-hidden focus:ring-3 focus:ring-neutral-100"
 			/>
 			<CommandList>
 				<CommandEmpty>No results found.</CommandEmpty>
