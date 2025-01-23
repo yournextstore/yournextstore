@@ -62,7 +62,7 @@ export default async function OrderDetailsPage(props: {
 			<ul role="list" className="my-8 divide-y border-y">
 				{order.lines.map((line) => (
 					<li key={line.product.id} className="py-8">
-						<article className="grid grid-cols-[auto,1fr] grid-rows-[repeat(auto,3)] justify-start gap-x-4 sm:gap-x-8">
+						<article className="grid grid-cols-[auto_1fr] grid-rows-[repeat(auto,3)] justify-start gap-x-4 sm:gap-x-8">
 							<h3 className="row-start-1 font-semibold leading-none text-neutral-700">
 								{formatProductName(line.product.name, line.product.metadata.variant)}
 							</h3>
@@ -80,7 +80,7 @@ export default async function OrderDetailsPage(props: {
 								<Markdown source={line.product.description || ""} />
 							</div>
 							<footer className="row-start-3 mt-2 self-end">
-								<dl className="grid grid-cols-[max-content,auto] gap-2 sm:grid-cols-3">
+								<dl className="grid grid-cols-[max-content_auto] gap-2 sm:grid-cols-3">
 									<div className="max-sm:col-span-2 max-sm:grid max-sm:grid-cols-subgrid">
 										<dt className="text-sm font-semibold text-foreground">{t("price")}</dt>
 										<dd className="text-sm text-accent-foreground">
@@ -114,13 +114,13 @@ export default async function OrderDetailsPage(props: {
 				))}
 				{order.shippingRate?.fixed_amount && (
 					<li className="py-8">
-						<article className="grid grid-cols-[auto,1fr] grid-rows-[repeat(auto,3)] justify-start gap-x-4 sm:gap-x-8">
+						<article className="grid grid-cols-[auto_1fr] grid-rows-[repeat(auto,3)] justify-start gap-x-4 sm:gap-x-8">
 							<h3 className="row-start-1 font-semibold leading-none text-neutral-700">
 								{order.shippingRate.display_name}
 							</h3>
 							<div className="col-start-1 row-span-3 row-start-1 mt-0.5 w-16 sm:mt-0 sm:w-32" />
 							<footer className="row-start-3 mt-2 self-end">
-								<dl className="grid grid-cols-[max-content,auto] gap-2 sm:grid-cols-3">
+								<dl className="grid grid-cols-[max-content_auto] gap-2 sm:grid-cols-3">
 									<div className="max-sm:col-span-2 max-sm:grid max-sm:grid-cols-subgrid">
 										<dt className="text-sm font-semibold text-foreground">{t("price")}</dt>
 										<dd className="text-sm text-accent-foreground">
