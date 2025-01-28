@@ -11,7 +11,7 @@
 		"start": "next start",
 		"lint": "biome check --write",
 		"test": "vitest",
-		"prepare": "husky",
+		"prepare": "pnpm husky",
 		"docker:build": "docker build -t yournextstore .",
 		"docker:run": "docker run -d -p 3000:3000 yournextstore"
 	},
@@ -120,9 +120,9 @@
 	},
 	"engines": {
 		"node": "^20.11.1 || ^22.0.0",
-		"bun": "^1.2.0"
+		"pnpm": "^9.0.0"
 	},
-	"packageManager": "bun@1.2.0",
+	"packageManager": "pnpm@9.15.4",
 	"release": {
 		"branches": ["main"],
 		"plugins": [
@@ -135,6 +135,6 @@
 		]
 	},
 	"lint-staged": {
-		"*": ["bun run biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true"]
+		"*": ["pnpm biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true"]
 	}
 }
