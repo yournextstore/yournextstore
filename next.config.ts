@@ -28,7 +28,6 @@ const nextConfig: NextConfig = {
 		scrollRestoration: true,
 		ppr: true,
 		cpus: 1,
-		reactOwnerStack: true,
 		reactCompiler: true,
 		mdxRs: true,
 		inlineCss: true,
