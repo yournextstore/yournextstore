@@ -5,22 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useState } from "react";
-
-// Mock data for orders
-const orders = [
-	{ id: "1", customer: "John Doe", date: "2023-05-01", total: 99.99, status: "Completed" },
-	{ id: "2", customer: "Jane Smith", date: "2023-05-02", total: 149.99, status: "Processing" },
-	{ id: "3", customer: "Bob Johnson", date: "2023-05-03", total: 79.99, status: "Shipped" },
-	{ id: "4", customer: "Alice Brown", date: "2023-05-04", total: 199.99, status: "Completed" },
-	{ id: "5", customer: "Charlie Davis", date: "2023-05-05", total: 59.99, status: "Processing" },
-];
+import { useEffect, useState } from "react";
 
 export function OrderList() {
+	const [orders, setOrders] = useState<Order[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("All");
 	const [currentPage, setCurrentPage] = useState(1);
 	const ordersPerPage = 5;
+
+	useEffect(() => {
+		fetch("/api/orders")
+			.then((res) => res.json())
+			.then(setOrders)
+			.catch((err) => console.error("Failed to load orders:", err));
+	}, []);
 
 	const filteredOrders = orders.filter(
 		(order) =>
