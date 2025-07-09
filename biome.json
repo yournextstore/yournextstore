@@ -1,13 +1,12 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+	"$schema": "https://biomejs.dev/schemas/latest/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false,
-		"includes": ["**"]
+		"ignoreUnknown": false
 	},
 	"formatter": {
 		"enabled": true,
@@ -18,10 +17,8 @@
 		"lineEnding": "lf",
 		"lineWidth": 110,
 		"attributePosition": "auto",
-		"bracketSpacing": true,
-		"includes": ["**", "!**/.next", "!**/node_modules", "!**/bun.lock"]
+		"bracketSpacing": true
 	},
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -47,8 +44,7 @@
 				"useConsistentArrayType": "off",
 				"useForOf": "error",
 				"useImportType": "error",
-				"useShorthandFunctionType": "error",
-				"useArrayLiterals": "off"
+				"useShorthandFunctionType": "error"
 			},
 			"suspicious": {
 				"noEmptyBlockStatements": "off",
@@ -60,8 +56,7 @@
 				"useAwait": "off",
 				"useNamespaceKeyword": "error"
 			}
-		},
-		"includes": ["**", "!**/*.js", "!**/*.jsx", "!**/*.mjs", "!**/src/script/**/*.ts"]
+		}
 	},
 	"javascript": {
 		"formatter": {
