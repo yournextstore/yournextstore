@@ -1,14 +1,12 @@
+import * as Commerce from "commerce-kit";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next/types";
 import { publicUrl } from "@/env.mjs";
 import { getTranslations } from "@/i18n/server";
 import { deslugify } from "@/lib/utils";
 import { ProductList } from "@/ui/products/product-list";
-import * as Commerce from "commerce-kit";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next/types";
 
-export const generateMetadata = async (props: {
-	params: Promise<{ slug: string }>;
-}): Promise<Metadata> => {
+export const generateMetadata = async (props: { params: Promise<{ slug: string }> }): Promise<Metadata> => {
 	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,
@@ -27,9 +25,7 @@ export const generateMetadata = async (props: {
 	};
 };
 
-export default async function CategoryPage(props: {
-	params: Promise<{ slug: string }>;
-}) {
+export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
 	const params = await props.params;
 	const products = await Commerce.productBrowse({
 		first: 100,

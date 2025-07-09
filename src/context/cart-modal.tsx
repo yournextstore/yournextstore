@@ -1,8 +1,8 @@
 "use client";
 
-import { invariant } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { type ReactNode, createContext, use, useEffect, useState } from "react";
+import { createContext, type ReactNode, use, useEffect, useState } from "react";
+import { invariant } from "@/lib/utils";
 
 type CartModalProviderValue = { open: boolean; setOpen: (open: boolean) => void };
 const CartModalContext = createContext<CartModalProviderValue | null>(null);

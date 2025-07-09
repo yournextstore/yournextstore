@@ -1,8 +1,8 @@
 "use client";
 
-import { clearCartCookieAction } from "@/actions/cart-actions";
 import { useRouter } from "next/navigation";
 import { startTransition, useEffect } from "react";
+import { clearCartCookieAction } from "@/actions/cart-actions";
 
 // if current order cartId is the same as the cookie, clear the cookie
 export const ClearCookieClientComponent = ({

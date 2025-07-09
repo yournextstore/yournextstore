@@ -1,5 +1,8 @@
 "use client";
 
+import type * as Commerce from "commerce-kit";
+import Image from "next/image";
+import { useOptimistic } from "react";
 import {
 	Table,
 	TableBody,
@@ -14,9 +17,6 @@ import { calculateCartTotalPossiblyWithTax, formatMoney, formatProductName } fro
 import { CartAmountWithSpinner, CartItemLineTotal, CartItemQuantity } from "@/ui/checkout/cart-items.client";
 import { FormatDeliveryEstimate } from "@/ui/checkout/shipping-rates-section";
 import { YnsLink } from "@/ui/yns-link";
-import type * as Commerce from "commerce-kit";
-import Image from "next/image";
-import { useOptimistic } from "react";
 
 export const CartSummaryTable = ({ cart, locale }: { cart: Commerce.Cart; locale: string }) => {
 	const t = useTranslations("/cart.page.summaryTable");
