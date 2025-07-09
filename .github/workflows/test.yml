@@ -16,28 +16,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
+      - uses: oven-sh/setup-bun@v1
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: package.json
-          cache: "pnpm"
+          cache: "npm"
 
       - uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lock') }}-
 
       - name: Install dependencies
-        run: pnpm --version && pnpm install --frozen-lockfile
+        run: bun --version && bun install --frozen-lockfile
 
       - name: Check Biome
-        run: pnpm biome check
+        run: bun biome check
 
       - name: Test
-        run: pnpm test
+        run: bun test
