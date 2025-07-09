@@ -1,7 +1,7 @@
-import { getCartFromCookiesAction } from "@/actions/cart-actions";
-import { getLocale, getTranslations } from "@/i18n/server";
 import * as Commerce from "commerce-kit";
 import type { ReactNode } from "react";
+import { getCartFromCookiesAction } from "@/actions/cart-actions";
+import { getLocale, getTranslations } from "@/i18n/server";
 
 import { CartEmpty } from "@/ui/checkout/cart-empty";
 import { CartSummaryTable } from "@/ui/checkout/cart-summary-table";

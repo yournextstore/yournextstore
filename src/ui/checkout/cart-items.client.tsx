@@ -1,12 +1,12 @@
-import { setQuantity } from "@/actions/cart-actions";
-import { Button } from "@/components/ui/button";
-import { formatMoney } from "@/lib/utils";
 import { useElements } from "@stripe/react-stripe-js";
 import clsx from "clsx";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useFormStatus } from "react-dom";
+import { setQuantity } from "@/actions/cart-actions";
+import { Button } from "@/components/ui/button";
+import { formatMoney } from "@/lib/utils";
 
 export const CartItemQuantity = ({
 	quantity,
@@ -133,7 +133,11 @@ export const CartAmountWithSpinner = ({
 	total,
 	currency,
 	locale,
-}: { total: number; currency: string; locale: string }) => {
+}: {
+	total: number;
+	currency: string;
+	locale: string;
+}) => {
 	const { pending } = useFormStatus();
 
 	return (

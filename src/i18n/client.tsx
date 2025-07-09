@@ -1,7 +1,7 @@
 "use client";
 
+import { createContext, type ReactNode, use } from "react";
 import { invariant } from "@/lib/utils";
-import { type ReactNode, createContext, use } from "react";
 import { getMessagesInternal } from "./server";
 import type { IntlNamespaceKeys } from "./types";
 
@@ -12,7 +12,11 @@ export const IntlClientProvider = ({
 	messages,
 	locale,
 	children,
-}: { messages: IntlMessages; locale: string; children: ReactNode }) => {
+}: {
+	messages: IntlMessages;
+	locale: string;
+	children: ReactNode;
+}) => {
 	return <IntlClientContext value={{ locale, messages }}>{children}</IntlClientContext>;
 };
 

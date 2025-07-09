@@ -1,13 +1,13 @@
 "use client";
 
-import { commerceGPTRevalidateAction, setInitialCartCookiesAction } from "@/actions/cart-actions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
 import { ArrowUp, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { startTransition, useEffect, useRef, useState } from "react";
+import { commerceGPTRevalidateAction, setInitialCartCookiesAction } from "@/actions/cart-actions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ProductList } from "./commercegpt/product-list";
 import { YnsLink } from "./yns-link";
 

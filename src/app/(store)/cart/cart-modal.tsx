@@ -1,10 +1,10 @@
+import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
+import Image from "next/image";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import { Button } from "@/components/ui/button";
 import { getLocale, getTranslations } from "@/i18n/server";
 import { formatMoney, formatProductName } from "@/lib/utils";
 import { YnsLink } from "@/ui/yns-link";
-import { calculateCartTotalNetWithoutShipping } from "commerce-kit";
-import Image from "next/image";
 import { CartAsideContainer } from "./cart-aside";
 
 export async function CartModalPage() {

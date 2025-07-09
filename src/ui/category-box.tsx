@@ -1,15 +1,9 @@
+import Image, { type ImageProps } from "next/image";
 import { getTranslations } from "@/i18n/server";
 import { deslugify } from "@/lib/utils";
 import { YnsLink } from "@/ui/yns-link";
-import Image, { type ImageProps } from "next/image";
 
-export async function CategoryBox({
-	categorySlug,
-	src,
-}: {
-	categorySlug: string;
-	src: ImageProps["src"];
-}) {
+export async function CategoryBox({ categorySlug, src }: { categorySlug: string; src: ImageProps["src"] }) {
 	const t = await getTranslations("Global.actions");
 
 	return (

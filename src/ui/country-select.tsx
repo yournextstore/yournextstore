@@ -1,5 +1,7 @@
 "use client";
 
+import { CaretSortIcon } from "@radix-ui/react-icons";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -10,11 +12,8 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CaretSortIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
-
 import { useMediaQuery } from "@/components/ui/hooks/use-media-query";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { countries, findMatchingCountry } from "@/lib/countries";
 import { ElWithErrors, type ElWithErrorsProps } from "@/ui/input-errors";
 

@@ -1,7 +1,7 @@
-import { getTranslations } from "@/i18n/server";
-import { SearchInput, SearchInputPlaceholder } from "@/ui/nav/search-input.client";
 import { SearchIcon } from "lucide-react";
 import { Suspense } from "react";
+import { getTranslations } from "@/i18n/server";
+import { SearchInput, SearchInputPlaceholder } from "@/ui/nav/search-input.client";
 
 export const SearchNav = async () => {
 	const t = await getTranslations("Global.nav.search");

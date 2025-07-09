@@ -1,12 +1,12 @@
 "use client";
 
+import { Loader2Icon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslations } from "@/i18n/client";
 import { signForNewsletter } from "@/ui/footer/actions";
-import { Loader2Icon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export const Newsletter = () => {
 	const t = useTranslations("Global.newsletter");

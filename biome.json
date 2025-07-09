@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": []
+		"includes": ["**"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -19,11 +19,9 @@
 		"lineWidth": 110,
 		"attributePosition": "auto",
 		"bracketSpacing": true,
-		"ignore": ["**/.next", "**/node_modules", "**/pnpm-lock.yaml"]
+		"includes": ["**", "!**/.next", "!**/node_modules", "!**/bun.lock"]
 	},
-	"organizeImports": {
-		"enabled": true
-	},
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -38,8 +36,7 @@
 			"correctness": {
 				"noEmptyPattern": "off",
 				"noPrecisionLoss": "error",
-				"noUnusedVariables": "off",
-				"useArrayLiterals": "off"
+				"noUnusedVariables": "off"
 			},
 			"style": {
 				"noDefaultExport": "off",
@@ -50,7 +47,8 @@
 				"useConsistentArrayType": "off",
 				"useForOf": "error",
 				"useImportType": "error",
-				"useShorthandFunctionType": "error"
+				"useShorthandFunctionType": "error",
+				"useArrayLiterals": "off"
 			},
 			"suspicious": {
 				"noEmptyBlockStatements": "off",
@@ -63,7 +61,7 @@
 				"useNamespaceKeyword": "error"
 			}
 		},
-		"ignore": ["**/*.js", "**/*.jsx", "**/*.mjs", "src/script/**/*.ts"]
+		"includes": ["**", "!**/*.js", "!**/*.jsx", "!**/*.mjs", "!**/src/script/**/*.ts"]
 	},
 	"javascript": {
 		"formatter": {
@@ -80,15 +78,14 @@
 	},
 	"overrides": [
 		{
-			"include": [
-				"src/app/**/{page,layout,loading,route,not-found,error,global-error,default,robots,sitemap,opengraph-image}.ts?(x)",
-				"src/i18n.ts",
-				"*.d.ts",
-				"tailwind.config.ts",
-				"prettier.config.js",
-				"middleware.ts",
-				"commitlint.config.ts",
-				"vitest.config.ts"
+			"includes": [
+				"**/src/i18n.ts",
+				"**/*.d.ts",
+				"**/tailwind.config.ts",
+				"**/prettier.config.js",
+				"**/middleware.ts",
+				"**/commitlint.config.ts",
+				"**/vitest.config.ts"
 			],
 			"linter": {
 				"rules": {

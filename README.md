@@ -65,20 +65,19 @@ We officially support the current LTS version – 20 at the time of writing. YNS
 
 Follow the instructions for your operating system found here: [nodejs.org/en/download](https://nodejs.org/en/download)
 
-### pnpm 9+
+### bun 1.0+
 
-We officially support pnpm version 9, but we will do our best to keep it compatible with npm and yarn.
+We officially support bun version 1.0+, but we will do our best to keep it compatible with npm and yarn.
 
-#### Installing pnpm
+#### Installing bun
 
-The easiest way to install pnpm is via Node.js Corepack. Inside the folder with YNS, run these commands:
+The easiest way to install bun is via their installation script:
 
 ```bash
-corepack enable
-corepack install
+curl -fsSL https://bun.sh/install | bash
 ```
 
-Alternatively, follow the instructions for your operating system found here: [pnpm.io/installation](https://pnpm.io/installation)
+Alternatively, follow the instructions for your operating system found here: [bun.sh/docs/installation](https://bun.sh/docs/installation)
 
 ## Create Stripe account
 
@@ -117,7 +116,7 @@ https://github.com/yournextstore/.github/assets/200613/01d27f69-00dc-446e-bc81-5
 
 ## Run the store
 
-After following the above steps, run `pnpm install` to install the required dependencies, and then run `pnpm dev` to start the development server on your machine. Your Next Store will be available at [localhost:3000](http://localhost:3000)
+After following the above steps, run `bun install` to install the required dependencies, and then run `bun dev` to start the development server on your machine. Your Next Store will be available at [localhost:3000](http://localhost:3000)
 
 ## Add products
 
@@ -198,8 +197,8 @@ To deploy on Docker, follow these steps:
 
 1. Clone this repository into an empty folder and create the .env file in the repository as described [here](#add-environment-variables).
 2. Set the variable DOCKER=1 in .env
-3. Execute `pnpm run docker:build`.
-4. After that, you can start the container with `pnpm run docker:run`.
+3. Execute `bun run docker:build`.
+4. After that, you can start the container with `bun run docker:run`.
 
 ## That's all
 

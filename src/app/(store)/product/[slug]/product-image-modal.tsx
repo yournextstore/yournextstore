@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouterNoRender } from "@/lib/use-router-no-render";
-import { cn } from "@/lib/utils";
-import { YnsLink } from "@/ui/yns-link";
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Fragment, startTransition, useEffect, useState } from "react";
+import { useRouterNoRender } from "@/lib/use-router-no-render";
+import { cn } from "@/lib/utils";
+import { YnsLink } from "@/ui/yns-link";
 
 type ImageModalProps = {
 	images: string[];

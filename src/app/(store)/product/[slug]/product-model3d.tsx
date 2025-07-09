@@ -1,13 +1,7 @@
-import { MainProductImage } from "@/ui/products/main-product-image";
 import { Suspense } from "react";
+import { MainProductImage } from "@/ui/products/main-product-image";
 
-export const ProductModel3D = async ({
-	model3d,
-	imageSrc,
-}: {
-	model3d: string;
-	imageSrc?: string;
-}) => {
+export const ProductModel3D = async ({ model3d, imageSrc }: { model3d: string; imageSrc?: string }) => {
 	const { default: Spline } = await import("@splinetool/react-spline");
 
 	return (

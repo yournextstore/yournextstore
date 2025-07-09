@@ -1,9 +1,9 @@
 "use client";
 
-import { formatMoney } from "@/lib/utils";
-import { YnsLink } from "@/ui/yns-link";
 import type * as Commerce from "commerce-kit";
 import Image from "next/image";
+import { formatMoney } from "@/lib/utils";
+import { YnsLink } from "@/ui/yns-link";
 
 export const ProductList = ({ products }: { products: Commerce.MappedProduct[] }) => {
 	return (

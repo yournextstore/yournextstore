@@ -1,9 +1,9 @@
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useTranslations } from "@/i18n/client";
-import { cn, formatMoney } from "@/lib/utils";
 import type * as Commerce from "commerce-kit";
 import { useOptimistic, useTransition } from "react";
 import type Stripe from "stripe";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useTranslations } from "@/i18n/client";
+import { cn, formatMoney } from "@/lib/utils";
 
 export const ShippingRatesSection = ({
 	shippingRates,

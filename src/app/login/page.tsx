@@ -1,5 +1,5 @@
-import { LoginForm } from "@/ui/login-form";
 import { ShirtIcon } from "lucide-react";
+import { LoginForm } from "@/ui/login-form";
 
 export default function LoginPage() {
 	return (

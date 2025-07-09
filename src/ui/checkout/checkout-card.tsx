@@ -1,3 +1,4 @@
+import * as Commerce from "commerce-kit";
 import { getLocale, getTranslations } from "@/i18n/server";
 import amex from "@/images/payments/amex.svg";
 import blik from "@/images/payments/blik.svg";
@@ -9,7 +10,6 @@ import p24 from "@/images/payments/p24.svg";
 import visa from "@/images/payments/visa.svg";
 import { isDefined } from "@/lib/utils";
 import { StripePayment } from "@/ui/checkout/stripe-payment";
-import * as Commerce from "commerce-kit";
 
 export const paymentMethods = {
 	amex,

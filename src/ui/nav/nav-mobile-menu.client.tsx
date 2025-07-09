@@ -1,5 +1,7 @@
 "use client";
 
+import { MenuIcon } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import {
 	Drawer,
 	DrawerContent,
@@ -8,8 +10,6 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
-import { MenuIcon } from "lucide-react";
-import { type ReactNode, useState } from "react";
 
 export const NavMobileMenu = ({ children }: { children: ReactNode }) => {
 	const [isOpen, setIsOpen] = useState(false);

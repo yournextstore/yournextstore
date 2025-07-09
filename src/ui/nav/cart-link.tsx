@@ -1,7 +1,7 @@
 "use client";
-import { useCartModal } from "@/context/cart-modal";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useCartModal } from "@/context/cart-modal";
 import { YnsLink } from "../yns-link";
 
 export const CartLink = ({ children }: { children: ReactNode }) => {

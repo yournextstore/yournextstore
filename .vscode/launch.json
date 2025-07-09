@@ -5,7 +5,7 @@
 			"name": "Next.js: debug server-side",
 			"type": "node-terminal",
 			"request": "launch",
-			"command": "pnpm dev"
+			"command": "bun dev"
 		},
 		{
 			"name": "Next.js: debug client-side",
@@ -17,7 +17,7 @@
 			"name": "Next.js: debug full stack",
 			"type": "node-terminal",
 			"request": "launch",
-			"command": "pnpm dev --turbo",
+			"command": "bun dev --turbo",
 			"serverReadyAction": {
 				"pattern": "- Local:.+(https?://.+)",
 				"uriFormat": "%s",

@@ -1,9 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/components/ui/hooks/use-media-query";
 import { useCartModal } from "@/context/cart-modal";
-import type { ReactNode } from "react";
 
 export const CartAsideDrawer = ({ children }: { children: ReactNode }) => {
 	const { open, setOpen } = useCartModal();
