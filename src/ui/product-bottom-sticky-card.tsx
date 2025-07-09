@@ -1,14 +1,18 @@
-import { cn } from "@/lib/utils";
-import { MainProductImage } from "@/ui/products/main-product-image";
 import type * as Commerce from "commerce-kit";
 import { formatMoney } from "commerce-kit/currencies";
+import { cn } from "@/lib/utils";
+import { MainProductImage } from "@/ui/products/main-product-image";
 import { AddToCartButton } from "./add-to-cart-button";
 
 export const ProductBottomStickyCard = ({
 	product,
 	locale,
 	show,
-}: { product: Commerce.MappedProduct; locale: string; show: boolean }) => {
+}: {
+	product: Commerce.MappedProduct;
+	locale: string;
+	show: boolean;
+}) => {
 	return (
 		<div
 			tabIndex={show ? 0 : -1}

@@ -1,15 +1,15 @@
-import { addToCartAction } from "@/actions/cart-actions";
-import { searchProducts } from "@/lib/search/search";
 import { openai } from "@ai-sdk/openai";
 import { StreamData, streamText } from "ai";
 import { z } from "zod";
+import { addToCartAction } from "@/actions/cart-actions";
+import { searchProducts } from "@/lib/search/search";
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
 	const json = await req.json();
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: Request body type is not strictly defined
 	const messages = (json as any).messages;
 
 	const streamingData = new StreamData();

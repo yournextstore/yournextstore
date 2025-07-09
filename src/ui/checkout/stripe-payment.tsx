@@ -1,5 +1,16 @@
 "use client";
 
+import {
+	AddressElement,
+	LinkAuthenticationElement,
+	PaymentElement,
+	useElements,
+	useStripe,
+} from "@stripe/react-stripe-js";
+import type * as Commerce from "commerce-kit";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { type ChangeEvent, type FormEventHandler, useRef, useState, useTransition } from "react";
 import { clearCartCookieAction } from "@/actions/cart-actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -15,17 +26,6 @@ import { saveTaxIdAction } from "@/ui/checkout/tax-action";
 import { CountrySelect } from "@/ui/country-select";
 import { useDidUpdate } from "@/ui/hooks/lifecycle";
 import { InputWithErrors } from "@/ui/input-errors";
-import {
-	AddressElement,
-	LinkAuthenticationElement,
-	PaymentElement,
-	useElements,
-	useStripe,
-} from "@stripe/react-stripe-js";
-import type * as Commerce from "commerce-kit";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { type ChangeEvent, type FormEventHandler, useRef, useState, useTransition } from "react";
 
 export const StripePayment = ({
 	shippingRateId,
