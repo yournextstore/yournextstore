@@ -1,9 +1,9 @@
+import type * as Commerce from "commerce-kit";
+import Image from "next/image";
 import { getLocale } from "@/i18n/server";
 import { formatMoney } from "@/lib/utils";
 import { JsonLd, mappedProductsToJsonLd } from "@/ui/json-ld";
 import { YnsLink } from "@/ui/yns-link";
-import type * as Commerce from "commerce-kit";
-import Image from "next/image";
 
 export const ProductList = async ({ products }: { products: Commerce.MappedProduct[] }) => {
 	const locale = await getLocale();

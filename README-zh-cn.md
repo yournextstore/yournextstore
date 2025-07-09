@@ -45,20 +45,19 @@ https://github.com/user-attachments/assets/64197310-29bd-4dd3-a736-1494340e20e8
 
 请根据此处的说明选择适合你的操作系统进行操作：[nodejs.org/en/download](https://nodejs.org/en/download)
 
-### pnpm 9+
+### bun 1.0+
 
-我们正式支持 pnpm v9 版本，同时会尽最大努力保持与 npm 和 yarn 兼容。
+我们正式支持 bun v1.0+ 版本，同时会尽最大努力保持与 npm 和 yarn 兼容。
 
-#### 安装 pnpm
+#### 安装 bun
 
-安装 pnpm 最简单的方法是通过 Node.js Corepack。在 YNS 文件夹中，运行以下命令：
+安装 bun 最简单的方法是通过他们的安装脚本：
 
 ```bash
-corepack enable
-corepack install
+curl -fsSL https://bun.sh/install | bash
 ```
 
-或者，根据此处的说明选择适合你的操作系统进行操作：[pnpm.io/installation](https://pnpm.io/installation)
+或者，根据此处的说明选择适合你的操作系统进行操作：[bun.sh/docs/installation](https://bun.sh/docs/installation)
 
 ## 创建 Stripe 账户
 
@@ -97,7 +96,7 @@ https://github.com/yournextstore/.github/assets/200613/01d27f69-00dc-446e-bc81-5
 
 ## 运行商店
 
-完成上述步骤后，运行 `pnpm install` 安装所需的依赖项，然后运行 `pnpm dev` 启动。Your Next Store 将运行在 [localhost:3000](http://localhost:3000) 上。
+完成上述步骤后，运行 `bun install` 安装所需的依赖项，然后运行 `bun dev` 启动。Your Next Store 将运行在 [localhost:3000](http://localhost:3000) 上。
 
 ## 添加产品
 
@@ -178,8 +177,8 @@ Your Next Store 集成了 Stripe 税务的预览功能。要启用它，请将 `
 
 1. 复制本仓库到一个空白文件夹中，并按[此处描述](#add-environment-variables)在仓库中创建 .env 文件
 2. 在 .env 文件中设置变量 DOCKER=1
-3. 运行 `pnpm run docker:build`
-4. 然后，运行 `pnpm run docker:run` 启动容器
+3. 运行 `bun run docker:build`
+4. 然后，运行 `bun run docker:run` 启动容器
 
 ## 以上
 

@@ -1,7 +1,7 @@
 "use server";
 
-import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import * as Commerce from "commerce-kit";
+import { getCartFromCookiesAction } from "@/actions/cart-actions";
 
 export const saveTaxIdAction = async ({ taxId }: { taxId: string }) => {
 	const cart = await getCartFromCookiesAction();

@@ -1,10 +1,10 @@
 "use client";
 
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe, type StripeElementLocale, type StripeElementsOptions } from "@stripe/stripe-js";
+import { type ReactNode, useMemo } from "react";
 import { env } from "@/env.mjs";
 import { invariant } from "@/lib/invariant";
-import { Elements } from "@stripe/react-stripe-js";
-import { type StripeElementLocale, type StripeElementsOptions, loadStripe } from "@stripe/stripe-js";
-import { type ReactNode, useMemo } from "react";
 
 export const StripeElementsContainer = ({
 	children,

@@ -1,6 +1,6 @@
-import { MDXRemote } from "next-mdx-remote/rsc";
 import Link, { type LinkProps } from "next/link";
 import { notFound } from "next/navigation";
+import { MDXRemote } from "next-mdx-remote/rsc";
 
 const pages: Record<string, { content: string }> = {
 	"/about": {

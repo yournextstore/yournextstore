@@ -1,7 +1,7 @@
+import type { Metadata } from "next/types";
 import { getCartFromCookiesAction } from "@/actions/cart-actions";
 import { getTranslations } from "@/i18n/server";
 import { CheckoutCard } from "@/ui/checkout/checkout-card";
-import type { Metadata } from "next/types";
 
 export const generateMetadata = async (): Promise<Metadata> => {
 	const t = await getTranslations("/cart.metadata");
