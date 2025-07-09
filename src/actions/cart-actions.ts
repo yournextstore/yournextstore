@@ -1,8 +1,8 @@
 "use server";
 
-import { clearCartCookie, getCartCookieJson, setCartCookieJson } from "@/lib/cart";
 import * as Commerce from "commerce-kit";
 import { revalidateTag } from "next/cache";
+import { clearCartCookie, getCartCookieJson, setCartCookieJson } from "@/lib/cart";
 
 export async function getCartFromCookiesAction() {
 	const cartJson = await getCartCookieJson();

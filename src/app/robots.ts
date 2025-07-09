@@ -1,5 +1,5 @@
-import { publicUrl } from "@/env.mjs";
 import type { MetadataRoute } from "next";
+import { publicUrl } from "@/env.mjs";
 
 export default function robots(): MetadataRoute.Robots {
 	return {

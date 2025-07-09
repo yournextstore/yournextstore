@@ -1,5 +1,5 @@
-import { env } from "@/env.mjs";
 import { IntlMessageFormat } from "intl-messageformat";
+import { env } from "@/env.mjs";
 import type { IntlNamespaceKeys, NamespacedKeys } from "./types";
 
 type En = typeof import("../../messages/en-US.json");

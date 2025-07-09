@@ -1,4 +1,10 @@
 // import { ProductModel3D } from "@/app/(store)/product/[slug]/product-model3d";
+
+import * as Commerce from "commerce-kit";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next/types";
+import { Suspense } from "react";
 import { ProductImageModal } from "@/app/(store)/product/[slug]/product-image-modal";
 import {
 	Breadcrumb,
@@ -19,11 +25,6 @@ import { Markdown } from "@/ui/markdown";
 import { MainProductImage } from "@/ui/products/main-product-image";
 import { StickyBottom } from "@/ui/sticky-bottom";
 import { YnsLink } from "@/ui/yns-link";
-import * as Commerce from "commerce-kit";
-import Image from "next/image";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next/types";
-import { Suspense } from "react";
 
 export const generateMetadata = async (props: {
 	params: Promise<{ slug: string }>;

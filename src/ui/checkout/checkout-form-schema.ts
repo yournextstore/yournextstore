@@ -1,4 +1,4 @@
-import { type TypeOf, object, string } from "zod";
+import { object, string, type TypeOf } from "zod";
 
 export const getAddressSchema = (tr: {
 	nameRequired: string;

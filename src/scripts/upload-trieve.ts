@@ -3,6 +3,7 @@ import NextEnv from "@next/env";
 import * as Commerce from "commerce-kit";
 import { mapProducts } from "commerce-kit/internal";
 import { type ChunkReqPayload, TrieveSDK } from "trieve-ts-sdk";
+
 NextEnv.loadEnvConfig(".");
 
 const { env } = await import("@/env.mjs");
