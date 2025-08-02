@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { StreamData, streamText } from "ai";
+import { streamText, tool } from "ai";
 import { z } from "zod";
 import { addToCartAction } from "@/actions/cart-actions";
 import { searchProducts } from "@/lib/search/search";
@@ -7,51 +7,49 @@ import { searchProducts } from "@/lib/search/search";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const json = await req.json();
+	try {
+		const json = await req.json();
 
-	// biome-ignore lint/suspicious/noExplicitAny: Request body type is not strictly defined
-	const messages = (json as any).messages;
+		// biome-ignore lint/suspicious/noExplicitAny: Request body type is not strictly defined
+		const messages = (json as any).messages;
 
-	const streamingData = new StreamData();
-
-	const result = streamText({
-		system: "Every search query should be changed to singular form",
-		model: openai("gpt-4o-mini"),
-		messages,
-		experimental_activeTools: ["productSearch", "cartAdd"],
-		tools: {
-			productSearch: {
-				description: "Get a list of matching products",
-				parameters: z.object({
-					query: z.string(),
+		const result = streamText({
+			system: "Every search query should be changed to singular form",
+			model: openai("gpt-4o-mini"),
+			messages,
+			tools: {
+				productSearch: tool({
+					description: "Get a list of matching products",
+					inputSchema: z.object({
+						query: z.string(),
+					}),
+					execute: async ({ query }) => {
+						const products = await searchProducts(query);
+						return products.slice(0, 4);
+					},
 				}),
-				execute: async ({ query }) => {
-					const products = await searchProducts(query);
+				cartAdd: tool({
+					description: "Add a product to the cart by id",
+					inputSchema: z.object({
+						id: z.string(),
+					}),
+					execute: async ({ id }) => {
+						const formData = new FormData();
+						formData.append("productId", id);
+						const cart = await addToCartAction(formData);
 
-					return products.slice(0, 4);
-				},
-			},
-			cartAdd: {
-				description: "Add a product to the cart by id",
-				parameters: z.object({
-					id: z.string(),
+						if (cart) {
+							return `Product added to cart successfully. Cart ID: ${cart.id}`;
+						}
+						return "Failed to add product to cart";
+					},
 				}),
-				async execute({ id }) {
-					const formData = new FormData();
-					formData.append("productId", id);
-					const cart = await addToCartAction(formData);
-
-					if (cart) {
-						streamingData.append({ operation: "cartAdd", id, cartId: cart.id });
-					}
-					return "OK. Done";
-				},
 			},
-		},
-		onFinish() {
-			streamingData.close();
-		},
-	});
+		});
 
-	return result.toDataStreamResponse({ data: streamingData });
+		return result.toUIMessageStreamResponse();
+	} catch (error) {
+		console.error("Chat API error:", error);
+		return new Response("Internal Server Error", { status: 500 });
+	}
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { ArrowUp, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { startTransition, useEffect, useRef, useState } from "react";
@@ -122,10 +122,10 @@ export function CommerceGPT() {
 														{(() => {
 															switch (ti.toolName) {
 																case "productSearch":
-																	if (ti.result.length === 0) return <>No results</>;
+																	if (ti.output.length === 0) return <>No results</>;
 																	return (
 																		<div className="grid cols-1 gap-4">
-																			<ProductList products={ti.result} />
+																			<ProductList products={ti.output} />
 
 																			<div className="flex flex-wrap justify-center gap-2 w-full">
 																				<Button
@@ -147,7 +147,7 @@ export function CommerceGPT() {
 																default:
 																	return (
 																		<div className="text-lg rounded px-2 py-1 bg-neutral-100">
-																			{ti.result}
+																			{ti.output}
 																		</div>
 																	);
 															}
