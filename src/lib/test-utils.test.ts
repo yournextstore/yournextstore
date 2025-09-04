@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { add, capitalize, formatPrice, isEmpty, multiply } from "./test-utils";
 
 describe("test-utils", () => {
