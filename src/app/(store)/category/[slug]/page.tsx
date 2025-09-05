@@ -1,19 +1,19 @@
-import * as Commerce from "commerce-kit";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next/types";
 import { publicUrl } from "@/env.mjs";
 import { getTranslations } from "@/i18n/server";
+import { commerce } from "@/lib/commerce";
 import { deslugify } from "@/lib/utils";
 import { ProductList } from "@/ui/products/product-list";
 
 export const generateMetadata = async (props: { params: Promise<{ slug: string }> }): Promise<Metadata> => {
 	const params = await props.params;
-	const products = await Commerce.productBrowse({
+	const result = await commerce.product.browse({
 		first: 100,
-		filter: { category: params.slug },
+		category: params.slug, // YNS SDK uses direct category parameter
 	});
 
-	if (products.length === 0) {
+	if (!result.data || result.data.length === 0) {
 		return notFound();
 	}
 
@@ -27,14 +27,16 @@ export const generateMetadata = async (props: { params: Promise<{ slug: string }
 
 export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
 	const params = await props.params;
-	const products = await Commerce.productBrowse({
+	const result = await commerce.product.browse({
 		first: 100,
-		filter: { category: params.slug },
+		category: params.slug, // YNS SDK uses direct category parameter
 	});
 
-	if (products.length === 0) {
+	if (!result.data || result.data.length === 0) {
 		return notFound();
 	}
+
+	const products = result.data;
 
 	const t = await getTranslations("/category.page");
 

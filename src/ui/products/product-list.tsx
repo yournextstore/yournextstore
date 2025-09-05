@@ -1,11 +1,11 @@
-import type * as Commerce from "commerce-kit";
+import type { Product } from "commerce-kit";
 import Image from "next/image";
 import { getLocale } from "@/i18n/server";
 import { formatMoney } from "@/lib/utils";
 import { JsonLd, mappedProductsToJsonLd } from "@/ui/json-ld";
 import { YnsLink } from "@/ui/yns-link";
 
-export const ProductList = async ({ products }: { products: Commerce.MappedProduct[] }) => {
+export const ProductList = async ({ products }: { products: Product[] }) => {
 	const locale = await getLocale();
 
 	return (
@@ -14,7 +14,7 @@ export const ProductList = async ({ products }: { products: Commerce.MappedProdu
 				{products.map((product, idx) => {
 					return (
 						<li key={product.id} className="group">
-							<YnsLink href={`/product/${product.metadata.slug}`}>
+							<YnsLink href={`/product/${product.slug}`}>
 								<article className="overflow-hidden bg-white">
 									{product.images[0] && (
 										<div className="rounded-lg aspect-square w-full overflow-hidden bg-neutral-100">
@@ -33,11 +33,11 @@ export const ProductList = async ({ products }: { products: Commerce.MappedProdu
 									<div className="p-2">
 										<h2 className="text-xl font-medium text-neutral-700">{product.name}</h2>
 										<footer className="text-base font-normal text-neutral-900">
-											{product.default_price.unit_amount && (
+											{product.price && (
 												<p>
 													{formatMoney({
-														amount: product.default_price.unit_amount,
-														currency: product.default_price.currency,
+														amount: product.price,
+														currency: product.currency,
 														locale,
 													})}
 												</p>
