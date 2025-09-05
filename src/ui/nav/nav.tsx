@@ -1,5 +1,5 @@
 import { UserIcon } from "lucide-react";
-import { CartSummaryNav } from "@/ui/nav/cart-summary-nav";
+import { CartIcon } from "@/components/cart-icon";
 import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "@/ui/nav/search-nav";
 import { SeoH1 } from "@/ui/seo-h1";
@@ -19,7 +19,7 @@ export const Nav = async () => {
 				<div className="mr-3 ml-auto sm:ml-0">
 					<SearchNav />
 				</div>
-				<CartSummaryNav />
+				<CartIcon />
 				<YnsLink href="/login">
 					<UserIcon className="hover:text-neutral-500" />
 				</YnsLink>
