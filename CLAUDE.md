@@ -95,7 +95,6 @@ src/
 - `NEXT_PUBLIC_UMAMI_WEBSITE_ID` - Analytics tracking
 - `NEXT_PUBLIC_NEWSLETTER_ENDPOINT` - Newsletter signup endpoint
 - `NEXT_PUBLIC_LANGUAGE` - Locale (defaults to "en-US")
-- `TRIEVE_DATASET_ID` / `TRIEVE_API_KEY` - Search functionality
 
 ## Code Style & Standards
 
@@ -129,8 +128,8 @@ src/
 - Webhooks handle payment events and cache revalidation
 
 ### Search Functionality
-- Multiple search implementations: simple, Trieve-based
-- Configurable search provider in `src/lib/search/`
+- Simple search implementation for products
+- Search functionality in `src/lib/search/`
 
 ## Key Development Notes
 
@@ -140,3 +139,4 @@ src/
 - Internationalization ready with message files in `/messages`
 - Docker-ready with standalone output mode
 - Git hooks configured with Husky for commit linting
+- don't use `bun run dev` I have server running in background all the time, just ask about checking if needed

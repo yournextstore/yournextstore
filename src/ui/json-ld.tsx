@@ -1,39 +1,29 @@
-import type * as Commerce from "commerce-kit";
-import { getDecimalFromStripeAmount } from "commerce-kit/currencies";
+import type { Product as CommerceProduct } from "commerce-kit";
 import type { ItemList, Product, Thing, WebSite, WithContext } from "schema-dts";
 import type Stripe from "stripe";
-import { formatProductName } from "@/lib/utils";
 
 export const JsonLd = <T extends Thing>({ jsonLd }: { jsonLd: WithContext<T> }) => {
 	return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
 };
 
-export const mappedProductToJsonLd = (product: Commerce.MappedProduct): WithContext<Product> => {
-	const productName = formatProductName(product.name, product.metadata.variant);
-
+export const mappedProductToJsonLd = (product: CommerceProduct): WithContext<Product> => {
 	return {
 		"@context": "https://schema.org",
 		"@type": "Product",
-		name: productName,
+		name: product.name,
 		image: product.images[0],
-		description: product.description ?? undefined,
+		description: product.summary ?? undefined,
 		sku: product.id,
 		offers: {
 			"@type": "Offer",
-			price: getDecimalFromStripeAmount({
-				amount: product.default_price.unit_amount ?? 0,
-				currency: product.default_price.currency,
-			}),
-			priceCurrency: product.default_price.currency,
-			availability:
-				product.metadata.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+			price: product.price.toString(),
+			priceCurrency: product.currency,
+			availability: (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
 		},
 	};
 };
 
-export const mappedProductsToJsonLd = (
-	products: readonly Commerce.MappedProduct[],
-): WithContext<ItemList> => {
+export const mappedProductsToJsonLd = (products: readonly CommerceProduct[]): WithContext<ItemList> => {
 	return {
 		"@context": "https://schema.org",
 		"@type": "ItemList",
