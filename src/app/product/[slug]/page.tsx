@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { formatMoney } from "@/money";
 import { ynsClient } from "@/yns-client";
+import { AddToCartButton } from "./add-to-cart-button";
 import { ProductCarousel } from "./product-carousel";
 
 const currency = "USD";
@@ -65,12 +66,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						</div>
 					)}
 
-					<button
-						type="button"
-						className="w-full bg-black text-white py-4 px-8 rounded-full font-semibold hover:bg-gray-800 transition-colors"
-					>
-						Add to Cart
-					</button>
+					<AddToCartButton variantId={product.variants[0]?.id ?? ""} />
 				</div>
 			</div>
 		</div>

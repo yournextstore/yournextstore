@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-YourNextStore is a Next.js e-commerce application built with:
+Your Next Store is a Next.js e-commerce application built with:
 - **Next.js 16** with App Router, React Server Components, and experimental features (React Compiler, cache components)
 - **Commerce Kit SDK** (`commerce-kit` package) - YNS API client for product browsing, cart management
 - **Bun** runtime and package manager (instead of Node.js/npm/pnpm)
