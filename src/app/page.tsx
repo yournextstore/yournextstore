@@ -6,6 +6,9 @@ import { formatMoney } from "@/money";
 import { ynsClient } from "@/yns-client";
 
 export default async function Home() {
+	"use cache";
+	cacheLife("seconds");
+
 	return (
 		<Suspense>
 			<ProductList />
@@ -17,9 +20,6 @@ const currency = "USD";
 const locale = "en-US";
 
 const ProductList = async () => {
-	"use cache";
-	cacheLife("seconds");
-
 	console.log("Fetching products...");
 	const products = await ynsClient.productBrowse({ active: true, limit: 4 });
 	console.log({ products: products.meta });
