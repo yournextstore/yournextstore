@@ -111,11 +111,14 @@ const ProductList = async () => {
 
 **Key conventions**:
 - Use `const` assertions and `as const` for literal types
-- Prefer `for...of` loops over `.forEach()`
+- **NEVER use `for...of` loops** - use functional methods (`map`, `flatMap`, `reduce`, `filter`, etc.)
+- **NEVER use `forEach` for mutations** - use `reduce` instead
 - Use template literals appropriately
 - No unused imports/variables (warns and auto-fixes)
-- Inline type annotations for function parameters
+- **Do NOT add unnecessary type annotations** - rely on type inference
+- **Do NOT add return type annotations** unless absolutely necessary
 - Components using `use cache` must be inside <Suspense> boundaries
+- **Function prop names should NOT end with "Action"** unless they are actual server actions
 
 ### Environment Variables
 
@@ -171,9 +174,31 @@ import { invariant } from "./lib";
 invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
 ```
 
+## Important React/Next.js Patterns
+
+### State Management and Side Effects
+
+- **Avoid `useEffect` when possible** - prefer deriving state from props/searchParams using `useMemo`
+- **Lift state up** when child components don't need to manage it themselves
+- Query params should be the source of truth for URL-driven state (like variant selection)
+- Use `useSearchParams` and `useRouter` to read and update URL state
+- Always compute derived state in render (via `useMemo`) rather than syncing with effects
+
+### URL-Friendly Patterns
+
+- Store human-readable values in query params (e.g., `?Size=42&Color=Black`), not IDs
+- Use variant value names in URLs for better UX and SEO
+- Map between URL values and internal IDs as needed
+
+### Component Libraries
+
+- Use existing UI component libraries when available (e.g., `@/components/ui/carousel`)
+- Don't install unnecessary external packages - check what's already in the project first
+
 ## Notes
 
 - Default export is prohibited except in Next.js App Router special files
 - Server runs on port 3001 (not default 3000)
 - Currency/locale are currently hardcoded as USD/en-US (no i18n yet)
-- 
+- TypeScript target requires `BigInt(0)` instead of `0n` literals for ES2020 compatibility
+- Cart ID is stored in cookies (`cartId`) with 30-day expiry
