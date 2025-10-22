@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense } from "react";
 import { formatMoney } from "@/money";
 import { ynsClient } from "@/yns-client";
@@ -38,7 +39,7 @@ const ProductList = async () => {
 					const image = product.images[0] ?? product.variants[0]?.images[0];
 
 					return (
-						<div key={product.id} className="group">
+						<Link key={product.id} href={`/product/${product.slug}`} className="group">
 							<div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
 								{image && (
 									<Image
@@ -55,7 +56,7 @@ const ProductList = async () => {
 								{product.summary && <p className="text-sm text-gray-500">{product.summary}</p>}
 								<p className="text-sm font-semibold text-gray-900">{priceDisplay}</p>
 							</div>
-						</div>
+						</Link>
 					);
 				})}
 			</div>
