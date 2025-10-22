@@ -3,84 +3,132 @@
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
-		"useIgnoreFile": true
+		"useIgnoreFile": true,
+		"defaultBranch": "main"
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!**/package.json",
+			"!**/bun.lockb",
+			"!**/vercel.json",
+			"!**/src/lib/vercel/schema.ts",
+			"!**/src/ui/shadcn"
+		]
 	},
 	"formatter": {
-		"enabled": true,
-		"useEditorconfig": true,
-		"formatWithErrors": false,
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineEnding": "lf",
-		"lineWidth": 110,
-		"attributePosition": "auto",
-		"bracketSpacing": true
+		"lineWidth": 110
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": false,
+			"recommended": true,
 			"complexity": {
-				"noBannedTypes": "error",
-				"noUselessThisAlias": "error",
-				"noUselessTypeConstraint": "error",
-				"useLiteralKeys": "error",
-				"useOptionalChain": "error"
+				"noForEach": "off",
+				"noImportantStyles": "off"
 			},
 			"correctness": {
-				"noEmptyPattern": "off",
-				"noPrecisionLoss": "error",
-				"noUnusedVariables": "off"
+				"useUniqueElementIds": "off",
+				"noUnusedFunctionParameters": "off",
+				"noUnusedVariables": "off",
+				"noUnusedImports": {
+					"options": {},
+					"level": "warn",
+					"fix": "unsafe"
+				},
+				"useExhaustiveDependencies": {
+					"level": "error",
+					"options": {
+						"hooks": [
+							{
+								"name": "useDidUpdate",
+								"closureIndex": 0,
+								"dependenciesIndex": 1
+							},
+							{
+								"name": "useRouter",
+								"stableResult": true
+							}
+						]
+					}
+				},
+				"noEmptyPattern": "off"
 			},
 			"style": {
-				"noDefaultExport": "off",
-				"noInferrableTypes": "error",
+				"useSelfClosingElements": "off",
+				"noDescendingSpecificity": "off",
+				"noUnusedTemplateLiteral": "off",
+				"noUselessElse": "off",
+				"useTemplate": "off",
+				"noDefaultExport": "error",
 				"noNamespace": "error",
-				"useAsConstAssertion": "error",
-				"useBlockStatements": "off",
-				"useConsistentArrayType": "off",
 				"useForOf": "error",
-				"useImportType": "error",
-				"useShorthandFunctionType": "error"
+				"noRestrictedGlobals": {
+					"level": "error",
+					"options": {
+						"deniedGlobals": {
+							"name": "TODO: Add a custom message here.",
+							"event": "TODO: Add a custom message here."
+						}
+					}
+				},
+				"noParameterAssign": "off",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSingleVarDeclarator": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error"
 			},
 			"suspicious": {
-				"noEmptyBlockStatements": "off",
+				"useIterableCallbackReturn": "off",
+				"noUnknownAtRules": "off",
 				"noEmptyInterface": "off",
-				"noExplicitAny": "error",
-				"noExtraNonNullAssertion": "error",
-				"noMisleadingInstantiator": "error",
-				"noUnsafeDeclarationMerging": "error",
-				"useAwait": "off",
-				"useNamespaceKeyword": "error"
+				"noArrayIndexKey": "off",
+				"noImplicitAnyLet": "error",
+				"noExplicitAny": "error"
+			},
+			"a11y": {
+				"useSemanticElements": "off",
+				"noRedundantRoles": "off",
+				"noLabelWithoutControl": "off",
+				"noNoninteractiveTabindex": "off",
+				"noSvgWithoutTitle": "off"
+			},
+			"security": {
+				"noBlankTarget": "off"
 			}
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"jsxQuoteStyle": "double",
-			"quoteProperties": "asNeeded",
-			"trailingCommas": "all",
-			"semicolons": "always",
-			"arrowParentheses": "always",
-			"bracketSameLine": false,
-			"quoteStyle": "double",
-			"attributePosition": "auto",
-			"bracketSpacing": true
 		}
 	},
 	"overrides": [
 		{
 			"includes": [
-				"**/src/i18n.ts",
 				"**/*.d.ts",
+				"**/proxy.ts",
+				"**/next.config.ts",
 				"**/tailwind.config.ts",
-				"**/prettier.config.js",
-				"**/middleware.ts",
-				"**/commitlint.config.ts",
-				"**/vitest.config.ts"
+				"**/src/app/**/default.tsx",
+				"**/src/app/**/error.tsx",
+				"**/src/app/**/global-error.tsx",
+				"**/src/app/**/layout.tsx",
+				"**/src/app/**/template.tsx",
+				"**/src/app/**/loading.tsx",
+				"**/src/app/**/not-found.tsx",
+				"**/src/app/**/forbidden.tsx",
+				"**/src/app/**/unauthorized.tsx",
+				"**/src/app/**/opengraph-image.tsx",
+				"**/src/app/**/page.tsx",
+				"**/src/app/**/robots.ts",
+				"**/src/app/**/route.tsx",
+				"**/src/app/**/sitemap.ts"
 			],
 			"linter": {
 				"rules": {
