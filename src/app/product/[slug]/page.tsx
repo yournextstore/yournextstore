@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { formatMoney } from "@/money";
@@ -19,8 +18,6 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	"use cache";
-	cacheLife("seconds");
-
 	const { slug } = await params;
 	const product = await ynsClient.productGet({ idOrSlug: slug });
 
@@ -66,7 +63,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						</div>
 					)}
 
-					<AddToCartButton variantId={product.variants[0]?.id ?? ""} />
+					<AddToCartButton variants={product.variants} />
 				</div>
 			</div>
 		</div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { CartButton } from "./cart-button";
 import "./globals.css";
+import { ShoppingCartIcon } from "lucide-react";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 function CartButtonFallback() {
 	return (
 		<div className="p-2 rounded-full w-10 h-10" aria-description="Loading cart">
-			<div className="w-6 h-6" />
+			<ShoppingCartIcon className="w-6 h-6 opacity-20" />
 		</div>
 	);
 }
@@ -48,7 +49,7 @@ export default function RootLayout({
 						</div>
 					</div>
 				</header>
-				{children}
+				<Suspense>{children}</Suspense>
 			</body>
 		</html>
 	);
