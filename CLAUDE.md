@@ -114,6 +114,8 @@ const ProductList = async () => {
 - Prefer `for...of` loops over `.forEach()`
 - Use template literals appropriately
 - No unused imports/variables (warns and auto-fixes)
+- Inline type annotations for function parameters
+- Components using `use cache` must be inside <Suspense> boundaries
 
 ### Environment Variables
 
@@ -174,4 +176,4 @@ invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
 - Default export is prohibited except in Next.js App Router special files
 - Server runs on port 3001 (not default 3000)
 - Currency/locale are currently hardcoded as USD/en-US (no i18n yet)
-- TypeScript target requires `BigInt(0)` instead of `0n` literals for ES2020 compatibility
+- 
