@@ -5,7 +5,7 @@
       "name": "yournextstore",
       "dependencies": {
         "@typescript/native-preview": "7.0.0-dev.20251022.1",
-        "commerce-kit": "0.6.1-experimental.2",
+        "commerce-kit": "0.6.1-experimental.6",
         "next": "16.0.0",
         "react": "19.2.0",
         "react-dom": "19.2.0",
@@ -191,7 +191,7 @@
 
     "client-only": ["client-only@0.0.1", "", {}, "sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA=="],
 
-    "commerce-kit": ["commerce-kit@0.6.1-experimental.2", "", { "peerDependencies": { "@types/node": "^24.3.0", "@typescript/native-preview": "7.0.0-dev.20251022.1", "typescript": "5.9.3", "zod": "^4.1.5" }, "optionalPeers": ["@typescript/native-preview", "typescript"] }, "sha512-A33psCHplxBMNeBhGwdQuhvJE+8KJsBH983zlCIJS7W9tXyNwK1yoBFXFZ7sTE1keaW0TqNHygl9UnuDOV7KqA=="],
+    "commerce-kit": ["commerce-kit@0.6.1-experimental.6", "", { "peerDependencies": { "@types/node": "^24.3.0", "@typescript/native-preview": "7.0.0-dev.20251022.1", "typescript": "5.9.3", "zod": "^4.1.5" }, "optionalPeers": ["@typescript/native-preview", "typescript"] }, "sha512-Z9C+F5X0e0856vXGMnHw0KM9Xc/0HtVVC3sIHPnBW/smHrVpLxdguGqvxMt+otuYIGH+eXxtdJqhji30n8DSbw=="],
 
     "csstype": ["csstype@3.1.3", "", {}, "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="],
 

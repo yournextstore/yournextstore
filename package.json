@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@typescript/native-preview": "7.0.0-dev.20251022.1",
-    "commerce-kit": "0.6.1-experimental.2",
+    "commerce-kit": "0.6.1-experimental.6",
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
