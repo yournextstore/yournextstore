@@ -113,7 +113,7 @@
 			"includes": [
 				"**/*.d.ts",
 				"**/proxy.ts",
-				"**/next.config.ts",
+				"**/next.config.mjs",
 				"**/tailwind.config.ts",
 				"**/src/app/**/default.tsx",
 				"**/src/app/**/error.tsx",
