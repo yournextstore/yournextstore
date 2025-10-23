@@ -1,25 +1,16 @@
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 import { formatMoney } from "@/money";
 import { ynsClient } from "@/yns-client";
+
+const currency = "USD";
+const locale = "en-US";
 
 export default async function Home() {
 	"use cache";
 	cacheLife("seconds");
 
-	return (
-		<Suspense>
-			<ProductList />
-		</Suspense>
-	);
-}
-
-const currency = "USD";
-const locale = "en-US";
-
-const ProductList = async () => {
 	console.log("Fetching products...");
 	const products = await ynsClient.productBrowse({ active: true, limit: 4 });
 	console.log({ products: products.meta });
@@ -28,8 +19,8 @@ const ProductList = async () => {
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 				{products.data.map((product) => {
 					const prices = product.variants.map((v) => BigInt(v.price));
-					const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : BigInt(0);
-					const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : BigInt(0);
+					const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : 0n;
+					const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : 0n;
 
 					const priceDisplay =
 						prices.length > 1 && minPrice !== maxPrice
@@ -62,4 +53,4 @@ const ProductList = async () => {
 			</div>
 		</div>
 	);
-};
+}
