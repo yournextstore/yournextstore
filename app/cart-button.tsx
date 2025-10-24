@@ -1,7 +1,7 @@
 import { ShoppingCart } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { ynsClient } from "../yns-client";
+import { ynsClient } from "../src/yns-client";
 
 export async function CartButton() {
 	const cookieStore = await cookies();

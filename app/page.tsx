@@ -1,8 +1,8 @@
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { formatMoney } from "../money";
-import { ynsClient } from "../yns-client";
+import { formatMoney } from "../src/money";
+import { ynsClient } from "../src/yns-client";
 
 const currency = "USD";
 const locale = "en-US";
