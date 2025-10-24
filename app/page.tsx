@@ -1,42 +1,56 @@
-import { Suspense } from "react";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { cacheLife } from "next/cache";
+import Image from "next/image";
+import Link from "next/link";
+import { formatMoney } from "../src/money";
+import { ynsClient } from "../src/yns-client";
 
-function ProductGridSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
-					</div>
-				))}
-			</div>
-		</section>
-	);
-}
+const currency = "USD";
+const locale = "en-US";
 
-export default function Home() {
+export default async function Home() {
+	"use cache";
+	cacheLife("seconds");
+
+	console.log("Fetching products...");
+	const products = await ynsClient.productBrowse({ active: true, limit: 4 });
+	console.log({ products: products.meta });
 	return (
-		<main>
-			<Hero />
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</main>
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+				{products.data.map((product) => {
+					const prices = product.variants.map((v) => BigInt(v.price));
+					const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : 0n;
+					const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : 0n;
+
+					const priceDisplay =
+						prices.length > 1 && minPrice !== maxPrice
+							? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+							: formatMoney({ amount: minPrice, currency, locale });
+
+					const image = product.images[0] ?? product.variants[0]?.images[0];
+
+					return (
+						<Link key={product.id} href={`/product/${product.slug}`} className="group">
+							<div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
+								{image && (
+									<Image
+										src={image}
+										alt={product.name}
+										width={400}
+										height={400}
+										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+									/>
+								)}
+							</div>
+							<div className="space-y-1">
+								<h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
+								{product.summary && <p className="text-sm text-gray-500">{product.summary}</p>}
+								<p className="text-sm font-semibold text-gray-900">{priceDisplay}</p>
+							</div>
+						</Link>
+					);
+				})}
+			</div>
+		</div>
 	);
 }

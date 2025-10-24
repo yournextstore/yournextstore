@@ -1,27 +1,29 @@
-"use client";
-
 import { ShoppingCart } from "lucide-react";
-import { useCart } from "@/app/cart/cart-context";
+import { cookies } from "next/headers";
+import Link from "next/link";
+import { ynsClient } from "../src/yns-client";
 
-export function CartButton() {
-	const { itemCount, openCart } = useCart();
+export async function CartButton() {
+	const cookieStore = await cookies();
+	const cartId = cookieStore.get("cartId")?.value;
+
+	const cart = cartId ? await ynsClient.cartGet({ cartId }) : null;
+	const itemCount = cart?.lineItems.reduce((sum, lineItem) => sum + lineItem.quantity, 0) ?? 0;
+
+	const cartUrl = cartId ? `${process.env.YNS_API_TENANT}/cart/r/${cartId}` : "#";
 
 	return (
-		<button
-			type="button"
-			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
+		<Link
+			href={cartUrl}
+			className="p-2 hover:bg-gray-100 rounded-full transition-colors relative block"
 			aria-label="Shopping cart"
 		>
 			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
+			{itemCount > 0 && (
+				<span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
 					{itemCount}
 				</span>
-			) : null}
-		</button>
+			)}
+		</Link>
 	);
 }
