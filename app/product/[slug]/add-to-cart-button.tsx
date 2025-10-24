@@ -1,20 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
-import { addToCart } from "@/app/cart/actions";
-import { useCart } from "@/app/cart/cart-context";
-import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
-import { VariantSelector } from "@/app/product/[slug]/variant-selector";
-import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
-import { CURRENCY, LOCALE } from "@/lib/constants";
-import { formatMoney } from "@/lib/money";
+import { useActionState, useMemo } from "react";
+import { addToCart } from "./actions";
+import { VariantSelector } from "./variant-selector";
 
 type Variant = {
 	id: string;
-	price: string;
-	images: string[];
 	combinations: {
 		variantValue: {
 			id: string;
@@ -29,26 +21,12 @@ type Variant = {
 	}[];
 };
 
-type AddToCartButtonProps = {
-	variants: Variant[];
-	product: {
-		id: string;
-		name: string;
-		slug: string;
-		images: string[];
-	};
-	volumePricingTiers?: VolumeTier[];
-};
-
-export function AddToCartButton({ variants, product, volumePricingTiers = [] }: AddToCartButtonProps) {
+export function AddToCartButton({ variants }: { variants: Variant[] }) {
 	const searchParams = useSearchParams();
-	const [quantity, setQuantity] = useState(1);
-	const [isPending, startTransition] = useTransition();
-	const { openCart, dispatch } = useCart();
 
-	const selectedVariant = useMemo(() => {
+	const selectedVariantId = useMemo(() => {
 		if (variants.length === 1) {
-			return variants[0];
+			return variants[0].id;
 		}
 
 		if (searchParams.size === 0) {
@@ -60,73 +38,36 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 			paramsOptions[key] = valueName;
 		});
 
-		return variants.find((variant) =>
+		const matchingVariant = variants.find((variant) =>
 			variant.combinations.every(
 				(combination) =>
 					paramsOptions[combination.variantValue.variantType.label] === combination.variantValue.value,
 			),
 		);
+
+		return matchingVariant?.id;
 	}, [variants, searchParams]);
 
-	const { resolvedTiers, volumePrice } = useVolumePricing(volumePricingTiers, selectedVariant?.id, quantity);
-
-	const unitPrice = volumePrice ?? selectedVariant?.price;
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(quantity) : null;
-
-	const buttonText = useMemo(() => {
-		if (isPending) return "Adding...";
-		if (!selectedVariant) return "Select options";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
+	const [, formAction, isPending] = useActionState(async () => {
+		if (selectedVariantId) {
+			await addToCart(selectedVariantId);
 		}
-		return "Add to Cart";
-	}, [isPending, selectedVariant, totalPrice]);
-
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-
-		if (!selectedVariant) return;
-
-		openCart();
-
-		startTransition(async () => {
-			dispatch({
-				type: "ADD_ITEM",
-				item: {
-					quantity,
-					productVariant: {
-						id: selectedVariant.id,
-						price: selectedVariant.price,
-						images: selectedVariant.images,
-						product,
-					},
-				},
-			});
-
-			await addToCart(selectedVariant.id, quantity);
-			setQuantity(1);
-		});
-	};
+		return null;
+	}, null);
 
 	return (
-		<div className="space-y-8">
-			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
+		<div className="space-y-6">
+			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariantId} />}
 
-			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
-
-			<VolumePricingDisplay tiers={resolvedTiers} quantity={quantity} volumePrice={volumePrice} />
-
-			<form onSubmit={handleSubmit}>
+			<form action={formAction}>
 				<button
 					type="submit"
-					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					disabled={isPending || !selectedVariantId}
+					className="w-full bg-black text-white py-4 px-8 rounded-full font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
-					{buttonText}
+					{isPending ? "Adding..." : "Add to Cart"}
 				</button>
 			</form>
-
-			<TrustBadges />
 		</div>
 	);
 }

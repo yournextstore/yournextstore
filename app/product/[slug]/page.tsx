@@ -1,71 +1,38 @@
-import type { Metadata } from "next";
-import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
-import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
-import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
-import { ProductReviews } from "@/app/product/[slug]/product-reviews";
-import { RelatedProducts } from "@/app/product/[slug]/related-products";
-import { commerce } from "@/lib/commerce";
-import { CURRENCY, LOCALE } from "@/lib/constants";
-import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { formatMoney } from "@/lib/money";
+import { Suspense } from "react";
+import { formatMoney } from "../../../src/money";
+import { ynsClient } from "../../../src/yns-client";
+import { AddToCartButton } from "./add-to-cart-button";
+import { ProductCarousel } from "./product-carousel";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-	const { slug } = await params;
-	const product = await commerce.productGet({ idOrSlug: slug });
-
-	if (!product) {
-		return { title: "Product Not Found — Your Next Store" };
-	}
-
-	return {
-		title: `${product.name} — Your Next Store`,
-		description: product.summary ?? undefined,
-		openGraph: {
-			title: product.name,
-			description: product.summary ?? undefined,
-			images: product.images[0] ? [product.images[0]] : undefined,
-		},
-	};
-}
+const currency = "USD";
+const locale = "en-US";
 
 export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
-	"use cache";
-	cacheLife("minutes");
-
-	return <ProductDetails params={props.params} />;
+	return (
+		<Suspense>
+			<ProductDetails params={props.params} />
+		</Suspense>
+	);
 }
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
+	"use cache";
 	const { slug } = await params;
-	const [product, reviews] = await Promise.all([
-		commerce.productGet({ idOrSlug: slug }),
-		commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }),
-	]);
+	const product = await ynsClient.productGet({ idOrSlug: slug });
 
 	if (!product) {
 		notFound();
 	}
 
-	const { minPrice, maxPrice } = product.variants.reduce(
-		(acc, v) => {
-			const price = BigInt(v.price);
-			return {
-				minPrice: price < acc.minPrice ? price : acc.minPrice,
-				maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
-			};
-		},
-		{
-			minPrice: product.variants[0] ? BigInt(product.variants[0].price) : BigInt(0),
-			maxPrice: product.variants[0] ? BigInt(product.variants[0].price) : BigInt(0),
-		},
-	);
+	const prices = product.variants.map((v) => BigInt(v.price));
+	const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : BigInt(0);
+	const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : BigInt(0);
 
 	const priceDisplay =
-		product.variants.length > 1 && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
-			: formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE });
+		prices.length > 1 && minPrice !== maxPrice
+			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			: formatMoney({ amount: minPrice, currency, locale });
 
 	const allImages = [
 		...product.images,
@@ -73,46 +40,32 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<JsonLdScript data={buildProductJsonLd(product, reviews)} />
-			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+				{/* Left: Image Carousel */}
+				<div>
+					<ProductCarousel images={allImages} productName={product.name} />
+				</div>
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title, Price, Description */}
-					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+				<div className="space-y-6">
+					<div>
+						<h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+						<p className="text-2xl font-semibold text-gray-900">{priceDisplay}</p>
 					</div>
 
-					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
-					<AddToCartButton
-						variants={product.variants}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images,
-						}}
-						volumePricingTiers={product.volumePricingTiers}
-					/>
+					{product.summary && (
+						<div>
+							<h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">
+								Description
+							</h2>
+							<p className="text-gray-700 leading-relaxed">{product.summary}</p>
+						</div>
+					)}
+
+					<AddToCartButton variants={product.variants} />
 				</div>
 			</div>
-
-			{/* Reviews Section */}
-			<ProductReviews reviews={reviews} slug={slug} />
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
-			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);
 };
