@@ -94,7 +94,6 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 		return paramsOptions;
 	}, [searchParams, variantGroups]);
 
-
 	const handleOptionSelect = (label: string, optionId: string) => {
 		const newSelectedOptions = { ...selectedOptions, [label]: optionId };
 
