@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm next dev",
-    "build": "pnpm next build",
-    "start": "pnpm next start",
+    "dev": "bun next dev",
+    "build": "bun next build",
+    "start": "bun next start",
     "lint": "biome check",
     "format": "biome format --write"
   },

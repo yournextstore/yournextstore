@@ -1,6 +1,6 @@
 # Your Next Store
 
-A Next.js boilerplate for building e-commerce websites with Your Next Store (YNS). Simple, quick, powerful, and optimized for LLM ingest.
+A Next.js boilerplate for building modern, high-performance e-commerce applications with Your Next Store (YNS) and the Commerce Kit SDK. Simple, quick, powerful, and optimized for LLM ingest.
 
 <div align="center">
 <table>
@@ -32,6 +32,16 @@ A Next.js boilerplate for building e-commerce websites with Your Next Store (YNS
 👉 [demo.yournextstore.com](https://demo.yournextstore.com/) 👈
 
 </div>
+
+## Tech Stack
+
+- **Next.js 16** - App Router, React Server Components, React Compiler
+- **Bun** - Fast JavaScript runtime and package manager
+- **Commerce Kit SDK** - Headless commerce API integration
+- **Tailwind CSS v4** - Modern utility-first styling
+- **Shadcn UI** - Accessible component library with Radix UI primitives
+- **Biome** - Lightning-fast linter and formatter
+- **TypeScript** - Type-safe development
 
 
 ## Prerequisites
@@ -77,7 +87,7 @@ To set env variables in production, you'll need to consult the documentation of 
 - `ENABLE_EXPERIMENTAL_COREPACK` – Vercel only: Set to `1` to enable Corepack
 - `YNS_API_TENANT` – Your tenant address, for example `https://yourtenant.yns.app`
 - `YNS_API_TOKEN` – API token generated in the admin panel.
-- `NEXT_PUBLIC_ROOT_URL` –The address of your store without the trailing slash, i.e., `https://demo.yournextstore.com`. When building for the first time, you should set it to any valid URL, i.e. `http://localhost:3000`.
+- `NEXT_PUBLIC_ROOT_URL` – The address of your store without the trailing slash, i.e., `https://demo.yournextstore.com`. When building for the first time, you should set it to any valid URL, i.e. `http://localhost:3000`.
 
 ## Run the store
 

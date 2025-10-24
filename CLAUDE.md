@@ -16,7 +16,7 @@ Your Next Store is a Next.js e-commerce application built with:
 
 ### Running the app
 ```bash
-bun dev              # Start dev server on port 3001
+bun dev              # Start dev server on port 3000
 bun run build        # Production build
 bun start            # Start production server
 ```
@@ -124,21 +124,70 @@ const ProductList = async () => {
 
 Required in `.env.local`:
 ```bash
+NEXT_PUBLIC_ROOT_URL="http://localhost:3000"
 YNS_API_TENANT=https://yourdomain.yns.store
 YNS_API_TOKEN=your_api_token_here
-NEXT_PUBLIC_ROOT_URL="http://localhost:3001"
 ```
 
 ### File Organization
 
 ```
+app/
+  layout.tsx                    # Root layout with fonts and global providers
+  page.tsx                      # Home page with product grid
+  cart-button.tsx               # Shopping cart button component
+  globals.css                   # Global Tailwind CSS imports
+  product/[slug]/               # Dynamic product detail pages
+    page.tsx                    # Product detail page
+    actions.ts                  # Server actions (add to cart, etc.)
+    add-to-cart-button.tsx      # Add to cart button with variants
+    product-carousel.tsx        # Product image carousel
+    variant-selector.tsx        # Product variant selection UI
+
 src/
-  app/              # Next.js App Router pages
-    page.tsx        # Home page with product grid
-    layout.tsx      # Root layout with fonts
-  yns-client.ts     # Commerce SDK client singleton
-  money.ts          # Price formatting utilities
-  lib.ts            # Shared utilities (invariant, etc.)
+  yns-client.ts                 # Commerce SDK client singleton
+  money.ts                      # Price formatting utilities
+  lib.ts                        # Shared utilities (invariant, etc.)
+  components/ui/                # Shadcn UI component library
+    button.tsx                  # Button component
+    card.tsx                    # Card component
+    carousel.tsx                # Carousel component
+    dialog.tsx                  # Dialog/modal component
+    [...50+ components]         # Full Shadcn UI component set
+  lib/
+    utils.ts                    # Utility functions (cn for classnames, etc.)
+  hooks/
+    use-mobile.ts               # Mobile detection hook
+```
+
+### UI Component Library (Shadcn)
+
+This project uses **Shadcn UI** components (50+ components in `src/components/ui/`):
+- Components are **copied into the codebase** (not installed as npm package)
+- All components use **Radix UI primitives** for accessibility
+- Styled with **Tailwind CSS v4** and **class-variance-authority** (cva)
+- Configuration in `components.json`
+
+**Key components available**:
+- Forms: `button`, `input`, `checkbox`, `radio-group`, `select`, `textarea`, `form`
+- Layout: `card`, `dialog`, `drawer`, `sheet`, `tabs`, `accordion`, `separator`
+- Navigation: `navigation-menu`, `breadcrumb`, `menubar`, `dropdown-menu`
+- Data display: `table`, `badge`, `avatar`, `carousel`, `chart`
+- Feedback: `alert`, `toast` (sonner), `progress`, `skeleton`, `spinner`
+
+**Usage pattern**:
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+<Card>
+  <CardHeader>
+    <CardTitle>Product Name</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <Button variant="default" size="lg">Add to Cart</Button>
+  </CardContent>
+</Card>
 ```
 
 ## Common Patterns
@@ -174,6 +223,48 @@ import { invariant } from "./lib";
 invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
 ```
 
+### Server Actions
+
+Server actions are used for mutations (like adding to cart). Pattern:
+```tsx
+// app/product/[slug]/actions.ts
+"use server";
+
+import { cookies } from "next/headers";
+import { ynsClient } from "../../../src/yns-client";
+
+export async function addToCart(variantId: string) {
+  const cookieStore = await cookies();
+  const cartId = cookieStore.get("cartId")?.value;
+
+  const cart = await ynsClient.cartCreate({
+    cartId,
+    variantId,
+    quantity: 1,
+  });
+
+  if (!cart) {
+    return { success: false };
+  }
+
+  // Store cart ID in httpOnly cookie
+  cookieStore.set("cartId", cart.id, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  });
+
+  return { success: true, cartId: cart.id };
+}
+```
+
+**Important**:
+- Server actions must be in files with `"use server"` directive at the top
+- Function names should NOT end with "Action" (Biome rule)
+- Always return structured data `{ success: boolean, ... }`
+- Use cookies for cart persistence (httpOnly for security)
+
 ## Important React/Next.js Patterns
 
 ### State Management and Side Effects
@@ -198,7 +289,6 @@ invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
 ## Notes
 
 - Default export is prohibited except in Next.js App Router special files
-- Server runs on port 3001 (not default 3000)
 - Currency/locale are currently hardcoded as USD/en-US (no i18n yet)
 - TypeScript target requires `BigInt(0)` instead of `0n` literals for ES2020 compatibility
 - Cart ID is stored in cookies (`cartId`) with 30-day expiry
