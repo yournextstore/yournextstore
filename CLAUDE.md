@@ -192,7 +192,7 @@ invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
 
 ### Component Libraries
 
-- Use existing UI component libraries when available (e.g., `@/components/ui/carousel`)
+- Use existing UI component libraries when available (e.g., `../../lib/utilscarousel`)
 - Don't install unnecessary external packages - check what's already in the project first
 
 ## Notes
