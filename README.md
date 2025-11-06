@@ -12,7 +12,7 @@ A Next.js boilerplate for building modern, high-performance e-commerce applicati
 	<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyournextstore%2Fyournextstore&env=ENABLE_EXPERIMENTAL_COREPACK,YNS_API_TENANT,YNS_API_TOKEN&envDescription=Read%20more%20about%20required%20env%20variables%20in%20YNS&envLink=https%3A%2F%2Fgithub.com%2Fyournextstore%2Fyournextstore%2Ftree%2Fupcoming%3Ftab%3Dreadme-ov-file%23add-environmental-variables&project-name=yournextstore&repository-name=yournextstore&demo-title=Your%20Next%20Store&demo-description=A%20Next.js%20boilerplate%20for%20building%20your%20online%20store%20instantly%3A%20simple%2C%20quick%2C%20powerful.&demo-url=https%3A%2F%2Fdemo.yournextstore.com%2F&demo-image=https%3A%2F%2Fyournextstore.com%2Fdemo.png"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
 </td>
 <td>
-<a href="https://www.producthunt.com/posts/your-next-store?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-your&#0045;next&#0045;store">
+<a href="https://www.producthunt.com/posts/your-next-store?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-your-next-store">
 	<picture>
 		<source
 			media="(prefers-color-scheme: dark)"
@@ -21,7 +21,7 @@ A Next.js boilerplate for building modern, high-performance e-commerce applicati
 		<img
 			src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009314&theme=light"
 			height="36"
-			alt="Your&#0032;Next&#0032;Store - E&#0045;Commerce&#0032;with&#0032;Stripe&#0032;as&#0032;the&#0032;backend | Product Hunt"
+			alt="Your Next Store ⋅ Online commerce should be fast and modern | Product Hunt"
 		/>
 	</picture>
 </a>
@@ -35,14 +35,13 @@ A Next.js boilerplate for building modern, high-performance e-commerce applicati
 
 ## Tech Stack
 
-- **Next.js 16** - App Router, React Server Components, React Compiler
-- **Bun** - Fast JavaScript runtime and package manager
-- **Commerce Kit SDK** - Headless commerce API integration
-- **Tailwind CSS v4** - Modern utility-first styling
-- **Shadcn UI** - Accessible component library with Radix UI primitives
-- **Biome** - Lightning-fast linter and formatter
-- **TypeScript** - Type-safe development
-
+- **Next.js 16** – App Router, React Server Components, React Compiler
+- **Bun** – Fast JavaScript runtime and package manager
+- **Commerce Kit SDK** – Headless commerce API integration
+- **Tailwind CSS v4** – Modern utility-first styling
+- **Shadcn UI** – Accessible component library with Radix UI primitives
+- **Biome** – Lightning-fast linter and formatter
+- **TypeScript** – Type-safe development
 
 ## Prerequisites
 
