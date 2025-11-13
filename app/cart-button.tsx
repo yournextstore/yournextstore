@@ -3,11 +3,19 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { ynsClient } from "../src/yns-client";
 
+const getCart = async (cartId: null | undefined | string) => {
+	try {
+		return cartId ? await ynsClient.cartGet({ cartId }) : null;
+	} catch {
+		return null;
+	}
+};
+
 export async function CartButton() {
 	const cookieStore = await cookies();
 	const cartId = cookieStore.get("cartId")?.value;
 
-	const cart = cartId ? await ynsClient.cartGet({ cartId }) : null;
+	const cart = await getCart(cartId);
 	const itemCount = cart?.lineItems.reduce((sum, lineItem) => sum + lineItem.quantity, 0) ?? 0;
 
 	const cartUrl = cartId ? `${process.env.YNS_API_TENANT}/cart/r/${cartId}` : "#";
