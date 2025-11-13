@@ -7,7 +7,7 @@ export async function addToCart(variantId: string) {
 	const cookieStore = await cookies();
 	const cartId = cookieStore.get("cartId")?.value;
 
-	const cart = await ynsClient.cartCreate({
+	const cart = await ynsClient.cartUpsert({
 		cartId,
 		variantId,
 		quantity: 1,
