@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { formatMoney } from "../../../src/money";
 import { ynsClient } from "../../../src/yns-client";
 import { AddToCartButton } from "./add-to-cart-button";
-import { ProductCarousel } from "./product-carousel";
+import { ImageGallery } from "./image-gallery";
+import { ProductFeatures } from "./product-features";
 
 const currency = "USD";
 const locale = "en-US";
@@ -40,32 +41,31 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-				{/* Left: Image Carousel */}
-				<div>
-					<ProductCarousel images={allImages} productName={product.name} />
-				</div>
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+				{/* Left: Image Gallery (sticky on desktop) */}
+				<ImageGallery images={allImages} productName={product.name} />
 
 				{/* Right: Product Details */}
-				<div className="space-y-6">
-					<div>
-						<h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-						<p className="text-2xl font-semibold text-gray-900">{priceDisplay}</p>
+				<div className="mt-8 lg:mt-0 space-y-8">
+					{/* Title, Price, Description */}
+					<div className="space-y-4">
+						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+							{product.name}
+						</h1>
+						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
+						{product.summary && (
+							<p className="text-muted-foreground leading-relaxed">{product.summary}</p>
+						)}
 					</div>
 
-					{product.summary && (
-						<div>
-							<h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">
-								Description
-							</h2>
-							<p className="text-gray-700 leading-relaxed">{product.summary}</p>
-						</div>
-					)}
-
+					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
 					<AddToCartButton variants={product.variants} />
 				</div>
 			</div>
+
+			{/* Features Section (full width below) */}
+			<ProductFeatures />
 		</div>
 	);
 };

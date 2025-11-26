@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+import { cn } from "../../../src/lib/utils";
 
 type VariantValue = {
 	id: string;
@@ -112,48 +113,82 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 	}
 
 	return (
-		<div className="space-y-6">
-			{variantGroups.map((group) => (
-				<div key={group.label}>
-					<h3 className="text-sm font-semibold text-gray-900 mb-3">{group.label}</h3>
-					{group.type === "color" ? (
-						<div className="flex gap-2">
-							{group.options.map((option) => (
-								<button
-									key={option.id}
-									type="button"
-									onClick={() => handleOptionSelect(group.label, option.id)}
-									className={`w-10 h-10 rounded-full border-2 transition-all ${
-										selectedOptions[group.label] === option.id
-											? "border-black ring-2 ring-black ring-offset-2"
-											: "border-gray-300 hover:border-gray-400"
-									}`}
-									style={{ backgroundColor: option.colorValue ?? "#fff" }}
-									aria-label={option.value}
-									title={option.value}
-								/>
-							))}
-						</div>
-					) : (
-						<div className="flex flex-wrap gap-2">
-							{group.options.map((option) => (
-								<button
-									key={option.id}
-									type="button"
-									onClick={() => handleOptionSelect(group.label, option.id)}
-									className={`px-6 py-3 rounded-lg border text-sm font-medium transition-all ${
-										selectedOptions[group.label] === option.id
-											? "border-black bg-black text-white"
-											: "border-gray-300 bg-white text-gray-900 hover:border-gray-400"
-									}`}
-								>
-									{option.value}
-								</button>
-							))}
-						</div>
-					)}
-				</div>
-			))}
+		<div className="space-y-8">
+			{variantGroups.map((group) => {
+				const selectedOption = group.options.find((opt) => selectedOptions[group.label] === opt.id);
+
+				return (
+					<div key={group.label}>
+						{group.type === "color" ? (
+							<>
+								<div className="mb-3 flex items-center justify-between">
+									<span className="text-sm font-medium">{group.label}</span>
+									{selectedOption && (
+										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
+									)}
+								</div>
+								<div className="flex gap-3">
+									{group.options.map((option) => {
+										const isSelected = selectedOptions[group.label] === option.id;
+										const isLightColor =
+											option.colorValue?.toUpperCase() === "#FFFFFF" ||
+											option.colorValue?.toUpperCase() === "#FFFFF0" ||
+											option.colorValue?.toUpperCase() === "#FFF";
+
+										return (
+											<button
+												key={option.id}
+												type="button"
+												onClick={() => handleOptionSelect(group.label, option.id)}
+												className={cn(
+													"relative h-12 w-12 rounded-full transition-all duration-200",
+													isSelected
+														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
+												)}
+												style={{ backgroundColor: option.colorValue ?? "#fff" }}
+												aria-label={option.value}
+												title={option.value}
+											>
+												{isLightColor && (
+													<span className="absolute inset-0 rounded-full border border-border" />
+												)}
+											</button>
+										);
+									})}
+								</div>
+							</>
+						) : (
+							<>
+								<div className="mb-3 flex items-center justify-between">
+									<span className="text-sm font-medium">{group.label}</span>
+								</div>
+								<div className="flex flex-wrap gap-3">
+									{group.options.map((option) => {
+										const isSelected = selectedOptions[group.label] === option.id;
+
+										return (
+											<button
+												key={option.id}
+												type="button"
+												onClick={() => handleOptionSelect(group.label, option.id)}
+												className={cn(
+													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													isSelected
+														? "border-foreground bg-foreground text-primary-foreground"
+														: "border-border bg-background hover:border-muted-foreground",
+												)}
+											>
+												<span className="text-sm font-medium">{option.value}</span>
+											</button>
+										);
+									})}
+								</div>
+							</>
+						)}
+					</div>
+				);
+			})}
 		</div>
 	);
 }
