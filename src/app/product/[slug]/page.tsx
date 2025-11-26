@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { formatMoney } from "../../../src/money";
-import { ynsClient } from "../../../src/yns-client";
+import { formatMoney } from "../../../money";
+import { ynsClient } from "../../../yns-client";
 import { AddToCartButton } from "./add-to-cart-button";
 import { ImageGallery } from "./image-gallery";
 import { ProductFeatures } from "./product-features";
@@ -54,13 +54,19 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							{product.name}
 						</h1>
 						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && (
-							<p className="text-muted-foreground leading-relaxed">{product.summary}</p>
-						)}
+						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
 					</div>
 
 					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
-					<AddToCartButton variants={product.variants} />
+					<AddToCartButton
+						variants={product.variants}
+						product={{
+							id: product.id,
+							name: product.name,
+							slug: product.slug,
+							images: product.images,
+						}}
+					/>
 				</div>
 			</div>
 

@@ -1,15 +1,16 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { useTransition } from "react";
-import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
-import { type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
-import { YnsLink } from "@/components/yns-link";
-import { CURRENCY, LOCALE } from "@/lib/constants";
-import { formatMoney } from "@/lib/money";
-import { cn, getProductThumbnail } from "@/lib/utils";
-import { YNSMedia } from "@/lib/yns-media";
+import { formatMoney } from "../../money";
+import { removeFromCart, setCartQuantity } from "./actions";
+import { type CartLineItem, useCart } from "./cart-context";
+import { useRouter } from "next/navigation";
+
+const currency = "USD";
+const locale = "en-US";
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -18,13 +19,13 @@ type CartItemProps = {
 export function CartItem({ item }: CartItemProps) {
 	const router = useRouter();
 	const { dispatch, closeCart } = useCart();
-	const [isPending, startTransition] = useTransition();
+	const [, startTransition] = useTransition();
 
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
 
-	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
-	const price = getLineItemUnitPrice(item);
+	const image = productVariant.images[0] ?? product.images[0];
+	const price = BigInt(productVariant.price);
 	const lineTotal = price * BigInt(quantity);
 
 	const handleRemove = () => {
@@ -58,32 +59,28 @@ export function CartItem({ item }: CartItemProps) {
 	return (
 		<div className="flex gap-3 py-4">
 			{/* Product Image */}
-			<YnsLink
-				prefetch={"eager"}
+			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
-			</YnsLink>
+				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+			</Link>
 
 			{/* Product Details */}
 			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
 				<div className="flex items-start justify-between gap-2">
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
 						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
 					>
 						{product.name}
-					</YnsLink>
+					</Link>
 					<button
 						type="button"
 						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
 					>
 						<Trash2 className="h-4 w-4" />
 					</button>
@@ -91,18 +88,11 @@ export function CartItem({ item }: CartItemProps) {
 
 				<div className="flex items-center justify-between">
 					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-50",
-						)}
-					>
+					<div className="inline-flex items-center rounded-full border border-border">
 						<button
 							type="button"
 							onClick={handleDecrement}
-							disabled={isPending}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors disabled:pointer-events-none"
-							aria-label="Decrease quantity"
+							className="flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
@@ -110,9 +100,7 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							disabled={isPending}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors disabled:pointer-events-none"
-							aria-label="Increase quantity"
+							className="flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
 						>
 							<Plus className="h-3 w-3" />
 						</button>
@@ -120,7 +108,7 @@ export function CartItem({ item }: CartItemProps) {
 
 					{/* Price */}
 					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency: CURRENCY, locale: LOCALE })}
+						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>
 			</div>
