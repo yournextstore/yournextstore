@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ynsClient } from "../yns-client";
+import { CartProvider } from "./cart/cart-context";
+import { CartSidebar } from "./cart/cart-sidebar";
 import { CartButton } from "./cart-button";
+import { Footer } from "./footer";
 import "./globals.css";
 import { ShoppingCartIcon } from "lucide-react";
 
@@ -29,14 +34,28 @@ function CartButtonFallback() {
 	);
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+async function getInitialCart() {
+	const cookieStore = await cookies();
+	const cartId = cookieStore.get("cartId")?.value;
+
+	if (!cartId) {
+		return { cart: null, cartId: null };
+	}
+
+	try {
+		const cart = await ynsClient.cartGet({ cartId });
+		return { cart: cart ?? null, cartId };
+	} catch {
+		return { cart: null, cartId };
+	}
+}
+
+async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
+	const { cart, cartId } = await getInitialCart();
+
 	return (
-		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<CartProvider initialCart={cart} initialCartId={cartId}>
+			<div className="flex min-h-screen flex-col">
 				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 						<div className="flex items-center justify-between h-16">
@@ -49,7 +68,27 @@ export default async function RootLayout({
 						</div>
 					</div>
 				</header>
-				<Suspense>{children}</Suspense>
+				<div className="flex-1">
+					<Suspense>{children}</Suspense>
+				</div>
+				<Footer />
+			</div>
+			<CartSidebar />
+		</CartProvider>
+	);
+}
+
+export default function RootLayout({
+	children,
+}: Readonly<{
+	children: React.ReactNode;
+}>) {
+	return (
+		<html lang="en">
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				<Suspense>
+					<CartProviderWrapper>{children}</CartProviderWrapper>
+				</Suspense>
 			</body>
 		</html>
 	);

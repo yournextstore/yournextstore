@@ -1,9 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useActionState, useMemo, useState } from "react";
-import { formatMoney } from "../../../src/money";
-import { addToCart } from "./actions";
+import { useMemo, useState, useTransition } from "react";
+import { formatMoney } from "../../../money";
+import { addToCart } from "../../cart/actions";
+import { useCart } from "../../cart/cart-context";
 import { QuantitySelector } from "./quantity-selector";
 import { TrustBadges } from "./trust-badges";
 import { VariantSelector } from "./variant-selector";
@@ -11,6 +12,7 @@ import { VariantSelector } from "./variant-selector";
 type Variant = {
 	id: string;
 	price: string;
+	images: string[];
 	combinations: {
 		variantValue: {
 			id: string;
@@ -25,12 +27,24 @@ type Variant = {
 	}[];
 };
 
+type AddToCartButtonProps = {
+	variants: Variant[];
+	product: {
+		id: string;
+		name: string;
+		slug: string;
+		images: string[];
+	};
+};
+
 const currency = "USD";
 const locale = "en-US";
 
-export function AddToCartButton({ variants }: { variants: Variant[] }) {
+export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
+	const [isPending, startTransition] = useTransition();
+	const { openCart, dispatch } = useCart();
 
 	const selectedVariant = useMemo(() => {
 		if (variants.length === 1) {
@@ -54,13 +68,6 @@ export function AddToCartButton({ variants }: { variants: Variant[] }) {
 		);
 	}, [variants, searchParams]);
 
-	const [, formAction, isPending] = useActionState(async () => {
-		if (selectedVariant) {
-			await addToCart(selectedVariant.id, quantity);
-		}
-		return null;
-	}, null);
-
 	const totalPrice = selectedVariant ? BigInt(selectedVariant.price) * BigInt(quantity) : null;
 
 	const buttonText = useMemo(() => {
@@ -72,13 +79,43 @@ export function AddToCartButton({ variants }: { variants: Variant[] }) {
 		return "Add to Cart";
 	}, [isPending, selectedVariant, totalPrice]);
 
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!selectedVariant) return;
+
+		// Open cart sidebar
+		openCart();
+
+		// Execute server action with optimistic update
+		startTransition(async () => {
+			// Dispatch inside transition for optimistic update
+			dispatch({
+				type: "ADD_ITEM",
+				item: {
+					quantity,
+					productVariant: {
+						id: selectedVariant.id,
+						price: selectedVariant.price,
+						images: selectedVariant.images,
+						product,
+					},
+				},
+			});
+
+			await addToCart(selectedVariant.id, quantity);
+			// Reset quantity after add
+			setQuantity(1);
+		});
+	};
+
 	return (
 		<div className="space-y-8">
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
 			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
 
-			<form action={formAction}>
+			<form onSubmit={handleSubmit}>
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
