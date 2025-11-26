@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
+<<<<<<< HEAD:app/product/[slug]/page.tsx
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
@@ -10,6 +11,14 @@ import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { formatMoney } from "@/lib/money";
+=======
+import { Suspense } from "react";
+import { formatMoney } from "../../../money";
+import { ynsClient } from "../../../yns-client";
+import { AddToCartButton } from "./add-to-cart-button";
+import { ImageGallery } from "./image-gallery";
+import { ProductFeatures } from "./product-features";
+>>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/page.tsx
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	const { slug } = await params;
@@ -100,7 +109,10 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							slug: product.slug,
 							images: product.images,
 						}}
+<<<<<<< HEAD:app/product/[slug]/page.tsx
 						volumePricingTiers={product.volumePricingTiers}
+=======
+>>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/page.tsx
 					/>
 				</div>
 			</div>

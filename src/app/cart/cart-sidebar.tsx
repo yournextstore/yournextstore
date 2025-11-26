@@ -1,6 +1,7 @@
 "use client";
 
 import { ShoppingBag } from "lucide-react";
+<<<<<<< HEAD:app/cart/cart-sidebar.tsx
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,23 @@ export function CartSidebar() {
 	const { isOpen, closeCart, items, itemCount, subtotal } = useCart();
 
 	const checkoutUrl = `/checkout`;
+=======
+import Link from "next/link";
+import { Button } from "../../components/ui/button";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "../../components/ui/sheet";
+import { formatMoney } from "../../money";
+import { useCart } from "./cart-context";
+import { CartItem } from "./cart-item";
+
+const currency = "USD";
+const locale = "en-US";
+
+export function CartSidebar() {
+	const { isOpen, closeCart, items, itemCount, subtotal, cartId } = useCart();
+
+	const checkoutUrl = cartId ? `${process.env.NEXT_PUBLIC_YNS_API_TENANT}/cart/r/${cartId}` : "#";
+>>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-sidebar.tsx
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -53,6 +71,7 @@ export function CartSidebar() {
 							<div className="w-full space-y-4">
 								<div className="flex items-center justify-between text-base">
 									<span className="font-medium">Subtotal</span>
+<<<<<<< HEAD:app/cart/cart-sidebar.tsx
 									<span className="font-semibold">
 										{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}
 									</span>
@@ -60,6 +79,15 @@ export function CartSidebar() {
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
 								<Button asChild className="w-full h-12 text-base font-medium">
 									<a href={checkoutUrl}>Checkout</a>
+=======
+									<span className="font-semibold">{formatMoney({ amount: subtotal, currency, locale })}</span>
+								</div>
+								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
+								<Button asChild className="w-full h-12 text-base font-medium">
+									<Link href={checkoutUrl} onClick={closeCart}>
+										Checkout
+									</Link>
+>>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-sidebar.tsx
 								</Button>
 								<button
 									type="button"

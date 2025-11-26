@@ -1,8 +1,14 @@
 "use client";
 
+<<<<<<< HEAD:app/product/[slug]/variant-selector.tsx
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
+=======
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
+import { cn } from "../../../lib/utils";
+>>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/variant-selector.tsx
 
 type VariantValue = {
 	id: string;
