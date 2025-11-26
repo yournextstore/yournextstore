@@ -3,14 +3,14 @@
 import { cookies } from "next/headers";
 import { ynsClient } from "../../../src/yns-client";
 
-export async function addToCart(variantId: string) {
+export async function addToCart(variantId: string, quantity = 1) {
 	const cookieStore = await cookies();
 	const cartId = cookieStore.get("cartId")?.value;
 
 	const cart = await ynsClient.cartUpsert({
 		cartId,
 		variantId,
-		quantity: 1,
+		quantity,
 	});
 
 	if (!cart) {
