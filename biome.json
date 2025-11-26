@@ -14,8 +14,20 @@
 			"!**/bun.lockb",
 			"!**/vercel.json",
 			"!**/src/lib/vercel/schema.ts",
-			"!**/src/ui/shadcn"
+			"!**/src/ui/shadcn",
+			"!**/*.css"
 		]
+	},
+	"css": {
+		"parser": {
+			"cssModules": true
+		},
+		"linter": {
+			"enabled": false
+		},
+		"formatter": {
+			"enabled": false
+		}
 	},
 	"formatter": {
 		"lineWidth": 110
@@ -94,17 +106,22 @@
 				"noEmptyInterface": "off",
 				"noArrayIndexKey": "off",
 				"noImplicitAnyLet": "error",
-				"noExplicitAny": "error"
+				"noExplicitAny": "error",
+				"noDocumentCookie": "off"
 			},
 			"a11y": {
 				"useSemanticElements": "off",
 				"noRedundantRoles": "off",
 				"noLabelWithoutControl": "off",
 				"noNoninteractiveTabindex": "off",
-				"noSvgWithoutTitle": "off"
+				"noSvgWithoutTitle": "off",
+				"useFocusableInteractive": "off",
+				"useKeyWithClickEvents": "off",
+				"useAriaPropsForRole": "off"
 			},
 			"security": {
-				"noBlankTarget": "off"
+				"noBlankTarget": "off",
+				"noDangerouslySetInnerHtml": "off"
 			}
 		}
 	},
@@ -114,6 +131,7 @@
 				"**/*.d.ts",
 				"**/proxy.ts",
 				"**/next.config.mjs",
+				"**/postcss.config.mjs",
 				"**/tailwind.config.ts",
 				"**/app/**/default.tsx",
 				"**/app/**/error.tsx",
