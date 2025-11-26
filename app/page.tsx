@@ -11,11 +11,11 @@ export default async function Home() {
 	"use cache";
 	cacheLife("seconds");
 
-	const products = await ynsClient.productBrowse({ active: true, limit: 4 });
+	const products = await ynsClient.productBrowse({ active: true, limit: 6 });
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 				{products.data.map((product) => {
 					const prices = product.variants.map((v) => BigInt(v.price));
 					const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : 0n;
@@ -26,21 +26,34 @@ export default async function Home() {
 							? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
 							: formatMoney({ amount: minPrice, currency, locale });
 
-					const image = product.images[0] ?? product.variants[0]?.images[0];
+					const allImages = [
+						...product.images,
+						...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
+					];
+					const primaryImage = allImages[0];
+					const secondaryImage = allImages[1];
 
 					return (
 						<Link key={product.id} href={`/product/${product.slug}`} className="group">
 							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-								{image && (
+								{primaryImage && (
 									<Image
-										src={image}
+										src={primaryImage}
 										alt={product.name}
 										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-										className="object-cover transition-transform duration-500 group-hover:scale-105"
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+										className="object-cover transition-opacity duration-500 group-hover:opacity-0"
 									/>
 								)}
-								<div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+								{secondaryImage && (
+									<Image
+										src={secondaryImage}
+										alt={`${product.name} - alternate view`}
+										fill
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+										className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+									/>
+								)}
 							</div>
 							<div className="space-y-1">
 								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
