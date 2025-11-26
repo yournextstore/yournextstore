@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../src/components/ui/button";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -28,7 +28,6 @@ export function QuantitySelector({
 					className="h-10 w-10 rounded-r-none"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
 				>
 					<Minus className="h-4 w-4" />
 				</Button>
@@ -39,7 +38,6 @@ export function QuantitySelector({
 					className="h-10 w-10 rounded-l-none"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
 				>
 					<Plus className="h-4 w-4" />
 				</Button>

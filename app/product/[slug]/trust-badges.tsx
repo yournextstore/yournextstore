@@ -1,8 +1,7 @@
-import type { LucideIcon } from "lucide-react";
 import { RotateCcw, Shield, Truck } from "lucide-react";
 
 type TrustBadge = {
-	icon: LucideIcon;
+	icon: React.ComponentType<{ className?: string }>;
 	title: string;
 	description: string;
 };

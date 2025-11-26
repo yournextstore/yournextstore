@@ -15,7 +15,7 @@ export default async function Home() {
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 				{products.data.map((product) => {
 					const prices = product.variants.map((v) => BigInt(v.price));
 					const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : 0n;
@@ -30,21 +30,21 @@ export default async function Home() {
 
 					return (
 						<Link key={product.id} href={`/product/${product.slug}`} className="group">
-							<div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
+							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 								{image && (
 									<Image
 										src={image}
 										alt={product.name}
-										width={400}
-										height={400}
-										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+										fill
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+										className="object-cover transition-transform duration-500 group-hover:scale-105"
 									/>
 								)}
+								<div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
 							</div>
 							<div className="space-y-1">
-								<h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
-								{product.summary && <p className="text-sm text-gray-500">{product.summary}</p>}
-								<p className="text-sm font-semibold text-gray-900">{priceDisplay}</p>
+								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
+								<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
 							</div>
 						</Link>
 					);
