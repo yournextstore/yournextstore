@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../src/components/ui/button";
 
 type QuantitySelectorProps = {
 	quantity: number;

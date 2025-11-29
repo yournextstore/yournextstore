@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { formatMoney } from "../../../money";
-import { ynsClient } from "../../../yns-client";
+import { formatMoney } from "../../../src/money";
+import { ynsClient } from "../../../src/yns-client";
 import { AddToCartButton } from "./add-to-cart-button";
 import { ImageGallery } from "./image-gallery";
 import { ProductFeatures } from "./product-features";
