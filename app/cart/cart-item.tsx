@@ -3,11 +3,11 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { formatMoney } from "../../money";
+import { formatMoney } from "../../src/money";
 import { removeFromCart, setCartQuantity } from "./actions";
 import { type CartLineItem, useCart } from "./cart-context";
-import { useRouter } from "next/navigation";
 
 const currency = "USD";
 const locale = "en-US";

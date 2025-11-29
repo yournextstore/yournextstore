@@ -2,10 +2,10 @@
 
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../../components/ui/button";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "../../components/ui/sheet";
-import { formatMoney } from "../../money";
+import { Button } from "../../src/components/ui/button";
+import { ScrollArea } from "../../src/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "../../src/components/ui/sheet";
+import { formatMoney } from "../../src/money";
 import { useCart } from "./cart-context";
 import { CartItem } from "./cart-item";
 
