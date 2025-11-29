@@ -20,7 +20,7 @@ import { StoreJsonLd } from "@/lib/json-ld";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ynsClient } from "../yns-client";
+import { ynsClient } from "../src/yns-client";
 import { CartProvider } from "./cart/cart-context";
 import { CartSidebar } from "./cart/cart-sidebar";
 import { CartButton } from "./cart-button";

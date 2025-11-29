@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+<<<<<<< HEAD:src/app/product/[slug]/add-to-cart-button.tsx
 <<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -13,6 +14,9 @@ import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 =======
 import { formatMoney } from "../../../money";
+=======
+import { formatMoney } from "../../../src/money";
+>>>>>>> 1f54d19 (refactor: app/ in root for v0):app/product/[slug]/add-to-cart-button.tsx
 import { addToCart } from "../../cart/actions";
 import { useCart } from "../../cart/cart-context";
 import { QuantitySelector } from "./quantity-selector";

@@ -7,8 +7,12 @@ import { cn } from "@/lib/utils";
 =======
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+<<<<<<< HEAD:src/app/product/[slug]/variant-selector.tsx
 import { cn } from "../../../lib/utils";
 >>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/variant-selector.tsx
+=======
+import { cn } from "../../../src/lib/utils";
+>>>>>>> 1f54d19 (refactor: app/ in root for v0):app/product/[slug]/variant-selector.tsx
 
 type VariantValue = {
 	id: string;
