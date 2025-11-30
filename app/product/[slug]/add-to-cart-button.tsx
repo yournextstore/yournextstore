@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { formatMoney } from "../../../src/money";
+import { formatMoney } from "../../../lib/money";
 import { addToCart } from "../../cart/actions";
 import { useCart } from "../../cart/cart-context";
 import { QuantitySelector } from "./quantity-selector";

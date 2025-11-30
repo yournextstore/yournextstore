@@ -1,5 +1,5 @@
 import { YnsProvider } from "commerce-kit";
-import { invariant } from "./lib";
+import { invariant } from "./invariant";
 
 invariant(process.env.YNS_API_TENANT, "Missing env.YNS_API_TENANT");
 invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");

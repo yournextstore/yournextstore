@@ -50,7 +50,7 @@ bun run format       # Format code with Biome (biome format --write)
 
 ### Commerce Integration
 
-**YNS Client** (`src/yns-client.ts`):
+**YNS Client** (`lib/yns-client.ts`):
 - Singleton instance of `YnsProvider` from `commerce-kit`
 - Configured with environment variables `YNS_API_TENANT` and `YNS_API_TOKEN`
 - Main methods:
@@ -64,7 +64,7 @@ bun run format       # Format code with Biome (biome format --write)
 - Product `images[]` are at product level; variant images at `variant.images[]`
 - Prices are stored as strings representing minor currency units (e.g., "1999" = $19.99)
 
-**Money Formatting** (`src/money.ts`):
+**Money Formatting** (`lib/money.ts`):
 - `formatMoney({ amount, currency, locale })` - Formats prices with proper currency symbols
 - Handles edge-case currencies (zero-decimal like JPY, 3-decimal like KWD)
 - Amount is expected as string/bigint/number in minor units
@@ -141,28 +141,30 @@ app/
     page.tsx                    # Product detail page
     actions.ts                  # Server actions (add to cart, etc.)
     add-to-cart-button.tsx      # Add to cart button with variants
-    product-carousel.tsx        # Product image carousel
+    image-gallery.tsx           # Product image gallery
     variant-selector.tsx        # Product variant selection UI
 
-src/
-  yns-client.ts                 # Commerce SDK client singleton
-  money.ts                      # Price formatting utilities
-  lib.ts                        # Shared utilities (invariant, etc.)
-  components/ui/                # Shadcn UI component library
+components/
+  ui/                           # Shadcn UI component library
     button.tsx                  # Button component
     card.tsx                    # Card component
     carousel.tsx                # Carousel component
     dialog.tsx                  # Dialog/modal component
     [...50+ components]         # Full Shadcn UI component set
-  lib/
-    utils.ts                    # Utility functions (cn for classnames, etc.)
-  hooks/
-    use-mobile.ts               # Mobile detection hook
+
+lib/
+  yns-client.ts                 # Commerce SDK client singleton
+  money.ts                      # Price formatting utilities
+  invariant.ts                  # Runtime assertion helper
+  utils.ts                      # Utility functions (cn for classnames, etc.)
+
+hooks/
+  use-mobile.ts                 # Mobile detection hook
 ```
 
 ### UI Component Library (Shadcn)
 
-This project uses **Shadcn UI** components (50+ components in `src/components/ui/`):
+This project uses **Shadcn UI** components (50+ components in `components/ui/`):
 - Components are **copied into the codebase** (not installed as npm package)
 - All components use **Radix UI primitives** for accessibility
 - Styled with **Tailwind CSS v4** and **class-variance-authority** (cva)
@@ -175,10 +177,10 @@ This project uses **Shadcn UI** components (50+ components in `src/components/ui
 - Data display: `table`, `badge`, `avatar`, `carousel`, `chart`
 - Feedback: `alert`, `toast` (sonner), `progress`, `skeleton`, `spinner`
 
-**Usage pattern**:
+**Usage pattern** (relative imports from `app/` files):
 ```tsx
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 
 <Card>
   <CardHeader>
@@ -218,7 +220,7 @@ products.data.map((product) => {
 
 Use `invariant()` helper for runtime assertions:
 ```tsx
-import { invariant } from "./lib";
+import { invariant } from "../lib/invariant";
 
 invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
 ```
@@ -231,7 +233,7 @@ Server actions are used for mutations (like adding to cart). Pattern:
 "use server";
 
 import { cookies } from "next/headers";
-import { ynsClient } from "../../../src/yns-client";
+import { ynsClient } from "../../../lib/yns-client";
 
 export async function addToCart(variantId: string) {
   const cookieStore = await cookies();
@@ -283,7 +285,7 @@ export async function addToCart(variantId: string) {
 
 ### Component Libraries
 
-- Use existing UI component libraries when available (e.g., `../../lib/utilscarousel`)
+- Use existing UI component libraries when available (e.g., `components/ui/carousel`)
 - Don't install unnecessary external packages - check what's already in the project first
 
 ## Notes
