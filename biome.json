@@ -13,8 +13,7 @@
 			"!**/package.json",
 			"!**/bun.lockb",
 			"!**/vercel.json",
-			"!**/src/lib/vercel/schema.ts",
-			"!**/src/ui/shadcn",
+			"!**/components/ui",
 			"!**/*.css"
 		]
 	},
