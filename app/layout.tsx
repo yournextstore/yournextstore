@@ -20,12 +20,12 @@ import { StoreJsonLd } from "@/lib/json-ld";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ynsClient } from "../lib/yns-client";
-import { CartProvider } from "./cart/cart-context";
-import { CartSidebar } from "./cart/cart-sidebar";
-import { CartButton } from "./cart-button";
-import { Footer } from "./footer";
-import "./globals.css";
+import { CartProvider } from "@/app/cart/cart-context";
+import { CartSidebar } from "@/app/cart/cart-sidebar";
+import { CartButton } from "@/app/cart-button";
+import { Footer } from "@/app/footer";
+import { ynsClient } from "@/lib/yns-client";
+import "@/app/globals.css";
 import { ShoppingCartIcon } from "lucide-react";
 >>>>>>> 74ad60e (feat: optimistic update):src/app/layout.tsx
 
