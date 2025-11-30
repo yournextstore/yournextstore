@@ -2,8 +2,8 @@ import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { formatMoney } from "../src/money";
-import { ynsClient } from "../src/yns-client";
+import { formatMoney } from "../lib/money";
+import { ynsClient } from "../lib/yns-client";
 
 const currency = "USD";
 const locale = "en-US";

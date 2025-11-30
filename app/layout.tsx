@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ynsClient } from "../src/yns-client";
+import { ynsClient } from "../lib/yns-client";
 import { CartProvider } from "./cart/cart-context";
 import { CartSidebar } from "./cart/cart-sidebar";
 import { CartButton } from "./cart-button";

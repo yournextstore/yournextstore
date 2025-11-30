@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { formatMoney } from "../../src/money";
+import { formatMoney } from "../../lib/money";
 import { removeFromCart, setCartQuantity } from "./actions";
 import { type CartLineItem, useCart } from "./cart-context";
 
