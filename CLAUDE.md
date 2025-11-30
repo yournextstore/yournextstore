@@ -139,9 +139,11 @@ The Commerce SDK auto-detects the endpoint based on the key prefix:
 ```
 app/
   layout.tsx                    # Root layout with fonts and global providers
-  page.tsx                      # Home page with product grid
+  page.tsx                      # Home page with hero + product grid
   cart-button.tsx               # Shopping cart button component
   globals.css                   # Global Tailwind CSS imports
+  collection/[slug]/            # Collection pages
+    page.tsx                    # Collection detail with products
   product/[slug]/               # Dynamic product detail pages
     page.tsx                    # Product detail page
     actions.ts                  # Server actions (add to cart, etc.)
@@ -150,7 +152,10 @@ app/
     variant-selector.tsx        # Product variant selection UI
 
 components/
-  ui/                           # Shadcn UI component library
+  sections/                     # Page sections (higher-level compositions)
+    hero.tsx                    # Homepage hero section
+    product-grid.tsx            # Reusable product grid with data fetching
+  ui/                           # Shadcn UI primitives (don't modify directly)
     button.tsx                  # Button component
     card.tsx                    # Card component
     carousel.tsx                # Carousel component

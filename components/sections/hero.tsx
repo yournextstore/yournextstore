@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export function HeroSection() {
+export function Hero() {
 	return (
 		<section className="relative overflow-hidden bg-secondary/30">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
