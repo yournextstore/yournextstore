@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { cn } from "../../../src/lib/utils";
 
@@ -81,6 +81,7 @@ function processVariants(variants: Variant[]) {
 export function VariantSelector({ variants, selectedVariantId }: VariantSelectorProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
 	const selectedOptions = useMemo(() => {
@@ -105,7 +106,7 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 			}
 			return acc;
 		}, new URLSearchParams());
-		router.push(`?${params.toString()}`, { scroll: false });
+		router.push(`${pathname}?${params.toString()}`, { scroll: false });
 	};
 
 	if (variantGroups.length === 0) {
