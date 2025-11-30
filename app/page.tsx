@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { HeroSection } from "@/components/hero-section";
-import { ProductGrid } from "@/components/product-grid";
+import { Hero } from "@/components/sections/hero";
+import { ProductGrid } from "@/components/sections/product-grid";
 
 function ProductGridSkeleton() {
 	return (
@@ -29,7 +29,7 @@ function ProductGridSkeleton() {
 export default function Home() {
 	return (
 		<main>
-			<HeroSection />
+			<Hero />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<ProductGrid title="Featured Products" limit={6} />
 			</Suspense>
