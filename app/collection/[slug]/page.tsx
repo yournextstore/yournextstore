@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Product, ProductGrid } from "@/components/product-grid";
-import { type Collection, ynsClient } from "@/lib/yns-client";
+import { type Collection, commerce } from "@/lib/yns-client";
 
 type CollectionWithProducts = Collection & {
 	productCollections: Array<{
@@ -19,7 +19,7 @@ async function getCollection(slug: string) {
 	cacheLife("seconds");
 
 	try {
-		const collection = await ynsClient.request<CollectionWithProducts>(`/collections/${slug}`);
+		const collection = await commerce.request<CollectionWithProducts>(`/collections/${slug}`);
 		return collection;
 	} catch {
 		return null;

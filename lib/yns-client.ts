@@ -1,14 +1,8 @@
-import { type JSONContent, YnsProvider } from "commerce-kit";
-import { invariant } from "./invariant";
+import { Commerce, type JSONContent } from "commerce-kit";
 
-invariant(process.env.YNS_API_TENANT, "Missing env.YNS_API_TENANT");
-invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
-
-export const ynsClient = new YnsProvider({
-	endpoint: process.env.YNS_API_TENANT,
-	token: process.env.YNS_API_TOKEN,
-	version: "v1",
-});
+// Commerce() auto-reads YNS_API_KEY from environment
+// and auto-detects endpoint based on key prefix (sk-live-* or sk-test-*)
+export const commerce = Commerce();
 
 // Collection types for use with the request() escape hatch
 export type Collection = {

@@ -4,7 +4,7 @@ import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { ImageGallery } from "@/app/product/[slug]/image-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { formatMoney } from "@/lib/money";
-import { ynsClient } from "@/lib/yns-client";
+import { commerce } from "@/lib/yns-client";
 
 const currency = "USD";
 const locale = "en-US";
@@ -20,7 +20,7 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	"use cache";
 	const { slug } = await params;
-	const product = await ynsClient.productGet({ idOrSlug: slug });
+	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
 		notFound();

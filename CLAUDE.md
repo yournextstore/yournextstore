@@ -50,14 +50,16 @@ bun run format       # Format code with Biome (biome format --write)
 
 ### Commerce Integration
 
-**YNS Client** (`lib/yns-client.ts`):
-- Singleton instance of `YnsProvider` from `commerce-kit`
-- Configured with environment variables `YNS_API_TENANT` and `YNS_API_TOKEN`
+**Commerce Client** (`lib/yns-client.ts`):
+- Singleton instance of `Commerce()` from `commerce-kit`
+- Auto-reads `YNS_API_KEY` from environment
+- Auto-detects endpoint based on key prefix (`sk-live-*` or `sk-test-*`)
 - Main methods:
-  - `ynsClient.productBrowse(params)` - Browse products with filtering
-  - `ynsClient.productGet(params)` - Get single product by ID
-  - `ynsClient.cartCreate(body)` - Create cart
-  - `ynsClient.cartGet()` - Get cart
+  - `commerce.productBrowse(params)` - Browse products with filtering
+  - `commerce.productGet(params)` - Get single product by ID or slug
+  - `commerce.cartUpsert(body)` - Create or update cart
+  - `commerce.cartGet({ cartId })` - Get cart
+  - `commerce.request<T>(path, options)` - Raw API requests for custom endpoints
 
 **Product Data Structure**:
 - Products have `variants[]` array (each variant has `price`, `images`, `stock`, etc.)
@@ -125,9 +127,12 @@ const ProductList = async () => {
 Required in `.env.local`:
 ```bash
 NEXT_PUBLIC_ROOT_URL="http://localhost:3000"
-YNS_API_TENANT=https://yourdomain.yns.store
-YNS_API_TOKEN=your_api_token_here
+YNS_API_KEY=sk-live-xxx  # or sk-test-xxx for testing
 ```
+
+The Commerce SDK auto-detects the endpoint based on the key prefix:
+- `sk-live-*` → `https://yns.store`
+- `sk-test-*` → `https://yns.cx`
 
 ### File Organization
 
