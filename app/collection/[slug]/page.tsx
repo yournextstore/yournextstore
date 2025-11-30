@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { type Product, ProductGrid } from "@/components/product-grid";
+import { type Product, ProductGrid } from "@/components/sections/product-grid";
 import { type Collection, commerce } from "@/lib/yns-client";
 
 type CollectionWithProducts = Collection & {
