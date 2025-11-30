@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { cn } from "../../../src/lib/utils";
+import { cn } from "../../../lib/utils";
 
 type VariantValue = {
 	id: string;
