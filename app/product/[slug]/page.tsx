@@ -13,8 +13,8 @@ import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "
 import { formatMoney } from "@/lib/money";
 =======
 import { Suspense } from "react";
-import { formatMoney } from "../../../src/money";
-import { ynsClient } from "../../../src/yns-client";
+import { formatMoney } from "../../../lib/money";
+import { ynsClient } from "../../../lib/yns-client";
 import { AddToCartButton } from "./add-to-cart-button";
 import { ImageGallery } from "./image-gallery";
 import { ProductFeatures } from "./product-features";

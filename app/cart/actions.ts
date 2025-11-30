@@ -10,7 +10,7 @@ export async function getCart() {
 	if (!cartCookie?.id) {
 =======
 import { cookies } from "next/headers";
-import { ynsClient } from "../../src/yns-client";
+import { ynsClient } from "../../lib/yns-client";
 
 export async function getCart() {
 	const cookieStore = await cookies();
