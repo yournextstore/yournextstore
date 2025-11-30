@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { ynsClient } from "../../lib/yns-client";
+import { ynsClient } from "@/lib/yns-client";
 
 export async function getCart() {
 	const cookieStore = await cookies();

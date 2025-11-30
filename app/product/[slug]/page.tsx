@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { formatMoney } from "../../../lib/money";
-import { ynsClient } from "../../../lib/yns-client";
-import { AddToCartButton } from "./add-to-cart-button";
-import { ImageGallery } from "./image-gallery";
-import { ProductFeatures } from "./product-features";
+import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
+import { ImageGallery } from "@/app/product/[slug]/image-gallery";
+import { ProductFeatures } from "@/app/product/[slug]/product-features";
+import { formatMoney } from "@/lib/money";
+import { ynsClient } from "@/lib/yns-client";
 
 const currency = "USD";
 const locale = "en-US";
