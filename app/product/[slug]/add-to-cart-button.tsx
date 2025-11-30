@@ -2,12 +2,12 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { formatMoney } from "../../../lib/money";
-import { addToCart } from "../../cart/actions";
-import { useCart } from "../../cart/cart-context";
-import { QuantitySelector } from "./quantity-selector";
-import { TrustBadges } from "./trust-badges";
-import { VariantSelector } from "./variant-selector";
+import { addToCart } from "@/app/cart/actions";
+import { useCart } from "@/app/cart/cart-context";
+import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
+import { TrustBadges } from "@/app/product/[slug]/trust-badges";
+import { VariantSelector } from "@/app/product/[slug]/variant-selector";
+import { formatMoney } from "@/lib/money";
 
 type Variant = {
 	id: string;

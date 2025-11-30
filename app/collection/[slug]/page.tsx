@@ -1,35 +1,32 @@
-import type { APICollectionGetByIdResult } from "commerce-kit";
-import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
-import { commerce } from "@/lib/commerce";
-import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { YNSMedia } from "@/lib/yns-media";
+import { type Product, ProductGrid } from "@/components/product-grid";
+import { type Collection, ynsClient } from "@/lib/yns-client";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-	const { slug } = await params;
-	const collection = await commerce.collectionGet({ idOrSlug: slug });
+type CollectionWithProducts = Collection & {
+	productCollections: Array<{
+		position: string | null;
+		productId: string;
+		collectionId: string;
+		product: Product;
+	}>;
+};
 
-	if (!collection) {
-		return { title: "Collection Not Found — Your Next Store" };
+async function getCollection(slug: string) {
+	"use cache";
+	cacheLife("seconds");
+
+	try {
+		const collection = await ynsClient.request<CollectionWithProducts>(`/collections/${slug}`);
+		return collection;
+	} catch {
+		return null;
 	}
-
-	const description = typeof collection.description === "string" ? collection.description : undefined;
-
-	return {
-		title: `${collection.name} — Your Next Store`,
-		description,
-		openGraph: {
-			title: collection.name,
-			description,
-			images: collection.image ? [collection.image] : undefined,
-		},
-	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({ collection }: { collection: Collection }) {
 	return (
 		<section className="relative overflow-hidden bg-secondary/30">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,15 +47,14 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 			</div>
 			{collection.image && (
 				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
+					<Image
 						src={collection.image}
 						alt={collection.name}
 						fill
-						sizes="50vw"
 						className="object-cover opacity-30"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-r from-secondary/30 to-transparent" />
 				</div>
 			)}
 		</section>
@@ -83,7 +79,7 @@ function ProductGridSkeleton() {
 	);
 }
 
-function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionProducts({ collection }: { collection: CollectionWithProducts }) {
 	const products = collection.productCollections.map((pc) => pc.product);
 
 	return (
@@ -96,12 +92,9 @@ function CollectionProducts({ collection }: { collection: APICollectionGetByIdRe
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
-	"use cache";
-	cacheLife("minutes");
-
+export default async function CollectionPage(props: { params: Promise<{ slug: string }> }) {
 	const { slug } = await props.params;
-	const collection = await commerce.collectionGet({ idOrSlug: slug });
+	const collection = await getCollection(slug);
 
 	if (!collection) {
 		notFound();
@@ -109,8 +102,6 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 
 	return (
 		<main>
-			<JsonLdScript data={buildCollectionJsonLd(collection)} />
-			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />
