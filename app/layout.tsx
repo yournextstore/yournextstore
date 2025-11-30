@@ -24,7 +24,7 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { ynsClient } from "@/lib/yns-client";
+import { commerce } from "@/lib/yns-client";
 import "@/app/globals.css";
 import { ShoppingCartIcon } from "lucide-react";
 >>>>>>> 74ad60e (feat: optimistic update):src/app/layout.tsx
@@ -140,7 +140,7 @@ async function getInitialCart() {
 	}
 
 	try {
-		const cart = await ynsClient.cartGet({ cartId });
+		const cart = await commerce.cartGet({ cartId });
 		return { cart: cart ?? null, cartId };
 	} catch {
 		return { cart: null, cartId };
