@@ -2,12 +2,12 @@
 
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../../components/ui/button";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "../../components/ui/sheet";
-import { formatMoney } from "../../lib/money";
-import { useCart } from "./cart-context";
-import { CartItem } from "./cart-item";
+import { useCart } from "@/app/cart/cart-context";
+import { CartItem } from "@/app/cart/cart-item";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { formatMoney } from "@/lib/money";
 
 const currency = "USD";
 const locale = "en-US";

@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { formatMoney } from "../../lib/money";
-import { removeFromCart, setCartQuantity } from "./actions";
-import { type CartLineItem, useCart } from "./cart-context";
+import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
+import { type CartLineItem, useCart } from "@/app/cart/cart-context";
+import { formatMoney } from "@/lib/money";
 
 const currency = "USD";
 const locale = "en-US";
