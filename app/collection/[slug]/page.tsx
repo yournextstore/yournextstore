@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { type Product, ProductGrid } from "@/components/sections/product-grid";
-import { type Collection, commerce } from "@/lib/yns-client";
+import { type Collection, commerce } from "@/lib/commerce";
 
 type CollectionWithProducts = Collection & {
 	productCollections: Array<{

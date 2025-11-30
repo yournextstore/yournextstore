@@ -7,7 +7,8 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { commerce } from "@/lib/yns-client";
+import { Navbar } from "@/app/navbar";
+import { commerce } from "@/lib/commerce";
 import "@/app/globals.css";
 import { ShoppingCartIcon } from "lucide-react";
 
@@ -59,9 +60,14 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 						<div className="flex items-center justify-between h-16">
-							<Link href="/" className="text-xl font-bold">
-								Your Next Store
-							</Link>
+							<div className="flex items-center gap-8">
+								<Link href="/" className="text-xl font-bold">
+									Your Next Store
+								</Link>
+								<Suspense>
+									<Navbar />
+								</Suspense>
+							</div>
 							<Suspense fallback={<CartButtonFallback />}>
 								<CartButton />
 							</Suspense>

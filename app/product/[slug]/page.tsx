@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { ImageGallery } from "@/app/product/[slug]/image-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
+import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
-import { commerce } from "@/lib/yns-client";
 
 const currency = "USD";
 const locale = "en-US";

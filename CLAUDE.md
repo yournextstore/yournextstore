@@ -50,7 +50,7 @@ bun run format       # Format code with Biome (biome format --write)
 
 ### Commerce Integration
 
-**Commerce Client** (`lib/yns-client.ts`):
+**Commerce Client** (`lib/commerce.ts`):
 - Singleton instance of `Commerce()` from `commerce-kit`
 - Auto-reads `YNS_API_KEY` from environment
 - Auto-detects endpoint based on key prefix (`sk-live-*` or `sk-test-*`)
@@ -163,7 +163,7 @@ components/
     [...50+ components]         # Full Shadcn UI component set
 
 lib/
-  yns-client.ts                 # Commerce SDK client singleton
+  commerce.ts                   # Commerce SDK client singleton
   money.ts                      # Price formatting utilities
   invariant.ts                  # Runtime assertion helper
   utils.ts                      # Utility functions (cn for classnames, etc.)
