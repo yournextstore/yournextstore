@@ -1,46 +1,44 @@
-import { Commerce } from "commerce-kit";
+import { Commerce, type JSONContent } from "commerce-kit";
 
-export const commerce = Commerce({
-	token: process.env.YNS_API_KEY,
-	...(process.env.NEXT_PUBLIC_YNS_API_TENANT && { endpoint: process.env.NEXT_PUBLIC_YNS_API_TENANT }),
-});
+// Commerce() auto-reads YNS_API_KEY from environment
+// and auto-detects endpoint based on key prefix (sk-live-* or sk-test-*)
+export const commerce = Commerce();
 
-export const meGetCached = async (token?: string) => {
-	"use cache: remote";
-
-	const commerce = Commerce({ token });
-	return commerce.meGet();
-};
-
-export function getStoreFaviconUrl(
-	settings: Awaited<ReturnType<typeof commerce.meGet>>["store"]["settings"],
-) {
-	const faviconUrl =
-		settings?.favicon?.imageUrl ??
-		(typeof settings?.logo === "string" ? settings.logo : settings?.logo?.imageUrl) ??
-		null;
-
-	return faviconUrl;
+// Fetch all active collections
+export async function getCollections() {
+	try {
+		const response = await commerce.request<{ data: Collection[] }>("/collections", {
+			query: { active: true },
+		});
+		return response.data;
+	} catch {
+		return [];
+	}
 }
 
-export const getSubdomainPublicUrl = async () => {
-	const tenant = process.env.NEXT_PUBLIC_YNS_API_TENANT;
-	if (tenant) {
-		const tenantHost = new URL(tenant).host;
-		const [subdomain, ...base] = tenantHost.split(".");
-		const apiHost = base.join(".");
-		if (subdomain && apiHost) {
-			return {
-				subdomain,
-				publicUrl: `https://${apiHost}`,
-			};
-		}
-	}
+// Collection types for use with the request() escape hatch
+export type Collection = {
+	id: string;
+	name: string;
+	slug: string;
+	description: JSONContent | null;
+	image: string | null;
+	active: boolean;
+};
 
-	// fallback to fetching from the API if env variable is not set or invalid
-	const {
-		store: { subdomain },
-		publicUrl,
-	} = await meGetCached(process.env.YNS_API_KEY);
-	return { subdomain, publicUrl };
+export type CollectionWithProducts = Collection & {
+	products: {
+		data: Array<{
+			id: string;
+			name: string;
+			slug: string;
+			images: string[];
+			summary: string | null;
+			variants: Array<{
+				id: string;
+				price: string;
+				images: string[];
+			}>;
+		}>;
+	};
 };
