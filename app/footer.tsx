@@ -1,14 +1,14 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getCollections } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
 
 async function FooterCollections() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await getCollections();
+	const collections = await commerce.collectionBrowse({ limit: 5 });
 
-	if (collections.length === 0) {
+	if (collections.data.length === 0) {
 		return null;
 	}
 
@@ -16,7 +16,7 @@ async function FooterCollections() {
 		<div>
 			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
 			<ul className="mt-4 space-y-3">
-				{collections.map((collection) => (
+				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
