@@ -64,9 +64,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 								<Link href="/" className="text-xl font-bold">
 									Your Next Store
 								</Link>
-								<Suspense>
-									<Navbar />
-								</Suspense>
+								<Navbar />
 							</div>
 							<Suspense fallback={<CartButtonFallback />}>
 								<CartButton />

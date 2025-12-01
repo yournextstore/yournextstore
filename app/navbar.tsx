@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { getCollections } from "@/lib/commerce";
 
-async function NavLinks() {
+export async function Navbar() {
 	"use cache";
 	cacheLife("hours");
 
@@ -27,8 +27,4 @@ async function NavLinks() {
 			))}
 		</nav>
 	);
-}
-
-export function Navbar() {
-	return <NavLinks />;
 }
