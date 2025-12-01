@@ -1,12 +1,16 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getCollections } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
 
 export async function Navbar() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await getCollections();
+	const collections = await commerce.collectionBrowse({ limit: 5 });
+
+	if (collections.data.length === 0) {
+		return null;
+	}
 
 	return (
 		<nav className="hidden sm:flex items-center gap-6">
@@ -16,7 +20,7 @@ export async function Navbar() {
 			>
 				Home
 			</Link>
-			{collections.map((collection) => (
+			{collections.data.map((collection) => (
 				<Link
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
