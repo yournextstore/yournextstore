@@ -1,32 +1,11 @@
-import { cacheLife } from "next/cache";
+import type { APICollectionGetByIdResult } from "commerce-kit";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { type Product, ProductGrid } from "@/components/sections/product-grid";
-import { type Collection, commerce } from "@/lib/commerce";
+import { ProductGrid } from "@/components/sections/product-grid";
+import { commerce } from "@/lib/commerce";
 
-type CollectionWithProducts = Collection & {
-	productCollections: Array<{
-		position: string | null;
-		productId: string;
-		collectionId: string;
-		product: Product;
-	}>;
-};
-
-async function getCollection(slug: string) {
-	"use cache";
-	cacheLife("seconds");
-
-	try {
-		const collection = await commerce.request<CollectionWithProducts>(`/collections/${slug}`);
-		return collection;
-	} catch {
-		return null;
-	}
-}
-
-function CollectionHeader({ collection }: { collection: Collection }) {
+function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
 		<section className="relative overflow-hidden bg-secondary/30">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +33,7 @@ function CollectionHeader({ collection }: { collection: Collection }) {
 						className="object-cover opacity-30"
 						priority
 					/>
-					<div className="absolute inset-0 bg-gradient-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
 				</div>
 			)}
 		</section>
@@ -79,7 +58,7 @@ function ProductGridSkeleton() {
 	);
 }
 
-function CollectionProducts({ collection }: { collection: CollectionWithProducts }) {
+function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = collection.productCollections.map((pc) => pc.product);
 
 	return (
@@ -92,9 +71,9 @@ function CollectionProducts({ collection }: { collection: CollectionWithProducts
 	);
 }
 
-export default async function CollectionPage(props: { params: Promise<{ slug: string }> }) {
+export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	const { slug } = await props.params;
-	const collection = await getCollection(slug);
+	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
 		notFound();

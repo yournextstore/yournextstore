@@ -1,4 +1,4 @@
-import type { APIProductsBrowseResult } from "commerce-kit";
+import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
@@ -14,7 +14,7 @@ export type Product = APIProductsBrowseResult["data"][number];
 type ProductGridProps = {
 	title?: string;
 	description?: string;
-	products?: Product[];
+	products?: (Product | APICollectionGetByIdResult["productCollections"][number]["product"])[];
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
@@ -53,19 +53,31 @@ export async function ProductGrid({
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 				{displayProducts.map((product) => {
-					const variants = product.variants ?? [];
-					const prices = variants.map((v) => BigInt(v.price));
-					const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : BigInt(0);
-					const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : BigInt(0);
+					const variants = "variants" in product ? product.variants : null;
+					const prices = variants?.map((v) => BigInt(v.price));
+					const minPrice = prices
+						? prices.length > 0
+							? prices.reduce((a, b) => (a < b ? a : b))
+							: null
+						: null;
+					const maxPrice = prices
+						? prices.length > 0
+							? prices.reduce((a, b) => (a > b ? a : b))
+							: null
+						: null;
 
 					const priceDisplay =
-						prices.length > 1 && minPrice !== maxPrice
+						prices && prices.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
 							? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
-							: formatMoney({ amount: minPrice, currency, locale });
+							: minPrice
+								? formatMoney({ amount: minPrice, currency, locale })
+								: null;
 
 					const allImages = [
 						...(product.images ?? []),
-						...variants.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)),
+						...(variants
+							?.flatMap((v) => v.images ?? [])
+							.filter((img) => !(product.images ?? []).includes(img)) ?? []),
 					];
 					const primaryImage = allImages[0];
 					const secondaryImage = allImages[1];
