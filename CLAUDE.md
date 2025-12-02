@@ -232,7 +232,7 @@ Use `invariant()` helper for runtime assertions:
 ```tsx
 import { invariant } from "../lib/invariant";
 
-invariant(process.env.YNS_API_TOKEN, "Missing env.YNS_API_TOKEN");
+invariant(process.env.YNS_API_KEY, "Missing env.YNS_API_KEY");
 ```
 
 ### Server Actions

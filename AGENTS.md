@@ -480,7 +480,7 @@ bun start
 
 **Required for production**:
 - `NEXT_PUBLIC_YNS_API_TENANT` - Your YNS store URL
-- `YNS_API_TOKEN` - YNS API authentication token
+- `YNS_API_KEY` - YNS API authentication token
 - `NEXT_PUBLIC_ROOT_URL` - Your deployed URL (for OpenGraph, etc.)
 
 **Vercel deployment**:
@@ -497,7 +497,7 @@ bun start
 - **Cause**: Product data not loaded or invalid
 - **Fix**: Add null checks, use optional chaining (`product?.variants`)
 
-**Issue**: `Error: Invariant failed: Missing env.YNS_API_TOKEN`
+**Issue**: `Error: Invariant failed: Missing env.YNS_API_KEY`
 - **Cause**: Environment variables not loaded
 - **Fix**: Create `.env.local` with required variables, restart dev server
 
