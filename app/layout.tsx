@@ -64,6 +64,10 @@ async function getInitialCart() {
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const { cart, cartId } = await getInitialCart();
 
+	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
+	const baseUrl =
+		process.env.NEXT_PUBLIC_YNS_API_TENANT ?? (isStaging ? "https://yns.cx" : "https://yns.store");
+
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
@@ -89,7 +93,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				<Footer />
 				<ReferralBadge />
 			</div>
-			<CartSidebar />
+			<CartSidebar baseUrl={baseUrl} />
 		</CartProvider>
 	);
 }
