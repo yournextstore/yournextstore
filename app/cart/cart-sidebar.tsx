@@ -12,10 +12,10 @@ import { formatMoney } from "@/lib/money";
 const currency = "USD";
 const locale = "en-US";
 
-export function CartSidebar() {
+export function CartSidebar({ baseUrl }: { baseUrl: string }) {
 	const { isOpen, closeCart, items, itemCount, subtotal, cartId } = useCart();
 
-	const checkoutUrl = cartId ? `${process.env.NEXT_PUBLIC_YNS_API_TENANT}/cart/r/${cartId}` : "#";
+	const checkoutUrl = cartId ? `${baseUrl}/api/v1/carts/${cartId}/checkout` : "#";
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>

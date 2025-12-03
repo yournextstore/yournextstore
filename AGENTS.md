@@ -479,7 +479,6 @@ bun start
 ### Environment Variables
 
 **Required for production**:
-- `NEXT_PUBLIC_YNS_API_TENANT` - Your YNS store URL
 - `YNS_API_KEY` - YNS API authentication token
 - `NEXT_PUBLIC_ROOT_URL` - Your deployed URL (for OpenGraph, etc.)
 

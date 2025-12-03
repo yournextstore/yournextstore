@@ -53,7 +53,7 @@ bun run format       # Format code with Biome (biome format --write)
 **Commerce Client** (`lib/commerce.ts`):
 - Singleton instance of `Commerce()` from `commerce-kit`
 - Auto-reads `YNS_API_KEY` from environment
-- Auto-detects endpoint based on key prefix (`sk-live-*` or `sk-test-*`)
+- Auto-detects endpoint based on key prefix (`sk-p-*`)
 - Main methods:
   - `commerce.productBrowse(params)` - Browse products with filtering
   - `commerce.productGet(params)` - Get single product by ID or slug
@@ -127,12 +127,11 @@ const ProductList = async () => {
 Required in `.env.local`:
 ```bash
 NEXT_PUBLIC_ROOT_URL="http://localhost:3000"
-YNS_API_KEY=sk-live-xxx  # or sk-test-xxx for testing
+YNS_API_KEY=sk-p-xxx 
 ```
 
 The Commerce SDK auto-detects the endpoint based on the key prefix:
-- `sk-live-*` → `https://yns.store`
-- `sk-test-*` → `https://yns.cx`
+- `sk-p-*` → `https://yns.store`
 
 ### File Organization
 

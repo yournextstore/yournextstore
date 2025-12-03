@@ -84,7 +84,6 @@ To set env variables in production, you'll need to consult the documentation of 
 ### Required Environment Variables
 
 - `ENABLE_EXPERIMENTAL_COREPACK` – Vercel only: Set to `1` to enable Corepack
-- `NEXT_PUBLIC_YNS_API_TENANT` – Your tenant address, for example `https://yourtenant.yns.app`
 - `YNS_API_KEY` – API token generated in the admin panel.
 - `NEXT_PUBLIC_ROOT_URL` – The address of your store without the trailing slash, i.e., `https://demo.yournextstore.com`. When building for the first time, you should set it to any valid URL, i.e. `http://localhost:3000`.
 
