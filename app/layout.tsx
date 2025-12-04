@@ -55,8 +55,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	const { cart, cartId } = await getInitialCart();
 
 	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
-	const baseUrl =
-		process.env.NEXT_PUBLIC_YNS_API_TENANT ?? (isStaging ? "https://yns.cx" : "https://yns.store");
+	const baseUrl = isStaging ? "https://yns.cx" : "https://yns.store";
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
