@@ -50,7 +50,6 @@ type CartProviderProps = {
 };
 
 export function CartProvider({ children, initialCart, initialCartId }: CartProviderProps) {
-	const [cartId, setCartId] = useState<string | null>(initialCartId);
 	const [isOpen, setIsOpen] = useState(false);
 
 	const [optimisticCart, dispatchCartAction] = useOptimistic(initialCart, (state, action: CartAction) => {
@@ -137,7 +136,8 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 	const closeCart = useCallback(() => setIsOpen(false), []);
 
 	// Derive cartId from optimistic cart or initial
-	const currentCartId = optimisticCart?.id && optimisticCart.id !== "optimistic" ? optimisticCart.id : cartId;
+	const currentCartId =
+		optimisticCart?.id && optimisticCart.id !== "optimistic" ? optimisticCart.id : initialCartId;
 
 	const value = useMemo(
 		() => ({

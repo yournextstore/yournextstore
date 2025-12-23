@@ -3,15 +3,32 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { ImageGallery } from "@/app/product/[slug]/image-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
+import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
-const currency = "USD";
-const locale = "en-US";
+function ProductDetailsSkeleton() {
+	return (
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+				<Skeleton className="aspect-square rounded-2xl" />
+				<div className="mt-8 lg:mt-0 space-y-8">
+					<div className="space-y-4">
+						<Skeleton className="h-12 w-3/4" />
+						<Skeleton className="h-8 w-1/4" />
+						<Skeleton className="h-20 w-full" />
+					</div>
+					<Skeleton className="h-14 w-full rounded-full" />
+				</div>
+			</div>
+		</div>
+	);
+}
 
 export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
 	return (
-		<Suspense>
+		<Suspense fallback={<ProductDetailsSkeleton />}>
 			<ProductDetails params={props.params} />
 		</Suspense>
 	);
@@ -32,8 +49,8 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const priceDisplay =
 		prices.length > 1 && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
-			: formatMoney({ amount: minPrice, currency, locale });
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			: formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE });
 
 	const allImages = [
 		...product.images,

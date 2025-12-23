@@ -4,10 +4,8 @@ import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { commerce } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-
-const currency = "USD";
-const locale = "en-US";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -68,9 +66,9 @@ export async function ProductGrid({
 
 					const priceDisplay =
 						prices && prices.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-							? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+							? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 							: minPrice
-								? formatMoney({ amount: minPrice, currency, locale })
+								? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 								: null;
 
 					const allImages = [
