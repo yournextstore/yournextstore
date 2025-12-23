@@ -7,6 +7,7 @@ import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
 type Variant = {
@@ -36,9 +37,6 @@ type AddToCartButtonProps = {
 		images: string[];
 	};
 };
-
-const currency = "USD";
-const locale = "en-US";
 
 export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
@@ -74,7 +72,7 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 		if (isPending) return "Adding...";
 		if (!selectedVariant) return "Select options";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
 		}
 		return "Add to Cart";
 	}, [isPending, selectedVariant, totalPrice]);

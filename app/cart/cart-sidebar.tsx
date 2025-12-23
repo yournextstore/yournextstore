@@ -7,10 +7,8 @@ import { CartItem } from "@/app/cart/cart-item";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-
-const currency = "USD";
-const locale = "en-US";
 
 export function CartSidebar({ baseUrl }: { baseUrl: string }) {
 	const { isOpen, closeCart, items, itemCount, subtotal, cartId } = useCart();
@@ -56,7 +54,9 @@ export function CartSidebar({ baseUrl }: { baseUrl: string }) {
 							<div className="w-full space-y-4">
 								<div className="flex items-center justify-between text-base">
 									<span className="font-medium">Subtotal</span>
-									<span className="font-semibold">{formatMoney({ amount: subtotal, currency, locale })}</span>
+									<span className="font-semibold">
+										{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}
+									</span>
 								</div>
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
 								<Button asChild className="w-full h-12 text-base font-medium">

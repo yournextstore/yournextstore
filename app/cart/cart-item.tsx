@@ -7,10 +7,8 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
 import { type CartLineItem, useCart } from "@/app/cart/cart-context";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-
-const currency = "USD";
-const locale = "en-US";
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -108,7 +106,7 @@ export function CartItem({ item }: CartItemProps) {
 
 					{/* Price */}
 					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
+						{formatMoney({ amount: lineTotal, currency: CURRENCY, locale: LOCALE })}
 					</span>
 				</div>
 			</div>

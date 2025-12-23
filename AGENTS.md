@@ -15,9 +15,9 @@ This file provides specialized guidance for Claude Code agents when working with
 - "What UI components are available?"
 
 **Search strategy**:
-- Start with key files: `src/yns-client.ts`, `app/layout.tsx`, `app/page.tsx`
+- Start with key files: `lib/commerce.ts`, `app/layout.tsx`, `app/page.tsx`
 - Look in `app/product/[slug]/` for product-related features
-- Check `src/components/ui/` for available UI components
+- Check `components/ui/` for available UI components
 - Search for patterns: `"use server"` for server actions, `"use cache"` for cached components
 
 **Key file patterns**:
@@ -25,9 +25,9 @@ This file provides specialized guidance for Claude Code agents when working with
 app/**/page.tsx       # Page components (allow default export)
 app/**/layout.tsx     # Layout components (allow default export)
 app/**/actions.ts     # Server actions (must have "use server")
-src/components/ui/**  # Shadcn UI components
-src/yns-client.ts     # Commerce API client
-src/money.ts          # Currency formatting
+components/ui/**  # Shadcn UI components
+lib/commerce.ts     # Commerce API client
+lib/money.ts          # Currency formatting
 ```
 
 ### 2. Planning Agent (subagent_type: Plan)
@@ -39,8 +39,8 @@ src/money.ts          # Currency formatting
 2. **Check existing code**: Use Explore agent or Grep to find related implementations
 3. **Identify components needed**:
    - New page routes? → `app/[route]/page.tsx`
-   - New API integration? → Extend `src/yns-client.ts` or use existing methods
-   - UI components? → Check `src/components/ui/` first before creating new ones
+   - New API integration? → Extend `lib/commerce.ts` or use existing methods
+   - UI components? → Check `components/ui/` first before creating new ones
    - Server actions? → Create `actions.ts` in relevant app directory
 4. **Consider performance**:
    - Can this use `"use cache"` directive?
@@ -65,7 +65,7 @@ src/money.ts          # Currency formatting
 1. Create/modify routes in `app/`
 2. Add server actions if needed
 3. Integrate with YNS client
-4. Add UI components (reuse from `src/components/ui/`)
+4. Add UI components (reuse from `components/ui/`)
 5. Add error handling
 6. Add loading states
 7. Test functionality
@@ -102,7 +102,7 @@ bun run lint
 #### Phase 2: Implementation
 - **Follow Biome rules** (see CLAUDE.md Code Standards section)
 - **Use existing patterns** from similar features
-- **Reuse UI components** from `src/components/ui/`
+- **Reuse UI components** from `components/ui/`
 - **Type safety**: No `any`, rely on inference, minimal return type annotations
 
 #### Phase 3: Testing
@@ -139,18 +139,18 @@ bun dev
 ### Adding a New Product Feature
 
 **Steps**:
-1. Check YNS Commerce Kit SDK documentation or existing usage in `src/yns-client.ts`
+1. Check YNS Commerce Kit SDK documentation or existing usage in `lib/commerce.ts`
 2. Determine if the API method already exists or needs to be added
 3. Create page in `app/` directory (use App Router conventions)
 4. Use server components for data fetching with `"use cache"` directive
 5. Create server actions in `actions.ts` for mutations
-6. Use Shadcn UI components from `src/components/ui/`
+6. Use Shadcn UI components from `components/ui/`
 7. Test thoroughly
 
 **Example: Product Search**
 ```tsx
 // app/search/page.tsx
-import { ynsClient } from "@/yns-client";
+import { commerce } from "@/lib/commerce";
 import { SearchResults } from "./search-results";
 
 export default async function SearchPage({
@@ -162,7 +162,7 @@ export default async function SearchPage({
   const { q } = await searchParams;
 
   const products = q
-    ? await ynsClient.productBrowse({ search: q, active: true })
+    ? await commerce.productBrowse({ search: q, active: true })
     : { data: [] };
 
   return <SearchResults products={products.data} query={q} />;
@@ -172,7 +172,7 @@ export default async function SearchPage({
 ### Adding a New UI Component
 
 **Before creating**:
-1. Check if component exists in `src/components/ui/` (50+ components available)
+1. Check if component exists in `components/ui/` (50+ components available)
 2. Check if composition of existing components works
 3. If truly needed, follow Shadcn patterns:
    - Use Radix UI primitives when possible
@@ -190,19 +190,19 @@ npx shadcn@latest add [component-name]
 
 **Steps**:
 1. Check Commerce Kit SDK documentation for available methods
-2. Add method call in `src/yns-client.ts` or use directly via `ynsClient`
+2. Add method call in `lib/commerce.ts` or use directly via `commerce`
 3. Handle errors appropriately (use `safe-try` package for error handling)
-4. Format money values using `formatMoney` from `src/money.ts`
+4. Format money values using `formatMoney` from `lib/money.ts`
 5. Type the response (Commerce Kit provides TypeScript types)
 
 **Example**:
 ```tsx
-import { ynsClient } from "@/yns-client";
-import { formatMoney } from "@/money";
+import { commerce } from "@/lib/commerce";
+import { formatMoney } from "@/lib/money";
 import { safe } from "safe-try";
 
 const [error, result] = await safe(
-  ynsClient.productGet({ id: productId })
+  commerce.productGet({ idOrSlug: productId })
 );
 
 if (error || !result) {
@@ -237,7 +237,7 @@ async function ProductList() {
   "use cache";
   cacheLife("hours"); // or "seconds", "minutes", "days", "weeks"
 
-  const products = await ynsClient.productBrowse({ active: true });
+  const products = await commerce.productBrowse({ active: true });
   return <div>{/* render */}</div>;
 }
 
@@ -263,7 +263,7 @@ async function ProductList() {
 import { safe } from "safe-try";
 
 const [error, cart] = await safe(
-  ynsClient.cartGet()
+  commerce.cartGet()
 );
 
 if (error) {
@@ -330,7 +330,7 @@ Merge results after all complete.
 
 **Product browsing**:
 ```tsx
-const products = await ynsClient.productBrowse({
+const products = await commerce.productBrowse({
   active: true,
   limit: 12,
   offset: 0,
@@ -343,10 +343,8 @@ const products = await ynsClient.productBrowse({
 
 **Product details**:
 ```tsx
-const product = await ynsClient.productGet({
-  id: productId,
-  // OR
-  slug: productSlug,
+const product = await commerce.productGet({
+  idOrSlug: productId, // accepts either product ID or slug
 });
 
 // Products have variants
@@ -362,14 +360,14 @@ product.variants.map(variant => ({
 **Cart management**:
 ```tsx
 // Create or update cart
-const cart = await ynsClient.cartCreate({
+const cart = await commerce.cartUpsert({
   cartId, // existing cart ID or undefined for new
   variantId: "variant-123",
   quantity: 1,
 });
 
 // Get current cart
-const cart = await ynsClient.cartGet();
+const cart = await commerce.cartGet({ cartId });
 ```
 
 ### Biome Linting Patterns
@@ -438,7 +436,7 @@ bun run lint
 **Unit tests** (using bun:test):
 ```typescript
 import { test, expect } from "bun:test";
-import { formatMoney } from "@/money";
+import { formatMoney } from "@/lib/money";
 
 test("formatMoney handles USD correctly", () => {
   const result = formatMoney({
@@ -554,18 +552,18 @@ tsgo --noEmit     # Type check
 ```
 
 ### Key Files
-- `src/yns-client.ts` - Commerce API client
-- `src/money.ts` - Currency formatting
-- `src/lib.ts` - Utility functions
+- `lib/commerce.ts` - Commerce API client
+- `lib/money.ts` - Currency formatting
+- `lib/utils.ts` - Utility functions
 - `biome.json` - Linting and formatting config
 - `next.config.mjs` - Next.js configuration
 - `tsconfig.json` - TypeScript configuration
 
 ### Key Directories
 - `app/` - Next.js App Router pages and routes
-- `src/components/ui/` - Shadcn UI component library
-- `src/lib/` - Shared utilities
-- `src/hooks/` - Custom React hooks
+- `components/ui/` - Shadcn UI component library
+- `lib/` - Shared utilities
+- `hooks/` - Custom React hooks
 
 ### Important Patterns
 - Server components by default

@@ -73,7 +73,7 @@ bun run format       # Format code with Biome (biome format --write)
 
 ### Next.js Configuration
 
-**Experimental Features Enabled** (`next.config.ts`):
+**Experimental Features Enabled** (`next.config.mjs`):
 - `reactCompiler: true` - React Compiler for automatic optimization
 - `cacheComponents: true` - Component-level caching
 - `typedEnv: true` - Type-safe environment variables
@@ -186,10 +186,10 @@ This project uses **Shadcn UI** components (50+ components in `components/ui/`):
 - Data display: `table`, `badge`, `avatar`, `carousel`, `chart`
 - Feedback: `alert`, `toast` (sonner), `progress`, `skeleton`, `spinner`
 
-**Usage pattern** (relative imports from `app/` files):
+**Usage pattern** (absolute imports with `@/` alias):
 ```tsx
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 <Card>
   <CardHeader>
@@ -206,7 +206,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 ### Fetching and Displaying Products
 
 ```tsx
-const products = await ynsClient.productBrowse({ active: true, limit: 4 });
+const products = await commerce.productBrowse({ active: true, limit: 4 });
 
 products.data.map((product) => {
   // Get price range from variants
@@ -229,7 +229,7 @@ products.data.map((product) => {
 
 Use `invariant()` helper for runtime assertions:
 ```tsx
-import { invariant } from "../lib/invariant";
+import { invariant } from "@/lib/invariant";
 
 invariant(process.env.YNS_API_KEY, "Missing env.YNS_API_KEY");
 ```
@@ -242,13 +242,13 @@ Server actions are used for mutations (like adding to cart). Pattern:
 "use server";
 
 import { cookies } from "next/headers";
-import { ynsClient } from "../../../lib/yns-client";
+import { commerce } from "@/lib/commerce";
 
 export async function addToCart(variantId: string) {
   const cookieStore = await cookies();
   const cartId = cookieStore.get("cartId")?.value;
 
-  const cart = await ynsClient.cartCreate({
+  const cart = await commerce.cartUpsert({
     cartId,
     variantId,
     quantity: 1,
