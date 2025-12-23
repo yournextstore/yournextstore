@@ -172,9 +172,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<div className="flex-1">
-					<Suspense>{children}</Suspense>
-				</div>
+				<div className="flex-1">{children}</div>
 				<Footer />
 			</div>
 			<CartSidebar baseUrl={baseUrl} />
@@ -190,7 +188,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<Suspense>
+				<Suspense fallback={null}>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>
 >>>>>>> 74ad60e (feat: optimistic update):src/app/layout.tsx
