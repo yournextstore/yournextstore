@@ -1,6 +1,23 @@
-# Your Next Store
+<p align="center">
+  <a href="https://yournextstore.com">
+    <img src="public/logo.svg" height="128">
+  </a>
+</p>
 
-A Next.js boilerplate for building modern, high-performance e-commerce applications with Your Next Store (YNS) and the Commerce Kit SDK. Simple, quick, powerful, and optimized for LLM ingest.
+<h1 align="center">Your Next Store</h1>
+
+<p align="center">
+  <strong>Open-source Next.js e-commerce.</strong> Direct Stripe integration and millisecond page loads.
+</p>
+
+Built with standard Next.js patterns and typed commerce APIs. AI coding tools like Cursor and Copilot are more effective when the codebase is consistent and the APIs are well-defined.
+
+<div align="center">
+  <a href="https://demo.yournextstore.com">
+    <img src="public/screenshot.png" alt="Your Next Store Demo" width="800" />
+  </a>
+  <p><strong>Live Demo:</strong> <a href="https://demo.yournextstore.com">demo.yournextstore.com</a></p>
+</div>
 
 <div align="center">
 <table>
@@ -28,10 +45,55 @@ A Next.js boilerplate for building modern, high-performance e-commerce applicati
 </td>
 </tr>
 </table>
-
-👉 [demo.yournextstore.com](https://demo.yournextstore.com/) 👈
-
 </div>
+
+---
+
+<table>
+<tr>
+<td align="center" width="25%">
+  <strong>AI-Friendly Codebase</strong><br />
+  <sub>Consistent patterns, typed APIs</sub>
+</td>
+<td align="center" width="25%">
+  <strong>Blazing Fast</strong><br />
+  <sub>Next.js 16, React Compiler, edge caching</sub>
+</td>
+<td align="center" width="25%">
+  <strong>Stripe-Native</strong><br />
+  <sub>Direct API integration, no plugins</sub>
+</td>
+<td align="center" width="25%">
+  <strong>Open Source</strong><br />
+  <sub>Full control, self-host anywhere</sub>
+</td>
+</tr>
+</table>
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/yournextstore/yournextstore.git
+cd yournextstore && bun install
+cp .env.example .env.local   # Add your YNS_API_KEY from yns.app/admin
+bun dev
+```
+
+Open [localhost:3000](http://localhost:3000) — your store is running.
+
+---
+
+## Why AI Coding Tools Work Better Here
+
+| | |
+|---|---|
+| **Familiar patterns** | Idiomatic Next.js App Router code (Server Components, Server Actions, `"use cache"`) matches what LLMs have seen thousands of times. Less guessing, more accurate suggestions. |
+| **Typed APIs** | Commerce Kit SDK methods like `productBrowse()` and `cartUpsert()` have defined input/output shapes. LLMs write correct code when they know the contracts. |
+| **Bounded domain** | Commerce is well-defined: products, variants, carts, checkout. The data models already exist with clear types - no need for the LLM to invent them. |
+
+---
 
 ## Tech Stack
 
@@ -45,52 +107,16 @@ A Next.js boilerplate for building modern, high-performance e-commerce applicati
 
 ## Prerequisites
 
-### Node.js 20+
+- [Node.js 20+](https://nodejs.org/) (works on 18, 20, 22)
+- [Bun 1.0+](https://bun.sh/) (compatible with npm/yarn)
+- YNS API key from [yns.app/admin](https://yns.app/admin)
 
-We officially support the current LTS version – 20 at the time of writing. YNS should work on versions 18, 20, and 22. If you're using one of those versions and encounter a problem, please report it!
+### Environment Variables
 
-#### Installing Node.js
+Copy `.env.example` to `.env.local` and set:
 
-Follow the instructions for your operating system found here: [nodejs.org/en/download](https://nodejs.org/en/download)
-
-### bun 1.0+
-
-We officially support bun version 1.0+, but we will do our best to keep it compatible with npm and yarn.
-
-#### Installing bun
-
-The easiest way to install bun is via their installation script:
-
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
-
-Alternatively, follow the instructions for your operating system found here: [bun.sh/docs/installation](https://bun.sh/docs/installation)
-
-## Create YNS account
-
-To use Your Next Store, you'll need to create an account at [yns.app/admin](https://yns.app/admin).
-
-After creating your account, you'll be able to create a new store (tenant) and get your API token.
-
-The token can be found in the API section in the sidebar.
-
-## Add Environment Variables
-
-For YNS to work, you'll need to define a few environmental variables. For local development and testing, you may create an empty `.env` file and copy the contents of `.env.example` into it.
-
-To set env variables in production, you'll need to consult the documentation of your chosen hosting provider.
-
-### Required Environment Variables
-
-- `ENABLE_EXPERIMENTAL_COREPACK` – Vercel only: Set to `1` to enable Corepack
-- `YNS_API_KEY` – API token generated in the admin panel.
-- `NEXT_PUBLIC_ROOT_URL` – The address of your store without the trailing slash, i.e., `https://demo.yournextstore.com`. When building for the first time, you should set it to any valid URL, i.e. `http://localhost:3000`.
-
-## Run the store
-
-After following the above steps, run `bun install` to install the required dependencies, and then run `bun dev` to start the development server on your machine. Your Next Store will be available at [localhost:3000](http://localhost:3000)
-
+- `YNS_API_KEY` – Your API token from the admin panel
+- `NEXT_PUBLIC_ROOT_URL` – Your store URL (e.g., `http://localhost:3000`)
 
 ## Next steps
 
