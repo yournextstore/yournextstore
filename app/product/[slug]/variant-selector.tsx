@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 type VariantValue = {
@@ -108,6 +108,18 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 		}, new URLSearchParams());
 		router.push(`${pathname}?${params.toString()}`, { scroll: false });
 	};
+
+	// Auto-redirect to first variant when no URL params exist (for multi-variant products)
+	useEffect(() => {
+		if (variants.length <= 1 || searchParams.size > 0) return;
+
+		const firstVariant = variants[0];
+		const params = new URLSearchParams();
+		firstVariant.combinations.forEach((c) => {
+			params.set(c.variantValue.variantType.label, c.variantValue.value);
+		});
+		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+	}, [variants, searchParams.size, pathname]);
 
 	if (variantGroups.length === 0) {
 		return null;
