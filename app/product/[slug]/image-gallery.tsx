@@ -2,28 +2,68 @@
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+type Variant = {
+	id: string;
+	images: string[];
+	combinations: {
+		variantValue: {
+			value: string;
+			variantType: {
+				label: string;
+			};
+		};
+	}[];
+};
 
 type ImageGalleryProps = {
 	images: string[];
 	productName: string;
+	variants: Variant[];
 };
 
-export function ImageGallery({ images, productName }: ImageGalleryProps) {
+export function ImageGallery({ images, productName, variants }: ImageGalleryProps) {
+	const searchParams = useSearchParams();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [isZoomed, setIsZoomed] = useState(false);
 
+	// Compute which images to display based on selected variant
+	const displayImages = useMemo(() => {
+		// Find selected variant based on URL params
+		const selectedVariant = variants.find((v) =>
+			v.combinations.every(
+				(c) => searchParams.get(c.variantValue.variantType.label) === c.variantValue.value,
+			),
+		);
+
+		// If variant selected and has images, show those
+		if (selectedVariant?.images.length) {
+			return selectedVariant.images;
+		}
+
+		// Fallback to all images
+		return images;
+	}, [variants, searchParams, images]);
+
+	// Reset selected index when variant changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentionally trigger reset when URL params change
+	useEffect(() => {
+		setSelectedIndex(0);
+	}, [searchParams]);
+
 	const handlePrevious = () => {
-		setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
 	};
 
 	const handleNext = () => {
-		setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
 	};
 
-	if (images.length === 0) {
+	if (displayImages.length === 0) {
 		return (
 			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
@@ -38,7 +78,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
 				<Image
-					src={images[selectedIndex]}
+					src={displayImages[selectedIndex]}
 					alt={`${productName} - View ${selectedIndex + 1}`}
 					fill
 					className={cn(
@@ -50,7 +90,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 				/>
 
 				{/* Navigation Arrows */}
-				{images.length > 1 && (
+				{displayImages.length > 1 && (
 					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
 						<Button
 							variant="secondary"
@@ -86,17 +126,17 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 				</div>
 
 				{/* Image Counter */}
-				{images.length > 1 && (
+				{displayImages.length > 1 && (
 					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {images.length}
+						{selectedIndex + 1} / {displayImages.length}
 					</div>
 				)}
 			</div>
 
 			{/* Thumbnails */}
-			{images.length > 1 && (
+			{displayImages.length > 1 && (
 				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{images.map((image, index) => (
+					{displayImages.map((image, index) => (
 						<button
 							key={image}
 							type="button"
