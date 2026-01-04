@@ -34,7 +34,7 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 	);
 }
 
-const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
+async function ProductDetails({ params }: { params: Promise<{ slug: string }> }) {
 	"use cache";
 	const { slug } = await params;
 	const product = await commerce.productGet({ idOrSlug: slug });
@@ -91,4 +91,4 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			<ProductFeatures />
 		</div>
 	);
-};
+}

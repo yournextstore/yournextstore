@@ -1,4 +1,4 @@
-import { invariant } from "./invariant";
+import { invariant } from "@/lib/invariant";
 
 export const formatMoney = ({ amount: minor, currency, locale }: MoneyInt & { locale: string }) => {
 	const amount = getDecimalAmountFromInt({ amount: minor, currency });
