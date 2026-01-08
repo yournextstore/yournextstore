@@ -39,4 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.claude
+
+# claude (allow hooks and settings, ignore local state)
+.claude/*
+!.claude/hooks/
+!.claude/settings.json
