@@ -14,11 +14,11 @@ export function CartButton() {
 			aria-label="Shopping cart"
 		>
 			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 && (
+			{itemCount > 0 ? (
 				<span className="absolute -top-1 -right-1 bg-foreground text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
 					{itemCount}
 				</span>
-			)}
+			) : null}
 		</button>
 	);
 }

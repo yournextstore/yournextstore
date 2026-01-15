@@ -43,12 +43,22 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		notFound();
 	}
 
-	const prices = product.variants.map((v) => BigInt(v.price));
-	const minPrice = prices.length > 0 ? prices.reduce((a, b) => (a < b ? a : b)) : BigInt(0);
-	const maxPrice = prices.length > 0 ? prices.reduce((a, b) => (a > b ? a : b)) : BigInt(0);
+	const { minPrice, maxPrice } = product.variants.reduce(
+		(acc, v) => {
+			const price = BigInt(v.price);
+			return {
+				minPrice: price < acc.minPrice ? price : acc.minPrice,
+				maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
+			};
+		},
+		{
+			minPrice: product.variants[0] ? BigInt(product.variants[0].price) : BigInt(0),
+			maxPrice: product.variants[0] ? BigInt(product.variants[0].price) : BigInt(0),
+		},
+	);
 
 	const priceDisplay =
-		prices.length > 1 && minPrice !== maxPrice
+		product.variants.length > 1 && minPrice !== maxPrice
 			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE });
 
