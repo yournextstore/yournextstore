@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +31,14 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [isZoomed, setIsZoomed] = useState(false);
 
+	// Track previous searchParams to reset index when variant changes (avoids useEffect)
+	const searchParamsKey = searchParams.toString();
+	const prevSearchParamsKey = useRef(searchParamsKey);
+	if (prevSearchParamsKey.current !== searchParamsKey) {
+		prevSearchParamsKey.current = searchParamsKey;
+		setSelectedIndex(0);
+	}
+
 	// Compute which images to display based on selected variant
 	const displayImages = useMemo(() => {
 		// Find selected variant based on URL params
@@ -48,12 +56,6 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		// Fallback to all images
 		return images;
 	}, [variants, searchParams, images]);
-
-	// Reset selected index when variant changes
-	// biome-ignore lint/correctness/useExhaustiveDependencies: intentionally trigger reset when URL params change
-	useEffect(() => {
-		setSelectedIndex(0);
-	}, [searchParams]);
 
 	const handlePrevious = () => {
 		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));

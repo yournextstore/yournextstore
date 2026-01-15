@@ -48,6 +48,9 @@ function processVariants(variants: Variant[]) {
 		})),
 	);
 
+	// Track seen option IDs per label for O(1) deduplication
+	const seenOptionIds = new Map<string, Set<string>>();
+
 	const groupedByLabel = allCombinations.reduce(
 		(acc, { variantValue }) => {
 			const { label, type } = variantValue.variantType;
@@ -58,11 +61,12 @@ function processVariants(variants: Variant[]) {
 					type,
 					options: [],
 				};
+				seenOptionIds.set(label, new Set());
 			}
 
-			const existingOption = acc[label].options.find((opt) => opt.id === variantValue.id);
-
-			if (!existingOption) {
+			const seenIds = seenOptionIds.get(label);
+			if (seenIds && !seenIds.has(variantValue.id)) {
+				seenIds.add(variantValue.id);
 				acc[label].options.push({
 					id: variantValue.id,
 					value: variantValue.value,
@@ -84,23 +88,34 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
+	// Build Maps for O(1) lookups
+	const { groupByLabel, optionsByValue, optionsById } = useMemo(() => {
+		const groupByLabel = new Map(variantGroups.map((g) => [g.label, g]));
+		const optionsByValue = new Map(
+			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.value, o]))]),
+		);
+		const optionsById = new Map(
+			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.id, o]))]),
+		);
+		return { groupByLabel, optionsByValue, optionsById };
+	}, [variantGroups]);
+
 	const selectedOptions = useMemo(() => {
 		const paramsOptions: Record<string, string> = {};
 		searchParams.forEach((valueName, key) => {
-			const group = variantGroups.find((g) => g.label === key);
-			const option = group?.options.find((opt) => opt.value === valueName);
+			const option = optionsByValue.get(key)?.get(valueName);
 			if (option) {
 				paramsOptions[key] = option.id;
 			}
 		});
 		return paramsOptions;
-	}, [searchParams, variantGroups]);
+	}, [searchParams, optionsByValue]);
 
 	const handleOptionSelect = (label: string, optionId: string) => {
 		const newSelectedOptions = { ...selectedOptions, [label]: optionId };
 
 		const params = Object.entries(newSelectedOptions).reduce((acc, [key, value]) => {
-			const option = variantGroups.find((g) => g.label === key)?.options.find((opt) => opt.id === value);
+			const option = optionsById.get(key)?.get(value);
 			if (option) {
 				acc.set(key, option.value);
 			}
@@ -128,7 +143,10 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 	return (
 		<div className="space-y-8">
 			{variantGroups.map((group) => {
-				const selectedOption = group.options.find((opt) => selectedOptions[group.label] === opt.id);
+				const selectedOptionId = selectedOptions[group.label];
+				const selectedOption = selectedOptionId
+					? optionsById.get(group.label)?.get(selectedOptionId)
+					: undefined;
 
 				return (
 					<div key={group.label}>
