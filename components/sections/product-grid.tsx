@@ -52,20 +52,23 @@ export async function ProductGrid({
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 				{displayProducts.map((product) => {
 					const variants = "variants" in product ? product.variants : null;
-					const prices = variants?.map((v) => BigInt(v.price));
-					const minPrice = prices
-						? prices.length > 0
-							? prices.reduce((a, b) => (a < b ? a : b))
-							: null
-						: null;
-					const maxPrice = prices
-						? prices.length > 0
-							? prices.reduce((a, b) => (a > b ? a : b))
-							: null
-						: null;
+					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
+					const { minPrice, maxPrice } =
+						variants && firstVariantPrice !== null
+							? variants.reduce(
+									(acc, v) => {
+										const price = BigInt(v.price);
+										return {
+											minPrice: price < acc.minPrice ? price : acc.minPrice,
+											maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
+										};
+									},
+									{ minPrice: firstVariantPrice, maxPrice: firstVariantPrice },
+								)
+							: { minPrice: null, maxPrice: null };
 
 					const priceDisplay =
-						prices && prices.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
+						variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
 							? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 							: minPrice
 								? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
