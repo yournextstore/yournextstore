@@ -34,7 +34,7 @@ Stripe-native, ultra fast page loads, typed APIs.
 | **AI-Friendly Codebase** | Consistent patterns, typed APIs |
 | **Blazing Fast** | Next.js 16, React Compiler, edge caching |
 | **Stripe-Native** | Direct API integration, no plugins |
-| **Open Source** | Full control, self-host anywhere |
+| **Open Source** | self-host storefront anywhere |
 
 ## Quick Start
 
