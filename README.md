@@ -27,9 +27,14 @@ Stripe-native, ultra fast page loads, typed APIs.
   <a href="https://www.producthunt.com/posts/your-next-store"><img src="https://img.shields.io/badge/Product%20Hunt-720-DA552F?style=for-the-badge&logo=producthunt&logoColor=white&labelColor=DA552F" alt="Product Hunt" /></a>
 </div>
 
-| AI-Friendly Codebase | Blazing Fast | Stripe-Native | Open Source |
-|:---:|:---:|:---:|:---:|
-| Consistent patterns, typed APIs | Next.js 16, React Compiler, edge caching | Direct API integration, no plugins | Full control, self-host anywhere |
+<br/>
+
+| | |
+|:---|:---|
+| **AI-Friendly Codebase** | Consistent patterns, typed APIs |
+| **Blazing Fast** | Next.js 16, React Compiler, edge caching |
+| **Stripe-Native** | Direct API integration, no plugins |
+| **Open Source** | Full control, self-host anywhere |
 
 ## Quick Start
 
