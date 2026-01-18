@@ -7,10 +7,12 @@
 <h1 align="center">Your Next Store</h1>
 
 <p align="center">
-  <strong>Open-source Next.js e-commerce.</strong> Direct Stripe integration and millisecond page loads.
+  <strong>Open-source Next.js e-commerce.</strong> 
 </p>
-
-Built with standard Next.js patterns and typed commerce APIs. AI coding tools like Cursor and Copilot are more effective when the codebase is consistent and the APIs are well-defined.
+<p align="center">
+Stripe-native, ultra fast page loads, typed APIs. 
+<br/> Built for AI development (Claude, Codex, Cursor).
+</p>
 
 <div align="center">
   <a href="https://demo.yournextstore.com">
@@ -20,34 +22,22 @@ Built with standard Next.js patterns and typed commerce APIs. AI coding tools li
 </div>
 
 <div align="center">
-<table>
-<tr>
-<td>
 	<a href="https://yournextstore.com/discord"><img src="https://img.shields.io/discord/1206629600483082341?style=for-the-badge&logo=discord&logoColor=white&labelColor=%235865F2&color=%23555" alt="Join Discord" /></a>
-</td>
-<td>
 	<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyournextstore%2Fyournextstore&env=ENABLE_EXPERIMENTAL_COREPACK,YNS_API_KEY&envDescription=Read%20more%20about%20required%20env%20variables%20in%20YNS&envLink=https%3A%2F%2Fgithub.com%2Fyournextstore%2Fyournextstore%2Ftree%2Fupcoming%3Ftab%3Dreadme-ov-file%23add-environmental-variables&project-name=yournextstore&repository-name=yournextstore&demo-title=Your%20Next%20Store&demo-description=A%20Next.js%20boilerplate%20for%20building%20your%20online%20store%20instantly%3A%20simple%2C%20quick%2C%20powerful.&demo-url=https%3A%2F%2Fdemo.yournextstore.com%2F&demo-image=https%3A%2F%2Fyournextstore.com%2Fdemo.png"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
-</td>
-<td>
-<a href="https://www.producthunt.com/posts/your-next-store?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-your-next-store">
-	<picture>
-		<source
-			media="(prefers-color-scheme: dark)"
-			srcSet="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009314&theme=dark"
-		/>
-		<img
-			src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009314&theme=light"
-			height="36"
-			alt="Your Next Store ⋅ Online commerce should be fast and modern | Product Hunt"
-		/>
-	</picture>
-</a>
-</td>
-</tr>
-</table>
+	<a href="https://www.producthunt.com/posts/your-next-store?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-your-next-store">
+		<picture>
+			<source
+				media="(prefers-color-scheme: dark)"
+				srcSet="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009314&theme=dark"
+			/>
+			<img
+				src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1009314&theme=light"
+				height="36"
+				alt="Your Next Store ⋅ Online commerce should be fast and modern | Product Hunt"
+			/>
+		</picture>
+	</a>
 </div>
-
----
 
 <table>
 <tr>
