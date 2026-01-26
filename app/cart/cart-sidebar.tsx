@@ -1,12 +1,12 @@
 "use client";
 
 import { ShoppingBag } from "lucide-react";
-import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
@@ -60,9 +60,9 @@ export function CartSidebar({ baseUrl }: { baseUrl: string }) {
 								</div>
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
 								<Button asChild className="w-full h-12 text-base font-medium">
-									<Link href={checkoutUrl} onClick={closeCart}>
+									<YnsLink prefetch={false} href={checkoutUrl} onClick={closeCart}>
 										Checkout
-									</Link>
+									</YnsLink>
 								</Button>
 								<button
 									type="button"

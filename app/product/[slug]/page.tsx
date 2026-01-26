@@ -1,41 +1,20 @@
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { ImageGallery } from "@/app/product/[slug]/image-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
-import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
-function ProductDetailsSkeleton() {
-	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<Skeleton className="aspect-square rounded-2xl" />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<div className="space-y-4">
-						<Skeleton className="h-12 w-3/4" />
-						<Skeleton className="h-8 w-1/4" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-					<Skeleton className="h-14 w-full rounded-full" />
-				</div>
-			</div>
-		</div>
-	);
-}
-
 export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
-	return (
-		<Suspense fallback={<ProductDetailsSkeleton />}>
-			<ProductDetails params={props.params} />
-		</Suspense>
-	);
+	"use cache";
+	cacheLife("minutes");
+
+	return <ProductDetails params={props.params} />;
 }
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
-	"use cache";
 	const { slug } = await params;
 	const product = await commerce.productGet({ idOrSlug: slug });
 

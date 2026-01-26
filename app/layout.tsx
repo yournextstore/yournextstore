@@ -1,16 +1,16 @@
+import "@/app/globals.css";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
-import Link from "next/link";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
-import { CartButton } from "@/app/cart-button";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
+import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
-import "@/app/globals.css";
-import { ShoppingCartIcon } from "lucide-react";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -26,14 +26,6 @@ export const metadata: Metadata = {
 	title: "Your Next Store",
 	description: "Your next e-commerce store",
 };
-
-function CartButtonFallback() {
-	return (
-		<div className="p-2 rounded-full w-10 h-10" aria-description="Loading cart">
-			<ShoppingCartIcon className="w-6 h-6 opacity-20" />
-		</div>
-	);
-}
 
 async function getInitialCart() {
 	const cookieStore = await cookies();
@@ -64,14 +56,12 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 						<div className="flex items-center justify-between h-16">
 							<div className="flex items-center gap-8">
-								<Link href="/" className="text-xl font-bold">
+								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
 									Your Next Store
-								</Link>
+								</YnsLink>
 								<Navbar />
 							</div>
-							<Suspense fallback={<CartButtonFallback />}>
-								<CartButton />
-							</Suspense>
+							<CartButton />
 						</div>
 					</div>
 				</header>
@@ -91,7 +81,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<Suspense fallback={null}>
+				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>
 			</body>
