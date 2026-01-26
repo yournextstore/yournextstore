@@ -1,5 +1,5 @@
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { ArrowRightIcon } from "lucide-react";
+import { YnsLink } from "../yns-link";
 
 export function Hero() {
 	return (
@@ -15,25 +15,27 @@ export function Hero() {
 							to last.
 						</p>
 						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
+							<YnsLink
+								prefetch={"eager"}
 								href="#products"
 								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-primary-foreground rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
 							>
 								Shop Collection
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-							<Link
+								<ArrowRightIcon className="h-4 w-4" />
+							</YnsLink>
+							<YnsLink
+								prefetch={"eager"}
 								href="#about"
 								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
 							>
 								Our Story
-							</Link>
+							</YnsLink>
 						</div>
 					</div>
 				</div>
 			</div>
 			{/* Subtle decorative element */}
-			<div className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-gradient-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block" />
+			<div className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block" />
 		</section>
 	);
 }

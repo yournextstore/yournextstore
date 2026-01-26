@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import Link from "next/link";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 
 async function FooterCollections() {
@@ -18,12 +18,13 @@ async function FooterCollections() {
 			<ul className="mt-4 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<Link
+						<YnsLink
+							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{collection.name}
-						</Link>
+						</YnsLink>
 					</li>
 				))}
 			</ul>
@@ -38,9 +39,9 @@ export function Footer() {
 				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
 					{/* Brand */}
 					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
 							Your Next Store
-						</Link>
+						</YnsLink>
 						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
 							Curated essentials for modern living. Quality products, thoughtfully designed.
 						</p>
