@@ -2,10 +2,10 @@ import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commer
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
-import Link from "next/link";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -27,7 +27,7 @@ export async function ProductGrid({
 	viewAllHref = "/products",
 }: ProductGridProps) {
 	"use cache";
-	cacheLife("seconds");
+	cacheLife("minutes");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
@@ -39,13 +39,14 @@ export async function ProductGrid({
 					<p className="mt-2 text-muted-foreground">{description}</p>
 				</div>
 				{showViewAll && (
-					<Link
+					<YnsLink
+						prefetch={"eager"}
 						href={viewAllHref}
 						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
-					</Link>
+					</YnsLink>
 				)}
 			</div>
 
@@ -84,7 +85,7 @@ export async function ProductGrid({
 					const secondaryImage = allImages[1];
 
 					return (
-						<Link key={product.id} href={`/product/${product.slug}`} className="group">
+						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
 							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 								{primaryImage && (
 									<Image
@@ -109,20 +110,21 @@ export async function ProductGrid({
 								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
 								<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
 							</div>
-						</Link>
+						</YnsLink>
 					);
 				})}
 			</div>
 
 			{showViewAll && (
 				<div className="mt-12 text-center sm:hidden">
-					<Link
+					<YnsLink
+						prefetch={"eager"}
 						href={viewAllHref}
 						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 					>
 						View all products
 						<ArrowRight className="h-4 w-4" />
-					</Link>
+					</YnsLink>
 				</div>
 			)}
 		</section>
