@@ -1,9 +1,6 @@
-// @ts-check
+import type { NextConfig } from "next";
 
-import { commerce } from "./lib/commerce";
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
 	/* config options here */
 	reactCompiler: true,
 	cacheComponents: true,
@@ -42,20 +39,6 @@ const nextConfig = {
 	},
 	images: {
 		remotePatterns: [{ protocol: "https", hostname: "*.blob.vercel-storage.com" }],
-	},
-	async rewrites() {
-		const { store, publicUrl } = await commerce.meGet();
-
-		return [
-			{
-				source: "/checkout",
-				destination: `${publicUrl}/${store.subdomain}/checkout`,
-			},
-			{
-				source: "/checkout/:path*",
-				destination: `${publicUrl}/${store.subdomain}/checkout/:path*`,
-			},
-		];
 	},
 };
 
