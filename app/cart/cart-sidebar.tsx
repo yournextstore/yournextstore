@@ -10,10 +10,10 @@ import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
-export function CartSidebar({ baseUrl }: { baseUrl: string }) {
-	const { isOpen, closeCart, items, itemCount, subtotal, cartId } = useCart();
+export function CartSidebar() {
+	const { isOpen, closeCart, items, itemCount, subtotal } = useCart();
 
-	const checkoutUrl = cartId ? `${baseUrl}/api/v1/carts/${cartId}/checkout` : "#";
+	const checkoutUrl = `/checkout`;
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
