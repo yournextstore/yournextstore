@@ -1,5 +1,7 @@
 // @ts-check
 
+import { commerce } from "./lib/commerce";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	/* config options here */
@@ -42,18 +44,16 @@ const nextConfig = {
 		remotePatterns: [{ protocol: "https", hostname: "*.blob.vercel-storage.com" }],
 	},
 	async rewrites() {
-		if (!process.env.NEXT_PUBLIC_YNS_API_TENANT) {
-			throw new Error("NEXT_PUBLIC_YNS_API_TENANT is not defined");
-		}
+		const { store, publicUrl } = await commerce.meGet();
 
 		return [
 			{
 				source: "/checkout",
-				destination: `${process.env.NEXT_PUBLIC_YNS_API_TENANT}/checkout`,
+				destination: `${publicUrl}/${store.subdomain}/checkout`,
 			},
 			{
 				source: "/checkout/:path*",
-				destination: `${process.env.NEXT_PUBLIC_YNS_API_TENANT}/checkout/:path*`,
+				destination: `${publicUrl}/${store.subdomain}/checkout/:path*`,
 			},
 		];
 	},
