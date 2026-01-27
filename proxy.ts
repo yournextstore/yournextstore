@@ -5,17 +5,22 @@ import { commerce } from "./lib/commerce";
 export async function proxy(request: NextRequest) {
 	const { store, publicUrl } = await commerce.meGet();
 	const destinationUrl = new URL(publicUrl);
-	const storeHost = store.domain || `${store.subdomain}.${destinationUrl.host}`;
 
 	// Clone the request headers and set the correct x-forwarded-host
 	const requestHeaders = new Headers(request.headers);
-	requestHeaders.set("x-forwarded-host", storeHost);
+	requestHeaders.set("x-forwarded-host", destinationUrl.host);
+	requestHeaders.set("origin", destinationUrl.toString());
 
 	// Rewrite to the destination with updated headers
-	const url = new URL(`/${store.subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, publicUrl);
+	const url = new URL(
+		`/${store.subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`,
+		destinationUrl,
+	);
 
 	return NextResponse.rewrite(url, {
-		headers: requestHeaders,
+		request: {
+			headers: requestHeaders,
+		},
 	});
 }
 
