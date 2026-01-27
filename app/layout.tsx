@@ -8,6 +8,7 @@ import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
+import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
@@ -63,6 +64,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</header>
 				<div className="flex-1">{children}</div>
 				<Footer />
+				<ReferralBadge storeSubdomain={process.env.NEXT_PUBLIC_YNS_STORE_SUBDOMAIN ?? "yns-store"} />
 			</div>
 			<CartSidebar />
 		</CartProvider>
