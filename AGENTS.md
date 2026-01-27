@@ -478,7 +478,6 @@ bun start
 
 **Required for production**:
 - `YNS_API_KEY` - YNS API authentication token
-- `NEXT_PUBLIC_ROOT_URL` - Your deployed URL (for OpenGraph, etc.)
 
 **Vercel deployment**:
 1. Set environment variables in Vercel dashboard
