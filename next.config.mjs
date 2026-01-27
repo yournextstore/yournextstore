@@ -42,20 +42,18 @@ const nextConfig = {
 		remotePatterns: [{ protocol: "https", hostname: "*.blob.vercel-storage.com" }],
 	},
 	async rewrites() {
-		// const storeSubdomain = process.env.STORE_SUBDOMAIN;
-		// const ynsBaseUrl = process.env.YNS_BASE_URL || "https://yns.cx";
-		const storeSubdomain = "iyi-siyere";
-		// const ynsBaseUrl = "https://yns.cx";
-		const ynsBaseUrl = "http://localhost:3000";
+		if (!process.env.NEXT_PUBLIC_YNS_API_TENANT) {
+			throw new Error("NEXT_PUBLIC_YNS_API_TENANT is not defined");
+		}
 
 		return [
 			{
 				source: "/checkout",
-				destination: `${ynsBaseUrl}/${storeSubdomain}/checkout`,
+				destination: `${process.env.NEXT_PUBLIC_YNS_API_TENANT}/checkout`,
 			},
 			{
 				source: "/checkout/:path*",
-				destination: `${ynsBaseUrl}/${storeSubdomain}/checkout/:path*`,
+				destination: `${process.env.NEXT_PUBLIC_YNS_API_TENANT}/checkout/:path*`,
 			},
 		];
 	},

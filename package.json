@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bun next dev",
+    "dev": "bun next dev --port 4001",
     "build": "bun next build",
-    "start": "bun next start",
+    "start": "bun next start --port 4001",
     "lint": "biome check",
     "format": "biome format --write"
   },
