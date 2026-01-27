@@ -1,9 +1,13 @@
-interface ReferralBadgeProps {
-	storeSubdomain: string;
-}
+import { commerce } from "@/lib/commerce";
 
-export function ReferralBadge({ storeSubdomain }: ReferralBadgeProps) {
-	const referralUrl = `https://yournextstore.com/?utm_source=yns-store&utm_medium=referral&utm_campaign=${storeSubdomain}`;
+export async function ReferralBadge() {
+	let subdomain = "store";
+	try {
+		const { store } = await commerce.meGet();
+		subdomain = store.subdomain;
+	} catch {}
+
+	const referralUrl = `https://yournextstore.com/?utm_source=yns-store&utm_medium=referral&utm_campaign=${subdomain}`;
 
 	return (
 		<a

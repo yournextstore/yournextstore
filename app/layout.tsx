@@ -64,7 +64,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</header>
 				<div className="flex-1">{children}</div>
 				<Footer />
-				<ReferralBadge storeSubdomain={process.env.NEXT_PUBLIC_YNS_STORE_SUBDOMAIN ?? "yns-store"} />
+				<ReferralBadge />
 			</div>
 			<CartSidebar />
 		</CartProvider>
