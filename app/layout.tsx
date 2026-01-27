@@ -2,7 +2,6 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -11,6 +10,7 @@ import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
+import { getCartCookieJson } from "@/lib/cookies";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -28,26 +28,22 @@ export const metadata: Metadata = {
 };
 
 async function getInitialCart() {
-	const cookieStore = await cookies();
-	const cartId = cookieStore.get("cartId")?.value;
+	const cartCookie = await getCartCookieJson();
 
-	if (!cartId) {
+	if (!cartCookie?.id) {
 		return { cart: null, cartId: null };
 	}
 
 	try {
-		const cart = await commerce.cartGet({ cartId });
-		return { cart: cart ?? null, cartId };
+		const cart = await commerce.cartGet({ cartId: cartCookie.id });
+		return { cart: cart ?? null, cartId: cartCookie.id };
 	} catch {
-		return { cart: null, cartId };
+		return { cart: null, cartId: cartCookie.id };
 	}
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const { cart, cartId } = await getInitialCart();
-
-	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
-	const baseUrl = isStaging ? "https://yns.cx" : "https://yns.store";
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
@@ -68,7 +64,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				<div className="flex-1">{children}</div>
 				<Footer />
 			</div>
-			<CartSidebar baseUrl={baseUrl} />
+			<CartSidebar />
 		</CartProvider>
 	);
 }

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bun next dev",
+    "dev": "bun next dev --port 4001",
     "build": "bun next build",
-    "start": "bun next start",
+    "start": "bun next start --port 4001",
     "lint": "biome check",
     "format": "biome format --write"
   },
@@ -41,7 +41,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "commerce-kit": "0.14.0",
+    "commerce-kit": "0.16.2",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",

@@ -130,7 +130,7 @@
 			"includes": [
 				"**/*.d.ts",
 				"**/proxy.ts",
-				"**/next.config.mjs",
+				"**/next.config.{mjs,ts}",
 				"**/postcss.config.mjs",
 				"**/tailwind.config.ts",
 				"**/app/**/default.tsx",
