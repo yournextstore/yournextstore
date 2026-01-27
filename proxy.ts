@@ -1,23 +1,21 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getSubdomainPublicUrl } from "./lib/commerce";
+import { commerce } from "./lib/commerce";
 
 export async function proxy(request: NextRequest) {
-	const { subdomain, publicUrl } = await getSubdomainPublicUrl();
+	const { store, publicUrl } = await commerce.meGet();
 	const destinationUrl = new URL(publicUrl);
+	const storeHost = store.domain || `${store.subdomain}.${destinationUrl.host}`;
 
 	// Clone the request headers and set the correct x-forwarded-host
 	const requestHeaders = new Headers(request.headers);
-	requestHeaders.set("x-forwarded-host", destinationUrl.host);
-	requestHeaders.set("origin", destinationUrl.toString());
+	requestHeaders.set("x-forwarded-host", storeHost);
 
 	// Rewrite to the destination with updated headers
-	const url = new URL(`/${subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, destinationUrl);
+	const url = new URL(`/${store.subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, publicUrl);
 
 	return NextResponse.rewrite(url, {
-		request: {
-			headers: requestHeaders,
-		},
+		headers: requestHeaders,
 	});
 }
 
