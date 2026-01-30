@@ -9,6 +9,7 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 import { ReferralBadge } from "@/components/referral-badge";
+import { NavigationReporter } from "@/components/navigation-reporter";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
@@ -82,6 +83,7 @@ export default function RootLayout({
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>
+				<NavigationReporter />
 			</body>
 		</html>
 	);
