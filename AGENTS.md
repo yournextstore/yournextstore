@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides specialized guidance for Claude Code agents when working with the Your Next Store e-commerce application.
+This file provides specialized guidance for AI agents when working with the Your Next Store e-commerce application.
 
 ## Agent Workflows
 
@@ -100,7 +100,7 @@ bun run lint
 ```
 
 #### Phase 2: Implementation
-- **Follow Biome rules** (see CLAUDE.md Code Standards section)
+- **Follow Biome rules** (see AGENTS.md Code Standards section)
 - **Use existing patterns** from similar features
 - **Reuse UI components** from `components/ui/`
 - **Type safety**: No `any`, rely on inference, minimal return type annotations
@@ -133,6 +133,10 @@ bun dev
 - [ ] No console errors or warnings
 - [ ] Images load correctly (if applicable)
 - [ ] Mobile responsive (check at different breakpoints)
+
+### 4. Frontend Design Skill
+
+For UI-heavy tasks (pages, sections, components) where design quality matters, invoke the `frontend-design:frontend-design` skill.
 
 ## Common Agent Tasks
 
