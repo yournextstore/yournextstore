@@ -47,36 +47,40 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
+		<div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 py-8">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-12">
+				{/* Left: Image Gallery */}
+				<div className="bg-card rounded-3xl p-4 shadow-soft">
+					<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
+				</div>
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title, Price, Description */}
-					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
-					</div>
+					{/* Title, Price, Description Card */}
+					<div className="bg-card rounded-3xl p-6 md:p-8 shadow-soft space-y-6">
+						<div className="space-y-4">
+							<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground text-balance">
+								{product.name}
+							</h1>
+							<p className="text-2xl md:text-3xl font-bold text-primary">{priceDisplay}</p>
+							{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						</div>
 
-					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
-					<AddToCartButton
-						variants={product.variants}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images,
-						}}
-					/>
+						{/* Variant Selector, Quantity, Add to Cart */}
+						<AddToCartButton
+							variants={product.variants}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images,
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 
-			{/* Features Section (full width below) */}
+			{/* Features Section */}
 			<ProductFeatures />
 		</div>
 	);
