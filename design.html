@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Xefag Product Collection</title>
+<script type='text/javascript' nonce='jj8dhZYbVbYc02lDDoFxMg==' src='https://contribution.usercontent.google.com/Q0qSOm6xJZKHqEm4WFbbF9JinVeyY2xTewQXgyAYWidEK0IOJs1Z5zyV4oxZYXGjCsu-TG2I62zOZdKlZeWqDsApPN1rONqh2rYVAwT-U4dsTOFNCUQvVsrAy86SjhSx1AqNx_AHJXHchsC5bHSOQX-V3mNSD6vMHHOS1boi940='></script><script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8B1E3F", // Deep maroon from the screenshot
+                        secondary: "#FDF2F4", // Very light pink for accents
+                        "background-light": "#FDF2F4", // Soft pink background
+                        "background-dark": "#3D0C1B", // Darker maroon for dark mode background
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#5D142B",
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        display: ['Playfair Display', 'serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        'xl': "1.5rem",
+                        '2xl': "2rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(139, 30, 63, 0.2);
+            border-radius: 20px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: rgba(253, 242, 244, 0.2);
+        }@keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-hover:hover .product-img {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-gray-800 dark:text-gray-100 transition-colors duration-300 font-sans">
+<nav class="fixed w-full z-50 px-6 py-6 md:px-12 transition-all duration-300 backdrop-blur-md bg-background-light/80 dark:bg-background-dark/80">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full border-2 border-primary dark:border-white flex items-center justify-center relative overflow-hidden">
+<div class="absolute w-full h-full border border-primary dark:border-white rounded-full rotate-45 scale-75"></div>
+<div class="absolute w-full h-full border border-primary dark:border-white rounded-full -rotate-45 scale-75"></div>
+</div>
+<span class="font-display font-bold text-2xl tracking-wide text-primary dark:text-white">xefag</span>
+</div>
+<div class="hidden md:flex items-center bg-white dark:bg-primary/20 p-1.5 rounded-full shadow-sm border border-primary/10 dark:border-white/10">
+<a class="px-6 py-2 rounded-full bg-primary text-white font-medium text-sm transition-transform hover:scale-105 shadow-md" href="#">Products</a>
+<a class="px-6 py-2 rounded-full text-gray-600 dark:text-gray-200 hover:text-primary dark:hover:text-white font-medium text-sm transition-colors" href="#">About</a>
+<a class="px-6 py-2 rounded-full text-gray-600 dark:text-gray-200 hover:text-primary dark:hover:text-white font-medium text-sm transition-colors" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-primary/40 transition-colors text-primary dark:text-white border border-transparent hover:border-primary/10 dark:hover:border-white/10">
+<span class="material-icons-outlined text-xl">person_outline</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-white text-primary font-bold shadow-md relative hover:scale-105 transition-transform">
+<span class="material-icons-outlined text-lg">shopping_basket</span>
+<span class="absolute -top-1 -right-1 w-4 h-4 bg-gray-900 text-white text-[10px] flex items-center justify-center rounded-full">3</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
+<header class="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="max-w-2xl">
+<div class="flex items-center gap-2 mb-4 text-primary dark:text-pink-300 font-medium text-sm tracking-wider uppercase">
+<span class="w-8 h-[1px] bg-primary dark:bg-pink-300"></span>
+<span>Wellness Collection</span>
+</div>
+<h1 class="font-display text-5xl md:text-7xl font-bold text-primary dark:text-white leading-tight">
+                    Elevate Your <br/> Daily Rituals
+                </h1>
+<p class="mt-6 text-lg text-gray-600 dark:text-gray-300 max-w-lg leading-relaxed">
+                    Scientifically formulated dissolvable wafers designed to seamlessly integrate into your lifestyle. Pure, potent, and precise.
+                </p>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:pb-0">
+<button class="flex items-center gap-2 px-5 py-3 bg-primary text-white rounded-full shadow-lg hover:shadow-primary/30 transition-shadow whitespace-nowrap">
+<span class="material-icons-outlined text-sm">grid_view</span>
+                    All Products
+                </button>
+<button class="flex items-center gap-2 px-5 py-3 bg-white dark:bg-card-dark border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-200 rounded-full hover:border-primary dark:hover:border-white transition-colors whitespace-nowrap">
+<span class="material-icons-outlined text-sm">bedtime</span>
+                    Sleep &amp; Relax
+                </button>
+<button class="flex items-center gap-2 px-5 py-3 bg-white dark:bg-card-dark border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-200 rounded-full hover:border-primary dark:hover:border-white transition-colors whitespace-nowrap">
+<span class="material-icons-outlined text-sm">bolt</span>
+                    Energy &amp; Focus
+                </button>
+</div>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<article class="group float-hover relative bg-white dark:bg-card-dark rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl border border-transparent hover:border-primary/10 dark:hover:border-white/10">
+<div class="absolute top-6 right-6 z-10">
+<span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-secondary dark:bg-primary/40 text-primary dark:text-pink-200">Bestseller</span>
+</div>
+<div class="aspect-[4/5] flex items-center justify-center relative mb-6">
+<div class="absolute w-64 h-64 bg-gradient-to-tr from-pink-100 to-pink-50 dark:from-primary/20 dark:to-transparent rounded-full blur-2xl opacity-70 group-hover:scale-110 transition-transform duration-700"></div>
+<img alt="Sleep Supplement Bottle Red" class="product-img relative z-10 h-64 object-contain drop-shadow-xl transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhG7QHrSctZ1KEshAT5Og9Q2TwuzKUlTOhamN7E__F26tNIlmNL-5rNLXAZBr-ZJ_4gyemklhwzilpGwwHCdIrqpyMkQWLMI58LOQBetgzaw8CMo5VL7P9frvxp8KkUlha0m0zQx2xaWR7WfE1tWEhQAb-6GMqoROqld6H5VypPAAehOyucDuhnr2CsjK0Y8HsT-_g8_3DcYJbDDJqoe3_0EE5ESLctGlXce23NeLCjCHsFPxKZUWyFY7aBW9UDJ6XNhgMXm8xoAlP"/>
+</div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-display text-3xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-pink-300 transition-colors">Sleep</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">30 Dissolvable Wafers</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-xl text-primary dark:text-pink-300">$25.50</p>
+<p class="text-xs text-gray-400">250 mg</p>
+</div>
+</div>
+<p class="text-gray-600 dark:text-gray-300 text-sm mb-6 line-clamp-2">
+                    Calm your mind and prepare for a restful night with our fast-acting melatonin blend.
+                </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1 text-yellow-500">
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star_half</span>
+<span class="text-xs text-gray-400 ml-1">(128)</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-gray-900 dark:hover:bg-white dark:hover:text-primary transition-colors shadow-lg">
+<span class="material-icons-outlined">add</span>
+</button>
+</div>
+</article>
+<article class="group float-hover relative bg-white dark:bg-card-dark rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl border border-transparent hover:border-primary/10 dark:hover:border-white/10">
+<div class="aspect-[4/5] flex items-center justify-center relative mb-6">
+<div class="absolute w-64 h-64 bg-gradient-to-tr from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-transparent rounded-full blur-2xl opacity-70 group-hover:scale-110 transition-transform duration-700"></div>
+<img alt="Relax Supplement Bottle Purple" class="product-img relative z-10 h-64 object-contain drop-shadow-xl transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQis8Y51UHZ9aA0MVaXHzJSa5rMoJqFfCGGtSY1xzQvFChQoK8Puv_hUPFDzofG9RPBUkOMsk8Ke-f65_Dskrdb3-LHhNJJnU83lWKzXI2KXvzvn9c-pHJzQbX_Im8Yv071BUrRhPCBhT1_slf_SyvT-B765cc8uiyq0ypGQdpNEDuQ0n16gPOPgzzicgHcd7AE9CG9Oy5_P4WBh9ylLqd9Ptcd_BLPw9ANGZi9pb9_KsqExBggN9SakvH9ouWX0x_CFG2UjH_L0ih" style="filter: hue-rotate(45deg);"/>
+</div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-display text-3xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-pink-300 transition-colors">Relax</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">30 Dissolvable Wafers</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-xl text-primary dark:text-pink-300">$28.00</p>
+<p class="text-xs text-gray-400">200 mg</p>
+</div>
+</div>
+<p class="text-gray-600 dark:text-gray-300 text-sm mb-6 line-clamp-2">
+                    Unwind after a long day. Reduce stress and anxiety naturally with ashwagandha.
+                </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1 text-yellow-500">
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="text-xs text-gray-400 ml-1">(84)</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white border border-gray-200 dark:border-white/20 text-primary dark:text-white flex items-center justify-center hover:bg-primary hover:text-white hover:border-transparent transition-colors shadow-sm">
+<span class="material-icons-outlined">add</span>
+</button>
+</div>
+</article>
+<article class="group float-hover relative bg-white dark:bg-card-dark rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl border border-transparent hover:border-primary/10 dark:hover:border-white/10">
+<div class="aspect-[4/5] flex items-center justify-center relative mb-6">
+<div class="absolute w-64 h-64 bg-gradient-to-tr from-orange-100 to-yellow-50 dark:from-orange-900/30 dark:to-transparent rounded-full blur-2xl opacity-70 group-hover:scale-110 transition-transform duration-700"></div>
+<img alt="Focus Supplement Bottle Orange" class="product-img relative z-10 h-64 object-contain drop-shadow-xl transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgnM7uLd_FNRGqJ2tYtyuwf5JBTo3qxWhPWCTUOD_-PZ8Eo-Df8G2NK_Q1E6u4qjHbl0oQoX5PfxTgxvMpDB9yLLGBBnM9UkiGMcjPQ9gzuuWDaWL73xNtosN6cMuxJPJOAuE5p-tWRfgkYsVbRd9-NGUFjnRSrsmVGZPNPK0A3HLQ0T4N68D2Z-6MdIA2JRz7afcH5E9K6BKFJjYtdswwWDYs70BaeF-DPByQW4ISz7HpKe12-SKBDMWIUiwFw_oHtL_BF9XBs9Uk" style="filter: hue-rotate(-45deg) saturate(1.2);"/>
+</div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-display text-3xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-pink-300 transition-colors">Focus</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">30 Dissolvable Wafers</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-xl text-primary dark:text-pink-300">$26.50</p>
+<p class="text-xs text-gray-400">150 mg</p>
+</div>
+</div>
+<p class="text-gray-600 dark:text-gray-300 text-sm mb-6 line-clamp-2">
+                    Sharpen your concentration and boost cognitive performance without the jitters.
+                </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1 text-yellow-500">
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star_border</span>
+<span class="text-xs text-gray-400 ml-1">(42)</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white border border-gray-200 dark:border-white/20 text-primary dark:text-white flex items-center justify-center hover:bg-primary hover:text-white hover:border-transparent transition-colors shadow-sm">
+<span class="material-icons-outlined">add</span>
+</button>
+</div>
+</article>
+<article class="group float-hover relative bg-white dark:bg-card-dark rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl border border-transparent hover:border-primary/10 dark:hover:border-white/10">
+<div class="absolute top-6 right-6 z-10">
+<span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">New</span>
+</div>
+<div class="aspect-[4/5] flex items-center justify-center relative mb-6">
+<div class="absolute w-64 h-64 bg-gradient-to-tr from-green-100 to-teal-50 dark:from-teal-900/30 dark:to-transparent rounded-full blur-2xl opacity-70 group-hover:scale-110 transition-transform duration-700"></div>
+<img alt="Glow Supplement Bottle Green" class="product-img relative z-10 h-64 object-contain drop-shadow-xl transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGpdRGTJPeS7L056Z88pxLCjl9TG48RghwQ476yjZ_AO9o7jHYLGsKBaQrMJLDvh83rCrk4gS6gmrC985Dp29yMIt4soK1ahMnNRU5vtRcAf7Kc1m-XnH7uBSYvxMkbQr2SKR_uD8wGYYpaIJpYucA27JLhgXxmMqegXmpuIhsbsjpKfXAT3Jr4nELEjaQ5erj6b7D0gOxDtZ_Nuv7J15HbPpUDJNnv5TyF4XT3Pn_3S0TqxJ9wMueyxdmb1b6idnAeJDI1U7_Zoge" style="filter: hue-rotate(90deg);"/>
+</div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-display text-3xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-pink-300 transition-colors">Glow</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">30 Dissolvable Wafers</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-xl text-primary dark:text-pink-300">$32.00</p>
+<p class="text-xs text-gray-400">200 mg</p>
+</div>
+</div>
+<p class="text-gray-600 dark:text-gray-300 text-sm mb-6 line-clamp-2">
+                    Radiate from within. Supports collagen production for healthy hair, skin, and nails.
+                </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1 text-yellow-500">
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="material-icons-outlined text-sm">star</span>
+<span class="text-xs text-gray-400 ml-1">(15)</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white border border-gray-200 dark:border-white/20 text-primary dark:text-white flex items-center justify-center hover:bg-primary hover:text-white hover:border-transparent transition-colors shadow-sm">
+<span class="material-icons-outlined">add</span>
+</button>
+</div>
+</article>
+</div>
+<div class="mt-20 flex justify-center">
+<button class="px-8 py-4 bg-transparent border border-primary dark:border-white/30 text-primary dark:text-white rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 font-medium tracking-wide flex items-center gap-2 group">
+                 Load More Products
+                 <span class="material-icons-outlined group-hover:translate-y-1 transition-transform text-sm">expand_more</span>
+</button>
+</div>
+</main>
+<footer class="bg-white dark:bg-card-dark py-12 px-6 border-t border-gray-100 dark:border-white/5">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all cursor-pointer">
+<div class="w-6 h-6 rounded-full border border-primary dark:border-white flex items-center justify-center relative overflow-hidden">
+<div class="absolute w-full h-full border border-primary dark:border-white rounded-full rotate-45 scale-75"></div>
+</div>
+<span class="font-display font-bold text-lg tracking-wide text-primary dark:text-white">xefag</span>
+</div>
+<p class="text-sm text-gray-400">© 2023 Xefag Wellness. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="text-gray-400 hover:text-primary dark:hover:text-white transition-colors" href="#">Terms</a>
+<a class="text-gray-400 hover:text-primary dark:hover:text-white transition-colors" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+<div class="fixed bottom-6 right-6 z-50">
+<button class="w-12 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-outlined dark:hidden">dark_mode</span>
+<span class="material-icons-outlined hidden dark:block">light_mode</span>
+</button>
+</div>
+
+</body></html>
