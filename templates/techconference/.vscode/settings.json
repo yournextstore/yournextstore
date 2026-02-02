@@ -1,0 +1,58 @@
+{
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"tailwindCSS.experimental.classRegex": [
+		["(?:twMerge|twJoin|cva|cn|clsx)\\(([^\\);]*)[\\);]", "[`'\"]([^'\"`,;]*)[`'\"]"],
+		["tw`(.+?)`"]
+	],
+	"tailwindCSS.classAttributes": ["className", "tw", "class", "linkClassName"],
+	"typescript.preferences.importModuleSpecifier": "shortest",
+	"editor.defaultFormatter": "biomejs.biome",
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "always",
+		"source.organizeImports.biome": "always"
+	},
+	"editor.quickSuggestions": {
+		"strings": true
+	},
+	"workbench.editor.customLabels.enabled": true,
+	"workbench.editor.customLabels.patterns": {
+		"**/app/**/page.tsx": "${dirname(1)}/${dirname} • page",
+		"**/app/**/layout.tsx": "${dirname(1)}/${dirname} • layout"
+	},
+	"typescript.preferences.autoImportSpecifierExcludeRegexes": [
+		"^@radix-ui/",
+		"^@react-email/",
+		"^postcss",
+		"^recharts",
+		"^next/router",
+		"^next/cache",
+		"^next/dist",
+		"^lucide-react/dist/lucide-react.suffixed$"
+	],
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[html]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[tailwindcss]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[css]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	}
+}
