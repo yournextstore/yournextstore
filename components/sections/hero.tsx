@@ -1,41 +1,20 @@
-import { ArrowRightIcon } from "lucide-react";
-import { YnsLink } from "../yns-link";
-
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<YnsLink
-								prefetch={"eager"}
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-primary-foreground rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
-							<YnsLink
-								prefetch={"eager"}
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</YnsLink>
-						</div>
-					</div>
-				</div>
+		<section className="grid grid-cols-12 grid-border-b min-h-[250px] md:min-h-[350px]">
+			{/* Left: Giant "Sneakers" text */}
+			<div className="col-span-12 md:col-span-8 grid-border-r flex items-center justify-center p-4 overflow-hidden relative">
+				<h2 className="font-display font-black text-[15vw] md:text-[11rem] leading-[0.8] tracking-tighter text-center select-none transform hover:scale-105 transition-transform duration-700 ease-out">
+					Sneakers
+				</h2>
 			</div>
-			{/* Subtle decorative element */}
-			<div className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block" />
+
+			{/* Right: Description text */}
+			<div className="col-span-12 md:col-span-4 flex items-center justify-center p-8 md:p-12 text-xs md:text-sm font-light leading-relaxed">
+				<p className="text-justify-last-left opacity-80 max-w-xs">
+					Allow Us To Become Your Reliable Partner In Achieving Your Athletic Goals And Choosing Footwear That
+					Will Accompany You Every Step Of Your Exciting Journey.
+				</p>
+			</div>
 		</section>
 	);
 }

@@ -58,10 +58,9 @@ export function CartItem({ item }: CartItemProps) {
 		<div className="flex gap-3 py-4">
 			{/* Product Image */}
 			<YnsLink
-				prefetch={"eager"}
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
 				{image && <YNSImage src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</YnsLink>
@@ -70,7 +69,6 @@ export function CartItem({ item }: CartItemProps) {
 			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
 				<div className="flex items-start justify-between gap-2">
 					<YnsLink
-						prefetch={"eager"}
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
 						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
@@ -80,7 +78,7 @@ export function CartItem({ item }: CartItemProps) {
 					<button
 						type="button"
 						onClick={handleRemove}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
+						className="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
 					>
 						<Trash2 className="h-4 w-4" />
 					</button>
@@ -92,7 +90,7 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
@@ -100,7 +98,7 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
 						>
 							<Plus className="h-3 w-3" />
 						</button>

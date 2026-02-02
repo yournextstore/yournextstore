@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -10,9 +10,14 @@ import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
+import "@/app/globals.css";
+import { Heart, Link, Search, ShoppingBag } from "lucide-react";
+import { cookies } from "next/headers";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -24,50 +29,97 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
+const inter = Inter({
+	variable: "--font-display",
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700", "900"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+	variable: "--font-body",
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-	title: "Your Next Store",
-	description: "Your next e-commerce store",
+	title: "Sneakers - Brutalist Store",
+	description: "Premium sneaker store with a raw, brutalist aesthetic.",
 };
 
-async function getInitialCart() {
-	const cartCookie = await getCartCookieJson();
+function CartButtonFallback() {
+	return (
+		<div className="w-5 h-5 opacity-20">
+			<ShoppingBag className="w-5 h-5" />
+		</div>
+	);
+}
 
-	if (!cartCookie?.id) {
+async function getInitialCart() {
+	const cookieStore = await cookies();
+	const cartId = cookieStore.get("cartId")?.value;
+
+	if (!cartId) {
 		return { cart: null, cartId: null };
 	}
 
 	try {
-		const cart = await commerce.cartGet({ cartId: cartCookie.id });
-		return { cart: cart ?? null, cartId: cartCookie.id };
+		const cart = await commerce.cartGet({ cartId });
+		return { cart: cart ?? null, cartId };
 	} catch {
-		return { cart: null, cartId: cartCookie.id };
+		return { cart: null, cartId };
 	}
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const { cart, cartId } = await getInitialCart();
 
+	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
+	const baseUrl = isStaging ? "https://yns.cx" : "https://yns.store";
+
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar />
-							</div>
-							<CartButton />
+			<div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 paper-bg transition-colors duration-300">
+				<main className="w-full max-w-[1400px] border border-border relative overflow-hidden shadow-2xl bg-card backdrop-blur-sm">
+					{/* Brutalist Grid Header */}
+					<header className="grid grid-cols-12 grid-border-b h-16 md:h-20 items-center">
+						{/* Logo */}
+						<div className="col-span-4 md:col-span-3 h-full flex items-center px-6 grid-border-r">
+							<YnsLink href="/">
+								<h1 className="font-display font-bold text-lg tracking-tighter uppercase">Sneakers</h1>
+							</YnsLink>
 						</div>
-					</div>
-				</header>
-				<div className="flex-1">{children}</div>
-				<Footer />
-				<ReferralBadge />
+
+						{/* Navigation - Hidden on mobile */}
+						<nav className="hidden md:col-span-6 md:flex h-full items-center justify-center space-x-12 grid-border-r font-medium text-sm tracking-wide">
+							<Navbar />
+						</nav>
+
+						{/* Empty space on mobile */}
+						<div className="col-span-4 md:hidden h-full grid-border-r" />
+
+						{/* Icons */}
+						<div className="col-span-4 md:col-span-3 h-full flex items-center justify-end px-6 space-x-6">
+							<button type="button" aria-label="Search" className="hover:text-primary transition-colors">
+								<Search className="w-5 h-5" />
+							</button>
+							<button type="button" aria-label="Favorites" className="hover:text-primary transition-colors">
+								<Heart className="w-5 h-5" />
+							</button>
+							<Suspense fallback={<CartButtonFallback />}>
+								<CartButton />
+							</Suspense>
+						</div>
+					</header>
+
+					{/* Page Content */}
+					<div className="flex-1">{children}</div>
+
+					{/* Footer */}
+					<Footer />
+				</main>
 			</div>
-			<CartSidebar />
+			<CartSidebar baseUrl={baseUrl} />
+			<ThemeToggle />
 		</CartProvider>
 	);
 }
@@ -77,20 +129,14 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const env = process.env.VERCEL_ENV || "development";
-
 	return (
-		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<Suspense>
-					<CartProviderWrapper>{children}</CartProviderWrapper>
-				</Suspense>
-				{env === "development" && (
-					<>
-						<NavigationReporter />
-						<ErrorOverlayRemover />
-					</>
-				)}
+		<html lang="en" className="scroll-smooth" suppressHydrationWarning>
+			<body className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased`}>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+					<Suspense fallback={null}>
+						<CartProviderWrapper>{children}</CartProviderWrapper>
+					</Suspense>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

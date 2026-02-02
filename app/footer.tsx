@@ -1,63 +1,20 @@
-import { cacheLife } from "next/cache";
-import { YnsLink } from "@/components/yns-link";
-import { commerce } from "@/lib/commerce";
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</YnsLink>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
-					</p>
-				</div>
+		<section className="grid grid-cols-12 grid-border-b md:border-b-0">
+			{/* Left column with description text */}
+			<div className="col-span-12 md:col-span-4 grid-border-r p-8 md:p-12 min-h-[200px] flex items-center">
+				<p className="text-xs leading-relaxed opacity-70">
+					Our Sneakers Are Renowned For Their Unparalleled Quality, Comfort, And Durability. Our Products Are
+					Crafted Using High-Quality Materials And Cutting-Edge Technologies That Provide Optimal Cushioning,
+					Ventilation, And Support For Your Feet Throughout The Day.
+				</p>
 			</div>
-		</footer>
+
+			{/* Middle empty column */}
+			<div className="col-span-12 md:col-span-4 grid-border-r hidden md:block" />
+
+			{/* Right empty column */}
+			<div className="col-span-12 md:col-span-4 hidden md:block" />
+		</section>
 	);
 }

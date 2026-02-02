@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 
@@ -13,24 +14,19 @@ export async function Navbar() {
 	}
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
-			<YnsLink
-				prefetch={"eager"}
-				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-			>
+		<>
+			<YnsLink href="/" className="hover:text-primary transition-colors uppercase">
 				Home
 			</YnsLink>
 			{collections.data.map((collection) => (
 				<YnsLink
-					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="hover:text-primary transition-colors uppercase"
 				>
 					{collection.name}
 				</YnsLink>
 			))}
-		</nav>
+		</>
 	);
 }

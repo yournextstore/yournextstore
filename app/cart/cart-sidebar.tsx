@@ -10,10 +10,10 @@ import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
-export function CartSidebar() {
-	const { isOpen, closeCart, items, itemCount, subtotal } = useCart();
+export function CartSidebar({ baseUrl }: { baseUrl: string }) {
+	const { isOpen, closeCart, items, itemCount, subtotal, cartId } = useCart();
 
-	const checkoutUrl = `/checkout`;
+	const checkoutUrl = cartId ? `${baseUrl}/api/v1/carts/${cartId}/checkout` : "#";
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -36,7 +36,11 @@ export function CartSidebar() {
 							<p className="text-lg font-medium">Your cart is empty</p>
 							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
+						<Button
+							variant="outline"
+							onClick={closeCart}
+							className="border-primary text-primary hover:bg-primary hover:text-white"
+						>
 							Continue Shopping
 						</Button>
 					</div>
@@ -54,20 +58,23 @@ export function CartSidebar() {
 							<div className="w-full space-y-4">
 								<div className="flex items-center justify-between text-base">
 									<span className="font-medium">Subtotal</span>
-									<span className="font-semibold">
+									<span className="font-bold text-lg font-mono">
 										{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}
 									</span>
 								</div>
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<YnsLink prefetch={false} href={checkoutUrl} onClick={closeCart}>
+								<Button
+									asChild
+									className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/80 text-white"
+								>
+									<YnsLink href={checkoutUrl} onClick={closeCart}>
 										Checkout
 									</YnsLink>
 								</Button>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full text-sm text-primary hover:text-primary/80 transition-colors"
 								>
 									Continue Shopping
 								</button>

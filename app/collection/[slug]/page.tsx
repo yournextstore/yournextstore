@@ -1,10 +1,9 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
-import { cacheLife } from "next/cache";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
-import { YNSImage } from "@/lib/yns-image";
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
@@ -27,7 +26,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 			</div>
 			{collection.image && (
 				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSImage
+					<Image
 						src={collection.image}
 						alt={collection.name}
 						fill
@@ -73,9 +72,6 @@ function CollectionProducts({ collection }: { collection: APICollectionGetByIdRe
 }
 
 export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
-	"use cache";
-	cacheLife("minutes");
-
 	const { slug } = await props.params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 

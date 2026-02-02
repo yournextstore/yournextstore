@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				<YNSImage
+				<Image
 					src={displayImages[selectedIndex]}
 					alt={`${productName} - View ${selectedIndex + 1}`}
 					fill
@@ -144,7 +145,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-200",
 								selectedIndex === index
 									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
