@@ -1,0 +1,160 @@
+{
+	"$schema": "https://biomejs.dev/schemas/latest/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
+		"defaultBranch": "main"
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!**/package.json",
+			"!**/bun.lockb",
+			"!**/vercel.json",
+			"!**/components/ui",
+			"!**/hooks/use-mobile.ts",
+			"!**/*.css"
+		]
+	},
+	"css": {
+		"parser": {
+			"cssModules": true
+		},
+		"linter": {
+			"enabled": false
+		},
+		"formatter": {
+			"enabled": false
+		}
+	},
+	"formatter": {
+		"lineWidth": 110
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"complexity": {
+				"noForEach": "off",
+				"noImportantStyles": "off"
+			},
+			"correctness": {
+				"useUniqueElementIds": "off",
+				"noUnusedFunctionParameters": "off",
+				"noUnusedVariables": "off",
+				"noUnusedImports": {
+					"options": {},
+					"level": "warn",
+					"fix": "unsafe"
+				},
+				"useExhaustiveDependencies": {
+					"level": "error",
+					"options": {
+						"hooks": [
+							{
+								"name": "useDidUpdate",
+								"closureIndex": 0,
+								"dependenciesIndex": 1
+							},
+							{
+								"name": "useRouter",
+								"stableResult": true
+							}
+						]
+					}
+				},
+				"noEmptyPattern": "off"
+			},
+			"style": {
+				"useSelfClosingElements": "off",
+				"noDescendingSpecificity": "off",
+				"noUnusedTemplateLiteral": "off",
+				"noUselessElse": "off",
+				"useTemplate": "off",
+				"noDefaultExport": "error",
+				"noNamespace": "error",
+				"useForOf": "error",
+				"noRestrictedGlobals": {
+					"level": "error",
+					"options": {
+						"deniedGlobals": {
+							"name": "TODO: Add a custom message here.",
+							"event": "TODO: Add a custom message here."
+						}
+					}
+				},
+				"noParameterAssign": "off",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSingleVarDeclarator": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error"
+			},
+			"suspicious": {
+				"useIterableCallbackReturn": "off",
+				"noUnknownAtRules": "off",
+				"noEmptyInterface": "off",
+				"noArrayIndexKey": "off",
+				"noImplicitAnyLet": "error",
+				"noExplicitAny": "error",
+				"noDocumentCookie": "off"
+			},
+			"a11y": {
+				"useSemanticElements": "off",
+				"noRedundantRoles": "off",
+				"noLabelWithoutControl": "off",
+				"noNoninteractiveTabindex": "off",
+				"noSvgWithoutTitle": "off",
+				"useFocusableInteractive": "off",
+				"useKeyWithClickEvents": "off",
+				"useAriaPropsForRole": "off"
+			},
+			"security": {
+				"noBlankTarget": "off",
+				"noDangerouslySetInnerHtml": "off"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": [
+				"**/*.d.ts",
+				"**/proxy.ts",
+				"**/next.config.mjs",
+				"**/postcss.config.mjs",
+				"**/tailwind.config.ts",
+				"**/app/**/default.tsx",
+				"**/app/**/error.tsx",
+				"**/app/**/global-error.tsx",
+				"**/app/**/layout.tsx",
+				"**/app/**/template.tsx",
+				"**/app/**/loading.tsx",
+				"**/app/**/not-found.tsx",
+				"**/app/**/forbidden.tsx",
+				"**/app/**/unauthorized.tsx",
+				"**/app/**/opengraph-image.tsx",
+				"**/app/**/page.tsx",
+				"**/app/**/robots.ts",
+				"**/app/**/route.tsx",
+				"**/app/**/sitemap.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		}
+	]
+}

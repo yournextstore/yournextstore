@@ -1,0 +1,159 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+	/* Font families */
+	--font-display: "Inter", sans-serif;
+	--font-body: "Space Grotesk", sans-serif;
+}
+
+/* Brutalist Light Theme - Default */
+:root {
+	--radius: 0;
+	/* Paper texture background */
+	--background: #F2F2F2;
+	--foreground: #000000;
+	/* Cards with transparency for backdrop blur */
+	--card: rgba(255, 255, 255, 0.5);
+	--card-foreground: #000000;
+	/* Popovers */
+	--popover: rgba(255, 255, 255, 0.9);
+	--popover-foreground: #000000;
+	/* Primary - Orange accent */
+	--primary: #F97316;
+	--primary-foreground: #ffffff;
+	/* Secondary */
+	--secondary: #E5E5E5;
+	--secondary-foreground: #000000;
+	/* Muted */
+	--muted: #D4D4D4;
+	--muted-foreground: #525252;
+	/* Accent - Same as primary */
+	--accent: #F97316;
+	--accent-foreground: #ffffff;
+	/* Destructive */
+	--destructive: #ef4444;
+	/* Borders - Solid black for brutalist grid */
+	--border: #000000;
+	--input: #000000;
+	--ring: #F97316;
+	/* Charts */
+	--chart-1: #F97316;
+	--chart-2: #000000;
+	--chart-3: #525252;
+	--chart-4: #737373;
+	--chart-5: #a3a3a3;
+	/* Sidebar */
+	--sidebar: #F2F2F2;
+	--sidebar-foreground: #000000;
+	--sidebar-primary: #F97316;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #E5E5E5;
+	--sidebar-accent-foreground: #000000;
+	--sidebar-border: #000000;
+	--sidebar-ring: #F97316;
+}
+
+/* Brutalist Dark Theme */
+.dark {
+	--background: #1A1A1A;
+	--foreground: #E5E5E5;
+	/* Cards with transparency */
+	--card: rgba(0, 0, 0, 0.2);
+	--card-foreground: #E5E5E5;
+	/* Popovers */
+	--popover: rgba(26, 26, 26, 0.95);
+	--popover-foreground: #E5E5E5;
+	/* Primary - Orange accent stays the same */
+	--primary: #F97316;
+	--primary-foreground: #ffffff;
+	/* Secondary */
+	--secondary: #2A2A2A;
+	--secondary-foreground: #E5E5E5;
+	/* Muted */
+	--muted: #3A3A3A;
+	--muted-foreground: #a3a3a3;
+	/* Accent */
+	--accent: #F97316;
+	--accent-foreground: #ffffff;
+	/* Borders - Gray for dark mode */
+	--border: #555555;
+	--input: #555555;
+	/* Sidebar */
+	--sidebar: #1A1A1A;
+	--sidebar-foreground: #E5E5E5;
+	--sidebar-accent: #2A2A2A;
+	--sidebar-accent-foreground: #E5E5E5;
+	--sidebar-border: #555555;
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+/* Brutalist Grid Utilities */
+.grid-border-r {
+	border-right: 1px solid var(--border);
+}
+
+.grid-border-b {
+	border-bottom: 1px solid var(--border);
+}
+
+/* Paper texture backgrounds */
+.paper-bg {
+	background-color: var(--background);
+	background-image: url('https://www.transparenttextures.com/patterns/white-paper.png');
+}
+
+.dark .paper-bg {
+	background-image: url('https://www.transparenttextures.com/patterns/black-paper.png');
+}
+
+/* Justified text with left-aligned last line */
+.text-justify-last-left {
+	text-align: justify;
+	text-align-last: left;
+}
