@@ -1,5 +1,6 @@
 "use client";
 
+import { ShoppingBag } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { addToCart } from "@/app/cart/actions";
@@ -108,7 +109,7 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 	};
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-6">
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
 			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
@@ -117,8 +118,9 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-14 bg-primary text-primary-foreground py-4 px-8 rounded-full text-base font-bold tracking-wide hover:bg-primary/90 transition-all shadow-glow hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
 				>
+					<ShoppingBag className="w-5 h-5" />
 					{buttonText}
 				</button>
 			</form>
