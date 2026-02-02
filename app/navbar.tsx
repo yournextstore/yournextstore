@@ -13,24 +13,26 @@ export async function Navbar() {
 	}
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
-			<YnsLink
-				prefetch={"eager"}
-				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-			>
-				Home
-			</YnsLink>
-			{collections.data.map((collection) => (
+		<nav className="hidden lg:flex items-center">
+			<div className="flex items-center bg-card rounded-full px-1 py-1 shadow-soft">
 				<YnsLink
 					prefetch={"eager"}
-					key={collection.id}
-					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					href="/"
+					className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-all"
 				>
-					{collection.name}
+					Home
 				</YnsLink>
-			))}
+				{collections.data.map((collection) => (
+					<YnsLink
+						prefetch={"eager"}
+						key={collection.id}
+						href={`/collection/${collection.slug}`}
+						className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-all"
+					>
+						{collection.name}
+					</YnsLink>
+				))}
+			</div>
 		</nav>
 	);
 }
