@@ -209,3 +209,39 @@
 		background-position: -200% 0;
 	}
 }
+/* Cannabo Hero Gradient */
+.hero-gradient {
+	background: radial-gradient(circle at 60% 50%, oklch(0.28 0.06 145) 0%, oklch(0.15 0.04 145) 70%);
+}
+
+/* Cannabo Custom Animations */
+@keyframes spin-slow {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes bounce-slow {
+	0%, 100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}
+
+.animate-spin-slow {
+	animation: spin-slow 20s linear infinite;
+}
+
+.animate-bounce-slow {
+	animation: bounce-slow 3s ease-in-out infinite;
+}
+
+/* Product card background for dark theme */
+.product-card-bg {
+	background-color: oklch(0.25 0.06 145);
+}
