@@ -47,37 +47,60 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
+		<div className="bg-[#FAFAF8]">
+			{/* Top border */}
+			<div className="h-px w-full bg-zinc-200" />
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title, Price, Description */}
-					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+			<div className="max-w-7xl mx-auto px-8 lg:px-16 py-16 lg:py-24">
+				<div className="lg:grid lg:grid-cols-12 lg:gap-16">
+					{/* Left: Image Gallery */}
+					<div className="lg:col-span-7">
+						<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
 					</div>
 
-					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
-					<AddToCartButton
-						variants={product.variants}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images,
-						}}
-					/>
-				</div>
-			</div>
+					{/* Right: Product Details */}
+					<div className="lg:col-span-5 mt-12 lg:mt-0">
+						<div className="lg:sticky lg:top-32">
+							{/* Product metadata */}
+							<p className="text-xs tracking-[0.3em] uppercase text-zinc-400 mb-6">
+								Product Details
+							</p>
 
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
+							{/* Title */}
+							<h1 className="text-3xl lg:text-4xl font-light tracking-[-0.02em] text-zinc-900 leading-tight">
+								{product.name}
+							</h1>
+
+							{/* Price */}
+							<p className="mt-6 text-lg text-zinc-900 font-light">{priceDisplay}</p>
+
+							{/* Description */}
+							{product.summary && (
+								<p className="mt-8 text-sm text-zinc-500 leading-relaxed font-light">
+									{product.summary}
+								</p>
+							)}
+
+							{/* Divider */}
+							<div className="mt-10 mb-10 h-px w-full bg-zinc-200" />
+
+							{/* Variant Selector, Quantity, Add to Cart */}
+							<AddToCartButton
+								variants={product.variants}
+								product={{
+									id: product.id,
+									name: product.name,
+									slug: product.slug,
+									images: product.images,
+								}}
+							/>
+						</div>
+					</div>
+				</div>
+
+				{/* Features Section */}
+				<ProductFeatures />
+			</div>
 		</div>
 	);
 };

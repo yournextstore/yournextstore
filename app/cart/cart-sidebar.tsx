@@ -1,9 +1,7 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { YnsLink } from "@/components/yns-link";
@@ -17,57 +15,61 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+			<SheetContent className="flex flex-col w-full sm:max-w-md bg-[#FAFAF8] border-l border-zinc-200">
+				<SheetHeader className="border-b border-zinc-200 pb-6">
+					<SheetTitle className="text-xs tracking-[0.3em] uppercase text-zinc-900 font-normal">
+						Cart
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="text-zinc-400 ml-2">({itemCount})</span>
 						)}
 					</SheetTitle>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
+					<div className="flex-1 flex flex-col items-center justify-center gap-8 py-16">
 						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+							<p className="text-sm text-zinc-900 font-light">Your cart is empty</p>
+							<p className="text-xs text-zinc-400 mt-2">Add some products to get started</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
+						<button
+							type="button"
+							onClick={closeCart}
+							className="text-xs tracking-[0.15em] uppercase text-zinc-400 hover:text-zinc-900 transition-colors"
+						>
 							Continue Shopping
-						</Button>
+						</button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="flex-1">
+							<div className="divide-y divide-zinc-200">
 								{items.map((item) => (
 									<CartItem key={item.productVariant.id} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">Subtotal</span>
-									<span className="font-semibold">
+						<SheetFooter className="border-t border-zinc-200 pt-6 mt-auto">
+							<div className="w-full space-y-6">
+								<div className="flex items-center justify-between">
+									<span className="text-xs tracking-[0.2em] uppercase text-zinc-400">Subtotal</span>
+									<span className="text-sm text-zinc-900 font-light">
 										{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}
 									</span>
 								</div>
-								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<YnsLink prefetch={false} href={checkoutUrl} onClick={closeCart}>
-										Checkout
-									</YnsLink>
-								</Button>
+								<p className="text-xs text-zinc-400">Shipping and taxes calculated at checkout</p>
+								<YnsLink
+									prefetch={false}
+									href={checkoutUrl}
+									onClick={closeCart}
+									className="block w-full py-4 bg-zinc-900 text-white text-xs tracking-[0.15em] uppercase text-center hover:bg-zinc-800 transition-colors"
+								>
+									Checkout
+								</YnsLink>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full text-xs tracking-[0.15em] uppercase text-zinc-400 hover:text-zinc-900 transition-colors"
 								>
 									Continue Shopping
 								</button>

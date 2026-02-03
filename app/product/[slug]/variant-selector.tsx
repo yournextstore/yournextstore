@@ -152,10 +152,10 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 					<div key={group.label}>
 						{group.type === "color" ? (
 							<>
-								<div className="mb-3 flex items-center justify-between">
-									<span className="text-sm font-medium">{group.label}</span>
+								<div className="mb-4 flex items-center justify-between">
+									<span className="text-xs tracking-[0.2em] uppercase text-zinc-400">{group.label}</span>
 									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
+										<span className="text-xs text-zinc-500">{selectedOption.value}</span>
 									)}
 								</div>
 								<div className="flex gap-3">
@@ -172,17 +172,17 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
+													"relative h-10 w-10 transition-all duration-300",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
+														? "ring-1 ring-zinc-900 ring-offset-2 ring-offset-[#FAFAF8]"
+														: "hover:ring-1 hover:ring-zinc-300 hover:ring-offset-2 hover:ring-offset-[#FAFAF8]",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
 												aria-label={option.value}
 												title={option.value}
 											>
 												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
+													<span className="absolute inset-0 border border-zinc-200" />
 												)}
 											</button>
 										);
@@ -191,8 +191,8 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 							</>
 						) : (
 							<>
-								<div className="mb-3 flex items-center justify-between">
-									<span className="text-sm font-medium">{group.label}</span>
+								<div className="mb-4">
+									<span className="text-xs tracking-[0.2em] uppercase text-zinc-400">{group.label}</span>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -204,13 +204,13 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"px-6 py-3 text-xs tracking-[0.1em] uppercase transition-all duration-300 border",
 													isSelected
-														? "border-foreground bg-foreground text-primary-foreground"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-zinc-900 bg-zinc-900 text-white"
+														: "border-zinc-200 bg-transparent text-zinc-900 hover:border-zinc-400",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												{option.value}
 											</button>
 										);
 									})}

@@ -13,20 +13,20 @@ export async function Navbar() {
 	}
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
+		<nav className="hidden sm:flex items-center gap-8">
 			<YnsLink
 				prefetch={"eager"}
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="text-xs tracking-[0.15em] uppercase text-zinc-400 hover:text-zinc-900 transition-colors"
 			>
 				Home
 			</YnsLink>
-			{collections.data.map((collection) => (
+			{collections.data.map((collection, index) => (
 				<YnsLink
 					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="text-xs tracking-[0.15em] uppercase text-zinc-400 hover:text-zinc-900 transition-colors"
 				>
 					{collection.name}
 				</YnsLink>

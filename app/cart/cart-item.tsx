@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -55,59 +55,61 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
+		<div className="flex gap-4 py-6">
 			{/* Product Image */}
 			<YnsLink
 				prefetch={"eager"}
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-20 shrink-0 overflow-hidden bg-zinc-100"
 			>
-				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
 			</YnsLink>
 
 			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+			<div className="flex min-w-0 flex-1 flex-col justify-between">
 				<div className="flex items-start justify-between gap-2">
 					<YnsLink
 						prefetch={"eager"}
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="text-sm font-light text-zinc-900 hover:text-zinc-500 transition-colors line-clamp-2"
 					>
 						{product.name}
 					</YnsLink>
 					<button
 						type="button"
 						onClick={handleRemove}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
+						className="shrink-0 p-1 text-zinc-400 hover:text-zinc-900 transition-colors"
 					>
-						<Trash2 className="h-4 w-4" />
+						<X className="h-3 w-3" />
 					</button>
 				</div>
 
-				<div className="flex items-center justify-between">
+				<div className="flex items-center justify-between mt-4">
 					{/* Quantity Controls */}
-					<div className="inline-flex items-center rounded-full border border-border">
+					<div className="inline-flex items-center border border-zinc-200">
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="shrink-0 flex h-8 w-8 items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors"
 						>
-							<Minus className="h-3 w-3" />
+							<Minus className="h-2.5 w-2.5" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="flex h-8 w-8 items-center justify-center text-xs text-zinc-900 font-light border-x border-zinc-200">
+							{quantity}
+						</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="shrink-0 flex h-8 w-8 items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors"
 						>
-							<Plus className="h-3 w-3" />
+							<Plus className="h-2.5 w-2.5" />
 						</button>
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="text-sm text-zinc-900 font-light">
 						{formatMoney({ amount: lineTotal, currency: CURRENCY, locale: LOCALE })}
 					</span>
 				</div>
