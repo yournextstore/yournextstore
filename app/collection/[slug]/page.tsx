@@ -8,18 +8,21 @@ import { YNSImage } from "@/lib/yns-image";
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-background-dark hero-gradient">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
+				<div className="py-16 sm:py-20 lg:py-24">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<span className="text-primary font-semibold text-sm tracking-wider uppercase mb-2 block">
+							Collection
+						</span>
+						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white">
 							{collection.name}
 						</h1>
 						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+							<p className="mt-4 text-lg text-gray-300 leading-relaxed">
 								{typeof collection.description === "string"
 									? collection.description
-									: "Explore our curated collection"}
+									: "Explore our curated collection of premium CBD products"}
 							</p>
 						)}
 					</div>
@@ -31,10 +34,10 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						src={collection.image}
 						alt={collection.name}
 						fill
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-r from-background-dark to-transparent" />
 				</div>
 			)}
 		</section>
@@ -47,10 +50,10 @@ function ProductGridSkeleton() {
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+						<div className="aspect-square bg-dark-accent rounded-2xl mb-4 animate-pulse" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-5 w-3/4 bg-dark-accent rounded animate-pulse" />
+							<div className="h-5 w-1/4 bg-dark-accent rounded animate-pulse" />
 						</div>
 					</div>
 				))}
@@ -84,7 +87,7 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 	}
 
 	return (
-		<main>
+		<main className="bg-background-dark min-h-screen">
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />

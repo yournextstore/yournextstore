@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Jost } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -9,24 +9,23 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+import { MaterialIcon } from "@/components/icons/material-icon";
+import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const jost = Jost({
+	variable: "--font-jost",
 	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-	title: "Your Next Store",
-	description: "Your next e-commerce store",
+	title: "Cannabo - Premium CBD Products",
+	description:
+		"Premium CBD products derived from organic hemp. Lab-tested for purity and potency to support your daily wellness journey.",
 };
 
 async function getInitialCart() {
@@ -50,16 +49,30 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 bg-background-dark text-white">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
+						<div className="flex items-center justify-between h-20">
 							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+								<YnsLink prefetch={"eager"} href="/" className="flex items-center space-x-2 group">
+									<MaterialIcon
+										name="spa"
+										className="text-primary text-4xl group-hover:rotate-12 transition-transform"
+									/>
+									<span className="text-2xl font-bold tracking-wide">Cannabo</span>
 								</YnsLink>
 								<Navbar />
 							</div>
-							<CartButton />
+							<div className="flex items-center space-x-5">
+								<YnsLink href="/search" className="flex items-center hover:text-primary transition-colors">
+									<MaterialIcon name="search" />
+									<span className="ml-1 hidden md:inline text-sm">Search</span>
+								</YnsLink>
+								<YnsLink href="/account" className="hover:text-primary transition-colors">
+									<MaterialIcon name="person_outline" />
+								</YnsLink>
+								<CartButton />
+							</div>
 						</div>
 					</div>
 				</header>
@@ -80,8 +93,11 @@ export default function RootLayout({
 	const env = process.env.VERCEL_ENV || "development";
 
 	return (
-		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang="en" className="dark">
+			<head>
+				<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+			</head>
+			<body className={`${jost.variable} antialiased`}>
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>

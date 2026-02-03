@@ -47,37 +47,40 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
+		<div className="bg-background-dark min-h-screen">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+				<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+					{/* Left: Image Gallery (sticky on desktop) */}
+					<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title, Price, Description */}
-					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+					{/* Right: Product Details */}
+					<div className="mt-8 lg:mt-0 space-y-8">
+						{/* Title, Price, Description */}
+						<div className="space-y-4">
+							<span className="text-primary font-semibold text-sm tracking-wider uppercase">Premium CBD</span>
+							<h1 className="text-4xl font-bold tracking-tight text-white lg:text-5xl text-balance">
+								{product.name}
+							</h1>
+							<p className="text-3xl font-bold text-primary tracking-tight">{priceDisplay}</p>
+							{product.summary && <p className="text-gray-400 leading-relaxed text-lg">{product.summary}</p>}
+						</div>
+
+						{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
+						<AddToCartButton
+							variants={product.variants}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images,
+							}}
+						/>
 					</div>
-
-					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
-					<AddToCartButton
-						variants={product.variants}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images,
-						}}
-					/>
 				</div>
-			</div>
 
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
+				{/* Features Section (full width below) */}
+				<ProductFeatures />
+			</div>
 		</div>
 	);
 };

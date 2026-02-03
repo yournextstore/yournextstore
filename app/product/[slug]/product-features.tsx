@@ -1,9 +1,9 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { MaterialIcon } from "@/components/icons/material-icon";
 
 type Feature = {
 	title: string;
 	description: string;
-	icon?: LucideIcon;
+	icon: string;
 };
 
 type ProductFeaturesProps = {
@@ -12,38 +12,39 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "100% Organic",
+		description: "Sourced from organically grown hemp with no synthetic additives or harmful chemicals.",
+		icon: "local_florist",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Lab Tested",
+		description: "Every batch is rigorously third-party lab tested for potency and purity you can trust.",
+		icon: "science",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Premium Quality",
+		description: "Full spectrum of beneficial cannabinoids and terpenes preserved from seed to shelf.",
+		icon: "verified_user",
 	},
 ];
-
-const defaultIcons = [Leaf, Hammer, Award];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
 		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
+			<h2 className="mb-12 text-center text-3xl font-bold text-white">Why Choose Cannabo</h2>
 			<div className="grid gap-8 md:grid-cols-3">
-				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
-					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary-foreground" />
-							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+				{features.map((feature) => (
+					<div key={feature.title} className="group flex flex-col items-center text-center">
+						<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-dark-accent transition-colors group-hover:bg-primary">
+							<MaterialIcon
+								name={feature.icon}
+								className="text-3xl text-primary transition-colors group-hover:text-white"
+							/>
 						</div>
-					);
-				})}
+						<h3 className="mb-2 text-lg font-semibold text-white">{feature.title}</h3>
+						<p className="text-sm text-gray-400">{feature.description}</p>
+					</div>
+				))}
 			</div>
 		</section>
 	);
