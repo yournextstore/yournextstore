@@ -1,9 +1,8 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -83,22 +82,18 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
+			<div className="flex flex-col gap-6">
+				<div className="aspect-[3/4] bg-zinc-100 flex items-center justify-center">
+					<p className="text-xs tracking-[0.2em] uppercase text-zinc-400">No images available</p>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div
-			tabIndex={0}
-			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded-2xl lg:sticky lg:top-24 lg:self-start"
-		>
+		<div tabIndex={0} onKeyDown={handleKeyDown} className="flex flex-col gap-6 outline-none">
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-[3/4] overflow-hidden bg-zinc-100">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -115,7 +110,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
 						className={cn(
-							"object-cover transition-transform duration-500",
+							"object-cover transition-transform duration-700",
 							isZoomed && "scale-150 cursor-zoom-out",
 						)}
 						onClick={() => setIsZoomed(!isZoomed)}
@@ -123,67 +118,55 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					/>
 				)}
 
-				{/* Navigation Arrows */}
+				{/* Navigation Arrows - minimal style */}
 				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+					<div className="absolute inset-x-6 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
+						<button
+							type="button"
+							className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white transition-colors"
 							onClick={(e) => {
 								e.stopPropagation();
 								handlePrevious();
 							}}
 							aria-label="Previous image"
 						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							<ChevronLeft className="h-4 w-4 text-zinc-900" />
+						</button>
+						<button
+							type="button"
+							className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white transition-colors"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleNext();
 							}}
 							aria-label="Next image"
 						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
+							<ChevronRight className="h-4 w-4 text-zinc-900" />
+						</button>
 					</div>
 				)}
 
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
+				{/* Image Counter - museum style */}
 				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
+					<div className="absolute bottom-6 left-6">
+						<p className="text-xs tracking-[0.2em] uppercase text-zinc-500 bg-white/90 px-3 py-1.5">
+							{String(selectedIndex + 1).padStart(2, "0")} / {String(displayImages.length).padStart(2, "0")}
+						</p>
 					</div>
 				)}
 			</div>
 
-			{/* Thumbnails */}
+			{/* Thumbnails - clean row */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="flex gap-3">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+								"relative aspect-[3/4] w-20 overflow-hidden transition-all duration-300",
+								selectedIndex === index ? "opacity-100" : "opacity-40 hover:opacity-70",
 							)}
 						>
 							{isVideoUrl(image) ? (
