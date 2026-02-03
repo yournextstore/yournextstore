@@ -236,3 +236,92 @@ body {
 		background-position: -200% 0;
 	}
 }
+/* Skinclean Custom Utilities */
+@layer utilities {
+	.font-display {
+		font-family: var(--font-display), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+	}
+
+	.font-body {
+		font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+	}
+
+	.text-stroke-1 {
+		-webkit-text-stroke: 1px currentColor;
+		color: transparent;
+	}
+}
+
+/* Skinclean Custom Animations */
+@layer utilities {
+	@keyframes fadeInUp {
+		0% {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes float {
+		0%, 100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-10px);
+		}
+	}
+
+	@keyframes slideInRight {
+		0% {
+			opacity: 0;
+			transform: translateX(20px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes fadeIn {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	.animate-fade-in-up {
+		animation: fadeInUp 1s ease-out forwards;
+	}
+
+	.animate-float {
+		animation: float 6s ease-in-out infinite;
+	}
+
+	.animate-pulse-slow {
+		animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+
+	.animate-slide-in-right {
+		animation: slideInRight 1s ease-out 0.5s forwards;
+	}
+
+	.animate-fade-in-delayed {
+		animation: fadeIn 1s ease-out 0.8s forwards;
+	}
+}
+
+/* Hide scrollbar */
+body::-webkit-scrollbar {
+	display: none;
+}
+
+body {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	position: relative;
+}
