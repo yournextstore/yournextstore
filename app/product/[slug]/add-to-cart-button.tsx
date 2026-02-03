@@ -77,7 +77,7 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 		if (isPending) return "Adding...";
 		if (!selectedVariant) return "Select options";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
+			return `Add to Cart - ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
 		}
 		return "Add to Cart";
 	}, [isPending, selectedVariant, totalPrice]);
@@ -120,7 +120,7 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full py-4 bg-zinc-900 text-white text-xs tracking-[0.15em] uppercase hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
 				>
 					{buttonText}
 				</button>
