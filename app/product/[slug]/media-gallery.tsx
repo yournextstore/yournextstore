@@ -180,7 +180,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-200",
 								selectedIndex === index
 									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
