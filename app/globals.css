@@ -39,75 +39,89 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	/* Font families */
+	--font-display: "Inter", sans-serif;
+	--font-body: "Space Grotesk", sans-serif;
 }
 
+/* Brutalist Light Theme - Default */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0;
+	/* Paper texture background */
+	--background: #F2F2F2;
+	--foreground: #000000;
+	/* Cards with transparency for backdrop blur */
+	--card: rgba(255, 255, 255, 0.5);
+	--card-foreground: #000000;
+	/* Popovers */
+	--popover: rgba(255, 255, 255, 0.9);
+	--popover-foreground: #000000;
+	/* Primary - Orange accent */
+	--primary: #F97316;
+	--primary-foreground: #ffffff;
+	/* Secondary */
+	--secondary: #E5E5E5;
+	--secondary-foreground: #000000;
+	/* Muted */
+	--muted: #D4D4D4;
+	--muted-foreground: #525252;
+	/* Accent - Same as primary */
+	--accent: #F97316;
+	--accent-foreground: #ffffff;
+	/* Destructive */
+	--destructive: #ef4444;
+	/* Borders - Solid black for brutalist grid */
+	--border: #000000;
+	--input: #000000;
+	--ring: #F97316;
+	/* Charts */
+	--chart-1: #F97316;
+	--chart-2: #000000;
+	--chart-3: #525252;
+	--chart-4: #737373;
+	--chart-5: #a3a3a3;
+	/* Sidebar */
+	--sidebar: #F2F2F2;
+	--sidebar-foreground: #000000;
+	--sidebar-primary: #F97316;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #E5E5E5;
+	--sidebar-accent-foreground: #000000;
+	--sidebar-border: #000000;
+	--sidebar-ring: #F97316;
 }
 
+/* Brutalist Dark Theme */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--background: #1A1A1A;
+	--foreground: #E5E5E5;
+	/* Cards with transparency */
+	--card: rgba(0, 0, 0, 0.2);
+	--card-foreground: #E5E5E5;
+	/* Popovers */
+	--popover: rgba(26, 26, 26, 0.95);
+	--popover-foreground: #E5E5E5;
+	/* Primary - Orange accent stays the same */
+	--primary: #F97316;
+	--primary-foreground: #ffffff;
+	/* Secondary */
+	--secondary: #2A2A2A;
+	--secondary-foreground: #E5E5E5;
+	/* Muted */
+	--muted: #3A3A3A;
+	--muted-foreground: #a3a3a3;
+	/* Accent */
+	--accent: #F97316;
+	--accent-foreground: #ffffff;
+	/* Borders - Gray for dark mode */
+	--border: #555555;
+	--input: #555555;
+	/* Sidebar */
+	--sidebar: #1A1A1A;
+	--sidebar-foreground: #E5E5E5;
+	--sidebar-accent: #2A2A2A;
+	--sidebar-accent-foreground: #E5E5E5;
+	--sidebar-border: #555555;
 }
 
 @layer base {
@@ -139,4 +153,29 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Brutalist Grid Utilities */
+.grid-border-r {
+	border-right: 1px solid var(--border);
+}
+
+.grid-border-b {
+	border-bottom: 1px solid var(--border);
+}
+
+/* Paper texture backgrounds */
+.paper-bg {
+	background-color: var(--background);
+	background-image: url('https://www.transparenttextures.com/patterns/white-paper.png');
+}
+
+.dark .paper-bg {
+	background-image: url('https://www.transparenttextures.com/patterns/black-paper.png');
+}
+
+/* Justified text with left-aligned last line */
+.text-justify-last-left {
+	text-align: justify;
+	text-align-last: left;
 }
