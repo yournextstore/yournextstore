@@ -1,6 +1,7 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
@@ -27,7 +28,7 @@ export async function ProductGrid({
 	viewAllHref = "/products",
 }: ProductGridProps) {
 	"use cache";
-	cacheLife("minutes");
+	cacheLife("seconds");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
@@ -40,7 +41,6 @@ export async function ProductGrid({
 				</div>
 				{showViewAll && (
 					<YnsLink
-						prefetch={"eager"}
 						href={viewAllHref}
 						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 					>
@@ -85,7 +85,7 @@ export async function ProductGrid({
 					const secondaryImage = allImages[1];
 
 					return (
-						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
+						<YnsLink key={product.id} href={`/product/${product.slug}`} className="group">
 							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 								{primaryImage && (
 									<YNSImage
@@ -118,7 +118,6 @@ export async function ProductGrid({
 			{showViewAll && (
 				<div className="mt-12 text-center sm:hidden">
 					<YnsLink
-						prefetch={"eager"}
 						href={viewAllHref}
 						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 					>

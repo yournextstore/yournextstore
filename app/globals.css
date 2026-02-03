@@ -41,73 +41,75 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Brutalist Tech Summit Theme - Light Mode */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	--background: #F3F2ED;
+	--foreground: #1a1a1a;
+	--card: #F3F2ED;
+	--card-foreground: #1a1a1a;
+	--popover: #F3F2ED;
+	--popover-foreground: #1a1a1a;
+	--primary: #FF5F38;
+	--primary-foreground: #ffffff;
+	--secondary: #E8E4D3;
+	--secondary-foreground: #1a1a1a;
+	--muted: #E8E4D3;
+	--muted-foreground: #666666;
+	--accent: #E8E4D3;
+	--accent-foreground: #1a1a1a;
+	--destructive: #ef4444;
+	--border: rgba(0, 0, 0, 0.1);
+	--input: rgba(0, 0, 0, 0.1);
+	--ring: #FF5F38;
+	--chart-1: #FF5F38;
+	--chart-2: #063126;
+	--chart-3: #E8E4D3;
+	--chart-4: #0B3D2E;
+	--chart-5: #F3F2ED;
+	--sidebar: #F3F2ED;
+	--sidebar-foreground: #1a1a1a;
+	--sidebar-primary: #FF5F38;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #E8E4D3;
+	--sidebar-accent-foreground: #1a1a1a;
+	--sidebar-border: rgba(0, 0, 0, 0.1);
+	--sidebar-ring: #FF5F38;
 }
 
+/* Brutalist Tech Summit Theme - Dark Mode */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--background: #063126;
+	--foreground: #E8E4D3;
+	--card: #0B3D2E;
+	--card-foreground: #E8E4D3;
+	--popover: #0B3D2E;
+	--popover-foreground: #E8E4D3;
+	--primary: #FF5F38;
+	--primary-foreground: #ffffff;
+	--secondary: #0B3D2E;
+	--secondary-foreground: #E8E4D3;
+	--muted: #0B3D2E;
+	--muted-foreground: rgba(232, 228, 211, 0.6);
+	--accent: #0B3D2E;
+	--accent-foreground: #E8E4D3;
+	--destructive: #ef4444;
+	--border: rgba(232, 228, 211, 0.2);
+	--input: rgba(232, 228, 211, 0.15);
+	--ring: #FF5F38;
+	--chart-1: #FF5F38;
+	--chart-2: #E8E4D3;
+	--chart-3: #0B3D2E;
+	--chart-4: #F3F2ED;
+	--chart-5: #063126;
+	--sidebar: #0B3D2E;
+	--sidebar-foreground: #E8E4D3;
+	--sidebar-primary: #FF5F38;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #063126;
+	--sidebar-accent-foreground: #E8E4D3;
+	--sidebar-border: rgba(232, 228, 211, 0.2);
+	--sidebar-ring: #FF5F38;
 }
 
 @layer base {
@@ -115,7 +117,8 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground antialiased;
+		font-family: var(--font-geist-sans), system-ui, sans-serif;
 	}
 }
 
@@ -139,4 +142,48 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Brutalist Typography */
+.text-outline {
+	-webkit-text-stroke: 2px currentColor;
+	color: transparent;
+}
+
+/* Grid Border Utility */
+.grid-border {
+	@apply border-foreground/10;
+}
+
+/* Animations */
+@keyframes spin-slow {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+@keyframes marquee {
+	0% { transform: translateX(0%); }
+	100% { transform: translateX(-50%); }
+}
+
+.animate-spin-slow {
+	animation: spin-slow 8s linear infinite;
+}
+
+.animate-marquee {
+	animation: marquee 20s linear infinite;
+}
+
+/* Grain Overlay */
+.grain-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 50;
+	opacity: 0.05;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E");
+	mix-blend-mode: overlay;
 }
