@@ -9,7 +9,9 @@ import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
+
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
