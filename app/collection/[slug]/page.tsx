@@ -8,21 +8,21 @@ import { YNSImage } from "@/lib/yns-image";
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-secondary/50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
+				<div className="py-16 sm:py-20 lg:py-28 text-center">
+					<p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">Collection</p>
+					<h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-light tracking-tight text-foreground">
+						{collection.name}
+					</h1>
+					{collection.description && (
+						<p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+							{typeof collection.description === "string"
+								? collection.description
+								: "Discover our exquisite pieces crafted with exceptional artistry"}
+						</p>
+					)}
+					<div className="mt-8 w-24 h-px bg-primary/50 mx-auto" />
 				</div>
 			</div>
 			{collection.image && (
@@ -31,10 +31,10 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						src={collection.image}
 						alt={collection.name}
 						fill
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-r from-secondary/50 to-transparent" />
 				</div>
 			)}
 		</section>

@@ -47,21 +47,31 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-20">
 				{/* Left: Image Gallery (sticky on desktop) */}
 				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-10 lg:mt-0 space-y-8">
+					{/* Category badge */}
+					<p className="text-xs tracking-[0.3em] uppercase text-primary">Fine Jewelry</p>
+
 					{/* Title, Price, Description */}
-					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-6">
+						<h1 className="text-3xl lg:text-4xl font-serif font-light tracking-tight text-foreground">
 							{product.name}
 						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						<p className="text-2xl font-light text-primary">{priceDisplay}</p>
+						{product.summary && (
+							<p className="text-muted-foreground leading-relaxed border-l-2 border-primary/30 pl-4">
+								{product.summary}
+							</p>
+						)}
 					</div>
+
+					{/* Divider */}
+					<div className="w-16 h-px bg-border" />
 
 					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
 					<AddToCartButton

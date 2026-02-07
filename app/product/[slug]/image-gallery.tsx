@@ -67,24 +67,24 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
+			<div className="flex flex-col gap-4 lg:sticky lg:top-28 lg:self-start">
+				<div className="aspect-[3/4] bg-secondary flex items-center justify-center">
+					<p className="text-muted-foreground text-sm tracking-wide">No images available</p>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+		<div className="flex flex-col gap-4 lg:sticky lg:top-28 lg:self-start">
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-[3/4] overflow-hidden bg-secondary">
 				<YNSImage
 					src={displayImages[selectedIndex]}
 					alt={`${productName} - View ${selectedIndex + 1}`}
 					fill
 					className={cn(
-						"object-cover transition-transform duration-500",
+						"object-cover transition-transform duration-700",
 						isZoomed && "scale-150 cursor-zoom-out",
 					)}
 					onClick={() => setIsZoomed(!isZoomed)}
@@ -93,11 +93,11 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 
 				{/* Navigation Arrows */}
 				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
+					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity duration-300 group-hover:opacity-100">
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-12 w-12 bg-background/95 border border-border/50 backdrop-blur-sm hover:bg-background hover:border-primary/50"
 							onClick={(e) => {
 								e.stopPropagation();
 								handlePrevious();
@@ -108,7 +108,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-12 w-12 bg-background/95 border border-border/50 backdrop-blur-sm hover:bg-background hover:border-primary/50"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleNext();
@@ -120,8 +120,8 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 				)}
 
 				{/* Zoom Indicator */}
-				<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-					<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+				<div className="absolute bottom-4 right-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+					<div className="flex items-center gap-2 bg-background/95 border border-border/50 px-4 py-2 text-xs tracking-[0.1em] uppercase backdrop-blur-sm">
 						<ZoomIn className="h-3.5 w-3.5" />
 						Click to zoom
 					</div>
@@ -129,7 +129,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 
 				{/* Image Counter */}
 				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+					<div className="absolute bottom-4 left-4 bg-background/95 border border-border/50 px-4 py-2 text-xs tracking-[0.1em] backdrop-blur-sm">
 						{selectedIndex + 1} / {displayImages.length}
 					</div>
 				)}
@@ -137,17 +137,17 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="flex gap-3 overflow-x-auto py-2">
 					{displayImages.map((image, index) => (
 						<button
 							key={image}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 shrink-0 overflow-hidden transition-all duration-300",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+									? "ring-1 ring-primary ring-offset-2 ring-offset-background"
+									: "opacity-50 hover:opacity-100",
 							)}
 						>
 							<YNSImage
