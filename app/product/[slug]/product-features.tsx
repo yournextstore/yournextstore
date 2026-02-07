@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Award, Diamond, Shield, Sparkles, type LucideIcon } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,39 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Ethically Sourced",
+		description: "Every gemstone is responsibly sourced and certified, ensuring beauty with integrity.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Master Craftsmanship",
+		description: "Handcrafted by skilled artisans with decades of experience in fine jewelry.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Lifetime Guarantee",
+		description: "Each piece comes with our lifetime warranty and complimentary care services.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Diamond, Sparkles, Shield];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-border/50 pt-20">
+			<div className="text-center mb-16">
+				<p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">The Lumiere Promise</p>
+				<h2 className="text-3xl font-serif font-light tracking-tight">Crafted with Excellence</h2>
+				<div className="mt-6 w-16 h-px bg-primary/50 mx-auto" />
+			</div>
+			<div className="grid gap-12 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary-foreground" />
+							<div className="mb-6 flex h-16 w-16 items-center justify-center border border-primary/30 transition-all duration-300 group-hover:border-primary group-hover:bg-primary/5">
+								<Icon className="h-6 w-6 text-primary" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-3 text-sm tracking-[0.15em] uppercase font-medium">{feature.title}</h3>
+							<p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}
