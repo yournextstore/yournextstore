@@ -25,8 +25,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Your Next Store",
-	description: "Your next e-commerce store",
+	title: "Kids Wonder Shop - Amazing Stuff for Amazing Kids!",
+	description: "Discover super cool toys, games, and awesome goodies for kids of all ages!",
 };
 
 async function getInitialCart() {
@@ -50,12 +50,15 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<header className="sticky top-0 z-50 border-b-2 border-primary/10 bg-background/90 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
+						<div className="flex items-center justify-between h-18">
 							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+								<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2 group">
+									<span className="text-3xl animate-bounce-slow">🎈</span>
+									<span className="text-xl font-black gradient-text group-hover:scale-105 transition-transform">
+										Kids Wonder
+									</span>
 								</YnsLink>
 								<Navbar />
 							</div>
