@@ -8,8 +8,8 @@ import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
-import { ReferralBadge } from "@/components/referral-badge";
 import { NavigationReporter } from "@/components/navigation-reporter";
+import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
@@ -77,13 +77,15 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const env = process.env.VERCEL_ENV || "development";
+
 	return (
 		<html lang="en">
 			<body className={`${inter.variable} font-sans antialiased`}>
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>
-				<NavigationReporter />
+				{env === "development" && <NavigationReporter />}
 			</body>
 		</html>
 	);

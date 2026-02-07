@@ -18,11 +18,12 @@ export function NavigationReporter() {
 
 		window.addEventListener("message", handleMessage);
 		return () => window.removeEventListener("message", handleMessage);
-	}, [router]);
+	}, []);
 
 	return (
 		<Script id="navigation-reporter" strategy="afterInteractive">
-			{`
+			{
+				/* js */ `
 (function() {
   if (window.parent === window) return;
 
@@ -32,22 +33,23 @@ export function NavigationReporter() {
 
   reportNavigation();
 
-  var pushState = history.pushState;
-  var replaceState = history.replaceState;
+  const pushState = history.pushState;
+  const replaceState = history.replaceState;
 
-  history.pushState = function() {
-    pushState.apply(this, arguments);
+  history.pushState = function(...args) {
+    pushState.apply(this, args);
     reportNavigation();
   };
 
-  history.replaceState = function() {
-    replaceState.apply(this, arguments);
+  history.replaceState = function(...args) {
+    replaceState.apply(this, args);
     reportNavigation();
   };
 
   window.addEventListener("popstate", reportNavigation);
 })();
-      `}
+      `
+			}
 		</Script>
 	);
 }
