@@ -57,7 +57,9 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 							<div className="flex items-center gap-12">
 								<YnsLink prefetch={"eager"} href="/" className="flex flex-col items-center">
 									<span className="text-2xl font-serif tracking-[0.15em] text-primary">LUMIERE</span>
-									<span className="text-[10px] tracking-[0.3em] text-muted-foreground uppercase">Fine Jewelry</span>
+									<span className="text-[10px] tracking-[0.3em] text-muted-foreground uppercase">
+										Fine Jewelry
+									</span>
 								</YnsLink>
 								<Navbar />
 							</div>
