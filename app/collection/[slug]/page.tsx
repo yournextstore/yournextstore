@@ -1,10 +1,10 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import { cacheLife } from "next/cache";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
+import { YNSImage } from "@/lib/yns-image";
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
@@ -27,7 +27,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 			</div>
 			{collection.image && (
 				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<Image
+					<YNSImage
 						src={collection.image}
 						alt={collection.name}
 						fill
