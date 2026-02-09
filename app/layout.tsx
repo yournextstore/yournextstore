@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Space_Grotesk } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -17,16 +17,6 @@ import "@/app/globals.css";
 import { Heart, Search, ShoppingBag } from "lucide-react";
 import { cookies } from "next/headers";
 import { ThemeProvider } from "next-themes";
-
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
 
 const inter = Inter({
 	variable: "--font-display",
