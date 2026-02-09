@@ -13,9 +13,8 @@ import { ReferralBadge } from "@/components/referral-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
-import { getCartCookieJson } from "@/lib/cookies";
 import "@/app/globals.css";
-import { Heart, Link, Search, ShoppingBag } from "lucide-react";
+import { Heart, Search, ShoppingBag } from "lucide-react";
 import { cookies } from "next/headers";
 import { ThemeProvider } from "next-themes";
 
@@ -116,6 +115,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 					{/* Footer */}
 					<Footer />
+					<ReferralBadge />
 				</main>
 			</div>
 			<CartSidebar baseUrl={baseUrl} />
@@ -129,6 +129,8 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const env = process.env.VERCEL_ENV || "development";
+
 	return (
 		<html lang="en" className="scroll-smooth" suppressHydrationWarning>
 			<body className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased`}>
@@ -137,6 +139,12 @@ export default function RootLayout({
 						<CartProviderWrapper>{children}</CartProviderWrapper>
 					</Suspense>
 				</ThemeProvider>
+				{env === "development" && (
+					<>
+						<NavigationReporter />
+						<ErrorOverlayRemover />
+					</>
+				)}
 			</body>
 		</html>
 	);
