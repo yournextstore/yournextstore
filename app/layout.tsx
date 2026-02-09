@@ -1,7 +1,6 @@
 import { ArrowRight, Menu, ShoppingCart } from "lucide-react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
@@ -10,6 +9,7 @@ import { CartButton } from "@/app/cart-button";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { commerce } from "@/lib/commerce";
 import "@/app/globals.css";
+import { getCartCookieJson } from "@/lib/cookies";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -36,18 +36,17 @@ function CartButtonFallback() {
 }
 
 async function getInitialCart() {
-	const cookieStore = await cookies();
-	const cartId = cookieStore.get("cartId")?.value;
+	const cartCookie = await getCartCookieJson();
 
-	if (!cartId) {
+	if (!cartCookie?.id) {
 		return { cart: null, cartId: null };
 	}
 
 	try {
-		const cart = await commerce.cartGet({ cartId });
-		return { cart: cart ?? null, cartId };
+		const cart = await commerce.cartGet({ cartId: cartCookie.id });
+		return { cart: cart ?? null, cartId: cartCookie.id };
 	} catch {
-		return { cart: null, cartId };
+		return { cart: null, cartId: cartCookie.id };
 	}
 }
 
