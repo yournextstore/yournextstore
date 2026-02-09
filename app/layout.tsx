@@ -19,6 +19,7 @@ import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 import "@/app/globals.css";
 import { Heart, Search, ShoppingBag } from "lucide-react";
+import { ReferralBadge } from "@/components/referral-badge";
 
 const inter = Inter({
 	variable: "--font-display",
@@ -122,6 +123,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 					{/* Footer */}
 					<Footer />
+					<ReferralBadge />
 				</main>
 			</div>
 			<CartSidebar baseUrl={baseUrl} />
