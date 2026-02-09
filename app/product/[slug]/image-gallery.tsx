@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { YNSImage } from "@/lib/yns-image";
 import { cn } from "@/lib/utils";
 import { YNSImage } from "@/lib/yns-image";
 

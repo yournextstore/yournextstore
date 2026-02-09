@@ -11,6 +11,7 @@ import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
@@ -86,6 +87,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</header>
 				<main className="flex-1 w-full">{children}</main>
 				<Footer />
+				<ReferralBadge />
 			</div>
 			<CartSidebar />
 		</CartProvider>
