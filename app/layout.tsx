@@ -8,7 +8,7 @@ import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
-import { NavigationReporter } from "@/components/navigation-reporter";
+import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
@@ -85,7 +85,12 @@ export default function RootLayout({
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>
-				{env === "development" && <NavigationReporter />}
+				{env === "development" && (
+					<>
+						<NavigationReporter />
+						<ErrorOverlayRemover />
+					</>
+				)}
 			</body>
 		</html>
 	);
