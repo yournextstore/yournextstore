@@ -118,3 +118,25 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+.yns-image-shimmer {
+	background: linear-gradient(
+		90deg,
+		oklch(0.9 0 0) 0%,
+		oklch(0.95 0 0) 40%,
+		oklch(1 0 0) 50%,
+		oklch(0.95 0 0) 60%,
+		oklch(0.9 0 0) 100%
+	);
+	background-size: 200% 100%;
+	animation: yns-image-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes yns-image-shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
