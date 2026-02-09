@@ -1,10 +1,10 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { YNSImage } from "@/lib/yns-image";
 import { cn } from "@/lib/utils";
 
 type Variant = {
@@ -79,7 +79,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				<Image
+				<YNSImage
 					src={displayImages[selectedIndex]}
 					alt={`${productName} - View ${selectedIndex + 1}`}
 					fill
@@ -150,7 +150,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 									: "opacity-60 hover:opacity-100",
 							)}
 						>
-							<Image
+							<YNSImage
 								src={image}
 								alt={`${productName} thumbnail ${index + 1}`}
 								fill
