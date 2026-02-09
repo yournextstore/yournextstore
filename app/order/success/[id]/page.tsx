@@ -1,12 +1,12 @@
 import { CheckCircle } from "lucide-react";
 import { cacheLife } from "next/cache";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { YNSImage } from "@/lib/yns-image";
 
 export default async function OrderSuccessPage(props: { params: Promise<{ id: string }> }) {
 	"use cache";
@@ -147,7 +147,7 @@ function OrderItem({ item }: { item: OrderLineItem }) {
 				href={`/product/${product.slug}`}
 				className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
-				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
+				{image && <YNSImage src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
 			</YnsLink>
 
 			{/* Product Details */}

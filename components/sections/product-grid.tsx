@@ -1,10 +1,10 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
-import Image from "next/image";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { YNSImage } from "@/lib/yns-image";
 import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
@@ -40,12 +40,8 @@ export async function ProductGrid({
 				{/* Section header - museum label style */}
 				<div className="flex items-end justify-between mb-20">
 					<div>
-						<p className="text-xs tracking-[0.3em] uppercase text-zinc-400 mb-4">
-							{description}
-						</p>
-						<h2 className="text-4xl lg:text-5xl font-light tracking-[-0.02em] text-zinc-900">
-							{title}
-						</h2>
+						<p className="text-xs tracking-[0.3em] uppercase text-zinc-400 mb-4">{description}</p>
+						<h2 className="text-4xl lg:text-5xl font-light tracking-[-0.02em] text-zinc-900">{title}</h2>
 					</div>
 					{showViewAll && (
 						<YnsLink
@@ -95,11 +91,16 @@ export async function ProductGrid({
 						const secondaryImage = allImages[1];
 
 						return (
-							<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
+							<YnsLink
+								prefetch={"eager"}
+								key={product.id}
+								href={`/product/${product.slug}`}
+								className="group"
+							>
 								{/* Product image - clean rectangle */}
 								<div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden mb-6">
 									{primaryImage && (
-										<Image
+										<YNSImage
 											src={primaryImage}
 											alt={product.name}
 											fill
@@ -108,7 +109,7 @@ export async function ProductGrid({
 										/>
 									)}
 									{secondaryImage && (
-										<Image
+										<YNSImage
 											src={secondaryImage}
 											alt={`${product.name} - alternate view`}
 											fill

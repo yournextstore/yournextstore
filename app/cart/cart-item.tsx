@@ -9,6 +9,7 @@ import { type CartLineItem, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { YNSImage } from "@/lib/yns-image";
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -63,7 +64,7 @@ export function CartItem({ item }: CartItemProps) {
 				onClick={closeCart}
 				className="relative h-24 w-20 shrink-0 overflow-hidden bg-zinc-100"
 			>
-				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
+				{image && <YNSImage src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
 			</YnsLink>
 
 			{/* Product Details */}
