@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
@@ -15,6 +14,7 @@ import { commerce } from "@/lib/commerce";
 import "@/app/globals.css";
 import { Heart, Search, ShoppingBag } from "lucide-react";
 import { ReferralBadge } from "@/components/referral-badge";
+import { getCartCookieJson } from "@/lib/cookies";
 
 const inter = Inter({
 	variable: "--font-display",
@@ -42,18 +42,17 @@ function CartButtonFallback() {
 }
 
 async function getInitialCart() {
-	const cookieStore = await cookies();
-	const cartId = cookieStore.get("cartId")?.value;
+	const cartCookie = await getCartCookieJson();
 
-	if (!cartId) {
+	if (!cartCookie?.id) {
 		return { cart: null, cartId: null };
 	}
 
 	try {
-		const cart = await commerce.cartGet({ cartId });
-		return { cart: cart ?? null, cartId };
+		const cart = await commerce.cartGet({ cartId: cartCookie.id });
+		return { cart: cart ?? null, cartId: cartCookie.id };
 	} catch {
-		return { cart: null, cartId };
+		return { cart: null, cartId: cartCookie.id };
 	}
 }
 
