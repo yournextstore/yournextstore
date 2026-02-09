@@ -53,3 +53,20 @@ export function NavigationReporter() {
 		</Script>
 	);
 }
+
+export function ErrorOverlayRemover() {
+	useEffect(() => {
+		if (window.parent === window) return;
+
+		const host = document.querySelector("nextjs-portal");
+		if (host?.shadowRoot) {
+			const style = document.createElement("style");
+			style.textContent = /* css */ `[data-nextjs-dialog-overlay] { display: none !important; }`;
+			host.shadowRoot.appendChild(style);
+		} else {
+			console.warn("Could not find Next.js error overlay host element.");
+		}
+	}, []);
+
+	return null;
+}
