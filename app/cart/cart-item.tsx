@@ -1,7 +1,6 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
@@ -9,6 +8,7 @@ import { type CartLineItem, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { YNSImage } from "@/lib/yns-image";
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -63,7 +63,7 @@ export function CartItem({ item }: CartItemProps) {
 				onClick={closeCart}
 				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
-				{image && <Image src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSImage src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</YnsLink>
 
 			{/* Product Details */}
