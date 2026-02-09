@@ -1,12 +1,10 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
-import Image from "next/image";
-import Link from "next/link";
-import {  commerce } from "@/lib/commerce";
-import { CURRENCY, 
-	 LOCALE } from "@/lib/constants";
-import { formatMoney, formatMoney } from "@/lib/money";
+
+import { commerce } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
 import { YNSImage } from "@/lib/yns-image";
 import { YnsLink } from "../yns-link";
 
@@ -85,7 +83,7 @@ export async function ProductGrid({
 						</div>
 
 						{/* Product image with rotation effect */}
-						<Link href={`/product/${product.slug}`} className="block h-full">
+						<YnsLink href={`/product/${product.slug}`} className="block h-full">
 							<div className="h-[300px] md:h-[400px] flex items-center justify-center p-6 relative overflow-hidden">
 								{primaryImage && (
 									<YNSImage
@@ -101,16 +99,16 @@ export async function ProductGrid({
 									PREMIUM
 								</span>
 							</div>
-						</Link>
+						</YnsLink>
 
 						{/* Add to cart button - bottom right */}
 						<div className="absolute bottom-6 right-6 z-10">
-							<Link
+							<YnsLink
 								href={`/product/${product.slug}`}
 								className="text-xs font-bold uppercase border-b-2 border-foreground hover:text-primary hover:border-primary transition-colors pb-0.5"
 							>
 								Add to cart
-							</Link>
+							</YnsLink>
 						</div>
 					</div>
 				);
@@ -129,13 +127,13 @@ export async function ProductGrid({
 			{/* Store CTA section */}
 			{showViewAll && (
 				<div className="col-span-12 md:col-span-4 grid-border-r grid-border-b h-[200px] flex items-center justify-between px-8 md:px-12 relative overflow-hidden group">
-					<Link
+					<YnsLink
 						href={viewAllHref}
 						className="relative z-10 w-24 h-24 rounded-full border border-primary text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
 					>
 						<span className="text-xs font-bold tracking-widest uppercase ml-1">Store</span>
 						<ArrowUpRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-					</Link>
+					</YnsLink>
 					<div className="text-right z-10">
 						<span className="text-xs font-bold text-primary uppercase block mb-1">New Collection</span>
 						<div className="w-16 h-0.5 bg-primary ml-auto" />
