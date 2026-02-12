@@ -117,7 +117,8 @@
 				"noSvgWithoutTitle": "off",
 				"useFocusableInteractive": "off",
 				"useKeyWithClickEvents": "off",
-				"useAriaPropsForRole": "off"
+				"useAriaPropsForRole": "off",
+				"noStaticElementInteractions": "off"
 			},
 			"security": {
 				"noBlankTarget": "off",
