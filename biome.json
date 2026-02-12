@@ -118,7 +118,8 @@
 				"useFocusableInteractive": "off",
 				"useKeyWithClickEvents": "off",
 				"useAriaPropsForRole": "off",
-				"noStaticElementInteractions": "off"
+				"noStaticElementInteractions": "off",
+				"useValidAnchor": "off"
 			},
 			"security": {
 				"noBlankTarget": "off",
