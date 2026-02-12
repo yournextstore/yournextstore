@@ -32,6 +32,36 @@ async function FooterCollections() {
 	);
 }
 
+async function FooterLegalPages() {
+	"use cache";
+	cacheLife("hours");
+
+	const pages = await commerce.legalPageBrowse();
+
+	if (pages.data.length === 0) {
+		return null;
+	}
+
+	return (
+		<div>
+			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<ul className="mt-4 space-y-3">
+				{pages.data.map((page) => (
+					<li key={page.id}>
+						<YnsLink
+							prefetch={"eager"}
+							href={`/legal${page.path}`}
+							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+						>
+							{page.title}
+						</YnsLink>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
 export function Footer() {
 	return (
 		<footer className="border-t border-border bg-background">
@@ -49,6 +79,9 @@ export function Footer() {
 
 					{/* Collections */}
 					<FooterCollections />
+
+					{/* Legal */}
+					<FooterLegalPages />
 				</div>
 
 				{/* Bottom bar */}
