@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,6 +118,15 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+}
+
+.prose {
+	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-headings: var(--foreground);
+	--tw-prose-links: var(--foreground);
+	--tw-prose-bold: var(--foreground);
+	--tw-prose-bullets: var(--muted-foreground);
+	--tw-prose-counters: var(--muted-foreground);
 }
 
 .yns-image-shimmer {
