@@ -33,24 +33,24 @@ export async function ProductGrid({
 
 	return (
 		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
+			<div className="text-center mb-14">
+				<h2 className="font-[family-name:var(--font-heading)] text-3xl sm:text-4xl font-medium text-foreground">
+					{title}
+				</h2>
+				<p className="mt-3 text-muted-foreground max-w-2xl mx-auto">{description}</p>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-tea hover:text-foreground transition-colors tracking-wide uppercase"
 					>
 						View all
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-3.5 w-3.5" />
 					</YnsLink>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
 				{displayProducts.map((product) => {
 					const variants = "variants" in product ? product.variants : null;
 					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
@@ -70,7 +70,7 @@ export async function ProductGrid({
 
 					const priceDisplay =
 						variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-							? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+							? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 							: minPrice
 								? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 								: null;
@@ -86,14 +86,14 @@ export async function ProductGrid({
 
 					return (
 						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
-							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+							<div className="relative aspect-square bg-cream overflow-hidden mb-4">
 								{primaryImage && (
 									<YNSImage
 										src={primaryImage}
 										alt={product.name}
 										fill
 										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-										className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+										className="object-cover transition-transform duration-700 group-hover:scale-105"
 									/>
 								)}
 								{secondaryImage && (
@@ -106,9 +106,11 @@ export async function ProductGrid({
 									/>
 								)}
 							</div>
-							<div className="space-y-1">
-								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-								<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+							<div className="text-center space-y-1">
+								<h3 className="text-sm font-semibold tracking-wide uppercase text-foreground">
+									{product.name}
+								</h3>
+								<p className="text-sm text-muted-foreground">{priceDisplay}</p>
 							</div>
 						</YnsLink>
 					);
@@ -116,14 +118,14 @@ export async function ProductGrid({
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-14 text-center sm:hidden">
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 text-sm font-medium text-tea hover:text-foreground transition-colors tracking-wide uppercase"
 					>
 						View all products
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-3.5 w-3.5" />
 					</YnsLink>
 				</div>
 			)}
