@@ -82,12 +82,9 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 
 		if (!selectedVariant) return;
 
-		// Open cart sidebar
 		openCart();
 
-		// Execute server action with optimistic update
 		startTransition(async () => {
-			// Dispatch inside transition for optimistic update
 			dispatch({
 				type: "ADD_ITEM",
 				item: {
@@ -102,7 +99,6 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 			});
 
 			await addToCart(selectedVariant.id, quantity);
-			// Reset quantity after add
 			setQuantity(1);
 		});
 	};
@@ -117,7 +113,7 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-bold uppercase tracking-wide border-[3px] border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,0.15)] hover:shadow-[2px_2px_0_0_rgba(0,0,0,0.15)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0"
 				>
 					{buttonText}
 				</button>
