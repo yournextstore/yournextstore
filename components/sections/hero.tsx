@@ -1,41 +1,59 @@
-import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import { YnsLink } from "../yns-link";
 
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
+		<section className="relative overflow-hidden bg-[#eef2f5]">
+			<div className="max-w-7xl mx-auto">
+				<div className="relative grid grid-cols-1 lg:grid-cols-2 min-h-[500px] lg:min-h-[600px]">
+					{/* Left: Image collage */}
+					<div className="relative h-[350px] lg:h-auto overflow-hidden">
+						<Image
+							src="/scraped-1.png"
+							alt="People enjoying premium drinkware"
+							fill
+							className="object-cover"
+							sizes="(max-width: 1024px) 100vw, 50vw"
+							priority
+						/>
+						<div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#eef2f5]/30 lg:hidden" />
+					</div>
+
+					{/* Right: Text content */}
+					<div className="flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-12 lg:py-20">
+						<div className="space-y-2">
+							<h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-foreground leading-[1.1]">
+								Minimal <span className="italic font-light text-muted-foreground">Aesthetic</span>
+							</h1>
+						</div>
+
+						<div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
+							<span className="uppercase tracking-widest text-xs font-medium">Our Feature</span>
+						</div>
+
+						<p className="mt-4 text-muted-foreground text-sm leading-relaxed max-w-sm">
+							Made from food-grade stainless steel and BPA-free components, ensuring safety and durability.
 						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
+
+						<div className="mt-8 flex items-end gap-4">
+							<div className="flex items-baseline gap-2">
+								<span className="text-4xl font-light text-foreground">12 - 24</span>
+								<span className="text-sm text-muted-foreground">Hours</span>
+							</div>
+						</div>
+
+						<div className="mt-10">
 							<YnsLink
 								prefetch={"eager"}
 								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-primary-foreground rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
+								className="inline-flex items-center gap-2 bg-foreground text-primary-foreground px-8 py-3.5 rounded-full text-sm font-medium hover:bg-foreground/90 transition-colors"
 							>
 								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
-							<YnsLink
-								prefetch={"eager"}
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
 							</YnsLink>
 						</div>
 					</div>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block" />
 		</section>
 	);
 }
