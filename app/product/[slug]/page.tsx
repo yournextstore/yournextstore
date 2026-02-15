@@ -56,11 +56,13 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title, Price, Description */}
 					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl lg:text-5xl font-light tracking-wide text-foreground text-balance">
 							{product.name}
 						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						<p className="text-xl font-medium tracking-tight">{priceDisplay}</p>
+						{product.summary && (
+							<p className="text-sm text-muted-foreground leading-relaxed">{product.summary}</p>
+						)}
 					</div>
 
 					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}

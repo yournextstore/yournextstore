@@ -13,11 +13,11 @@ export async function Navbar() {
 	}
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
+		<nav className="hidden sm:flex items-center gap-8">
 			<YnsLink
 				prefetch={"eager"}
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-primary transition-colors"
 			>
 				Home
 			</YnsLink>
@@ -26,7 +26,7 @@ export async function Navbar() {
 					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="text-[13px] font-medium tracking-wide uppercase text-muted-foreground hover:text-primary transition-colors"
 				>
 					{collection.name}
 				</YnsLink>
