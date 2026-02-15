@@ -19,8 +19,8 @@ type ProductGridProps = {
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Top Items",
+	description = "Only the best made the list — gear that delivers real in-game advantage.",
 	products,
 	limit = 6,
 	showViewAll = true,
@@ -35,14 +35,16 @@ export async function ProductGrid({
 		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
 			<div className="flex items-end justify-between mb-12">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">{title}</p>
+					<h2 className="font-heading text-2xl sm:text-3xl font-bold uppercase tracking-tight text-foreground">
+						{description}
+					</h2>
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
@@ -50,7 +52,7 @@ export async function ProductGrid({
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 				{displayProducts.map((product) => {
 					const variants = "variants" in product ? product.variants : null;
 					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
@@ -86,14 +88,14 @@ export async function ProductGrid({
 
 					return (
 						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
-							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+							<div className="relative aspect-square bg-card rounded-lg overflow-hidden mb-4 border border-border">
 								{primaryImage && (
 									<YNSImage
 										src={primaryImage}
 										alt={product.name}
 										fill
 										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-										className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+										className="object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-105"
 									/>
 								)}
 								{secondaryImage && (
@@ -102,13 +104,15 @@ export async function ProductGrid({
 										alt={`${product.name} - alternate view`}
 										fill
 										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-										className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+										className="object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
 									/>
 								)}
 							</div>
 							<div className="space-y-1">
-								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-								<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+								<h3 className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+									{product.name}
+								</h3>
+								<p className="text-base font-bold text-foreground">{priceDisplay}</p>
 							</div>
 						</YnsLink>
 					);
@@ -120,7 +124,7 @@ export async function ProductGrid({
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
 					>
 						View all products
 						<ArrowRight className="h-4 w-4" />
