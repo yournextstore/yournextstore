@@ -13,7 +13,7 @@ export async function Navbar() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
 			>
 				Home
 			</YnsLink>
@@ -29,7 +29,7 @@ export async function Navbar() {
 					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
 				>
 					{collection.name}
 				</YnsLink>
