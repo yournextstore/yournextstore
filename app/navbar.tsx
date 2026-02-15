@@ -8,25 +8,21 @@ export async function Navbar() {
 
 	const collections = await commerce.collectionBrowse({ limit: 5 });
 
-	if (collections.data.length === 0) {
-		return null;
-	}
-
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
+		<nav className="hidden sm:flex items-center gap-8">
 			<YnsLink
 				prefetch={"eager"}
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm font-bold uppercase tracking-wide text-foreground hover:text-[#ff2524] transition-colors"
 			>
-				Home
+				Shop
 			</YnsLink>
 			{collections.data.map((collection) => (
 				<YnsLink
 					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="text-sm font-bold uppercase tracking-wide text-foreground hover:text-[#ff2524] transition-colors"
 				>
 					{collection.name}
 				</YnsLink>
