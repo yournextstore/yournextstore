@@ -32,17 +32,19 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<div className="flex items-end justify-between mb-8">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="font-[family-name:var(--font-heading)] text-xl sm:text-2xl font-bold uppercase text-foreground">
+						{title}
+					</h2>
+					<p className="mt-1 text-sm text-muted-foreground">{description}</p>
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors uppercase tracking-wide"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
@@ -50,7 +52,7 @@ export async function ProductGrid({
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
 				{displayProducts.map((product) => {
 					const variants = "variants" in product ? product.variants : null;
 					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
@@ -85,14 +87,19 @@ export async function ProductGrid({
 					const secondaryImage = allImages[1];
 
 					return (
-						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
-							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+						<YnsLink
+							prefetch={"eager"}
+							key={product.id}
+							href={`/product/${product.slug}`}
+							className="group border border-border hover:border-primary/30 bg-background transition-all duration-300 hover:shadow-md"
+						>
+							<div className="relative aspect-square bg-secondary overflow-hidden">
 								{primaryImage && (
 									<YNSImage
 										src={primaryImage}
 										alt={product.name}
 										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 										className="object-cover transition-opacity duration-500 group-hover:opacity-0"
 									/>
 								)}
@@ -101,14 +108,16 @@ export async function ProductGrid({
 										src={secondaryImage}
 										alt={`${product.name} - alternate view`}
 										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 										className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 									/>
 								)}
 							</div>
-							<div className="space-y-1">
-								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-								<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+							<div className="p-3 sm:p-4">
+								<h3 className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+									{product.name}
+								</h3>
+								<p className="mt-1 text-sm font-bold text-primary">{priceDisplay}</p>
 							</div>
 						</YnsLink>
 					);
@@ -116,11 +125,11 @@ export async function ProductGrid({
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-8 text-center sm:hidden">
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors uppercase"
 					>
 						View all products
 						<ArrowRight className="h-4 w-4" />
