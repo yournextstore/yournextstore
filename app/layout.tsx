@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartButton } from "@/app/cart-button";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -16,14 +17,15 @@ import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -70,11 +72,16 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-lg">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+						<div className="flex items-center justify-between h-16 sm:h-18">
+							<div className="flex items-center gap-10">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-heading text-2xl sm:text-[1.65rem] font-semibold tracking-wide uppercase"
+								>
 									Your Next Store
 								</YnsLink>
 								<Navbar />
@@ -106,7 +113,7 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${cormorant.variable} font-sans antialiased`}>
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>

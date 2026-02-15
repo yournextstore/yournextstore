@@ -55,7 +55,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 					/>
 					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
