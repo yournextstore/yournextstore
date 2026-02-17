@@ -68,7 +68,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 	if (displayImages.length === 0) {
 		return (
 			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+				<div className="aspect-square bg-secondary  flex items-center justify-center">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -78,7 +78,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 	return (
 		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-square overflow-hidden  bg-secondary">
 				<YNSImage
 					src={displayImages[selectedIndex]}
 					alt={`${productName} - View ${selectedIndex + 1}`}
@@ -144,7 +144,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 shrink-0 overflow-hidden transition-all duration-200",
 								selectedIndex === index
 									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
