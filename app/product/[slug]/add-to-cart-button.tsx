@@ -109,7 +109,7 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 	};
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-6">
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
 			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
@@ -120,7 +120,7 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-12 bg-foreground text-primary-foreground py-3 px-8 text-xs font-medium tracking-[0.15em] uppercase hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}
 				</button>
