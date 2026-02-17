@@ -6,14 +6,14 @@ export async function Navbar() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await commerce.collectionBrowse({ limit: 5 });
+	const collections = await commerce.collectionBrowse({ limit: 6 });
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
+		<nav className="hidden lg:flex items-center gap-8">
 			<YnsLink
 				prefetch={"eager"}
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm font-medium text-foreground hover:text-foreground/70 transition-colors py-2"
 			>
 				Home
 			</YnsLink>
@@ -29,7 +29,7 @@ export async function Navbar() {
 					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="text-sm font-medium text-foreground hover:text-foreground/70 transition-colors py-2"
 				>
 					{collection.name}
 				</YnsLink>
