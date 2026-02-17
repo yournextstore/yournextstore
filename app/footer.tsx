@@ -14,14 +14,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs tracking-widest uppercase text-white/60 mb-6">Menu</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-white/80 hover:text-white transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -44,14 +44,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs tracking-widest uppercase text-white/60 mb-6">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.path}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-white/80 hover:text-white transition-colors"
 						>
 							{page.title}
 						</YnsLink>
@@ -64,17 +64,21 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-navy text-white">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
+					<div>
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="font-[family-name:var(--font-playfair)] text-xl tracking-wide text-white"
+						>
 							Your Next Store
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
+						<div className="mt-6 flex items-center gap-4">
+							<span className="text-sm text-white/60">Follow us</span>
+						</div>
 					</div>
 
 					{/* Collections */}
@@ -82,11 +86,32 @@ export function Footer() {
 
 					{/* Legal */}
 					<FooterLegalPages />
+
+					{/* Newsletter */}
+					<div>
+						<h3 className="text-xs tracking-widest uppercase text-white/60 mb-6">Sign up and save</h3>
+						<p className="text-sm text-white/70 mb-4">
+							Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
+						</p>
+						<form className="flex" onSubmit={(e) => e.preventDefault()}>
+							<input
+								type="email"
+								placeholder="Enter your email"
+								className="flex-1 bg-white/10 border border-white/20 px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/40"
+							/>
+							<button
+								type="submit"
+								className="px-4 py-2.5 bg-white/20 text-white text-sm hover:bg-white/30 transition-colors border border-white/20 border-l-0"
+							>
+								Subscribe
+							</button>
+						</form>
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
+				<div className="py-6 border-t border-white/10">
+					<p className="text-xs text-white/40">
 						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
 					</p>
 				</div>
