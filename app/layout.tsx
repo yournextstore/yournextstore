@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -24,9 +24,15 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
+const oswald = Oswald({
+	variable: "--font-oswald",
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-	title: "Your Next Store",
-	description: "Your next e-commerce store",
+	title: "Your Next Store - Automotive Parts & Accessories",
+	description: "Premium automotive parts, accessories, and performance upgrades for every vehicle.",
 };
 
 async function getInitialCart() {
@@ -50,19 +56,57 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				{/* Top utility bar */}
+				<div className="bg-[#1a1a1a] text-white/70 text-xs">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
+						<span className="hidden sm:inline">Helpline: (+800) 123 456 7890</span>
+						<div className="flex items-center gap-4 ml-auto">
+							<YnsLink prefetch={"eager"} href="/products" className="hover:text-white transition-colors">
+								Track your order
+							</YnsLink>
+						</div>
+					</div>
+				</div>
+
+				{/* Main header */}
+				<header className="sticky top-0 z-50 bg-[#222222] shadow-lg">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 						<div className="flex items-center justify-between h-16">
 							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-heading text-2xl font-bold text-white uppercase tracking-wider"
+								>
 									Your Next Store
 								</YnsLink>
-								<Navbar />
 							</div>
-							<CartButton />
+							<div className="flex items-center gap-4">
+								<Navbar />
+								<CartButton />
+							</div>
 						</div>
 					</div>
 				</header>
+
+				{/* Yellow navigation bar */}
+				<div className="bg-brand text-brand-foreground font-heading">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center h-12 gap-6 text-sm font-semibold uppercase tracking-wide overflow-x-auto">
+							<YnsLink
+								prefetch={"eager"}
+								href="/products"
+								className="whitespace-nowrap hover:opacity-80 transition-opacity"
+							>
+								Shop All
+							</YnsLink>
+							<Suspense>
+								<NavCollections />
+							</Suspense>
+						</div>
+					</div>
+				</div>
+
 				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
@@ -70,6 +114,20 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 			<CartSidebar />
 		</CartProvider>
 	);
+}
+
+async function NavCollections() {
+	const collections = await commerce.collectionBrowse({ limit: 5 });
+	return collections.data.map((collection) => (
+		<YnsLink
+			prefetch={"eager"}
+			key={collection.id}
+			href={`/collection/${collection.slug}`}
+			className="whitespace-nowrap hover:opacity-80 transition-opacity"
+		>
+			{collection.name}
+		</YnsLink>
+	));
 }
 
 export default function RootLayout({
@@ -81,7 +139,7 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}>
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>

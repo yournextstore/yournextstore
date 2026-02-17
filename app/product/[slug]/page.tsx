@@ -53,13 +53,13 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 lg:mt-0 space-y-6">
 					{/* Title, Price, Description */}
 					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl font-bold uppercase tracking-wide text-foreground lg:text-4xl">
 							{product.name}
 						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
+						<p className="text-2xl font-bold text-brand">{priceDisplay}</p>
 						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
 					</div>
 
