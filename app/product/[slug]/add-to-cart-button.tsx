@@ -117,7 +117,7 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 				<button
 					type="submit"
 					disabled={isPending || !selectedVariant}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-14 bg-brand-dark text-white py-4 px-8 rounded-sm text-sm font-semibold uppercase tracking-widest hover:bg-brand-dark/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}
 				</button>
