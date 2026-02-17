@@ -19,10 +19,10 @@ type ProductGridProps = {
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Best Selling",
+	description = "Unmatched design—superior performance and customer satisfaction in one.",
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
@@ -32,17 +32,17 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+			<div className="flex items-end justify-between mb-10">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="font-heading text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
+					<p className="mt-2 text-sm text-muted-foreground">{description}</p>
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-foreground/70 transition-colors"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
@@ -50,7 +50,7 @@ export async function ProductGrid({
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 				{displayProducts.map((product) => {
 					const variants = "variants" in product ? product.variants : null;
 					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
@@ -86,13 +86,13 @@ export async function ProductGrid({
 
 					return (
 						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
-							<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+							<div className="relative aspect-[3/4] bg-secondary overflow-hidden mb-3">
 								{primaryImage && (
 									<YNSImage
 										src={primaryImage}
 										alt={product.name}
 										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
 										className="object-cover transition-opacity duration-500 group-hover:opacity-0"
 									/>
 								)}
@@ -101,14 +101,19 @@ export async function ProductGrid({
 										src={secondaryImage}
 										alt={`${product.name} - alternate view`}
 										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
 										className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 									/>
 								)}
+								<div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+									<div className="bg-foreground text-primary-foreground text-center py-2.5 text-xs font-medium uppercase tracking-wider">
+										Quick View
+									</div>
+								</div>
 							</div>
 							<div className="space-y-1">
-								<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-								<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+								<h3 className="text-sm font-medium text-foreground leading-tight">{product.name}</h3>
+								<p className="text-sm text-muted-foreground">{priceDisplay}</p>
 							</div>
 						</YnsLink>
 					);
@@ -116,11 +121,11 @@ export async function ProductGrid({
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-10 text-center sm:hidden">
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-foreground/70 transition-colors"
 					>
 						View all products
 						<ArrowRight className="h-4 w-4" />
