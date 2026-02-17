@@ -1,41 +1,63 @@
-import { ArrowRightIcon } from "lucide-react";
-import { YnsLink } from "../yns-link";
+"use client";
+
+import { useEffect, useState } from "react";
+
+const slides = [
+	{ image: "/hero-bg-1.svg", alt: "Mountain landscape" },
+	{ image: "/hero-bg-2.svg", alt: "Forest trail" },
+	{ image: "/hero-bg-3.svg", alt: "Ocean coast" },
+];
 
 export function Hero() {
+	const [currentSlide, setCurrentSlide] = useState(0);
+
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setCurrentSlide((prev) => (prev + 1) % slides.length);
+		}, 5000);
+		return () => clearInterval(timer);
+	}, []);
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<YnsLink
-								prefetch={"eager"}
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-primary-foreground rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
-							<YnsLink
-								prefetch={"eager"}
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</YnsLink>
-						</div>
-					</div>
+		<section className="relative w-full h-[75vh] min-h-[500px] overflow-hidden">
+			{/* Slide backgrounds */}
+			{slides.map((slide, index) => (
+				<div
+					key={slide.alt}
+					className="absolute inset-0 transition-opacity duration-1000"
+					style={{ opacity: index === currentSlide ? 1 : 0 }}
+				>
+					<div
+						className="absolute inset-0 bg-cover bg-center"
+						style={{ backgroundImage: `url(${slide.image})` }}
+					/>
+					<div className="absolute inset-0 bg-black/30" />
+				</div>
+			))}
+
+			{/* Content overlay */}
+			<div className="relative z-10 flex items-center justify-center h-full text-center text-white">
+				<div className="max-w-3xl px-4">
+					<h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-light tracking-wide">
+						The adventurous.
+					</h1>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block" />
+
+			{/* Slide indicators */}
+			<div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-3">
+				{slides.map((slide, index) => (
+					<button
+						key={slide.alt}
+						type="button"
+						onClick={() => setCurrentSlide(index)}
+						className={`w-2 h-2 rounded-full transition-all duration-300 ${
+							index === currentSlide ? "bg-white w-6" : "bg-white/50"
+						}`}
+						aria-label={`Go to slide ${index + 1}`}
+					/>
+				))}
+			</div>
 		</section>
 	);
 }
