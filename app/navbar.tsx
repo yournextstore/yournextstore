@@ -9,13 +9,13 @@ export async function Navbar() {
 	const collections = await commerce.collectionBrowse({ limit: 5 });
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
+		<nav className="hidden items-center gap-6 sm:flex">
 			<YnsLink
 				prefetch={"eager"}
 				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+				className="text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
 			>
-				Home
+				Shop
 			</YnsLink>
 			<YnsLink
 				prefetch={"eager"}
@@ -29,7 +29,7 @@ export async function Navbar() {
 					prefetch={"eager"}
 					key={collection.id}
 					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					className="text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
 				>
 					{collection.name}
 				</YnsLink>
