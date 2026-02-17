@@ -1,29 +1,27 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
-import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar } from "@/app/navbar";
-import { SearchInput } from "@/app/search-input";
+import { SiteHeader } from "@/app/navbar";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
-import { YnsLink } from "@/components/yns-link";
 import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-heading",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 	return {
 		title: storeName,
-		description: me.store.settings?.storeDescription || "Your next e-commerce store",
+		description: me.store.settings?.storeDescription || "Fashion inspired by where we're from — curated essentials for modern living.",
 		icons: {
 			icon: [
 				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },
@@ -67,24 +65,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								<CartButton />
-							</div>
-						</div>
-					</div>
-				</header>
+				<SiteHeader />
 				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
@@ -103,7 +84,7 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${cormorant.variable} font-sans antialiased`}>
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
