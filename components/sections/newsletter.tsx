@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { useActionState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 
@@ -8,45 +8,56 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+		<section className="bg-[#f5f5f0] py-16 sm:py-20">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+					{/* Newsletter signup */}
+					<div>
+						<h2 className="font-heading text-2xl sm:text-3xl font-bold mb-4">Sign up and save</h2>
+						<p className="text-muted-foreground mb-6">
+							Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
+						</p>
+						{state?.success ? (
+							<div className="flex items-center gap-3 text-foreground">
+								<div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-primary-foreground">
+									<CheckIcon className="h-5 w-5" />
+								</div>
+								<p className="text-sm">{state.message}</p>
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+						) : (
+							<>
+								<form className="flex max-w-md" action={action}>
+									<input
+										type="email"
+										name="email"
+										placeholder="Enter your email"
+										required
+										className="flex-1 h-12 px-4 bg-white border border-border text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+									/>
+									<button
+										type="submit"
+										disabled={isPending}
+										className="h-12 px-6 bg-foreground text-primary-foreground text-sm uppercase tracking-widest font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
+									>
+										{isPending ? "Subscribing\u2026" : "Subscribe"}
+									</button>
+								</form>
+								{state?.error && <p className="mt-3 text-sm text-red-600">{state.error}</p>}
+							</>
+						)}
+					</div>
+
+					{/* Store info */}
+					<div>
+						<h3 className="text-sm font-semibold uppercase tracking-widest mb-4">Local pickup available</h3>
+						<p className="text-muted-foreground text-sm mb-1">301 Front St W</p>
+						<p className="text-muted-foreground text-sm mb-4">Toronto, Canada</p>
+						<div className="space-y-1 text-sm text-muted-foreground">
+							<p>Mon - Fri, 8:30am - 10:30pm</p>
+							<p>Saturday, 8:30am - 10:30pm</p>
+							<p>Sunday, 8:30am - 10:30pm</p>
 						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
-							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
-					)}
+					</div>
 				</div>
 			</div>
 		</section>
