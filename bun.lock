@@ -5,6 +5,7 @@
     "": {
       "name": "yournextstore",
       "dependencies": {
+        "@ai-sdk/gateway": "^3.0.80",
         "@hookform/resolvers": "5.2.2",
         "@radix-ui/react-accordion": "1.2.12",
         "@radix-ui/react-alert-dialog": "1.1.15",
@@ -34,6 +35,7 @@
         "@radix-ui/react-tooltip": "1.2.8",
         "@tailwindcss/typography": "^0.5.19",
         "@typescript/native-preview": "7.0.0-dev.20260311.1",
+        "ai": "^6.0.138",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "cmdk": "1.1.1",
@@ -73,6 +75,12 @@
     },
   },
   "packages": {
+    "@ai-sdk/gateway": ["@ai-sdk/gateway@3.0.80", "", { "dependencies": { "@ai-sdk/provider": "3.0.8", "@ai-sdk/provider-utils": "4.0.21", "@vercel/oidc": "3.1.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-uM7kpZB5l977lW7+2X1+klBUxIZQ78+1a9jHlaHFEzcOcmmslTl3sdP0QqfuuBcO0YBM2gwOiqVdp8i4TRQYcw=="],
+
+    "@ai-sdk/provider": ["@ai-sdk/provider@3.0.8", "", { "dependencies": { "json-schema": "^0.4.0" } }, "sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ=="],
+
+    "@ai-sdk/provider-utils": ["@ai-sdk/provider-utils@4.0.21", "", { "dependencies": { "@ai-sdk/provider": "3.0.8", "@standard-schema/spec": "^1.1.0", "eventsource-parser": "^3.0.6" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-MtFUYI1/8mgDvRmaBDjbLJPFFrMG777AvSgyIFQtZHIMzm88R/12vYBBpnk7pfiWLFE1DSZzY4WDYzGbKAcmiw=="],
+
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
     "@babel/helper-string-parser": ["@babel/helper-string-parser@7.27.1", "", {}, "sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA=="],
@@ -193,6 +201,8 @@
 
     "@next/swc-win32-x64-msvc": ["@next/swc-win32-x64-msvc@16.2.0-canary.91", "", { "os": "win32", "cpu": "x64" }, "sha512-OsaL2iq7MY0PD1raJxyAWZKQ5xDl47KPFy0wAwjL0GltG0RWYxqm/NiZy7ygfYPUuVQ91whZMtODSdf9t+W2yg=="],
 
+    "@opentelemetry/api": ["@opentelemetry/api@1.9.0", "", {}, "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="],
+
     "@radix-ui/number": ["@radix-ui/number@1.1.1", "", {}, "sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g=="],
 
     "@radix-ui/primitive": ["@radix-ui/primitive@1.1.3", "", {}, "sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg=="],
@@ -301,6 +311,8 @@
 
     "@radix-ui/rect": ["@radix-ui/rect@1.1.1", "", {}, "sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw=="],
 
+    "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
+
     "@standard-schema/utils": ["@standard-schema/utils@0.3.0", "", {}, "sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g=="],
 
     "@swc/helpers": ["@swc/helpers@0.5.15", "", { "dependencies": { "tslib": "^2.8.0" } }, "sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g=="],
@@ -380,6 +392,10 @@
     "@typescript/native-preview-win32-arm64": ["@typescript/native-preview-win32-arm64@7.0.0-dev.20260311.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-EQ5nz4qrwtzMZ5bjdMVQ2ke5BHQWDBz9IQsdh/8UU819cs5ZBnKmFFe5wOrIngqFvq4EoWKDXf983Vw0q4erkg=="],
 
     "@typescript/native-preview-win32-x64": ["@typescript/native-preview-win32-x64@7.0.0-dev.20260311.1", "", { "os": "win32", "cpu": "x64" }, "sha512-Y/5A7BaRFV1Pro4BqNW3nVDuId7YdPXktl769x1yUjTDQLH6YJEJVeBkFkT0+4e1O5IL92rxxr8rWMLypNKnTw=="],
+
+    "@vercel/oidc": ["@vercel/oidc@3.1.0", "", {}, "sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w=="],
+
+    "ai": ["ai@6.0.138", "", { "dependencies": { "@ai-sdk/gateway": "3.0.80", "@ai-sdk/provider": "3.0.8", "@ai-sdk/provider-utils": "4.0.21", "@opentelemetry/api": "1.9.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-49OfPe0f5uxJ6jUdA5BBXjIinP6+ZdYfAtpF2aEH64GA5wPcxH2rf/TBUQQ0bbamBz/D+TLMV18xilZqOC+zaA=="],
 
     "ansi-escapes": ["ansi-escapes@7.3.0", "", { "dependencies": { "environment": "^1.0.0" } }, "sha512-BvU8nYgGQBxcmMuEeUEmNTvrMVjJNSH7RgW24vXexN4Ven6qCvy4TntnvlnwnMLTVlcRQQdbRY8NKnaIoeWDNg=="],
 
@@ -469,6 +485,8 @@
 
     "eventemitter3": ["eventemitter3@4.0.7", "", {}, "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="],
 
+    "eventsource-parser": ["eventsource-parser@3.0.6", "", {}, "sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg=="],
+
     "fast-equals": ["fast-equals@5.4.0", "", {}, "sha512-jt2DW/aNFNwke7AUd+Z+e6pz39KO5rzdbbFCg2sGafS4mk13MI7Z8O5z9cADNn5lhGODIgLwug6TZO2ctf7kcw=="],
 
     "fill-range": ["fill-range@7.1.1", "", { "dependencies": { "to-regex-range": "^5.0.1" } }, "sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg=="],
@@ -492,6 +510,8 @@
     "jiti": ["jiti@2.6.1", "", { "bin": { "jiti": "lib/jiti-cli.mjs" } }, "sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ=="],
 
     "js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
+
+    "json-schema": ["json-schema@0.4.0", "", {}, "sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA=="],
 
     "lightningcss": ["lightningcss@1.31.1", "", { "dependencies": { "detect-libc": "^2.0.3" }, "optionalDependencies": { "lightningcss-android-arm64": "1.31.1", "lightningcss-darwin-arm64": "1.31.1", "lightningcss-darwin-x64": "1.31.1", "lightningcss-freebsd-x64": "1.31.1", "lightningcss-linux-arm-gnueabihf": "1.31.1", "lightningcss-linux-arm64-gnu": "1.31.1", "lightningcss-linux-arm64-musl": "1.31.1", "lightningcss-linux-x64-gnu": "1.31.1", "lightningcss-linux-x64-musl": "1.31.1", "lightningcss-win32-arm64-msvc": "1.31.1", "lightningcss-win32-x64-msvc": "1.31.1" } }, "sha512-l51N2r93WmGUye3WuFoN5k10zyvrVs0qfKBhyC5ogUQ6Ew6JUSswh78mbSO+IU3nTWsyOArqPCcShdQSadghBQ=="],
 
