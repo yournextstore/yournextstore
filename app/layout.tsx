@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -14,19 +14,19 @@ import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+	variable: "--font-playfair",
 	subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
 	title: "Your Next Store",
-	description: "Your next e-commerce store",
+	description: "Fierce. Elegant. Handbags for the modern woman.",
 };
 
 async function getInitialCart() {
@@ -50,19 +50,32 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				{/* Announcement Bar */}
+				<div className="bg-navy text-white text-center py-2.5 text-xs tracking-widest uppercase">
+					Free shipping and returns
+				</div>
+
+				{/* Header */}
+				<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+						<div className="flex items-center justify-between h-16 sm:h-20">
+							<div className="flex items-center gap-10">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-[family-name:var(--font-playfair)] text-lg sm:text-xl tracking-wide font-semibold text-foreground"
+								>
 									Your Next Store
 								</YnsLink>
 								<Navbar />
 							</div>
-							<CartButton />
+							<div className="flex items-center gap-4">
+								<CartButton />
+							</div>
 						</div>
 					</div>
 				</header>
+
 				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
@@ -81,7 +94,9 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${playfair.variable} font-[family-name:var(--font-inter)] antialiased`}
+			>
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>
