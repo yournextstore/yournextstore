@@ -74,7 +74,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			<JsonLdScript data={buildProductJsonLd(product, reviews)} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
@@ -82,14 +82,14 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 space-y-8 lg:mt-0">
 					{/* Title, Price, Description */}
 					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-balance font-heading text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
 							{product.name}
 						</h1>
 						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						{product.summary && <p className="leading-relaxed text-muted-foreground">{product.summary}</p>}
 						{product.content && (
 							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
 								<TiptapRenderer content={product.content} />
