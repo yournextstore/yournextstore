@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
+import { Package, RotateCcw, Shield, Truck } from "lucide-react";
 
 type TrustBadge = {
 	icon: LucideIcon;
@@ -8,19 +8,22 @@ type TrustBadge = {
 };
 
 const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+	{ icon: Truck, title: "Free Shipping", description: "Orders over $100" },
+	{ icon: RotateCcw, title: "30-Day Returns", description: "Postage paid" },
+	{ icon: Shield, title: "2-Year Warranty", description: "Full coverage" },
+	{ icon: Package, title: "Secure Packaging", description: "Gift ready" },
 ];
 
 export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
+		<div className="grid grid-cols-2 gap-4 border-t border-border pt-6">
 			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
+				<div key={badge.title} className="flex items-start gap-3">
+					<badge.icon className="mt-0.5 h-4 w-4 text-accent shrink-0" />
+					<div>
+						<span className="text-xs font-medium text-foreground">{badge.title}</span>
+						<span className="block text-[11px] text-muted-foreground">{badge.description}</span>
+					</div>
 				</div>
 			))}
 		</div>
