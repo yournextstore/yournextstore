@@ -14,8 +14,8 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-foreground mb-6">Collections</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
@@ -44,8 +44,8 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-foreground mb-6">Information</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
@@ -64,16 +64,44 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+		<footer className="bg-secondary">
+			{/* Newsletter bar */}
+			<div className="border-b border-border">
+				<div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-12">
+					<div className="flex flex-col md:flex-row items-center justify-between gap-6">
+						<div>
+							<h3 className="font-heading text-2xl text-foreground">Sign up and save</h3>
+							<p className="mt-1 text-sm text-muted-foreground">
+								Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
+							</p>
+						</div>
+						<form className="flex w-full md:w-auto">
+							<input
+								type="email"
+								placeholder="Enter your email"
+								className="h-12 px-4 bg-background border border-border text-sm w-full md:w-72 focus:outline-none focus:border-foreground transition-colors"
+							/>
+							<button
+								type="submit"
+								className="h-12 px-6 bg-foreground text-primary-foreground text-sm uppercase tracking-[0.15em] hover:bg-foreground/90 transition-colors whitespace-nowrap"
+							>
+								Subscribe
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			{/* Footer columns */}
+			<div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+				<div className="py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
+					<div>
+						<YnsLink prefetch={"eager"} href="/" className="font-heading text-xl text-foreground">
 							Your Next Store
 						</YnsLink>
 						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+							Curated essentials for the modern workspace. Quality products, thoughtfully designed.
 						</p>
 					</div>
 
@@ -82,13 +110,33 @@ export function Footer() {
 
 					{/* Legal */}
 					<FooterLegalPages />
+
+					{/* Info */}
+					<div>
+						<h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-foreground mb-6">
+							Support
+						</h3>
+						<ul className="space-y-3">
+							<li>
+								<span className="text-sm text-muted-foreground">contact@yournextstore.com</span>
+							</li>
+							<li>
+								<span className="text-sm text-muted-foreground">Mon - Fri, 9am - 5pm EST</span>
+							</li>
+						</ul>
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
+				<div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p className="text-xs text-muted-foreground">
 						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
 					</p>
+					<div className="flex items-center gap-4">
+						<span className="text-xs text-muted-foreground">Visa</span>
+						<span className="text-xs text-muted-foreground">Mastercard</span>
+						<span className="text-xs text-muted-foreground">PayPal</span>
+					</div>
 				</div>
 			</div>
 		</footer>
