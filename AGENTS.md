@@ -113,10 +113,6 @@ test("formatMoney handles USD correctly", () => {
 });
 ```
 
-## Adding UI Components
-
-Check `components/ui/` first. Install missing Shadcn components with `npx shadcn@latest add [name]`. New components should use Radix primitives, Tailwind CSS, `cva` for variants, named exports.
-
 ## Validation Checklist
 
 - [ ] `tsgo --noEmit` — no type errors
