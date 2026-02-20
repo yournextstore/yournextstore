@@ -1,41 +1,71 @@
-import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import { YnsLink } from "../yns-link";
+
+const heroSlides = [
+	{
+		label: "NEW COLLECTION",
+		title: "Jackets & Liners",
+		cta: "Explore all",
+		href: "/products",
+		image: "/scraped-0.png",
+	},
+	{
+		label: "SALE! UP TO 50% OFF!",
+		title: "Popular Accessories",
+		cta: "Shop now",
+		href: "/products",
+		image: "/scraped-1.png",
+	},
+	{
+		label: "SPRING / SUMMER 2025",
+		title: "LOOKBOOK",
+		cta: "Learn more",
+		href: "/products",
+		image: "/scraped-2.png",
+	},
+];
 
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
+		<section className="w-full">
+			<div className="grid grid-cols-1 md:grid-cols-3 min-h-[70vh]">
+				{heroSlides.map((slide) => (
+					<div
+						key={slide.title}
+						className="relative group overflow-hidden cursor-pointer min-h-[50vh] md:min-h-[70vh]"
+					>
+						{/* Background Image */}
+						<Image
+							src={slide.image}
+							alt={slide.title}
+							fill
+							className="object-cover transition-transform duration-700 group-hover:scale-105"
+							sizes="(max-width: 768px) 100vw, 33vw"
+							priority
+						/>
+
+						{/* Dark Overlay */}
+						<div className="absolute inset-0 bg-black/30 transition-opacity duration-500 group-hover:bg-black/40" />
+
+						{/* Content */}
+						<div className="absolute inset-0 flex flex-col justify-end p-8 lg:p-10">
+							<span className="text-[10px] tracking-[0.3em] uppercase text-white/80 font-medium mb-3">
+								{slide.label}
+							</span>
+							<h2 className="text-2xl lg:text-3xl font-medium text-white mb-6 leading-tight">
+								{slide.title}
+							</h2>
 							<YnsLink
 								prefetch={"eager"}
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-primary-foreground rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
+								href={slide.href}
+								className="inline-flex items-center text-xs tracking-[0.2em] uppercase text-white font-medium border-b border-white/50 pb-1 hover:border-white transition-colors self-start"
 							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
-							<YnsLink
-								prefetch={"eager"}
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
+								{slide.cta}
 							</YnsLink>
 						</div>
 					</div>
-				</div>
+				))}
 			</div>
-			{/* Subtle decorative element */}
-			<div className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block" />
 		</section>
 	);
 }
