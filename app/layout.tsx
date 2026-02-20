@@ -1,13 +1,14 @@
 import "@/app/globals.css";
 
+import { Leaf, Search } from "lucide-react";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
@@ -16,13 +17,8 @@ import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
@@ -67,14 +63,32 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				{/* Announcement Bar */}
+				<AnnouncementBar />
+
+				{/* Main Header */}
+				<header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
+					{/* Upper header: logo + search + cart */}
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+						<div className="flex items-center justify-between h-16 sm:h-20">
+							{/* Logo */}
+							<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2 group">
+								<Leaf className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-transform group-hover:rotate-12" />
+								<span className="text-lg sm:text-2xl font-bold tracking-tight text-foreground uppercase">
 									Your Next Store
-								</YnsLink>
-								<Navbar />
+								</span>
+							</YnsLink>
+
+							{/* Search bar (hidden on mobile) */}
+							<div className="hidden md:flex flex-1 max-w-md mx-8">
+								<div className="relative w-full">
+									<input
+										type="text"
+										placeholder="Search products..."
+										className="w-full h-10 pl-4 pr-10 rounded-lg border border-border bg-secondary/50 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+									/>
+									<Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+								</div>
 							</div>
 							<div className="flex items-center gap-2">
 								<Suspense>
@@ -85,6 +99,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
+
 				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
@@ -103,7 +118,7 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} font-sans antialiased`}>
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
