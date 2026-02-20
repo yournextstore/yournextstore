@@ -1,23 +1,22 @@
 import { Suspense } from "react";
+import { AboutSection } from "@/components/sections/about-section";
+import { BrandsStrip } from "@/components/sections/brands-strip";
 import { Hero } from "@/components/sections/hero";
 import { ProductGrid } from "@/components/sections/product-grid";
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
+		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+				<div className="h-6 w-48 bg-secondary rounded animate-pulse" />
 			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+			<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+				{Array.from({ length: 8 }).map((_, i) => (
+					<div key={`skeleton-${i}`} className="bg-white rounded-lg border border-border overflow-hidden">
+						<div className="aspect-square bg-secondary animate-pulse" />
+						<div className="p-4 space-y-2">
+							<div className="h-4 w-3/4 bg-secondary rounded animate-pulse" />
+							<div className="h-5 w-1/3 bg-secondary rounded animate-pulse" />
 						</div>
 					</div>
 				))}
@@ -29,10 +28,19 @@ function ProductGridSkeleton() {
 export default function Home() {
 	return (
 		<main>
+			{/* 1. Hero with promotional banners */}
 			<Hero />
+
+			{/* 2. Product grid (main product listing) */}
 			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+				<ProductGrid title="Natural Wellness Products" limit={8} />
 			</Suspense>
+
+			{/* 3. Brands/Partners strip */}
+			<BrandsStrip />
+
+			{/* 4. About section with store description */}
+			<AboutSection />
 		</main>
 	);
 }
