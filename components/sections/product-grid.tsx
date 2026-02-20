@@ -1,8 +1,11 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
-import { ProductCard } from "@/components/product-card";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { commerce } from "@/lib/commerce";
+import { formatMoney } from "@/lib/money";
+import { isVideoUrl } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
@@ -18,9 +21,9 @@ type ProductGridProps = {
 
 export async function ProductGrid({
 	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
@@ -31,16 +34,18 @@ export async function ProductGrid({
 
 	return (
 		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+			<div className="flex items-end justify-between mb-10">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-foreground">
+						{title}
+					</h2>
+					{description && <p className="mt-2 text-muted-foreground">{description}</p>}
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-foreground hover:text-accent transition-colors"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
@@ -48,21 +53,99 @@ export async function ProductGrid({
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product) => (
-					<ProductCard key={product.id} product={product} />
-				))}
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+				{displayProducts.map((product) => {
+					const variants = "variants" in product ? product.variants : null;
+					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
+					const { minPrice, maxPrice } =
+						variants && firstVariantPrice !== null
+							? variants.reduce(
+									(acc, v) => {
+										const price = BigInt(v.price);
+										return {
+											minPrice: price < acc.minPrice ? price : acc.minPrice,
+											maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
+										};
+									},
+									{ minPrice: firstVariantPrice, maxPrice: firstVariantPrice },
+								)
+							: { minPrice: null, maxPrice: null };
+
+					const priceDisplay =
+						variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
+							? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+							: minPrice
+								? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
+								: null;
+
+					const allImages = [
+						...(product.images ?? []),
+						...(variants
+							?.flatMap((v) => v.images ?? [])
+							.filter((img) => !(product.images ?? []).includes(img)) ?? []),
+					];
+					const primaryImage = allImages[0];
+					const secondaryImage = allImages[1];
+
+					return (
+						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group">
+							<div className="relative aspect-[3/4] bg-secondary overflow-hidden mb-3">
+								{primaryImage &&
+									(isVideoUrl(primaryImage) ? (
+										<video
+											className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+											src={primaryImage}
+											muted
+											loop
+											autoPlay
+											playsInline
+										/>
+									) : (
+										<YNSMedia
+											src={primaryImage}
+											alt={product.name}
+											fill
+											sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+											className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+										/>
+									))}
+								{secondaryImage &&
+									(isVideoUrl(secondaryImage) ? (
+										<video
+											className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+											src={secondaryImage}
+											muted
+											loop
+											autoPlay
+											playsInline
+										/>
+									) : (
+										<YNSMedia
+											src={secondaryImage}
+											alt={`${product.name} - alternate view`}
+											fill
+											sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+											className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+										/>
+									))}
+							</div>
+							<div className="space-y-1">
+								<h3 className="text-sm font-bold uppercase tracking-wide text-foreground">{product.name}</h3>
+								<p className="text-sm font-semibold text-foreground">{priceDisplay}</p>
+							</div>
+						</YnsLink>
+					);
+				})}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-10 text-center">
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-block border-2 border-foreground text-foreground px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-colors"
 					>
 						View all products
-						<ArrowRight className="h-4 w-4" />
 					</YnsLink>
 				</div>
 			)}
