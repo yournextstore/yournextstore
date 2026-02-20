@@ -47,23 +47,24 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+				{/* Left: Image Gallery */}
 				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title, Price, Description */}
 					<div className="space-y-4">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Your Next Store</span>
+						<h1 className="font-heading text-3xl sm:text-4xl font-light tracking-wider text-foreground">
 							{product.name}
 						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						<p className="text-xl tracking-tight">{priceDisplay}</p>
+						{product.summary && (
+							<p className="text-sm text-muted-foreground leading-relaxed">{product.summary}</p>
+						)}
 					</div>
 
-					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
@@ -76,7 +77,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				</div>
 			</div>
 
-			{/* Features Section (full width below) */}
 			<ProductFeatures />
 		</div>
 	);

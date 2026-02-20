@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Josefin_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -19,14 +19,15 @@ const geistSans = Geist({
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const josefinSans = Josefin_Sans({
+	variable: "--font-josefin",
 	subsets: ["latin"],
+	weight: ["300", "400", "600", "700"],
 });
 
 export const metadata: Metadata = {
 	title: "Your Next Store",
-	description: "Your next e-commerce store",
+	description: "Simple, beautiful objects that combine form and function",
 };
 
 async function getInitialCart() {
@@ -50,19 +51,28 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				{/* Announcement Bar */}
+				<div className="bg-foreground text-primary-foreground text-xs tracking-[0.2em] uppercase text-center py-2.5 px-4">
+					Free shipping on orders above $100
+				</div>
+
+				{/* Header */}
+				<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar />
-							</div>
+						<div className="flex items-center justify-between h-20">
+							<Navbar />
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="absolute left-1/2 -translate-x-1/2 font-heading text-2xl sm:text-3xl font-light tracking-[0.15em] uppercase"
+							>
+								YNS
+							</YnsLink>
 							<CartButton />
 						</div>
 					</div>
 				</header>
+
 				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
@@ -81,7 +91,7 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${josefinSans.variable} antialiased`}>
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 				</Suspense>

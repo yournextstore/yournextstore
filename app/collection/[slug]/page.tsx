@@ -8,15 +8,18 @@ import { YNSImage } from "@/lib/yns-image";
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-secondary">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
+				<div className="py-16 sm:py-20 lg:py-24">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<span className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-4 block">
+							Collection
+						</span>
+						<h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-light tracking-wider text-foreground">
 							{collection.name}
 						</h1>
 						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+							<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
 								{typeof collection.description === "string"
 									? collection.description
 									: "Explore our curated collection"}
@@ -31,10 +34,10 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						src={collection.image}
 						alt={collection.name}
 						fill
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-secondary to-transparent" />
 				</div>
 			)}
 		</section>
@@ -43,14 +46,14 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+			<div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-10">
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+						<div className="aspect-square bg-secondary mb-3 animate-pulse" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-4 w-3/4 bg-secondary animate-pulse" />
+							<div className="h-4 w-1/4 bg-secondary animate-pulse" />
 						</div>
 					</div>
 				))}
@@ -64,7 +67,7 @@ function CollectionProducts({ collection }: { collection: APICollectionGetByIdRe
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
+			title={collection.name}
 			description={`${products.length} products`}
 			products={products}
 			showViewAll={false}
