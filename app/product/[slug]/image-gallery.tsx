@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { YNSImage } from "@/lib/yns-image";
@@ -57,13 +57,28 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		return images;
 	}, [variants, searchParams, images]);
 
-	const handlePrevious = () => {
+	const handlePrevious = useCallback(() => {
 		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
-	};
+	}, [displayImages.length]);
 
-	const handleNext = () => {
+	const handleNext = useCallback(() => {
 		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
-	};
+	}, [displayImages.length]);
+
+	// Keyboard navigation: ArrowLeft / ArrowRight
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "ArrowLeft") {
+				e.preventDefault();
+				handlePrevious();
+			} else if (e.key === "ArrowRight") {
+				e.preventDefault();
+				handleNext();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [handlePrevious, handleNext]);
 
 	if (displayImages.length === 0) {
 		return (
