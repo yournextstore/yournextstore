@@ -1,5 +1,12 @@
 import { ShoppingCartIcon } from "lucide-react";
+import type { Metadata } from "next";
 import { YnsLink } from "@/components/yns-link";
+
+export const metadata: Metadata = {
+	title: "Page Not Found",
+	description:
+		"This page doesn't exist or has been moved. Continue shopping to find what you're looking for.",
+};
 
 export default function NotFound() {
 	return (
