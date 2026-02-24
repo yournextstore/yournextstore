@@ -37,7 +37,7 @@
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "cmdk": "1.1.1",
-        "commerce-kit": "0.19.0",
+        "commerce-kit": "0.21.0",
         "date-fns": "4.1.0",
         "embla-carousel-react": "8.6.0",
         "input-otp": "1.4.2",
@@ -413,7 +413,7 @@
 
     "commander": ["commander@14.0.3", "", {}, "sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw=="],
 
-    "commerce-kit": ["commerce-kit@0.19.0", "", { "peerDependencies": { "@types/node": "^24.10.10", "@typescript/native-preview": "7.0.0-dev.20251022.1", "typescript": "5.9.3", "zod": "^4.3.6" }, "optionalPeers": ["@typescript/native-preview", "typescript"] }, "sha512-d2m1xqSL8Ig/tWiGXga4bgBoUh/1sjiE0VMyDq19R+qCQemCXKzV0A9W/lRS8IjQMKoDWxv6nTQdm+2sLak4gA=="],
+    "commerce-kit": ["commerce-kit@0.21.0", "", { "peerDependencies": { "@types/node": "^24.10.10", "@typescript/native-preview": "7.0.0-dev.20251022.1", "typescript": "5.9.3", "zod": "^4.3.6" }, "optionalPeers": ["@typescript/native-preview", "typescript"] }, "sha512-WmpDxA891Y5pzOZwXGlpZL4RNUIX5VGBewYHtNf6zp2NabNxVCXGmqqvPYAHRN2XHVD1TzXiNU81mQBeYcM9Qg=="],
 
     "cssesc": ["cssesc@3.0.0", "", { "bin": { "cssesc": "bin/cssesc" } }, "sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg=="],
 
