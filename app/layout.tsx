@@ -8,6 +8,7 @@ import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
+import { SearchInput } from "@/app/search-input";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
@@ -59,7 +60,12 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 								</YnsLink>
 								<Navbar />
 							</div>
-							<CartButton />
+							<div className="flex items-center gap-2">
+								<Suspense>
+									<SearchInput />
+								</Suspense>
+								<CartButton />
+							</div>
 						</div>
 					</div>
 				</header>
