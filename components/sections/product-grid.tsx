@@ -1,13 +1,15 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
-import { commerce } from "@/lib/commerce";
-import { CURRENCY, LOCALE } from "@/lib/constants";
+import YNSImage from "next/image";
 import { formatMoney } from "@/lib/money";
-import { YNSImage } from "@/lib/yns-image";
+import { commerce } from "@/lib/commerce";
 import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
+
+const CURRENCY = "USD";
+const LOCALE = "en-US";
 
 type ProductGridProps = {
 	title?: string;

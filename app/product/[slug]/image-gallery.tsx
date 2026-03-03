@@ -135,7 +135,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
 					{displayImages.map((image, index) => (
 						<button
-							key={image}
+							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
