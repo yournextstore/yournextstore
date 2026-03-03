@@ -59,9 +59,7 @@ export function CartSidebar() {
 								</div>
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
 								<Button asChild className="w-full h-12 text-base font-medium">
-									<a href={checkoutUrl} onClick={closeCart}>
-										Checkout
-									</a>
+									<a href={checkoutUrl}>Checkout</a>
 								</Button>
 								<button
 									type="button"
