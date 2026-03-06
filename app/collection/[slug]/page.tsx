@@ -1,10 +1,32 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
+import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 import { YNSImage } from "@/lib/yns-image";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	const { slug } = await params;
+	const collection = await commerce.collectionGet({ idOrSlug: slug });
+
+	if (!collection) {
+		return { title: "Collection Not Found — Your Next Store" };
+	}
+
+	const description = typeof collection.description === "string" ? collection.description : undefined;
+
+	return {
+		title: `${collection.name} — Your Next Store`,
+		description,
+		openGraph: {
+			title: collection.name,
+			description,
+			images: collection.image ? [collection.image] : undefined,
+		},
+	};
+}
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (

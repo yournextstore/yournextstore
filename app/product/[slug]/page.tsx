@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
@@ -6,6 +7,25 @@ import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	const { slug } = await params;
+	const product = await commerce.productGet({ idOrSlug: slug });
+
+	if (!product) {
+		return { title: "Product Not Found — Your Next Store" };
+	}
+
+	return {
+		title: `${product.name} — Your Next Store`,
+		description: product.summary ?? undefined,
+		openGraph: {
+			title: product.name,
+			description: product.summary ?? undefined,
+			images: product.images[0] ? [product.images[0]] : undefined,
+		},
+	};
+}
 
 export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
 	"use cache";
