@@ -122,6 +122,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 								e.stopPropagation();
 								handlePrevious();
 							}}
+							aria-label="Previous image"
 						>
 							<ChevronLeft className="h-5 w-5" />
 						</Button>
@@ -133,6 +134,7 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 								e.stopPropagation();
 								handleNext();
 							}}
+							aria-label="Next image"
 						>
 							<ChevronRight className="h-5 w-5" />
 						</Button>
