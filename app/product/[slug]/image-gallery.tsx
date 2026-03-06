@@ -65,23 +65,9 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
 	}, [displayImages.length]);
 
-	const galleryRef = useRef<HTMLDivElement>(null);
-
 	// Keyboard navigation: ArrowLeft / ArrowRight (scoped to gallery container)
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			// Ignore events from form fields to avoid hijacking input navigation
-			const target = e.target as HTMLElement;
-			if (
-				target.tagName === "INPUT" ||
-				target.tagName === "TEXTAREA" ||
-				target.tagName === "SELECT" ||
-				target.isContentEditable
-			) {
-				return;
-			}
-
-			// No-op when there's 0 or 1 image
 			if (displayImages.length <= 1) return;
 
 			if (e.key === "ArrowLeft") {
@@ -107,10 +93,9 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 
 	return (
 		<div
-			ref={galleryRef}
 			tabIndex={0}
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex flex-col gap-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded-2xl lg:sticky lg:top-24 lg:self-start"
 		>
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
