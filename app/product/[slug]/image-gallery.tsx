@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { YNSImage } from "@/lib/yns-image";
@@ -65,9 +65,25 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
 	}, [displayImages.length]);
 
-	// Keyboard navigation: ArrowLeft / ArrowRight
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
+	const galleryRef = useRef<HTMLDivElement>(null);
+
+	// Keyboard navigation: ArrowLeft / ArrowRight (scoped to gallery container)
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLDivElement>) => {
+			// Ignore events from form fields to avoid hijacking input navigation
+			const target = e.target as HTMLElement;
+			if (
+				target.tagName === "INPUT" ||
+				target.tagName === "TEXTAREA" ||
+				target.tagName === "SELECT" ||
+				target.isContentEditable
+			) {
+				return;
+			}
+
+			// No-op when there's 0 or 1 image
+			if (displayImages.length <= 1) return;
+
 			if (e.key === "ArrowLeft") {
 				e.preventDefault();
 				handlePrevious();
@@ -75,10 +91,9 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 				e.preventDefault();
 				handleNext();
 			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handlePrevious, handleNext]);
+		},
+		[displayImages.length, handlePrevious, handleNext],
+	);
 
 	if (displayImages.length === 0) {
 		return (
@@ -91,7 +106,12 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 	}
 
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+		<div
+			ref={galleryRef}
+			tabIndex={0}
+			onKeyDown={handleKeyDown}
+			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+		>
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
 				<YNSImage
