@@ -149,11 +149,11 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 					: undefined;
 
 				return (
-					<div key={group.label}>
+					<fieldset key={group.label} className="border-0 p-0 m-0">
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<span className="text-sm font-medium">{group.label}</span>
+									<legend className="text-sm font-medium">{group.label}</legend>
 									{selectedOption && (
 										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
 									)}
@@ -192,7 +192,7 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<span className="text-sm font-medium">{group.label}</span>
+									<legend className="text-sm font-medium">{group.label}</legend>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -217,7 +217,7 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 								</div>
 							</>
 						)}
-					</div>
+					</fieldset>
 				);
 			})}
 		</div>
