@@ -8,6 +8,7 @@ import { type CartLineItem, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { cn } from "@/lib/utils";
 import { YNSImage } from "@/lib/yns-image";
 
 type CartItemProps = {
@@ -17,7 +18,7 @@ type CartItemProps = {
 export function CartItem({ item }: CartItemProps) {
 	const router = useRouter();
 	const { dispatch, closeCart } = useCart();
-	const [, startTransition] = useTransition();
+	const [isPending, startTransition] = useTransition();
 
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
@@ -80,7 +81,9 @@ export function CartItem({ item }: CartItemProps) {
 					<button
 						type="button"
 						onClick={handleRemove}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
+						disabled={isPending}
+						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
+						aria-label="Remove item"
 					>
 						<Trash2 className="h-4 w-4" />
 					</button>
@@ -88,11 +91,18 @@ export function CartItem({ item }: CartItemProps) {
 
 				<div className="flex items-center justify-between">
 					{/* Quantity Controls */}
-					<div className="inline-flex items-center rounded-full border border-border">
+					<div
+						className={cn(
+							"inline-flex items-center rounded-full border border-border transition-opacity",
+							isPending && "opacity-50",
+						)}
+					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							disabled={isPending}
+							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors disabled:pointer-events-none"
+							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
@@ -100,7 +110,9 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							disabled={isPending}
+							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors disabled:pointer-events-none"
+							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
 						</button>
