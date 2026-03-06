@@ -1,7 +1,8 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-import { YNSImage } from "@/lib/yns-image";
+import { isVideoUrl } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
@@ -42,24 +43,44 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
 			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{primaryImage && (
-					<YNSImage
-						src={primaryImage}
-						alt={product.name}
-						fill
-						sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-						className="object-cover transition-opacity duration-500 group-hover:opacity-0"
-					/>
-				)}
-				{secondaryImage && (
-					<YNSImage
-						src={secondaryImage}
-						alt={`${product.name} - alternate view`}
-						fill
-						sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-						className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-					/>
-				)}
+				{primaryImage &&
+					(isVideoUrl(primaryImage) ? (
+						<video
+							className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+							src={primaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={primaryImage}
+							alt={product.name}
+							fill
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+						/>
+					))}
+				{secondaryImage &&
+					(isVideoUrl(secondaryImage) ? (
+						<video
+							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							src={secondaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={secondaryImage}
+							alt={`${product.name} - alternate view`}
+							fill
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+						/>
+					))}
 			</div>
 			<div className="space-y-1">
 				<h3 className="text-base font-medium text-foreground">{product.name}</h3>

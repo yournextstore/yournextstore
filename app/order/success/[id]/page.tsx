@@ -6,7 +6,8 @@ import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-import { YNSImage } from "@/lib/yns-image";
+import { getProductThumbnail } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 
 export default async function OrderSuccessPage(props: { params: Promise<{ id: string }> }) {
 	"use cache";
@@ -135,7 +136,7 @@ function OrderItem({ item }: { item: OrderLineItem }) {
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
 
-	const image = productVariant.images[0] ?? product.images[0];
+	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
 	const price = BigInt(productVariant.price);
 	const lineTotal = price * BigInt(quantity);
 
@@ -147,7 +148,7 @@ function OrderItem({ item }: { item: OrderLineItem }) {
 				href={`/product/${product.slug}`}
 				className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
-				{image && <YNSImage src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
+				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
 			</YnsLink>
 
 			{/* Product Details */}

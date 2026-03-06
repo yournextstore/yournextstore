@@ -8,8 +8,8 @@ import { type CartLineItem, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-import { cn } from "@/lib/utils";
-import { YNSImage } from "@/lib/yns-image";
+import { cn, getProductThumbnail } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -23,7 +23,7 @@ export function CartItem({ item }: CartItemProps) {
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
 
-	const image = productVariant.images[0] ?? product.images[0];
+	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
 	const price = BigInt(productVariant.price);
 	const lineTotal = price * BigInt(quantity);
 
@@ -64,7 +64,7 @@ export function CartItem({ item }: CartItemProps) {
 				onClick={closeCart}
 				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
-				{image && <YNSImage src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</YnsLink>
 
 			{/* Product Details */}

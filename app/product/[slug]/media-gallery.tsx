@@ -4,8 +4,8 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { YNSImage } from "@/lib/yns-image";
+import { cn, isVideoUrl } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 
 type Variant = {
 	id: string;
@@ -20,13 +20,13 @@ type Variant = {
 	}[];
 };
 
-type ImageGalleryProps = {
+type MediaGalleryProps = {
 	images: string[];
 	productName: string;
 	variants: Variant[];
 };
 
-export function ImageGallery({ images, productName, variants }: ImageGalleryProps) {
+export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [isZoomed, setIsZoomed] = useState(false);
@@ -99,17 +99,29 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 		>
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				<YNSImage
-					src={displayImages[selectedIndex]}
-					alt={`${productName} - View ${selectedIndex + 1}`}
-					fill
-					className={cn(
-						"object-cover transition-transform duration-500",
-						isZoomed && "scale-150 cursor-zoom-out",
-					)}
-					onClick={() => setIsZoomed(!isZoomed)}
-					priority
-				/>
+				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+					<video
+						className="absolute inset-0 w-full h-full object-cover"
+						src={displayImages[selectedIndex]}
+						muted
+						loop
+						autoPlay
+						playsInline
+						controls
+					/>
+				) : (
+					<YNSMedia
+						src={displayImages[selectedIndex]}
+						alt={`${productName} - View ${selectedIndex + 1}`}
+						fill
+						className={cn(
+							"object-cover transition-transform duration-500",
+							isZoomed && "scale-150 cursor-zoom-out",
+						)}
+						onClick={() => setIsZoomed(!isZoomed)}
+						priority
+					/>
+				)}
 
 				{/* Navigation Arrows */}
 				{displayImages.length > 1 && (
@@ -141,13 +153,15 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 					</div>
 				)}
 
-				{/* Zoom Indicator */}
-				<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-					<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						<ZoomIn className="h-3.5 w-3.5" />
-						Click to zoom
+				{/* Zoom Indicator (hidden for videos) */}
+				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
+					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
+						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+							<ZoomIn className="h-3.5 w-3.5" />
+							Click to zoom
+						</div>
 					</div>
-				</div>
+				)}
 
 				{/* Image Counter */}
 				{displayImages.length > 1 && (
@@ -172,12 +186,21 @@ export function ImageGallery({ images, productName, variants }: ImageGalleryProp
 									: "opacity-60 hover:opacity-100",
 							)}
 						>
-							<YNSImage
-								src={image}
-								alt={`${productName} thumbnail ${index + 1}`}
-								fill
-								className="object-cover"
-							/>
+							{isVideoUrl(image) ? (
+								<video
+									className="absolute inset-0 w-full h-full object-cover"
+									src={image}
+									muted
+									playsInline
+								/>
+							) : (
+								<YNSMedia
+									src={image}
+									alt={`${productName} thumbnail ${index + 1}`}
+									fill
+									className="object-cover"
+								/>
+							)}
 						</button>
 					))}
 				</div>
