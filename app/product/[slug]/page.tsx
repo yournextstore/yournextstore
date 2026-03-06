@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
-import { ImageGallery } from "@/app/product/[slug]/image-gallery";
+import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
@@ -70,7 +70,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				{/* Left: Image Gallery (sticky on desktop) */}
-				<ImageGallery images={allImages} productName={product.name} variants={product.variants} />
+				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">

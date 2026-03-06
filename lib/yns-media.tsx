@@ -2,6 +2,7 @@
 
 import Image, { getImageProps } from "next/image";
 import { type ComponentProps, useEffect, useRef, useState } from "react";
+import { isVideoUrl } from "@/lib/utils";
 
 type ImageProps = ComponentProps<typeof Image>;
 
@@ -58,4 +59,33 @@ const YNSImageWithPolling = (props: ImageProps) => {
 	return <Image {...props} />;
 };
 
-export const YNSImage = process.env.NODE_ENV === "development" ? YNSImageWithPolling : Image;
+const YNSImage = process.env.NODE_ENV === "development" ? YNSImageWithPolling : Image;
+
+type YNSMediaProps = ImageProps & {
+	autoPlay?: boolean;
+	controls?: boolean;
+};
+
+/** Renders a <video> for video URLs, otherwise falls back to the Image component. */
+export const YNSMedia = ({ autoPlay = true, controls = false, ...props }: YNSMediaProps) => {
+	const src = typeof props.src === "string" ? props.src : "";
+	if (isVideoUrl(src)) {
+		return (
+			<video
+				className={typeof props.className === "string" ? props.className : undefined}
+				style={
+					props.fill
+						? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }
+						: undefined
+				}
+				src={src}
+				muted
+				loop
+				autoPlay={autoPlay}
+				playsInline
+				controls={controls}
+			/>
+		);
+	}
+	return <YNSImage {...props} />;
+};

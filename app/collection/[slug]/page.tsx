@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
-import { YNSImage } from "@/lib/yns-image";
+import { YNSMedia } from "@/lib/yns-media";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	const { slug } = await params;
@@ -49,7 +49,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 			</div>
 			{collection.image && (
 				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSImage
+					<YNSMedia
 						src={collection.image}
 						alt={collection.name}
 						fill
