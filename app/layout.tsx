@@ -76,9 +76,6 @@ async function getInitialCart() {
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const { cart, cartId } = await getInitialCart();
 
-	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
-	const baseUrl = isStaging ? "https://yns.cx" : "https://yns.store";
-
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 paper-bg transition-colors duration-300">
@@ -122,7 +119,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</main>
 				<ReferralBadge />
 			</div>
-			<CartSidebar baseUrl={baseUrl} />
+			<CartSidebar />
 			<ThemeToggle />
 		</CartProvider>
 	);
