@@ -13,7 +13,7 @@ import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { commerce } from "@/lib/commerce";
 import "@/app/globals.css";
-import { Heart, Search, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { ReferralBadge } from "@/components/referral-badge";
 import { getCartCookieJson } from "@/lib/cookies";
 
@@ -60,9 +60,6 @@ async function getInitialCart() {
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const { cart, cartId } = await getInitialCart();
 
-	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
-	const baseUrl = isStaging ? "https://yns.cx" : "https://yns.store";
-
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 paper-bg transition-colors duration-300">
@@ -106,7 +103,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 					<ReferralBadge />
 				</main>
 			</div>
-			<CartSidebar baseUrl={baseUrl} />
+			<CartSidebar />
 			<ThemeToggle />
 		</CartProvider>
 	);
