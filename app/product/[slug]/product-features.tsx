@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Award, Droplets, Leaf, type LucideIcon, Recycle, Shield, Thermometer } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,57 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Double-Wall Insulation",
+		description: "Vacuum-sealed stainless steel keeps drinks cold 24h and hot 12h.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "BPA-Free Materials",
+		description: "Food-grade stainless steel and BPA-free components for safe daily use.",
+	},
+	{
+		title: "Leak-Proof Design",
+		description: "Precision-engineered lid with silicone seal prevents spills on the go.",
+	},
+	{
+		title: "Eco-Friendly",
+		description: "Reduce single-use plastic waste with a reusable bottle built to last.",
+	},
+	{
+		title: "Durable Finish",
+		description: "Powder-coated exterior resists scratches and provides a premium grip.",
 	},
 	{
 		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		description: "Built with premium components and backed by our satisfaction guarantee.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Thermometer, Shield, Droplets, Recycle, Leaf, Award];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
 		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+			<div className="text-center mb-12">
+				<span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
+					Product Specifications
+				</span>
+				<h2 className="mt-3 text-3xl font-light tracking-tight">Crafted with intention</h2>
+			</div>
+			<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary-foreground" />
+						<div
+							key={feature.title}
+							className="group flex items-start gap-4 p-5 rounded-2xl bg-secondary/30 hover:bg-secondary/60 transition-colors"
+						>
+							<div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+								<Icon className="h-5 w-5 text-muted-foreground" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<div>
+								<h3 className="text-sm font-medium">{feature.title}</h3>
+								<p className="mt-1 text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
+							</div>
 						</div>
 					);
 				})}
