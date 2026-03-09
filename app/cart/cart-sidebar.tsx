@@ -9,10 +9,10 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/com
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
-export function CartSidebar({ baseUrl }: { baseUrl: string }) {
-	const { isOpen, closeCart, items, itemCount, subtotal, cartId } = useCart();
+export function CartSidebar() {
+	const { isOpen, closeCart, items, itemCount, subtotal } = useCart();
 
-	const checkoutUrl = cartId ? `${baseUrl}/api/v1/carts/${cartId}/checkout` : "#";
+	const checkoutUrl = `/checkout`;
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -66,7 +66,7 @@ export function CartSidebar({ baseUrl }: { baseUrl: string }) {
 									asChild
 									className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/80 text-white"
 								>
-									<a href={checkoutUrl} onClick={closeCart}>Checkout</a>
+									<a href={checkoutUrl}>Checkout</a>
 								</Button>
 								<button
 									type="button"

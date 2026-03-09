@@ -1,5 +1,6 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
@@ -96,6 +97,9 @@ function CollectionProducts({ collection }: { collection: APICollectionGetByIdRe
 }
 
 export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+	"use cache";
+	cacheLife("minutes");
+
 	const { slug } = await props.params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
