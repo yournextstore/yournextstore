@@ -14,14 +14,16 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-normal tracking-[0.2em] uppercase text-primary-foreground mb-6">
+				Collections
+			</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -44,14 +46,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-normal tracking-[0.2em] uppercase text-primary-foreground mb-6">Info</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.path}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
 						>
 							{page.title}
 						</YnsLink>
@@ -64,31 +66,48 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-foreground text-primary-foreground">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+				<div className="py-16 sm:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+					{/* About */}
+					<div>
+						<h3 className="text-xs font-normal tracking-[0.2em] uppercase text-primary-foreground mb-6">
+							About
+						</h3>
+						<p className="text-sm text-primary-foreground/60 leading-relaxed">
+							Simple, beautiful objects that combine form and function. Curated essentials for modern living.
 						</p>
 					</div>
+
+					{/* Info */}
+					<FooterLegalPages />
 
 					{/* Collections */}
 					<FooterCollections />
 
-					{/* Legal */}
-					<FooterLegalPages />
+					{/* Newsletter */}
+					<div>
+						<h3 className="text-xs font-normal tracking-[0.2em] uppercase text-primary-foreground mb-6">
+							Newsletter
+						</h3>
+						<p className="text-sm text-primary-foreground/60 leading-relaxed">
+							Stay up to date on the latest product releases and special offers.
+						</p>
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
+				<div className="py-6 border-t border-primary-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p className="text-xs text-primary-foreground/40">
 						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
 					</p>
+					<YnsLink
+						prefetch={"eager"}
+						href="/"
+						className="font-heading text-lg font-light tracking-[0.15em] uppercase text-primary-foreground"
+					>
+						YNS
+					</YnsLink>
 				</div>
 			</div>
 		</footer>
