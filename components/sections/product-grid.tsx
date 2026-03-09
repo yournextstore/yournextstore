@@ -1,12 +1,10 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
-
-
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-import { YNSImage } from "@/lib/yns-image";
+import { YNSMedia } from "@/lib/yns-media";
 import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
@@ -87,7 +85,7 @@ export async function ProductGrid({
 						<YnsLink href={`/product/${product.slug}`} className="block h-full">
 							<div className="h-[300px] md:h-[400px] flex items-center justify-center p-6 relative overflow-hidden">
 								{primaryImage && (
-									<YNSImage
+									<YNSMedia
 										src={primaryImage}
 										alt={product.name}
 										fill
