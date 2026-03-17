@@ -5,6 +5,7 @@ import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
+import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
@@ -37,13 +38,14 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	const { slug } = await params;
-	const product = await commerce.productGet({ idOrSlug: slug });
+	const [product, reviews] = await Promise.all([
+		commerce.productGet({ idOrSlug: slug }),
+		commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }),
+	]);
 
 	if (!product) {
 		notFound();
 	}
-
-	const reviews = await commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 });
 
 	const { minPrice, maxPrice } = product.variants.reduce(
 		(acc, v) => {
@@ -104,6 +106,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />
+
+			{/* Related Products */}
+			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);
 };
