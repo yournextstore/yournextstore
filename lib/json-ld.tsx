@@ -3,6 +3,7 @@ import type {
 	APIProductGetByIdResult,
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
+import { commerce } from "@/lib/commerce";
 import { CURRENCY } from "@/lib/constants";
 
 function getDecimalPrice(minorAmount: string): string {
@@ -146,4 +147,22 @@ export function buildCollectionBreadcrumbJsonLd(
 			{ "@type": "ListItem", position: 2, name: collection.name },
 		],
 	};
+}
+
+export async function StoreJsonLd() {
+	const me = await commerce.meGet();
+	const storeName = me.store.settings?.storeName || "Your Next Store";
+	const storeDescription = me.store.settings?.storeDescription || undefined;
+
+	return (
+		<JsonLdScript
+			data={{
+				"@context": "https://schema.org",
+				"@type": "Store",
+				name: storeName,
+				description: storeDescription,
+				url: getBaseUrl(),
+			}}
+		/>
+	);
 }

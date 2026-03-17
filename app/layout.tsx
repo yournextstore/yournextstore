@@ -14,7 +14,7 @@ import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
-import { JsonLdScript } from "@/lib/json-ld";
+import { StoreJsonLd } from "@/lib/json-ld";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -76,24 +76,6 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 			</div>
 			<CartSidebar />
 		</CartProvider>
-	);
-}
-
-async function StoreJsonLd() {
-	const me = await commerce.meGet();
-	const storeName = me.store.settings?.storeName || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || undefined;
-
-	return (
-		<JsonLdScript
-			data={{
-				"@context": "https://schema.org",
-				"@type": "Store",
-				name: storeName,
-				description: storeDescription,
-				url: process.env.NEXT_PUBLIC_URL ?? "",
-			}}
-		/>
 	);
 }
 
