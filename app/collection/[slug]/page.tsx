@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
+import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -108,6 +109,8 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 
 	return (
 		<main>
+			<JsonLdScript data={buildCollectionJsonLd(collection)} />
+			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />
