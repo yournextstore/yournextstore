@@ -97,6 +97,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							slug: product.slug,
 							images: product.images,
 						}}
+						volumePricingTiers={product.volumePricingTiers}
 					/>
 				</div>
 			</div>

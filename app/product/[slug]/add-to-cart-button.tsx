@@ -7,6 +7,7 @@ import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
+import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
@@ -36,9 +37,10 @@ type AddToCartButtonProps = {
 		slug: string;
 		images: string[];
 	};
+	volumePricingTiers?: VolumeTier[];
 };
 
-export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
+export function AddToCartButton({ variants, product, volumePricingTiers = [] }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
 	const [isPending, startTransition] = useTransition();
@@ -66,7 +68,10 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 		);
 	}, [variants, searchParams]);
 
-	const totalPrice = selectedVariant ? BigInt(selectedVariant.price) * BigInt(quantity) : null;
+	const { resolvedTiers, volumePrice } = useVolumePricing(volumePricingTiers, selectedVariant?.id, quantity);
+
+	const unitPrice = volumePrice ?? selectedVariant?.price;
+	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(quantity) : null;
 
 	const buttonText = useMemo(() => {
 		if (isPending) return "Adding...";
@@ -82,12 +87,9 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 
 		if (!selectedVariant) return;
 
-		// Open cart sidebar
 		openCart();
 
-		// Execute server action with optimistic update
 		startTransition(async () => {
-			// Dispatch inside transition for optimistic update
 			dispatch({
 				type: "ADD_ITEM",
 				item: {
@@ -102,7 +104,6 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 			});
 
 			await addToCart(selectedVariant.id, quantity);
-			// Reset quantity after add
 			setQuantity(1);
 		});
 	};
@@ -112,6 +113,8 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
 			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
+
+			<VolumePricingDisplay tiers={resolvedTiers} quantity={quantity} volumePrice={volumePrice} />
 
 			<form onSubmit={handleSubmit}>
 				<button
