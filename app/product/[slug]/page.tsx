@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
+import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
@@ -41,6 +42,8 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	if (!product) {
 		notFound();
 	}
+
+	const reviews = await commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 });
 
 	const { minPrice, maxPrice } = product.variants.reduce(
 		(acc, v) => {
@@ -95,6 +98,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 					/>
 				</div>
 			</div>
+
+			{/* Reviews Section */}
+			<ProductReviews reviews={reviews} slug={slug} />
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />

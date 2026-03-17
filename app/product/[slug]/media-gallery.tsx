@@ -114,6 +114,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						src={displayImages[selectedIndex]}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
+						sizes="(max-width: 1024px) 100vw, 50vw"
 						className={cn(
 							"object-cover transition-transform duration-500",
 							isZoomed && "scale-150 cursor-zoom-out",
@@ -198,6 +199,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 									src={image}
 									alt={`${productName} thumbnail ${index + 1}`}
 									fill
+									sizes="80px"
 									className="object-cover"
 								/>
 							)}

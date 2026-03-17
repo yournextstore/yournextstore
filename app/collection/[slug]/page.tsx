@@ -53,6 +53,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						src={collection.image}
 						alt={collection.name}
 						fill
+						sizes="50vw"
 						className="object-cover opacity-30"
 						priority
 					/>
