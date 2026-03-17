@@ -80,6 +80,22 @@ export function Footer() {
 					{/* Collections */}
 					<FooterCollections />
 
+					{/* Support */}
+					<div>
+						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<ul className="mt-4 space-y-3">
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/faq"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									FAQ
+								</YnsLink>
+							</li>
+						</ul>
+					</div>
+
 					{/* Legal */}
 					<FooterLegalPages />
 				</div>
