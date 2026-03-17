@@ -3,6 +3,7 @@ import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
+import { QuickAddButton } from "./quick-add-button";
 import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
@@ -40,9 +41,24 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
+	const singleVariant = variants?.length === 1 ? variants[0] : null;
+
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
 			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+				{singleVariant && (
+					<QuickAddButton
+						variantId={singleVariant.id}
+						variantPrice={singleVariant.price}
+						variantImages={singleVariant.images}
+						product={{
+							id: product.id,
+							name: product.name,
+							slug: product.slug,
+							images: product.images ?? [],
+						}}
+					/>
+				)}
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
