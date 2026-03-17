@@ -62,7 +62,7 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -75,7 +75,7 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 						/>
 					))}
 				{secondaryImage &&
