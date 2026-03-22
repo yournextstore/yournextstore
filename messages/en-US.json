@@ -1,0 +1,175 @@
+{
+	"Metadata": {
+		"title": "Your Next Store",
+		"description": "Your next e-commerce store",
+		"productsTitle": "All Products — Your Next Store",
+		"productsDescription": "Browse our complete product collection.",
+		"searchTitle": "Search — Your Next Store",
+		"searchTitleWithQuery": "Search: {query} — Your Next Store",
+		"searchDescription": "Search our store",
+		"searchDescriptionWithQuery": "Search results for \"{query}\"",
+		"productTitle": "{name} — Your Next Store",
+		"productNotFound": "Product Not Found — Your Next Store",
+		"collectionTitle": "{name} — Your Next Store",
+		"collectionNotFound": "Collection Not Found — Your Next Store",
+		"notFoundTitle": "Page Not Found",
+		"notFoundDescription": "This page doesn't exist or has been moved. Continue shopping to find what you're looking for."
+	},
+	"Navbar": {
+		"home": "Home",
+		"products": "Products"
+	},
+	"Footer": {
+		"storeName": "Your Next Store",
+		"storeDescription": "Curated essentials for modern living. Quality products, thoughtfully designed.",
+		"collections": "Collections",
+		"support": "Support",
+		"faq": "FAQ",
+		"legal": "Legal",
+		"copyright": "© {year} Your Next Store. All rights reserved."
+	},
+	"Hero": {
+		"title": "Curated essentials for modern living",
+		"description": "Discover our thoughtfully designed collection of premium products, crafted with care and built to last.",
+		"shopCollection": "Shop Collection",
+		"ourStory": "Our Story"
+	},
+	"About": {
+		"title": "Our Story",
+		"paragraph1": "We believe in the power of thoughtful design. Every product in our collection is carefully selected to bring quality, beauty, and functionality into your everyday life.",
+		"paragraph2": "Our commitment to craftsmanship means we partner with makers who share our values — those who prioritize sustainable materials, ethical production, and timeless design over fleeting trends."
+	},
+	"Newsletter": {
+		"title": "Stay in the loop",
+		"description": "Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.",
+		"placeholder": "your@email.com",
+		"subscribe": "Subscribe",
+		"subscribing": "Subscribing…",
+		"successTitle": "You're on the list",
+		"successMessage": "Thanks for subscribing!",
+		"errorInvalidEmail": "Please enter a valid email address.",
+		"errorGeneric": "Something went wrong. Please try again."
+	},
+	"ProductGrid": {
+		"title": "Featured Products",
+		"description": "Handpicked favorites from our collection",
+		"viewAll": "View all",
+		"viewAllProducts": "View all products"
+	},
+	"Products": {
+		"title": "All Products",
+		"description": "Browse our complete collection",
+		"sortBy": "Sort by:",
+		"sortNewest": "Newest",
+		"sortPriceLow": "Price: Low to High",
+		"sortPriceHigh": "Price: High to Low",
+		"sortName": "Name: A–Z",
+		"noProducts": "No products available yet."
+	},
+	"Search": {
+		"title": "Search our store",
+		"placeholder": "Search...",
+		"enterTerm": "Enter a search term to find products.",
+		"noResults": "No results found",
+		"noResultsFor": "No products matched \"{query}\". Try a different search term.",
+		"resultsFor": "Results for \"{query}\"",
+		"productCount": "{count, plural, one {# product} other {# products}} found",
+		"ariaLabel": "Search"
+	},
+	"Product": {
+		"addToCart": "Add to Cart",
+		"addToCartWithPrice": "Add to Cart — {price}",
+		"adding": "Adding...",
+		"selectOptions": "Select options",
+		"quantity": "Quantity",
+		"decreaseQuantity": "Decrease quantity",
+		"increaseQuantity": "Increase quantity",
+		"alternateView": "{name} - alternate view"
+	},
+	"ProductFeatures": {
+		"sectionTitle": "Crafted with intention",
+		"sustainableTitle": "Sustainable Materials",
+		"sustainableDescription": "Crafted from responsibly sourced materials with minimal environmental impact.",
+		"craftsmanshipTitle": "Expert Craftsmanship",
+		"craftsmanshipDescription": "Each piece is carefully made by skilled artisans with attention to detail.",
+		"qualityTitle": "Quality Guaranteed",
+		"qualityDescription": "Built to last with premium components and rigorous quality standards."
+	},
+	"TrustBadges": {
+		"freeShipping": "Free Shipping",
+		"freeShippingDescription": "Orders over $500",
+		"warranty": "10-Year Warranty",
+		"warrantyDescription": "Full coverage",
+		"returns": "30-Day Returns",
+		"returnsDescription": "Hassle-free"
+	},
+	"Reviews": {
+		"title": "Customer Reviews",
+		"reviewCount": "({count} {count, plural, one {review} other {reviews}})",
+		"noReviews": "No reviews yet. Be the first to share your thoughts!",
+		"writeReview": "Write a Review",
+		"rating": "Rating",
+		"name": "Name",
+		"namePlaceholder": "Your name",
+		"email": "Email",
+		"emailPlaceholder": "your@email.com",
+		"review": "Review",
+		"reviewPlaceholder": "Share your experience with this product...",
+		"submitting": "Submitting...",
+		"submitReview": "Submit Review"
+	},
+	"RelatedProducts": {
+		"title": "You might also like",
+		"description": "More products to explore"
+	},
+	"VolumePricing": {
+		"perUnitAtQty": "{price} per unit at qty {quantity}",
+		"buyMoreSaveMore": "Buy more, save more",
+		"quantity": "Quantity",
+		"pricePerUnit": "Price per unit"
+	},
+	"Cart": {
+		"title": "Your Cart",
+		"itemCount": "({count} items)",
+		"empty": "Your cart is empty",
+		"emptyDescription": "Add some products to get started",
+		"continueShopping": "Continue Shopping",
+		"subtotal": "Subtotal",
+		"shippingNote": "Shipping and taxes calculated at checkout",
+		"checkout": "Checkout",
+		"removeItem": "Remove item",
+		"decreaseQuantity": "Decrease quantity",
+		"increaseQuantity": "Increase quantity",
+		"shoppingCart": "Shopping cart"
+	},
+	"Collection": {
+		"collectionTitle": "{name} Collection",
+		"productCount": "{count} products",
+		"exploreCollection": "Explore our curated collection"
+	},
+	"Order": {
+		"thankYou": "Thank you for your order!",
+		"orderConfirmed": "Order #{lookup} has been confirmed",
+		"confirmationEmail": "A confirmation email will be sent to {email}",
+		"orderItems": "Order Items",
+		"qty": "Qty: {quantity}",
+		"subtotal": "Subtotal",
+		"shipping": "Shipping ({name})",
+		"total": "Total",
+		"shippingAddress": "Shipping Address",
+		"continueShopping": "Continue Shopping"
+	},
+	"NotFound": {
+		"title": "404",
+		"subtitle": "Page not found",
+		"description": "This page doesn't exist or has been moved. But our store is still open!",
+		"continueShopping": "Continue Shopping"
+	},
+	"Error": {
+		"title": "Error",
+		"subtitle": "Something went wrong",
+		"description": "An unexpected error occurred. Please try again or return to the store.",
+		"tryAgain": "Try Again",
+		"continueShopping": "Continue Shopping"
+	}
+}

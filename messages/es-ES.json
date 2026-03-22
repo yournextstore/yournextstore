@@ -1,0 +1,175 @@
+{
+	"Metadata": {
+		"title": "Your Next Store",
+		"description": "Tu próxima tienda online",
+		"productsTitle": "Todos los productos — Your Next Store",
+		"productsDescription": "Explora nuestra colección completa de productos.",
+		"searchTitle": "Buscar — Your Next Store",
+		"searchTitleWithQuery": "Buscar: {query} — Your Next Store",
+		"searchDescription": "Busca en nuestra tienda",
+		"searchDescriptionWithQuery": "Resultados de búsqueda para \"{query}\"",
+		"productTitle": "{name} — Your Next Store",
+		"productNotFound": "Producto no encontrado — Your Next Store",
+		"collectionTitle": "{name} — Your Next Store",
+		"collectionNotFound": "Colección no encontrada — Your Next Store",
+		"notFoundTitle": "Página no encontrada",
+		"notFoundDescription": "Esta página no existe o ha sido trasladada. Continúa comprando para encontrar lo que buscas."
+	},
+	"Navbar": {
+		"home": "Inicio",
+		"products": "Productos"
+	},
+	"Footer": {
+		"storeName": "Your Next Store",
+		"storeDescription": "Productos esenciales para la vida moderna. Calidad y diseño cuidado.",
+		"collections": "Colecciones",
+		"support": "Soporte",
+		"faq": "Preguntas frecuentes",
+		"legal": "Legal",
+		"copyright": "© {year} Your Next Store. Todos los derechos reservados."
+	},
+	"Hero": {
+		"title": "Productos esenciales para la vida moderna",
+		"description": "Descubre nuestra colección de productos premium, diseñados con esmero y fabricados para durar.",
+		"shopCollection": "Comprar colección",
+		"ourStory": "Nuestra historia"
+	},
+	"About": {
+		"title": "Nuestra historia",
+		"paragraph1": "Creemos en el poder del diseño bien pensado. Cada producto de nuestra colección ha sido cuidadosamente seleccionado para aportar calidad, belleza y funcionalidad a tu vida cotidiana.",
+		"paragraph2": "Nuestro compromiso con la artesanía nos lleva a colaborar con creadores que comparten nuestros valores: aquellos que priorizan materiales sostenibles, producción ética y diseño atemporal frente a las tendencias pasajeras."
+	},
+	"Newsletter": {
+		"title": "Mantente al día",
+		"description": "Sé el primero en conocer las novedades, ofertas exclusivas e historias detrás de nuestros productos.",
+		"placeholder": "tu@correo.com",
+		"subscribe": "Suscribirse",
+		"subscribing": "Suscribiendo…",
+		"successTitle": "Ya estás en la lista",
+		"successMessage": "¡Gracias por suscribirte!",
+		"errorInvalidEmail": "Por favor, introduce una dirección de correo electrónico válida.",
+		"errorGeneric": "Algo salió mal. Por favor, inténtalo de nuevo."
+	},
+	"ProductGrid": {
+		"title": "Productos destacados",
+		"description": "Nuestros favoritos, seleccionados a mano",
+		"viewAll": "Ver todo",
+		"viewAllProducts": "Ver todos los productos"
+	},
+	"Products": {
+		"title": "Todos los productos",
+		"description": "Explora nuestra colección completa",
+		"sortBy": "Ordenar por:",
+		"sortNewest": "Más recientes",
+		"sortPriceLow": "Precio: de menor a mayor",
+		"sortPriceHigh": "Precio: de mayor a menor",
+		"sortName": "Nombre: A–Z",
+		"noProducts": "Aún no hay productos disponibles."
+	},
+	"Search": {
+		"title": "Busca en nuestra tienda",
+		"placeholder": "Buscar...",
+		"enterTerm": "Introduce un término de búsqueda para encontrar productos.",
+		"noResults": "No se encontraron resultados",
+		"noResultsFor": "No se encontraron productos para \"{query}\". Prueba con otro término de búsqueda.",
+		"resultsFor": "Resultados para \"{query}\"",
+		"productCount": "{count, plural, one {# producto} other {# productos}} encontrados",
+		"ariaLabel": "Buscar"
+	},
+	"Product": {
+		"addToCart": "Agregar al carrito",
+		"addToCartWithPrice": "Agregar al carrito — {price}",
+		"adding": "Agregando...",
+		"selectOptions": "Seleccionar opciones",
+		"quantity": "Cantidad",
+		"decreaseQuantity": "Reducir cantidad",
+		"increaseQuantity": "Aumentar cantidad",
+		"alternateView": "{name} - vista alternativa"
+	},
+	"ProductFeatures": {
+		"sectionTitle": "Creado con intención",
+		"sustainableTitle": "Materiales sostenibles",
+		"sustainableDescription": "Elaborado con materiales de origen responsable y mínimo impacto ambiental.",
+		"craftsmanshipTitle": "Artesanía experta",
+		"craftsmanshipDescription": "Cada pieza está cuidadosamente hecha por artesanos cualificados con atención al detalle.",
+		"qualityTitle": "Calidad garantizada",
+		"qualityDescription": "Fabricado para durar con componentes premium y rigurosos estándares de calidad."
+	},
+	"TrustBadges": {
+		"freeShipping": "Envío gratuito",
+		"freeShippingDescription": "Pedidos superiores a 500 €",
+		"warranty": "Garantía de 10 años",
+		"warrantyDescription": "Cobertura total",
+		"returns": "Devoluciones en 30 días",
+		"returnsDescription": "Sin complicaciones"
+	},
+	"Reviews": {
+		"title": "Opiniones de clientes",
+		"reviewCount": "({count} {count, plural, one {reseña} other {reseñas}})",
+		"noReviews": "Aún no hay reseñas. ¡Sé el primero en compartir tu opinión!",
+		"writeReview": "Escribir una reseña",
+		"rating": "Valoración",
+		"name": "Nombre",
+		"namePlaceholder": "Tu nombre",
+		"email": "Correo electrónico",
+		"emailPlaceholder": "tu@correo.com",
+		"review": "Reseña",
+		"reviewPlaceholder": "Comparte tu experiencia con este producto...",
+		"submitting": "Enviando...",
+		"submitReview": "Enviar reseña"
+	},
+	"RelatedProducts": {
+		"title": "También te puede gustar",
+		"description": "Más productos para explorar"
+	},
+	"VolumePricing": {
+		"perUnitAtQty": "{price} por unidad en {quantity} unidades",
+		"buyMoreSaveMore": "Compra más, ahorra más",
+		"quantity": "Cantidad",
+		"pricePerUnit": "Precio por unidad"
+	},
+	"Cart": {
+		"title": "Tu carrito",
+		"itemCount": "({count} artículos)",
+		"empty": "Tu carrito está vacío",
+		"emptyDescription": "Agrega algunos productos para empezar",
+		"continueShopping": "Continuar comprando",
+		"subtotal": "Subtotal",
+		"shippingNote": "Envío e impuestos calculados en el pago",
+		"checkout": "Pagar",
+		"removeItem": "Eliminar artículo",
+		"decreaseQuantity": "Reducir cantidad",
+		"increaseQuantity": "Aumentar cantidad",
+		"shoppingCart": "Carrito de compras"
+	},
+	"Collection": {
+		"collectionTitle": "Colección {name}",
+		"productCount": "{count} productos",
+		"exploreCollection": "Explora nuestra colección seleccionada"
+	},
+	"Order": {
+		"thankYou": "¡Gracias por tu pedido!",
+		"orderConfirmed": "El pedido #{lookup} ha sido confirmado",
+		"confirmationEmail": "Se enviará un correo de confirmación a {email}",
+		"orderItems": "Artículos del pedido",
+		"qty": "Cant.: {quantity}",
+		"subtotal": "Subtotal",
+		"shipping": "Envío ({name})",
+		"total": "Total",
+		"shippingAddress": "Dirección de envío",
+		"continueShopping": "Continuar comprando"
+	},
+	"NotFound": {
+		"title": "404",
+		"subtitle": "Página no encontrada",
+		"description": "Esta página no existe o ha sido trasladada. ¡Pero nuestra tienda sigue abierta!",
+		"continueShopping": "Continuar comprando"
+	},
+	"Error": {
+		"title": "Error",
+		"subtitle": "Algo salió mal",
+		"description": "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo o vuelve a la tienda.",
+		"tryAgain": "Intentar de nuevo",
+		"continueShopping": "Continuar comprando"
+	}
+}

@@ -1,26 +1,34 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
 import { getSubdomainPublicUrl } from "./lib/commerce";
 
+const intlMiddleware = createIntlMiddleware(routing);
+
 export async function proxy(request: NextRequest) {
-	const { subdomain, publicUrl } = await getSubdomainPublicUrl();
-	const destinationUrl = new URL(publicUrl);
+	const { pathname } = request.nextUrl;
 
-	// Clone the request headers and set the correct x-forwarded-host
-	const requestHeaders = new Headers(request.headers);
-	requestHeaders.set("x-forwarded-host", destinationUrl.host);
-	requestHeaders.set("origin", destinationUrl.toString());
+	// Checkout routes: rewrite to subdomain
+	if (pathname.startsWith("/checkout")) {
+		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
+		const destinationUrl = new URL(publicUrl);
 
-	// Rewrite to the destination with updated headers
-	const url = new URL(`/${subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, destinationUrl);
+		const requestHeaders = new Headers(request.headers);
+		requestHeaders.set("x-forwarded-host", destinationUrl.host);
+		requestHeaders.set("origin", destinationUrl.toString());
 
-	return NextResponse.rewrite(url, {
-		request: {
-			headers: requestHeaders,
-		},
-	});
+		const url = new URL(`/${subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, destinationUrl);
+
+		return NextResponse.rewrite(url, {
+			request: { headers: requestHeaders },
+		});
+	}
+
+	// All other routes: locale detection + redirect
+	return intlMiddleware(request);
 }
 
 export const config = {
-	matcher: ["/checkout/:path*"],
+	matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)", "/checkout/:path*"],
 };

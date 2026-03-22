@@ -132,6 +132,7 @@
 			"includes": [
 				"**/*.d.ts",
 				"**/proxy.ts",
+				"**/i18n/request.ts",
 				"**/next.config.{mjs,ts}",
 				"**/postcss.config.mjs",
 				"**/tailwind.config.ts",

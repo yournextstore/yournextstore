@@ -3,8 +3,9 @@ import type {
 	APIProductGetByIdResult,
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
+import { getLocale } from "next-intl/server";
 import { commerce } from "@/lib/commerce";
-import { CURRENCY } from "@/lib/constants";
+import { getCurrencyForLocale } from "@/lib/currency";
 
 function getDecimalPrice(minorAmount: string): string {
 	return (Number(minorAmount) / 100).toFixed(2);
@@ -26,6 +27,7 @@ export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
 export function buildProductJsonLd(
 	product: APIProductGetByIdResult,
 	reviews: APIProductReviewsBrowseResult,
+	currency: string,
 ): Record<string, unknown> {
 	const prices = product.variants.map((v) => Number(v.price));
 	const lowPrice = getDecimalPrice(String(Math.min(...prices)));
@@ -45,7 +47,7 @@ export function buildProductJsonLd(
 				? {
 						"@type": "Offer",
 						url: `${baseUrl}/product/${product.slug}`,
-						priceCurrency: CURRENCY,
+						priceCurrency: currency,
 						price: lowPrice,
 						availability:
 							product.variants[0]?.stock === null || (product.variants[0]?.stock ?? 0) > 0
@@ -56,7 +58,7 @@ export function buildProductJsonLd(
 						"@type": "AggregateOffer",
 						lowPrice,
 						highPrice,
-						priceCurrency: CURRENCY,
+						priceCurrency: currency,
 						offerCount: product.variants.length,
 						availability: "https://schema.org/InStock",
 					},
@@ -151,6 +153,8 @@ export function buildCollectionBreadcrumbJsonLd(
 
 export async function StoreJsonLd() {
 	const me = await commerce.meGet();
+	const locale = await getLocale();
+	const currency = getCurrencyForLocale(locale);
 	const storeName = me.store.settings?.storeName || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
 
@@ -162,6 +166,7 @@ export async function StoreJsonLd() {
 				name: storeName,
 				description: storeDescription,
 				url: getBaseUrl(),
+				currenciesAccepted: currency,
 			}}
 		/>
 	);

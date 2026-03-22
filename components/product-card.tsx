@@ -1,15 +1,24 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
-import { CURRENCY, LOCALE } from "@/lib/constants";
+import Link from "next/link";
 import { formatMoney } from "@/lib/money";
+import { getCachedTranslations } from "@/lib/translations";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
-import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 
-export function ProductCard({ product }: { product: BrowseProduct | CollectionProduct }) {
+export async function ProductCard({
+	product,
+	locale,
+	currency,
+}: {
+	product: BrowseProduct | CollectionProduct;
+	locale: string;
+	currency: string;
+}) {
+	const t = await getCachedTranslations(locale, "Product");
 	const variants = "variants" in product ? product.variants : null;
 	const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
 	const { minPrice, maxPrice } =
@@ -28,9 +37,9 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
 			: minPrice
-				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
+				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
 
 	const allImages = [
@@ -44,7 +53,7 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 	const singleVariant = variants?.length === 1 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
+		<Link prefetch={true} href={`/product/${product.slug}`} className="group">
 			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 				{singleVariant && (
 					<QuickAddButton
@@ -91,7 +100,7 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt={t("alternateView", { name: product.name })}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
@@ -102,6 +111,6 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
 				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
 			</div>
-		</YnsLink>
+		</Link>
 	);
 }

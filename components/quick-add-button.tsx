@@ -3,8 +3,8 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { ShoppingBag } from "lucide-react";
 import { useTransition } from "react";
-import { addToCart } from "@/app/cart/actions";
-import { useCart } from "@/app/cart/cart-context";
+import { addToCart } from "@/app/[locale]/cart/actions";
+import { useCart } from "@/app/[locale]/cart/cart-context";
 import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type QuickAddButtonProps = {
