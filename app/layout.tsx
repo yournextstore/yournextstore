@@ -12,7 +12,7 @@ import { SearchInput } from "@/app/search-input";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
-import { commerce } from "@/lib/commerce";
+import { commerce, getStoreFaviconUrl } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
@@ -26,10 +26,25 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-	title: "Your Next Store",
-	description: "Your next e-commerce store",
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const me = await commerce.meGet();
+	const storeName = me.store.settings?.storeName || "Your Next Store";
+	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
+
+	return {
+		title: storeName,
+		description: me.store.settings?.storeDescription || "Your next e-commerce store",
+		icons: {
+			icon: [
+				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },
+				{ url: faviconUrl, sizes: "192x192", type: "image/png" },
+			],
+			apple: [{ url: faviconUrl, sizes: "180x180" }],
+			shortcut: faviconUrl,
+		},
+		manifest: "/manifest.webmanifest",
+	};
+}
 
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();

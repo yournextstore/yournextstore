@@ -4,12 +4,23 @@ export const commerce = Commerce({
 	token: process.env.YNS_API_KEY,
 });
 
-const meGetCached = async (token?: string) => {
+export const meGetCached = async (token?: string) => {
 	"use cache: remote";
 
 	const commerce = Commerce({ token });
 	return commerce.meGet();
 };
+
+export function getStoreFaviconUrl(
+	settings: Awaited<ReturnType<typeof commerce.meGet>>["store"]["settings"],
+) {
+	const faviconUrl =
+		settings?.favicon?.imageUrl ??
+		(typeof settings?.logo === "string" ? settings.logo : settings?.logo?.imageUrl) ??
+		null;
+
+	return faviconUrl;
+}
 
 export const getSubdomainPublicUrl = async () => {
 	const tenant = process.env.NEXT_PUBLIC_YNS_API_TENANT;
