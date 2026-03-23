@@ -2,6 +2,7 @@ import { Commerce } from "commerce-kit";
 
 export const commerce = Commerce({
 	token: process.env.YNS_API_KEY,
+	...(process.env.YNS_API_ENDPOINT && { endpoint: process.env.YNS_API_ENDPOINT }),
 });
 
 export const meGetCached = async (token?: string) => {
