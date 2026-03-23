@@ -4,7 +4,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
-import { type CartLineItem, useCart } from "@/app/cart/cart-context";
+import { type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
@@ -24,7 +24,7 @@ export function CartItem({ item }: CartItemProps) {
 	const { product } = productVariant;
 
 	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
-	const price = BigInt(productVariant.price);
+	const price = getLineItemUnitPrice(item);
 	const lineTotal = price * BigInt(quantity);
 
 	const handleRemove = () => {

@@ -14,6 +14,12 @@ export type CartLineItem = {
 			name: string;
 			slug: string;
 			images: string[];
+			type?: string;
+			bundleDiscountPercentage?: string | null;
+			bundleProducts?: Array<{
+				quantity: number;
+				variant: { price: string };
+			}>;
 		};
 	};
 };
@@ -22,6 +28,24 @@ export type Cart = {
 	id: string;
 	lineItems: CartLineItem[];
 };
+
+/** Get the effective unit price for a line item, computing bundle price from constituents if needed. */
+export function getLineItemUnitPrice(item: CartLineItem): bigint {
+	const { product } = item.productVariant;
+	if (product.type === "bundle" && product.bundleProducts && product.bundleProducts.length > 0) {
+		let total = 0n;
+		for (const bp of product.bundleProducts) {
+			let net = BigInt(bp.variant.price);
+			if (product.bundleDiscountPercentage) {
+				const discount = (net * BigInt(product.bundleDiscountPercentage)) / 100_000n;
+				net = net - discount;
+			}
+			total += net * BigInt(bp.quantity);
+		}
+		return total;
+	}
+	return BigInt(item.productVariant.price);
+}
 
 type CartAction =
 	| { type: "INCREASE"; variantId: string }
@@ -127,8 +151,7 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 	const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
 
 	const subtotal = useMemo(
-		() =>
-			items.reduce((sum, item) => sum + BigInt(item.productVariant.price) * BigInt(item.quantity), BigInt(0)),
+		() => items.reduce((sum, item) => sum + getLineItemUnitPrice(item) * BigInt(item.quantity), BigInt(0)),
 		[items],
 	);
 
