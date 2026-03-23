@@ -3,7 +3,7 @@ import type {
 	APIProductGetByIdResult,
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
-import { commerce } from "@/lib/commerce";
+import { meGetCached } from "@/lib/commerce";
 import { CURRENCY } from "@/lib/constants";
 
 function getDecimalPrice(minorAmount: string): string {
@@ -150,7 +150,7 @@ export function buildCollectionBreadcrumbJsonLd(
 }
 
 export async function StoreJsonLd() {
-	const me = await commerce.meGet();
+	const me = await meGetCached();
 	const storeName = me.store.settings?.storeName || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
 

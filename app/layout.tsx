@@ -12,7 +12,7 @@ import { SearchInput } from "@/app/search-input";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
-import { commerce, getStoreFaviconUrl } from "@/lib/commerce";
+import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-	const me = await commerce.meGet();
+	const me = await meGetCached();
 	const storeName = me.store.settings?.storeName || "Your Next Store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 
