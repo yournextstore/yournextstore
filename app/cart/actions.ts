@@ -62,7 +62,6 @@ export async function removeFromCart(variantId: string) {
 }
 
 // Set absolute quantity for a cart item
-// Calculates delta internally since cartUpsert uses delta behavior
 export async function setCartQuantity(variantId: string, quantity: number) {
 	const cartCookie = await getCartCookieJson();
 
@@ -71,20 +70,14 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 	}
 
 	try {
-		// Get current cart to calculate delta
-		const currentCart = await commerce.cartGet({ cartId: cartCookie.id });
-		const currentItem = currentCart?.lineItems.find((item) => item.productVariant.id === variantId);
-		const currentQuantity = currentItem?.quantity ?? 0;
-
 		if (quantity <= 0) {
-			// Remove item by setting quantity to 0
+			// Remove item
 			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: 0 });
 		} else {
-			// Calculate delta for cartUpsert
-			const delta = quantity - currentQuantity;
-			if (delta !== 0) {
-				await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: delta });
-			}
+			// cartUpsert treats quantity as additive, so remove first then re-add
+			// with the exact quantity we want
+			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: 0 });
+			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity });
 		}
 
 		// Fetch updated cart
