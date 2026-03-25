@@ -29,18 +29,21 @@ const defaultIcons = [Leaf, Hammer, Award];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-18 border-t border-border/80 pt-14">
+			<div className="mb-10 max-w-2xl space-y-3">
+				<p className="editorial-kicker">Craft Notes</p>
+				<h2 className="section-title">Built with material honesty and a longer view.</h2>
+			</div>
+			<div className="grid gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary-foreground" />
+						<div key={feature.title} className="surface-panel p-6">
+							<div className="mb-5 flex h-11 w-11 items-center justify-center border border-border/80 bg-background">
+								<Icon className="h-[1.125rem] w-[1.125rem] text-muted-foreground" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-medium text-foreground">{feature.title}</h3>
+							<p className="text-sm leading-7 text-muted-foreground">{feature.description}</p>
 						</div>
 					);
 				})}
