@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { YnsLink } from "@/components/yns-link";
 
 export const metadata: Metadata = {
-	title: "FAQ — Your Next Store",
+	title: "FAQ — Vela",
 	description: "Frequently asked questions about orders, payments, shipping, returns, and more.",
 };
 

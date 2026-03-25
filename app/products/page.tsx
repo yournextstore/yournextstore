@@ -15,7 +15,7 @@ const sortOptions = [
 ] as const;
 
 export const metadata: Metadata = {
-	title: "All Products — Your Next Store",
+	title: "All Products — Vela",
 	description: "Browse our complete product collection.",
 };
 
@@ -66,7 +66,11 @@ function SortLink({ option, currentSort }: { option: (typeof sortOptions)[number
 		<YnsLink
 			prefetch="eager"
 			href={href}
-			className={`text-sm transition-colors ${isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+			className={`text-[0.72rem] uppercase tracking-[0.18em] transition-colors ${
+				isActive
+					? "border-b border-foreground pb-1 text-foreground"
+					: "text-muted-foreground hover:text-foreground"
+			}`}
 		>
 			{option.label}
 		</YnsLink>
@@ -81,17 +85,22 @@ export default async function ProductsPage({
 	const { page, sort } = await searchParams;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			<div className="mb-8 flex flex-wrap items-center gap-3">
-				<span className="text-sm text-muted-foreground">Sort by:</span>
-				{sortOptions.map((option) => (
-					<SortLink key={option.value} option={option} currentSort={sort} />
-				))}
+		<div className="section-shell-tight">
+			<div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+				<div className="space-y-3">
+					<p className="editorial-kicker">Product Index</p>
+					<h1 className="section-title">All products</h1>
+					<p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+						Browse the full catalog of furniture, lighting, and smaller objects selected for quieter
+						interiors.
+					</p>
+				</div>
+				<div className="flex flex-wrap items-center gap-3 border-t border-border/80 pt-4 lg:border-t-0 lg:pt-0">
+					<span className="text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">Sort</span>
+					{sortOptions.map((option) => (
+						<SortLink key={option.value} option={option} currentSort={sort} />
+					))}
+				</div>
 			</div>
 
 			<ProductList page={page} sort={sort} />

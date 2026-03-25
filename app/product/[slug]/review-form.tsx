@@ -38,27 +38,34 @@ export function ReviewForm({ slug }: { slug: string }) {
 
 	if (state?.success) {
 		return (
-			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
+			<div className="surface-panel p-6 text-center">
 				<p className="font-medium">{state.message}</p>
 			</div>
 		);
 	}
 
 	return (
-		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
-			<h3 className="text-lg font-medium">Write a Review</h3>
+		<form action={action} className="surface-panel space-y-4 p-6">
+			<h3 className="font-editorial text-[1.7rem] leading-none tracking-[-0.04em] text-foreground">
+				Write a review
+			</h3>
 
 			<input type="hidden" name="slug" value={slug} />
 			<input type="hidden" name="rating" value={rating} />
 
 			<div>
-				<label className="mb-1.5 block text-sm font-medium">Rating</label>
+				<label className="mb-2 block text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+					Rating
+				</label>
 				<StarInput value={rating} onChange={setRating} />
 			</div>
 
 			<div className="grid gap-4 sm:grid-cols-2">
 				<div>
-					<label htmlFor="review-author" className="mb-1.5 block text-sm font-medium">
+					<label
+						htmlFor="review-author"
+						className="mb-2 block text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground"
+					>
 						Name
 					</label>
 					<input
@@ -66,12 +73,15 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="author"
 						type="text"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="h-11 w-full border border-input bg-background px-3 text-sm"
 						placeholder="Your name"
 					/>
 				</div>
 				<div>
-					<label htmlFor="review-email" className="mb-1.5 block text-sm font-medium">
+					<label
+						htmlFor="review-email"
+						className="mb-2 block text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground"
+					>
 						Email
 					</label>
 					<input
@@ -79,14 +89,17 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="email"
 						type="email"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="h-11 w-full border border-input bg-background px-3 text-sm"
 						placeholder="your@email.com"
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label htmlFor="review-content" className="mb-1.5 block text-sm font-medium">
+				<label
+					htmlFor="review-content"
+					className="mb-2 block text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground"
+				>
 					Review
 				</label>
 				<textarea
@@ -94,7 +107,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 					name="content"
 					required
 					rows={4}
-					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+					className="w-full resize-none border border-input bg-background px-3 py-3 text-sm"
 					placeholder="Share your experience with this product..."
 				/>
 			</div>
@@ -104,9 +117,9 @@ export function ReviewForm({ slug }: { slug: string }) {
 			<button
 				type="submit"
 				disabled={isPending || rating === 0}
-				className="rounded-md bg-foreground px-6 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+				className="border border-foreground bg-foreground px-6 py-3 text-[0.72rem] uppercase tracking-[0.18em] text-background transition-opacity hover:opacity-92 disabled:opacity-50"
 			>
-				{isPending ? "Submitting..." : "Submit Review"}
+				{isPending ? "Submitting..." : "Submit review"}
 			</button>
 		</form>
 	);

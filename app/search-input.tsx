@@ -21,25 +21,25 @@ export function SearchInput() {
 
 	return (
 		<>
-			<form onSubmit={handleSubmit} className="hidden sm:block">
+			<form onSubmit={handleSubmit} className="hidden md:block">
 				<div className="relative">
-					<Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+					<Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<input
 						ref={inputRef}
 						type="search"
 						name="q"
-						placeholder="Search..."
+						placeholder="Search pieces, rooms, materials"
 						defaultValue={searchParams.get("q") ?? ""}
-						className="h-9 w-48 rounded-full border border-border bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+						className="h-10 w-56 border border-border/80 bg-background px-4 pl-10 text-sm text-foreground placeholder:text-muted-foreground/85 transition-colors focus:border-ring focus:outline-none lg:w-72"
 					/>
 				</div>
 			</form>
 			<YnsLink
 				href="/search"
-				className="p-2 hover:bg-secondary rounded-full transition-colors sm:hidden"
+				className="flex h-10 w-10 items-center justify-center border border-border/80 bg-background transition-colors hover:bg-[var(--surface-soft)] md:hidden"
 				aria-label="Search"
 			>
-				<Search className="w-6 h-6" />
+				<Search className="h-[1.125rem] w-[1.125rem]" />
 			</YnsLink>
 		</>
 	);

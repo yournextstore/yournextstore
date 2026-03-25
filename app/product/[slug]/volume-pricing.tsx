@@ -62,8 +62,10 @@ export function VolumePricingDisplay({
 			)}
 
 			<div>
-				<p className="text-sm font-medium mb-2">Buy more, save more</p>
-				<div className="overflow-hidden rounded-lg border border-border text-sm">
+				<p className="mb-2 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+					Buy more, save more
+				</p>
+				<div className="overflow-hidden border border-border/80 text-sm">
 					<table className="w-full">
 						<thead>
 							<tr className="bg-muted/50 text-muted-foreground">

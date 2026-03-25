@@ -18,7 +18,7 @@ type ProductGridProps = {
 
 export async function ProductGrid({
 	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	description,
 	products,
 	limit = 6,
 	showViewAll = true,
@@ -30,39 +30,43 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="section-shell-tight">
+			{(title || description) && (
+				<div className="mb-10 flex items-end justify-between gap-8">
+					<div className="space-y-3">
+						{title && <h2 className="section-title text-foreground">{title}</h2>}
+						{description && (
+							<p className="max-w-2xl text-sm leading-7 text-muted-foreground">{description}</p>
+						)}
+					</div>
+					{showViewAll && (
+						<YnsLink
+							prefetch={"eager"}
+							href={viewAllHref}
+							className="hidden sm:inline-flex items-center gap-2 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+						>
+							Shop all
+							<ArrowRight className="h-3.5 w-3.5" />
+						</YnsLink>
+					)}
 				</div>
-				{showViewAll && (
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
-				)}
-			</div>
+			)}
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-6 lg:gap-y-12">
 				{displayProducts.map((product) => (
-					<ProductCard key={product.id} product={product} />
+					<ProductCard key={product.id} product={product} compact showQuickAdd={false} />
 				))}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-10 text-center sm:hidden">
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-2 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
 					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
+						Shop all
+						<ArrowRight className="h-3.5 w-3.5" />
 					</YnsLink>
 				</div>
 			)}
