@@ -20,23 +20,25 @@ export function QuantitySelector({
 }: QuantitySelectorProps) {
 	return (
 		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
+			<span className="mb-3 block text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+				Quantity
+			</span>
+			<div className="inline-flex items-center border border-border/80 bg-background">
 				<Button
 					variant="ghost"
 					size="icon"
-					className="h-10 w-10 rounded-r-none"
+					className="h-11 w-11 rounded-none"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
 					<Minus className="h-4 w-4" />
 				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
+				<span className="flex h-11 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
 				<Button
 					variant="ghost"
 					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					className="h-11 w-11 rounded-none"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
