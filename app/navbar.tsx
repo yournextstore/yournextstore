@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { MobileNav } from "@/app/mobile-nav";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 
@@ -7,33 +8,39 @@ export async function Navbar() {
 	cacheLife("hours");
 
 	const collections = await commerce.collectionBrowse({ limit: 5 });
+	const links = [
+		{ href: "/products", label: "Shop" },
+		...collections.data.slice(0, 4).map((collection) => ({
+			href: `/collection/${collection.slug}`,
+			label: collection.name,
+		})),
+	];
 
 	return (
-		<nav className="hidden sm:flex items-center gap-6">
-			<YnsLink
-				prefetch={"eager"}
-				href="/"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-			>
-				Home
-			</YnsLink>
-			<YnsLink
-				prefetch={"eager"}
-				href="/products"
-				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-			>
-				Products
-			</YnsLink>
-			{collections.data.map((collection) => (
+		<>
+			<MobileNav links={links} />
+			<nav className="hidden items-center gap-7 lg:flex">
+				{links.map((link) => (
+					<YnsLink
+						prefetch={"eager"}
+						key={link.href}
+						href={link.href}
+						className="text-[0.78rem] uppercase tracking-[0.18em] text-foreground/62 transition-colors hover:text-foreground"
+						activeClassName="text-foreground"
+						exactHrefMatch={link.href === "/products"}
+					>
+						{link.label}
+					</YnsLink>
+				))}
 				<YnsLink
 					prefetch={"eager"}
-					key={collection.id}
-					href={`/collection/${collection.slug}`}
-					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					href="/faq"
+					className="text-[0.78rem] uppercase tracking-[0.18em] text-foreground/45 transition-colors hover:text-foreground"
+					activeClassName="text-foreground"
 				>
-					{collection.name}
+					Services
 				</YnsLink>
-			))}
-		</nav>
+			</nav>
+		</>
 	);
 }

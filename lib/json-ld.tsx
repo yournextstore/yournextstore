@@ -151,7 +151,7 @@ export function buildCollectionBreadcrumbJsonLd(
 
 export async function StoreJsonLd() {
 	const me = await meGetCached();
-	const storeName = me.store.settings?.storeName || "Your Next Store";
+	const storeName = me.store.settings?.storeName || "Vela";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
 
 	return (

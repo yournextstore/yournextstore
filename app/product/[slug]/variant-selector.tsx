@@ -153,9 +153,11 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+										{group.label}
+									</legend>
 									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
+										<span className="text-sm text-foreground/72">{selectedOption.value}</span>
 									)}
 								</div>
 								<div className="flex gap-3">
@@ -172,18 +174,14 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
-													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
+													"relative h-11 w-11 border transition-all duration-200",
+													isSelected ? "border-foreground" : "border-border/80 hover:border-muted-foreground",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
 												aria-label={option.value}
 												title={option.value}
 											>
-												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
-												)}
+												{isLightColor && <span className="absolute inset-0 border border-border" />}
 											</button>
 										);
 									})}
@@ -192,7 +190,9 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+										{group.label}
+									</legend>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -204,10 +204,10 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"flex flex-col items-center border px-5 py-3 text-left transition-all duration-200",
 													isSelected
 														? "border-foreground bg-foreground text-primary-foreground"
-														: "border-border bg-background hover:border-muted-foreground",
+														: "border-border/80 bg-background hover:border-muted-foreground",
 												)}
 											>
 												<span className="text-sm font-medium">{option.value}</span>

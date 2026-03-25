@@ -35,11 +35,11 @@ function ReviewSummary({ summary }: { summary: APIProductReviewsBrowseResult["su
 
 function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][number] }) {
 	return (
-		<div className="space-y-2 border-b border-border pb-6 last:border-0">
-			<div className="flex items-center justify-between">
+		<div className="surface-panel space-y-3 p-5 sm:p-6">
+			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="flex items-center gap-3">
 					<StarRating rating={review.rating} />
-					<span className="font-medium">{review.author}</span>
+					<span className="font-medium text-foreground">{review.author}</span>
 				</div>
 				<time className="text-sm text-muted-foreground" dateTime={review.createdAt}>
 					{new Date(review.createdAt).toLocaleDateString(undefined, {
@@ -56,13 +56,15 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 
 export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBrowseResult; slug: string }) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
+		<section className="mt-20 border-t border-border/80 pt-16">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
+				<h2 className="font-editorial text-[clamp(2rem,3vw,3rem)] leading-[0.98] tracking-[-0.04em] text-foreground">
+					Customer reviews
+				</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
 			{reviews.data.length > 0 ? (
-				<div className="space-y-6">
+				<div className="space-y-4">
 					{reviews.data.map((review) => (
 						<ReviewCard key={review.id} review={review} />
 					))}
