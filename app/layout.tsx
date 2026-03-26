@@ -31,7 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 	return {
 		title: storeName,
-		description: me.store.settings?.storeDescription || "Fashion inspired by where we're from — curated essentials for modern living.",
+		description:
+			me.store.settings?.storeDescription ||
+			"Fashion inspired by where we're from — curated essentials for modern living.",
 		icons: {
 			icon: [
 				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },

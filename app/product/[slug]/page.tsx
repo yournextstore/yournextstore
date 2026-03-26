@@ -106,7 +106,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			{/* Reviews Section */}
 			<ProductReviews reviews={reviews} slug={slug} />
 
-
 			<ProductFeatures />
 
 			{/* Related Products */}

@@ -1,7 +1,7 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
