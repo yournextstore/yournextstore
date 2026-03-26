@@ -1,8 +1,8 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { commerce } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { YnsLink } from "../yns-link";
 
