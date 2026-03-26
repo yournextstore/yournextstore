@@ -29,7 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 	return {
 		title: storeName,
-		description: me.store.settings?.storeDescription || "Scandinavian streetwear — conscious fashion since 1995",
+		description:
+			me.store.settings?.storeDescription || "Scandinavian streetwear — conscious fashion since 1995",
 		icons: {
 			icon: [
 				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },
