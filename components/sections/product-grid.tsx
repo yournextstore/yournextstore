@@ -1,8 +1,8 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { commerce } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
