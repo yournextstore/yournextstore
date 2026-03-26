@@ -2,8 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-<<<<<<< HEAD:src/app/product/[slug]/add-to-cart-button.tsx
-<<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
@@ -12,17 +10,6 @@ import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-=======
-import { formatMoney } from "../../../money";
-=======
-import { formatMoney } from "../../../src/money";
->>>>>>> 1f54d19 (refactor: app/ in root for v0):app/product/[slug]/add-to-cart-button.tsx
-import { addToCart } from "../../cart/actions";
-import { useCart } from "../../cart/cart-context";
-import { QuantitySelector } from "./quantity-selector";
-import { TrustBadges } from "./trust-badges";
-import { VariantSelector } from "./variant-selector";
->>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/add-to-cart-button.tsx
 
 type Variant = {
 	id: string;
@@ -50,19 +37,10 @@ type AddToCartButtonProps = {
 		slug: string;
 		images: string[];
 	};
-<<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
 	volumePricingTiers?: VolumeTier[];
 };
 
 export function AddToCartButton({ variants, product, volumePricingTiers = [] }: AddToCartButtonProps) {
-=======
-};
-
-const currency = "USD";
-const locale = "en-US";
-
-export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
->>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/add-to-cart-button.tsx
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
 	const [isPending, startTransition] = useTransition();
@@ -90,14 +68,10 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 		);
 	}, [variants, searchParams]);
 
-<<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
 	const { resolvedTiers, volumePrice } = useVolumePricing(volumePricingTiers, selectedVariant?.id, quantity);
 
 	const unitPrice = volumePrice ?? selectedVariant?.price;
 	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(quantity) : null;
-=======
-	const totalPrice = selectedVariant ? BigInt(selectedVariant.price) * BigInt(quantity) : null;
->>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/add-to-cart-button.tsx
 
 	const buttonText = useMemo(() => {
 		if (isPending) return "Adding...";
@@ -113,18 +87,9 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 
 		if (!selectedVariant) return;
 
-<<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
 		openCart();
 
 		startTransition(async () => {
-=======
-		// Open cart sidebar
-		openCart();
-
-		// Execute server action with optimistic update
-		startTransition(async () => {
-			// Dispatch inside transition for optimistic update
->>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/add-to-cart-button.tsx
 			dispatch({
 				type: "ADD_ITEM",
 				item: {
@@ -139,10 +104,6 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 			});
 
 			await addToCart(selectedVariant.id, quantity);
-<<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
-=======
-			// Reset quantity after add
->>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/add-to-cart-button.tsx
 			setQuantity(1);
 		});
 	};
@@ -153,11 +114,8 @@ export function AddToCartButton({ variants, product }: AddToCartButtonProps) {
 
 			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
 
-<<<<<<< HEAD:app/product/[slug]/add-to-cart-button.tsx
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={quantity} volumePrice={volumePrice} />
 
-=======
->>>>>>> 74ad60e (feat: optimistic update):src/app/product/[slug]/add-to-cart-button.tsx
 			<form onSubmit={handleSubmit}>
 				<button
 					type="submit"

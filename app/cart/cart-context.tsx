@@ -14,15 +14,12 @@ export type CartLineItem = {
 			name: string;
 			slug: string;
 			images: string[];
-<<<<<<< HEAD:app/cart/cart-context.tsx
 			type?: string;
 			bundleDiscountPercentage?: string | null;
 			bundleProducts?: Array<{
 				quantity: number;
 				variant: { price: string };
 			}>;
-=======
->>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-context.tsx
 		};
 	};
 };
@@ -32,7 +29,6 @@ export type Cart = {
 	lineItems: CartLineItem[];
 };
 
-<<<<<<< HEAD:app/cart/cart-context.tsx
 /** Get the effective unit price for a line item, computing bundle price from constituents if needed. */
 export function getLineItemUnitPrice(item: CartLineItem): bigint {
 	const { product } = item.productVariant;
@@ -51,8 +47,6 @@ export function getLineItemUnitPrice(item: CartLineItem): bigint {
 	return BigInt(item.productVariant.price);
 }
 
-=======
->>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-context.tsx
 type CartAction =
 	| { type: "INCREASE"; variantId: string }
 	| { type: "DECREASE"; variantId: string }
@@ -80,10 +74,6 @@ type CartProviderProps = {
 };
 
 export function CartProvider({ children, initialCart, initialCartId }: CartProviderProps) {
-<<<<<<< HEAD:app/cart/cart-context.tsx
-=======
-	const [cartId, setCartId] = useState<string | null>(initialCartId);
->>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-context.tsx
 	const [isOpen, setIsOpen] = useState(false);
 
 	const [optimisticCart, dispatchCartAction] = useOptimistic(initialCart, (state, action: CartAction) => {
@@ -161,12 +151,7 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 	const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
 
 	const subtotal = useMemo(
-<<<<<<< HEAD:app/cart/cart-context.tsx
 		() => items.reduce((sum, item) => sum + getLineItemUnitPrice(item) * BigInt(item.quantity), BigInt(0)),
-=======
-		() =>
-			items.reduce((sum, item) => sum + BigInt(item.productVariant.price) * BigInt(item.quantity), BigInt(0)),
->>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-context.tsx
 		[items],
 	);
 
@@ -174,12 +159,8 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 	const closeCart = useCallback(() => setIsOpen(false), []);
 
 	// Derive cartId from optimistic cart or initial
-<<<<<<< HEAD:app/cart/cart-context.tsx
 	const currentCartId =
 		optimisticCart?.id && optimisticCart.id !== "optimistic" ? optimisticCart.id : initialCartId;
-=======
-	const currentCartId = optimisticCart?.id && optimisticCart.id !== "optimistic" ? optimisticCart.id : cartId;
->>>>>>> 74ad60e (feat: optimistic update):src/app/cart/cart-context.tsx
 
 	const value = useMemo(
 		() => ({
