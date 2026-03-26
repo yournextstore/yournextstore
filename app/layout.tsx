@@ -137,7 +137,6 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 							<div className="flex items-center h-12">
 								<Navbar />
 							</div>
-
 						</div>
 					</div>
 				</header>
