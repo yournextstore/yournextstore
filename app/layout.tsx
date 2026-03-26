@@ -37,7 +37,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 	return {
 		title: storeName,
-		description: me.store.settings?.storeDescription || "Clean, organic, and high-tech skincare designed to reveal your most radiant self. Elevate your daily ritual.",
+		description:
+			me.store.settings?.storeDescription ||
+			"Clean, organic, and high-tech skincare designed to reveal your most radiant self. Elevate your daily ritual.",
 		icons: {
 			icon: [
 				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },
