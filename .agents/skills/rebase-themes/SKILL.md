@@ -1,6 +1,6 @@
 ---
 name: rebase-themes
-description: Rebase all theme-* branches onto main, resolving conflicts while preserving each theme's visual identity. Creates PRs for each theme. Run as a scheduled task or one-off.
+description: Rebase all theme-* branches onto main, resolving conflicts while preserving each theme's visual identity. Force-pushes directly to theme branches with backup tags. Run as a scheduled task or one-off.
 ---
 
 # Rebase All Theme Branches onto Main
@@ -35,16 +35,22 @@ Set `REBASE_BRANCH` = `${THEME_BRANCH}-rebase`.
 ### 2a: Check if rebase is needed
 
 ```
-git log origin/main --not origin/${THEME_BRANCH} --oneline | head -1
+git rev-list --count origin/${THEME_BRANCH}..origin/main
 ```
 
-If there are no new commits on main that aren't in the theme branch, skip it — it's already up to date. Log it and move to the next theme.
+If the count is 0, the theme is already up to date. Log it and move to the next theme.
 
-### 2b: Create rebase branch
+### 2b: Create backup tag and rebase branch
 
+Create a backup tag so the old state can be recovered if anything goes wrong:
 ```
-git checkout origin/${THEME_BRANCH}
-git checkout -B ${REBASE_BRANCH}
+git tag backup/${THEME_BRANCH}/$(date +%Y-%m-%d) origin/${THEME_BRANCH}
+git push origin backup/${THEME_BRANCH}/$(date +%Y-%m-%d)
+```
+
+Then create the working branch:
+```
+git checkout -B ${REBASE_BRANCH} origin/${THEME_BRANCH}
 ```
 
 ### 2c: Attempt rebase
@@ -136,37 +142,12 @@ git commit -m "chore: fix lint issues after rebase"
 
 If there are unfixable errors, attempt to fix them (max 2 attempts). If still broken, note them in the PR body and continue — do not block on lint.
 
-### 2g: Push and create/update PR
+### 2g: Push directly to theme branch
+
+Force-push the rebased branch directly to the theme branch (backup tag was created in step 2b):
 
 ```
-git push --force-with-lease origin ${REBASE_BRANCH}
-```
-
-Check for existing PR:
-```
-gh pr list --head ${REBASE_BRANCH} --base ${THEME_BRANCH} --json number --jq '.[0].number'
-```
-
-**If PR exists**, update it with `gh pr edit`. **If not**, create one with `gh pr create`.
-
-Title: `chore: rebase ${THEME_BRANCH} onto main`
-
-Body (fill in the actual details from your work):
-```
-Automated rebase of `${THEME_BRANCH}` onto `main`.
-
-## Summary
-- Commits from main applied: <count>
-- Conflicts resolved automatically using Claude Code
-- `bun.lock` regenerated after rebase
-- Lint checked and auto-fixed where possible
-
-## Files with conflicts resolved
-- `<file>`: <brief description of what you did>
-- ...
-
-## Notes
-<any issues, unfixable lint errors, or things needing human attention — or "None">
+git push --force-with-lease origin ${REBASE_BRANCH}:${THEME_BRANCH}
 ```
 
 ### 2h: Handle failure for this theme
@@ -187,18 +168,19 @@ If the rebase cannot be completed for this theme:
 
 After processing all themes, output a summary table:
 
-| Theme | Status | PR | Conflicts Resolved | Notes |
-|-------|--------|----|--------------------|-------|
-| theme-cosmetics | success | #42 | 3 files | — |
-| theme-sneakers | up to date | — | — | — |
-| theme-cbd | failed | — | — | bun install failed |
+| Theme | Status | Conflicts Resolved | Notes |
+|-------|--------|-------------------|-------|
+| theme-cosmetics | success | 3 files | — |
+| theme-sneakers | up to date | — | — |
+| theme-cbd | failed | — | bun install failed |
 
 ## Rules
 
 - This runs autonomously. Never ask questions. Make your best judgment and proceed.
-- Never modify the `main` branch. Only create/push `*-rebase` branches.
-- PRs target the theme branch, not main.
+- Never modify the `main` branch. Only create/push `*-rebase` branches and force-push to theme branches.
+- Always create a backup tag before force-pushing to a theme branch.
 - Always use `--force-with-lease` (not `--force`) when pushing.
 - If `bun install` fails for a theme, that theme is a blocker — abort it and move on.
 - Always clean up git state (`git rebase --abort`, `git checkout main`) before moving to the next theme so you don't carry dirty state forward.
 - Between themes, run `git checkout main` to reset to a clean state.
+- Delete the local `*-rebase` branch after pushing to keep git state clean.
