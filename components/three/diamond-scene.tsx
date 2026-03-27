@@ -1,9 +1,9 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, MeshTransmissionMaterial, Sparkles } from "@react-three/drei";
-import { Suspense, useRef, useMemo } from "react";
-import type { Mesh, Group } from "three";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Suspense, useMemo, useRef } from "react";
+import type { Group, Mesh } from "three";
 import * as THREE from "three";
 
 function Diamond({ position = [0, 0, 0] as [number, number, number], scale = 1 }) {
@@ -79,14 +79,7 @@ function ParticleField() {
 
 	return (
 		<group ref={groupRef}>
-			<Sparkles
-				count={100}
-				scale={10}
-				size={2}
-				speed={0.4}
-				opacity={0.6}
-				color="#d4af37"
-			/>
+			<Sparkles count={100} scale={10} size={2} speed={0.4} opacity={0.6} color="#d4af37" />
 		</group>
 	);
 }
@@ -111,20 +104,8 @@ function Scene() {
 
 			{/* Lighting */}
 			<ambientLight intensity={0.5} />
-			<spotLight
-				position={[10, 10, 10]}
-				angle={0.15}
-				penumbra={1}
-				intensity={1}
-				color="#ffffff"
-			/>
-			<spotLight
-				position={[-10, -10, -10]}
-				angle={0.15}
-				penumbra={1}
-				intensity={0.5}
-				color="#d4af37"
-			/>
+			<spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} color="#ffffff" />
+			<spotLight position={[-10, -10, -10]} angle={0.15} penumbra={1} intensity={0.5} color="#d4af37" />
 			<pointLight position={[0, 5, 0]} intensity={0.5} color="#ffd700" />
 
 			{/* Environment for reflections */}

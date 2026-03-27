@@ -7,7 +7,7 @@ import { YnsLink } from "../yns-link";
 // Dynamically import the 3D scene to avoid SSR issues
 const DiamondScene = dynamic(
 	() => import("@/components/three/diamond-scene").then((mod) => mod.DiamondScene),
-	{ ssr: false }
+	{ ssr: false },
 );
 
 export function Hero() {
@@ -24,7 +24,9 @@ export function Hero() {
 					{/* Elegant Badge */}
 					<div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 mb-8 backdrop-blur-sm bg-background/30">
 						<Diamond className="h-4 w-4 text-primary" />
-						<span className="text-xs tracking-[0.3em] uppercase text-primary font-light">Exquisite Craftsmanship</span>
+						<span className="text-xs tracking-[0.3em] uppercase text-primary font-light">
+							Exquisite Craftsmanship
+						</span>
 					</div>
 
 					<h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-foreground leading-[1.1]">
@@ -33,7 +35,8 @@ export function Hero() {
 					</h1>
 
 					<p className="mt-8 text-lg text-muted-foreground leading-relaxed max-w-lg font-light">
-						Discover our curated collection of fine jewelry, where each piece tells a story of exceptional artistry and enduring beauty.
+						Discover our curated collection of fine jewelry, where each piece tells a story of exceptional
+						artistry and enduring beauty.
 					</p>
 
 					<div className="mt-12 flex flex-col sm:flex-row gap-4">
@@ -58,7 +61,9 @@ export function Hero() {
 					<div className="mt-16 pt-8 border-t border-border/50 flex flex-wrap gap-8">
 						<div>
 							<p className="text-2xl font-light text-primary">25+</p>
-							<p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">Years of Excellence</p>
+							<p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">
+								Years of Excellence
+							</p>
 						</div>
 						<div>
 							<p className="text-2xl font-light text-primary">10K+</p>
@@ -66,7 +71,9 @@ export function Hero() {
 						</div>
 						<div>
 							<p className="text-2xl font-light text-primary">GIA</p>
-							<p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">Certified Diamonds</p>
+							<p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">
+								Certified Diamonds
+							</p>
 						</div>
 					</div>
 				</div>
