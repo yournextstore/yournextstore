@@ -9,12 +9,8 @@ import { Footer } from "@/app/footer";
 import { SiteHeader } from "@/app/navbar";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
-<<<<<<< HEAD
-import { YnsLink } from "@/components/yns-link";
 import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
-=======
-import { commerce } from "@/lib/commerce";
->>>>>>> 72274bd (Theme 14 redesign based on url)
+
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
