@@ -9,6 +9,7 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
+import { AuthButton } from "@/components/auth-button";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
@@ -80,6 +81,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 								<Suspense>
 									<SearchInput />
 								</Suspense>
+								<AuthButton />
 								<CartButton />
 							</div>
 						</div>

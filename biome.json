@@ -148,6 +148,7 @@
 				"**/app/**/page.tsx",
 				"**/app/**/robots.ts",
 				"**/app/**/route.tsx",
+				"**/app/**/route.ts",
 				"**/app/**/sitemap.ts"
 			],
 			"linter": {
