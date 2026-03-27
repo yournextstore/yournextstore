@@ -88,15 +88,15 @@ Refer to the [API documentation](https://yns.store/manage/settings/api) for deta
 
 ## Themes
 
-Your Next Store ships with **30+ ready-made themes** across different store categories. Each theme includes a fully redesigned homepage, hero, color palette, and section layout — all built on the same core codebase.
+Your Next Store ships with **30+ ready-made themes** across different store categories. Each theme lives on its own branch and includes a fully redesigned homepage, hero, color palette, and section layout — all built on the same core codebase.
 
-Switch themes with a single command:
+Switch themes by checking out a branch:
 
 ```bash
 git checkout theme-beauty-serene
 ```
 
-### All Themes
+### Available Themes
 
 | Category | Themes |
 |----------|--------|
