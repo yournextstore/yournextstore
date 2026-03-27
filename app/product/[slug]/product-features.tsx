@@ -1,4 +1,4 @@
-import { Award, Diamond, Shield, Sparkles, type LucideIcon } from "lucide-react";
+import { Diamond, type LucideIcon, Shield, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;

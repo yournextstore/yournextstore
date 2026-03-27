@@ -33,7 +33,11 @@ export default function Home() {
 		<main>
 			<Hero />
 			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Signature Pieces" description="Each piece crafted to capture the essence of timeless beauty" limit={6} />
+				<ProductGrid
+					title="Signature Pieces"
+					description="Each piece crafted to capture the essence of timeless beauty"
+					limit={6}
+				/>
 			</Suspense>
 			<About />
 			<Newsletter />
