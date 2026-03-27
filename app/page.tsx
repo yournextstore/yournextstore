@@ -1,12 +1,10 @@
 import { Suspense } from "react";
-import { About } from "@/components/sections/about";
 import { BenefitsBar } from "@/components/sections/benefits-bar";
 import { BundleSection } from "@/components/sections/bundle-section";
 import { CollectionsCarousel } from "@/components/sections/collections-carousel";
 import { CtaBanner } from "@/components/sections/cta-banner";
 import { Hero } from "@/components/sections/hero";
 import { HotThisWeek } from "@/components/sections/hot-this-week";
-import { Newsletter } from "@/components/sections/newsletter";
 import { PressSection } from "@/components/sections/press-section";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TextWithImages } from "@/components/sections/text-with-images";
