@@ -12,14 +12,11 @@ import { SearchInput } from "@/app/search-input";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { YnsLink } from "@/components/yns-link";
 import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 import "@/app/globals.css";
 import { Heart, ShoppingBag } from "lucide-react";
-import { ReferralBadge } from "@/components/referral-badge";
-import { getCartCookieJson } from "@/lib/cookies";
 
 const inter = Inter({
 	variable: "--font-display",
