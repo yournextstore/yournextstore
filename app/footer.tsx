@@ -1,5 +1,5 @@
+import { Heart, Sparkles, Star } from "lucide-react";
 import { cacheLife } from "next/cache";
-import { Heart, Star, Sparkles } from "lucide-react";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 
