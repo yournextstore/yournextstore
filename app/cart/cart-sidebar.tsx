@@ -22,7 +22,9 @@ export function CartSidebar() {
 					<SheetTitle className="flex items-center gap-3 text-lg font-serif font-light tracking-wide">
 						Shopping Bag
 						{itemCount > 0 && (
-							<span className="text-xs font-sans tracking-[0.1em] uppercase text-muted-foreground">({itemCount} items)</span>
+							<span className="text-xs font-sans tracking-[0.1em] uppercase text-muted-foreground">
+								({itemCount} items)
+							</span>
 						)}
 					</SheetTitle>
 				</SheetHeader>
@@ -36,7 +38,11 @@ export function CartSidebar() {
 							<p className="text-lg font-serif font-light">Your bag is empty</p>
 							<p className="text-sm text-muted-foreground mt-2">Discover our exquisite collections</p>
 						</div>
-						<Button variant="outline" onClick={closeCart} className="tracking-[0.1em] uppercase text-xs h-12 px-8 border-primary/30 hover:bg-primary hover:text-primary-foreground">
+						<Button
+							variant="outline"
+							onClick={closeCart}
+							className="tracking-[0.1em] uppercase text-xs h-12 px-8 border-primary/30 hover:bg-primary hover:text-primary-foreground"
+						>
 							Continue Shopping
 						</Button>
 					</div>

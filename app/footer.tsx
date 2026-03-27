@@ -98,10 +98,13 @@ export function Footer() {
 					<div className="lg:col-span-1">
 						<YnsLink prefetch={"eager"} href="/" className="flex flex-col">
 							<span className="text-2xl font-serif tracking-[0.15em] text-primary">LUMIERE</span>
-							<span className="text-[10px] tracking-[0.3em] text-muted-foreground uppercase">Fine Jewelry</span>
+							<span className="text-[10px] tracking-[0.3em] text-muted-foreground uppercase">
+								Fine Jewelry
+							</span>
 						</YnsLink>
 						<p className="mt-6 text-sm text-muted-foreground leading-relaxed">
-							Crafting moments of brilliance since 1999. Each piece is a testament to our dedication to exceptional artistry.
+							Crafting moments of brilliance since 1999. Each piece is a testament to our dedication to
+							exceptional artistry.
 						</p>
 					</div>
 
@@ -112,10 +115,42 @@ export function Footer() {
 					<div>
 						<h3 className="text-xs tracking-[0.2em] uppercase text-primary mb-6">Customer Care</h3>
 						<ul className="space-y-4">
-							<li><YnsLink prefetch={"eager"} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Shipping & Returns</YnsLink></li>
-							<li><YnsLink prefetch={"eager"} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Care Guide</YnsLink></li>
-							<li><YnsLink prefetch={"eager"} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Ring Size Guide</YnsLink></li>
-							<li><YnsLink prefetch={"eager"} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Book Consultation</YnsLink></li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#"
+									className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300"
+								>
+									Shipping & Returns
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#"
+									className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300"
+								>
+									Care Guide
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#"
+									className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300"
+								>
+									Ring Size Guide
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#"
+									className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300"
+								>
+									Book Consultation
+								</YnsLink>
+							</li>
 						</ul>
 					</div>
 
@@ -125,7 +160,11 @@ export function Footer() {
 						<ul className="space-y-4 text-sm text-muted-foreground">
 							<li className="flex items-start gap-3">
 								<MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-								<span>123 Fifth Avenue<br />New York, NY 10010</span>
+								<span>
+									123 Fifth Avenue
+									<br />
+									New York, NY 10010
+								</span>
 							</li>
 							<li className="flex items-center gap-3">
 								<Phone className="h-4 w-4 text-primary shrink-0" />
@@ -145,9 +184,15 @@ export function Footer() {
 						&copy; {new Date().getFullYear()} Lumiere Fine Jewelry. All rights reserved.
 					</p>
 					<div className="flex items-center gap-6 text-xs text-muted-foreground">
-						<YnsLink prefetch={"eager"} href="#" className="hover:text-primary transition-colors">Privacy</YnsLink>
-						<YnsLink prefetch={"eager"} href="#" className="hover:text-primary transition-colors">Terms</YnsLink>
-						<YnsLink prefetch={"eager"} href="#" className="hover:text-primary transition-colors">Accessibility</YnsLink>
+						<YnsLink prefetch={"eager"} href="#" className="hover:text-primary transition-colors">
+							Privacy
+						</YnsLink>
+						<YnsLink prefetch={"eager"} href="#" className="hover:text-primary transition-colors">
+							Terms
+						</YnsLink>
+						<YnsLink prefetch={"eager"} href="#" className="hover:text-primary transition-colors">
+							Accessibility
+						</YnsLink>
 					</div>
 				</div>
 			</div>
