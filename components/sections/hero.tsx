@@ -1,6 +1,6 @@
-import { ArrowRightIcon, Sparkles, Star, Heart } from "lucide-react";
-import { YnsLink } from "../yns-link";
+import { ArrowRightIcon, Heart, Sparkles, Star } from "lucide-react";
 import { FloatingShapesBackground } from "../three/floating-shapes";
+import { YnsLink } from "../yns-link";
 
 export function Hero() {
 	return (

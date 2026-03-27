@@ -1,11 +1,11 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import { ArrowRight, Sparkles, Star } from "lucide-react";
 import { cacheLife } from "next/cache";
+import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { commerce } from "@/lib/commerce";
 import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
@@ -90,7 +90,12 @@ export async function ProductGrid({
 					const secondaryImage = allImages[1];
 
 					return (
-						<YnsLink prefetch={"eager"} key={product.id} href={`/product/${product.slug}`} className="group fun-card block">
+						<YnsLink
+							prefetch={"eager"}
+							key={product.id}
+							href={`/product/${product.slug}`}
+							className="group fun-card block"
+						>
 							<div className="relative aspect-square bg-gradient-to-br from-secondary via-secondary/50 to-primary/10 rounded-3xl overflow-hidden mb-4 border-2 border-transparent group-hover:border-primary/30 transition-all duration-300">
 								{/* Fun badge */}
 								<div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground rounded-full text-xs font-bold shadow-lg">
@@ -141,12 +146,17 @@ export async function ProductGrid({
 								<div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 							</div>
 							<div className="space-y-2 px-1">
-								<h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{product.name}</h3>
+								<h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+									{product.name}
+								</h3>
 								<div className="flex items-center gap-2">
 									<p className="text-lg font-black text-primary">{priceDisplay}</p>
 									<div className="flex">
 										{[...Array(5)].map((_, i) => (
-											<Star key={`star-${product.id}-${i}`} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+											<Star
+												key={`star-${product.id}-${i}`}
+												className="h-4 w-4 text-yellow-400 fill-yellow-400"
+											/>
 										))}
 									</div>
 								</div>
