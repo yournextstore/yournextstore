@@ -10,6 +10,7 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
+import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
@@ -148,6 +149,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 								<Suspense>
 									<SearchInput />
 								</Suspense>
+								<AuthButton />
 								<CartButton />
 							</div>
 						</div>
