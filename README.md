@@ -86,6 +86,33 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for coding conventions and PR checklist.
 
 Refer to the [API documentation](https://yns.store/manage/settings/api) for details on fetching products, managing carts, and building on top of YNS.
 
+## Themes
+
+Your Next Store ships with **30+ ready-made themes** across different store categories. Each theme includes a fully redesigned homepage, hero, color palette, and section layout — all built on the same core codebase.
+
+Switch themes with a single command:
+
+```bash
+git checkout theme-beauty-serene
+```
+
+### All Themes
+
+| Category | Themes |
+|----------|--------|
+| **Beauty** | `beauty-aura` · `beauty-blush` · `beauty-glow` · `beauty-serene` |
+| **Fashion** | `fashion-atelier` · `fashion-aurum` · `fashion-blanc` · `fashion-capsule` · `fashion-fjord` · `fashion-luxette` · `fashion-nomad` · `fashion-oslo` · `fashion-portia` · `fashion-stride` · `fashion-trailhead` |
+| **Furniture** | `furniture-forma` · `furniture-grove` · `furniture-vela` |
+| **Food** | `food-matcha` · `food-sizzle` |
+| **Electronics** | `electronics-nexus` · `electronics-pulse` |
+| **Health** | `health-botanica` · `health-hemlock` |
+| **Home** | `home-deskflow` · `home-vessel` |
+| **Events** | `events-gather` · `events-signal` |
+| **Auto** | `auto-nightshift` · `auto-torque` |
+| **Kids** | `kids-wonder` |
+
+> All theme branches are prefixed with `theme-` (e.g. `theme-fashion-blanc`). Themes modify only visual components and static assets — your products, cart, and checkout remain unchanged.
+
 ## Star History
 
 <a href="https://star-history.com/#yournextstore/yournextstore&Date">
