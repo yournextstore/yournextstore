@@ -2,7 +2,6 @@ import { Commerce } from "commerce-kit";
 
 export const commerce = Commerce({
 	token: process.env.YNS_API_KEY,
-	...(process.env.NEXT_PUBLIC_YNS_API_TENANT && { endpoint: process.env.NEXT_PUBLIC_YNS_API_TENANT }),
 });
 
 export const meGetCached = async (token?: string) => {
