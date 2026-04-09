@@ -140,7 +140,7 @@ git add -A
 git commit -m "chore: fix lint issues after rebase"
 ```
 
-If there are unfixable errors, attempt to fix them (max 2 attempts). If still broken, note them in the PR body and continue — do not block on lint.
+If there are unfixable errors, attempt to fix them (max 2 attempts). If still broken, note them in the summary and continue — do not block on lint.
 
 ### 2g: Push directly to theme branch
 
