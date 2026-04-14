@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	/* config options here */
+	allowedDevOrigins: ["*.vercel.run", "*.yns.store", "*.yns.cx"],
 	reactCompiler: true,
 	cacheComponents: true,
 	experimental: {
