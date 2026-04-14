@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { getImageProps } from "next/image";
-import { type ComponentProps, useEffect, useRef, useState } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import { isVideoUrl } from "@/lib/utils";
 
 type ImageProps = ComponentProps<typeof Image>;
@@ -9,42 +9,29 @@ type ImageProps = ComponentProps<typeof Image>;
 const YNSImageWithPolling = (props: ImageProps) => {
 	const { props: resolvedProps } = getImageProps(props as Parameters<typeof getImageProps>[0]);
 	const [isReady, setIsReady] = useState(false);
-	const abortRef = useRef<AbortController | null>(null);
 
 	const src = resolvedProps.src;
 
 	useEffect(() => {
 		setIsReady(false);
-
-		const controller = new AbortController();
-		abortRef.current = controller;
 		let cancelled = false;
 
-		const poll = async () => {
-			while (!cancelled) {
-				try {
-					const res = await fetch(src, {
-						method: "HEAD",
-						signal: controller.signal,
-					});
-					if (res.ok) {
-						if (!cancelled) {
-							setIsReady(true);
-						}
-						return;
-					}
-				} catch {
-					if (cancelled) return;
-				}
-				await new Promise((r) => setTimeout(r, 1000));
-			}
+		const probe = () => {
+			const img = new window.Image();
+			img.onload = () => {
+				if (!cancelled) setIsReady(true);
+			};
+			img.onerror = () => {
+				if (cancelled) return;
+				setTimeout(probe, 1000);
+			};
+			img.src = src;
 		};
 
-		poll();
+		probe();
 
 		return () => {
 			cancelled = true;
-			controller.abort();
 		};
 	}, [src]);
 
