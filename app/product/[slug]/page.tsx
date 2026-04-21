@@ -6,6 +6,7 @@ import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -89,6 +90,11 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						</h1>
 						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
 						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						{product.content && (
+							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+								<TiptapRenderer content={product.content} />
+							</div>
+						)}
 					</div>
 
 					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
