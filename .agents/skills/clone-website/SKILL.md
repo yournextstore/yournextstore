@@ -495,6 +495,10 @@ agent-browser diff screenshot --baseline docs/design-references/full-page-deskto
 
 Only after this visual QA pass is the clone complete.
 
+## Phase 6: Persist Brand Guidelines via yns-api MCP
+
+After visual QA, `PUT /api/v1/brand-kit` via the `yns-api` MCP (`execute_api`) with a partial `BrandKitSchema` body synthesized from the artifacts already on disk. Inspect the schema first with `search_api` → `spec.paths['/api/v1/brand-kit']?.put?.requestBody`. Omit unknown fields (never placeholder), fully-qualified URLs only, anything unstructured goes into the `guidelines` markdown.
+
 ## Pre-Dispatch Checklist
 
 Before dispatching ANY builder agent, verify you can check every box. If you can't, go back and extract more.
