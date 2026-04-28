@@ -54,5 +54,6 @@
 	},
 	"[javascript]": {
 		"editor.defaultFormatter": "biomejs.biome"
-	}
+	},
+	"typescript.native-preview.tsdk": "/Users/typeofweb/htdocs/yournextstore/yournextstore/node_modules/@typescript/native-preview"
 }
