@@ -1,0 +1,1 @@
+import "commerce-kit/browser";
