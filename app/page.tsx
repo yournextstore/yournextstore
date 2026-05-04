@@ -1,9 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { Suspense } from "react";
-import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { YnsLink } from "@/components/yns-link";
 
