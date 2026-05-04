@@ -7,8 +7,6 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
-import { ReferralBadge } from "@/components/referral-badge";
-import { YnsLink } from "@/components/yns-link";
 import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import "@/app/globals.css";
 import { getCartCookieJson } from "@/lib/cookies";
