@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { FeaturedCards } from "@/components/sections/featured-cards";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { StatsSection } from "@/components/sections/stats-section";
 
