@@ -3,7 +3,6 @@ import { BlogSection } from "@/components/sections/blog-section";
 import { DealBanners } from "@/components/sections/deal-banners";
 import { FeaturedSidebar } from "@/components/sections/featured-sidebar";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { PromoBanners } from "@/components/sections/promo-banners";
 import { TrustBar } from "@/components/sections/trust-bar";
