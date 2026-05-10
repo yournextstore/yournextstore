@@ -138,8 +138,8 @@ Required env: `YNS_API_KEY`
 ## Agent Workflow Notes
 
 - **Explore agent**: Start with `lib/commerce.ts`, `app/layout.tsx`, `app/page.tsx`. Search `"use server"`/`"use cache"` for patterns.
-- **Plan agent**: Check existing code first. Map to: routes (`app/`), API (`lib/commerce.ts`), UI (`components/ui/`), actions (`actions.ts`). Consider caching and server vs client components.
-- **Implementation agent**: Validate with commands above before and after changes. Follow Biome rules, reuse existing UI components.
+- **Plan agent**: Map to: routes (`app/`), API (`lib/commerce.ts`), UI (`components/ui/`), actions (`actions.ts`). Consider caching and server vs client components.
+- **Implementation agent**: Validate with commands above before and after changes. Follow Biome rules.
 - **Frontend design**: Use `frontend-design:frontend-design` skill to achieve a distinctive, production-grade frontend experiences.
 
 **When starting work on the project, ALWAYS call the `init` tool from `next-devtools-mcp` FIRST to set up proper context and establish documentation requirements. Do this automatically without being asked.**

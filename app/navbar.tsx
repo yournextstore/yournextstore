@@ -21,7 +21,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					<button
 						type="button"
 						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary sm:hidden"
 					>
 						<Menu className="h-6 w-6" />
 					</button>
@@ -38,7 +38,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 								prefetch="eager"
 								href={link.href}
 								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+								className="rounded-lg px-3 py-3 text-base font-medium tracking-wide text-foreground transition-colors hover:bg-secondary"
 							>
 								{link.label}
 							</YnsLink>
@@ -46,13 +46,13 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="hidden sm:flex items-center gap-7">
 				{links.map((link) => (
 					<YnsLink
 						key={link.href}
 						prefetch="eager"
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-sm font-medium tracking-wide text-foreground/80 hover:text-foreground transition-colors"
 					>
 						{link.label}
 					</YnsLink>
