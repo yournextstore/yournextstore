@@ -9,6 +9,7 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
+import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
@@ -104,6 +105,10 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
+				<Suspense>
+					<CookieConsent />
+				</Suspense>
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
