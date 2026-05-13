@@ -136,13 +136,15 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 	}, [variants, searchParams.size, pathname]);
 
-	if (variantGroups.length === 0) {
+	const groupsWithChoices = variantGroups.filter((group) => group.options.length > 1);
+
+	if (groupsWithChoices.length === 0) {
 		return null;
 	}
 
 	return (
 		<div className="space-y-8">
-			{variantGroups.map((group) => {
+			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
 					? optionsById.get(group.label)?.get(selectedOptionId)
