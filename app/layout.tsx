@@ -7,6 +7,7 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
+import { MobileNav } from "@/app/mobile-nav";
 import { Navbar } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -82,6 +83,9 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 									<SearchInput />
 								</Suspense>
 								<CartButton />
+								<Suspense>
+									<MobileNav />
+								</Suspense>
 							</div>
 						</div>
 					</div>
