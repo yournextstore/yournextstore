@@ -5,6 +5,7 @@ import { getSubdomainPublicUrl } from "./lib/commerce";
 export async function proxy(request: NextRequest) {
 	const { subdomain, publicUrl } = await getSubdomainPublicUrl();
 	const destinationUrl = new URL(publicUrl);
+	``;
 
 	// Clone the request headers and set the correct x-forwarded-host
 	const requestHeaders = new Headers(request.headers);
@@ -13,6 +14,7 @@ export async function proxy(request: NextRequest) {
 
 	// Rewrite to the destination with updated headers
 	const url = new URL(`/${subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, destinationUrl);
+	url.searchParams.set("auth", "0");
 
 	return NextResponse.rewrite(url, {
 		request: {
