@@ -1,18 +1,17 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { YNSMedia } from "@/lib/yns-media";
 import { type SearchSuggestion, searchSuggest } from "./search-suggest";
 
 const DEBOUNCE_MS = 200;
 const MIN_QUERY_LENGTH = 2;
-const SKELETON_KEYS = ["sk-a", "sk-b", "sk-c"] as const;
+const SUGGESTION_CACHE_LIMIT = 32;
 
 const suggestionCache = new Map<string, SearchSuggestion[]>();
-const SUGGESTION_CACHE_LIMIT = 32;
 
 async function getSuggestions(query: string): Promise<SearchSuggestion[]> {
 	const cached = suggestionCache.get(query);
@@ -26,31 +25,23 @@ async function getSuggestions(query: string): Promise<SearchSuggestion[]> {
 	return items;
 }
 
-export function SearchInput() {
+function useSearchController(initialQuery: string) {
 	const router = useRouter();
-	const searchParams = useSearchParams();
-	const initialQuery = searchParams.get("q") ?? "";
-
 	const [query, setQuery] = useState(initialQuery);
-	const [open, setOpen] = useState(false);
-	const [mobileOpen, setMobileOpen] = useState(false);
 	const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
 	const [hasFetched, setHasFetched] = useState(false);
 	const [highlight, setHighlight] = useState(-1);
 	const [isFetching, startFetch] = useTransition();
-
-	const desktopInputRef = useRef<HTMLInputElement>(null);
-	const mobileInputRef = useRef<HTMLInputElement>(null);
-	const listboxId = useId();
 	const requestIdRef = useRef(0);
 
 	const trimmed = query.trim();
+	const enoughChars = trimmed.length >= MIN_QUERY_LENGTH;
 	const hasResults = suggestions.length > 0;
-	const seeAllIndex = trimmed.length >= MIN_QUERY_LENGTH ? suggestions.length : -1;
+	const seeAllIndex = enoughChars ? suggestions.length : -1;
 	const lastIndex = seeAllIndex >= 0 ? seeAllIndex : suggestions.length - 1;
 
 	useEffect(() => {
-		if (trimmed.length < MIN_QUERY_LENGTH) {
+		if (!enoughChars) {
 			setSuggestions([]);
 			setHasFetched(false);
 			return;
@@ -66,184 +57,275 @@ export function SearchInput() {
 			});
 		}, DEBOUNCE_MS);
 		return () => clearTimeout(timer);
-	}, [trimmed]);
+	}, [trimmed, enoughChars]);
 
 	useEffect(() => {
+		if (!enoughChars) return;
 		router.prefetch(`/search?q=${encodeURIComponent(trimmed)}`);
-	}, [trimmed]);
+	}, [trimmed, enoughChars]);
 
-	useEffect(() => {
-		if (mobileOpen) {
-			mobileInputRef.current?.focus();
-		}
-	}, [mobileOpen]);
-
-	const closeMobile = () => {
-		setMobileOpen(false);
-		setOpen(false);
+	return {
+		query,
+		setQuery,
+		suggestions,
+		hasFetched,
+		hasResults,
+		highlight,
+		setHighlight,
+		isFetching,
+		trimmed,
+		enoughChars,
+		seeAllIndex,
+		lastIndex,
+		router,
 	};
+}
 
+type Controller = ReturnType<typeof useSearchController>;
+
+function makeKeyHandler(c: Controller, open: boolean, onClose: () => void, onSeeAll: () => void) {
+	return (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === "Escape") {
+			onClose();
+			return;
+		}
+		if (!open || c.lastIndex < 0) return;
+		if (e.key === "ArrowDown") {
+			e.preventDefault();
+			c.setHighlight((h) => (h >= c.lastIndex ? 0 : h + 1));
+		} else if (e.key === "ArrowUp") {
+			e.preventDefault();
+			c.setHighlight((h) => (h <= 0 ? c.lastIndex : h - 1));
+		} else if (e.key === "Enter" && c.highlight === c.seeAllIndex) {
+			e.preventDefault();
+			onSeeAll();
+		}
+	};
+}
+
+function makeNavHandlers(c: Controller, onClose: () => void) {
 	const goToSearch = (q: string) => {
 		const value = q.trim();
 		if (!value) return;
-		router.push(`/search?q=${encodeURIComponent(value)}`);
-		setOpen(false);
-		setMobileOpen(false);
-		desktopInputRef.current?.blur();
-		mobileInputRef.current?.blur();
+		c.router.push(`/search?q=${encodeURIComponent(value)}`);
+		onClose();
 	};
-
 	const goToProduct = (slug: string) => {
-		router.push(`/product/${slug}`);
-		setOpen(false);
-		setMobileOpen(false);
-		desktopInputRef.current?.blur();
-		mobileInputRef.current?.blur();
+		c.router.push(`/product/${slug}`);
+		onClose();
 	};
-
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		const picked = highlight >= 0 ? suggestions[highlight] : null;
-		if (picked) {
-			goToProduct(picked.slug);
-			return;
-		}
-		goToSearch(query);
+		const picked = c.highlight >= 0 ? c.suggestions[c.highlight] : null;
+		if (picked) goToProduct(picked.slug);
+		else goToSearch(c.query);
 	};
+	return { goToSearch, goToProduct, handleSubmit };
+}
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Escape") {
-			if (mobileOpen) {
-				closeMobile();
-				return;
-			}
-			setOpen(false);
-			return;
-		}
-		if (!open || lastIndex < 0) return;
-		if (e.key === "ArrowDown") {
-			e.preventDefault();
-			setHighlight((h) => (h >= lastIndex ? 0 : h + 1));
-		} else if (e.key === "ArrowUp") {
-			e.preventDefault();
-			setHighlight((h) => (h <= 0 ? lastIndex : h - 1));
-		} else if (e.key === "Enter" && highlight === seeAllIndex) {
-			e.preventDefault();
-			goToSearch(query);
-		}
-	};
+function getActiveId(listboxId: string, c: Controller, open: boolean) {
+	if (!open || c.highlight < 0) return undefined;
+	if (c.highlight === c.seeAllIndex) return `${listboxId}-see-all`;
+	const item = c.suggestions[c.highlight];
+	return item ? `${listboxId}-${item.id}` : undefined;
+}
 
-	const showPopover = open && trimmed.length >= MIN_QUERY_LENGTH;
-	const showEmpty = showPopover && hasFetched && !isFetching && !hasResults;
-	const showSkeleton = showPopover && !hasFetched && isFetching;
-	const showDesktopPopover = showPopover && !mobileOpen;
-	const showMobileSuggestions = mobileOpen && showPopover;
+function Suggestions({
+	listboxId,
+	open,
+	c,
+	onPick,
+	onSeeAll,
+}: {
+	listboxId: string;
+	open: boolean;
+	c: Controller;
+	onPick: (slug: string) => void;
+	onSeeAll: () => void;
+}) {
+	const { suggestions, hasFetched, hasResults, highlight, setHighlight, isFetching, trimmed, seeAllIndex } =
+		c;
+	const showSkeleton = open && !hasFetched && isFetching;
+	const showEmpty = open && hasFetched && !isFetching && !hasResults;
 
-	const activeItem = highlight >= 0 ? suggestions[highlight] : undefined;
-	const activeId =
-		!showPopover || highlight < 0
-			? undefined
-			: highlight === seeAllIndex
-				? `${listboxId}-see-all`
-				: activeItem
-					? `${listboxId}-${activeItem.id}`
-					: undefined;
-
-	const suggestionsList = (
+	return (
 		<div
 			id={listboxId}
 			role="listbox"
 			aria-label="Search suggestions"
 			className="flex max-h-96 flex-col overflow-y-auto"
 		>
-			{showSkeleton ? (
-				<div className="flex flex-col gap-0.5">
-					{SKELETON_KEYS.map((key) => (
-						<div key={key} className="flex items-center gap-3 rounded-xl p-2">
-							<div className="h-12 w-12 flex-none animate-pulse rounded-lg bg-secondary motion-reduce:animate-none" />
-							<div className="flex flex-1 flex-col gap-2">
-								<div className="h-3 w-2/3 animate-pulse rounded-full bg-secondary motion-reduce:animate-none" />
-								<div className="h-2.5 w-1/2 animate-pulse rounded-full bg-secondary/60 motion-reduce:animate-none" />
-							</div>
+			{showSkeleton
+				? [0, 1, 2].map((i) => (
+						<div key={`sk-${i}`} className="flex items-center gap-4 border-b border-border py-3">
+							<span className="h-10 w-10 flex-none animate-pulse bg-secondary motion-reduce:animate-none" />
+							<span className="flex flex-1 flex-col gap-2">
+								<span className="block h-3 w-2/3 animate-pulse bg-secondary motion-reduce:animate-none" />
+								<span className="block h-2.5 w-1/2 animate-pulse bg-secondary/60 motion-reduce:animate-none" />
+							</span>
 						</div>
-					))}
-				</div>
-			) : null}
+					))
+				: null}
 
-			{hasResults ? (
-				<div className="flex flex-col gap-0.5">
-					{suggestions.map((item, idx) => {
-						const isActive = idx === highlight;
-						return (
-							<button
-								key={item.id}
-								type="button"
-								role="option"
-								id={`${listboxId}-${item.id}`}
-								aria-selected={isActive}
-								onMouseEnter={() => setHighlight(idx)}
-								onClick={() => goToProduct(item.slug)}
-								className={`flex items-center gap-3 rounded-xl p-2 text-left transition-colors ${
-									isActive ? "bg-secondary" : "hover:bg-secondary/60"
-								}`}
-							>
-								<div className="relative h-12 w-12 flex-none overflow-hidden rounded-lg bg-secondary">
-									{item.image ? (
-										<YNSMedia src={item.image} alt="" fill sizes="48px" className="object-cover" />
-									) : null}
-								</div>
-								<div className="flex min-w-0 flex-1 flex-col">
-									<HighlightedText
-										text={item.name}
-										query={trimmed}
-										className="truncate text-sm font-medium text-foreground"
-									/>
-									{item.summary ? (
-										<span className="truncate text-xs text-muted-foreground">{item.summary}</span>
-									) : null}
-								</div>
-							</button>
-						);
-					})}
-				</div>
-			) : null}
+			{suggestions.map((item, idx) => {
+				const isActive = idx === highlight;
+				return (
+					<button
+						key={item.id}
+						type="button"
+						role="option"
+						id={`${listboxId}-${item.id}`}
+						aria-selected={isActive}
+						onMouseEnter={() => setHighlight(idx)}
+						onClick={() => onPick(item.slug)}
+						className={`flex items-center gap-4 border-b border-border py-3 text-left transition-opacity ${
+							isActive ? "opacity-100" : "opacity-80 hover:opacity-100"
+						}`}
+					>
+						<span className="relative h-10 w-10 flex-none overflow-hidden bg-secondary">
+							{item.image ? (
+								<YNSMedia src={item.image} alt="" fill sizes="40px" className="object-cover" />
+							) : null}
+						</span>
+						<span className="flex min-w-0 flex-1 flex-col">
+							<HighlightedText
+								text={item.name}
+								query={trimmed}
+								className="truncate text-base font-medium text-foreground"
+							/>
+							{item.summary ? (
+								<span className="truncate text-xs text-muted-foreground">{item.summary}</span>
+							) : null}
+						</span>
+						<span
+							aria-hidden
+							className={`text-foreground transition-opacity ${isActive ? "opacity-100" : "opacity-0"}`}
+						>
+							→
+						</span>
+					</button>
+				);
+			})}
 
 			{showEmpty ? (
-				<div className="flex flex-col gap-1 px-3 py-6">
-					<span className="text-sm font-medium text-foreground">No results for &ldquo;{trimmed}&rdquo;</span>
+				<div className="flex flex-col gap-2 border-b border-border py-6">
+					<span className="text-base font-medium text-foreground">Nothing for &ldquo;{trimmed}&rdquo;</span>
 					<span className="text-xs text-muted-foreground">Try a shorter or different word.</span>
 				</div>
 			) : null}
 
-			{seeAllIndex >= 0 ? (
-				<div className="mt-1 border-t border-border pt-1">
-					<button
-						type="button"
-						role="option"
-						id={`${listboxId}-see-all`}
-						aria-selected={highlight === seeAllIndex}
-						onMouseEnter={() => setHighlight(seeAllIndex)}
-						onClick={() => goToSearch(query)}
-						className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors ${
-							highlight === seeAllIndex ? "bg-secondary" : "hover:bg-secondary/60"
-						}`}
-					>
-						<div className="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-secondary">
-							<Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
-						</div>
-						<span className="text-sm text-foreground">
-							See all results for <span className="font-medium">&ldquo;{trimmed}&rdquo;</span>
-						</span>
-					</button>
-				</div>
+			{seeAllIndex >= 0 && hasResults ? (
+				<button
+					type="button"
+					role="option"
+					id={`${listboxId}-see-all`}
+					aria-selected={highlight === seeAllIndex}
+					onMouseEnter={() => setHighlight(seeAllIndex)}
+					onClick={onSeeAll}
+					className={`flex items-center justify-between py-3 text-left transition-opacity ${
+						highlight === seeAllIndex ? "opacity-100" : "opacity-80 hover:opacity-100"
+					}`}
+				>
+					<span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+						See all results for{" "}
+						<span className="font-medium normal-case tracking-normal text-foreground">{trimmed}</span>
+					</span>
+					<span aria-hidden className="text-foreground">
+						→
+					</span>
+				</button>
 			) : null}
 		</div>
 	);
+}
+
+export function SearchInput() {
+	const searchParams = useSearchParams();
+	const c = useSearchController(searchParams.get("q") ?? "");
+
+	const [iconOpen, setIconOpen] = useState(false);
+	const [inlineOpen, setInlineOpen] = useState(false);
+	const iconInputRef = useRef<HTMLInputElement>(null);
+	const inlineInputRef = useRef<HTMLInputElement>(null);
+	const iconListboxId = useId();
+	const inlineListboxId = useId();
+
+	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, () => {
+		setIconOpen(false);
+		setInlineOpen(false);
+		iconInputRef.current?.blur();
+		inlineInputRef.current?.blur();
+	});
+
+	const iconPanelOpen = iconOpen && c.enoughChars;
+	const inlinePanelOpen = inlineOpen && c.enoughChars;
 
 	return (
 		<>
-			<form onSubmit={handleSubmit} className="hidden sm:block">
-				<Popover open={showDesktopPopover} onOpenChange={setOpen}>
+			{/* lg only — icon trigger opens popover with input inside */}
+			<Popover open={iconOpen} onOpenChange={setIconOpen}>
+				<PopoverTrigger
+					aria-label="Search"
+					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+				>
+					<Search className="h-6 w-6" strokeWidth={1.75} />
+				</PopoverTrigger>
+				<PopoverContent
+					align="end"
+					sideOffset={8}
+					collisionPadding={16}
+					onOpenAutoFocus={(e) => {
+						e.preventDefault();
+						iconInputRef.current?.focus();
+					}}
+					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
+				>
+					<form onSubmit={handleSubmit}>
+						<div className="relative">
+							<Search
+								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								strokeWidth={1.75}
+							/>
+							<input
+								ref={iconInputRef}
+								type="search"
+								name="q"
+								placeholder="Search products"
+								value={c.query}
+								onChange={(e) => c.setQuery(e.target.value)}
+								onKeyDown={makeKeyHandler(
+									c,
+									iconPanelOpen,
+									() => setIconOpen(false),
+									() => goToSearch(c.query),
+								)}
+								role="combobox"
+								aria-expanded={iconPanelOpen}
+								aria-controls={iconListboxId}
+								aria-autocomplete="list"
+								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
+								autoComplete="off"
+								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							/>
+						</div>
+					</form>
+					{iconPanelOpen ? (
+						<div className="mt-2">
+							<Suggestions
+								listboxId={iconListboxId}
+								open={iconPanelOpen}
+								c={c}
+								onPick={goToProduct}
+								onSeeAll={() => goToSearch(c.query)}
+							/>
+						</div>
+					) : null}
+				</PopoverContent>
+			</Popover>
+
+			{/* xl+ — inline input bar */}
+			<form onSubmit={handleSubmit} className="hidden xl:block">
+				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<PopoverAnchor asChild>
 						<div className="relative">
 							<Search
@@ -251,22 +333,27 @@ export function SearchInput() {
 								strokeWidth={1.75}
 							/>
 							<input
-								ref={desktopInputRef}
+								ref={inlineInputRef}
 								type="search"
 								name="q"
 								placeholder="Search products"
-								value={query}
+								value={c.query}
 								onChange={(e) => {
-									setQuery(e.target.value);
-									setOpen(true);
+									c.setQuery(e.target.value);
+									setInlineOpen(true);
 								}}
-								onFocus={() => setOpen(true)}
-								onKeyDown={handleKeyDown}
+								onFocus={() => setInlineOpen(true)}
+								onKeyDown={makeKeyHandler(
+									c,
+									inlinePanelOpen,
+									() => setInlineOpen(false),
+									() => goToSearch(c.query),
+								)}
 								role="combobox"
-								aria-expanded={showDesktopPopover}
-								aria-controls={listboxId}
+								aria-expanded={inlinePanelOpen}
+								aria-controls={inlineListboxId}
 								aria-autocomplete="list"
-								aria-activedescendant={activeId}
+								aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 								autoComplete="off"
 								className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
 							/>
@@ -277,70 +364,140 @@ export function SearchInput() {
 						sideOffset={8}
 						collisionPadding={16}
 						onOpenAutoFocus={(e) => e.preventDefault()}
-						onPointerDownOutside={() => setOpen(false)}
+						onPointerDownOutside={() => setInlineOpen(false)}
 						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
 					>
-						{suggestionsList}
+						<Suggestions
+							listboxId={inlineListboxId}
+							open={inlinePanelOpen}
+							c={c}
+							onPick={goToProduct}
+							onSeeAll={() => goToSearch(c.query)}
+						/>
 					</PopoverContent>
 				</Popover>
 			</form>
+		</>
+	);
+}
 
-			<button
-				type="button"
-				onClick={() => {
-					setMobileOpen(true);
-					setOpen(true);
-				}}
-				aria-label="Search"
-				className="rounded-full p-2 transition-colors hover:bg-secondary sm:hidden"
-			>
-				<Search className="h-6 w-6" />
-			</button>
+export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
+	const c = useSearchController("");
+	const inputRef = useRef<HTMLInputElement>(null);
+	const listboxId = useId();
 
-			{mobileOpen ? (
-				<div className="fixed inset-x-0 top-0 z-[60] flex flex-col border-b border-border bg-background sm:hidden">
-					<form onSubmit={handleSubmit} className="flex h-16 items-center gap-2 px-4">
-						<div className="relative flex-1">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
-							/>
-							<input
-								ref={mobileInputRef}
-								type="search"
-								name="q"
-								placeholder="Search products"
-								value={query}
-								onChange={(e) => {
-									setQuery(e.target.value);
-									setOpen(true);
-								}}
-								onFocus={() => setOpen(true)}
-								onKeyDown={handleKeyDown}
-								role="combobox"
-								aria-expanded={showMobileSuggestions}
-								aria-controls={listboxId}
-								aria-autocomplete="list"
-								aria-activedescendant={activeId}
-								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-							/>
-						</div>
-						<button
-							type="button"
-							onClick={closeMobile}
-							aria-label="Close search"
-							className="rounded-full p-2 transition-colors hover:bg-secondary"
-						>
-							<X className="h-5 w-5" />
-						</button>
-					</form>
-					{showMobileSuggestions ? (
-						<div className="max-h-[70vh] overflow-y-auto border-t border-border p-2">{suggestionsList}</div>
-					) : null}
+	const close = () => {
+		inputRef.current?.blur();
+		onNavigate();
+	};
+	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, close);
+
+	const panelOpen = c.enoughChars;
+
+	return (
+		<form onSubmit={handleSubmit} role="search">
+			<label htmlFor={`${listboxId}-input`} className="sr-only">
+				Search products
+			</label>
+			<div className="relative">
+				<Search
+					className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+					strokeWidth={1.75}
+				/>
+				<input
+					ref={inputRef}
+					id={`${listboxId}-input`}
+					type="search"
+					name="q"
+					placeholder="Search products"
+					value={c.query}
+					onChange={(e) => c.setQuery(e.target.value)}
+					onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}
+					role="combobox"
+					aria-expanded={panelOpen}
+					aria-controls={listboxId}
+					aria-autocomplete="list"
+					aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
+					enterKeyHint="search"
+					autoComplete="off"
+					className="h-12 w-full rounded-full border border-border bg-background pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+				/>
+			</div>
+			{panelOpen ? (
+				<div className="mt-3 border-t border-border pt-1">
+					<Suggestions
+						listboxId={listboxId}
+						open={panelOpen}
+						c={c}
+						onPick={goToProduct}
+						onSeeAll={() => goToSearch(c.query)}
+					/>
 				</div>
 			) : null}
-		</>
+		</form>
+	);
+}
+
+export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
+	const c = useSearchController(initialQuery);
+	const [interactive, setInteractive] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const listboxId = useId();
+
+	const close = () => {
+		setInteractive(false);
+		inputRef.current?.blur();
+	};
+	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, close);
+
+	const panelOpen = interactive && c.enoughChars;
+
+	return (
+		<form onSubmit={handleSubmit} role="search">
+			<label htmlFor={`${listboxId}-input`} className="sr-only">
+				Search products
+			</label>
+			<div className="relative border-b border-foreground/30 transition-colors focus-within:border-foreground">
+				<Search
+					className="pointer-events-none absolute left-0 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground/60"
+					strokeWidth={1.5}
+				/>
+				<input
+					ref={inputRef}
+					id={`${listboxId}-input`}
+					type="search"
+					name="q"
+					placeholder="Search the store"
+					value={c.query}
+					onFocus={() => setInteractive(true)}
+					onBlur={() => setTimeout(() => setInteractive(false), 120)}
+					onChange={(e) => {
+						setInteractive(true);
+						c.setQuery(e.target.value);
+					}}
+					onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}
+					role="combobox"
+					aria-expanded={panelOpen}
+					aria-controls={listboxId}
+					aria-autocomplete="list"
+					aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
+					enterKeyHint="search"
+					autoComplete="off"
+					className="h-14 w-full border-0 bg-transparent pl-8 pr-2 text-2xl font-medium tracking-tight text-foreground placeholder:font-medium placeholder:text-foreground/40 focus:outline-none sm:text-3xl"
+				/>
+			</div>
+			{panelOpen ? (
+				<div className="mt-4 border-t border-border pt-2">
+					<Suggestions
+						listboxId={listboxId}
+						open={panelOpen}
+						c={c}
+						onPick={goToProduct}
+						onSeeAll={() => goToSearch(c.query)}
+					/>
+				</div>
+			) : null}
+		</form>
 	);
 }
 

@@ -1,14 +1,14 @@
 import "@/app/globals.css";
 
 import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { MobileNav } from "@/app/mobile-nav";
-import { Navbar } from "@/app/navbar";
+import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
@@ -63,29 +63,40 @@ async function getInitialCart() {
 	}
 }
 
+async function getNavLinks(): Promise<NavLink[]> {
+	"use cache";
+	cacheLife("hours");
+	const collections = await commerce.collectionBrowse({ limit: 5 });
+	return [
+		{ href: "/", label: "Home" },
+		{ href: "/products", label: "Products" },
+		...collections.data.map((collection) => ({
+			href: `/collection/${collection.slug}`,
+			label: collection.name,
+		})),
+	];
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const { cart, cartId } = await getInitialCart();
+	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
 				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center gap-8">
+						<div className="relative flex items-center justify-between h-16">
+							<div className="flex items-center gap-2">
 								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
 									Your Next Store
 								</YnsLink>
-								<Navbar />
+								<Navbar links={links} />
 							</div>
 							<div className="flex items-center gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								<CartButton />
-								<Suspense>
-									<MobileNav />
-								</Suspense>
 							</div>
 						</div>
 					</div>
