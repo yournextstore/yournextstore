@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
 
@@ -30,12 +31,12 @@ export async function addToCart(variantId: string, quantity = 1) {
 		return { success: false, cart: null };
 	}
 
-	await setCartCookie({ id: cart.id });
+	if (cart.id !== cartCookie?.id) {
+		await setCartCookie({ id: cart.id });
+	}
+	revalidatePath("/", "layout");
 
-	// Fetch full cart data to sync with client
-	const fullCart = await commerce.cartGet({ cartId: cart.id });
-
-	return { success: true, cart: fullCart };
+	return { success: true, cart };
 }
 
 export async function removeFromCart(variantId: string) {

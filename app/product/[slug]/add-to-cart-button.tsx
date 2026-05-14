@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { startTransition, useMemo, useState } from "react";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
@@ -43,7 +43,6 @@ type AddToCartButtonProps = {
 export function AddToCartButton({ variants, product, volumePricingTiers = [] }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
-	const [isPending, startTransition] = useTransition();
 	const { openCart, dispatch } = useCart();
 
 	const selectedVariant = useMemo(() => {
@@ -74,28 +73,31 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(quantity) : null;
 
 	const buttonText = useMemo(() => {
-		if (isPending) return "Adding...";
 		if (!selectedVariant) return "Select options";
 		if (totalPrice) {
 			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
 		}
 		return "Add to Cart";
-	}, [isPending, selectedVariant, totalPrice]);
+	}, [selectedVariant, totalPrice]);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (!selectedVariant) return;
 
+		const variantId = selectedVariant.id;
+		const addedQuantity = quantity;
+
 		openCart();
+		setQuantity(1);
 
 		startTransition(async () => {
 			dispatch({
 				type: "ADD_ITEM",
 				item: {
-					quantity,
+					quantity: addedQuantity,
 					productVariant: {
-						id: selectedVariant.id,
+						id: variantId,
 						price: selectedVariant.price,
 						images: selectedVariant.images,
 						product,
@@ -103,8 +105,7 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 				},
 			});
 
-			await addToCart(selectedVariant.id, quantity);
-			setQuantity(1);
+			await addToCart(variantId, addedQuantity);
 		});
 	};
 
@@ -112,14 +113,14 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 		<div className="space-y-8">
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
-			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} disabled={isPending} />
+			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} />
 
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={quantity} volumePrice={volumePrice} />
 
 			<form onSubmit={handleSubmit}>
 				<button
 					type="submit"
-					disabled={isPending || !selectedVariant}
+					disabled={!selectedVariant}
 					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}
