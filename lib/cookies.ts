@@ -7,8 +7,10 @@ export async function setCartCookie(cartCookieJson: CartCookieJson) {
 	try {
 		(await cookies()).set(CART_COOKIE, JSON.stringify(cartCookieJson), {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "lax",
+			secure: true,
+			sameSite: "none",
+			partitioned: true,
+			path: "/",
 		});
 	} catch (error) {
 		console.error("Failed to set cart cookie", error);
@@ -16,7 +18,13 @@ export async function setCartCookie(cartCookieJson: CartCookieJson) {
 }
 
 export async function clearCartCookie(): Promise<void> {
-	(await cookies()).set(CART_COOKIE, "", { maxAge: 0 });
+	(await cookies()).set(CART_COOKIE, "", {
+		maxAge: 0,
+		secure: true,
+		sameSite: "none",
+		partitioned: true,
+		path: "/",
+	});
 }
 
 export async function getCartCookieJson(): Promise<null | CartCookieJson> {
