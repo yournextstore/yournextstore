@@ -33,7 +33,9 @@ export async function generateMetadata(): Promise<Metadata> {
 	const storeName = me.store.settings?.storeName || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
-	const ogImage = me.store.settings?.ogimage || undefined;
+	const storeLogo =
+		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
+	const ogImage = me.store.settings?.ogimage || storeLogo || "/logo.svg";
 	const baseUrl = getCanonicalUrl();
 
 	return {
@@ -53,13 +55,13 @@ export async function generateMetadata(): Promise<Metadata> {
 			title: storeName,
 			description: storeDescription,
 			url: "/",
-			images: ogImage ? [{ url: ogImage }] : undefined,
+			images: [{ url: ogImage, alt: storeName }],
 		},
 		twitter: {
-			card: ogImage ? "summary_large_image" : "summary",
+			card: "summary_large_image",
 			title: storeName,
 			description: storeDescription,
-			images: ogImage ? [ogImage] : undefined,
+			images: [ogImage],
 		},
 		robots: {
 			index: true,
