@@ -5,7 +5,14 @@ import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 
@@ -24,6 +31,9 @@ export function CartSidebar() {
 							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
 						)}
 					</SheetTitle>
+					<SheetDescription className="sr-only">
+						Review items in your cart and proceed to checkout.
+					</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (

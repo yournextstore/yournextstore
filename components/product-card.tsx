@@ -9,7 +9,13 @@ import { YnsLink } from "./yns-link";
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 
-export function ProductCard({ product }: { product: BrowseProduct | CollectionProduct }) {
+export function ProductCard({
+	product,
+	priority = false,
+}: {
+	product: BrowseProduct | CollectionProduct;
+	priority?: boolean;
+}) {
 	const variants = "variants" in product ? product.variants : null;
 	const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
 	const { minPrice, maxPrice } =
@@ -76,6 +82,7 @@ export function ProductCard({ product }: { product: BrowseProduct | CollectionPr
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							priority={priority}
 						/>
 					))}
 				{secondaryImage &&

@@ -71,8 +71,8 @@ async function SearchResults({ q, page }: { q?: string; page?: string }) {
 			</div>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{result.data.map((product) => (
-					<ProductCard key={product.id} product={product} />
+				{result.data.map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
 
