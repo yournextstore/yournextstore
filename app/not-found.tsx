@@ -6,6 +6,7 @@ export const metadata: Metadata = {
 	title: "Page Not Found",
 	description:
 		"This page doesn't exist or has been moved. Continue shopping to find what you're looking for.",
+	robots: { index: false, follow: true },
 };
 
 export default function NotFound() {

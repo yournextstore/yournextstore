@@ -1,7 +1,0 @@
-# Starter Store
-
-> A starter e-commerce store built with Your Next Store, ready to be customized into your own.
-
-## Pages
-
-- [Home](/): Landing page introducing the store.

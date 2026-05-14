@@ -14,7 +14,7 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
-import { commerce, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
@@ -31,11 +31,47 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
 	const me = await meGetCached();
 	const storeName = me.store.settings?.storeName || "Your Next Store";
+	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
+	const ogImage = me.store.settings?.ogimage || undefined;
+	const baseUrl = getCanonicalUrl();
 
 	return {
-		title: storeName,
-		description: me.store.settings?.storeDescription || "Your next e-commerce store",
+		metadataBase: new URL(baseUrl),
+		title: {
+			default: storeName,
+			template: `%s — ${storeName}`,
+		},
+		description: storeDescription,
+		applicationName: storeName,
+		alternates: {
+			canonical: "/",
+		},
+		openGraph: {
+			type: "website",
+			siteName: storeName,
+			title: storeName,
+			description: storeDescription,
+			url: "/",
+			images: ogImage ? [{ url: ogImage }] : undefined,
+		},
+		twitter: {
+			card: ogImage ? "summary_large_image" : "summary",
+			title: storeName,
+			description: storeDescription,
+			images: ogImage ? [ogImage] : undefined,
+		},
+		robots: {
+			index: true,
+			follow: true,
+			googleBot: {
+				index: true,
+				follow: true,
+				"max-image-preview": "large",
+				"max-snippet": -1,
+				"max-video-preview": -1,
+			},
+		},
 		icons: {
 			icon: [
 				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },
@@ -101,7 +137,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<div className="flex-1">{children}</div>
+				<main className="flex-1">{children}</main>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -110,15 +146,25 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	);
 }
 
-export default function RootLayout({
+async function getHtmlLang(): Promise<string> {
+	try {
+		const me = await meGetCached();
+		return me.store.settings?.defaultLanguage?.split("-")[0] ?? "en";
+	} catch {
+		return "en";
+	}
+}
+
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
 	const env = process.env.VERCEL_ENV || "development";
+	const lang = await getHtmlLang();
 
 	return (
-		<html lang="en">
+		<html lang={lang}>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>

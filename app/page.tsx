@@ -30,13 +30,13 @@ function ProductGridSkeleton() {
 
 export default function Home() {
 	return (
-		<main>
+		<>
 			<Hero />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<ProductGrid title="Featured Products" limit={6} />
 			</Suspense>
 			<About />
 			<Newsletter />
-		</main>
+		</>
 	);
 }

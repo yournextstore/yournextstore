@@ -13,15 +13,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
-		return { title: "Collection Not Found — Your Next Store" };
+		return { title: "Collection Not Found", robots: { index: false, follow: true } };
 	}
 
-	const description = typeof collection.description === "string" ? collection.description : undefined;
+	const description =
+		typeof collection.description === "string"
+			? collection.description
+			: `Shop the ${collection.name} collection.`;
+	const canonical = `/collection/${collection.slug}`;
 
 	return {
-		title: `${collection.name} — Your Next Store`,
+		title: collection.name,
 		description,
+		alternates: { canonical },
 		openGraph: {
+			type: "website",
+			title: collection.name,
+			description,
+			url: canonical,
+			images: collection.image ? [{ url: collection.image, alt: collection.name }] : undefined,
+		},
+		twitter: {
+			card: collection.image ? "summary_large_image" : "summary",
 			title: collection.name,
 			description,
 			images: collection.image ? [collection.image] : undefined,
@@ -108,13 +121,13 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 	}
 
 	return (
-		<main>
+		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
-		</main>
+		</>
 	);
 }

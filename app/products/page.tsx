@@ -14,10 +14,28 @@ const sortOptions = [
 	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
 ] as const;
 
-export const metadata: Metadata = {
-	title: "All Products — Your Next Store",
-	description: "Browse our complete product collection.",
-};
+export async function generateMetadata({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
+	const { page } = await searchParams;
+	const pageNum = Math.max(1, Number(page) || 1);
+	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
+	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+
+	return {
+		title,
+		description: "Browse our complete product collection.",
+		alternates: { canonical },
+		openGraph: {
+			type: "website",
+			title,
+			description: "Browse our complete product collection.",
+			url: canonical,
+		},
+	};
+}
 
 async function ProductList({ page, sort }: { page?: string; sort?: string }) {
 	"use cache";

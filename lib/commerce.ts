@@ -22,6 +22,19 @@ export function getStoreFaviconUrl(
 	return faviconUrl;
 }
 
+export function getCanonicalUrl(): string {
+	if (process.env.NEXT_PUBLIC_URL) {
+		return process.env.NEXT_PUBLIC_URL.replace(/\/$/, "");
+	}
+	if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+		return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+	}
+	if (process.env.VERCEL_URL) {
+		return `https://${process.env.VERCEL_URL}`;
+	}
+	return "http://localhost:3000";
+}
+
 export const getSubdomainPublicUrl = async () => {
 	const tenant = process.env.NEXT_PUBLIC_YNS_API_TENANT;
 	if (tenant) {

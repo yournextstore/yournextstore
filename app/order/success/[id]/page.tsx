@@ -1,4 +1,5 @@
 import { CheckCircle } from "lucide-react";
+import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,11 @@ import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
+
+export const metadata: Metadata = {
+	title: "Order Confirmed",
+	robots: { index: false, follow: false },
+};
 
 export default async function OrderSuccessPage(props: { params: Promise<{ id: string }> }) {
 	"use cache";

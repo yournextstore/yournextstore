@@ -1,6 +1,29 @@
+import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { commerce } from "@/lib/commerce";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	const { slug } = await params;
+	const page = await commerce.legalPageGet(slug);
+
+	if (!page) {
+		return { title: "Page Not Found", robots: { index: false, follow: true } };
+	}
+
+	const canonical = `/legal${page.path}`;
+
+	return {
+		title: page.title,
+		description: `${page.title} — read our policy and terms.`,
+		alternates: { canonical },
+		openGraph: {
+			type: "article",
+			title: page.title,
+			url: canonical,
+		},
+	};
+}
 
 export default async function LegalPage(props: { params: Promise<{ slug: string }> }) {
 	"use cache";

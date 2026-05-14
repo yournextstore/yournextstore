@@ -184,7 +184,7 @@ function Suggestions({
 					>
 						<span className="relative h-10 w-10 flex-none overflow-hidden bg-secondary">
 							{item.image ? (
-								<YNSMedia src={item.image} alt="" fill sizes="40px" className="object-cover" />
+								<YNSMedia src={item.image} alt={item.name} fill sizes="40px" className="object-cover" />
 							) : null}
 						</span>
 						<span className="flex min-w-0 flex-1 flex-col">

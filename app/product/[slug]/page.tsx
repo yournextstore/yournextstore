@@ -17,16 +17,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
-		return { title: "Product Not Found — Your Next Store" };
+		return { title: "Product Not Found", robots: { index: false, follow: true } };
 	}
 
+	const seoTitle = product.seo?.title || product.name;
+	const seoDescription = product.seo?.description || product.summary || undefined;
+	const canonical = product.seo?.canonical || `/product/${product.slug}`;
+	const image = product.images[0];
+
 	return {
-		title: `${product.name} — Your Next Store`,
-		description: product.summary ?? undefined,
+		title: seoTitle,
+		description: seoDescription,
+		alternates: { canonical },
 		openGraph: {
-			title: product.name,
-			description: product.summary ?? undefined,
-			images: product.images[0] ? [product.images[0]] : undefined,
+			type: "website",
+			title: seoTitle,
+			description: seoDescription,
+			url: canonical,
+			images: image ? [{ url: image, alt: product.name }] : undefined,
+		},
+		twitter: {
+			card: image ? "summary_large_image" : "summary",
+			title: seoTitle,
+			description: seoDescription,
+			images: image ? [image] : undefined,
 		},
 	};
 }
@@ -73,9 +87,11 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
+	const productJsonLd = await buildProductJsonLd(product, reviews);
+
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<JsonLdScript data={buildProductJsonLd(product, reviews)} />
+			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				{/* Left: Image Gallery (sticky on desktop) */}

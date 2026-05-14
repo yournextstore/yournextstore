@@ -3,15 +3,24 @@ import type {
 	APIProductGetByIdResult,
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
-import { meGetCached } from "@/lib/commerce";
+import { getCanonicalUrl, meGetCached } from "@/lib/commerce";
 import { CURRENCY } from "@/lib/constants";
+
+async function getCurrency(): Promise<string> {
+	try {
+		const me = await meGetCached();
+		return me.store.currency?.toUpperCase() || CURRENCY;
+	} catch {
+		return CURRENCY;
+	}
+}
 
 function getDecimalPrice(minorAmount: string): string {
 	return (Number(minorAmount) / 100).toFixed(2);
 }
 
 function getBaseUrl(): string {
-	return process.env.NEXT_PUBLIC_URL ?? "";
+	return getCanonicalUrl();
 }
 
 export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
@@ -23,14 +32,15 @@ export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
 	);
 }
 
-export function buildProductJsonLd(
+export async function buildProductJsonLd(
 	product: APIProductGetByIdResult,
 	reviews: APIProductReviewsBrowseResult,
-): Record<string, unknown> {
+): Promise<Record<string, unknown>> {
 	const prices = product.variants.map((v) => Number(v.price));
 	const lowPrice = getDecimalPrice(String(Math.min(...prices)));
 	const highPrice = getDecimalPrice(String(Math.max(...prices)));
 	const baseUrl = getBaseUrl();
+	const currency = await getCurrency();
 
 	const jsonLd: Record<string, unknown> = {
 		"@context": "https://schema.org",
@@ -45,7 +55,7 @@ export function buildProductJsonLd(
 				? {
 						"@type": "Offer",
 						url: `${baseUrl}/product/${product.slug}`,
-						priceCurrency: CURRENCY,
+						priceCurrency: currency,
 						price: lowPrice,
 						availability:
 							product.variants[0]?.stock === null || (product.variants[0]?.stock ?? 0) > 0
@@ -56,7 +66,7 @@ export function buildProductJsonLd(
 						"@type": "AggregateOffer",
 						lowPrice,
 						highPrice,
-						priceCurrency: CURRENCY,
+						priceCurrency: currency,
 						offerCount: product.variants.length,
 						availability: "https://schema.org/InStock",
 					},
@@ -153,16 +163,50 @@ export async function StoreJsonLd() {
 	const me = await meGetCached();
 	const storeName = me.store.settings?.storeName || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
+	const baseUrl = getBaseUrl();
+	const ogImage = me.store.settings?.ogimage || undefined;
+	const logo =
+		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
+
+	const organization = {
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		name: storeName,
+		url: baseUrl,
+		...(logo ? { logo } : {}),
+		...(ogImage ? { image: ogImage } : {}),
+	};
+
+	const website = {
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		name: storeName,
+		url: baseUrl,
+		description: storeDescription,
+		potentialAction: {
+			"@type": "SearchAction",
+			target: {
+				"@type": "EntryPoint",
+				urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+			},
+			"query-input": "required name=search_term_string",
+		},
+	};
+
+	const store = {
+		"@context": "https://schema.org",
+		"@type": "Store",
+		name: storeName,
+		description: storeDescription,
+		url: baseUrl,
+		...(ogImage ? { image: ogImage } : {}),
+	};
 
 	return (
-		<JsonLdScript
-			data={{
-				"@context": "https://schema.org",
-				"@type": "Store",
-				name: storeName,
-				description: storeDescription,
-				url: getBaseUrl(),
-			}}
-		/>
+		<>
+			<JsonLdScript data={organization} />
+			<JsonLdScript data={website} />
+			<JsonLdScript data={store} />
+		</>
 	);
 }
