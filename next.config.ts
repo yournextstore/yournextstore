@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
 	/* config options here */
 	allowedDevOrigins: ["*.vercel.run", "*.yns.store", "*.yns.cx"],
@@ -7,6 +9,7 @@ const nextConfig: NextConfig = {
 	cacheComponents: true,
 	experimental: {
 		typedEnv: true,
+		serverComponentsHmrCache: false,
 		optimizePackageImports: [
 			"lucide-react",
 			"@radix-ui/react-accordion",
@@ -40,6 +43,21 @@ const nextConfig: NextConfig = {
 	},
 	images: {
 		remotePatterns: [{ protocol: "https", hostname: "**" }],
+	},
+	async headers() {
+		if (isProd) return [];
+		// Dev-only: AI Builder renders this app in an iframe, and Chrome's HTTP cache
+		// holds stale sub-resources inside iframes — HMR fires but the preview never
+		// sees it. See https://github.com/vercel/next.js/issues/90143.
+		return [
+			{
+				source: "/:path*",
+				headers: [
+					{ key: "Cache-Control", value: "no-store, must-revalidate" },
+					{ key: "Pragma", value: "no-cache" },
+				],
+			},
+		];
 	},
 };
 
