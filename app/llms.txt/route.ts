@@ -6,7 +6,7 @@ const FEATURED_COLLECTIONS = 15;
 export async function GET() {
 	const baseUrl = getCanonicalUrl();
 	const me = await meGetCached();
-	const storeName = me.store.settings?.storeName || "Your Next Store";
+	const storeName = me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "An e-commerce store.";
 
 	const [products, collections, legalPages] = await Promise.all([

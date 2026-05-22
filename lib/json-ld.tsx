@@ -161,7 +161,7 @@ export function buildCollectionBreadcrumbJsonLd(
 
 export async function StoreJsonLd() {
 	const me = await meGetCached();
-	const storeName = me.store.settings?.storeName || "Your Next Store";
+	const storeName = me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
 	const baseUrl = getBaseUrl();
 	const ogImage = me.store.settings?.ogimage || undefined;
