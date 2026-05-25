@@ -134,6 +134,7 @@
 				"**/proxy.ts",
 				"**/next.config.{mjs,ts}",
 				"**/postcss.config.mjs",
+				"**/lint-staged.config.{mjs,js}",
 				"**/tailwind.config.ts",
 				"**/app/**/default.tsx",
 				"**/app/**/error.tsx",
