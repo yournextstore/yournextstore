@@ -68,6 +68,8 @@ export function CartSidebar() {
 									</span>
 								</div>
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
+								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
+								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request. */}
 								<Button asChild className="w-full h-12 text-base font-medium">
 									<a href={checkoutUrl}>Checkout</a>
 								</Button>
