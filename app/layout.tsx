@@ -12,6 +12,7 @@ import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
@@ -157,6 +158,12 @@ async function getHtmlLang(): Promise<string> {
 	}
 }
 
+async function NewsletterPopupSection() {
+	const me = await meGetCached();
+	if (!me.store.settings?.enabledTools?.newsletterPopup) return null;
+	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
+}
+
 export default async function RootLayout({
 	children,
 }: Readonly<{
@@ -177,6 +184,9 @@ export default async function RootLayout({
 				</Suspense>
 				<Suspense>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
+				</Suspense>
+				<Suspense>
+					<NewsletterPopupSection />
 				</Suspense>
 				{env === "development" && (
 					<>
