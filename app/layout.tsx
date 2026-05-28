@@ -160,7 +160,6 @@ async function getHtmlLang(): Promise<string> {
 
 async function NewsletterPopupSection() {
 	const me = await meGetCached();
-	if (!me.store.settings?.enabledTools?.newsletterPopup) return null;
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
