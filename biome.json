@@ -10,6 +10,8 @@
 		"ignoreUnknown": false,
 		"includes": [
 			"**",
+			"!**/.agents",
+			"!**/.claude",
 			"!**/package.json",
 			"!**/bun.lockb",
 			"!**/vercel.json",

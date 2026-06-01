@@ -32,6 +32,8 @@ export async function GET() {
 	sections.push("");
 	sections.push(`- [Home](${baseUrl}/): ${storeName} home page.`);
 	sections.push(`- [All Products](${baseUrl}/products): Browse the complete product catalog.`);
+	sections.push(`- [About Us](${baseUrl}/about): Our story, values, and the people behind ${storeName}.`);
+	sections.push(`- [Contact Us](${baseUrl}/contact): Get in touch with the ${storeName} team.`);
 	sections.push(`- [FAQ](${baseUrl}/faq): Frequently asked questions about orders, shipping, and returns.`);
 	sections.push("");
 

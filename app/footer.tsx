@@ -87,6 +87,24 @@ export function Footer() {
 							<li>
 								<YnsLink
 									prefetch={"eager"}
+									href="/about"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									About Us
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/contact"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									Contact Us
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
 									href="/faq"
 									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
