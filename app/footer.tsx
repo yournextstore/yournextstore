@@ -1,6 +1,28 @@
 import { cacheLife } from "next/cache";
 import { YnsLink } from "@/components/yns-link";
-import { commerce } from "@/lib/commerce";
+import { commerce, meGetCached } from "@/lib/commerce";
+
+async function FooterBlogLink() {
+	"use cache";
+	cacheLife("hours");
+
+	const me = await meGetCached().catch(() => null);
+	if (!me?.store.settings?.enabledTools?.blog) {
+		return null;
+	}
+
+	return (
+		<li>
+			<YnsLink
+				prefetch={"eager"}
+				href="/blog"
+				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+			>
+				Blog
+			</YnsLink>
+		</li>
+	);
+}
 
 async function FooterCollections() {
 	"use cache";
@@ -111,6 +133,7 @@ export function Footer() {
 									FAQ
 								</YnsLink>
 							</li>
+							<FooterBlogLink />
 						</ul>
 					</div>
 

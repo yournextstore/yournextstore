@@ -105,7 +105,11 @@ async function getInitialCart() {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const collections = await commerce.collectionBrowse({ limit: 5 });
+	const [collections, me] = await Promise.all([
+		commerce.collectionBrowse({ limit: 5 }),
+		meGetCached().catch(() => null),
+	]);
+	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
 	return [
 		{ href: "/", label: "Home" },
 		{ href: "/products", label: "Products" },
@@ -113,6 +117,7 @@ async function getNavLinks(): Promise<NavLink[]> {
 			href: `/collection/${collection.slug}`,
 			label: collection.name,
 		})),
+		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
 }
 

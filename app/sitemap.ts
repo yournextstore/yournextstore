@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { commerce, getCanonicalUrl } from "@/lib/commerce";
+import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
 
 const PAGE_SIZE = 100;
 const MAX_PAGES = 50;
@@ -28,6 +28,18 @@ async function getAllLegalPages() {
 	return result.data.map((p) => ({ path: p.path, updatedAt: p.updatedAt }));
 }
 
+async function getBlogState() {
+	const me = await meGetCached().catch(() => null);
+	if (!me?.store.settings?.enabledTools?.blog) {
+		return { enabled: false, posts: [] as { slug: string; lastModified: string }[] };
+	}
+	const result = await commerce.postBrowse({ active: true, limit: 200 }).catch(() => ({ data: [] }));
+	return {
+		enabled: true,
+		posts: result.data.map((p) => ({ slug: p.slug, lastModified: p.publishedAt ?? p.createdAt })),
+	};
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const baseUrl = getCanonicalUrl();
 	const now = new Date();
@@ -40,10 +52,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		{ url: `${baseUrl}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
 	];
 
-	const [products, collections, legalPages] = await Promise.all([
+	const [products, collections, legalPages, blog] = await Promise.all([
 		getAllProducts().catch(() => []),
 		getAllCollections().catch(() => []),
 		getAllLegalPages().catch(() => []),
+		getBlogState().catch(() => ({ enabled: false, posts: [] })),
 	]);
 
 	const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
@@ -68,5 +81,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		priority: 0.3,
 	}));
 
-	return [...staticRoutes, ...productRoutes, ...collectionRoutes, ...legalRoutes];
+	const blogRoutes: MetadataRoute.Sitemap = blog.enabled
+		? [
+				{ url: `${baseUrl}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+				...blog.posts.map((p) => ({
+					url: `${baseUrl}/blog/${p.slug}`,
+					lastModified: new Date(p.lastModified),
+					changeFrequency: "monthly" as const,
+					priority: 0.5,
+				})),
+			]
+		: [];
+
+	return [...staticRoutes, ...productRoutes, ...collectionRoutes, ...legalRoutes, ...blogRoutes];
 }
