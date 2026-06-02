@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
+import { notFound } from "next/navigation";
 import { ContactForm } from "@/app/contact/contact-form";
 import { YnsLink } from "@/components/yns-link";
+import { meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
@@ -24,7 +27,23 @@ const contactJsonLd = {
 	description: "Get in touch with our team. Questions about orders, products, or anything else.",
 };
 
-export default function ContactPage() {
+async function isContactFormEnabled(): Promise<boolean> {
+	try {
+		const me = await meGetCached();
+		return me.store.settings?.enabledTools?.contactForm ?? false;
+	} catch {
+		return false;
+	}
+}
+
+export default async function ContactPage() {
+	"use cache";
+	cacheLife("minutes");
+
+	if (!(await isContactFormEnabled())) {
+		notFound();
+	}
+
 	return (
 		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 			<JsonLdScript data={contactJsonLd} />

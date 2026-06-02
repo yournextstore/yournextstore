@@ -24,6 +24,28 @@ async function FooterBlogLink() {
 	);
 }
 
+async function FooterContactLink() {
+	"use cache";
+	cacheLife("hours");
+
+	const me = await meGetCached().catch(() => null);
+	if (!me?.store.settings?.enabledTools?.contactForm) {
+		return null;
+	}
+
+	return (
+		<li>
+			<YnsLink
+				prefetch={"eager"}
+				href="/contact"
+				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+			>
+				Contact Us
+			</YnsLink>
+		</li>
+	);
+}
+
 async function FooterCollections() {
 	"use cache";
 	cacheLife("hours");
@@ -115,15 +137,7 @@ export function Footer() {
 									About Us
 								</YnsLink>
 							</li>
-							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/contact"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									Contact Us
-								</YnsLink>
-							</li>
+							<FooterContactLink />
 							<li>
 								<YnsLink
 									prefetch={"eager"}

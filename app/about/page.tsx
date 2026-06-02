@@ -22,9 +22,10 @@ async function getStoreInfo() {
 		return {
 			storeName: me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
+			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
 	} catch {
-		return { storeName: "our store", storeDescription: null };
+		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
 	}
 }
 
@@ -32,7 +33,7 @@ export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription } = await getStoreInfo();
+	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -116,13 +117,15 @@ export default async function AboutPage() {
 					>
 						Shop products
 					</YnsLink>
-					<YnsLink
-						prefetch="eager"
-						href="/contact"
-						className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-					>
-						Contact us
-					</YnsLink>
+					{contactFormEnabled && (
+						<YnsLink
+							prefetch="eager"
+							href="/contact"
+							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+						>
+							Contact us
+						</YnsLink>
+					)}
 				</div>
 			</div>
 		</div>

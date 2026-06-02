@@ -10,6 +10,7 @@ export async function GET() {
 	const storeName = me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "An e-commerce store.";
 	const blogEnabled = me.store.settings?.enabledTools?.blog ?? false;
+	const contactFormEnabled = me.store.settings?.enabledTools?.contactForm ?? false;
 
 	const [products, collections, legalPages, posts] = await Promise.all([
 		commerce
@@ -38,7 +39,9 @@ export async function GET() {
 	sections.push(`- [Home](${baseUrl}/): ${storeName} home page.`);
 	sections.push(`- [All Products](${baseUrl}/products): Browse the complete product catalog.`);
 	sections.push(`- [About Us](${baseUrl}/about): Our story, values, and the people behind ${storeName}.`);
-	sections.push(`- [Contact Us](${baseUrl}/contact): Get in touch with the ${storeName} team.`);
+	if (contactFormEnabled) {
+		sections.push(`- [Contact Us](${baseUrl}/contact): Get in touch with the ${storeName} team.`);
+	}
 	sections.push(`- [FAQ](${baseUrl}/faq): Frequently asked questions about orders, shipping, and returns.`);
 	if (blogEnabled) {
 		sections.push(`- [Blog](${baseUrl}/blog): News, guides, and stories from ${storeName}.`);
