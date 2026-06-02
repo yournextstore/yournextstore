@@ -1,4 +1,8 @@
-import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
+import type {
+	APICollectionGetByIdResult,
+	APIProductGetByIdResult,
+	APIProductsBrowseResult,
+} from "commerce-kit";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
@@ -8,12 +12,13 @@ import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
+type FullProduct = NonNullable<APIProductGetByIdResult>;
 
 export function ProductCard({
 	product,
 	priority = false,
 }: {
-	product: BrowseProduct | CollectionProduct;
+	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;

@@ -1,4 +1,8 @@
-import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
+import type {
+	APICollectionGetByIdResult,
+	APIProductGetByIdResult,
+	APIProductsBrowseResult,
+} from "commerce-kit";
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import { ProductCard } from "@/components/product-card";
@@ -10,7 +14,11 @@ export type Product = APIProductsBrowseResult["data"][number];
 type ProductGridProps = {
 	title?: string;
 	description?: string;
-	products?: (Product | APICollectionGetByIdResult["productCollections"][number]["product"])[];
+	products?: (
+		| Product
+		| APICollectionGetByIdResult["productCollections"][number]["product"]
+		| NonNullable<APIProductGetByIdResult>
+	)[];
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;

@@ -105,8 +105,11 @@ function ProductGridSkeleton() {
 	);
 }
 
-function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = collection.productCollections.map((pc) => pc.product);
+async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
+	const ids = collection.productCollections.map((pc) => pc.product.id);
+	const products = (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
+		(product) => product !== null,
+	);
 
 	return (
 		<ProductGrid
