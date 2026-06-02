@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
+import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -17,6 +18,35 @@ import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { CategoryPagination } from "./category-pagination";
 
 const PRODUCTS_PER_PAGE = 12;
+
+// Filters that apply on top of the path-locked category.
+type CategoryFilterParams = {
+	page?: string;
+	collection?: string;
+	brand?: string;
+	priceMin?: string;
+	priceMax?: string;
+	vts?: string;
+};
+
+const EMPTY_FACETS = {
+	priceBounds: { min: 0, max: 0 },
+	variantTypes: [],
+	categories: [],
+	collections: [],
+	brands: [],
+} satisfies Awaited<ReturnType<typeof commerce.productFilters>>;
+
+async function getFilterFacets() {
+	"use cache";
+	cacheLife("minutes");
+	// Filters are an enhancement — never let a facets failure take down the product list.
+	try {
+		return await commerce.productFilters();
+	} catch {
+		return EMPTY_FACETS;
+	}
+}
 
 // The SDK loads the parent chain up to 2 levels deep (self -> parent -> grandparent),
 // so the canonical path is capped at 3 segments (e.g. fashion/tops/t-shirts).
@@ -89,16 +119,16 @@ function ProductGridSkeleton() {
 async function CategoryProducts({
 	slug,
 	canonicalPath,
-	page,
+	filters,
 }: {
 	slug: string;
 	canonicalPath: string;
-	page?: string;
+	filters: CategoryFilterParams;
 }) {
 	"use cache";
 	cacheLife("minutes");
 
-	const currentPage = Math.max(1, Number(page) || 1);
+	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 
 	const result = await commerce.productBrowse({
@@ -106,12 +136,17 @@ async function CategoryProducts({
 		category: slug,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
+		collection: filters.collection,
+		brand: filters.brand,
+		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
+		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
+		vts: filters.vts,
 	});
 
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products in this category yet.</p>
+				<p className="text-lg text-muted-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
@@ -120,7 +155,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -129,6 +164,7 @@ async function CategoryProducts({
 				basePath={`/category/${canonicalPath}`}
 				currentPage={currentPage}
 				totalPages={totalPages}
+				filters={filters}
 			/>
 		</>
 	);
@@ -136,10 +172,10 @@ async function CategoryProducts({
 
 export default async function CategoryPage(props: {
 	params: Promise<{ slugs: string[] }>;
-	searchParams: Promise<{ page?: string }>;
+	searchParams: Promise<CategoryFilterParams>;
 }) {
 	const { slugs } = await props.params;
-	const { page } = await props.searchParams;
+	const filters = await props.searchParams;
 	const slug = slugs.at(-1);
 	if (!slug) {
 		notFound();
@@ -149,6 +185,14 @@ export default async function CategoryPage(props: {
 	if (!category?.active) {
 		notFound();
 	}
+
+	const facets = await getFilterFacets();
+	// Category facet is hidden here (it's the page context), so don't count it.
+	const filtersAvailable =
+		facets.collections.length > 0 ||
+		facets.brands.length > 0 ||
+		facets.variantTypes.length > 0 ||
+		facets.priceBounds.max > 0;
 
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
@@ -195,9 +239,21 @@ export default async function CategoryPage(props: {
 				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
 			</div>
 
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<CategoryProducts slug={slug} canonicalPath={canonicalPath} page={page} />
-			</Suspense>
+			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
+
+				<div>
+					{filtersAvailable && (
+						<div className="mb-8 flex justify-end lg:hidden">
+							<ProductFiltersMobile facets={facets} showCategories={false} />
+						</div>
+					)}
+
+					<Suspense fallback={<ProductGridSkeleton />}>
+						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+					</Suspense>
+				</div>
+			</div>
 		</div>
 	);
 }

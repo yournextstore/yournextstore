@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { ProductCard } from "@/components/product-card";
+import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { ProductsPagination } from "./products-pagination";
@@ -13,6 +14,23 @@ const sortOptions = [
 	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
 	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
 ] as const;
+
+type ProductFilterParams = {
+	page?: string;
+	sort?: string;
+	category?: string;
+	collection?: string;
+	brand?: string;
+	priceMin?: string;
+	priceMax?: string;
+	vts?: string;
+};
+
+async function getFilterFacets() {
+	"use cache";
+	cacheLife("minutes");
+	return commerce.productFilters();
+}
 
 export async function generateMetadata({
 	searchParams,
@@ -37,13 +55,13 @@ export async function generateMetadata({
 	};
 }
 
-async function ProductList({ page, sort }: { page?: string; sort?: string }) {
+async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	"use cache";
 	cacheLife("minutes");
 
-	const currentPage = Math.max(1, Number(page) || 1);
+	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-	const sortOption = sortOptions.find((s) => s.value === sort) ?? sortOptions[0];
+	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -51,6 +69,12 @@ async function ProductList({ page, sort }: { page?: string; sort?: string }) {
 		offset,
 		orderBy: sortOption.orderBy,
 		orderDirection: sortOption.orderDirection,
+		category: filters.category,
+		collection: filters.collection,
+		brand: filters.brand,
+		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
+		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
+		vts: filters.vts,
 	});
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
@@ -58,27 +82,44 @@ async function ProductList({ page, sort }: { page?: string; sort?: string }) {
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products available yet.</p>
+				<p className="text-lg text-muted-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
 
-			<ProductsPagination currentPage={currentPage} totalPages={totalPages} sort={sort} />
+			<ProductsPagination currentPage={currentPage} totalPages={totalPages} filters={filters} />
 		</>
 	);
 }
 
-function SortLink({ option, currentSort }: { option: (typeof sortOptions)[number]; currentSort?: string }) {
-	const isActive = option.value === (currentSort ?? "newest");
-	const href = option.value === "newest" ? "/products" : `/products?sort=${option.value}`;
+function SortLink({
+	option,
+	filters,
+}: {
+	option: (typeof sortOptions)[number];
+	filters: ProductFilterParams;
+}) {
+	const isActive = option.value === (filters.sort ?? "newest");
+
+	// Preserve active filters when changing sort; reset to the first page.
+	const params = new URLSearchParams();
+	for (const [key, value] of Object.entries(filters)) {
+		if (value && key !== "sort" && key !== "page") {
+			params.set(key, value);
+		}
+	}
+	if (option.value !== "newest") {
+		params.set("sort", option.value);
+	}
+	const href = params.size ? `/products?${params}` : "/products";
 
 	return (
 		<YnsLink
@@ -91,12 +132,15 @@ function SortLink({ option, currentSort }: { option: (typeof sortOptions)[number
 	);
 }
 
-export default async function ProductsPage({
-	searchParams,
-}: {
-	searchParams: Promise<{ page?: string; sort?: string }>;
-}) {
-	const { page, sort } = await searchParams;
+export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
+	const filters = await searchParams;
+	const facets = await getFilterFacets();
+	const filtersAvailable =
+		facets.categories.length > 0 ||
+		facets.collections.length > 0 ||
+		facets.brands.length > 0 ||
+		facets.variantTypes.length > 0 ||
+		facets.priceBounds.max > 0;
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -105,14 +149,23 @@ export default async function ProductsPage({
 				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
 			</div>
 
-			<div className="mb-8 flex flex-wrap items-center gap-3">
-				<span className="text-sm text-muted-foreground">Sort by:</span>
-				{sortOptions.map((option) => (
-					<SortLink key={option.value} option={option} currentSort={sort} />
-				))}
-			</div>
+			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+				{filtersAvailable && <ProductFilters facets={facets} />}
 
-			<ProductList page={page} sort={sort} />
+				<div>
+					<div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+						<div className="flex flex-wrap items-center gap-3">
+							<span className="text-sm text-muted-foreground">Sort by:</span>
+							{sortOptions.map((option) => (
+								<SortLink key={option.value} option={option} filters={filters} />
+							))}
+						</div>
+						{filtersAvailable && <ProductFiltersMobile facets={facets} />}
+					</div>
+
+					<ProductList filters={filters} />
+				</div>
+			</div>
 		</div>
 	);
 }

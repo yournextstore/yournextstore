@@ -23,10 +23,15 @@ function getPageNumbers(currentPage: number, totalPages: number) {
 	}, []);
 }
 
-function buildUrl(page: number, sort?: string) {
+// Carries sort + every active filter across page changes. `page` is overwritten per link.
+type PaginationFilters = Record<string, string | undefined>;
+
+function buildUrl(page: number, filters: PaginationFilters) {
 	const params = new URLSearchParams();
+	for (const [key, value] of Object.entries(filters)) {
+		if (value && key !== "page") params.set(key, value);
+	}
 	if (page > 1) params.set("page", String(page));
-	if (sort) params.set("sort", sort);
 	const qs = params.size ? `?${params.toString()}` : "";
 	return `/products${qs}`;
 }
@@ -34,11 +39,11 @@ function buildUrl(page: number, sort?: string) {
 export function ProductsPagination({
 	currentPage,
 	totalPages,
-	sort,
+	filters,
 }: {
 	currentPage: number;
 	totalPages: number;
-	sort?: string;
+	filters: PaginationFilters;
 }) {
 	if (totalPages <= 1) return null;
 
@@ -49,7 +54,7 @@ export function ProductsPagination({
 			<PaginationContent>
 				{currentPage > 1 && (
 					<PaginationItem>
-						<PaginationPrevious href={buildUrl(currentPage - 1, sort)} />
+						<PaginationPrevious href={buildUrl(currentPage - 1, filters)} />
 					</PaginationItem>
 				)}
 				{pageNumbers.map((page, index) =>
@@ -59,7 +64,7 @@ export function ProductsPagination({
 						</PaginationItem>
 					) : (
 						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(page, sort)} isActive={page === currentPage}>
+							<PaginationLink href={buildUrl(page, filters)} isActive={page === currentPage}>
 								{page}
 							</PaginationLink>
 						</PaginationItem>
@@ -67,7 +72,7 @@ export function ProductsPagination({
 				)}
 				{currentPage < totalPages && (
 					<PaginationItem>
-						<PaginationNext href={buildUrl(currentPage + 1, sort)} />
+						<PaginationNext href={buildUrl(currentPage + 1, filters)} />
 					</PaginationItem>
 				)}
 			</PaginationContent>

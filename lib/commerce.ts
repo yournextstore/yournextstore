@@ -1,13 +1,18 @@
 import { Commerce } from "commerce-kit";
 
+// Override the API host (defaults to yns.store / yns.cx by key prefix). Useful for
+// pointing at a dev deployment, e.g. YNS_API_URL=https://dev.axelgrubba.com
+const endpoint = process.env.YNS_API_URL || undefined;
+
 export const commerce = Commerce({
 	token: process.env.YNS_API_KEY,
+	endpoint,
 });
 
 export const meGetCached = async (token?: string) => {
 	"use cache: remote";
 
-	const commerce = Commerce({ token });
+	const commerce = Commerce({ token, endpoint });
 	return commerce.meGet();
 };
 

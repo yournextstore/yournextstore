@@ -23,18 +23,25 @@ function getPageNumbers(currentPage: number, totalPages: number) {
 	}, []);
 }
 
-function buildUrl(basePath: string, page: number) {
-	return page > 1 ? `${basePath}?page=${page}` : basePath;
+function buildUrl(basePath: string, page: number, filters: Record<string, string | undefined> = {}) {
+	const params = new URLSearchParams();
+	for (const [key, value] of Object.entries(filters)) {
+		if (value && key !== "page") params.set(key, value);
+	}
+	if (page > 1) params.set("page", String(page));
+	return params.size ? `${basePath}?${params}` : basePath;
 }
 
 export function CategoryPagination({
 	basePath,
 	currentPage,
 	totalPages,
+	filters = {},
 }: {
 	basePath: string;
 	currentPage: number;
 	totalPages: number;
+	filters?: Record<string, string | undefined>;
 }) {
 	if (totalPages <= 1) return null;
 
@@ -45,7 +52,7 @@ export function CategoryPagination({
 			<PaginationContent>
 				{currentPage > 1 && (
 					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1)} />
+						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
 					</PaginationItem>
 				)}
 				{pageNumbers.map((page, index) =>
@@ -55,7 +62,7 @@ export function CategoryPagination({
 						</PaginationItem>
 					) : (
 						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page)} isActive={page === currentPage}>
+							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
 								{page}
 							</PaginationLink>
 						</PaginationItem>
@@ -63,7 +70,7 @@ export function CategoryPagination({
 				)}
 				{currentPage < totalPages && (
 					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1)} />
+						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
 					</PaginationItem>
 				)}
 			</PaginationContent>

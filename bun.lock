@@ -43,7 +43,7 @@
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "cmdk": "1.1.1",
-        "commerce-kit": "0.39.1",
+        "commerce-kit": "^0.40.0",
         "date-fns": "4.3.0",
         "embla-carousel-react": "8.6.0",
         "input-otp": "1.4.2",
@@ -475,7 +475,7 @@
 
     "cmdk": ["cmdk@1.1.1", "", { "dependencies": { "@radix-ui/react-compose-refs": "^1.1.1", "@radix-ui/react-dialog": "^1.1.6", "@radix-ui/react-id": "^1.1.0", "@radix-ui/react-primitive": "^2.0.2" }, "peerDependencies": { "react": "^18 || ^19 || ^19.0.0-rc", "react-dom": "^18 || ^19 || ^19.0.0-rc" } }, "sha512-Vsv7kFaXm+ptHDMZ7izaRsP70GgrW9NBNGswt9OZaVBLlE0SNpDq8eu/VGXyF9r7M0azK3Wy7OlYXsuyYLFzHg=="],
 
-    "commerce-kit": ["commerce-kit@0.39.1", "", { "peerDependencies": { "@types/node": "^24.12.4", "@typescript/native-preview": "7.0.0-dev.20251022.1", "react": "^19", "react-dom": "^19", "typescript": "5.9.3", "zod": "^4.4.3" }, "optionalPeers": ["@typescript/native-preview", "react", "react-dom", "typescript"] }, "sha512-sNHkb2r+jiQh2oZV3hXYephztISzBdlczozxFXX/BQmpvwjDGvEQJQY1YY5Ges4WKr44M3cP0zgOTGPpox+yKA=="],
+    "commerce-kit": ["commerce-kit@0.40.0", "", { "peerDependencies": { "@types/node": "^24.12.4", "@typescript/native-preview": "7.0.0-dev.20251022.1", "react": "^19", "react-dom": "^19", "typescript": "5.9.3", "zod": "^4.4.3" }, "optionalPeers": ["@typescript/native-preview", "react", "react-dom", "typescript"] }, "sha512-V3yyEHXPyTnsHfeQ56eszg/0BMfUi8vXAvPytsGm9HL4RyF+ZrqK5gkJAxY7PLQ+OwniJh2Gp24deYUBsjlJJQ=="],
 
     "cssesc": ["cssesc@3.0.0", "", { "bin": { "cssesc": "bin/cssesc" } }, "sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg=="],
 
