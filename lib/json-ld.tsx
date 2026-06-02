@@ -34,7 +34,7 @@ export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
 
 export async function buildProductJsonLd(
 	product: APIProductGetByIdResult,
-	reviews: APIProductReviewsBrowseResult,
+	reviews: APIProductReviewsBrowseResult | null,
 ): Promise<Record<string, unknown>> {
 	const prices = product.variants.map((v) => Number(v.price));
 	const lowPrice = getDecimalPrice(String(Math.min(...prices)));
@@ -72,7 +72,7 @@ export async function buildProductJsonLd(
 					},
 	};
 
-	if (reviews.summary.reviewCount > 0) {
+	if (reviews && reviews.summary.reviewCount > 0) {
 		jsonLd.aggregateRating = {
 			"@type": "AggregateRating",
 			ratingValue: reviews.summary.averageRating,

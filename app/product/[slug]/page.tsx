@@ -16,7 +16,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { commerce } from "@/lib/commerce";
+import { commerce, meGetCached } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { formatMoney } from "@/lib/money";
@@ -63,9 +63,11 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	const { slug } = await params;
+	const me = await meGetCached().catch(() => null);
+	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
 	const [product, reviews] = await Promise.all([
 		commerce.productGet({ idOrSlug: slug }),
-		commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }),
+		reviewsEnabled ? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }) : Promise.resolve(null),
 	]);
 
 	if (!product) {
@@ -166,7 +168,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			</div>
 
 			{/* Reviews Section */}
-			<ProductReviews reviews={reviews} slug={slug} />
+			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />
