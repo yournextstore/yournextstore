@@ -120,7 +120,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
 								<BreadcrumbLink asChild>
-									<Link href={`/collection/${product.category.slug}`}>{product.category.name}</Link>
+									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
 								</BreadcrumbLink>
 							</BreadcrumbItem>
 						</>

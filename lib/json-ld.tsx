@@ -159,6 +159,30 @@ export function buildCollectionBreadcrumbJsonLd(
 	};
 }
 
+export function buildCategoryBreadcrumbJsonLd(
+	hierarchy: Array<{ name: string; slug: string }>,
+): Record<string, unknown> {
+	const baseUrl = getBaseUrl();
+	let path = "";
+
+	return {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{ "@type": "ListItem", position: 1, name: "Home", item: baseUrl || undefined },
+			...hierarchy.map((category, index) => {
+				path += `/${category.slug}`;
+				return {
+					"@type": "ListItem",
+					position: index + 2,
+					name: category.name,
+					item: baseUrl ? `${baseUrl}/category${path}` : undefined,
+				};
+			}),
+		],
+	};
+}
+
 export async function StoreJsonLd() {
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
