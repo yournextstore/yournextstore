@@ -11,7 +11,7 @@ import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { CookieConsent } from "@/components/cookie-consent";
-import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+import { NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
 import { YnsLink } from "@/components/yns-link";
@@ -192,12 +192,7 @@ export default async function RootLayout({
 				<Suspense>
 					<NewsletterPopupSection />
 				</Suspense>
-				{env === "development" && (
-					<>
-						<NavigationReporter />
-						<ErrorOverlayRemover />
-					</>
-				)}
+				{env === "development" && <NavigationReporter />}
 			</body>
 		</html>
 	);

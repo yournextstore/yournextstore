@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { useEffect } from "react";
 
+// NOTE: We intentionally do NOT hide the Next.js error overlay here. In the app
+// router the overlay never auto-opens — it only appears when the user clicks the
+// dev tools error badge — so suppressing it just swallowed the error description.
+
 export function NavigationReporter() {
 	const router = useRouter();
 
@@ -52,21 +56,4 @@ export function NavigationReporter() {
 			}
 		</Script>
 	);
-}
-
-export function ErrorOverlayRemover() {
-	useEffect(() => {
-		if (window.parent === window) return;
-
-		const host = document.querySelector("nextjs-portal");
-		if (host?.shadowRoot) {
-			const style = document.createElement("style");
-			style.textContent = /* css */ `[data-nextjs-dialog-overlay] { display: none !important; }`;
-			host.shadowRoot.appendChild(style);
-		} else {
-			console.warn("Could not find Next.js error overlay host element.");
-		}
-	}, []);
-
-	return null;
 }
