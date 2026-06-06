@@ -88,30 +88,23 @@ Refer to the [API documentation](https://yns.store/manage/settings/api) for deta
 
 ## Themes
 
-Your Next Store ships with **30+ ready-made themes** across different store categories. Each theme includes a fully redesigned homepage, hero, color palette, and section layout — all built on the same core codebase.
+Your Next Store ships with **149 ready-made themes** across different store categories. Each theme includes a fully redesigned homepage, hero, color palette, and section layout — all built on the same core codebase.
 
-Switch themes with a single command:
+Themes live on branches named `theme-001` … `theme-149`. Switch themes with a single command:
 
 ```bash
-git checkout theme-beauty-serene
+git checkout theme-016
 ```
 
-### All Themes
+### Browsing themes
 
-| Category | Themes |
-|----------|--------|
-| **Beauty** | `beauty-aura` · `beauty-blush` · `beauty-glow` · `beauty-serene` |
-| **Fashion** | `fashion-atelier` · `fashion-aurum` · `fashion-blanc` · `fashion-capsule` · `fashion-fjord` · `fashion-luxette` · `fashion-nomad` · `fashion-oslo` · `fashion-portia` · `fashion-stride` · `fashion-trailhead` |
-| **Furniture** | `furniture-forma` · `furniture-grove` · `furniture-vela` |
-| **Food** | `food-matcha` · `food-sizzle` |
-| **Electronics** | `electronics-nexus` · `electronics-pulse` |
-| **Health** | `health-botanica` · `health-hemlock` |
-| **Home** | `home-deskflow` · `home-vessel` |
-| **Events** | `events-gather` · `events-signal` |
-| **Auto** | `auto-nightshift` · `auto-torque` |
-| **Kids** | `kids-wonder` |
+Each theme branch is a single commit on top of `main` whose message describes the theme's vibe. List them all (id + description) with:
 
-> All theme branches are prefixed with `theme-` (e.g. `theme-fashion-blanc`). Themes modify only visual components and static assets — your products, cart, and checkout remain unchanged.
+```bash
+git for-each-ref --sort=refname --format='%(refname:short)  %(subject)' 'refs/remotes/origin/theme-*'
+```
+
+> All theme branches use a zero-padded three-digit id (`theme-001` … `theme-149`). Themes modify only visual components and static assets — your products, cart, and checkout remain unchanged.
 
 ## Star History
 

@@ -28,7 +28,7 @@ Process every theme branch found. Track results as you go — you will need them
 
 ## Step 2: For each theme branch
 
-For each `THEME_BRANCH` (e.g., `theme-cosmetics`), do the following. If one theme fails, abort that theme's rebase, record the failure, and continue to the next theme. Never let one failure stop the entire run.
+For each `THEME_BRANCH` (e.g., `theme-016`), do the following. If one theme fails, abort that theme's rebase, record the failure, and continue to the next theme. Never let one failure stop the entire run.
 
 Set `REBASE_BRANCH` = `${THEME_BRANCH}-rebase`.
 
@@ -170,9 +170,9 @@ After processing all themes, output a summary table:
 
 | Theme | Status | Conflicts Resolved | Notes |
 |-------|--------|-------------------|-------|
-| theme-cosmetics | success | 3 files | — |
-| theme-sneakers | up to date | — | — |
-| theme-cbd | failed | — | bun install failed |
+| theme-006 | success | 3 files | — |
+| theme-016 | up to date | — | — |
+| theme-099 | failed | — | bun install failed |
 
 ## Rules
 
