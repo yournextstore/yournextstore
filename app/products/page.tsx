@@ -5,6 +5,7 @@ import { ProductFilters, ProductFiltersMobile } from "@/components/sections/prod
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { ProductsPagination } from "./products-pagination";
+import { SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -153,14 +154,18 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 				{filtersAvailable && <ProductFilters facets={facets} />}
 
 				<div>
-					<div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-						<div className="flex flex-wrap items-center gap-3">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							{sortOptions.map((option) => (
-								<SortLink key={option.value} option={option} filters={filters} />
-							))}
-						</div>
-						{filtersAvailable && <ProductFiltersMobile facets={facets} />}
+					{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
+					<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+						{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+						<SortSelect options={sortOptions} filters={filters} />
+					</div>
+
+					{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
+					<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
+						<span className="text-sm text-muted-foreground">Sort by:</span>
+						{sortOptions.map((option) => (
+							<SortLink key={option.value} option={option} filters={filters} />
+						))}
 					</div>
 
 					<ProductList filters={filters} />
