@@ -3,7 +3,7 @@
 import type { APIProductFiltersResult } from "commerce-kit";
 import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useOptimistic, useState } from "react";
+import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,6 +28,41 @@ const VALUES_SEPARATOR = ".";
 
 // Search params owned by the filters, cleared by "Clear all".
 const FILTER_KEYS = ["category", "collection", "brand", "priceMin", "priceMax", "vts"] as const;
+
+// Max entries shown per filter group before collapsing the rest behind "Show more".
+const VISIBLE_ENTRY_LIMIT = 10;
+
+/** Renders a list of filter entries, truncated to `limit` with a "Show more"/"Show less" toggle. */
+function CollapsibleList<T>({
+	items,
+	className,
+	renderItem,
+	limit = VISIBLE_ENTRY_LIMIT,
+}: {
+	items: T[];
+	className?: string;
+	renderItem: (item: T) => ReactNode;
+	limit?: number;
+}) {
+	const [expanded, setExpanded] = useState(false);
+	const visible = expanded ? items : items.slice(0, limit);
+	const hasMore = items.length > limit;
+
+	return (
+		<>
+			<ul className={className}>{visible.map(renderItem)}</ul>
+			{hasMore && (
+				<button
+					type="button"
+					onClick={() => setExpanded((prev) => !prev)}
+					className="mt-2 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+				>
+					{expanded ? "Show less" : "Show more"}
+				</button>
+			)}
+		</>
+	);
+}
 
 function parseVts(vts: string | null): Record<string, string[]> {
 	if (!vts) {
@@ -120,13 +155,15 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	const accordionDefault = [
+	// All groups that will render, in display order — only the first opens by default.
+	const accordionGroups = [
 		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
 		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
 		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
 		...(facets.brands.length > 0 ? ["brands"] : []),
 		...(hasPrice ? ["price"] : []),
 	];
+	const accordionDefault = accordionGroups.slice(0, 1);
 
 	return (
 		<div className="space-y-4">
@@ -148,8 +185,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					<AccordionItem value="categories">
 						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
 						<AccordionContent>
-							<ul className="space-y-1">
-								{facets.categories.map((category) => {
+							<CollapsibleList
+								items={facets.categories}
+								className="space-y-1"
+								renderItem={(category) => {
 									const isActive = searchParams.get("category") === category.slug;
 									return (
 										<li key={category.slug}>
@@ -165,8 +204,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											</button>
 										</li>
 									);
-								})}
-							</ul>
+								}}
+							/>
 						</AccordionContent>
 					</AccordionItem>
 				)}
@@ -175,8 +214,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					<AccordionItem value="collections">
 						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
 						<AccordionContent>
-							<ul className="space-y-1">
-								{facets.collections.map((collection) => {
+							<CollapsibleList
+								items={facets.collections}
+								className="space-y-1"
+								renderItem={(collection) => {
 									const isActive = searchParams.get("collection") === collection.slug;
 									return (
 										<li key={collection.slug}>
@@ -192,8 +233,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											</button>
 										</li>
 									);
-								})}
-							</ul>
+								}}
+							/>
 						</AccordionContent>
 					</AccordionItem>
 				)}
@@ -204,8 +245,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
 							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
 							<AccordionContent>
-								<ul className="space-y-2">
-									{vt.values.map((value) => {
+								<CollapsibleList
+									items={vt.values}
+									className="space-y-2"
+									renderItem={(value) => {
 										const id = `${vt.label}-${value}`;
 										const checked = selectedValues.includes(value);
 										return (
@@ -220,8 +263,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												</label>
 											</li>
 										);
-									})}
-								</ul>
+									}}
+								/>
 							</AccordionContent>
 						</AccordionItem>
 					);
@@ -231,8 +274,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					<AccordionItem value="brands">
 						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
 						<AccordionContent>
-							<ul className="space-y-1">
-								{facets.brands.map((brand) => {
+							<CollapsibleList
+								items={facets.brands}
+								className="space-y-1"
+								renderItem={(brand) => {
 									const isActive = searchParams.get("brand") === brand.slug;
 									return (
 										<li key={brand.slug}>
@@ -248,8 +293,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											</button>
 										</li>
 									);
-								})}
-							</ul>
+								}}
+							/>
 						</AccordionContent>
 					</AccordionItem>
 				)}
