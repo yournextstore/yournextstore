@@ -22,6 +22,8 @@ import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "
 import { formatMoney } from "@/lib/money";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	"use cache";
+	cacheLife("minutes");
 	const { slug } = await params;
 	const product = await commerce.productGet({ idOrSlug: slug });
 

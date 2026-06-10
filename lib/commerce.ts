@@ -9,8 +9,11 @@ export const commerce = Commerce({
 	endpoint,
 });
 
+// Plain "use cache" (not "remote") so store settings can be part of the static
+// shell — remote-cached entries defer to request time and block prerendering
+// for everything that depends on them (metadata, <html lang>, nav links).
 export const meGetCached = async (token?: string) => {
-	"use cache: remote";
+	"use cache";
 
 	const commerce = Commerce({ token, endpoint });
 	return commerce.meGet();

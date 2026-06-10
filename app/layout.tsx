@@ -29,7 +29,9 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
+async function getStoreMetadata(): Promise<Metadata> {
+	"use cache";
+	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
@@ -37,10 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
 	const ogImage = me.store.settings?.ogimage || storeLogo || "/logo.svg";
-	const baseUrl = getCanonicalUrl();
 
 	return {
-		metadataBase: new URL(baseUrl),
 		title: {
 			default: storeName,
 			template: `%s — ${storeName}`,
@@ -85,6 +85,13 @@ export async function generateMetadata(): Promise<Metadata> {
 		},
 		manifest: "/manifest.webmanifest",
 	};
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+	const metadata = await getStoreMetadata();
+	// URL instances can't cross the "use cache" serialization boundary, so
+	// metadataBase is attached outside the cached scope (env-only, no IO).
+	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
 async function getInitialCart() {

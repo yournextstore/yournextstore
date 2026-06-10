@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { commerce } from "@/lib/commerce";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	"use cache";
+	cacheLife("hours");
 	const { slug } = await params;
 	const page = await commerce.legalPageGet(slug);
 

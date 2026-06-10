@@ -18,6 +18,8 @@ import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } 
 import { YNSMedia } from "@/lib/yns-media";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	"use cache";
+	cacheLife("minutes");
 	const { slug } = await params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 

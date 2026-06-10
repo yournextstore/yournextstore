@@ -62,6 +62,8 @@ export async function generateMetadata({
 }: {
 	params: Promise<{ slugs: string[] }>;
 }): Promise<Metadata> {
+	"use cache";
+	cacheLife("minutes");
 	const { slugs } = await params;
 	const slug = slugs.at(-1);
 	if (!slug) {

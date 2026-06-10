@@ -31,6 +31,8 @@ function formatDate(value: string): string {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+	"use cache";
+	cacheLife("minutes");
 	const { slug } = await params;
 	const post = await commerce.postGet({ idOrSlug: slug });
 
