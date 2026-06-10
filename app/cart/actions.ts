@@ -47,15 +47,12 @@ export async function removeFromCart(variantId: string) {
 	}
 
 	try {
-		// Set quantity to 0 to remove the item
-		await commerce.cartUpsert({
+		// Quantity 0 removes the item; the response is the updated cart
+		const cart = await commerce.cartUpsert({
 			cartId: cartCookie.id,
 			variantId,
 			quantity: 0,
 		});
-
-		// Fetch updated cart
-		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { success: true, cart };
 	} catch {
 		return { success: false, cart: null };
@@ -71,18 +68,14 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 	}
 
 	try {
-		if (quantity <= 0) {
-			// Remove item
-			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: 0 });
-		} else {
-			// cartUpsert treats quantity as additive, so remove first then re-add
-			// with the exact quantity we want
-			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: 0 });
-			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity });
-		}
-
-		// Fetch updated cart
-		const cart = await commerce.cartGet({ cartId: cartCookie.id });
+		// mode "set" replaces the line quantity atomically server-side (0 removes the
+		// item), so rapid changes can't interleave and corrupt the cart
+		const cart = await commerce.cartUpsert({
+			cartId: cartCookie.id,
+			variantId,
+			quantity: Math.max(quantity, 0),
+			mode: "set",
+		});
 		return { success: true, cart };
 	} catch {
 		return { success: false, cart: null };

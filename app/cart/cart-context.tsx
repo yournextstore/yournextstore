@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { createContext, useCallback, useContext, useMemo, useOptimistic, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useOptimistic, useState } from "react";
 
 export type CartLineItem = {
 	quantity: number;
@@ -75,6 +76,20 @@ type CartProviderProps = {
 
 export function CartProvider({ children, initialCart, initialCartId }: CartProviderProps) {
 	const [isOpen, setIsOpen] = useState(false);
+	const router = useRouter();
+
+	useEffect(() => {
+		// The cart can change on the hosted checkout (a different origin). When the browser
+		// restores this page from bfcache on back-navigation, re-fetch the server-rendered
+		// cart so removed/changed items don't linger.
+		const onPageShow = (event: PageTransitionEvent) => {
+			if (event.persisted) {
+				router.refresh();
+			}
+		};
+		window.addEventListener("pageshow", onPageShow);
+		return () => window.removeEventListener("pageshow", onPageShow);
+	}, []);
 
 	const [optimisticCart, dispatchCartAction] = useOptimistic(initialCart, (state, action: CartAction) => {
 		if (!state) {
