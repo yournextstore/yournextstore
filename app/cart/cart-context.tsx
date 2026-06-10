@@ -79,9 +79,8 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 	const router = useRouter();
 
 	useEffect(() => {
-		// The cart can change on the hosted checkout (a different origin). When the browser
-		// restores this page from bfcache on back-navigation, re-fetch the server-rendered
-		// cart so removed/changed items don't linger.
+		// Re-fetch the cart when restored from bfcache — it can change on the hosted
+		// checkout (different origin) and would otherwise show stale items.
 		const onPageShow = (event: PageTransitionEvent) => {
 			if (event.persisted) {
 				router.refresh();

@@ -17,16 +17,6 @@ export async function setCartCookie(cartCookieJson: CartCookieJson) {
 	}
 }
 
-export async function clearCartCookie(): Promise<void> {
-	(await cookies()).set(CART_COOKIE, "", {
-		maxAge: 0,
-		secure: true,
-		sameSite: "none",
-		partitioned: true,
-		path: "/",
-	});
-}
-
 export async function getCartCookieJson(): Promise<null | CartCookieJson> {
 	const cartCookieJson_ = (await cookies()).get(CART_COOKIE)?.value;
 	try {

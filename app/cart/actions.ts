@@ -68,8 +68,7 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 	}
 
 	try {
-		// mode "set" replaces the line quantity atomically server-side (0 removes the
-		// item), so rapid changes can't interleave and corrupt the cart
+		// mode "set" replaces the line quantity atomically; 0 removes the item
 		const cart = await commerce.cartUpsert({
 			cartId: cartCookie.id,
 			variantId,

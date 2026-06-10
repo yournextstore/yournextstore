@@ -2,8 +2,8 @@
 
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { removeFromCart, setCartQuantity } from "@/app/cart/actions";
+import { useRef, useTransition } from "react";
+import { setCartQuantity } from "@/app/cart/actions";
 import { type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
@@ -27,20 +27,41 @@ export function CartItem({ item }: CartItemProps) {
 	const price = getLineItemUnitPrice(item);
 	const lineTotal = price * BigInt(quantity);
 
-	const handleRemove = () => {
+	const targetQuantityRef = useRef<number | null>(null);
+	const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
+
+	// Optimistic update + queued sync: rapid clicks collapse into the newest absolute
+	// quantity (safe thanks to mode "set"), one request in flight per line, and each
+	// transition stays open until the queue drains so the value never flickers back.
+	const updateQuantity = (action: Parameters<typeof dispatch>[0], target: number) => {
 		startTransition(async () => {
-			dispatch({ type: "REMOVE", variantId: productVariant.id });
-			await removeFromCart(productVariant.id);
+			dispatch(action);
+			targetQuantityRef.current = target;
+			sendQueueRef.current = sendQueueRef.current.then(async () => {
+				const latest = targetQuantityRef.current;
+				if (latest === null) {
+					return; // newest value already sent
+				}
+				targetQuantityRef.current = null;
+				await setCartQuantity(productVariant.id, latest);
+			});
+			// Drain the queue, then refresh — concurrent transitions land here together,
+			// so their refresh calls batch into one re-render.
+			let tail: Promise<void>;
+			do {
+				tail = sendQueueRef.current;
+				await tail;
+			} while (tail !== sendQueueRef.current);
 			router.refresh();
 		});
 	};
 
+	const handleRemove = () => {
+		updateQuantity({ type: "REMOVE", variantId: productVariant.id }, 0);
+	};
+
 	const handleIncrement = () => {
-		startTransition(async () => {
-			dispatch({ type: "INCREASE", variantId: productVariant.id });
-			await setCartQuantity(productVariant.id, quantity + 1);
-			router.refresh();
-		});
+		updateQuantity({ type: "INCREASE", variantId: productVariant.id }, quantity + 1);
 	};
 
 	const handleDecrement = () => {
@@ -48,11 +69,7 @@ export function CartItem({ item }: CartItemProps) {
 			handleRemove();
 			return;
 		}
-		startTransition(async () => {
-			dispatch({ type: "DECREASE", variantId: productVariant.id });
-			await setCartQuantity(productVariant.id, quantity - 1);
-			router.refresh();
-		});
+		updateQuantity({ type: "DECREASE", variantId: productVariant.id }, quantity - 1);
 	};
 
 	return (
@@ -94,14 +111,13 @@ export function CartItem({ item }: CartItemProps) {
 					<div
 						className={cn(
 							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-50",
+							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							disabled={isPending}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors disabled:pointer-events-none"
+							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
@@ -110,8 +126,7 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							disabled={isPending}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors disabled:pointer-events-none"
+							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
