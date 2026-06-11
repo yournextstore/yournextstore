@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { startTransition, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
@@ -15,6 +16,7 @@ type Variant = {
 	id: string;
 	price: string;
 	images: string[];
+	stock: number | null;
 	combinations: {
 		variantValue: {
 			id: string;
@@ -43,7 +45,7 @@ type AddToCartButtonProps = {
 export function AddToCartButton({ variants, product, volumePricingTiers = [] }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
-	const { openCart, dispatch } = useCart();
+	const { items, openCart, dispatch } = useCart();
 
 	const selectedVariant = useMemo(() => {
 		if (variants.length === 1) {
@@ -67,26 +69,37 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 		);
 	}, [variants, searchParams]);
 
-	const { resolvedTiers, volumePrice } = useVolumePricing(volumePricingTiers, selectedVariant?.id, quantity);
+	// stock === null means stock isn't tracked for this variant (unlimited)
+	const isOutOfStock = selectedVariant?.stock === 0;
+	const maxQuantity = selectedVariant?.stock ?? 99;
+	const effectiveQuantity = isOutOfStock ? 1 : Math.min(quantity, maxQuantity);
+
+	const { resolvedTiers, volumePrice } = useVolumePricing(
+		volumePricingTiers,
+		selectedVariant?.id,
+		effectiveQuantity,
+	);
 
 	const unitPrice = volumePrice ?? selectedVariant?.price;
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(quantity) : null;
+	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
 
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
+		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
 			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
 		}
 		return "Add to Cart";
-	}, [selectedVariant, totalPrice]);
+	}, [selectedVariant, isOutOfStock, totalPrice]);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!selectedVariant) return;
+		if (!selectedVariant || isOutOfStock) return;
 
 		const variantId = selectedVariant.id;
-		const addedQuantity = quantity;
+		const addedQuantity = effectiveQuantity;
+		const previousQuantity = items.find((item) => item.productVariant.id === variantId)?.quantity ?? 0;
 
 		openCart();
 		setQuantity(1);
@@ -105,7 +118,16 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 				},
 			});
 
-			await addToCart(variantId, addedQuantity);
+			// The server clamps line quantities to available stock and still responds
+			// with the updated cart — compare against what we asked for so the
+			// optimistic item doesn't silently vanish on revert.
+			const result = await addToCart(variantId, addedQuantity);
+			const line = result.cart?.lineItems.find((item) => item.productVariant.id === variantId);
+			if (!result.success || !line) {
+				toast.error("This item is out of stock");
+			} else if (line.quantity < previousQuantity + addedQuantity) {
+				toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
+			}
 		});
 	};
 
@@ -113,14 +135,19 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 		<div className="space-y-8">
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
-			<QuantitySelector quantity={quantity} onQuantityChange={setQuantity} />
+			<QuantitySelector
+				quantity={effectiveQuantity}
+				onQuantityChange={setQuantity}
+				max={Math.max(1, Math.min(99, maxQuantity))}
+				disabled={isOutOfStock}
+			/>
 
-			<VolumePricingDisplay tiers={resolvedTiers} quantity={quantity} volumePrice={volumePrice} />
+			<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 
 			<form onSubmit={handleSubmit}>
 				<button
 					type="submit"
-					disabled={!selectedVariant}
+					disabled={!selectedVariant || isOutOfStock}
 					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}

@@ -14,6 +14,7 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
+import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
@@ -202,6 +203,7 @@ export default async function RootLayout({
 				<Suspense>
 					<NewsletterPopupSection />
 				</Suspense>
+				<Toaster richColors position="top-center" />
 				{env === "development" && (
 					<>
 						<NavigationReporter />

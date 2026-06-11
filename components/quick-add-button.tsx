@@ -3,6 +3,7 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { ShoppingBag } from "lucide-react";
 import { startTransition } from "react";
+import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -42,7 +43,13 @@ export function QuickAddButton({ variantId, variantPrice, variantImages, product
 				},
 			});
 
-			await addToCart(variantId, 1);
+			// The server clamps to available stock and still returns the cart — surface
+			// the failure instead of letting the optimistic item silently vanish.
+			const result = await addToCart(variantId, 1);
+			const line = result.cart?.lineItems.find((item) => item.productVariant.id === variantId);
+			if (!result.success || !line) {
+				toast.error("This item is out of stock");
+			}
 		});
 	};
 
