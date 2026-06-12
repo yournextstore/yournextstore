@@ -40,11 +40,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: [
-		"/checkout/:path*",
-		"/api/feed/gmc",
-		"/api/feed/meta",
-		"/api/feed/openai",
-		"/account/:path*",
-	],
+	matcher: ["/checkout/:path*", "/api/feed/gmc", "/api/feed/meta", "/api/feed/openai", "/account/:path*"],
 };
