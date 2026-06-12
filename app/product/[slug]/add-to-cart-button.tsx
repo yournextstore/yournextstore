@@ -11,10 +11,13 @@ import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { cn } from "@/lib/utils";
 
 type Variant = {
 	id: string;
 	price: string;
+	originalPrice: string;
+	sku: string | null;
 	images: string[];
 	stock: number | null;
 	combinations: {
@@ -39,10 +42,21 @@ type AddToCartButtonProps = {
 		slug: string;
 		images: string[];
 	};
+	summary?: string | null;
+	/** EU Omnibus 30-day low price keyed by variant id (empty unless the store enables omnibus). */
+	omnibusPrices?: Record<string, string>;
 	volumePricingTiers?: VolumeTier[];
 };
 
-export function AddToCartButton({ variants, product, volumePricingTiers = [] }: AddToCartButtonProps) {
+const LOW_STOCK_THRESHOLD = 5;
+
+export function AddToCartButton({
+	variants,
+	product,
+	summary,
+	omnibusPrices,
+	volumePricingTiers = [],
+}: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch } = useCart();
@@ -92,6 +106,51 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 		return "Add to Cart";
 	}, [selectedVariant, isOutOfStock, totalPrice]);
 
+	// Headline price. For the selected variant we show its own price (and the struck-through
+	// list price when it's on sale). Before a variant is picked we fall back to a range.
+	const priceInfo = useMemo(() => {
+		const fmt = (amount: bigint) => formatMoney({ amount, currency: CURRENCY, locale: LOCALE });
+
+		if (selectedVariant) {
+			const price = BigInt(selectedVariant.price);
+			const listPrice = BigInt(selectedVariant.originalPrice);
+			const onSale = listPrice > price;
+			return {
+				display: fmt(price),
+				compareAt: onSale ? fmt(listPrice) : null,
+				discountPercent: onSale ? Math.round((Number(listPrice - price) / Number(listPrice)) * 100) : null,
+			};
+		}
+
+		const prices = variants.map((v) => BigInt(v.price));
+		const minPrice = prices.reduce((min, p) => (p < min ? p : min), prices[0] ?? 0n);
+		const maxPrice = prices.reduce((max, p) => (p > max ? p : max), prices[0] ?? 0n);
+		return {
+			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
+			compareAt: null,
+			discountPercent: null,
+		};
+	}, [selectedVariant, variants]);
+
+	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
+	const omnibusPrice = useMemo(() => {
+		if (!selectedVariant || !priceInfo.compareAt) return null;
+		const lowest = omnibusPrices?.[selectedVariant.id];
+		if (!lowest) return null;
+		return formatMoney({ amount: BigInt(lowest), currency: CURRENCY, locale: LOCALE });
+	}, [selectedVariant, priceInfo.compareAt, omnibusPrices]);
+
+	// Stock availability. null stock means it isn't tracked (treated as in stock).
+	const stockStatus = useMemo(() => {
+		if (!selectedVariant) return null;
+		const { stock } = selectedVariant;
+		if (stock === 0) return { label: "Out of stock", tone: "out" as const };
+		if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
+			return { label: `Only ${stock} left in stock`, tone: "low" as const };
+		}
+		return { label: "In stock", tone: "in" as const };
+	}, [selectedVariant]);
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -133,6 +192,51 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 
 	return (
 		<div className="space-y-8">
+			{summary && <p className="text-muted-foreground leading-relaxed">{summary}</p>}
+
+			{/* Price & sale */}
+			<div className="space-y-2">
+				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					{priceInfo.compareAt && (
+						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+					)}
+					{priceInfo.discountPercent ? (
+						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+							Save {priceInfo.discountPercent}%
+						</span>
+					) : null}
+				</div>
+
+				{omnibusPrice && (
+					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+				)}
+
+				{/* SKU & stock availability */}
+				{(selectedVariant?.sku || stockStatus) && (
+					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+						{stockStatus && (
+							<span
+								className={cn(
+									"inline-flex items-center gap-1.5 font-medium",
+									stockStatus.tone === "out" && "text-destructive",
+									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
+									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+								)}
+							>
+								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
+								{stockStatus.label}
+							</span>
+						)}
+						{selectedVariant?.sku && (
+							<span className="text-muted-foreground">
+								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
+							</span>
+						)}
+					</div>
+				)}
+			</div>
+
 			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
 
 			<QuantitySelector
@@ -148,7 +252,7 @@ export function AddToCartButton({ variants, product, volumePricingTiers = [] }: 
 				<button
 					type="submit"
 					disabled={!selectedVariant || isOutOfStock}
-					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}
 				</button>

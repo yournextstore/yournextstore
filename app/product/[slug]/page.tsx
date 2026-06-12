@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
@@ -17,9 +18,22 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce, meGetCached } from "@/lib/commerce";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { formatMoney } from "@/lib/money";
+import { cn } from "@/lib/utils";
+
+function StarRow({ rating }: { rating: number }) {
+	const rounded = Math.round(rating);
+	return (
+		<span className="flex gap-0.5" aria-hidden>
+			{Array.from({ length: 5 }, (_, i) => (
+				<Star
+					key={i}
+					className={cn("h-4 w-4", i < rounded ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted")}
+				/>
+			))}
+		</span>
+	);
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -76,24 +90,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		notFound();
 	}
 
-	const { minPrice, maxPrice } = product.variants.reduce(
-		(acc, v) => {
-			const price = BigInt(v.price);
-			return {
-				minPrice: price < acc.minPrice ? price : acc.minPrice,
-				maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
-			};
-		},
-		{
-			minPrice: product.variants[0] ? BigInt(product.variants[0].price) : BigInt(0),
-			maxPrice: product.variants[0] ? BigInt(product.variants[0].price) : BigInt(0),
-		},
-	);
-
-	const priceDisplay =
-		product.variants.length > 1 && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
-			: formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE });
+	const reviewSummary = reviews?.summary ?? null;
 
 	const allImages = [
 		...product.images,
@@ -141,21 +138,26 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title, Price, Description */}
-					<div className="space-y-4">
+					{/* Title & reviews summary */}
+					<div className="space-y-3">
 						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
 							{product.name}
 						</h1>
-						<p className="text-2xl font-semibold tracking-tight">{priceDisplay}</p>
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
-						{product.content && (
-							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-								<TiptapRenderer content={product.content} />
-							</div>
+						{reviewSummary && reviewSummary.reviewCount > 0 && (
+							<a
+								href="#reviews"
+								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
+							>
+								<StarRow rating={reviewSummary.averageRating} />
+								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
+								<span className="text-muted-foreground underline-offset-4 hover:underline">
+									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
+								</span>
+							</a>
 						)}
 					</div>
 
-					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
+					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
@@ -164,10 +166,22 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							slug: product.slug,
 							images: product.images,
 						}}
+						summary={product.summary}
+						omnibusPrices={product.omnibusPrices}
 						volumePricingTiers={product.volumePricingTiers}
 					/>
 				</div>
 			</div>
+
+			{/* Full description (below the fold, full width) */}
+			{product.content && (
+				<section className="mt-16 border-t border-border pt-12">
+					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
+					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+						<TiptapRenderer content={product.content} />
+					</div>
+				</section>
+			)}
 
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} slug={slug} />}

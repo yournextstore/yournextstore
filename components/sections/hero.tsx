@@ -18,7 +18,7 @@ export function Hero() {
 							<YnsLink
 								prefetch={"eager"}
 								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-primary-foreground rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
+								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
 							>
 								Shop Collection
 								<ArrowRightIcon className="h-4 w-4" />

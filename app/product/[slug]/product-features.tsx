@@ -37,7 +37,7 @@ export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesP
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
 							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary-foreground" />
+								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
 							</div>
 							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
 							<p className="text-sm text-muted-foreground">{feature.description}</p>

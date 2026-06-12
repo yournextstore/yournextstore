@@ -31,31 +31,34 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [isZoomed, setIsZoomed] = useState(false);
 
-	// Track previous searchParams to reset index when variant changes (avoids useEffect)
+	// The gallery always shows the full image set (product + every variant image). When a
+	// variant is selected we don't filter the list — that would hide the other thumbnails —
+	// we just jump the active image to that variant's first photo within the full gallery.
+	const displayImages = images;
+
+	const variantImageIndex = useMemo(() => {
+		const selectedVariant = variants.find(
+			(v) =>
+				v.combinations.length > 0 &&
+				v.combinations.every(
+					(c) => searchParams.get(c.variantValue.variantType.label) === c.variantValue.value,
+				),
+		);
+
+		const firstVariantImage = selectedVariant?.images[0];
+		if (!firstVariantImage) return 0;
+
+		const index = images.indexOf(firstVariantImage);
+		return index >= 0 ? index : 0;
+	}, [variants, searchParams, images]);
+
+	// Jump to the selected variant's image when the variant changes (avoids useEffect)
 	const searchParamsKey = searchParams.toString();
 	const prevSearchParamsKey = useRef(searchParamsKey);
 	if (prevSearchParamsKey.current !== searchParamsKey) {
 		prevSearchParamsKey.current = searchParamsKey;
-		setSelectedIndex(0);
+		setSelectedIndex(variantImageIndex);
 	}
-
-	// Compute which images to display based on selected variant
-	const displayImages = useMemo(() => {
-		// Find selected variant based on URL params
-		const selectedVariant = variants.find((v) =>
-			v.combinations.every(
-				(c) => searchParams.get(c.variantValue.variantType.label) === c.variantValue.value,
-			),
-		);
-
-		// If variant selected and has images, show those
-		if (selectedVariant?.images.length) {
-			return selectedVariant.images;
-		}
-
-		// Fallback to all images
-		return images;
-	}, [variants, searchParams, images]);
 
 	const handlePrevious = useCallback(() => {
 		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));

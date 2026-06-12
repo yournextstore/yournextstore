@@ -208,7 +208,7 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 												className={cn(
 													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
 													isSelected
-														? "border-foreground bg-foreground text-primary-foreground"
+														? "border-foreground bg-foreground text-background"
 														: "border-border bg-background hover:border-muted-foreground",
 												)}
 											>
