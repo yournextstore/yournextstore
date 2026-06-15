@@ -1,13 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-
-const API_URL = process.env.NEXT_PUBLIC_YNS_API_TENANT;
+import { getSubdomainPublicUrl } from "@/lib/commerce";
 
 async function handler(request: NextRequest) {
-	if (!API_URL) {
-		return NextResponse.json({ error: "NEXT_PUBLIC_YNS_API_TENANT is not configured" }, { status: 500 });
-	}
+	// better-auth lives on the apex (global users), not the tenant subdomain — on a
+	// tenant subdomain `/api/auth/*` rewrites into `[domain]` and 404s. Target the apex,
+	// same as the page proxy in proxy.ts.
+	const { publicUrl } = await getSubdomainPublicUrl();
 
-	const url = new URL(request.nextUrl.pathname + request.nextUrl.search, API_URL);
+	const url = new URL(request.nextUrl.pathname + request.nextUrl.search, publicUrl);
 
 	const requestHeaders = new Headers(request.headers);
 	requestHeaders.delete("host");

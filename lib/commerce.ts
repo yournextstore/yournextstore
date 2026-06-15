@@ -46,13 +46,14 @@ export function getCanonicalUrl(): string {
 export const getSubdomainPublicUrl = async () => {
 	const tenant = process.env.NEXT_PUBLIC_YNS_API_TENANT;
 	if (tenant) {
-		const tenantHost = new URL(tenant).host;
-		const [subdomain, ...base] = tenantHost.split(".");
+		const tenantUrl = new URL(tenant);
+		const [subdomain, ...base] = tenantUrl.host.split(".");
 		const apiHost = base.join(".");
 		if (subdomain && apiHost) {
 			return {
 				subdomain,
-				publicUrl: `https://${apiHost}`,
+				// Preserve the tenant's scheme/port so local http backends work (not just https).
+				publicUrl: `${tenantUrl.protocol}//${apiHost}`,
 			};
 		}
 	}

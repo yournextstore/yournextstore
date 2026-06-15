@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { cache } from "react";
+import { getSubdomainPublicUrl } from "@/lib/commerce";
 
 interface Session {
 	user: {
@@ -29,14 +30,11 @@ export const getSession = cache(async (): Promise<Session | null> => {
 		return null;
 	}
 
-	const baseUrl = process.env.NEXT_PUBLIC_YNS_API_TENANT;
-	if (!baseUrl) {
-		console.error("NEXT_PUBLIC_YNS_API_TENANT is not set");
-		return null;
-	}
+	// better-auth lives on the apex (global users), not the tenant subdomain.
+	const { publicUrl } = await getSubdomainPublicUrl();
 
 	try {
-		const response = await fetch(`${baseUrl}/api/auth/get-session`, {
+		const response = await fetch(`${publicUrl}/api/auth/get-session`, {
 			headers: { cookie },
 		});
 
