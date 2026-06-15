@@ -63,7 +63,14 @@ export function SignupForm() {
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="password">Password</Label>
-						<Input id="password" name="password" type="password" minLength={8} required />
+						<Input
+							id="password"
+							name="password"
+							type="password"
+							minLength={8}
+							required
+							autoComplete="new-password"
+						/>
 					</div>
 				</CardContent>
 				<CardFooter className="flex flex-col gap-4">

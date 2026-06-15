@@ -58,7 +58,7 @@ export function LoginForm() {
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="password">Password</Label>
-						<Input id="password" name="password" type="password" required />
+						<Input id="password" name="password" type="password" required autoComplete="current-password" />
 					</div>
 				</CardContent>
 				<CardFooter className="flex flex-col gap-4">
