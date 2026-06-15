@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getSubdomainPublicUrl } from "./lib/commerce";
 
 const protectedRoutes = ["/account"];
-const proxiedRoutes = ["/checkout", "/api/feed/"];
+const proxiedRoutes = ["/checkout", "/api/feed/", "/account"];
 
 export async function proxy(request: NextRequest) {
 	// Auth: redirect unauthenticated users away from protected routes
@@ -40,5 +40,12 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ["/checkout/:path*", "/api/feed/gmc", "/api/feed/meta", "/api/feed/openai", "/account/:path*"],
+	matcher: [
+		"/checkout/:path*",
+		"/api/feed/gmc",
+		"/api/feed/meta",
+		"/api/feed/openai",
+		"/account",
+		"/account/:path*",
+	],
 };
