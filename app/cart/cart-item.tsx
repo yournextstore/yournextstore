@@ -17,7 +17,7 @@ type CartItemProps = {
 
 export function CartItem({ item }: CartItemProps) {
 	const router = useRouter();
-	const { dispatch, closeCart } = useCart();
+	const { dispatch, closeCart, startMutation } = useCart();
 	const [isPending, startTransition] = useTransition();
 
 	const { productVariant, quantity } = item;
@@ -34,25 +34,36 @@ export function CartItem({ item }: CartItemProps) {
 	// quantity (safe thanks to mode "set"), one request in flight per line, and each
 	// transition stays open until the queue drains so the value never flickers back.
 	const updateQuantity = (action: Parameters<typeof dispatch>[0], target: number) => {
+		// Mirror this line's pending window onto the cart-wide `isMutating` flag so the
+		// Checkout link stays blocked while the write is in flight. `done` resolves when
+		// the local transition finishes; the work itself only runs once.
+		const { promise: done, resolve: resolveDone } = Promise.withResolvers<void>();
+		startMutation(async () => {
+			await done;
+		});
 		startTransition(async () => {
-			dispatch(action);
-			targetQuantityRef.current = target;
-			sendQueueRef.current = sendQueueRef.current.then(async () => {
-				const latest = targetQuantityRef.current;
-				if (latest === null) {
-					return; // newest value already sent
-				}
-				targetQuantityRef.current = null;
-				await setCartQuantity(productVariant.id, latest);
-			});
-			// Drain the queue, then refresh — concurrent transitions land here together,
-			// so their refresh calls batch into one re-render.
-			let tail: Promise<void>;
-			do {
-				tail = sendQueueRef.current;
-				await tail;
-			} while (tail !== sendQueueRef.current);
-			router.refresh();
+			try {
+				dispatch(action);
+				targetQuantityRef.current = target;
+				sendQueueRef.current = sendQueueRef.current.then(async () => {
+					const latest = targetQuantityRef.current;
+					if (latest === null) {
+						return; // newest value already sent
+					}
+					targetQuantityRef.current = null;
+					await setCartQuantity(productVariant.id, latest);
+				});
+				// Drain the queue, then refresh — concurrent transitions land here together,
+				// so their refresh calls batch into one re-render.
+				let tail: Promise<void>;
+				do {
+					tail = sendQueueRef.current;
+					await tail;
+				} while (tail !== sendQueueRef.current);
+				router.refresh();
+			} finally {
+				resolveDone();
+			}
 		});
 	};
 

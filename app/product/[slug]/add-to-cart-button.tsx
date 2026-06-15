@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { startTransition, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -59,7 +59,7 @@ export function AddToCartButton({
 }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
-	const { items, openCart, dispatch } = useCart();
+	const { items, openCart, dispatch, startMutation } = useCart();
 
 	const selectedVariant = useMemo(() => {
 		if (variants.length === 1) {
@@ -163,7 +163,7 @@ export function AddToCartButton({
 		openCart();
 		setQuantity(1);
 
-		startTransition(async () => {
+		startMutation(async () => {
 			dispatch({
 				type: "ADD_ITEM",
 				item: {

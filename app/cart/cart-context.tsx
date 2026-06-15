@@ -2,7 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { createContext, useCallback, useContext, useEffect, useMemo, useOptimistic, useState } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useOptimistic,
+	useState,
+	useTransition,
+} from "react";
 
 export type CartLineItem = {
 	quantity: number;
@@ -60,10 +69,12 @@ type CartContextValue = {
 	itemCount: number;
 	subtotal: bigint;
 	isOpen: boolean;
+	isMutating: boolean;
 	cartId: string | null;
 	openCart: () => void;
 	closeCart: () => void;
 	dispatch: (action: CartAction) => void;
+	startMutation: (fn: () => void | Promise<void>) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -76,6 +87,7 @@ type CartProviderProps = {
 
 export function CartProvider({ children, initialCart, initialCartId }: CartProviderProps) {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isMutating, startMutation] = useTransition();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -183,10 +195,12 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 			itemCount,
 			subtotal,
 			isOpen,
+			isMutating,
 			cartId: currentCartId,
 			openCart,
 			closeCart,
 			dispatch: dispatchCartAction,
+			startMutation,
 		}),
 		[
 			optimisticCart,
@@ -194,6 +208,7 @@ export function CartProvider({ children, initialCart, initialCartId }: CartProvi
 			itemCount,
 			subtotal,
 			isOpen,
+			isMutating,
 			currentCartId,
 			openCart,
 			closeCart,
