@@ -1,9 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { AUTH_ENABLED } from "./lib/auth-config";
 import { getSubdomainPublicUrl } from "./lib/commerce";
 
-const protectedRoutes = ["/account"];
-const proxiedRoutes = ["/checkout", "/api/feed/", "/account"];
+// /account is auth-only: when auth is off it is neither protected nor proxied.
+const protectedRoutes = AUTH_ENABLED ? ["/account"] : [];
+const proxiedRoutes = AUTH_ENABLED ? ["/checkout", "/api/feed/", "/account"] : ["/checkout", "/api/feed/"];
 
 export async function proxy(request: NextRequest) {
 	// Auth: redirect unauthenticated users away from protected routes

@@ -36,6 +36,10 @@ hooks/                # Custom React hooks
 - **Always quote paths** with special characters in shell commands: `rg "term" "app/(auth)/login"`
 - **ALL `/checkout` links MUST be plain `<a>` tags.** Never use `<Link>` (or any link wrapper) for `/checkout` links — they 500.
 
+## Enabling auth
+
+Auth (better-auth: sign-in/up, account dropdown, `/account` protection) ships **disabled**. To enable it, set `AUTH_ENABLED = true` in `lib/auth-config.ts` — that single switch turns on the header sign-in button, the `/login` + `/signup` pages, and `/account` route protection. When `false`, those surfaces 404 / hide and the store behaves as if auth never existed. Auth relies on better-auth running on the apex backend (global users); there is no local backend to configure.
+
 ## Biome Rules
 
 Avoid: default exports, `any`, `for...of`, `forEach` for mutations, missing hook deps, unnecessary type annotations, function names ending with "Action" (unless server action).
