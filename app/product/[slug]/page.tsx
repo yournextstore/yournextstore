@@ -181,19 +181,18 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
 
-				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					<div className="space-y-4">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-primary"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-foreground lg:text-4xl text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (

@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
+			<h3 className="text-xs font-bold uppercase tracking-widest text-foreground">Shop</h3>
 			<ul className="mt-4 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-muted-foreground hover:text-primary transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +80,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<h3 className="text-xs font-bold uppercase tracking-widest text-foreground">Legal</h3>
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-muted-foreground hover:text-primary transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,30 +110,34 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="border-t border-border bg-card">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-12 sm:py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="sm:col-span-2 lg:col-span-1">
+						<Link
+							href="/"
+							className="font-heading text-2xl font-bold uppercase tracking-wider text-foreground"
+						>
+							YNS
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">
+							Your Next Store — next-gen gaming PCs, peripherals, and accessories. Built for performance.
+							Designed for gamers.
 						</p>
 					</div>
 
 					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
+					{/* Customer Care */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<h3 className="text-xs font-bold uppercase tracking-widest text-foreground">Customer Care</h3>
 						<ul className="mt-4 space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-muted-foreground hover:text-primary transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,7 +146,7 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-muted-foreground hover:text-primary transition-colors"
 								>
 									FAQ
 								</Link>
@@ -156,9 +160,12 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p className="text-xs text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+					<div className="flex items-center gap-4 text-xs text-muted-foreground">
+						<span>Powered by Your Next Store</span>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>

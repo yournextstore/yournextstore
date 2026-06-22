@@ -61,11 +61,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-card">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="py-12 sm:py-16 lg:py-20">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-foreground">
 							{collection.name}
 						</h1>
 						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
@@ -86,11 +86,11 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-card to-transparent" />
 				</div>
 			)}
 		</section>
@@ -114,8 +114,8 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			title={collection.name}
+			description={`${products.length} products available`}
 			products={products}
 			showViewAll={false}
 		/>
