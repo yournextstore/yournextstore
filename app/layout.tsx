@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600"],
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -105,6 +113,16 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[var(--espresso)] text-[var(--bone)]">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-center text-[11px] tracking-[0.18em] uppercase font-medium">
+				Complimentary shipping on orders over $150 · Handcrafted, in small batches
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,17 +154,25 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+							<div className="grid grid-cols-3 items-center h-20">
+								<div className="flex items-center gap-6 justify-start">
+									<Suspense>
+										<Navbar links={links} />
+									</Suspense>
+								</div>
+								<div className="flex items-center justify-center">
+									<Link
+										href="/"
+										className="font-display text-2xl sm:text-3xl tracking-[0.08em] uppercase text-foreground"
+									>
 										Your Next Store
 									</Link>
-									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-2 justify-end">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -170,7 +196,8 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					{/* A div, not <main>: the pages render their own <main> landmark. */}
+					<div className="flex-1">{children}</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +238,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${cormorant.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
