@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-bold uppercase tracking-[0.25em] text-fizz-sky">Drinks</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-bold uppercase tracking-[0.25em] text-fizz-sky">Fine Print</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +108,38 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-fizz-yellow text-fizz-ink">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+				<div className="py-16 sm:py-20 grid grid-cols-2 sm:grid-cols-4 gap-10 gap-y-12">
+					<div className="col-span-2">
+						<p className="text-xs font-bold uppercase tracking-[0.3em] text-fizz-sky">Your Next Store</p>
+						<p className="mt-4 text-base font-semibold text-fizz-ink/80 max-w-sm leading-relaxed">
+							Five-times distilled spirits, purified still water, natural fruit. Crafted for the fizz-free
+							era.
 						</p>
+						<div className="mt-6 flex items-center gap-3">
+							{["Instagram", "TikTok", "Spotify"].map((s) => (
+								<a
+									key={s}
+									href="#"
+									className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-fizz-ink text-fizz-yellow text-xs font-bold uppercase tracking-[0.18em] hover:bg-fizz-berry transition-colors"
+								>
+									{s}
+								</a>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-xs font-bold uppercase tracking-[0.25em] text-fizz-sky">Help</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +149,52 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
 								>
 									FAQ
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
+								>
+									Stockists
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/search"
+									className="text-sm font-semibold text-fizz-ink/80 hover:text-fizz-berry transition-colors"
+								>
+									Search
+								</YnsLink>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				{/* Oversized wordmark */}
+				<div className="border-t-2 border-fizz-ink/15 py-10 sm:py-12">
+					<p
+						aria-hidden="true"
+						className="font-display uppercase text-fizz-ink leading-[0.85] tracking-[-0.02em] text-[clamp(3rem,15vw,12rem)] text-center"
+					>
+						YOUR NEXT STORE
+					</p>
+				</div>
+
+				<div className="py-6 border-t-2 border-fizz-ink/15 flex flex-col sm:flex-row gap-3 sm:gap-6 items-center justify-between">
+					<p className="text-xs font-bold uppercase tracking-[0.18em] text-fizz-ink/70">
+						© {new Date().getFullYear()} Your Next Store. All rights reserved.
+					</p>
+					<p className="text-xs font-bold uppercase tracking-[0.18em] text-fizz-ink/70">
+						Drink responsibly · 21+
 					</p>
 				</div>
 			</div>

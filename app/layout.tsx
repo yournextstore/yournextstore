@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bodyFont = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const displayFont = Archivo_Black({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["400"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -136,27 +138,72 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<header className="sticky top-0 z-50 bg-fizz-yellow border-b-2 border-fizz-ink/10">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+						<div className="grid grid-cols-3 items-center h-20">
+							{/* Left: menu trigger + nav */}
+							<div className="flex items-center gap-4">
+								<button
+									type="button"
+									aria-label="Open menu"
+									className="inline-flex items-center justify-center w-11 h-11 rounded-full text-fizz-ink hover:bg-fizz-ink/10 transition-colors"
+								>
+									<svg
+										width="22"
+										height="22"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2.5"
+										strokeLinecap="round"
+										aria-hidden="true"
+									>
+										<line x1="3" y1="7" x2="21" y2="7" />
+										<line x1="3" y1="12" x2="21" y2="12" />
+										<line x1="3" y1="17" x2="21" y2="17" />
+									</svg>
+								</button>
+								<div className="hidden md:flex items-center">
+									<Navbar links={links} />
+								</div>
 							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
+
+							{/* Center: wordmark */}
+							<div className="flex flex-col items-center justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display text-2xl sm:text-3xl tracking-[0.2em] text-fizz-sky leading-none"
+								>
+									YOUR NEXT STORE
+								</YnsLink>
+								<span className="mt-1 text-[0.55rem] sm:text-[0.65rem] tracking-[0.35em] text-fizz-sky/80 font-semibold">
+									SPARKLING · STILL · FIZZ-FREE
+								</span>
+							</div>
+
+							{/* Right: Shop Now + Cart */}
+							<div className="flex items-center justify-end gap-3 sm:gap-4">
+								<div className="hidden md:block">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+								</div>
 								{AUTH_ENABLED && <AuthButton />}
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="hidden sm:inline-flex items-center justify-center px-5 h-10 rounded-full bg-fizz-sky text-white text-sm font-semibold hover:bg-fizz-sky/90 transition-colors"
+								>
+									Shop Now
+								</YnsLink>
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +239,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
