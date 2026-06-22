@@ -22,15 +22,17 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	eyebrow?: string;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "The Menu",
+	description = "A curated rotation of seating, objects and editions in stock today.",
 	products,
 	limit = 6,
 	showViewAll = true,
 	viewAllHref = "/products",
+	eyebrow = "Vol. 01",
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
@@ -38,42 +40,50 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="relative bg-background">
+			<div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-20 sm:py-28">
+				<div className="grid grid-cols-12 gap-6 items-end mb-12 sm:mb-16">
+					<div className="col-span-12 md:col-span-8">
+						<div className="font-grotesk text-[10px] uppercase tracking-eyebrow text-muted-foreground mb-4 flex items-center gap-3">
+							<span aria-hidden className="block h-px w-8 bg-foreground" />
+							<span className="text-accent/80">(</span>
+							<span className="px-1">{eyebrow}</span>
+							<span className="text-accent/80">)</span>
+						</div>
+						<h2 className="font-editorial italic font-light text-5xl md:text-6xl leading-[0.95] tracking-tight text-foreground">
+							{title}
+						</h2>
+						<p className="mt-4 font-grotesk text-sm text-muted-foreground max-w-md">{description}</p>
+					</div>
+					<div className="col-span-12 md:col-span-4 md:text-right">
+						{showViewAll && (
+							<YnsLink
+								prefetch={"eager"}
+								href={viewAllHref}
+								className="inline-flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-eyebrow text-foreground border-b border-foreground/70 pb-1 hover:gap-3 transition-all"
+							>
+								the full archive
+								<ArrowRight className="h-3.5 w-3.5" />
+							</YnsLink>
+						)}
+					</div>
 				</div>
-				{showViewAll && (
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
-				)}
-			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+					{displayProducts.map((product, idx) => (
+						<div key={product.id} className="relative">
+							<div
+								aria-hidden="true"
+								className="absolute -top-3 -left-2 font-grotesk text-[10px] uppercase tracking-eyebrow text-muted-foreground/70 z-10"
+							>
+								{String(idx + 1).padStart(2, "0")} <span className="text-accent/70">/</span>{" "}
+								{String(displayProducts.length).padStart(2, "0")}
+							</div>
+							<ProductCard product={product} />
+						</div>
+					))}
 				</div>
-			)}
+			</div>
 		</section>
 	);
 }
