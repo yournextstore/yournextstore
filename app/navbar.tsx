@@ -46,13 +46,13 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="hidden md:flex items-center gap-5 lg:gap-7 text-[#1a1a2e]">
 				{links.map((link) => (
 					<YnsLink
 						key={link.href}
 						prefetch="eager"
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-[13px] font-semibold tracking-wide uppercase hover:text-[#4d4bc4] transition-colors whitespace-nowrap"
 					>
 						{link.label}
 					</YnsLink>

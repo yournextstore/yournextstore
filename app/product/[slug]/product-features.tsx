@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Droplets, Leaf, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,44 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Plant-Based Lather",
+		description:
+			"Cold-pressed coconut and olive oils whip into a creamy, dense lather without a single drop of synthetic surfactant.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Real Essential Oils",
+		description:
+			"Scent comes from steam-distilled botanicals, never fragrance oils. The smell is bold because the ingredients are real.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Small-Batch Cure",
+		description:
+			"Each bar cures for 6 weeks in our studio so it lasts longer, lathers richer, and smells truer.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Droplets, Leaf, Sparkles];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-20 pt-16 border-t border-[#e4d9c4]">
+			<div className="text-center max-w-2xl mx-auto">
+				<p className="font-script text-2xl text-[#4d4bc4]">made differently</p>
+				<h2 className="mt-1 font-display text-4xl sm:text-5xl text-[#1a1a2e]">Crafted with intention</h2>
+			</div>
+			<div className="mt-12 grid gap-8 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group flex flex-col items-center text-center bg-[#fdf6ee] border border-[#e4d9c4] rounded-2xl p-7 hover:border-[#4d4bc4] transition-colors"
+						>
+							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#b9bcf2]/40 text-[#4d4bc4] transition-colors group-hover:bg-[#1a1a2e] group-hover:text-[#fdf6ee]">
+								<Icon className="h-6 w-6" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-display text-2xl text-[#1a1a2e]">{feature.title}</h3>
+							<p className="text-sm text-[#5c5b78] leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}

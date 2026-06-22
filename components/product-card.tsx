@@ -14,6 +14,21 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const cardTints = [
+	"bg-[#f2c9a6]",
+	"bg-[#b9bcf2]",
+	"bg-[#e8a47a]",
+	"bg-[#d4d6f7]",
+	"bg-[#fdf6ee]",
+	"bg-[#f2e6d4]",
+];
+
+function hashIndex(id: string, length: number) {
+	let h = 0;
+	for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+	return Math.abs(h) % length;
+}
+
 export function ProductCard({
 	product,
 	priority = false,
@@ -39,7 +54,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -52,11 +67,15 @@ export function ProductCard({
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const singleVariant = variants?.length === 1 ? variants[0] : null;
+	const tint = cardTints[hashIndex(product.id, cardTints.length)];
 
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div
+				className={`relative aspect-square ${tint} rounded-[1.5rem] overflow-hidden mb-4 ring-1 ring-[#1a1a2e]/5 shadow-[0_15px_30px_-20px_rgba(26,26,46,0.35)] group-hover:shadow-[0_25px_45px_-20px_rgba(26,26,46,0.5)] transition-all`}
+			>
+				<div className="absolute inset-0 scent-grain opacity-30 pointer-events-none" aria-hidden="true" />
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -73,7 +92,7 @@ export function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -85,8 +104,8 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
+							className={`object-cover transition-transform duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
@@ -105,14 +124,16 @@ export function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="px-1 space-y-1">
+				<h3 className="font-display text-xl sm:text-2xl text-[#1a1a2e] leading-tight uppercase tracking-tight">
+					{product.name}
+				</h3>
+				<p className="text-sm font-semibold text-[#4d4bc4]">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
