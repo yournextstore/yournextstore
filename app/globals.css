@@ -40,75 +40,82 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-yns-red: var(--yns-red);
+	--color-yns-red-dark: var(--yns-red-dark);
+	--color-yns-cream: var(--yns-cream);
+	--color-yns-cream-soft: var(--yns-cream-soft);
+	--color-yns-yellow: var(--yns-yellow);
+	--color-yns-brown: var(--yns-brown);
+	--color-yns-brown-soft: var(--yns-brown-soft);
+	--font-display: var(--font-display);
+	--font-sans: var(--font-body);
+	--font-script: var(--font-script);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 0.75rem;
+
+	/* S'NOODS-inspired palette */
+	--yns-red: #f04a23;
+	--yns-red-dark: #d93a18;
+	--yns-cream: #fcefc8;
+	--yns-cream-soft: #fff7e0;
+	--yns-yellow: #f7d26b;
+	--yns-brown: #3a1f12;
+	--yns-brown-soft: #5a3a25;
+
+	--background: #fcefc8;
+	--foreground: #3a1f12;
+	--card: #fff7e0;
+	--card-foreground: #3a1f12;
+	--popover: #fff7e0;
+	--popover-foreground: #3a1f12;
+	--primary: #f04a23;
+	--primary-foreground: #fff7e0;
+	--secondary: #fbe6b0;
+	--secondary-foreground: #3a1f12;
+	--muted: #f6e3ad;
+	--muted-foreground: #6b4528;
+	--accent: #f7d26b;
+	--accent-foreground: #3a1f12;
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: #ebd292;
+	--input: #ebd292;
+	--ring: #f04a23;
+	--chart-1: #f04a23;
+	--chart-2: #f7d26b;
+	--chart-3: #d93a18;
+	--chart-4: #3a1f12;
+	--chart-5: #fff7e0;
+	--sidebar: #fff7e0;
+	--sidebar-foreground: #3a1f12;
+	--sidebar-primary: #f04a23;
+	--sidebar-primary-foreground: #fff7e0;
+	--sidebar-accent: #f7d26b;
+	--sidebar-accent-foreground: #3a1f12;
+	--sidebar-border: #ebd292;
+	--sidebar-ring: #f04a23;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--background: #3a1f12;
+	--foreground: #fcefc8;
+	--card: #4a2a19;
+	--card-foreground: #fcefc8;
+	--popover: #4a2a19;
+	--popover-foreground: #fcefc8;
+	--primary: #f04a23;
+	--primary-foreground: #fff7e0;
+	--secondary: #5a3a25;
+	--secondary-foreground: #fcefc8;
+	--muted: #5a3a25;
+	--muted-foreground: #d9c89a;
+	--accent: #f7d26b;
+	--accent-foreground: #3a1f12;
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
+	--border: oklch(1 0 0 / 12%);
 	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--ring: #f04a23;
 }
 
 @layer base {
@@ -117,36 +124,158 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-body), Georgia, serif;
 	}
+	::selection {
+		background: var(--yns-red);
+		color: var(--yns-cream-soft);
+	}
+}
+
+/* Display headings — chunky retro lettering */
+.font-display {
+	font-family: var(--font-display), "Bagel Fat One", "Lobster Two", cursive;
+	letter-spacing: -0.01em;
+	line-height: 0.95;
+}
+
+.font-script {
+	font-family: var(--font-script), "Caveat Brush", cursive;
+}
+
+/* Decorative red script tagline used in announcement bar */
+.font-tagline {
+	font-family: var(--font-display), serif;
+	font-style: italic;
+}
+
+/* Gold tinsel curtain backdrop — vertical streaks */
+.bg-tinsel {
+	background:
+		linear-gradient(rgba(58, 31, 18, 0.25), rgba(58, 31, 18, 0.05) 40%, rgba(58, 31, 18, 0.5)),
+		repeating-linear-gradient(
+			to right,
+			#b5832e 0px,
+			#e6c773 3px,
+			#f3dd99 6px,
+			#9d6f1f 10px,
+			#d9b25b 14px,
+			#f5e0a2 18px,
+			#a4761e 22px
+		);
+}
+
+/* Cream paper grain */
+.bg-cream-grain {
+	background-color: var(--yns-cream);
+	background-image:
+		radial-gradient(circle at 20% 10%, rgba(240, 74, 35, 0.04) 0%, transparent 40%),
+		radial-gradient(circle at 80% 90%, rgba(247, 210, 107, 0.18) 0%, transparent 50%);
+}
+
+/* Red marquee gradient — for buttons / banners */
+.bg-marquee {
+	background: linear-gradient(135deg, #f04a23 0%, #d93a18 100%);
+}
+
+/* Pill button (outlined) */
+.btn-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.875rem 1.75rem;
+	border: 1.5px solid var(--yns-red);
+	color: var(--yns-red);
+	background: transparent;
+	border-radius: 9999px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.78rem;
+	transition: all 200ms ease;
+}
+.btn-pill:hover {
+	background: var(--yns-red);
+	color: var(--yns-cream-soft);
+}
+
+.btn-pill-solid {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.95rem 2rem;
+	background: var(--yns-red);
+	color: var(--yns-cream-soft);
+	border-radius: 9999px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.82rem;
+	border: 1.5px solid var(--yns-red);
+	transition: all 200ms ease;
+	box-shadow: 0 4px 0 var(--yns-brown);
+}
+.btn-pill-solid:hover {
+	background: var(--yns-red-dark);
+	transform: translate(0, 2px);
+	box-shadow: 0 2px 0 var(--yns-brown);
+}
+
+/* Squiggle underline for headings */
+.squiggle::after {
+	content: "";
+	display: block;
+	width: 64px;
+	height: 10px;
+	margin: 0.75rem auto 0;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 10'><path d='M2 5 Q 10 0, 18 5 T 34 5 T 50 5 T 62 5' stroke='%23F04A23' stroke-width='2.5' fill='none' stroke-linecap='round'/></svg>");
+	background-repeat: no-repeat;
+}
+
+/* Animated marquee for press / promo strip */
+.marquee {
+	display: flex;
+	overflow: hidden;
+	user-select: none;
+}
+.marquee-track {
+	flex-shrink: 0;
+	display: flex;
+	gap: 3rem;
+	min-width: 100%;
+	align-items: center;
+	animation: marquee 28s linear infinite;
+}
+@keyframes marquee {
+	from { transform: translateX(0); }
+	to { transform: translateX(-100%); }
 }
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
 	--tw-prose-headings: var(--foreground);
-	--tw-prose-links: var(--foreground);
+	--tw-prose-links: var(--yns-red);
 	--tw-prose-bold: var(--foreground);
-	--tw-prose-bullets: var(--muted-foreground);
-	--tw-prose-counters: var(--muted-foreground);
+	--tw-prose-bullets: var(--yns-red);
+	--tw-prose-counters: var(--yns-red);
 }
 
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#f6e3ad 0%,
+		#fbe6b0 40%,
+		#fff7e0 50%,
+		#fbe6b0 60%,
+		#f6e3ad 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }
 
 @keyframes yns-image-shimmer {
-	0% {
-		background-position: 200% 0;
-	}
-	100% {
-		background-position: -200% 0;
-	}
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
 }
