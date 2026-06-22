@@ -62,27 +62,36 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div
+				className="relative aspect-[4/5] overflow-hidden"
+				style={{
+					background:
+						"radial-gradient(ellipse at 50% 60%, rgba(245,209,74,0.06) 0%, rgba(122,53,40,0.10) 45%, #0a0807 100%)",
+				}}
+			>
+				<div className="pointer-events-none absolute inset-0 border border-bone/8" />
 				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
+					<div className="absolute right-3 top-3 z-10">
+						<QuickAddButton
+							variantId={singleVariant.id}
+							variantSku={"sku" in singleVariant ? singleVariant.sku : null}
+							variantPrice={singleVariant.price}
+							variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
+							variantImages={singleVariant.images}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images ?? [],
+							}}
+						/>
+					</div>
 				)}
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -96,7 +105,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-contain p-8 transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -104,7 +113,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -117,16 +126,21 @@ export async function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-contain p-8 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="mt-5 flex items-start justify-between gap-4">
+				<div className="min-w-0">
+					<h2 className="font-serif-display text-2xl leading-tight text-foreground">{product.name}</h2>
+					<p className="mt-1 text-[10px] tracking-microcaps text-foreground/55">Eau de Parfum · 50ml</p>
+				</div>
+				<p className="shrink-0 font-serif-display text-lg italic text-saffron">
+					{priceDisplay}
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="ml-2 text-sm not-italic text-foreground/40 line-through">
+							{compareAtDisplay}
+						</span>
 					)}
 				</p>
 			</div>
