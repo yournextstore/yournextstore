@@ -38,7 +38,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 								prefetch="eager"
 								href={link.href}
 								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+								className="rounded-lg px-3 py-3 text-[11px] font-medium tracking-[0.22em] uppercase text-foreground/80 hover:text-foreground transition-colors"
 							>
 								{link.label}
 							</YnsLink>
@@ -46,13 +46,13 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="flex items-center gap-5 sm:gap-7">
 				{links.map((link) => (
 					<YnsLink
+						prefetch={"eager"}
 						key={link.href}
-						prefetch="eager"
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-[11px] font-medium tracking-[0.22em] uppercase text-foreground/80 hover:text-foreground transition-colors whitespace-nowrap"
 					>
 						{link.label}
 					</YnsLink>

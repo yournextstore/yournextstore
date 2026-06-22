@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Hammer, type LucideIcon, Repeat, Shield, Truck } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,51 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Made to last",
+		description: "Spec'd around real-world abuse — cobblestones, rain, the back of a sedan.",
+		icon: Hammer,
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "10-year frame guarantee",
+		description: "If the frame fails, we replace it. Free of charge, for a decade.",
+		icon: Shield,
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Free 48-hour shipping",
+		description: "Most orders ship the same day from our Brooklyn warehouse.",
+		icon: Truck,
+	},
+	{
+		title: "Endlessly repairable",
+		description: "Every part sold separately. A 6mm hex is the only tool you'll ever need.",
+		icon: Repeat,
 	},
 ];
-
-const defaultIcons = [Leaf, Hammer, Award];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
 		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
-				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
+			<div className="text-center mb-12">
+				<span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] uppercase text-ink/60">
+					<span className="block h-px w-8 bg-brick" />
+					Why YNS
+				</span>
+				<h2 className="mt-4 font-display-wide text-[clamp(1.8rem,4vw,3rem)] leading-[0.95] uppercase tracking-tight">
+					Built like you mean it.
+				</h2>
+			</div>
+			<div className="grid gap-px bg-border lg:grid-cols-4 border border-border">
+				{features.map((feature) => {
+					const Icon = feature.icon ?? Hammer;
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div key={feature.title} className="bg-background p-7 group hover:bg-bone transition-colors">
+							<div className="inline-flex h-11 w-11 items-center justify-center bg-ink text-bone group-hover:bg-brick transition-colors">
+								<Icon className="h-5 w-5" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mt-5 font-display-wide text-[13px] tracking-[0.06em] uppercase">
+								{feature.title}
+							</h3>
+							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}

@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,13 +22,14 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const display = Archivo_Black({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: "400",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const sans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
@@ -131,32 +132,70 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-ink text-bone text-[11px] tracking-[0.22em] uppercase">
+			<div className="max-w-[1400px] mx-auto px-6 h-9 flex items-center justify-center gap-8 overflow-hidden">
+				<span className="hidden sm:inline opacity-80">Free shipping on orders over $80</span>
+				<span className="hidden md:inline-block w-px h-3 bg-bone/30" />
+				<span className="opacity-90">Built for the urban everyday — shop the new edit</span>
+				<span className="hidden md:inline-block w-px h-3 bg-bone/30" />
+				<span className="hidden sm:inline opacity-80">Ships in 48 hours</span>
+			</div>
+		</div>
+	);
+}
+
+function HeaderIcons({ links }: { links: NavLink[] }) {
+	return (
+		<div className="flex items-center gap-1.5 sm:gap-3 text-foreground">
+			<div className="hidden md:flex items-center gap-1 px-2 py-1 rounded-full hover:bg-secondary transition-colors text-[11px] tracking-[0.2em] uppercase cursor-default">
+				<span className="text-base leading-none">🇺🇸</span>
+				<span className="font-medium">USD</span>
+			</div>
+			<Suspense>
+				<SearchInput />
+			</Suspense>
+			{AUTH_ENABLED && <AuthButton />}
+			<CartButton />
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border/60">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center h-16 gap-4">
+							<div className="hidden lg:flex items-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
+							<div className="flex items-center lg:justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display-wide text-xl sm:text-2xl tracking-[0.18em] text-foreground"
+								>
+									YOUR NEXT STORE
+								</YnsLink>
+							</div>
+							<div className="flex items-center justify-end">
+								<HeaderIcons links={links} />
 							</div>
 						</div>
 					</div>
+					<div className="lg:hidden border-t border-border/50 overflow-x-auto hide-scrollbar">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-11 flex items-center">
+							<Navbar links={links} />
+						</div>
+					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +231,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${display.variable} ${sans.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
