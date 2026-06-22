@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,15 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-mono text-[10px] uppercase tracking-[0.28em] text-foreground/50 mb-5">
+				[ Collections ]
+			</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +82,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-mono text-[10px] uppercase tracking-[0.28em] text-foreground/50 mb-5">[ Legal ]</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,17 +112,50 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+		<footer className="relative border-t border-border bg-background overflow-hidden">
+			{/* atmospheric glow */}
+			<div
+				aria-hidden="true"
+				className="absolute -top-32 left-1/2 -translate-x-1/2 w-[80%] h-64 pointer-events-none opacity-30"
+				style={{
+					background: "radial-gradient(ellipse 50% 100% at 50% 0%, rgba(63,217,214,0.35), transparent 70%)",
+					filter: "blur(60px)",
+				}}
+			/>
+
+			<div className="relative max-w-[1400px] mx-auto px-6">
+				<div className="py-16 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-10">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="col-span-2">
+						<Link href="/" className="inline-flex items-center gap-2">
+							<span className="font-mono text-[11px] tracking-[0.22em] uppercase text-foreground/40">[</span>
+							<span className="font-display font-semibold tracking-[0.32em] text-foreground">YNS</span>
+							<span className="font-mono text-[11px] tracking-[0.22em] uppercase text-foreground/40">]</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-foreground/60 leading-relaxed max-w-xs">
+							Your Next Store — atmospheric streetwear for the in-between hours. Designed slow, dropped
+							limited.
 						</p>
+						<div className="mt-6 flex items-center gap-3">
+							<a
+								href="https://instagram.com"
+								className="font-mono text-[10px] uppercase tracking-[0.24em] text-foreground/60 hover:text-cyan-200 transition-colors"
+							>
+								[ IG ]
+							</a>
+							<a
+								href="https://twitter.com"
+								className="font-mono text-[10px] uppercase tracking-[0.24em] text-foreground/60 hover:text-cyan-200 transition-colors"
+							>
+								[ X ]
+							</a>
+							<a
+								href="https://tiktok.com"
+								className="font-mono text-[10px] uppercase tracking-[0.24em] text-foreground/60 hover:text-cyan-200 transition-colors"
+							>
+								[ TT ]
+							</a>
+						</div>
 					</div>
 
 					{/* Collections */}
@@ -128,12 +163,14 @@ export async function Footer() {
 
 					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="font-mono text-[10px] uppercase tracking-[0.28em] text-foreground/50 mb-5">
+							[ Support ]
+						</h3>
+						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,9 +179,25 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors"
 								>
 									FAQ
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/products"
+									className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors"
+								>
+									Shipping
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/products"
+									className="text-sm text-foreground/70 hover:text-cyan-200 transition-colors"
+								>
+									Returns
 								</Link>
 							</li>
 							<FooterBlogLink />
@@ -156,8 +209,13 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+					<p className="font-mono text-[10px] uppercase tracking-[0.24em] text-foreground/40">
+						[ © {year} Your Next Store — All rights reserved ]
+					</p>
+					<p className="font-mono text-[10px] uppercase tracking-[0.24em] text-foreground/40">
+						[ Built slow, in transit ]
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>

@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -19,19 +19,23 @@ import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+	variable: "--font-display",
+	subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+	variable: "--font-mono",
 	subsets: ["latin"],
 	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
 	preload: false,
@@ -124,33 +128,55 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function Bracketed({ children }: { children: React.ReactNode }) {
+	return (
+		<span className="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.22em] uppercase">
+			<span className="text-foreground/40">[</span>
+			<span>{children}</span>
+			<span className="text-foreground/40">]</span>
+		</span>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+					{/* Announcement bar */}
+					<div className="bg-foreground text-background">
+						<div className="max-w-[1400px] mx-auto px-6 py-2 flex items-center justify-center gap-3 text-[11px] font-mono uppercase tracking-[0.24em]">
+							<span className="opacity-60">[</span>
+							<span>Drop 003 — Free shipping over $150 worldwide</span>
+							<span className="opacity-60">]</span>
+						</div>
+					</div>
+
+					<header className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl">
+						<div className="max-w-[1400px] mx-auto px-6">
+							<div className="flex items-center justify-between h-16">
+								<div className="flex items-center gap-10">
+									<Link href="/" className="group flex items-center gap-2">
+										<Bracketed>
+											<span className="font-display font-semibold tracking-[0.32em] text-foreground">
+												YNS
+											</span>
+										</Bracketed>
 									</Link>
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-3">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,10 +186,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="rounded-full p-2 transition-colors hover:bg-secondary"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="h-5 w-5" />
 									</a>
 									<CartButton />
 								</div>
@@ -174,8 +200,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 					<Footer />
 				</div>
 				<CartSidebar />
-				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -210,8 +235,10 @@ export default async function RootLayout({
 
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
-		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang} className="dark" suppressHydrationWarning>
+			<body
+				className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased font-sans`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -219,7 +246,8 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				{/* The theme is dark-only (its palette lives in :root), so the class is pinned, not switchable. */}
+				<ThemeProvider attribute="class" forcedTheme="dark" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
