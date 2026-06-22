@@ -3,7 +3,6 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
@@ -14,6 +13,7 @@ export type Product = APIProductsBrowseResult["data"][number];
 type ProductGridProps = {
 	title?: string;
 	description?: string;
+	eyebrow?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -22,17 +22,20 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	tone?: "sand" | "bone";
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Best Sellers",
+	description,
+	eyebrow = "The Collection",
 	products,
-	limit = 6,
+	limit = 4,
 	showViewAll = true,
 	viewAllHref = "/products",
+	tone = "sand",
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -40,41 +43,40 @@ export async function ProductGrid({
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	const bg = tone === "sand" ? "bg-sand" : "bg-bone";
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className={`${bg} relative`}>
+			<div className="max-w-[1400px] mx-auto px-6 sm:px-10 py-24 sm:py-32">
+				<div className="text-center mb-16">
+					<p className="eyebrow text-rosewood mb-5">{eyebrow}</p>
+					<h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink font-light leading-[1.05]">
+						{title}
+					</h2>
+					{description && (
+						<p className="mt-5 text-ink/65 text-base max-w-md mx-auto leading-relaxed">{description}</p>
+					)}
+					<span className="mt-8 inline-block w-16 h-px bg-ink/30" />
 				</div>
+
+				<div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-14 sm:gap-x-8">
+					{displayProducts.slice(0, limit).map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
+					))}
+				</div>
+
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+					<div className="mt-20 text-center">
+						<Link
+							href={viewAllHref}
+							className="inline-flex items-center gap-3 eyebrow text-ink border-b border-ink/30 pb-1 hover:border-ink transition-colors"
+						>
+							View The Full Collection
+							<span className="text-base font-light leading-none">→</span>
+						</Link>
+					</div>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

@@ -63,7 +63,7 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-[4/5] bg-bone overflow-hidden mb-5">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +82,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -95,8 +95,8 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={`object-cover transition-all duration-[900ms] ease-out ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-[1.03]"}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -104,7 +104,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -116,18 +116,17 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
+			<div className="text-center">
+				<h2 className="font-serif text-lg sm:text-xl text-ink font-normal leading-tight">{product.name}</h2>
+				<span className="mt-2 inline-block w-6 h-px bg-ink/30" />
+				<p className="mt-2 flex flex-wrap items-baseline justify-center gap-2 text-ink/70 text-sm tracking-wide">
+					<span>{priceDisplay}</span>
+					{compareAtDisplay && <span className="text-ink/45 line-through">{compareAtDisplay}</span>}
 				</p>
 			</div>
 		</IntentLink>

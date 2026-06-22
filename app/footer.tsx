@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="font-serif text-bone/85 hover:text-bone text-base transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="font-serif text-bone/85 hover:text-bone text-base transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,18 +51,26 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="eyebrow text-bone/60 text-[0.65rem] mb-5">Shop</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
 						>
 							{collection.name}
 						</Link>
 					</li>
 				))}
+				<li>
+					<Link
+						href="/products"
+						className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
+					>
+						All Products
+					</Link>
+				</li>
 			</ul>
 		</div>
 	);
@@ -80,13 +88,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="eyebrow text-bone/60 text-[0.65rem] mb-5">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,30 +118,43 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="bg-ink text-bone">
+			<div className="max-w-[1400px] mx-auto px-6 sm:px-10 pt-20 pb-10">
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-10">
+					<div className="col-span-2 md:col-span-1">
+						<Link href="/" className="font-serif text-2xl tracking-[0.18em] text-bone">
+							YOUR NEXT STORE
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 font-serif italic text-bone/65 text-base leading-relaxed max-w-xs">
+							Intimate by nature. Intuitive by design. Made slowly, in small batches.
 						</p>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="eyebrow text-bone/60 text-[0.65rem] mb-5">Atelier</h3>
+						<ul className="space-y-3">
+							<li>
+								<Link
+									href="#about"
+									className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
+								>
+									About
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="#muses"
+									className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
+								>
+									Muses
+								</Link>
+							</li>
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,7 +163,15 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
+								>
+									Stockists
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/faq"
+									className="font-serif text-bone/85 hover:text-bone text-base transition-colors"
 								>
 									FAQ
 								</Link>
@@ -151,14 +180,20 @@ export async function Footer() {
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="mt-20 pt-8 border-t border-bone/15">
+					<p className="font-serif italic text-clay/80 text-center text-3xl sm:text-5xl tracking-[0.25em] mb-8">
+						Y&nbsp;·&nbsp;N&nbsp;·&nbsp;S
+					</p>
+					<PaymentMethods className="mb-8 justify-center" />
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+						<p className="eyebrow text-bone/45 text-[0.6rem]">
+							&copy; {year} Your Next Store — All Rights Reserved
+						</p>
+						<p className="eyebrow text-bone/45 text-[0.6rem]">Made slowly · Shipped warmly · Worldwide</p>
+					</div>
 				</div>
 			</div>
 		</footer>

@@ -3,11 +3,12 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -25,16 +26,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+	style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["300", "400", "500", "600"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -42,7 +44,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription = me.store.settings?.storeDescription || "Intimate by nature. Intuitive by design.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -128,25 +130,32 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border/40 bg-background/85 backdrop-blur-xl">
+						<div className="max-w-[1400px] mx-auto px-6 sm:px-10">
+							<div className="grid grid-cols-3 items-center h-20">
+								<div className="flex items-center">
+									<Link
+										href="/"
+										className="font-serif text-2xl sm:text-3xl tracking-[0.18em] text-foreground"
+									>
+										YOUR NEXT STORE
 									</Link>
+								</div>
+								{/* Flex on mobile too: the menu trigger lives in here and is the only way to the links below lg. */}
+								<div className="flex items-center justify-end lg:justify-center">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center justify-end gap-5">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,7 +169,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 text-foreground/80 hover:text-foreground transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -208,10 +217,10 @@ export default async function RootLayout({
 	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
 	const lang = await getHtmlLang();
 
+	// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 	return (
-		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${cormorant.variable} ${inter.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
