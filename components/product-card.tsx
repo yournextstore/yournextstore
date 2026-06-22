@@ -63,7 +63,7 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-square bg-[color:var(--brick-cream)] rounded-3xl overflow-hidden mb-5 ring-1 ring-border transition-shadow duration-300 group-hover:shadow-[0_20px_40px_-20px_rgba(10,10,10,0.25)]">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
