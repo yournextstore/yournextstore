@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { WipMonogram } from "@/components/wip-monogram";
 import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
@@ -16,7 +17,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-background/70 transition-colors hover:text-background"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +39,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-background/70 transition-colors hover:text-background"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,19 +59,28 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-zap">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-background/70 transition-colors hover:text-background"
 						>
 							{collection.name}
 						</YnsLink>
 					</li>
 				))}
+				<li>
+					<YnsLink
+						prefetch={"eager"}
+						href="/products"
+						className="text-sm text-background/70 transition-colors hover:text-background"
+					>
+						All Products
+					</YnsLink>
+				</li>
 			</ul>
 		</div>
 	);
@@ -88,14 +98,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-zap">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-background/70 transition-colors hover:text-background"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +118,49 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="relative overflow-hidden bg-foreground text-background">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 opacity-20"
+				style={{
+					backgroundImage: "radial-gradient(circle, #f1f23b 1px, transparent 1.2px)",
+					backgroundSize: "26px 26px",
+					maskImage: "linear-gradient(180deg, black 0%, transparent 60%)",
+					WebkitMaskImage: "linear-gradient(180deg, black 0%, transparent 60%)",
+				}}
+			/>
+			<div className="relative mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+				{/* Top giant wordmark */}
+				<div className="border-b border-background/15 py-10 sm:py-14">
+					<p className="font-display text-[18vw] uppercase leading-none tracking-tight text-background sm:text-[14vw] lg:text-[10rem]">
+						Your Next Store.
+					</p>
+				</div>
+
+				<div className="grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
+					<div className="lg:col-span-2">
+						<YnsLink prefetch={"eager"} href="/" aria-label="Your Next Store" className="inline-flex">
+							<WipMonogram className="h-9 w-auto text-zap" />
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 max-w-sm text-sm leading-relaxed text-background/65">
+							Natural caffeine energy pouches engineered for clean focus. Crafted in small batches. Built for
+							the long days.
+						</p>
+						<p className="mt-6 text-xs font-semibold uppercase tracking-[0.22em] text-background/40">
+							hello@yournextstore.com
 						</p>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-zap">Support</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-background/70 transition-colors hover:text-background"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +170,42 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-background/70 transition-colors hover:text-background"
 								>
 									FAQ
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/faq"
+									className="text-sm text-background/70 transition-colors hover:text-background"
+								>
+									The Science
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/faq"
+									className="text-sm text-background/70 transition-colors hover:text-background"
+								>
+									Responsible Caffeine
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
+				<div className="flex flex-col items-start justify-between gap-3 border-t border-background/15 py-6 sm:flex-row sm:items-center">
+					<p className="text-xs font-semibold uppercase tracking-[0.22em] text-background/50">
 						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+					</p>
+					<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-background/40">
+						Consume responsibly · Not for under 18
 					</p>
 				</div>
 			</div>

@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Leaf, type LucideIcon, ShieldCheck, Zap } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,44 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Natural Caffeine",
+		description: "200mg of plant-derived caffeine per pouch — no synthetic stimulants, ever.",
+		icon: Zap,
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Clean Ingredients",
+		description: "Zero sugar, zero calories, zero nicotine. Just natural flavors and B-vitamins.",
+		icon: Leaf,
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Lab Verified",
+		description: "Every batch is third-party tested for purity, potency, and safety standards.",
+		icon: ShieldCheck,
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
-
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-border pt-20">
+			<p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.24em] text-foreground/60">
+				Why YNS
+			</p>
+			<h2 className="mb-16 text-center font-display text-4xl uppercase tracking-tight sm:text-5xl lg:text-6xl">
+				Engineered for focus.
+			</h2>
+			<div className="grid gap-10 md:grid-cols-3">
 				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
+					const Icon = feature.icon ?? defaultFeatures[index % defaultFeatures.length].icon ?? Zap;
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group relative flex flex-col items-start border-l-2 border-foreground/10 pl-6 transition-all hover:border-zap"
+						>
+							<div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-zap text-foreground transition-transform group-hover:rotate-12">
+								<Icon className="h-5 w-5" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-3 font-display text-2xl uppercase tracking-tight">{feature.title}</h3>
+							<p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
 						</div>
 					);
 				})}
