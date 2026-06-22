@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, JetBrains_Mono } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const fraunces = Fraunces({
+	variable: "--font-display",
 	subsets: ["latin"],
+	display: "swap",
+	axes: ["SOFT", "WONK", "opsz"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+	variable: "--font-mono",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -105,6 +106,16 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-mahogany text-honey">
+			<div className="mx-auto max-w-[1400px] px-4 py-2 text-center font-mono text-[11px] uppercase tracking-[0.25em] sm:text-xs">
+				Free shipping on US orders over $60 · Small-batch · Grass-fed
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,17 +147,20 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-mahogany/15 bg-background/85 backdrop-blur-md">
+						<div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+							<div className="flex h-16 items-center justify-between gap-6">
+								<Link
+									href="/"
+									className="font-display text-2xl font-black uppercase leading-none tracking-tight text-mahogany sm:text-[26px]"
+									style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1' }}
+								>
+									Your Next Store
+								</Link>
+								<Navbar links={links} />
+								<div className="flex items-center gap-1">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -211,7 +225,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${fraunces.variable} ${jetbrainsMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
