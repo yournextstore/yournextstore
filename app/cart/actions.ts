@@ -1,12 +1,27 @@
 "use server";
 
+import { headers } from "next/headers";
 import { try_ } from "safe-try";
 import { refusedCodeMessage } from "@/app/cart/discount-code";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { PREVIEW_HOST_MARKER, PREVIEW_HOST_SUFFIX } from "@/lib/demo-products";
 import { getStoreConfig } from "@/lib/store-config";
 
+async function isPreviewRequest() {
+	const h = await headers();
+	const host = (h.get("host") ?? "").toLowerCase();
+	if (!host) return false;
+	const onPreviewHost = host.includes(PREVIEW_HOST_MARKER) || host.endsWith(PREVIEW_HOST_SUFFIX);
+	if (!onPreviewHost) return false;
+	const referer = h.get("referer") ?? "";
+	return referer.includes("preview=1");
+}
+
 export async function addToCart(variantId: string, quantity = 1, subscriptionPlanId?: string | null) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
 	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
 	// the order and its emails speak it. Omitted when the store never set a default language.
@@ -85,6 +100,10 @@ export async function setCartQuantity(
 	quantity: number,
 	subscriptionPlanId?: string | null,
 ) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {

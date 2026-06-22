@@ -184,16 +184,19 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					<div className="space-y-4">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center text-[11px] uppercase tracking-[0.32em] text-clay transition-colors hover:text-walnut"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						{product.category?.name && (
+							<p className="text-[11px] uppercase tracking-[0.32em] text-clay">{product.category.name}</p>
+						)}
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-walnut text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -246,7 +249,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 			{/* Full description (below the fold, full width) */}
 			{product.content && (
 				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
+					<h2 className="mb-6 font-serif text-3xl tracking-tight text-walnut">Product details</h2>
 					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
 						<TiptapRenderer content={product.content} />
 					</div>

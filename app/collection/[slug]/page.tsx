@@ -1,20 +1,11 @@
 import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -61,18 +52,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-aura-cream">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
+				<div className="py-16 sm:py-24 lg:py-28">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<p className="text-[11px] uppercase tracking-[0.32em] text-clay/80 mb-4">Collection</p>
+						<h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl tracking-tight text-walnut text-balance">
 							{collection.name}
 						</h1>
 						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
 						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+							<p className="mt-5 text-base sm:text-lg text-espresso/70 leading-relaxed max-w-md">
+								{collection.description}
+							</p>
 						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
+							<div className="prose mt-5 max-w-md text-base sm:text-lg text-espresso/70 leading-relaxed tiptap-content">
 								<TiptapRenderer content={collection.description} />
 							</div>
 						) : null}
@@ -86,11 +80,11 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover opacity-50"
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/60 to-transparent" />
 				</div>
 			)}
 		</section>
@@ -114,10 +108,12 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			eyebrow="The shelf"
+			title={`${collection.name} pieces`}
+			description={`${products.length} ${products.length === 1 ? "piece" : "pieces"}`}
 			products={products}
 			showViewAll={false}
+			columns={4}
 		/>
 	);
 }
@@ -159,19 +155,6 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
 			<CollectionHeader collection={collection} />
 			<CollectionProducts collection={collection} />
 		</>

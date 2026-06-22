@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="font-serif text-base text-cream/80 hover:text-cream transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="font-serif text-base text-cream/80 hover:text-cream transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.28em] text-cream/55 mb-5">Shop</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +80,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.28em] text-cream/55 mb-5">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,30 +110,41 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-aura-espresso text-cream">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="max-w-sm">
+						<Link href="/" className="block">
+							<span className="font-serif italic text-2xl">Your</span>{" "}
+							<span className="font-serif tracking-[0.18em] uppercase">Next Store</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-cream/65 leading-relaxed">
+							Slow-made objects for unhurried homes. Stone, clay and linen — shaped by hand in our Puglian
+							atelier.
 						</p>
+						<div className="mt-7 flex items-center gap-3">
+							{["Instagram", "Pinterest", "Journal"].map((label) => (
+								<Link
+									key={label}
+									href="#"
+									className="text-[10px] uppercase tracking-[0.22em] text-cream/65 border border-cream/15 rounded-full px-3 py-1.5 hover:border-cream/40 hover:text-cream transition-colors"
+								>
+									{label}
+								</Link>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[11px] uppercase tracking-[0.28em] text-cream/55 mb-5">Atelier</h3>
+						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,22 +153,40 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 								>
-									FAQ
+									Journal
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/faq"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
+								>
+									Care & repair
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/faq"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
+								>
+									Contact
 								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-cream/12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-[11px] uppercase tracking-[0.22em] text-cream/45">
+					<p>&copy; {year} Your Next Store · Made in Puglia</p>
+					<p className="font-serif italic normal-case tracking-normal text-cream/55 text-sm">
+						&ldquo;Slowness is a kindness.&rdquo;
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>
