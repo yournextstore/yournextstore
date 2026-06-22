@@ -1,46 +1,51 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Leaf, Scissors, Sprout } from "lucide-react";
 
 type Feature = {
 	title: string;
 	description: string;
-	icon?: LucideIcon;
-};
-
-type ProductFeaturesProps = {
-	features?: Feature[];
 };
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Hand-loomed silk",
+		description:
+			"Each metre is woven on heritage looms in a single family atelier — slow work, with the quiet imperfection the loom leaves behind.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Cut to soften",
+		description:
+			"Patterns are graded to drape immediately and yield with wear, so the garment fits more like itself with every season.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Mendable by design",
+		description:
+			"Generous seam allowances, replaceable buttons, and a free first repair — a piece you can keep returning to.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const featureIcons = [Leaf, Scissors, Sprout];
 
-export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
+export function ProductFeatures({ features = defaultFeatures }: { features?: Feature[] }) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-border/70 pt-20">
+			<div className="text-center max-w-2xl mx-auto mb-16">
+				<p className="font-eyebrow text-[10px] text-muted-foreground mb-4">— Slow craft —</p>
+				<h2 className="font-serif font-light text-foreground text-[36px] sm:text-[48px] tracking-tight leading-[1.05]">
+					Made with intention,
+					<br />
+					<em className="italic text-foreground/70">to be worn for years.</em>
+				</h2>
+			</div>
+			<div className="grid gap-12 md:gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
+					const Icon = featureIcons[index % featureIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
-							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+						<div key={feature.title} className="flex flex-col items-start text-left md:px-6">
+							<Icon className="mb-5 h-5 w-5 text-foreground/70" strokeWidth={1.25} />
+							<h3 className="font-serif text-[22px] font-light tracking-tight text-foreground mb-3">
+								{feature.title}
+							</h3>
+							<p className="text-[14px] leading-[1.7] text-muted-foreground">{feature.description}</p>
 						</div>
 					);
 				})}

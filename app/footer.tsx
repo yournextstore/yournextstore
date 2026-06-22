@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-[13px] text-muted-foreground hover:text-foreground editorial-underline transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-[13px] text-muted-foreground hover:text-foreground editorial-underline transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -52,22 +52,24 @@ async function FooterCollections() {
 
 	const collections = await commerce.collectionBrowse({ limit: 5 });
 
-	if (collections.data.length === 0) {
-		return null;
-	}
+	const shopLinks = [
+		{ href: "/products", label: "All garments" },
+		...collections.data.map((c) => ({ href: `/collection/${c.slug}`, label: c.name })),
+		{ href: "/products", label: "Capsule 003" },
+	].slice(0, 6);
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
+			<h3 className="font-eyebrow text-[10px] text-foreground mb-5">Shop</h3>
+			<ul className="space-y-3">
+				{shopLinks.map((link) => (
+					<li key={`${link.href}-${link.label}`}>
 						<YnsLink
 							prefetch={"eager"}
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							href={link.href}
+							className="text-[13px] text-muted-foreground hover:text-foreground editorial-underline transition-colors"
 						>
-							{collection.name}
+							{link.label}
 						</YnsLink>
 					</li>
 				))}
@@ -82,22 +84,26 @@ async function FooterLegalPages() {
 
 	const pages = await commerce.legalPageBrowse();
 
-	if (pages.data.length === 0) {
-		return null;
-	}
+	const helpLinks = [
+		{ href: "/faq", label: "FAQ" },
+		{ href: "/cart", label: "Shipping & returns" },
+		{ href: "/search", label: "Size guide" },
+		{ href: "/faq", label: "Care guide" },
+		...pages.data.map((p) => ({ href: `/legal${p.href}`, label: p.label })),
+	].slice(0, 6);
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
+			<h3 className="font-eyebrow text-[10px] text-foreground mb-5">Help</h3>
+			<ul className="space-y-3">
+				{helpLinks.map((link) => (
+					<li key={`${link.href}-${link.label}`}>
 						<YnsLink
 							prefetch={"eager"}
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							href={link.href}
+							className="text-[13px] text-muted-foreground hover:text-foreground editorial-underline transition-colors"
 						>
-							{page.label}
+							{link.label}
 						</YnsLink>
 					</li>
 				))}
@@ -106,59 +112,93 @@ async function FooterLegalPages() {
 	);
 }
 
+function SocialDot({ label }: { label: string }) {
+	return (
+		<YnsLink
+			href="#"
+			className="inline-flex items-center justify-center w-9 h-9 border border-foreground/30 hover:border-foreground hover:bg-foreground hover:text-background transition-colors font-eyebrow text-[10px]"
+			aria-label={label}
+		>
+			{label.slice(0, 2)}
+		</YnsLink>
+	);
+}
+
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
+		<footer className="bg-editorial-warm border-t border-border/70 paper-grain">
+			<div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
+				{/* Top — large wordmark */}
+				<div className="pt-20 pb-12 border-b border-border/60">
+					<p className="font-serif font-light text-foreground tracking-tight text-[56px] sm:text-[88px] lg:text-[120px] leading-[0.9]">
+						Your Next Store
+					</p>
+					<p className="mt-4 text-[13px] text-muted-foreground max-w-md">
+						Sustainably crafted wardrobe icons, made in small ateliers from natural and organic fibres.
+					</p>
+				</div>
 
-					{/* Collections */}
+				{/* Link columns */}
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-10 sm:gap-12 py-14">
 					<FooterCollections />
-
-					{/* Support */}
+					<FooterLegalPages />
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</YnsLink>
-							</li>
+						<h3 className="font-eyebrow text-[10px] text-foreground mb-5">Company</h3>
+						<ul className="space-y-3">
+							{[
+								{ href: "#about", label: "Our story" },
+								{ href: "#sustainability", label: "Sustainability" },
+								{ href: "#kynfolk", label: "YNS Folk journal" },
+								{ href: "/products", label: "Atelier visits" },
+								{ href: "/faq", label: "Press" },
+							].map((link) => (
+								<li key={`${link.href}-${link.label}`}>
+									<YnsLink
+										href={link.href}
+										className="text-[13px] text-muted-foreground hover:text-foreground editorial-underline transition-colors"
+									>
+										{link.label}
+									</YnsLink>
+								</li>
+							))}
 							<FooterContactLink />
-							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</YnsLink>
-							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					<div>
+						<h3 className="font-eyebrow text-[10px] text-foreground mb-5">Connect</h3>
+						<ul className="space-y-3">
+							{[
+								{ href: "#", label: "Instagram" },
+								{ href: "#", label: "Pinterest" },
+								{ href: "#", label: "Spotify" },
+								{ href: "#", label: "Newsletter" },
+							].map((link) => (
+								<li key={link.label}>
+									<YnsLink
+										href={link.href}
+										className="text-[13px] text-muted-foreground hover:text-foreground editorial-underline transition-colors"
+									>
+										{link.label}
+									</YnsLink>
+								</li>
+							))}
+						</ul>
+						<div className="mt-6 flex gap-2">
+							<SocialDot label="Instagram" />
+							<SocialDot label="Pinterest" />
+							<SocialDot label="TikTok" />
+						</div>
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-7 border-t border-border/60 flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between items-start sm:items-center">
+					<p className="text-[11px] text-muted-foreground">
+						© {new Date().getFullYear()} Your Next Store. Designed with care. All rights reserved.
+					</p>
+					<p className="font-eyebrow text-[10px] text-muted-foreground">
+						Made slowly · Natural fibres · Carbon-conscious shipping
 					</p>
 				</div>
 			</div>

@@ -60,10 +60,11 @@ export function QuickAddButton({ variantId, variantPrice, variantImages, product
 					<button
 						type="button"
 						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+						className="absolute bottom-3 left-3 right-3 z-10 flex h-9 cursor-pointer items-center justify-center bg-background/85 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-foreground hover:text-background active:scale-[0.98] font-eyebrow text-[10px] tracking-[0.18em]"
 						aria-label={`Add ${product.name} to cart`}
 					>
-						<ShoppingBag className="h-3.5 w-3.5" />
+						<ShoppingBag className="h-3.5 w-3.5 mr-2" />
+						Quick add
 					</button>
 				</TooltipTrigger>
 				<TooltipContent side="top" className="text-xs">
