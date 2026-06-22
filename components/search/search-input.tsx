@@ -36,11 +36,11 @@ export function SearchInput() {
 
 	return (
 		<>
-			{/* lg only — icon trigger opens popover with input inside */}
+			{/* lg only — icon trigger opens popover with input inside. Sits on the dark header. */}
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="hidden lg:inline-flex xl:hidden rounded-full p-2 text-white/85 transition-colors hover:bg-white/10 hover:text-white"
 				>
 					<Search className="h-6 w-6" strokeWidth={1.75} />
 				</PopoverTrigger>
@@ -93,12 +93,12 @@ export function SearchInput() {
 				</PopoverContent>
 			</Popover>
 
-			{/* xl+ — inline input bar */}
+			{/* xl+ — inline input bar, translucent pill on the dark header */}
 			<form onSubmit={handleSubmit} className="hidden xl:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60"
 							strokeWidth={1.75}
 						/>
 						<input
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-10 w-56 rounded-full border border-white/15 bg-white/10 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[var(--lime)] focus:border-transparent transition-colors"
 						/>
 					</div>
 					<PopoverContent

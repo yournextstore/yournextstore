@@ -3,6 +3,7 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { ArrowUpRight } from "lucide-react";
 import { IntentLink } from "@/components/intent-link";
 import { blurPreview } from "@/lib/blur-placeholder";
 import { formatMoney } from "@/lib/money";
@@ -62,14 +63,15 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group rounded-2xl border border-border bg-card p-3 transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--forest)]/20"
+		>
+			<div className="relative aspect-[4/3] bg-[var(--cream)] rounded-xl overflow-hidden">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
 						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
 						variantImages={singleVariant.images}
 						product={{
 							id: product.id,
@@ -120,15 +122,24 @@ export async function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+
+				{priceDisplay && (
+					<div className="absolute top-3 left-3 inline-flex items-center gap-2 rounded-full bg-[var(--lime)] text-[var(--forest-deep)] px-3 py-1 text-xs font-semibold shadow-sm">
+						{priceDisplay}
+						{compareAtDisplay && (
+							<span className="font-normal line-through opacity-70">{compareAtDisplay}</span>
+						)}
+					</div>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="flex items-start justify-between gap-3 px-1 pt-4 pb-2">
+				<div className="min-w-0">
+					<h2 className="text-[15px] font-semibold text-foreground truncate">{product.name}</h2>
+					<p className="mt-1 text-xs text-muted-foreground">Tap to view specs & install kit</p>
+				</div>
+				<span className="shrink-0 mt-0.5 flex size-8 items-center justify-center rounded-full bg-[var(--cream)] text-[var(--forest-deep)] group-hover:bg-[var(--lime)] transition-colors">
+					<ArrowUpRight className="size-4" />
+				</span>
 			</div>
 		</IntentLink>
 	);
