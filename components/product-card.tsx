@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block bg-[#f2f3f5]">
+			<div className="relative aspect-square overflow-hidden bg-gradient-to-b from-[#f2f3f5] to-[#d5d9dd]">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +82,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -96,7 +96,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -120,13 +120,22 @@ export async function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+				{/* Floor reflection overlay */}
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#1a1c1f]/8 to-transparent" />
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="flex items-end justify-between gap-4 p-5 sm:p-6 bg-background">
+				<div className="min-w-0">
+					<h2 className="text-[15px] font-semibold tracking-tight text-foreground truncate">
+						{product.name}
+					</h2>
+					<p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+						View Details →
+					</p>
+				</div>
+				<p className="shrink-0 flex flex-wrap items-baseline justify-end gap-2 font-display font-bold text-[15px] tracking-tight tabular-nums text-foreground">
+					<span>{priceDisplay}</span>
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="text-xs font-normal text-muted-foreground line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>
