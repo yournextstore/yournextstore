@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+	--font-sans: var(--font-inter);
+	--font-display: var(--font-cabinet);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -40,41 +42,49 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-tan: var(--tan);
+	--color-burgundy: var(--burgundy);
+	--color-cream: var(--cream);
 }
 
 :root {
-	--radius: 0.625rem;
+	--radius: 1.25rem;
+	/* Palette: bone, dove, white, ink, caramel, burgundy */
+	--background: oklch(0.978 0.004 80);
+	--foreground: oklch(0.18 0.006 60);
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
+	--card-foreground: oklch(0.18 0.006 60);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--popover-foreground: oklch(0.18 0.006 60);
+	--primary: oklch(0.198 0 0);
+	--primary-foreground: oklch(0.985 0.003 80);
+	--secondary: oklch(0.945 0.005 80);
+	--secondary-foreground: oklch(0.198 0 0);
+	--muted: oklch(0.945 0.005 80);
+	--muted-foreground: oklch(0.48 0.012 60);
+	--accent: oklch(0.913 0.008 70);
+	--accent-foreground: oklch(0.198 0 0);
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: oklch(0.89 0.006 70);
+	--input: oklch(0.89 0.006 70);
+	--ring: oklch(0.66 0.11 56);
+	--chart-1: oklch(0.66 0.11 56);
+	--chart-2: oklch(0.36 0.13 25);
+	--chart-3: oklch(0.78 0.06 70);
+	--chart-4: oklch(0.55 0.09 50);
+	--chart-5: oklch(0.42 0.04 40);
+	--sidebar: oklch(0.978 0.004 80);
+	--sidebar-foreground: oklch(0.18 0.006 60);
+	--sidebar-primary: oklch(0.198 0 0);
+	--sidebar-primary-foreground: oklch(0.985 0.003 80);
+	--sidebar-accent: oklch(0.945 0.005 80);
+	--sidebar-accent-foreground: oklch(0.198 0 0);
+	--sidebar-border: oklch(0.89 0.006 70);
+	--sidebar-ring: oklch(0.66 0.11 56);
+	/* Brand accents */
+	--tan: oklch(0.66 0.11 56);
+	--burgundy: oklch(0.36 0.13 25);
+	--cream: oklch(0.96 0.012 75);
 }
 
 .dark {
@@ -117,6 +127,16 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-sans), system-ui, sans-serif;
+		font-feature-settings: "ss01", "cv11";
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	.font-display {
+		font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+		letter-spacing: -0.02em;
 	}
 }
 
@@ -149,4 +169,43 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Marquee */
+@keyframes yns-marquee {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.yns-marquee {
+	animation: yns-marquee 32s linear infinite;
+}
+
+.yns-marquee-slow {
+	animation: yns-marquee 60s linear infinite;
+}
+
+/* Hero watermark */
+.yns-hero-watermark {
+	background-image:
+		linear-gradient(180deg, transparent, oklch(0.945 0.005 80 / 0.9) 80%),
+		repeating-linear-gradient(
+			45deg,
+			oklch(0.89 0.006 70 / 0.5) 0,
+			oklch(0.89 0.006 70 / 0.5) 1px,
+			transparent 1px,
+			transparent 22px
+		);
+}
+
+.yns-pill {
+	@apply inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm transition-colors hover:bg-accent;
+}
+
+.yns-pill-active {
+	@apply bg-foreground text-background border-foreground hover:bg-foreground/90;
 }
