@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { About } from "@/components/sections/about";
+import { BeautifulDetails } from "@/components/sections/beautiful-details";
+import { BeautifulPractical } from "@/components/sections/beautiful-practical";
+import { ClassicHandbags } from "@/components/sections/classic-handbags";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { JournalSection } from "@/components/sections/journal-section";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { PromoBar } from "@/components/sections/promo-bar";
+import { SimpleElegant } from "@/components/sections/simple-elegant";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
@@ -10,13 +14,17 @@ export const metadata: Metadata = {
 
 export default function Home() {
 	return (
-		<>
+		<main>
 			<Hero />
+			<ClassicHandbags />
+			<BeautifulPractical />
 			{/* No <Suspense>: the grid is "use cache", so it renders into the prerendered shell in document order. A boundary
 			    around cached data still ships the skeleton first and the content later in the HTML. */}
-			<ProductGrid title="Featured Products" limit={6} />
-			<About />
-			<Newsletter />
-		</>
+			<ProductGrid title="Popular picks" limit={4} />
+			<PromoBar />
+			<BeautifulDetails />
+			<JournalSection />
+			<SimpleElegant />
+		</main>
 	);
 }
