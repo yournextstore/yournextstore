@@ -62,8 +62,12 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square bg-secondary overflow-hidden mb-4 border border-soot/10 transition-colors group-hover:border-ember/40">
+				<div
+					aria-hidden
+					className="absolute inset-0 bg-gradient-to-br from-blush/30 via-cream to-secondary"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +86,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -95,8 +99,8 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+							className={`object-cover transition-transform duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -116,19 +120,23 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+				{/* Corner sticker */}
+				<span className="absolute top-3 left-3 inline-flex items-center gap-1 bg-ember text-cream px-2 py-1 font-condensed text-[10px] tracking-[0.22em]">
+					Hot
+				</span>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="flex items-baseline justify-between gap-3">
+				<h2 className="font-display text-xl text-soot leading-tight group-hover:text-ember transition-colors">
+					{product.name}
+				</h2>
+				<span className="flex items-baseline gap-2 font-condensed text-sm tracking-[0.12em] text-soot whitespace-nowrap">
+					{priceDisplay}
+					{compareAtDisplay && <span className="text-soot/50 line-through">{compareAtDisplay}</span>}
+				</span>
 			</div>
 		</IntentLink>
 	);
