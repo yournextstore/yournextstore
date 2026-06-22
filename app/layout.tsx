@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,23 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const interSans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const interDisplay = Inter_Tight({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["700", "800", "900"],
+	display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+	variable: "--font-mono",
+	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -136,27 +145,54 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+			<div className="flex min-h-screen flex-col bg-background">
+				{/* Announcement bar */}
+				<div
+					className="bg-obsidian text-bone border-b border-charcoal/50"
+					style={{ backgroundColor: "#1a1c1f", color: "#f2f3f5" }}
+				>
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="flex h-9 items-center justify-between text-[11px] uppercase tracking-[0.18em] font-medium">
+							<span className="hidden sm:flex items-center gap-2">
+								<span className="inline-block size-1.5 rounded-full bg-[#22c55e] signal-dot" />
+								Reservations open · Ships globally
+							</span>
+							<span className="sm:hidden flex items-center gap-2">
+								<span className="inline-block size-1.5 rounded-full bg-[#22c55e] signal-dot" />
+								Now shipping
+							</span>
+							<div className="flex items-center gap-5 text-[#c8ccd0]">
+								<span className="hidden md:inline">Free delivery over $250</span>
+								<span>Est. 2024</span>
 							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
+						</div>
+					</div>
+				</div>
+
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="flex items-center justify-between h-16">
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="font-display font-black text-[15px] tracking-[0.02em] uppercase text-foreground"
+							>
+								Your Next Store
+							</YnsLink>
+							<div className="flex items-center gap-6">
+								<Navbar links={links} />
+								<div className="flex items-center gap-1">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+									{AUTH_ENABLED && <AuthButton />}
+									<CartButton />
+								</div>
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +228,9 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${interSans.variable} ${interDisplay.variable} ${jetbrainsMono.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

@@ -8,45 +8,60 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+		<section className="bg-background border-y border-border">
+			<div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10 py-16 sm:py-20">
+				<div className="grid gap-10 lg:grid-cols-12 lg:gap-16 items-center">
+					<div className="lg:col-span-6">
+						<span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+							§ 05 — Dispatch
+						</span>
+						<h2 className="mt-3 display-headline text-[clamp(2rem,5vw,3.5rem)] text-foreground">
+							Field notes,
+							<br />
+							from the workshop.
+						</h2>
+					</div>
+					<div className="lg:col-span-6">
+						{state?.success ? (
+							<div className="flex items-center gap-4 border border-border bg-[#f2f3f5] px-6 py-5">
+								<div className="flex size-10 shrink-0 items-center justify-center bg-foreground text-background">
+									<CheckIcon className="h-5 w-5" />
+								</div>
+								<div>
+									<p className="font-semibold text-foreground">You&apos;re on the list.</p>
+									<p className="text-sm text-muted-foreground">{state.message}</p>
+								</div>
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
-							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
-					)}
+						) : (
+							<>
+								<p className="text-base leading-relaxed text-muted-foreground max-w-md">
+									Engineering deep-dives, launch announcements, and the occasional unfiltered note from the
+									bench. No marketing fluff.
+								</p>
+								<form action={action} className="mt-6 flex flex-col gap-3 sm:flex-row">
+									<input
+										type="email"
+										name="email"
+										placeholder="you@domain.com"
+										required
+										className="h-12 w-full flex-1 border border-border bg-background px-4 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
+									/>
+									<button
+										type="submit"
+										disabled={isPending}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-foreground px-8 text-[13px] font-medium uppercase tracking-[0.18em] text-background transition-all hover:bg-[#3d4146] disabled:opacity-50"
+									>
+										{isPending ? "Sending" : "Subscribe"}
+										{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
+									</button>
+								</form>
+								{state?.error && <p className="mt-3 text-sm text-destructive">{state.error}</p>}
+								<p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+									One email per month · Unsubscribe anytime
+								</p>
+							</>
+						)}
+					</div>
 				</div>
 			</div>
 		</section>
