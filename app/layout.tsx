@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Pixelify_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const pixelify = Pixelify_Sans({
+	variable: "--font-pixelify",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +114,32 @@ async function getInitialCart() {
 	}
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-ink text-cream text-[11px] tracking-[0.12em] uppercase">
+			<div className="max-w-7xl mx-auto px-4 py-2.5 text-center font-medium">
+				<span className="inline-flex items-center gap-3">
+					<span className="hidden sm:inline">★</span>
+					Free US shipping on every order. Try for 30 days or your money back.
+					<span className="hidden sm:inline">★</span>
+				</span>
+			</div>
+		</div>
+	);
+}
+
+function Wordmark() {
+	return (
+		<YnsLink prefetch={"eager"} href="/" className="group inline-flex items-baseline gap-1.5 leading-none">
+			<span className="font-display text-[28px] sm:text-[32px] text-ink leading-none">yournext</span>
+			<span className="font-display text-[14px] sm:text-[16px] text-terracotta leading-none -ml-0.5">
+				store
+			</span>
+			<span className="ml-1 text-[9px] tracking-[0.2em] text-clay uppercase font-medium">P24</span>
+		</YnsLink>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,27 +164,35 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-cream-grain">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-[color:var(--cream)]/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+						<div className="flex items-center justify-between h-16 sm:h-[68px]">
+							<div className="flex-1">
+								<Wordmark />
+							</div>
+							<div className="hidden md:flex flex-1 items-center justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="hidden sm:inline-flex items-center justify-center h-9 px-5 bg-terracotta text-cream rounded-sm text-[11px] tracking-[0.18em] font-semibold uppercase hover:bg-terracotta-light transition-colors"
+								>
+									Shop P24
+								</YnsLink>
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +228,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${pixelify.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-ink/85 hover:text-terracotta transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-ink/85 hover:text-terracotta transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ink/60">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-ink/85 hover:text-terracotta transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ink/60">Fine print</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-ink/85 hover:text-terracotta transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,16 +108,20 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-[color:var(--secondary)] border-t border-border/60">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-10">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="col-span-2 sm:max-w-xs">
+						<YnsLink prefetch={"eager"} href="/" className="inline-flex items-baseline gap-1.5 leading-none">
+							<span className="font-display text-3xl text-ink leading-none">yournext</span>
+							<span className="font-display text-base text-terracotta leading-none -ml-0.5">store</span>
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm text-clay leading-relaxed max-w-xs">
+							Protein enzymes and editorial wellness staples — built for the muscle, mind, and metabolism.
+						</p>
+						<p className="mt-6 text-[10px] tracking-[0.28em] uppercase text-ink/50 font-semibold">
+							Made with intent in California
 						</p>
 					</div>
 
@@ -126,13 +130,13 @@ export function Footer() {
 
 					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ink/60">Support</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-ink/85 hover:text-terracotta transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,10 +146,27 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-ink/85 hover:text-terracotta transition-colors"
 								>
 									FAQ
 								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-ink/85 hover:text-terracotta transition-colors"
+								>
+									Shop all
+								</YnsLink>
+							</li>
+							<li>
+								<a
+									href="mailto:hello@yournextstore.com"
+									className="text-sm text-ink/85 hover:text-terracotta transition-colors"
+								>
+									Contact
+								</a>
 							</li>
 							<FooterBlogLink />
 						</ul>
@@ -156,10 +177,9 @@ export function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
-					</p>
+				<div className="py-8 border-t border-border/60 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between text-[11px] uppercase tracking-[0.18em] text-ink/55 font-semibold">
+					<p>&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.</p>
+					<p>Free US shipping · 30-day money back</p>
 				</div>
 			</div>
 		</footer>
