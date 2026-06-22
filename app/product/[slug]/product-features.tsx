@@ -12,16 +12,16 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "FSC-sourced solid wood",
+		description: "Slow-grown oak, ash and walnut from certified forests. Joinery cut, not nailed.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Hand-finished in studio",
+		description: "Sanded, oiled and upholstered by a small atelier — never on a factory line.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "12-year craft warranty",
+		description: "Joinery and upholstery guaranteed for a decade plus two. Free repairs in years 1–3.",
 	},
 ];
 
@@ -29,18 +29,26 @@ const defaultIcons = [Leaf, Hammer, Award];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-20 border-t border-[#1f2933]/10 pt-16">
+			<div className="text-center max-w-2xl mx-auto">
+				<div className="text-[11px] uppercase tracking-[0.22em] text-[#c8a57a] mb-3">— Behind the piece</div>
+				<h2 className="font-display text-3xl sm:text-4xl tracking-[-0.015em] text-[#1f2933]">
+					Crafted with intention
+				</h2>
+			</div>
+			<div className="mt-12 grid gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group rounded-2xl border border-[#1f2933]/10 bg-[#f5f1ea]/50 p-6"
+						>
+							<div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#1f2933] transition-colors group-hover:bg-[#e89b3c]">
+								<Icon className="h-5 w-5 text-[#f5f1ea] transition-colors group-hover:text-[#1f2933]" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="font-display text-xl text-[#1f2933]">{feature.title}</h3>
+							<p className="mt-2 text-sm text-[#1f2933]/60 leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}
