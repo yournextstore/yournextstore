@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-full rounded-full border border-border bg-transparent pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[color:var(--oxblood)] focus:ring-0"
 							/>
 						</div>
 					</form>
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-9 w-44 rounded-full border border-border/70 bg-transparent pl-9 pr-3 text-[12px] tracking-wide text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-[color:var(--oxblood)] focus:ring-0"
 						/>
 					</div>
 					<PopoverContent
