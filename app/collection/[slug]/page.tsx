@@ -123,7 +123,7 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+export default async function CollectionPage(props: { params: Promise<{ slug: string }> }) {
 	"use cache";
 	cacheLife("minutes");
 

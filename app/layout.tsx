@@ -2,14 +2,17 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar } from "@/app/navbar";
+import { SearchBar } from "@/app/search-bar";
 import { SearchInput } from "@/app/search-input";
+import { ThemeToggle } from "@/app/theme-toggle";
+import { WishlistButton } from "@/app/wishlist-button";
 import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
@@ -22,14 +25,10 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const plusJakartaSans = Plus_Jakarta_Sans({
+	variable: "--font-sans",
 	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
+	weight: ["400", "500", "600", "700", "800"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,51 +111,44 @@ async function getInitialCart() {
 	}
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
-	"use cache";
-	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
-}
-
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
+	const { cart, cartId } = await getInitialCart();
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
+				{/* Aura Audio Header */}
+				<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
+					<div className="max-w-[1600px] mx-auto px-4 md:px-6 py-4">
+						<nav className="flex flex-col md:flex-row items-center justify-between gap-4">
+							{/* Logo */}
 							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+								<div className="w-8 h-8 bg-foreground text-background rounded-lg flex items-center justify-center font-bold text-xl">
+									A
+								</div>
+								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold tracking-tight">
+									aura.
 								</YnsLink>
-								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+
+							{/* Search Bar */}
+							<SearchBar />
+
+							{/* Action Buttons */}
+							<div className="flex items-center gap-3">
+								<Navbar />
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<WishlistButton />
+								<ThemeToggle />
 							</div>
-						</div>
+						</nav>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -191,8 +183,8 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang} suppressHydrationWarning>
+			<body className={`${plusJakartaSans.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
