@@ -3,38 +3,11 @@ import type { Metadata } from "next";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YnsLink } from "@/components/yns-link";
-import { JsonLdScript } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
-	title: "FAQ",
+	title: "FAQ — Vela",
 	description: "Frequently asked questions about orders, payments, shipping, returns, and more.",
-	alternates: { canonical: "/faq" },
-	openGraph: {
-		type: "website",
-		title: "Frequently Asked Questions",
-		description: "Frequently asked questions about orders, payments, shipping, returns, and more.",
-		url: "/faq",
-	},
 };
-
-function buildFaqJsonLd(categories: FAQCategory[]): Record<string, unknown> {
-	const mainEntity = categories.flatMap((category) =>
-		category.questions.map((q) => ({
-			"@type": "Question",
-			name: q.question,
-			acceptedAnswer: {
-				"@type": "Answer",
-				text: q.answer,
-			},
-		})),
-	);
-
-	return {
-		"@context": "https://schema.org",
-		"@type": "FAQPage",
-		mainEntity,
-	};
-}
 
 function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 	return (
@@ -88,7 +61,6 @@ function ContactCard() {
 export default function FAQPage() {
 	return (
 		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
 			{/* Header */}
 			<div className="mb-10">
 				<YnsLink

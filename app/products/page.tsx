@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { ProductsPagination } from "./products-pagination";
-import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -41,7 +40,7 @@ export async function generateMetadata({
 	const { page } = await searchParams;
 	const pageNum = Math.max(1, Number(page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+	const title = pageNum > 1 ? `All Products — Vela — Page ${pageNum}` : "All Products — Vela";
 
 	return {
 		title,
@@ -90,9 +89,9 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
@@ -101,33 +100,44 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	);
 }
 
-function ProductGridSkeleton() {
+function SortLink({
+	option,
+	filters,
+}: {
+	option: (typeof sortOptions)[number];
+	filters: ProductFilterParams;
+}) {
+	const isActive = option.value === (filters.sort ?? "newest");
+
+	// Preserve active filters when changing sort; reset to the first page.
+	const params = new URLSearchParams();
+	for (const [key, value] of Object.entries(filters)) {
+		if (value && key !== "sort" && key !== "page") {
+			params.set(key, value);
+		}
+	}
+	if (option.value !== "newest") {
+		params.set("sort", option.value);
+	}
+	const href = params.size ? `/products?${params}` : "/products";
+
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-			{Array.from({ length: 6 }).map((_, i) => (
-				<div key={`skeleton-${i}`}>
-					<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-					<div className="space-y-2">
-						<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-						<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			))}
-		</div>
+		<YnsLink
+			prefetch="eager"
+			href={href}
+			className={`text-[0.72rem] uppercase tracking-[0.18em] transition-colors ${
+				isActive
+					? "border-b border-foreground pb-1 text-foreground"
+					: "text-muted-foreground hover:text-foreground"
+			}`}
+		>
+			{option.label}
+		</YnsLink>
 	);
 }
 
-// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
-// stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
-async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	const filters = await searchParams;
-	return <ProductList filters={filters} />;
-}
-
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
+	const filters = await searchParams;
 	const facets = await getFilterFacets();
 	const filtersAvailable =
 		facets.categories.length > 0 ||
@@ -137,31 +147,34 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="section-shell-tight">
+			<div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+				<div className="space-y-3">
+					<p className="editorial-kicker">Product Index</p>
+					<h1 className="section-title">All products</h1>
+					<p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+						Browse the full catalog of furniture, lighting, and smaller objects selected for quieter
+						interiors.
+					</p>
+				</div>
+				<div className="flex flex-wrap items-center gap-3 border-t border-border/80 pt-4 lg:border-t-0 lg:pt-0">
+					<span className="text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">Sort</span>
+					{sortOptions.map((option) => (
+						<SortLink key={option.value} option={option} filters={filters} />
+					))}
+				</div>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
 				{filtersAvailable && <ProductFilters facets={facets} />}
-
 				<div>
-					{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-					<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-						{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-						<SortSelect options={sortOptions} />
-					</div>
+					{filtersAvailable && (
+						<div className="mb-8 flex justify-end">
+							<ProductFiltersMobile facets={facets} />
+						</div>
+					)}
 
-					{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-					<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-						<span className="text-sm text-muted-foreground">Sort by:</span>
-						<SortLinks options={sortOptions} />
-					</div>
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<ProductSection searchParams={searchParams} />
-					</Suspense>
+					<ProductList filters={filters} />
 				</div>
 			</div>
 		</div>

@@ -24,28 +24,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
-		return { title: "Collection Not Found", robots: { index: false, follow: true } };
+		return { title: "Collection Not Found — Vela" };
 	}
 
-	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection.`;
-	const canonical = `/collection/${collection.slug}`;
+	const description = typeof collection.description === "string" ? collection.description : undefined;
 
 	return {
-		title: collection.name,
+		title: `${collection.name} — Vela`,
 		description,
-		alternates: { canonical },
 		openGraph: {
-			type: "website",
-			title: collection.name,
-			description,
-			url: canonical,
-			images: collection.image ? [{ url: collection.image, alt: collection.name }] : undefined,
-		},
-		twitter: {
-			card: collection.image ? "summary_large_image" : "summary",
 			title: collection.name,
 			description,
 			images: collection.image ? [collection.image] : undefined,
@@ -54,51 +41,56 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+	const description = String(typeof collection.description === "string" ? collection.description : "");
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
+		<section className="pt-4 sm:pt-6">
+			<div className="page-shell">
+				<div
+					className={`grid overflow-hidden border border-border/80 bg-[var(--surface-soft)] ${
+						collection.image ? "lg:grid-cols-[0.78fr_1.22fr]" : ""
+					}`}
+				>
+					<div className="flex items-end p-6 sm:p-8 lg:p-10">
+						<div className="max-w-xl space-y-4">
+							<p className="editorial-kicker">Collection</p>
+							<h1 className="editorial-title text-foreground">{collection.name}</h1>
+							<p className="max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
+								{description
+									? description
+									: "A quieter edit of considered pieces, selected to work together without asking for too much attention."}
 							</p>
-						)}
+						</div>
 					</div>
+					{collection.image ? (
+						<div className="relative min-h-[18rem] lg:min-h-[26rem]">
+							<YNSMedia
+								src={collection.image}
+								alt={collection.name}
+								fill
+								sizes="(max-width: 1024px) 100vw, 58vw"
+								className="object-cover"
+								priority
+							/>
+							<div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,241,234,0.14)_0%,rgba(21,17,15,0.14)_100%)]" />
+						</div>
+					) : null}
 				</div>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
+		<section className="section-shell-tight">
+			<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
+				{Array.from({ length: 10 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+						<div className="mb-3 aspect-[4/5] bg-secondary animate-pulse" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-4 w-3/4 bg-secondary rounded animate-pulse" />
+							<div className="h-4 w-1/4 bg-secondary rounded animate-pulse" />
 						</div>
 					</div>
 				))}
@@ -115,15 +107,15 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			title={`Inside ${collection.name}`}
+			description={`${products.length} pieces selected for this edit.`}
 			products={products}
 			showViewAll={false}
 		/>
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+export default async function CollectionPage(props: { params: Promise<{ slug: string }> }) {
 	"use cache";
 	cacheLife("minutes");
 
@@ -135,7 +127,7 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 	}
 
 	return (
-		<>
+		<main>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
@@ -157,6 +149,6 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
-		</>
+		</main>
 	);
 }

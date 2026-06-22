@@ -90,7 +90,7 @@ export function CartItem({ item }: CartItemProps) {
 				prefetch={"eager"}
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 shrink-0 overflow-hidden border border-border/80 bg-[var(--surface-soft)]"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</YnsLink>
@@ -121,23 +121,25 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
+							"inline-flex items-center border border-border/80 bg-background transition-opacity",
+							isPending && "opacity-50",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							disabled={isPending}
+							className="flex h-8 w-8 shrink-0 items-center justify-center transition-colors hover:bg-[var(--surface-soft)] disabled:pointer-events-none"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="flex h-8 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							disabled={isPending}
+							className="flex h-8 w-8 shrink-0 items-center justify-center transition-colors hover:bg-[var(--surface-soft)] disabled:pointer-events-none"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
