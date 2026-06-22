@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-bold uppercase tracking-wide text-foreground">Collections</h3>
+			<ul className="mt-4 space-y-2">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-xs text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +80,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-bold uppercase tracking-wide text-foreground">Legal</h3>
+			<ul className="mt-4 space-y-2">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-xs text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,57 +110,51 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
-				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
-				</div>
+		<section className="grid grid-cols-12 grid-border-b md:border-b-0">
+			{/* Left column with description text */}
+			<div className="col-span-12 md:col-span-4 grid-border-r p-8 md:p-12 min-h-[200px] flex items-center">
+				<p className="text-xs leading-relaxed opacity-70">
+					Our Sneakers Are Renowned For Their Unparalleled Quality, Comfort, And Durability. Our Products Are
+					Crafted Using High-Quality Materials And Cutting-Edge Technologies That Provide Optimal Cushioning,
+					Ventilation, And Support For Your Feet Throughout The Day.
+				</p>
 			</div>
-		</footer>
+
+			{/* Middle column with support links */}
+			<div className="col-span-12 md:col-span-4 grid-border-r p-8 md:p-12 hidden md:flex md:items-center">
+				<ul className="space-y-2">
+					<li>
+						<Link
+							href="/about"
+							className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+						>
+							About Us
+						</Link>
+					</li>
+					<FooterContactLink />
+					<li>
+						<Link
+							href="/faq"
+							className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+						>
+							FAQ
+						</Link>
+					</li>
+					<FooterBlogLink />
+				</ul>
+			</div>
+
+			{/* Right column: collections and legal pages */}
+			<div className="col-span-12 md:col-span-4 p-8 md:p-12 space-y-8">
+				<FooterCollections />
+				<FooterLegalPages />
+			</div>
+
+			{/* Bottom bar */}
+			<div className="col-span-12 border-t border-border p-6 md:px-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<p className="text-xs text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<PaymentMethods />
+			</div>
+		</section>
 	);
 }

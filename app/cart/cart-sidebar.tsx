@@ -54,7 +54,11 @@ export function CartSidebar() {
 							<p className="text-lg font-medium">Your cart is empty</p>
 							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
+						<Button
+							variant="outline"
+							onClick={closeCart}
+							className="border-primary text-primary hover:bg-primary hover:text-white"
+						>
 							Continue Shopping
 						</Button>
 					</div>
@@ -77,7 +81,7 @@ export function CartSidebar() {
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-sm font-medium text-primary">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -87,7 +91,7 @@ export function CartSidebar() {
 								) : null}
 								<div className="flex items-center justify-between text-base">
 									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+									<span className="font-bold text-lg font-mono">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
@@ -113,7 +117,7 @@ export function CartSidebar() {
 									}}
 									className={cn(
 										buttonVariants(),
-										"w-full h-12 text-base font-medium",
+										"w-full h-12 text-base font-bold bg-primary hover:bg-primary/80 text-white",
 										isMutating && "pointer-events-none opacity-60",
 									)}
 								>
@@ -129,7 +133,7 @@ export function CartSidebar() {
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full text-sm text-primary hover:text-primary/80 transition-colors"
 								>
 									Continue Shopping
 								</button>

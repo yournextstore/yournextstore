@@ -10,6 +10,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Sits in the header's icon row, beside the other icon buttons: a fixed dock would collide with the chat launcher.
 export function ThemeToggle() {
 	const { setTheme } = useTheme();
 
