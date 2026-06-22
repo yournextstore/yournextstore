@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Droplets, Feather, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,43 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Enzyme-powered",
+		description:
+			"A pressed sheet of plant-derived enzymes that dissolves cleanly in any water temperature — no grit, no residue.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Trace-dosed scent",
+		description:
+			"Perfumer-composed at the lowest concentration that still lingers on linen. Soft, never heavy.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Paper, not plastic",
+		description:
+			"Each carton is curbside-recyclable kraft, printed with vegetable inks. Nothing about it is single-use.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Sparkles, Feather, Droplets];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 pt-16 border-t border-foreground/10">
+			<p className="text-center text-[11px] uppercase tracking-[0.32em] text-foreground/55">The formula</p>
+			<h2 className="mt-4 mb-14 text-center font-serif italic text-4xl sm:text-5xl font-light tracking-tight">
+				Quietly considered
+			</h2>
+			<div className="grid gap-10 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
-							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+						<div key={feature.title} className="flex flex-col items-center text-center px-4">
+							<Icon className="h-5 w-5 text-foreground/55 mb-5" strokeWidth={1.25} />
+							<h3 className="font-serif text-xl tracking-[0.18em] uppercase font-light text-foreground">
+								{feature.title}
+							</h3>
+							<p className="mt-4 text-[14px] leading-[1.7] text-foreground/65 max-w-xs">
+								{feature.description}
+							</p>
 						</div>
 					);
 				})}
