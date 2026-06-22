@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 
+import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +23,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const fraunces = Fraunces({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["500", "600", "700", "900"],
+	style: ["normal", "italic"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +117,21 @@ async function getInitialCart() {
 	}
 }
 
+function Wordmark() {
+	return (
+		<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2 group">
+			<span aria-hidden className="relative flex h-9 w-9 items-center justify-center">
+				<span className="absolute inset-0 rounded-full bg-sunset" />
+				<span className="absolute inset-[3px] rounded-full bg-background" />
+				<span className="relative font-display text-base font-bold text-foreground">Y</span>
+			</span>
+			<span className="font-display text-xl font-semibold tracking-tight text-foreground">
+				Your Next <span className="italic text-[--ember]">Store</span>
+			</span>
+		</YnsLink>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,27 +156,37 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<div className="bg-[--ink] text-white text-center text-xs tracking-[0.18em] uppercase py-2.5 px-4">
+					<span>Free worldwide shipping on orders over $120 · Authentic essentials, made to last</span>
+				</div>
+				<header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
+						<div className="grid grid-cols-3 items-center h-20">
 							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+								<Wordmark />
+							</div>
+							<div className="hidden md:flex items-center justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-1.5">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<button
+									type="button"
+									className="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/60 text-foreground/80 hover:bg-secondary transition-colors"
+									aria-label="Account"
+								>
+									<UserRound className="h-4 w-4" />
+								</button>
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +222,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${fraunces.variable} ${inter.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
