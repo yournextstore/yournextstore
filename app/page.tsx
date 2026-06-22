@@ -6,21 +6,18 @@ import { ProductGrid } from "@/components/sections/product-grid";
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section className="mt-4 sm:mt-5 rounded-[2rem] bg-white p-4 sm:p-6 lg:p-8 ring-1 ring-black/5">
+			<div className="flex items-end justify-between mb-7 px-1">
 				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
+					<div className="h-8 w-56 bg-neutral-100 rounded animate-pulse" />
+					<div className="mt-2 h-4 w-72 bg-neutral-100 rounded animate-pulse" />
 				</div>
 			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
+				{Array.from({ length: 5 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
+						<div className="aspect-[4/5] bg-neutral-100 rounded-[1.75rem] mb-3 animate-pulse" />
+						<div className="h-14 bg-neutral-100 rounded-[1.5rem] animate-pulse" />
 					</div>
 				))}
 			</div>
@@ -33,7 +30,7 @@ export default function Home() {
 		<>
 			<Hero />
 			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+				<ProductGrid title="Featured Furniture" limit={3} />
 			</Suspense>
 			<About />
 			<Newsletter />

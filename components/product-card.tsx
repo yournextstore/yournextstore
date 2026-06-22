@@ -3,6 +3,7 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { HeartIcon } from "lucide-react";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
@@ -54,26 +55,16 @@ export function ProductCard({
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
+	const subtitle = product.name;
+
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantPrice={singleVariant.price}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			{/* Image area with rounded corners, light gradient background, and name pill */}
+			<div className="relative aspect-[4/5] rounded-[1.75rem] overflow-hidden bg-gradient-to-br from-[#f3eee9] via-[#f7f3ee] to-[#efe9e2] ring-1 ring-black/5">
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-contain p-3 sm:p-4 transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,7 +77,7 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-transform duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
@@ -109,10 +100,52 @@ export function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+
+				{/* Lime green name pill (top-left) */}
+				<div className="absolute left-3 right-12 bottom-3 z-10 pointer-events-none">
+					<div className="inline-flex max-w-full items-center rounded-full bg-[#d9f560] pl-3.5 pr-3 py-1.5 shadow-sm">
+						<span className="truncate text-[11px] sm:text-xs font-semibold text-[#0f0f0f] leading-tight">
+							{subtitle}
+						</span>
+					</div>
+				</div>
+
+				{/* Quick add button (bottom-right, styled +) */}
+				{singleVariant && (
+					<QuickAddButton
+						variantId={singleVariant.id}
+						variantPrice={singleVariant.price}
+						variantImages={singleVariant.images}
+						product={{
+							id: product.id,
+							name: product.name,
+							slug: product.slug,
+							images: product.images ?? [],
+						}}
+					/>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+
+			{/* Card footer with name, heart, price + Card button */}
+			<div className="mt-3 rounded-[1.5rem] bg-white ring-1 ring-black/5 px-4 py-3.5 shadow-[0_4px_18px_-12px_rgba(15,15,15,0.15)]">
+				<div className="flex items-start justify-between gap-3">
+					<h3 className="text-[15px] font-semibold text-[#0f0f0f] leading-tight tracking-tight line-clamp-2">
+						{product.name}
+					</h3>
+					<button
+						type="button"
+						aria-label="Add to wishlist"
+						className="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 hover:text-[#ff6b35] transition-colors"
+					>
+						<HeartIcon className="h-4 w-4" />
+					</button>
+				</div>
+				<div className="mt-3 flex items-center justify-between gap-3">
+					<p className="text-lg font-display text-[#0f0f0f]">{priceDisplay}</p>
+					<span className="inline-flex items-center justify-center rounded-full bg-[#0f0f0f] px-4 py-1.5 text-xs font-medium text-white group-hover:bg-[#ff6b35] transition-colors">
+						Card
+					</span>
+				</div>
 			</div>
 		</YnsLink>
 	);

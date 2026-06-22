@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,15 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const archivoBlack = Archivo_Black({
+	variable: "--font-archivo-black",
 	subsets: ["latin"],
+	weight: "400",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +113,21 @@ async function getInitialCart() {
 	}
 }
 
+function LogoMark() {
+	return (
+		<span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#0f0f0f] text-white">
+			<svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+				<path
+					d="M5 19V9l7-5 7 5v10h-4v-6h-6v6H5z"
+					stroke="currentColor"
+					strokeWidth="1.6"
+					strokeLinejoin="round"
+				/>
+			</svg>
+		</span>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,27 +152,34 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+			<div className="flex min-h-screen flex-col yns-page-shell">
+				<div className="mx-auto w-full max-w-[1280px] px-3 sm:px-5 lg:px-6 pt-3 sm:pt-5">
+					<header className="sticky top-3 z-50 rounded-3xl bg-white/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,15,15,0.12)] ring-1 ring-black/5">
+						<div className="px-4 sm:px-6">
+							<div className="flex items-center justify-between h-16 sm:h-[68px]">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="flex items-center gap-2.5 font-display text-xl sm:text-2xl tracking-tight text-[#0f0f0f]"
+								>
+									<LogoMark />
+									<span className="hidden xs:inline sm:inline">YNS</span>
 								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
+								<div className="hidden md:flex flex-1 justify-center">
+									<Navbar links={links} />
+								</div>
+								<div className="flex items-center gap-2 sm:gap-3">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+									{AUTH_ENABLED && <AuthButton />}
+									<CartButton />
+								</div>
 							</div>
 						</div>
-					</div>
-				</header>
-				<main className="flex-1">{children}</main>
+					</header>
+				</div>
+				<div className="flex-1 mx-auto w-full max-w-[1280px] px-3 sm:px-5 lg:px-6 pb-6">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +215,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${archivoBlack.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
