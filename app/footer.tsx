@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-mono text-[0.72rem] tracking-[0.18em] uppercase text-parchment/75 hover:text-parchment transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-mono text-[0.72rem] tracking-[0.18em] uppercase text-parchment/75 hover:text-parchment transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -57,22 +57,13 @@ async function FooterCollections() {
 	}
 
 	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</YnsLink>
-					</li>
-				))}
-			</ul>
-		</div>
+		<FooterColumn title="Catalogue">
+			{collections.data.map((collection) => (
+				<FooterLink key={collection.id} href={`/collection/${collection.slug}`}>
+					{collection.name}
+				</FooterLink>
+			))}
+		</FooterColumn>
 	);
 }
 
@@ -87,79 +78,91 @@ async function FooterLegalPages() {
 	}
 
 	return (
+		<FooterColumn title="Index">
+			{pages.data.map((page) => (
+				<FooterLink key={page.id} href={`/legal${page.href}`}>
+					{page.label}
+				</FooterLink>
+			))}
+		</FooterColumn>
+	);
+}
+
+function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
+	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</YnsLink>
-					</li>
-				))}
-			</ul>
+			<h3 className="font-mono text-[0.6rem] tracking-[0.32em] uppercase text-parchment/45 mb-6">{title}</h3>
+			<ul className="space-y-3">{children}</ul>
 		</div>
+	);
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+	return (
+		<li>
+			<YnsLink
+				prefetch={"eager"}
+				href={href}
+				className="font-mono text-[0.72rem] tracking-[0.18em] uppercase text-parchment/75 hover:text-parchment transition-colors"
+			>
+				{children}
+			</YnsLink>
+		</li>
 	);
 }
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="bg-ink text-parchment relative" style={{ backgroundColor: "#0e0d0b" }}>
+			<div className="px-6 sm:px-10 lg:px-14 pt-20 pb-8">
+				{/* Top: oversized wordmark */}
+				<div className="border-b border-parchment/10 pb-14 mb-14 flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+					<div>
+						<p className="eyebrow text-sand mb-6">From sea to cell — and beyond.</p>
+						<h2 className="font-serif text-[16vw] lg:text-[10.5rem] leading-[0.9] tracking-[0.04em] uppercase text-parchment">
+							Your<span className="text-sand">·</span>Next<span className="text-sand">·</span>Store
+						</h2>
+					</div>
+					<p className="font-mono text-[0.72rem] leading-relaxed text-parchment/55 max-w-xs">
+						Biotech-grade skincare for men. Shipping cold-chain, worldwide, from a small lab on the Atlantic
+						coast.
+					</p>
+				</div>
+
+				<div className="grid grid-cols-2 md:grid-cols-5 gap-10">
+					<div className="col-span-2 max-w-xs">
+						<p className="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-parchment/50 mb-4">
+							The atelier
+						</p>
+						<p className="font-serif text-2xl leading-snug text-parchment/90">
+							A field journal, a small lab, and an obstinate belief in slow chemistry.
 						</p>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</YnsLink>
-							</li>
-							<FooterContactLink />
-							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</YnsLink>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
+					<FooterColumn title="The store">
+						<FooterLink href="/about">About Us</FooterLink>
+						<FooterContactLink />
+						<FooterLink href="/faq">Help & FAQ</FooterLink>
+						<FooterBlogLink />
+						<FooterLink href="/products">All products</FooterLink>
+						<FooterLink href="/search">Search</FooterLink>
+					</FooterColumn>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
-					</p>
+				<div className="mt-20 pt-8 border-t border-parchment/10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+					<div className="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-parchment/45">
+						© {new Date().getFullYear()} Your Next Store — All formulas, all reserved.
+					</div>
+					<div className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.6rem] tracking-[0.3em] uppercase text-parchment/40">
+						<span>Lat 36.7°N</span>
+						<span>Vol. 042</span>
+						<span>Pressed on 100% recycled paper</span>
+						<span>EST. 2026</span>
+					</div>
 				</div>
 			</div>
 		</footer>
