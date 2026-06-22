@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono, Manrope } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const manrope = Manrope({
+	variable: "--font-manrope",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const bricolage = Bricolage_Grotesque({
+	variable: "--font-bricolage",
+	subsets: ["latin"],
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -35,6 +42,7 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
 	preload: false,
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -124,32 +132,86 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function LeafLogo() {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			aria-hidden="true"
+		>
+			<title>YNS leaf</title>
+			<path
+				d="M3 21C3 21 4 12 12 8C18 5 21 3 21 3C21 3 20 13 13 17C7.5 20 3 21 3 21Z"
+				fill="#C6F26D"
+				stroke="#C6F26D"
+				strokeWidth="1.2"
+				strokeLinejoin="round"
+			/>
+			<path d="M3 21C7 17 11 13 18 6" stroke="#0E3B2E" strokeWidth="1.4" strokeLinecap="round" />
+		</svg>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
-	// take the header, nav and footer out of the prerendered shell and leave the page
-	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// Only cached reads here. Awaiting anything request-time (cookies, headers) would take the
+	// header, nav and footer out of the prerendered shell and leave the page blank until the
+	// server responds; CartProvider loads the cart in the browser. No <Suspense> around this
+	// component either: the boundary itself is what streams the chrome out of the shell.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-background">
+					<div className="bg-forest-deep text-cream text-xs">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9">
+							<p className="hidden sm:flex items-center gap-2">
+								<span className="inline-block w-1.5 h-1.5 rounded-full bg-lime animate-pulse" />
+								Free local delivery on orders over $100 — fresh from farm in 30 min
+							</p>
+							<p className="sm:hidden text-[11px]">Free delivery over $100</p>
+							<div className="flex items-center gap-4 text-[11px] text-cream/70">
+								<span>EN / USD</span>
+								<span className="hidden sm:inline">Help</span>
+								<span className="hidden md:inline">Track order</span>
+							</div>
+						</div>
+					</div>
+					<header className="sticky top-0 z-50 bg-forest-deep">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+							<div className="flex items-center gap-3 sm:gap-5 h-16 sm:h-[72px]">
+								<Link href="/" className="flex items-center gap-2 shrink-0">
+									<LeafLogo />
+									<span className="text-cream font-display font-semibold text-lg tracking-tight">
 										Your Next Store
-									</Link>
+									</span>
+								</Link>
+								<div className="hidden md:flex">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex-1 max-w-xl ml-auto md:ml-2">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
+								</div>
+								<div className="hidden lg:flex items-center gap-2 text-cream text-sm">
+									<span
+										aria-hidden="true"
+										className="flex h-8 w-8 items-center justify-center rounded-full bg-lime/20 text-lime"
+									>
+										<svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+											<title>fast</title>
+											<path d="M13 2L3 14h7l-1 8 11-14h-7l1-6h-1z" />
+										</svg>
+									</span>
+									<span className="text-cream/80">
+										Order now, get it within <span className="text-lime font-semibold">15 min</span>
+									</span>
+								</div>
+								<div className="flex items-center gap-2 text-cream">
 									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
@@ -160,10 +222,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
 										aria-label="Account"
+										className="flex h-9 w-9 rounded-full border-2 border-lime/40 bg-gradient-to-br from-peach to-lime overflow-hidden items-center justify-center text-forest-deep"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="h-5 w-5" aria-hidden="true" />
 									</a>
 									<CartButton />
 								</div>
@@ -175,7 +237,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -198,11 +260,7 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	// VERCEL_ENV is unset off Vercel, so fall back to NODE_ENV: a self-hosted production
 	// build must not ship the builder devtools.
 	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
@@ -211,7 +269,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${manrope.variable} ${bricolage.variable} ${geistMono.variable} font-sans antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
