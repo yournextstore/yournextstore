@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+// Variable names match the `--font-inter` / `--font-fraunces` references in app/globals.css.
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const fraunces = Fraunces({
+	variable: "--font-fraunces",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["300", "400", "500", "600"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -128,25 +130,37 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-[var(--cream)]">
+					<div className="bg-[var(--ink)] text-[var(--cream)] text-xs sm:text-[13px]">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-3 tracking-[0.18em] uppercase font-medium">
+							<span className="hidden sm:inline-flex h-1.5 w-1.5 rounded-full bg-[var(--coral)]" />
+							<span>Free shipping over $40 · Bold flavor, delivered cold</span>
+							<span className="hidden sm:inline-flex h-1.5 w-1.5 rounded-full bg-[var(--coral)]" />
+						</div>
+					</div>
+					<header className="sticky top-0 z-50 border-b border-[var(--coral-soft)]/30 bg-[var(--cream)]/85 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+							<div className="grid grid-cols-3 items-center h-16 sm:h-20">
+								<div className="flex items-center gap-2 sm:gap-6 justify-start">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center justify-center">
+									<Link
+										href="/"
+										className="font-display italic text-2xl sm:text-3xl tracking-tight text-[var(--ink)] leading-none"
+									>
+										Your Next Store
+									</Link>
+								</div>
+								<div className="flex items-center gap-1 sm:gap-2 justify-end">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,7 +174,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 rounded-full text-[var(--ink)] hover:bg-[var(--peach-light)] transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -198,11 +212,7 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	// VERCEL_ENV is unset off Vercel, so fall back to NODE_ENV: a self-hosted production
 	// build must not ship the builder devtools.
 	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
@@ -211,7 +221,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${fraunces.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

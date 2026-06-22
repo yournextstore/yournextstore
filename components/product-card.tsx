@@ -63,7 +63,7 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-square bg-[var(--peach-light)] rounded-3xl overflow-hidden mb-4 ring-1 ring-[var(--peach)]/60 transition-all group-hover:ring-[var(--coral)]/40 group-hover:shadow-lg">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -121,12 +121,12 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
+			<div className="space-y-0.5 px-1">
+				<h2 className="font-display italic text-lg text-[var(--ink)] tracking-tight">{product.name}</h2>
 				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+					<span className="text-sm font-semibold text-[var(--coral)]">{priceDisplay}</span>
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="text-sm text-[var(--ink)]/50 line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>
