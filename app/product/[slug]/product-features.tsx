@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Flower, type LucideIcon, Sparkles, Sprout } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,50 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Foraged & farmed",
+		description:
+			"Botanicals are sourced from a tiny network of growers we visit each season — never anonymous, never industrial.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Small-batch by hand",
+		description:
+			"Blended in 40-pouch runs in our Brooklyn studio. Each tin is dated, signed, and a little imperfect.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Quietly extraordinary",
+		description:
+			"Slow recipes refined over hundreds of cups, balanced for the way you actually drink at home.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Flower, Sprout, Sparkles];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-border pt-16">
+			<div className="text-center max-w-2xl mx-auto">
+				<span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-sage">
+					<span className="h-px w-8 bg-sage" />
+					What&rsquo;s in the pouch
+					<span className="h-px w-8 bg-sage" />
+				</span>
+				<h2 className="mt-4 font-serif text-4xl sm:text-5xl tracking-tight text-foreground">
+					Crafted with intention
+				</h2>
+			</div>
+			<div className="mt-14 grid gap-8 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group rounded-3xl bg-cream p-8 ring-1 ring-border/60 hover:ring-sage transition-all"
+						>
+							<div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-sage/10 text-sage transition-colors group-hover:bg-sage group-hover:text-cream">
+								<Icon className="h-5 w-5" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="font-serif text-2xl text-foreground">{feature.title}</h3>
+							<p className="mt-3 text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}

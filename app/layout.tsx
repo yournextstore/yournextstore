@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,9 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+	variable: "--font-playfair",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+	style: ["normal", "italic"],
+});
+
+const dmSans = DM_Sans({
+	variable: "--font-dm-sans",
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -131,26 +139,57 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-coral-gradient text-white text-xs sm:text-sm">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between gap-4">
+				<span className="hidden sm:inline-flex items-center gap-1.5 opacity-90">
+					<span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-white/80" />
+					Customer service
+				</span>
+				<p className="flex-1 text-center font-medium tracking-wide">
+					Free shipping on orders over $50 — small-batch &amp; lovingly packed
+				</p>
+				<span className="hidden sm:inline-block opacity-90 tabular-nums">$ USD</span>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+						<div className="grid grid-cols-3 items-center h-16">
+							<div className="flex items-center gap-6">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-serif italic text-2xl sm:text-3xl tracking-tight text-foreground"
+								>
+									Your Next Store
+								</YnsLink>
+							</div>
+							<div className="flex items-center justify-end gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="hidden md:inline-flex text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors px-2"
+								>
+									Shop
+								</YnsLink>
 								<CartButton />
 							</div>
 						</div>
@@ -192,8 +231,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
+			<body className={`${dmSans.variable} ${playfair.variable} ${geistMono.variable} font-sans antialiased`}>
 				<Suspense>
 					<CookieConsent />
 				</Suspense>
