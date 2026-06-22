@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="tizz-overline text-[var(--tizz-yellow)] text-xs mb-5">Collections</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="tizz-overline text-[var(--tizz-yellow)] text-xs mb-5">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -106,33 +106,56 @@ async function FooterLegalPages() {
 	);
 }
 
+const SOCIALS = [
+	{ label: "Instagram", href: "#", icon: "IG" },
+	{ label: "TikTok", href: "#", icon: "TT" },
+	{ label: "X", href: "#", icon: "X" },
+	{ label: "YouTube", href: "#", icon: "YT" },
+];
+
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="relative bg-[var(--tizz-deep)] text-[var(--tizz-cream)] overflow-hidden">
+			<div className="absolute inset-0 tizz-noise opacity-60" />
+			<div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="py-16 sm:py-20 grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-12">
+					<div className="col-span-2">
+						<YnsLink prefetch={"eager"} href="/" className="block">
+							<span className="tizz-display text-[var(--tizz-orange)] text-7xl sm:text-8xl lg:text-9xl leading-none block">
+								YNS
+							</span>
+							<span className="tizz-display text-[var(--tizz-yellow)] text-3xl sm:text-4xl lg:text-5xl leading-none block">
+								Your Next Store
+							</span>
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-6 max-w-sm text-[var(--tizz-cream)]/70 leading-relaxed">
+							Loud-flavor soda, bottled in Brooklyn. Less sugar. More fizz. Direct from the can vault to your
+							fridge.
 						</p>
+						<div className="mt-6 flex gap-2">
+							{SOCIALS.map((s) => (
+								<a
+									key={s.label}
+									href={s.href}
+									aria-label={s.label}
+									className="inline-flex items-center justify-center w-11 h-11 rounded-full border-2 border-[var(--tizz-cream)]/30 text-[var(--tizz-cream)] tizz-overline text-[10px] hover:bg-[var(--tizz-yellow)] hover:text-[var(--tizz-deep)] hover:border-[var(--tizz-yellow)] transition-colors"
+								>
+									{s.icon}
+								</a>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="tizz-overline text-[var(--tizz-yellow)] text-xs mb-5">Help</h3>
+						<ul className="space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +165,51 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
 								>
 									FAQ
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
+								>
+									Shop all
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/search"
+									className="text-[var(--tizz-cream)]/80 hover:text-[var(--tizz-yellow)] transition-colors"
+								>
+									Search
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				{/* Giant wordmark */}
+				<div className="relative -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden border-t-2 border-[var(--tizz-cream)]/10">
+					<div className="py-6 flex items-center justify-center">
+						<span className="tizz-display text-[var(--tizz-orange)] text-[20vw] sm:text-[18vw] leading-[0.85] select-none">
+							YOUR NEXT STORE
+						</span>
+					</div>
+				</div>
+
+				<div className="py-6 border-t border-[var(--tizz-cream)]/10 flex flex-col sm:flex-row justify-between gap-3">
+					<p className="tizz-overline text-[10px] text-[var(--tizz-cream)]/50">
+						&copy; {new Date().getFullYear()} Your Next Store · All rights reserved
+					</p>
+					<p className="tizz-overline text-[10px] text-[var(--tizz-cream)]/50">
+						Drink responsibly · Recycle the can
 					</p>
 				</div>
 			</div>

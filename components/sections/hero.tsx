@@ -1,44 +1,62 @@
-import { ArrowRightIcon } from "lucide-react";
-import { YnsLink } from "../yns-link";
+import Image from "next/image";
 
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<YnsLink
-								prefetch={"eager"}
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
-							<YnsLink
-								prefetch={"eager"}
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</YnsLink>
-						</div>
+		<section className="relative tizz-hero-gradient overflow-hidden tizz-noise">
+			{/* Decorative stars */}
+			<div className="pointer-events-none absolute inset-0 opacity-70">
+				<svg
+					className="absolute top-10 left-[8%] w-12 h-12 text-[var(--tizz-yellow)] tizz-spin-slow"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					aria-hidden="true"
+				>
+					<path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" />
+				</svg>
+				<svg
+					className="absolute top-24 right-[12%] w-8 h-8 text-[var(--tizz-orange)] tizz-spin-slow"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					aria-hidden="true"
+				>
+					<path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" />
+				</svg>
+				<svg
+					className="absolute bottom-24 left-[14%] w-6 h-6 text-[var(--tizz-green)] tizz-spin-slow"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					aria-hidden="true"
+				>
+					<path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" />
+				</svg>
+				<svg
+					className="absolute bottom-40 right-[8%] w-10 h-10 text-[var(--tizz-yellow)] tizz-spin-slow"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					aria-hidden="true"
+				>
+					<path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" />
+				</svg>
+			</div>
+
+			<div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="relative min-h-[600px] lg:min-h-[720px] flex items-center justify-center py-12">
+					{/* Hero image (the can pyramid) */}
+					<div className="relative w-full max-w-3xl aspect-[3/4] sm:aspect-[4/5]">
+						<Image
+							src="/scraped-0.jpg"
+							alt="Stacked pyramid of soda cans"
+							fill
+							priority
+							sizes="(max-width: 768px) 100vw, 800px"
+							className="object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
+						/>
 					</div>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
+
+			{/* Diagonal bottom edge effect */}
+			<div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-b from-transparent to-[var(--tizz-deep)]/40 pointer-events-none" />
 		</section>
 	);
 }

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
+import { Recycle, Sparkles, Truck } from "lucide-react";
 
 type TrustBadge = {
 	icon: LucideIcon;
@@ -8,19 +8,19 @@ type TrustBadge = {
 };
 
 const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+	{ icon: Truck, title: "Free over $75", description: "Lower-48 ground" },
+	{ icon: Sparkles, title: "Real fruit", description: "Less sugar, more fizz" },
+	{ icon: Recycle, title: "100% recyclable", description: "Aluminum forever" },
 ];
 
 export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
+		<div className="grid grid-cols-3 gap-3 rounded-3xl bg-[var(--tizz-yellow)] border-2 border-[var(--tizz-deep)] p-4">
 			{badges.map((badge) => (
 				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
+					<badge.icon className="mb-2 h-6 w-6 text-[var(--tizz-orange)]" strokeWidth={2.5} />
+					<span className="tizz-overline text-[10px] text-[var(--tizz-deep)]">{badge.title}</span>
+					<span className="text-[10px] text-[var(--tizz-deep)]/70 mt-0.5">{badge.description}</span>
 				</div>
 			))}
 		</div>
