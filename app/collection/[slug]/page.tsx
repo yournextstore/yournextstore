@@ -4,7 +4,6 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
 import {
 	Breadcrumb,
@@ -14,14 +13,9 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { commerce, getStoreSeo } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
-
-// The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
-const SMART_COLLECTION_LIMIT = 100;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -33,11 +27,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		return { title: "Collection Not Found", robots: { index: false, follow: true } };
 	}
 
-	const { storeName } = await getStoreSeo();
 	const description =
 		typeof collection.description === "string"
 			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+			: `Shop the ${collection.name} collection.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -62,15 +55,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-[#1a1a1a]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
+				<div className="py-10 sm:py-14 lg:py-16">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<h1 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-white">
 							{collection.name}
 						</h1>
 						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+							<p className="mt-3 text-base text-white/60 leading-relaxed">
 								{typeof collection.description === "string"
 									? collection.description
 									: "Explore our curated collection"}
@@ -86,74 +79,39 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-[#1a1a1a] to-transparent" />
 				</div>
 			)}
 		</section>
 	);
 }
 
-function CollectionProductsSkeleton() {
+function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
+		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+				{Array.from({ length: 8 }).map((_, i) => (
+					<div key={`skeleton-${i}`} className="border border-border">
+						<div className="aspect-square bg-secondary animate-pulse" />
+						<div className="p-3 sm:p-4 space-y-2">
+							<div className="h-4 w-3/4 bg-secondary rounded animate-pulse" />
+							<div className="h-4 w-1/4 bg-secondary rounded animate-pulse" />
+						</div>
+					</div>
+				))}
+			</div>
 		</section>
 	);
 }
 
-// Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
-// the smart filters are evaluated against the whole catalog when the storefront asks for them.
-// Re-expressing each one as the equivalent product browse is what keeps those collections from
-// rendering as an empty grid.
-async function getCollectionProducts(collection: APICollectionGetByIdResult) {
-	const { filter } = collection;
-
-	if (filter.type === "manual") {
-		const ids = collection.productCollections.map((pc) => pc.product.id);
-		return (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
-			(product) => product !== null,
-		);
-	}
-
-	if (filter.type === "variantValues") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			vts: encodeVts(filter.values),
-		});
-		return data;
-	}
-
-	if (filter.type === "dynamicPrice") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			priceMin: filter.min ?? undefined,
-			priceMax: filter.max ?? undefined,
-		});
-		return data;
-	}
-
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: SMART_COLLECTION_LIMIT,
-		orderBy: "createdAt",
-		orderDirection: "desc",
-	});
-
-	// A rolling "new arrivals" window has no browse equivalent, so the age bound is applied here.
-	if (typeof filter.days !== "number") {
-		return data;
-	}
-	const cutoff = Date.now() - filter.days * MS_PER_DAY;
-	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
-}
-
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
+	const ids = collection.productCollections.map((pc) => pc.product.id);
+	const products = (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
+		(product) => product !== null,
+	);
 
 	return (
 		<ProductGrid
@@ -165,43 +123,15 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	);
 }
 
-function CollectionPageSkeleton() {
-	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
-	);
-}
-
-// Awaiting params at the top of the page blocks the static shell — the page
-// stays a sync shell and the params-dependent content streams inside Suspense.
-export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
-	return (
-		<Suspense fallback={<CollectionPageSkeleton />}>
-			<CollectionContent params={props.params} />
-		</Suspense>
-	);
-}
-
-const getCollectionData = async (slug: string) => {
+export default async function CollectionPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
 	"use cache";
 	cacheLife("minutes");
-	return commerce.collectionGet({ idOrSlug: slug });
-};
 
-const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
-	const { slug } = await params;
-	const collection = await getCollectionData(slug);
+	const { slug } = await props.params;
+	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
 		notFound();
@@ -227,9 +157,9 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 				</Breadcrumb>
 			</div>
 			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
+			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
 		</>
 	);
-};
+}

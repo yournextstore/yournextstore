@@ -1,5 +1,6 @@
+import { Mail, MapPin, Phone } from "lucide-react";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
+import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -13,9 +14,13 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<YnsLink
+				prefetch={"eager"}
+				href="/blog"
+				className="text-sm text-white/60 hover:text-gold transition-colors"
+			>
 				Blog
-			</Link>
+			</YnsLink>
 		</li>
 	);
 }
@@ -31,9 +36,13 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<YnsLink
+				prefetch={"eager"}
+				href="/contact"
+				className="text-sm text-white/60 hover:text-gold transition-colors"
+			>
 				Contact Us
-			</Link>
+			</YnsLink>
 		</li>
 	);
 }
@@ -50,16 +59,17 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Collections</h3>
+			<ul className="space-y-2.5">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<Link
+						<YnsLink
+							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-white/60 hover:text-gold transition-colors"
 						>
 							{collection.name}
-						</Link>
+						</YnsLink>
 					</li>
 				))}
 			</ul>
@@ -79,16 +89,17 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Information</h3>
+			<ul className="space-y-2.5">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<Link
+						<YnsLink
+							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-white/60 hover:text-gold transition-colors"
 						>
 							{page.label}
-						</Link>
+						</YnsLink>
 					</li>
 				))}
 			</ul>
@@ -96,55 +107,101 @@ async function FooterLegalPages() {
 	);
 }
 
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
-export async function Footer() {
-	const year = await getCopyrightYear();
-
+export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-[#1a1a1a] text-white">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-12 sm:py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div>
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="font-[family-name:var(--font-heading)] text-2xl font-bold uppercase text-white"
+						>
 							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						</YnsLink>
+						<p className="mt-4 text-sm text-white/60 leading-relaxed">
+							Your trusted destination for premium automotive parts, accessories, and equipment. Quality
+							products for every vehicle.
 						</p>
+						<div className="mt-6 space-y-3">
+							<div className="flex items-center gap-2 text-sm text-white/60">
+								<MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+								<span>123 Auto Parts Blvd, Suite 100</span>
+							</div>
+							<div className="flex items-center gap-2 text-sm text-white/60">
+								<Phone className="w-4 h-4 text-primary flex-shrink-0" />
+								<span>(+800) 123 456 7890</span>
+							</div>
+							<div className="flex items-center gap-2 text-sm text-white/60">
+								<Mail className="w-4 h-4 text-primary flex-shrink-0" />
+								<span>support@yournextstore.com</span>
+							</div>
+						</div>
 					</div>
 
 					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
+					{/* Customer Service */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Customer Service</h3>
+						<ul className="space-y-2.5">
 							<li>
-								<Link
+								<YnsLink
+									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-white/60 hover:text-gold transition-colors"
 								>
 									About Us
-								</Link>
+								</YnsLink>
 							</li>
 							<FooterContactLink />
 							<li>
-								<Link
+								<YnsLink
+									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-white/60 hover:text-gold transition-colors"
 								>
 									FAQ
-								</Link>
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="text-sm text-white/60 hover:text-gold transition-colors"
+								>
+									Shipping & Delivery
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="text-sm text-white/60 hover:text-gold transition-colors"
+								>
+									Returns & Exchanges
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="text-sm text-white/60 hover:text-gold transition-colors"
+								>
+									Order Tracking
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="text-sm text-white/60 hover:text-gold transition-colors"
+								>
+									Contact Us
+								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
@@ -155,8 +212,10 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-white/10">
+					<p className="text-sm text-white/40">
+						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+					</p>
 				</div>
 			</div>
 		</footer>
