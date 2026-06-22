@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Feather, Heart, Leaf, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,38 +12,57 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Drawn in our studio",
+		description:
+			"Every print, embroidery and silhouette is designed by our small in-house team in London — never repeated.",
+		icon: Sparkles,
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Heritage fabrics",
+		description:
+			"Sun-friendly cottons, breathable linens and softly draping viscose, chosen for the way they wear in.",
+		icon: Feather,
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Made to be loved",
+		description:
+			"Carefully finished hems, considered buttons and reinforced seams — built to be passed on, not thrown out.",
+		icon: Heart,
+	},
+	{
+		title: "Better for the planet",
+		description:
+			"100% of our cotton is responsibly sourced. We are working toward more sustainable fibres across the whole range.",
+		icon: Leaf,
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
-
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
-				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
-					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+		<section className="mt-24 bg-cream/60 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 py-16 sm:py-20">
+			<div className="max-w-5xl mx-auto">
+				<div className="text-center mb-12 sm:mb-16">
+					<p className="text-[11px] tracking-[0.32em] uppercase text-muted-foreground mb-3">The Yns Way</p>
+					<h2 className="font-serif text-3xl sm:text-4xl text-ink">Crafted with intention</h2>
+				</div>
+				<div className="grid gap-10 sm:gap-12 md:grid-cols-2">
+					{features.map((feature) => {
+						const Icon = feature.icon ?? Sparkles;
+						return (
+							<div key={feature.title} className="flex gap-5">
+								<div className="shrink-0 h-12 w-12 flex items-center justify-center rounded-full border border-ink/20 text-forest">
+									<Icon className="h-5 w-5" strokeWidth={1.5} />
+								</div>
+								<div>
+									<h3 className="font-serif text-xl text-ink mb-2">{feature.title}</h3>
+									<p className="text-sm text-muted-foreground leading-relaxed font-light">
+										{feature.description}
+									</p>
+								</div>
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
-						</div>
-					);
-				})}
+						);
+					})}
+				</div>
 			</div>
 		</section>
 	);

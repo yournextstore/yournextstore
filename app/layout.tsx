@@ -2,34 +2,33 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
-import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
-import { SearchInput } from "@/app/search-input";
-import { AuthButton } from "@/components/auth-button";
+import type { NavLink } from "@/app/navbar";
+import { SiteHeader } from "@/app/site-header";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
 import { Toaster } from "@/components/ui/sonner";
-import { YnsLink } from "@/components/yns-link";
-import { AUTH_ENABLED } from "@/lib/auth-config";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
 	subsets: ["latin"],
+	weight: ["400", "500", "600"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +36,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Boho-inspired dresses and easy separates for work, play and every day.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -137,26 +138,8 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
-							</div>
-						</div>
-					</div>
-				</header>
-				<main className="flex-1">{children}</main>
+				<SiteHeader links={links} />
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +175,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${cormorant.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
