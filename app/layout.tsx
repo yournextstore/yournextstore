@@ -3,10 +3,9 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
-import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -19,22 +18,22 @@ import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-display",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["400", "500", "600", "700"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -124,43 +123,87 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	const items = [
+		"Free carbon-neutral shipping on orders over $80",
+		"New Spring Edition is here",
+		"Members save 15% on first order",
+		"Refill, reuse, repeat — our ethos",
+	];
+	const loop = [...items, ...items];
+
+	return (
+		<div className="bg-[var(--olive-deep)] text-[var(--cream)] overflow-hidden text-[11px] tracking-[0.18em] uppercase">
+			<div className="flex animate-ticker whitespace-nowrap py-2.5 gap-12">
+				{loop.map((text, i) => (
+					<span key={`${text}-${i}`} className="flex items-center gap-12 shrink-0">
+						<span className="opacity-60">✦</span>
+						<span>{text}</span>
+					</span>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function Logo() {
+	return (
+		<Link href="/" className="flex items-center gap-2 group">
+			<svg
+				viewBox="0 0 32 32"
+				className="h-7 w-7 text-[var(--olive-deep)] transition-transform group-hover:rotate-12"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1.6"
+				aria-hidden="true"
+			>
+				<path d="M16 4 C 9 9, 6 16, 16 28 C 26 16, 23 9, 16 4 Z" strokeLinejoin="round" />
+				<path d="M16 4 L 16 28" strokeLinecap="round" />
+				<path d="M16 12 L 11 9" strokeLinecap="round" />
+				<path d="M16 16 L 22 13" strokeLinecap="round" />
+				<path d="M16 20 L 11 17" strokeLinecap="round" />
+			</svg>
+			<span className="font-display text-2xl font-medium tracking-tight text-[var(--olive-deep)]">
+				Your Next Store
+			</span>
+		</Link>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
-	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
+	// blank until the server responds; CartProvider loads the cart in the browser. No
+	// <Suspense> around this component either: the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
+						<div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
+							<div className="flex items-center justify-between h-20">
+								<div className="flex items-center gap-10 flex-1">
+									<Logo />
 									<Navbar links={links} />
 								</div>
 								<div className="flex items-center gap-2">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+Static on purpose: reading the session here would pull the header out of the
+prerendered shell. */}
 									<a
 										href={
 											storeConfig.language
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 transition-opacity hover:opacity-80"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -174,8 +217,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 					<Footer />
 				</div>
 				<CartSidebar />
-				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -198,20 +240,14 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	// VERCEL_ENV is unset off Vercel, so fall back to NODE_ENV: a self-hosted production
 	// build must not ship the builder devtools.
 	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
 	const lang = await getHtmlLang();
-
 	return (
-		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
-		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang}>
+			<body className={`${inter.variable} ${cormorant.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -219,13 +255,11 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					<CartProviderWrapper>{children}</CartProviderWrapper>
-					<Suspense>
-						<NewsletterPopupSection />
-					</Suspense>
-					<Toaster richColors position="top-center" />
-				</ThemeProvider>
+				<CartProviderWrapper>{children}</CartProviderWrapper>
+				<Suspense>
+					<NewsletterPopupSection />
+				</Suspense>
+				<Toaster richColors position="top-center" />
 				{env === "development" && (
 					<>
 						<NavigationReporter />
