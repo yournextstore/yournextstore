@@ -62,8 +62,17 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square overflow-hidden bg-[color:#0f2a3f]/95 shadow-[0_20px_40px_-20px_rgba(15,42,63,0.5)]">
+				{/* Drape backdrop behind the image */}
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 opacity-60"
+					style={{
+						backgroundImage:
+							"radial-gradient(at 50% 100%, rgba(238,122,26,0.18), transparent 55%), repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 28px)",
+					}}
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +91,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -104,7 +113,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -117,18 +126,25 @@ export async function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0f2a3f]/60 to-transparent" />
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="mt-5 text-center">
+				<h2 className="font-display text-xl text-[color:#0f2a3f] transition-colors group-hover:text-[color:#7c1f12]">
+					{product.name}
+				</h2>
+				{priceDisplay ? (
+					<p className="mt-1 flex flex-wrap items-baseline justify-center gap-2 text-sm uppercase tracking-[0.18em] text-[color:#ee7a1a]">
+						{priceDisplay}
+						{compareAtDisplay && (
+							<span className="normal-case tracking-normal text-[color:#c9b79b] line-through">
+								{compareAtDisplay}
+							</span>
+						)}
+					</p>
+				) : null}
 			</div>
 		</IntentLink>
 	);
