@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { type LucideIcon, MessageCircleIcon, ShieldCheckIcon, TruckIcon } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,34 +12,39 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Genuine medicines",
+		description: "Sourced directly from licensed manufacturers, with batch and expiry verification.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Free same-day delivery",
+		description: "Orders over $35 ship at no cost, often delivered within hours in your city.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Talk to a pharmacist",
+		description: "Free, confidential consultations with our in-house pharmacy team, 7 days a week.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [ShieldCheckIcon, TruckIcon, MessageCircleIcon];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
 		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+			<h2 className="mb-12 text-center font-display text-3xl font-bold tracking-tight text-foreground">
+				Care you can count on
+			</h2>
+			<div className="grid gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group flex flex-col items-center rounded-3xl bg-secondary/40 p-6 text-center transition-colors hover:bg-mint-gradient"
+						>
+							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white ring-1 ring-[color:var(--mint-deep)]/10">
+								<Icon className="h-6 w-6 text-[color:var(--mint-deep)]" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
+							<h3 className="mb-2 font-display text-lg font-bold text-foreground">{feature.title}</h3>
 							<p className="text-sm text-muted-foreground">{feature.description}</p>
 						</div>
 					);

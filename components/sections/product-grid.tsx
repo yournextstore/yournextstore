@@ -22,55 +22,63 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	viewAllLabel?: string;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Today's best deals for you",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	viewAllLabel = "See all products",
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	if (displayProducts.length === 0) {
+		return null;
+	}
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+			<div className="mb-8 flex items-end justify-between gap-4">
+				<div className="max-w-xl">
+					<h2 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl lg:text-4xl">
+						{title}
+					</h2>
+					{description && <p className="mt-2 text-sm text-muted-foreground sm:text-base">{description}</p>}
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden shrink-0 items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[color:var(--mint-deep)] underline-offset-4 hover:underline sm:inline-flex"
 					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+						{viewAllLabel}
+						<ArrowRight className="h-3.5 w-3.5" />
 					</YnsLink>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-10 text-center sm:hidden">
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[color:var(--mint-deep)]"
 					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
+						{viewAllLabel}
+						<ArrowRight className="h-3.5 w-3.5" />
 					</YnsLink>
 				</div>
 			)}
