@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { About } from "@/components/sections/about";
+import { BenefitsStrip } from "@/components/sections/benefits-strip";
 import { Hero } from "@/components/sections/hero";
 import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
@@ -12,9 +13,10 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
+			<BenefitsStrip />
 			{/* No <Suspense>: the grid is "use cache", so it renders into the prerendered shell in document order. A boundary
 			    around cached data still ships the skeleton first and the content later in the HTML. */}
-			<ProductGrid title="Featured Products" limit={6} />
+			<ProductGrid title="Variety Packs" limit={4} />
 			<About />
 			<Newsletter />
 		</>
