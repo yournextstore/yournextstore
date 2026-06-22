@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bagel_Fat_One, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const bagel = Bagel_Fat_One({
+	variable: "--font-bagel",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,16 +140,43 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+				<header className="sticky top-4 z-50 px-3 sm:px-6">
+					<div className="max-w-6xl mx-auto">
+						<div className="relative flex items-center justify-between h-14 sm:h-16 rounded-full border border-white/10 bg-black/70 px-3 sm:px-5 backdrop-blur-xl shadow-[0_8px_32px_-12px_rgba(0,0,0,0.8)]">
+							<div className="flex items-center gap-2 sm:gap-4">
+								<div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<line x1="4" y1="7" x2="20" y2="7" />
+										<line x1="4" y1="12" x2="20" y2="12" />
+										<line x1="4" y1="17" x2="14" y2="17" />
+									</svg>
+								</div>
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
 							</div>
-							<div className="flex items-center gap-2">
+
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="font-display absolute left-1/2 -translate-x-1/2 text-xl sm:text-2xl tracking-tight text-white flex items-center gap-1.5"
+							>
+								<span className="inline-block h-2 w-2 rounded-full bg-[var(--color-yns-yellow)] shadow-[0_0_12px_var(--color-yns-yellow)]" />
+								YNS
+							</YnsLink>
+
+							<div className="flex items-center gap-1.5 sm:gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +186,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -191,8 +221,8 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang} className="dark">
+			<body className={`${inter.variable} ${bagel.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
