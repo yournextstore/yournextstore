@@ -2,8 +2,9 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Inter, Sniglet } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -22,14 +23,24 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const fontSans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const fontDisplay = Sniglet({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["400", "800"],
+	display: "swap",
+});
+
+const fontHandwritten = Caveat({
+	variable: "--font-handwritten",
+	subsets: ["latin"],
+	weight: ["600", "700"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -131,22 +142,34 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function YnsWordmark() {
+	return (
+		<YnsLink prefetch={"eager"} href="/" className="group flex items-center gap-2">
+			<span className="font-display text-3xl sm:text-4xl font-extrabold text-yns-green tracking-tight italic transition-transform group-hover:-rotate-2">
+				YNS
+			</span>
+			<span className="hidden sm:inline-block pb-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-yns-green">
+				Your Next
+				<br />
+				Store
+			</span>
+		</YnsLink>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+						<div className="flex items-center justify-between h-20 gap-6">
+							<YnsWordmark />
+							<Navbar links={links} />
+							<div className="flex items-center gap-1 sm:gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +179,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +215,9 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${fontSans.variable} ${fontDisplay.variable} ${fontHandwritten.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
