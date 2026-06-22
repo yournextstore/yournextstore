@@ -138,8 +138,8 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					{/* Title, Price, Description */}
+					<div className="space-y-4">
 						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
 							{product.name}
 						</h1>
@@ -155,9 +155,15 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 								</span>
 							</a>
 						)}
+						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						{product.content && (
+							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+								<TiptapRenderer content={product.content} />
+							</div>
+						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
+					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
@@ -171,16 +177,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 					/>
 				</div>
 			</div>
-
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
-			)}
 
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
