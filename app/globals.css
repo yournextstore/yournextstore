@@ -40,75 +40,88 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+
+	--color-candy: var(--candy);
+	--color-maroon: var(--maroon);
+	--color-cream: var(--cream);
+	--color-blush: var(--blush);
+	--color-ink: var(--ink);
+
+	--font-script: var(--font-script);
+	--font-display: var(--font-display);
+	--font-sans: var(--font-sans);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 0.75rem;
+
+	/* Bakery palette */
+	--candy: #d9261c;
+	--maroon: #5c1b26;
+	--cream: #f6e9df;
+	--blush: #f4a3b0;
+	--ink: #3a1418;
+
+	--background: #fdf6ef;
+	--foreground: #3a1418;
+
+	--card: #ffffff;
+	--card-foreground: #3a1418;
+	--popover: #ffffff;
+	--popover-foreground: #3a1418;
+
+	--primary: #d9261c;
+	--primary-foreground: #ffffff;
+
+	--secondary: #f6e9df;
+	--secondary-foreground: #5c1b26;
+
+	--muted: #f6e9df;
+	--muted-foreground: #7a3a44;
+
+	--accent: #f4a3b0;
+	--accent-foreground: #5c1b26;
+
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: #ead9c8;
+	--input: #ead9c8;
+	--ring: #d9261c;
+
+	--chart-1: #d9261c;
+	--chart-2: #5c1b26;
+	--chart-3: #f4a3b0;
+	--chart-4: #f6e9df;
+	--chart-5: #3a1418;
+
+	--sidebar: #fdf6ef;
+	--sidebar-foreground: #3a1418;
+	--sidebar-primary: #d9261c;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #f4a3b0;
+	--sidebar-accent-foreground: #5c1b26;
+	--sidebar-border: #ead9c8;
+	--sidebar-ring: #d9261c;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--background: #1a0608;
+	--foreground: #f6e9df;
+	--card: #2a0d10;
+	--card-foreground: #f6e9df;
+	--popover: #2a0d10;
+	--popover-foreground: #f6e9df;
+	--primary: #f4a3b0;
+	--primary-foreground: #3a1418;
+	--secondary: #3a1418;
+	--secondary-foreground: #f6e9df;
+	--muted: #2a0d10;
+	--muted-foreground: #cfa6a6;
+	--accent: #5c1b26;
+	--accent-foreground: #f6e9df;
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
+	--border: oklch(1 0 0 / 12%);
 	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--ring: #d9261c;
 }
 
 @layer base {
@@ -117,26 +130,38 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 	}
+}
+
+.font-script {
+	font-family: var(--font-script), "Brush Script MT", cursive;
+	font-weight: 400;
+	letter-spacing: 0;
+}
+
+.font-display {
+	font-family: var(--font-display), Georgia, serif;
+	font-style: italic;
 }
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
 	--tw-prose-headings: var(--foreground);
-	--tw-prose-links: var(--foreground);
+	--tw-prose-links: var(--candy);
 	--tw-prose-bold: var(--foreground);
-	--tw-prose-bullets: var(--muted-foreground);
+	--tw-prose-bullets: var(--candy);
 	--tw-prose-counters: var(--muted-foreground);
 }
 
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#f6e9df 0%,
+		#fdf6ef 40%,
+		#ffffff 50%,
+		#fdf6ef 60%,
+		#f6e9df 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -149,4 +174,58 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Hero radial sweep — red with a soft cream curve at the bottom */
+.hero-candy {
+	background:
+		radial-gradient(120% 80% at 50% -10%, #ee3a30 0%, #d9261c 45%, #b81913 100%);
+}
+
+/* The cream ground curve under the hero */
+.hero-ground {
+	background:
+		radial-gradient(140% 100% at 50% 100%, #fdf6ef 0%, #fdf6ef 55%, transparent 56%);
+}
+
+/* Floating heart confetti */
+@keyframes float-heart {
+	0% {
+		transform: translateY(0) rotate(-6deg);
+		opacity: 0.0;
+	}
+	15% {
+		opacity: 0.9;
+	}
+	100% {
+		transform: translateY(-180px) rotate(8deg);
+		opacity: 0;
+	}
+}
+
+.animate-float-heart {
+	animation: float-heart 6s ease-in-out infinite;
+}
+
+@keyframes marquee {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.animate-marquee {
+	animation: marquee 40s linear infinite;
+}
+
+/* Soft paper texture for cream sections */
+.bg-cream-paper {
+	background-color: #fdf6ef;
+	background-image:
+		radial-gradient(rgba(92, 27, 38, 0.05) 1px, transparent 1px),
+		radial-gradient(rgba(92, 27, 38, 0.04) 1px, transparent 1px);
+	background-size: 22px 22px, 32px 32px;
+	background-position: 0 0, 11px 16px;
 }

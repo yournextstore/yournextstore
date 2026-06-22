@@ -2,8 +2,9 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Display, Inter, Pacifico } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -22,14 +23,25 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const pacifico = Pacifico({
+	variable: "--font-script",
+	weight: "400",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const dmSerif = DM_Serif_Display({
+	variable: "--font-display",
+	weight: "400",
+	subsets: ["latin"],
+	style: ["italic", "normal"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +49,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Small-batch cookies, hand-baked sweets, and gifts worth falling for.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -136,17 +150,32 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 bg-[var(--candy)] text-white shadow-sm">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+						<div className="grid grid-cols-[1fr_auto_1fr] items-center h-20 gap-4">
+							<div className="flex items-center justify-start">
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
 							</div>
-							<div className="flex items-center gap-2">
+
+							<div className="flex flex-col items-center justify-center">
+								<YnsLink prefetch={"eager"} href="/" className="block leading-none">
+									<span className="font-script text-3xl sm:text-4xl text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.15)]">
+										Your Next Store
+									</span>
+									<span className="block text-[10px] tracking-[0.35em] text-white/80 mt-0.5 text-center font-medium">
+										BAKING CO.
+									</span>
+								</YnsLink>
+							</div>
+
+							<div className="flex items-center justify-end gap-1 sm:gap-3">
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +185,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +221,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${pacifico.variable} ${dmSerif.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
