@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Inter, Pacifico } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,24 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bodyFont = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const displayFont = Archivo_Black({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
+});
+
+const scriptFont = Pacifico({
+	variable: "--font-script",
+	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +47,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Simple Recipe PB&J — frozen sandwiches with real fruit jam.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -136,27 +147,53 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<div className="bg-[#1a0810] text-white text-[11px] tracking-[0.18em] uppercase font-medium">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-center gap-3">
+						<span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[#e63b4f] animate-pulse" />
+						<span>Free shipping on orders over $40 · Real fruit, no seed oils</span>
+					</div>
+				</div>
+				<header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-[#f7d4d9]">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+						<div className="flex items-center justify-between h-20 gap-4">
+							<div className="hidden md:flex items-center gap-2 flex-1">
+								<span className="inline-flex items-center gap-2 rounded-full bg-[#ffe9ec] pl-1 pr-4 py-1 text-xs font-semibold text-[#c8132b] uppercase tracking-wider">
+									<span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#f4a8b2] text-white text-[10px]">
+										S
+									</span>
+									Strawberry
+								</span>
+								<span className="inline-flex items-center gap-2 rounded-full bg-[#e9efff] pl-1 pr-4 py-1 text-xs font-semibold text-[#2a57c9] uppercase tracking-wider">
+									<span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#2a57c9] text-white text-[10px]">
+										B
+									</span>
+									Berry
+								</span>
 							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="font-script text-3xl sm:text-4xl text-[#c8132b] leading-none -rotate-2 md:absolute md:left-1/2 md:-translate-x-1/2"
+							>
+								Your Next Store
+							</YnsLink>
+							<div className="flex items-center gap-2 flex-1 justify-end">
+								<div className="hidden lg:block">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+								</div>
+								<div className="hidden md:block">
+									<Navbar links={links} />
+								</div>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +229,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
