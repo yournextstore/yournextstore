@@ -1,3 +1,4 @@
+import { ArrowUp } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
@@ -14,7 +15,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-foreground/78 transition-colors hover:text-foreground">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +33,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-foreground/78 transition-colors hover:text-foreground">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +52,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="mb-5 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">Collections</h3>
+			<ul className="space-y-2.5">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/78 transition-colors hover:text-foreground"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +81,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="mb-5 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">Information</h3>
+			<ul className="space-y-2.5">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/78 transition-colors hover:text-foreground"
 						>
 							{page.label}
 						</Link>
@@ -110,56 +111,75 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="border-t border-border/80 bg-[var(--surface-soft)]">
+			<div className="section-shell grid gap-12 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,0.75fr))]">
+				<div className="max-w-sm space-y-6">
+					<Link href="/" className="font-editorial text-3xl tracking-[-0.04em]">
+						Vela
+					</Link>
+					<p className="text-sm leading-7 text-muted-foreground">
+						Furniture, lighting, and objects selected for rooms that feel warm, quiet, and lived in.
+					</p>
+					<div className="flex flex-wrap gap-x-6 gap-y-2 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+						<Link href="/products" className="transition-colors hover:text-foreground">
+							Shop the edit
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
+						<Link href="/search" className="transition-colors hover:text-foreground">
+							Search
+						</Link>
+						<Link href="/faq" className="transition-colors hover:text-foreground">
+							Client services
+						</Link>
 					</div>
+				</div>
 
-					{/* Collections */}
+				<div>
 					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
+				</div>
+				<div>
+					<h3 className="mb-5 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+						Client Services
+					</h3>
+					<ul className="space-y-2.5">
+						{[
+							{ label: "Search the catalog", href: "/search" },
+							{ label: "Frequently asked questions", href: "/faq" },
+							{ label: "All products", href: "/products" },
+						].map((link) => (
+							<li key={link.label}>
 								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									href={link.href}
+									className="text-sm text-foreground/78 transition-colors hover:text-foreground"
 								>
-									About Us
+									{link.label}
 								</Link>
 							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+						))}
+						<li>
+							<Link
+								href="/about"
+								className="text-sm text-foreground/78 transition-colors hover:text-foreground"
+							>
+								About Us
+							</Link>
+						</li>
+						<FooterContactLink />
+						<FooterBlogLink />
+					</ul>
 				</div>
+				<FooterLegalPages />
+			</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
-				</div>
+			<div className="page-shell flex flex-col items-start justify-between gap-3 border-t border-border/80 py-5 text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground sm:flex-row sm:items-center">
+				<p>&copy; {year} Vela. All rights reserved.</p>
+				<PaymentMethods />
+				<a
+					href="#newsletter"
+					className="inline-flex items-center gap-2 transition-colors hover:text-foreground"
+				>
+					Join the list
+					<ArrowUp className="h-3.5 w-3.5 rotate-45" />
+				</a>
 			</div>
 		</footer>
 	);

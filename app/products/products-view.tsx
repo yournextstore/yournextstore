@@ -49,10 +49,13 @@ export async function ProductsView({ filters }: { filters: ProductListingParams 
 	const filtersAvailable = hasFacets(facets);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="section-shell-tight">
+			<div className="mb-10 space-y-3">
+				<p className="editorial-kicker">Product Index</p>
+				<h1 className="section-title">All products</h1>
+				<p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+					Browse the full catalog of furniture, lighting, and smaller objects selected for quieter interiors.
+				</p>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>

@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	const description = `Frequently asked questions about orders, payments, shipping, and returns at ${storeName}.`;
 
 	return {
-		title: "FAQ",
+		title: "FAQ — Vela",
 		description,
 		alternates: { canonical: "/faq" },
 		openGraph: {

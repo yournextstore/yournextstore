@@ -19,9 +19,13 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	compact = false,
+	showQuickAdd = true,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	compact?: boolean;
+	showQuickAdd?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
 	const allImages = [
@@ -61,10 +65,15 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const titleClassName = compact
+		? "text-[0.95rem] leading-snug text-foreground"
+		: "text-base leading-snug text-foreground";
+	const priceClassName = compact ? "text-sm text-muted-foreground" : "text-[0.95rem] text-muted-foreground";
+
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative mb-4 aspect-[4/5] overflow-hidden border border-border/80 bg-[var(--surface-soft)]">
+				{singleVariant && showQuickAdd ? (
 					<QuickAddButton
 						variantId={singleVariant.id}
 						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
@@ -78,11 +87,11 @@ export async function ProductCard({
 							images: product.images ?? [],
 						}}
 					/>
-				)}
+				) : null}
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-700 ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-[1.02]"}`}
 							src={primaryImage}
 							muted
 							loop
@@ -96,7 +105,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-[opacity,transform] duration-700 ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-[1.02]"}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -104,7 +113,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -117,14 +126,14 @@ export async function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="space-y-1.5">
+				<h2 className={titleClassName}>{product.name}</h2>
+				<p className={`flex flex-wrap items-baseline gap-2 ${priceClassName}`}>
+					<span>{priceDisplay}</span>
 					{compareAtDisplay && (
 						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
 					)}

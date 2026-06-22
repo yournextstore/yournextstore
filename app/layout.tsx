@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Sans, Newsreader } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const instrumentSans = Instrument_Sans({
+	variable: "--font-body-source",
 	subsets: ["latin"],
+	weight: ["400", "500", "600"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const newsreader = Newsreader({
+	variable: "--font-heading-source",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -42,7 +42,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Beautifully designed furniture and home decor, curated for modern living.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -137,16 +139,27 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+					<div className="border-b border-border/80 bg-[var(--surface-soft)]">
+						<div className="page-shell flex min-h-10 items-center justify-between gap-4 py-2 text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+							<span>Complimentary delivery on orders over $300</span>
+							<span className="hidden sm:inline">Curated for quieter, warmer interiors</span>
+							<span className="hidden lg:inline">Selected pieces from independent studios</span>
+						</div>
+					</div>
+
+					<header className="sticky top-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-xl">
+						<div className="page-shell">
+							<div className="flex h-[4.5rem] items-center justify-between gap-4 lg:h-[5.5rem]">
+								<div className="flex min-w-0 items-center gap-4 lg:gap-8">
 									<Navbar links={links} />
+									<Link
+										href="/"
+										className="font-editorial text-[1.7rem] tracking-[-0.04em] text-foreground sm:text-[1.9rem]"
+									>
+										Vela
+									</Link>
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-2 sm:gap-3">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -211,7 +224,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${instrumentSans.variable} ${newsreader.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

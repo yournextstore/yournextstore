@@ -12,14 +12,6 @@ import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { blurPreview } from "@/lib/blur-placeholder";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
@@ -148,100 +140,93 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 	]);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="section-shell-tight">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+			<article className="grid gap-10 lg:grid-cols-[minmax(0,1.12fr)_minmax(20rem,0.88fr)] lg:gap-14">
 				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						{brand && (
-							<Link
-								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
-							>
-								{brand.name}
-							</Link>
-						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						{reviewSummary && reviewSummary.reviewCount > 0 && (
-							<a
-								href="#reviews"
-								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
-							>
-								<StarRow rating={reviewSummary.averageRating} />
-								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
-								<span className="text-muted-foreground underline-offset-4 hover:underline">
-									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
-								</span>
-							</a>
-						)}
-					</div>
+				<div className="surface-panel mt-2 h-fit p-6 sm:p-8 lg:sticky lg:top-28">
+					<div className="space-y-6">
+						<div className="space-y-4">
+							<div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+								{product.category?.slug ? (
+									<Link
+										href={`/collection/${product.category.slug}`}
+										className="editorial-kicker transition-colors hover:text-foreground"
+									>
+										{product.category.name ?? "Collection"}
+									</Link>
+								) : (
+									<p className="editorial-kicker">Selected piece</p>
+								)}
+								{brand && (
+									<Link
+										href={`/products?brand=${encodeURIComponent(brand.slug)}`}
+										className="editorial-kicker transition-colors hover:text-foreground"
+									>
+										{brand.name}
+									</Link>
+								)}
+								{product.variants.length > 1 ? (
+									<span className="text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+										{product.variants.length} finish options
+									</span>
+								) : null}
+							</div>
+							<h1 className="font-editorial text-[clamp(2.4rem,4vw,4.2rem)] leading-[0.95] tracking-[-0.05em] text-balance text-foreground">
+								{product.name}
+							</h1>
+							{reviewSummary && reviewSummary.reviewCount > 0 && (
+								<a
+									href="#reviews"
+									className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
+								>
+									<StarRow rating={reviewSummary.averageRating} />
+									<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
+									<span className="text-muted-foreground underline-offset-4 hover:underline">
+										({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
+									</span>
+								</a>
+							)}
+						</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
-					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder
-							bundleId={product.id}
-							bundle={product.bundle}
-							pricing={{
-								mode: product.bundlePriceMode,
-								fixedPriceAmount: product.bundleFixedPriceAmount,
-								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
-								amountOffAmount: product.bundleAmountOffAmount,
-								amountOffAmountGross: product.bundleAmountOffAmountGross,
-							}}
-						/>
-					) : (
-						<AddToCartButton
-							variants={variants}
-							product={{
-								id: product.id,
-								name: product.name,
-								slug: product.slug,
-								images: product.images,
-							}}
-							summary={product.summary}
-							volumePricingTiers={product.volumePricingTiers}
-							restockNotificationsEnabled={restockNotificationsEnabled}
-							subscriptionMode={product.subscriptionMode}
-							plans={plans}
-						/>
-					)}
+						{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
+						    Renders only for bundle products, so it stays dormant for regular stores. */}
+						<div className="border-t border-border/80 pt-6">
+							{product.type === "bundle" && product.bundle?.groups?.length ? (
+								<BundleBuilder
+									bundleId={product.id}
+									bundle={product.bundle}
+									pricing={{
+										mode: product.bundlePriceMode,
+										fixedPriceAmount: product.bundleFixedPriceAmount,
+										fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
+										amountOffAmount: product.bundleAmountOffAmount,
+										amountOffAmountGross: product.bundleAmountOffAmountGross,
+									}}
+								/>
+							) : (
+								<AddToCartButton
+									variants={variants}
+									product={{
+										id: product.id,
+										name: product.name,
+										slug: product.slug,
+										images: product.images,
+									}}
+									summary={product.summary}
+									volumePricingTiers={product.volumePricingTiers}
+									restockNotificationsEnabled={restockNotificationsEnabled}
+									subscriptionMode={product.subscriptionMode}
+									plans={plans}
+								/>
+							)}
+						</div>
+					</div>
 				</div>
-			</div>
+			</article>
 
 			{/* Full description (below the fold, full width) */}
 			{product.content && (
@@ -253,13 +238,8 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 				</section>
 			)}
 
-			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}
-
-			{/* Features Section (full width below) */}
 			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} />
 		</div>
 	);

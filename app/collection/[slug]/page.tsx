@@ -22,6 +22,15 @@ import { YNSMedia } from "@/lib/yns-media";
 
 const COLLECTION_PRODUCTS_LIMIT = 100;
 
+// The SDK throws on a 404 despite its `| null` type. Without the null, the `!collection`
+// branches never run and an unknown slug answers 200 with the error page.
+const getCollectionData = async (slug: string) => {
+	"use cache";
+	cacheLife("minutes");
+	const [error, collection] = await try_(commerce.collectionGet({ idOrSlug: slug }));
+	return error ? null : collection;
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
@@ -29,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const collection = await getCollectionData(slug);
 
 	if (!collection) {
-		return { title: "Collection Not Found", robots: { index: false, follow: true } };
+		return { title: "Collection Not Found — Vela", robots: { index: false, follow: true } };
 	}
 
 	const { storeName } = await getStoreSeo();
@@ -40,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
-		title: collection.name,
+		title: `${collection.name} — Vela`,
 		description,
 		alternates: { canonical },
 		openGraph: {
@@ -61,38 +70,50 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
+		<section className="pt-4 sm:pt-6">
+			<div className="page-shell">
+				<div
+					className={`grid overflow-hidden border border-border/80 bg-[var(--surface-soft)] ${
+						collection.image ? "lg:grid-cols-[0.78fr_1.22fr]" : ""
+					}`}
+				>
+					<div className="flex items-end p-6 sm:p-8 lg:p-10">
+						<div className="max-w-xl space-y-4">
+							<p className="editorial-kicker">Collection</p>
+							<h1 className="editorial-title text-foreground">{collection.name}</h1>
+							{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
+							{typeof collection.description === "string" ? (
+								<p className="max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
+									{collection.description}
+								</p>
+							) : collection.description ? (
+								<div className="prose tiptap-content max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
+									<TiptapRenderer content={collection.description} />
+								</div>
+							) : (
+								<p className="max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
+									A quieter edit of considered pieces, selected to work together without asking for too much
+									attention.
+								</p>
+							)}
+						</div>
 					</div>
+					{collection.image ? (
+						<div className="relative min-h-[18rem] lg:min-h-[26rem]">
+							<YNSMedia
+								src={collection.image}
+								alt={collection.name}
+								fill
+								sizes="(max-width: 1024px) 100vw, 58vw"
+								className="object-cover"
+								priority
+								fetchPriority="high"
+							/>
+							<div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,241,234,0.14)_0%,rgba(21,17,15,0.14)_100%)]" />
+						</div>
+					) : null}
 				</div>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
@@ -114,8 +135,8 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			title={`Inside ${collection.name}`}
+			description={`${products.length} pieces selected for this edit.`}
 			products={products}
 			showViewAll={false}
 		/>
@@ -124,15 +145,6 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 // Every known address prerenders in full; one added later renders on its first visit (lib/catalog-paths.ts).
 export const generateStaticParams = () => slugParams(getAllCollections(), (collection) => collection.slug);
-
-// The SDK throws on a 404 despite its `| null` type. Without the null, the `!collection`
-// branches never run and an unknown slug answers 200 with the error page.
-const getCollectionData = async (slug: string) => {
-	"use cache";
-	cacheLife("minutes");
-	const [error, collection] = await try_(commerce.collectionGet({ idOrSlug: slug }));
-	return error ? null : collection;
-};
 
 // An address added after the build renders in full on its first request before anything is sent, so a missing one
 // answers 404 with the not-found page inside the layout, not a 200 behind an already-sent shell (AGENTS.md).
@@ -159,7 +171,7 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+			<div className="page-shell pt-6">
 				<Breadcrumb>
 					<BreadcrumbList>
 						<BreadcrumbItem>

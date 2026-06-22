@@ -221,7 +221,7 @@ export async function buildBlogPostingJsonLd(
 
 export async function StoreJsonLd() {
 	const me = await meGetCached();
-	const storeName = me.store.name || "Your Next Store";
+	const storeName = me.store.name || "Vela";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
 	const baseUrl = getBaseUrl();
 	const ogImage = me.store.settings?.ogimage || undefined;

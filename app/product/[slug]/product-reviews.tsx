@@ -35,11 +35,11 @@ function ReviewSummary({ summary }: { summary: APIProductReviewsBrowseResult["su
 
 function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][number] }) {
 	return (
-		<div className="space-y-2 border-b border-border pb-6 last:border-0">
-			<div className="flex items-center justify-between">
+		<div className="surface-panel space-y-3 p-5 sm:p-6">
+			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
 					<StarRating rating={review.rating} />
-					<span className="font-medium">{review.author}</span>
+					<span className="font-medium text-foreground">{review.author}</span>
 					{review.verified && (
 						<span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
 							<BadgeCheck className="h-3.5 w-3.5" aria-hidden />
@@ -64,13 +64,16 @@ export function ProductReviews({
 	reviews,
 	productId,
 }: {
-	reviews: APIProductReviewsBrowseResult;
+	reviews: APIProductReviewsBrowseResult | null;
 	productId: string;
 }) {
+	if (!reviews) return null;
 	return (
-		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
+		<section id="reviews" className="mt-20 border-t border-border/80 pt-16 scroll-mt-24">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
+				<h2 className="font-editorial text-[clamp(2rem,3vw,3rem)] leading-[0.98] tracking-[-0.04em] text-foreground">
+					Customer reviews
+				</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
 			{/* How reviews are checked (EU Omnibus): shown wherever reviews are. */}
@@ -79,13 +82,13 @@ export function ProductReviews({
 				confirmed order.
 			</p>
 			{reviews.data.length > 0 ? (
-				<div className="space-y-6">
+				<div className="space-y-4">
 					{reviews.data.map((review) => (
 						<ReviewCard key={review.id} review={review} />
 					))}
 				</div>
 			) : (
-				<p className="text-muted-foreground">No reviews yet.</p>
+				<p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
 			)}
 			<div className="mt-10">
 				<WriteReview productId={productId} />
