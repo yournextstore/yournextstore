@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square rounded-[28px] overflow-hidden mb-4 bg-[var(--color-mint-soft)] ring-1 ring-black/5 group-hover:ring-[var(--color-peach)]/50 transition-all duration-300">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -121,10 +121,15 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="text-center space-y-1 px-1">
+				<h2
+					className="font-heading text-base sm:text-lg leading-snug text-foreground"
+					style={{ fontVariationSettings: "'SOFT' 100" }}
+				>
+					{product.name}
+				</h2>
+				<p className="flex flex-wrap items-baseline justify-center gap-2">
+					<span className="text-sm font-medium text-muted-foreground">{priceDisplay}</span>
 					{compareAtDisplay && (
 						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
 					)}
