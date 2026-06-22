@@ -19,7 +19,6 @@ import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
@@ -128,29 +127,45 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+				<div className="flex min-h-screen flex-col bg-background">
+					{/* Announcement bar */}
+					<div className="bg-[var(--yns-lime)] text-black">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.18em] font-medium">
+							<span className="hidden sm:inline">Free shipping on orders over $120</span>
+							<span aria-hidden="true" className="hidden sm:inline opacity-60">
+								·
+							</span>
+							<span>Trail-ready since 2021</span>
+							<span aria-hidden="true" className="opacity-60">
+								·
+							</span>
+							<span className="hidden sm:inline">Lifetime cap guarantee</span>
+						</div>
+					</div>
+					<header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+							<div className="flex items-center justify-between h-14">
+								<div className="flex items-center gap-10">
+									<Link
+										href="/"
+										className="text-[1.35rem] leading-none font-display lowercase tracking-[-0.03em] text-white"
+									>
+										your<span className="text-[var(--yns-lime)]">.</span>next.store
 									</Link>
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-1">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,10 +175,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 hover:bg-secondary rounded-full transition-colors"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="w-6 h-6" />
 									</a>
 									<CartButton />
 								</div>
@@ -211,7 +226,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
