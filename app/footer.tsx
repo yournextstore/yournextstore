@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-cream/65 hover:text-terracotta transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,10 +32,63 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-cream/65 hover:text-terracotta transition-colors">
 				Contact Us
 			</Link>
 		</li>
+	);
+}
+
+function InstagramIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth={1.5}
+			className={className}
+			aria-hidden="true"
+		>
+			<rect x="3" y="3" width="18" height="18" rx="5" />
+			<circle cx="12" cy="12" r="4" />
+			<circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+		</svg>
+	);
+}
+
+function TiktokIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth={1.5}
+			className={className}
+			aria-hidden="true"
+		>
+			<path d="M16 4v9a4 4 0 1 1-4-4" strokeLinecap="round" />
+			<path d="M16 4c.5 2 2 4 4 4" strokeLinecap="round" />
+		</svg>
+	);
+}
+
+function PinterestIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth={1.5}
+			className={className}
+			aria-hidden="true"
+		>
+			<circle cx="12" cy="12" r="9" />
+			<path
+				d="M11 8c2-1 5 0 5 3s-2 4-4 4c-1 0-2-1-2-2l1-5-2 7"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
 	);
 }
 
@@ -50,21 +103,14 @@ async function FooterCollections() {
 	}
 
 	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
+		<FooterColumn title="Shop">
+			{collections.data.map((collection) => (
+				<FooterLink key={collection.id} href={`/collection/${collection.slug}`}>
+					{collection.name}
+				</FooterLink>
+			))}
+			<FooterLink href="/products">All Products</FooterLink>
+		</FooterColumn>
 	);
 }
 
@@ -75,25 +121,22 @@ async function FooterLegalPages() {
 	const pages = await commerce.legalPageBrowse();
 
 	if (pages.data.length === 0) {
-		return null;
+		return (
+			<FooterColumn title="Legal">
+				<FooterLink href="/legal/privacy">Privacy</FooterLink>
+				<FooterLink href="/legal/terms">Terms of Service</FooterLink>
+			</FooterColumn>
+		);
 	}
 
 	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
+		<FooterColumn title="Legal">
+			{pages.data.map((page) => (
+				<FooterLink key={page.id} href={`/legal${page.href}`}>
+					{page.label}
+				</FooterLink>
+			))}
+		</FooterColumn>
 	);
 }
 
@@ -110,57 +153,86 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="walnut-bg text-cream">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 sm:gap-12">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div className="col-span-2 lg:col-span-2 lg:pr-12">
+						<Link href="/" className="font-serif text-2xl tracking-[0.18em] uppercase text-cream">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-cream/60 leading-relaxed max-w-xs">
+							Silk hair accessories and sleep care, crafted slowly and shipped with care from our atelier.
 						</p>
+						<div className="mt-7 flex items-center gap-4">
+							<SocialLink href="#" label="Instagram">
+								<InstagramIcon className="w-4 h-4" />
+							</SocialLink>
+							<SocialLink href="#" label="TikTok">
+								<TiktokIcon className="w-4 h-4" />
+							</SocialLink>
+							<SocialLink href="#" label="Pinterest">
+								<PinterestIcon className="w-4 h-4" />
+							</SocialLink>
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
+					<FooterColumn title="Support">
+						<FooterLink href="/about">About Us</FooterLink>
+						<FooterContactLink />
+						<FooterLink href="/faq">FAQ</FooterLink>
+						<FooterLink href="#">Shipping</FooterLink>
+						<FooterLink href="#">Returns</FooterLink>
+						<FooterLink href="#">Contact</FooterLink>
+						<FooterBlogLink />
+					</FooterColumn>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-cream/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p className="text-xs tracking-wider text-cream/50">
+						&copy; {year} Your Next Store. All rights reserved.
+					</p>
+					{/* Official marks sit on a cream chip so they keep their colours on the walnut footer. */}
+					<div className="rounded-sm bg-cream px-3 py-2">
+						<PaymentMethods className="justify-center" />
+					</div>
 				</div>
 			</div>
 		</footer>
+	);
+}
+
+function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
+	return (
+		<div>
+			<h3 className="text-[11px] tracking-[0.3em] uppercase text-cream font-medium">{title}</h3>
+			<ul className="mt-5 space-y-3">{children}</ul>
+		</div>
+	);
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+	return (
+		<li>
+			<Link href={href} className="text-sm text-cream/65 hover:text-terracotta transition-colors">
+				{children}
+			</Link>
+		</li>
+	);
+}
+
+function SocialLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+	return (
+		<a
+			href={href}
+			aria-label={label}
+			className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center text-cream/70 hover:text-terracotta hover:border-terracotta transition-colors"
+		>
+			{children}
+		</a>
 	);
 }
