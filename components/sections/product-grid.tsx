@@ -6,8 +6,10 @@ import type {
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
+import { formatMoney } from "@/lib/money";
+import { YNSMedia } from "@/lib/yns-media";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -22,17 +24,19 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	columns?: 3 | 4;
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
 	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	columns = 4,
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -40,38 +44,108 @@ export async function ProductGrid({
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	const gridCols =
+		columns === 4 ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+			<div className="flex items-center justify-between mb-8">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="text-sm sm:text-base font-semibold tracking-[0.15em] uppercase text-foreground">
+						{title}
+					</h2>
+					{description && <p className="mt-1 text-xs text-foreground/50">{description}</p>}
 				</div>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-1 text-xs tracking-widest uppercase text-foreground/50 hover:text-foreground transition-colors"
 					>
 						View all
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-3 w-3" />
 					</Link>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
-				))}
+			<div className={`grid ${gridCols} gap-4 sm:gap-6`}>
+				{displayProducts.map((product, index) => {
+					const variants = "variants" in product ? product.variants : null;
+					const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
+					const { minPrice, maxPrice } =
+						variants && firstVariantPrice !== null
+							? variants.reduce(
+									(acc, v) => {
+										const price = BigInt(v.price);
+										return {
+											minPrice: price < acc.minPrice ? price : acc.minPrice,
+											maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
+										};
+									},
+									{ minPrice: firstVariantPrice, maxPrice: firstVariantPrice },
+								)
+							: { minPrice: null, maxPrice: null };
+
+					const priceDisplay =
+						variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
+							? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+							: minPrice
+								? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
+								: null;
+
+					const allImages = [
+						...(product.images ?? []),
+						...(variants
+							?.flatMap((v) => v.images ?? [])
+							.filter((img) => !(product.images ?? []).includes(img)) ?? []),
+					];
+					const primaryImage = allImages[0];
+					const secondaryImage = allImages[1];
+
+					return (
+						<Link key={product.id} href={`/product/${product.slug}`} className="group">
+							<div className="relative aspect-[3/4] bg-secondary overflow-hidden mb-3">
+								{primaryImage && (
+									<YNSMedia
+										src={primaryImage}
+										alt={product.name}
+										fill
+										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+										className="object-cover transition-opacity duration-500 group-hover:opacity-0"
+										priority={eagerFirstImage && index === 0}
+									/>
+								)}
+								{secondaryImage && (
+									<YNSMedia
+										src={secondaryImage}
+										alt={`${product.name} - alternate view`}
+										fill
+										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+										className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+									/>
+								)}
+								<div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+									<div className="bg-foreground text-primary-foreground text-center py-2 text-[10px] tracking-[0.2em] uppercase">
+										Quick View
+									</div>
+								</div>
+							</div>
+							<div className="space-y-1">
+								<h3 className="text-xs font-medium text-foreground truncate">{product.name}</h3>
+								<p className="text-xs text-foreground/70">{priceDisplay}</p>
+							</div>
+						</Link>
+					);
+				})}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-8 text-center sm:hidden">
 					<Link
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 text-xs tracking-widest uppercase text-foreground/50 hover:text-foreground transition-colors"
 					>
 						View all products
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-3 w-3" />
 					</Link>
 				</div>
 			)}
