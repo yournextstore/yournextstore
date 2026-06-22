@@ -22,6 +22,7 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	columns?: 3 | 4;
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
@@ -30,9 +31,10 @@ export async function ProductGrid({
 	title = "Featured Products",
 	description = "Handpicked favorites from our collection",
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	columns = 4,
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -40,20 +42,25 @@ export async function ProductGrid({
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	const _gridCols =
+		columns === 3 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<div className="flex items-end justify-between mb-8">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-light tracking-wide text-foreground">
+						{title}
+					</h2>
+					{description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
 				</div>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-1 text-xs font-medium tracking-[0.1em] uppercase text-muted-foreground hover:text-primary transition-colors"
 					>
 						View all
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-3.5 w-3.5" />
 					</Link>
 				)}
 			</div>
@@ -65,13 +72,12 @@ export async function ProductGrid({
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-10 text-center">
 					<Link
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center justify-center h-11 px-8 border border-foreground text-foreground text-xs font-medium tracking-[0.15em] uppercase hover:bg-foreground hover:text-primary-foreground transition-colors"
 					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
+						Shop All Products
 					</Link>
 				</div>
 			)}

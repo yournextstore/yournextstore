@@ -184,7 +184,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					<div className="space-y-4">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
@@ -193,7 +193,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl lg:text-5xl font-light tracking-wide text-foreground text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
