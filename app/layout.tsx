@@ -1,29 +1,26 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
-import { ThemeProvider } from "next-themes";
+import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import { Suspense } from "react";
-import { CartBootstrap, CartProvider } from "@/app/cart/cart-context";
+import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar } from "@/app/navbar";
+import { SearchInput } from "@/app/search-input";
+import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
-import { StoreChatSection } from "@/components/store-chat/store-chat-section";
-import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ReferralBadge } from "@/components/referral-badge";
 import { Toaster } from "@/components/ui/sonner";
+import Link from "next/link";
+import { AUTH_ENABLED } from "@/lib/auth-config";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
-import { getStoreConfig } from "@/lib/store-config";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -33,6 +30,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
+});
+
+const oswald = Oswald({
+	variable: "--font-oswald",
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -53,9 +56,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 		},
 		description: storeDescription,
 		applicationName: storeName,
-		// No `alternates.canonical` here on purpose: Next inherits it into every page that
-		// does not set its own, which silently declares each such page a duplicate of the
-		// home page. The home page carries its own canonical in app/page.tsx instead.
+		alternates: {
+			canonical: "/",
+		},
 		openGraph: {
 			type: "website",
 			siteName: storeName,
@@ -95,8 +98,6 @@ async function getStoreMetadata(): Promise<Metadata> {
 
 export async function generateMetadata(): Promise<Metadata> {
 	const metadata = await getStoreMetadata();
-	// URL instances can't cross the "use cache" serialization boundary, so
-	// metadataBase is attached outside the cached scope (env-only, no IO).
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
@@ -115,88 +116,85 @@ async function getInitialCart() {
 	}
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
-	"use cache";
-	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
-}
-
-// The customer's cart is a cookie read, so it can never be part of the prerendered
-// shell. Kept in its own component (and its own Suspense boundary below) so the await
-// lands BELOW the chrome instead of above it.
-async function CartBootstrapper() {
+async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const { cart, cartId } = await getInitialCart();
 
-	return <CartBootstrap cart={cart} cartId={cartId} />;
-}
-
-async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	// Only cached reads here. Awaiting anything request-time (cookies, headers, the
-	// cart) would take the header, nav and footer out of the prerendered shell and
-	// leave the page blank until the server responds.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
-
 	return (
-		<StoreConfigProvider value={storeConfig}>
-			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href="/account"
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+		<CartProvider initialCart={cart} initialCartId={cartId}>
+			<div className="flex min-h-screen flex-col">
+				{/* Top utility bar */}
+				<div className="bg-[#1a1a1a] text-white/70 text-xs">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
+						<span className="hidden sm:inline">Helpline: (+800) 123 456 7890</span>
+						<div className="flex items-center gap-4 ml-auto">
+							<Link href="/products" className="hover:text-white transition-colors">
+								Track your order
+							</Link>
+						</div>
+					</div>
+				</div>
+
+				{/* Main header */}
+				<header className="sticky top-0 z-50 bg-[#222222] shadow-lg">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center justify-between h-16">
+							<div className="flex items-center gap-8">
+								<Link
+									href="/"
+									className="font-heading text-2xl font-bold text-white uppercase tracking-wider"
+								>
+									Your Next Store
+								</Link>
+							</div>
+							<div className="flex items-center gap-4">
+								<Navbar />
+								<Suspense>
+									<SearchInput />
+								</Suspense>
+								{AUTH_ENABLED && <AuthButton />}
+								<CartButton />
 							</div>
 						</div>
-					</header>
-					<main className="flex-1">{children}</main>
-					<Footer />
+					</div>
+				</header>
+
+				{/* Yellow navigation bar */}
+				<div className="bg-brand text-brand-foreground font-heading">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center h-12 gap-6 text-sm font-semibold uppercase tracking-wide overflow-x-auto">
+							<Link
+								href="/products"
+								className="whitespace-nowrap hover:opacity-80 transition-opacity"
+							>
+								Shop All
+							</Link>
+							<Suspense>
+								<NavCollections />
+							</Suspense>
+						</div>
+					</div>
 				</div>
-				<CartSidebar />
-				<Suspense>
-					<CartBootstrapper />
-				</Suspense>
-				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
-				<Suspense>
-					<StoreChatSection />
-				</Suspense>
-			</CartProvider>
-		</StoreConfigProvider>
+
+				<div className="flex-1">{children}</div>
+				<Footer />
+				<ReferralBadge />
+			</div>
+			<CartSidebar />
+		</CartProvider>
 	);
+}
+
+async function NavCollections() {
+	const collections = await commerce.collectionBrowse({ limit: 5 });
+	return collections.data.map((collection) => (
+		<Link
+			key={collection.id}
+			href={`/collection/${collection.slug}`}
+			className="whitespace-nowrap hover:opacity-80 transition-opacity"
+		>
+			{collection.name}
+		</Link>
+	));
 }
 
 async function getHtmlLang(): Promise<string> {
@@ -225,9 +223,8 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
-		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang}>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -235,15 +232,13 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					<Suspense>
-						<CartProviderWrapper>{children}</CartProviderWrapper>
-					</Suspense>
-					<Suspense>
-						<NewsletterPopupSection />
-					</Suspense>
-					<Toaster richColors position="top-center" />
-				</ThemeProvider>
+				<Suspense>
+					<CartProviderWrapper>{children}</CartProviderWrapper>
+				</Suspense>
+				<Suspense>
+					<NewsletterPopupSection />
+				</Suspense>
+				<Toaster richColors position="top-center" />
 				{env === "development" && (
 					<>
 						<NavigationReporter />
