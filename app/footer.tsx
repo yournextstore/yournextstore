@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { WhaleLogo } from "@/components/whale-logo";
 import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
@@ -16,7 +17,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +39,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
 			>
 				Contact Us
 			</YnsLink>
@@ -46,31 +47,48 @@ async function FooterContactLink() {
 	);
 }
 
-async function FooterCollections() {
+const COLUMN_CLASS = "text-[11px] tracking-[0.32em] uppercase text-[color:var(--color-yns-navy)]/70";
+const HEADER_CLASS = "text-[11px] tracking-[0.4em] uppercase text-[color:var(--color-yns-navy)]";
+
+async function FooterShop() {
 	"use cache";
 	cacheLife("hours");
 
 	const collections = await commerce.collectionBrowse({ limit: 5 });
 
-	if (collections.data.length === 0) {
-		return null;
-	}
-
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className={HEADER_CLASS}>Shop</h3>
+			<ul className="mt-5 space-y-3">
+				<li>
+					<YnsLink
+						prefetch={"eager"}
+						href="/products"
+						className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
+					>
+						All blends
+					</YnsLink>
+				</li>
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
 						>
 							{collection.name}
 						</YnsLink>
 					</li>
 				))}
+				<li>
+					<YnsLink
+						prefetch={"eager"}
+						href="#tea-club"
+						className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
+					>
+						Tea Club
+					</YnsLink>
+				</li>
 			</ul>
 		</div>
 	);
@@ -82,20 +100,25 @@ async function FooterLegalPages() {
 
 	const pages = await commerce.legalPageBrowse();
 
-	if (pages.data.length === 0) {
-		return null;
-	}
-
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className={HEADER_CLASS}>Help</h3>
+			<ul className="mt-5 space-y-3">
+				<li>
+					<YnsLink
+						prefetch={"eager"}
+						href="/faq"
+						className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
+					>
+						FAQ
+					</YnsLink>
+				</li>
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +131,26 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="bg-[color:var(--color-yns-cream)] border-t border-[color:var(--color-yns-blue-200)]/60">
+			<div className="max-w-7xl mx-auto px-6 lg:px-10">
+				<div className="py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
+					<div className="col-span-2 md:col-span-2 max-w-xs">
+						<WhaleLogo />
+						<p className="mt-6 text-sm text-[color:var(--color-yns-navy)]/65 leading-relaxed font-serif italic">
+							A better way to drink tea. Loose leaf, single-garden, served slowly.
 						</p>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
+					<FooterShop />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className={HEADER_CLASS}>Learn</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
 								>
 									About Us
 								</YnsLink>
@@ -141,25 +159,67 @@ export function Footer() {
 							<li>
 								<YnsLink
 									prefetch={"eager"}
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									href="#story"
+									className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
 								>
-									FAQ
+									Our story
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#story"
+									className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
+								>
+									Brewing guides
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#story"
+									className={`${COLUMN_CLASS} hover:text-[color:var(--color-yns-navy)] transition-colors`}
+								>
+									Journal
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-6 border-t border-[color:var(--color-yns-blue-200)]/60 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+					<p className="text-[11px] tracking-[0.3em] uppercase text-[color:var(--color-yns-navy)]/55">
+						&copy; {new Date().getFullYear()} Your Next Store
 					</p>
+					<div className="flex items-center gap-5 text-[color:var(--color-yns-navy)]/55">
+						<a
+							href="https://instagram.com"
+							aria-label="Instagram"
+							className="hover:text-[color:var(--color-yns-navy)] transition-colors"
+						>
+							<svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+								<title>instagram</title>
+								<rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.5" />
+								<circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+								<circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+							</svg>
+							<span className="sr-only">Instagram</span>
+						</a>
+						<a
+							href="https://twitter.com"
+							aria-label="Twitter"
+							className="hover:text-[color:var(--color-yns-navy)] transition-colors"
+						>
+							<svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+								<title>twitter</title>
+								<path d="M18 4h3l-7 8 8 8h-6l-5-5-5 5H3l7-8L3 4h6l5 5 4-5z" />
+							</svg>
+							<span className="sr-only">Twitter</span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</footer>

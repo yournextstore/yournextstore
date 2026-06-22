@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { useActionState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 
@@ -8,43 +8,51 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
+		<section className="bg-[color:var(--color-yns-blue-300)] text-[color:var(--color-yns-navy)] overflow-hidden">
+			<div className="max-w-5xl mx-auto px-6 lg:px-10 py-16 sm:py-20">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
+						<div className="md:col-span-2 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-yns-navy)]/10">
 								<CheckIcon className="h-6 w-6" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+							<h2 className="font-serif text-3xl font-light">You&apos;re on the list</h2>
+							<p className="mt-3 text-[color:var(--color-yns-navy)]/70">{state.message}</p>
 						</div>
 					) : (
 						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+							<div>
+								<p className="text-[11px] tracking-[0.4em] uppercase text-[color:var(--color-yns-navy)]/60">
+									Letters from the kitchen
+								</p>
+								<h2 className="mt-4 font-serif font-light text-3xl sm:text-4xl leading-[1.1]">
+									Brew notes, new harvests, the occasional recipe.
+								</h2>
+							</div>
+							<form action={action} className="flex flex-col gap-3">
+								<div className="flex border-b border-[color:var(--color-yns-navy)]/30 focus-within:border-[color:var(--color-yns-navy)] transition-colors">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										className="h-12 w-full flex-1 bg-transparent text-[color:var(--color-yns-navy)] outline-none placeholder:text-[color:var(--color-yns-navy)]/45"
+									/>
+									<button
+										type="submit"
+										disabled={isPending}
+										className="shrink-0 px-3 text-[11px] tracking-[0.32em] uppercase text-[color:var(--color-yns-navy)] hover:opacity-70 transition-opacity disabled:opacity-50"
+									>
+										{isPending ? "Sending…" : "Subscribe"}
+									</button>
+								</div>
+								{state?.error && (
+									<p className="text-sm text-[color:var(--color-yns-navy-deep)]">{state.error}</p>
+								)}
+								<p className="text-xs text-[color:var(--color-yns-navy)]/60">
+									No noise, ever. Unsubscribe with a single click.
+								</p>
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
 						</>
 					)}
 				</div>
