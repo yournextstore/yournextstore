@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 
+import { Mail } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Poppins } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -11,10 +12,12 @@ import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { AuthButton } from "@/components/auth-button";
+import { BrandMark } from "@/components/brand-mark";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
+import { FacebookIcon, InstagramIcon } from "@/components/social-icons";
 import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
 import { AUTH_ENABLED } from "@/lib/auth-config";
@@ -22,14 +25,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bebasNeue = Bebas_Neue({
+	weight: "400",
 	subsets: ["latin"],
+	variable: "--font-bebas-neue",
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const poppins = Poppins({
+	weight: ["300", "400", "500", "600", "700"],
 	subsets: ["latin"],
+	variable: "--font-poppins",
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -136,17 +143,63 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				{/* Announcement bar */}
+				<div className="bg-pop-pink text-white text-[11px] sm:text-xs uppercase tracking-[0.18em] font-medium">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-center gap-2">
+						<span className="inline-block h-1.5 w-1.5 rounded-full bg-pop-yellow" />
+						Free shipping on 12-packs · Must be 21+ to order
+						<span className="inline-block h-1.5 w-1.5 rounded-full bg-pop-mint" />
+					</div>
+				</div>
+
+				<header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+						<div className="grid grid-cols-[1fr_auto_1fr] items-center h-20 gap-4">
+							{/* Left: nav */}
+							<div className="flex items-center gap-6">
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
 							</div>
-							<div className="flex items-center gap-2">
+
+							{/* Center: brand logo */}
+							<YnsLink prefetch={"eager"} href="/" className="flex items-center justify-center group">
+								<BrandMark className="h-14 w-auto transition-transform group-hover:-rotate-2" />
+							</YnsLink>
+
+							{/* Right: login + social + utilities */}
+							<div className="flex items-center justify-end gap-2 sm:gap-3">
+								<YnsLink
+									prefetch={"eager"}
+									href="/cart"
+									className="hidden md:inline-flex text-[11px] tracking-[0.22em] uppercase font-semibold text-pop-ink hover:text-primary transition-colors px-2"
+								>
+									Login
+								</YnsLink>
+								<div className="hidden md:flex items-center gap-2">
+									<a
+										href="https://instagram.com"
+										aria-label="Instagram"
+										className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white hover:scale-110 transition-transform"
+									>
+										<InstagramIcon className="h-4 w-4" />
+									</a>
+									<a
+										href="https://facebook.com"
+										aria-label="Facebook"
+										className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white hover:scale-110 transition-transform"
+									>
+										<FacebookIcon className="h-4 w-4" />
+									</a>
+									<a
+										href="mailto:hello@yournextstore.com"
+										aria-label="Email"
+										className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white hover:scale-110 transition-transform"
+									>
+										<Mail className="h-4 w-4" />
+									</a>
+								</div>
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +209,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +245,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bebasNeue.variable} ${poppins.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

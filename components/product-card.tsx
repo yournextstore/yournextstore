@@ -14,6 +14,21 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const cardSurfaces = [
+	"bg-pop-yellow",
+	"bg-pop-mint",
+	"bg-pop-pink-soft",
+	"bg-pop-cream",
+	"bg-pop-mint-soft",
+	"bg-pop-yellow-soft",
+];
+
+function pickSurface(id: string) {
+	let hash = 0;
+	for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	return cardSurfaces[hash % cardSurfaces.length];
+}
+
 export function ProductCard({
 	product,
 	priority = false,
@@ -39,7 +54,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -52,11 +67,15 @@ export function ProductCard({
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const singleVariant = variants?.length === 1 ? variants[0] : null;
+	const surface = pickSurface(product.id);
 
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div
+				className={`relative aspect-square ${surface} rounded-[1.75rem] overflow-hidden mb-4 shadow-[5px_5px_0_rgba(47,47,47,0.92)] transition-transform group-hover:-translate-y-1 group-hover:shadow-[8px_8px_0_rgba(47,47,47,0.92)]`}
+			>
+				<div aria-hidden className="absolute inset-0 bg-pop-dots opacity-25 mix-blend-overlay" />
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -86,8 +105,7 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
+							className={`object-cover transition-all duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""} group-hover:scale-105`}
 						/>
 					))}
 				{secondaryImage &&
@@ -107,12 +125,19 @@ export function ProductCard({
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							priority={priority}
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-end justify-between gap-3 px-1">
+				<h3 className="font-display text-xl uppercase tracking-wide text-pop-ink leading-tight">
+					{product.name}
+				</h3>
+				{priceDisplay && (
+					<p className="shrink-0 rounded-full bg-pop-ink px-3 py-1 text-xs font-bold text-pop-yellow">
+						{priceDisplay}
+					</p>
+				)}
 			</div>
 		</YnsLink>
 	);

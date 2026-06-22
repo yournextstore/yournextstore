@@ -5,10 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+	--font-display: var(--font-bebas-neue);
+	--font-sans: var(--font-poppins);
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -40,75 +44,85 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+
+	/* Brand palette — tropical pop-art */
+	--color-pop-yellow: #ffc107;
+	--color-pop-yellow-soft: #ffe17a;
+	--color-pop-pink: #e91e63;
+	--color-pop-pink-soft: #ffb3cf;
+	--color-pop-mint: #7fd9cf;
+	--color-pop-mint-soft: #c8eee9;
+	--color-pop-orange: #f47c3c;
+	--color-pop-ink: #2f2f2f;
+	--color-pop-cream: #fff8e6;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 1rem;
+
+	/* Brand tokens mapped to UI roles */
+	--background: #ffffff;
+	--foreground: #2f2f2f;
+
+	--card: #ffffff;
+	--card-foreground: #2f2f2f;
+
+	--popover: #ffffff;
+	--popover-foreground: #2f2f2f;
+
+	--primary: #e91e63;
+	--primary-foreground: #ffffff;
+
+	--secondary: #fff4cc;
+	--secondary-foreground: #2f2f2f;
+
+	--muted: #fdf6e3;
+	--muted-foreground: #6b6258;
+
+	--accent: #7fd9cf;
+	--accent-foreground: #14403c;
+
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+
+	--border: #f1e4c3;
+	--input: #f1e4c3;
+	--ring: #e91e63;
+
+	--chart-1: #ffc107;
+	--chart-2: #e91e63;
+	--chart-3: #7fd9cf;
+	--chart-4: #f47c3c;
+	--chart-5: #2f2f2f;
+
+	--sidebar: #fff8e6;
+	--sidebar-foreground: #2f2f2f;
+	--sidebar-primary: #e91e63;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #7fd9cf;
+	--sidebar-accent-foreground: #14403c;
+	--sidebar-border: #f1e4c3;
+	--sidebar-ring: #e91e63;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--background: #1a0e1a;
+	--foreground: #fff4cc;
+	--card: #261428;
+	--card-foreground: #fff4cc;
+	--popover: #261428;
+	--popover-foreground: #fff4cc;
+	--primary: #ffc107;
+	--primary-foreground: #2f2f2f;
+	--secondary: #3a1a3a;
+	--secondary-foreground: #fff4cc;
+	--muted: #2e1830;
+	--muted-foreground: #c7a7ce;
+	--accent: #7fd9cf;
+	--accent-foreground: #14403c;
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--border: #3a1a3a;
+	--input: #3a1a3a;
+	--ring: #ffc107;
 }
 
 @layer base {
@@ -116,27 +130,131 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground antialiased;
+		font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
 	}
+	h1,
+	h2,
+	h3,
+	.font-display {
+		font-family: var(--font-display), "Bebas Neue", Impact, sans-serif;
+		letter-spacing: 0.01em;
+	}
+}
+
+/* Hero — saturated tropical yellow with hot-pink confetti */
+.bg-pop-hero {
+	background:
+		radial-gradient(1100px 600px at 88% 110%, rgba(127, 217, 207, 0.55), transparent 60%),
+		radial-gradient(700px 500px at -10% 110%, rgba(244, 124, 60, 0.35), transparent 60%),
+		linear-gradient(180deg, #ffd54a 0%, #ffc107 60%, #ffb300 100%);
+}
+
+/* Mint deck — surface used under hero photography */
+.bg-pop-mint-deck {
+	background: linear-gradient(180deg, #7fd9cf 0%, #5fcabe 100%);
+}
+
+/* Pop pink banner */
+.bg-pop-pink-block {
+	background:
+		radial-gradient(800px 500px at 80% 0%, rgba(255, 193, 7, 0.35), transparent 60%),
+		radial-gradient(700px 400px at 0% 100%, rgba(127, 217, 207, 0.3), transparent 60%),
+		linear-gradient(135deg, #ff2d7a 0%, #e91e63 60%, #c1185b 100%);
+}
+
+/* Color-block helpers */
+.bg-pop-yellow {
+	background: var(--color-pop-yellow);
+}
+.bg-pop-pink {
+	background: var(--color-pop-pink);
+}
+.bg-pop-mint {
+	background: var(--color-pop-mint);
+}
+.bg-pop-orange {
+	background: var(--color-pop-orange);
+}
+
+/* Polka-dot pattern overlay */
+.bg-pop-dots {
+	background-image: radial-gradient(rgba(255, 255, 255, 0.55) 1.2px, transparent 1.6px);
+	background-size: 18px 18px;
+}
+
+/* Diagonal stripes for the press strip */
+.bg-pop-stripes {
+	background-image: repeating-linear-gradient(
+		135deg,
+		#ffc107 0 28px,
+		#ffd954 28px 56px
+	);
+}
+
+/* Soft confetti accent */
+.confetti {
+	position: relative;
+}
+.confetti::before,
+.confetti::after {
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	filter: blur(0.3px);
+}
+.confetti::before {
+	width: 14px;
+	height: 14px;
+	background: #ffc107;
+	top: -10px;
+	left: 14%;
+	transform: rotate(15deg);
+}
+.confetti::after {
+	width: 10px;
+	height: 10px;
+	background: #7fd9cf;
+	bottom: -8px;
+	right: 10%;
+}
+
+/* Hand-drawn underline used on headings */
+.brush-underline {
+	position: relative;
+	display: inline-block;
+	padding-inline: 0.1em;
+}
+.brush-underline::after {
+	content: "";
+	position: absolute;
+	left: -4%;
+	right: -4%;
+	bottom: -0.18em;
+	height: 0.32em;
+	background: radial-gradient(ellipse at center, #ffc107 60%, transparent 75%);
+	border-radius: 999px;
+	z-index: -1;
 }
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
 	--tw-prose-headings: var(--foreground);
-	--tw-prose-links: var(--foreground);
+	--tw-prose-links: var(--primary);
 	--tw-prose-bold: var(--foreground);
-	--tw-prose-bullets: var(--muted-foreground);
-	--tw-prose-counters: var(--muted-foreground);
+	--tw-prose-bullets: var(--primary);
+	--tw-prose-counters: var(--primary);
 }
 
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#ffe17a 0%,
+		#fff4cc 40%,
+		#ffffff 50%,
+		#fff4cc 60%,
+		#ffe17a 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -149,4 +267,31 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Wiggle for playful accents */
+@keyframes pop-wiggle {
+	0%,
+	100% {
+		transform: rotate(-3deg);
+	}
+	50% {
+		transform: rotate(3deg);
+	}
+}
+.animate-wiggle {
+	animation: pop-wiggle 3s ease-in-out infinite;
+}
+
+/* Slow marquee for press strip */
+@keyframes pop-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+.animate-marquee {
+	animation: pop-marquee 32s linear infinite;
 }
