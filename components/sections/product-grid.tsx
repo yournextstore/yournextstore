@@ -38,27 +38,30 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+			<div className="flex items-end justify-between mb-12 flex-wrap gap-4">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<p className="text-xs uppercase tracking-[0.22em] text-ember/90 font-medium">The collection</p>
+					<h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight text-bone">
+						{title}
+					</h2>
+					<p className="mt-3 text-muted-foreground max-w-md">{description}</p>
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-bone hover:text-ember transition-colors"
 					>
-						View all
+						View everything
 						<ArrowRight className="h-4 w-4" />
 					</YnsLink>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
@@ -67,9 +70,9 @@ export async function ProductGrid({
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-2 text-sm font-medium text-bone hover:text-ember transition-colors"
 					>
-						View all products
+						View everything
 						<ArrowRight className="h-4 w-4" />
 					</YnsLink>
 				</div>

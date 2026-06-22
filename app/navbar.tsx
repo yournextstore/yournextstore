@@ -52,7 +52,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 						key={link.href}
 						prefetch="eager"
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-[13px] font-medium text-bone/70 hover:text-bone transition-colors"
 					>
 						{link.label}
 					</YnsLink>
