@@ -2,14 +2,10 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
-/* Streamdown (store-chat markdown) ships its own Tailwind classes — Tailwind must scan them. */
-@source "../node_modules/streamdown/dist/*.js";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-heading: "Cormorant Garamond", Georgia, serif;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -32,28 +28,54 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
 }
 
 :root {
-	--radius: 0.625rem;
+	--radius: 0.5rem;
+	--background: oklch(0.985 0.002 60);
+	--foreground: oklch(0.16 0.01 30);
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
+	--card-foreground: oklch(0.16 0.01 30);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--popover-foreground: oklch(0.16 0.01 30);
+	--primary: oklch(0.55 0.12 10);
+	--primary-foreground: oklch(0.98 0.005 60);
+	--secondary: oklch(0.95 0.015 40);
+	--secondary-foreground: oklch(0.25 0.02 30);
+	--muted: oklch(0.95 0.01 50);
+	--muted-foreground: oklch(0.50 0.02 30);
+	--accent: oklch(0.92 0.025 40);
+	--accent-foreground: oklch(0.25 0.02 30);
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: oklch(0.90 0.01 40);
+	--input: oklch(0.90 0.01 40);
+	--ring: oklch(0.55 0.12 10);
+	--chart-1: oklch(0.55 0.12 10);
+	--chart-2: oklch(0.65 0.15 25);
+	--chart-3: oklch(0.75 0.10 40);
+	--chart-4: oklch(0.80 0.08 50);
+	--chart-5: oklch(0.85 0.06 60);
+	--sidebar: oklch(0.97 0.01 50);
+	--sidebar-foreground: oklch(0.16 0.01 30);
+	--sidebar-primary: oklch(0.55 0.12 10);
+	--sidebar-primary-foreground: oklch(0.98 0.005 60);
+	--sidebar-accent: oklch(0.93 0.02 40);
+	--sidebar-accent-foreground: oklch(0.25 0.02 30);
+	--sidebar-border: oklch(0.90 0.01 40);
+	--sidebar-ring: oklch(0.55 0.12 10);
 }
 
 .dark {
@@ -63,8 +85,8 @@
 	--card-foreground: oklch(0.985 0 0);
 	--popover: oklch(0.205 0 0);
 	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
+	--primary: oklch(0.75 0.10 10);
+	--primary-foreground: oklch(0.15 0.01 30);
 	--secondary: oklch(0.269 0 0);
 	--secondary-foreground: oklch(0.985 0 0);
 	--muted: oklch(0.269 0 0);
@@ -75,6 +97,19 @@
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
 	--ring: oklch(0.556 0 0);
+	--chart-1: oklch(0.488 0.243 264.376);
+	--chart-2: oklch(0.696 0.17 162.48);
+	--chart-3: oklch(0.769 0.188 70.08);
+	--chart-4: oklch(0.627 0.265 303.9);
+	--chart-5: oklch(0.645 0.246 16.439);
+	--sidebar: oklch(0.205 0 0);
+	--sidebar-foreground: oklch(0.985 0 0);
+	--sidebar-primary: oklch(0.488 0.243 264.376);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.269 0 0);
+	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -98,11 +133,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		oklch(0.93 0.01 40) 0%,
+		oklch(0.96 0.005 40) 40%,
+		oklch(0.98 0.002 40) 50%,
+		oklch(0.96 0.005 40) 60%,
+		oklch(0.93 0.01 40) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -117,36 +152,21 @@
 	}
 }
 
-/* Store-chat assistant bubbles: compact Markdown, not document chrome. */
-.chat-markdown {
-	@apply min-w-0 space-y-2 text-sm;
+/* Marquee animation for announcement bar */
+@keyframes marquee {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
 }
 
-.chat-markdown > :first-child {
-	@apply mt-0;
+.animate-marquee {
+	animation: marquee 25s linear infinite;
 }
 
-.chat-markdown > :last-child {
-	@apply mb-0;
-}
-
-.chat-markdown [data-streamdown^="heading-"] {
-	@apply mb-1 mt-2 text-sm font-semibold tracking-normal;
-}
-
-.chat-markdown [data-streamdown="ordered-list"],
-.chat-markdown [data-streamdown="unordered-list"] {
-	@apply my-1 space-y-0.5 pl-5 text-sm;
-}
-
-.chat-markdown [data-streamdown="list-item"] {
-	@apply py-0;
-}
-
-.chat-markdown [data-streamdown="inline-code"] {
-	@apply rounded-sm border bg-muted px-1 py-0.5 font-mono text-[0.85em];
-}
-
-.chat-markdown [data-streamdown="link"] {
-	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+/* Heading font utility */
+.font-heading {
+	font-family: var(--font-heading);
 }

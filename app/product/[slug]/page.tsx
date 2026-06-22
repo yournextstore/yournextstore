@@ -3,9 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
-import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
@@ -19,45 +17,9 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { TrackProductView } from "@/lib/track";
 import { cn } from "@/lib/utils";
-
-// MediaGallery and the purchase panel read useSearchParams (selected variant),
-// so they need a Suspense boundary to keep the rest of the page prerenderable.
-function GallerySkeleton() {
-	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
-		</div>
-	);
-}
-
-function PurchasePanelSkeleton() {
-	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
-		</div>
-	);
-}
-
-function ProductPageSkeleton() {
-	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
-					<PurchasePanelSkeleton />
-				</div>
-			</div>
-		</div>
-	);
-}
 
 function StarRow({ rating }: { rating: number }) {
 	const rounded = Math.round(rating);
@@ -73,22 +35,11 @@ function StarRow({ rating }: { rating: number }) {
 	);
 }
 
-// `productGet` resolves the API error rather than null for a missing slug, so the
-// `!product` branches below are unreachable without this: the throw escapes the
-// streamed Suspense boundary and the route answers 200 with an empty shell.
-async function safeProductGet(slug: string) {
-	try {
-		return await commerce.productGet({ idOrSlug: slug });
-	} catch {
-		return null;
-	}
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
 	const { slug } = await params;
-	const product = await safeProductGet(slug);
+	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
 		return { title: "Product Not Found", robots: { index: false, follow: true } };
@@ -119,36 +70,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-// Awaiting params at the top of the page blocks the static shell — the page
-// stays a sync shell and the params-dependent content streams inside Suspense.
-export default function ProductPage(props: { params: Promise<{ slug: string }> }) {
-	return (
-		<Suspense fallback={<ProductPageSkeleton />}>
-			<ProductDetails params={props.params} />
-		</Suspense>
-	);
-}
-
-const getProductPageData = async (slug: string) => {
+export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
 	"use cache";
 	cacheLife("minutes");
 
-	const me = await meGetCached().catch(() => null);
-	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
-	const restockNotificationsEnabled = me?.store.settings?.enabledTools?.restockNotifications ?? false;
-	const [product, reviews] = await Promise.all([
-		safeProductGet(slug),
-		reviewsEnabled
-			? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }).catch(() => null)
-			: Promise.resolve(null),
-	]);
-
-	return { product, reviews, restockNotificationsEnabled };
-};
+	return <ProductDetails params={props.params} />;
+}
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	const { slug } = await params;
-	const { product, reviews, restockNotificationsEnabled } = await getProductPageData(slug);
+	const me = await meGetCached().catch(() => null);
+	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
+	const [product, reviews] = await Promise.all([
+		commerce.productGet({ idOrSlug: slug }),
+		reviewsEnabled ? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }) : Promise.resolve(null),
+	]);
 
 	if (!product) {
 		notFound();
@@ -167,7 +103,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			{product.variants[0] && <TrackProductView variant={product.variants[0]} name={product.name} />}
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
 					<BreadcrumbItem>
@@ -199,15 +134,13 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			</Breadcrumb>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
-				</Suspense>
+				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-4">
+						<h1 className="font-heading text-3xl lg:text-5xl font-light tracking-wide text-foreground text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -224,36 +157,18 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
-					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder
-							bundleId={product.id}
-							bundle={product.bundle}
-							pricing={{
-								mode: product.bundlePriceMode,
-								fixedPriceAmount: product.bundleFixedPriceAmount,
-								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
-								amountOffAmount: product.bundleAmountOffAmount,
-								amountOffAmountGross: product.bundleAmountOffAmountGross,
-							}}
-						/>
-					) : (
-						<Suspense fallback={<PurchasePanelSkeleton />}>
-							<AddToCartButton
-								variants={product.variants}
-								product={{
-									id: product.id,
-									name: product.name,
-									slug: product.slug,
-									images: product.images,
-								}}
-								summary={product.summary}
-								volumePricingTiers={product.volumePricingTiers}
-								restockNotificationsEnabled={restockNotificationsEnabled}
-							/>
-						</Suspense>
-					)}
+					{/* Variant Selector, Quantity, Add to Cart */}
+					<AddToCartButton
+						variants={product.variants}
+						product={{
+							id: product.id,
+							name: product.name,
+							slug: product.slug,
+							images: product.images,
+						}}
+						summary={product.summary}
+						volumePricingTiers={product.volumePricingTiers}
+					/>
 				</div>
 			</div>
 
