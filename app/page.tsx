@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 
 export default function Home() {
 	return (
-		<>
+		<main className="bg-background">
 			<Hero />
 			{/* No <Suspense>: the grid is "use cache", so it renders into the prerendered shell in document order. A boundary
 			    around cached data still ships the skeleton first and the content later in the HTML. */}
-			<ProductGrid title="Featured Products" limit={6} />
+			<ProductGrid title="The Flavor Lineup" limit={6} />
 			<About />
 			<Newsletter />
-		</>
+		</main>
 	);
 }
