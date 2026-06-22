@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
+import { DEMO_PRODUCTS, isPreview } from "@/lib/demo-products";
 import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
@@ -25,6 +26,7 @@ type ProductFilterParams = {
 	priceMin?: string;
 	priceMax?: string;
 	vts?: string;
+	preview?: string;
 };
 
 async function getFilterFacets() {
@@ -36,23 +38,14 @@ async function getFilterFacets() {
 export async function generateMetadata({
 	searchParams,
 }: {
-	searchParams: Promise<{ page?: string }>;
+	searchParams: Promise<ProductFilterParams>;
 }): Promise<Metadata> {
-	const { page } = await searchParams;
-	const pageNum = Math.max(1, Number(page) || 1);
-	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
-
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
 	return {
-		title,
+		title: "All Products — Your Next Store",
 		description: "Browse our complete product collection.",
-		alternates: { canonical },
-		openGraph: {
-			type: "website",
-			title,
-			description: "Browse our complete product collection.",
-			url: canonical,
-		},
+		...(preview && { robots: { index: false, follow: false } }),
 	};
 }
 
@@ -63,6 +56,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
+	const preview = await isPreview(filters);
+
+	if (preview) {
+		const data = DEMO_PRODUCTS.slice(offset, offset + PRODUCTS_PER_PAGE);
+		return (
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+				{data.map((product) => (
+					<ProductCard key={product.id} product={product} preview />
+				))}
+			</div>
+		);
+	}
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -90,9 +95,9 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
@@ -139,8 +144,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+				<span className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--violet-deep)]">
+					Shop
+				</span>
+				<h1 className="mt-4 font-serif text-4xl sm:text-5xl tracking-tight">All products</h1>
+				<p className="mt-3 text-muted-foreground max-w-xl">
+					Digital drops, creator kits, and one-of-a-kind originals from indie makers on Your Next Store.
+				</p>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>

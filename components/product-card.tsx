@@ -4,6 +4,7 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import { CURRENCY, LOCALE } from "@/lib/constants";
+import { previewHref } from "@/lib/demo-products";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -16,9 +17,11 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 
 export function ProductCard({
 	product,
+	preview = false,
 	priority = false,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
+	preview?: boolean;
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
@@ -55,8 +58,8 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={previewHref(`/product/${product.slug}`, preview)} className="group">
+			<div className="relative aspect-square bg-[var(--accent)] rounded-3xl overflow-hidden mb-4 ring-1 ring-[var(--violet)]/10 group-hover:ring-[var(--violet)]/30 transition-all duration-300">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -85,9 +88,9 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
+							priority={priority}
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
 						/>
 					))}
 				{secondaryImage &&
@@ -110,9 +113,11 @@ export function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-3 px-1">
+				<h3 className="text-base font-medium text-foreground group-hover:text-[var(--violet-deep)] transition-colors">
+					{product.name}
+				</h3>
+				<p className="text-base font-semibold text-foreground whitespace-nowrap">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);

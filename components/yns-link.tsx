@@ -1,9 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ComponentPropsWithRef } from "react";
 import { cn } from "@/lib/utils";
+
+function withPreview(href: string, preview: boolean): string {
+	if (!preview) return href;
+	if (!href.startsWith("/") && !href.startsWith("#") && !href.startsWith("?")) return href;
+	if (/[?&]preview=1\b/.test(href)) return href;
+	if (href.startsWith("#")) return href;
+	const separator = href.includes("?") ? "&" : "?";
+	return `${href}${separator}preview=1`;
+}
 
 export const YnsLink = ({
 	exactHrefMatch,
@@ -17,10 +26,15 @@ export const YnsLink = ({
 	prefetch?: boolean | "eager";
 }) => {
 	const router = useRouter();
-	const strHref = typeof props.href === "string" ? props.href : props.href.href;
+	const searchParams = useSearchParams();
+	const isPreview = searchParams.get("preview") === "1";
+
+	const rawHref = typeof props.href === "string" ? props.href : props.href.href;
+	const strHref = rawHref ? withPreview(rawHref, isPreview) : rawHref;
 
 	const pathname = usePathname();
-	const isActive = strHref && (exactHrefMatch ? pathname === strHref : pathname.startsWith(strHref));
+	const isActive =
+		rawHref && (exactHrefMatch ? pathname === rawHref : pathname.startsWith(rawHref.split("?")[0] || ""));
 
 	const conditionalPrefetch = () => {
 		if (strHref && prefetch === "eager") {
@@ -31,6 +45,7 @@ export const YnsLink = ({
 	return (
 		<Link
 			{...props}
+			href={strHref ?? props.href}
 			prefetch={!!prefetch}
 			className={cn(className, isActive && activeClassName)}
 			{...(strHref &&

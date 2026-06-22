@@ -160,15 +160,14 @@ export function AddToCartButton({
 		const previousQuantity = items.find((item) => item.productVariant.id === variantId)?.quantity ?? 0;
 
 		openCart();
-		setQuantity(1);
 
 		startMutation(async () => {
 			dispatch({
 				type: "ADD_ITEM",
 				item: {
-					quantity: addedQuantity,
+					quantity,
 					productVariant: {
-						id: variantId,
+						id: selectedVariant.id,
 						price: selectedVariant.price,
 						images: selectedVariant.images,
 						product,
@@ -251,7 +250,7 @@ export function AddToCartButton({
 				<button
 					type="submit"
 					disabled={!selectedVariant || isOutOfStock}
-					className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-14 bg-foreground text-primary-foreground py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}
 				</button>

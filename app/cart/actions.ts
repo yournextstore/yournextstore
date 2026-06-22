@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { isPreviewHost } from "@/lib/demo-products";
+
+async function isPreviewAction(previewFlag: boolean | undefined) {
+	if (!previewFlag) return false;
+	return await isPreviewHost();
+}
 
 export async function getCart() {
 	const cartCookie = await getCartCookieJson();
@@ -18,7 +24,10 @@ export async function getCart() {
 	}
 }
 
-export async function addToCart(variantId: string, quantity = 1) {
+export async function addToCart(variantId: string, quantity = 1, preview?: boolean) {
+	if (await isPreviewAction(preview)) {
+		return { success: true, cart: null };
+	}
 	const cartCookie = await getCartCookieJson();
 
 	const cart = await commerce.cartUpsert({

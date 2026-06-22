@@ -14,6 +14,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
+import { DEMO_PRODUCTS, isPreview } from "@/lib/demo-products";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -123,11 +124,48 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+export default async function CollectionPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+	const { slug } = await props.params;
+	const sp = await props.searchParams;
+	const preview = await isPreview(sp);
+
+	if (preview) {
+		return (
+			<main>
+				<section className="relative overflow-hidden bg-lumen-soft">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+						<span className="inline-flex items-center gap-2 rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-[var(--violet-deep)] ring-1 ring-[var(--violet)]/20">
+							Collection
+						</span>
+						<h1 className="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight">{slug}</h1>
+						<p className="mt-3 text-muted-foreground max-w-xl">
+							A curated selection of digital products from creators on Your Next Store.
+						</p>
+					</div>
+				</section>
+				<Suspense fallback={<ProductGridSkeleton />}>
+					<ProductGrid
+						title="In this collection"
+						description="Demo products shown for preview"
+						products={DEMO_PRODUCTS.slice(0, 6)}
+						showViewAll={false}
+						preview={preview}
+					/>
+				</Suspense>
+			</main>
+		);
+	}
+
+	return <CollectionPageContent slug={slug} />;
+}
+
+async function CollectionPageContent({ slug }: { slug: string }) {
 	"use cache";
 	cacheLife("minutes");
 
-	const { slug } = await props.params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {

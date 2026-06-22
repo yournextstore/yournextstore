@@ -1,7 +1,6 @@
 import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
@@ -9,15 +8,8 @@ import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { commerce, meGetCached } from "@/lib/commerce";
+import { findDemoProductBySlug, isPreview } from "@/lib/demo-products";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { cn } from "@/lib/utils";
 
@@ -35,56 +27,75 @@ function StarRow({ rating }: { rating: number }) {
 	);
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
 	const { slug } = await params;
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
+
+	if (preview) {
+		const demo = findDemoProductBySlug(slug);
+		return {
+			title: demo ? `${demo.name} — Your Next Store` : "Preview — Your Next Store",
+			description: demo?.summary ?? undefined,
+			robots: { index: false, follow: false },
+		};
+	}
+
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
-		return { title: "Product Not Found", robots: { index: false, follow: true } };
+		return { title: "Product Not Found — Your Next Store" };
 	}
 
-	const seoTitle = product.seo?.title || product.name;
-	const seoDescription = product.seo?.description || product.summary || undefined;
-	const canonical = product.seo?.canonical || `/product/${product.slug}`;
-	const image = product.images[0];
-
 	return {
-		title: seoTitle,
-		description: seoDescription,
-		alternates: { canonical },
+		title: `${product.name} — Your Next Store`,
+		description: product.summary ?? undefined,
 		openGraph: {
-			type: "website",
-			title: seoTitle,
-			description: seoDescription,
-			url: canonical,
-			images: image ? [{ url: image, alt: product.name }] : undefined,
-		},
-		twitter: {
-			card: image ? "summary_large_image" : "summary",
-			title: seoTitle,
-			description: seoDescription,
-			images: image ? [image] : undefined,
+			title: product.name,
+			description: product.summary ?? undefined,
+			images: product.images[0] ? [product.images[0]] : undefined,
 		},
 	};
 }
 
-export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
-	"use cache";
-	cacheLife("minutes");
-
-	return <ProductDetails params={props.params} />;
+export default async function ProductPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+	return <ProductDetails params={props.params} searchParams={props.searchParams} />;
 }
 
-const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const ProductDetails = async ({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) => {
 	const { slug } = await params;
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
 	const me = await meGetCached().catch(() => null);
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
-	const [product, reviews] = await Promise.all([
-		commerce.productGet({ idOrSlug: slug }),
-		reviewsEnabled ? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }) : Promise.resolve(null),
-	]);
+
+	const demoProduct = preview ? findDemoProductBySlug(slug) : undefined;
+
+	const [product, reviews] = preview
+		? [demoProduct, null]
+		: await Promise.all([
+				commerce.productGet({ idOrSlug: slug }),
+				reviewsEnabled
+					? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 })
+					: Promise.resolve(null),
+			]);
 
 	if (!product) {
 		notFound();
@@ -97,50 +108,31 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
-	const productJsonLd = await buildProductJsonLd(product, reviews);
+	const productJsonLd =
+		!preview && reviews
+			? await buildProductJsonLd(product as Parameters<typeof buildProductJsonLd>[0], reviews)
+			: null;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<JsonLdScript data={productJsonLd} />
-			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/products">Products</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			{!preview && (
+				<>
+					{productJsonLd && <JsonLdScript data={productJsonLd} />}
+					<JsonLdScript
+						data={buildProductBreadcrumbJsonLd(product as Parameters<typeof buildProductBreadcrumbJsonLd>[0])}
+					/>
+				</>
+			)}
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
-				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-4">
+						<span className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--violet-deep)]">
+							Curated drop
+						</span>
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-foreground text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -183,13 +175,11 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			)}
 
 			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
+			{!preview && reviews && <ProductReviews reviews={reviews} slug={slug} />}
 
-			{/* Features Section (full width below) */}
 			<ProductFeatures />
 
-			{/* Related Products */}
-			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
+			{!preview && <RelatedProducts productId={product.id} categorySlug={product.category?.slug} />}
 		</div>
 	);
 };
