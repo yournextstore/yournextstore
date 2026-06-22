@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { FooterNewsletter } from "@/app/footer-newsletter";
 import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
@@ -14,7 +15,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-background/85 hover:text-warm-tan transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,69 +33,32 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-background/85 hover:text-warm-tan transition-colors">
 				Contact Us
 			</Link>
 		</li>
 	);
 }
 
-async function FooterCollections() {
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await commerce.collectionBrowse({ active: true, limit: 5 });
+	const [collections, legalPages] = await Promise.all([
+		commerce.collectionBrowse({ active: true, limit: 5 }),
+		commerce.legalPageBrowse(),
+	]);
 
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
+	return {
+		collections: collections.data.map((c) => ({
+			name: c.name,
+			href: `/collection/${c.slug}`,
+		})),
+		legalPages: legalPages.data.map((p) => ({
+			name: p.label,
+			href: `/legal${p.href}`,
+		})),
+	};
 }
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
@@ -107,58 +71,115 @@ async function getCopyrightYear() {
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [{ collections, legalPages }, year] = await Promise.all([getFooterData(), getCopyrightYear()]);
+
+	const columns = [
+		{
+			title: "Customer Service",
+			links: [
+				{ name: "FAQ", href: "/faq" },
+				{ name: "Shipping & returns", href: "/faq" },
+				{ name: "Contact", href: "/faq" },
+				{ name: "Track an order", href: "/order" },
+			],
+		},
+		{
+			title: "The House",
+			links: [
+				{ name: "Our story", href: "/" },
+				{ name: "Sustainability", href: "/" },
+				{ name: "Journal", href: "/" },
+				{ name: "Press", href: "/" },
+			],
+		},
+		...(collections.length > 0 ? [{ title: "Shop", links: collections }] : []),
+		...(legalPages.length > 0 ? [{ title: "Legal", links: legalPages }] : []),
+	];
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
+		<footer className="bg-deep-brown text-background mt-0">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
+				<div className="grid grid-cols-1 lg:grid-cols-[1.5fr_2fr] gap-12 pb-14 border-b border-background/15">
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+						<Link href="/" className="font-serif text-3xl tracking-[0.32em] uppercase">
+							YNS
+						</Link>
+						<p className="mt-5 text-sm leading-relaxed text-background/65 max-w-sm">
+							Your Next Store — small-batch botanical skincare made with cold-pressed plants, beeswax, and a
+							quiet, patient hand.
+						</p>
+						<div className="mt-8 flex items-center gap-3">
+							<a
+								href="https://instagram.com"
+								aria-label="Instagram"
+								className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-background/25 hover:bg-background/10 transition-colors"
+							>
+								<span className="sr-only">Instagram</span>
+								<svg
+									viewBox="0 0 24 24"
+									className="h-4 w-4"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.6"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									aria-hidden="true"
 								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
+									<title>Instagram</title>
+									<rect x="3" y="3" width="18" height="18" rx="5" />
+									<circle cx="12" cy="12" r="4" />
+									<circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" />
+								</svg>
+							</a>
+							<span className="text-[11px] tracking-[0.2em] uppercase text-background/60">
+								@yournextstore
+							</span>
+						</div>
 					</div>
 
-					{/* Legal */}
-					<FooterLegalPages />
+					<div className="lg:pl-12 lg:border-l lg:border-background/15">
+						<div className="font-serif text-xs tracking-[0.4em] uppercase text-warm-tan">Subscribe</div>
+						<h3 className="mt-3 font-serif text-2xl sm:text-3xl">Get 15% off your first order</h3>
+						<p className="mt-3 text-sm text-background/65 max-w-md">
+							Quiet emails — new launches, restock alerts, and the occasional ritual.
+						</p>
+						<FooterNewsletter />
+					</div>
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-10 py-12">
+					{columns.map((col) => (
+						<div key={col.title}>
+							<h4 className="text-[11px] tracking-[0.3em] uppercase text-background/60">{col.title}</h4>
+							<ul className="mt-5 space-y-3">
+								{col.links.map((link) => (
+									<li key={`${col.title}-${link.name}`}>
+										<Link
+											href={link.href}
+											className="text-sm text-background/85 hover:text-warm-tan transition-colors"
+										>
+											{link.name}
+										</Link>
+									</li>
+								))}
+								{col.title === "Customer Service" && (
+									<>
+										<FooterContactLink />
+										<FooterBlogLink />
+									</>
+								)}
+							</ul>
+						</div>
+					))}
+				</div>
+
+				<div className="pt-6 border-t border-background/15 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<p className="text-xs text-background/50">© {year} Your Next Store. Crafted with care.</p>
+					<p className="text-[11px] tracking-[0.2em] uppercase text-background/45">
+						Cold-pressed · Plant-led · Made in small batches
+					</p>
+					{/* The marks are dark: they sit on a cream chip so they read on the brown footer. */}
+					<PaymentMethods className="rounded-sm bg-cream px-3 py-1.5" />
 				</div>
 			</div>
 		</footer>
