@@ -39,7 +39,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -55,8 +55,8 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-square overflow-hidden rounded-[28px] border-2 border-forest/10 bg-[var(--cream-deep)]/70 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_30px_50px_-25px_rgba(15,61,46,0.45)] group-hover:border-forest/30">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -86,7 +86,7 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-transform duration-500 group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
@@ -110,9 +110,16 @@ export function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="mt-5 flex items-end justify-between gap-3">
+				<div>
+					<h3 className="font-display uppercase tracking-[0.06em] text-forest text-lg leading-tight">
+						{product.name}
+					</h3>
+					<p className="mt-1 text-sm text-forest/60">Plant-powered &middot; Small batch</p>
+				</div>
+				<div className="shrink-0 rounded-full bg-forest text-cream font-display uppercase tracking-[0.1em] text-xs px-3 py-2">
+					{priceDisplay}
+				</div>
 			</div>
 		</YnsLink>
 	);
