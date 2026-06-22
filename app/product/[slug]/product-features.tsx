@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Droplet, FlaskConical, type LucideIcon, Shield } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,40 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Sweat-proof",
+		description:
+			"A breathable polymer matrix that locks pigment in place through heat, humidity, and motion.",
+		icon: Droplet,
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Transfer-resistant",
+		description: "Stays on your face — not on your collar, your mask, or your pillowcase.",
+		icon: Shield,
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Clinically tested",
+		description: "Twelve hours of true all-day wear, verified in third-party studies on every skin tone.",
+		icon: FlaskConical,
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
-
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
-				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
+		<section className="mt-24 border-t border-border pt-16">
+			<div className="mx-auto max-w-2xl text-center">
+				<p className="eyebrow text-bronze">The Science</p>
+				<h2 className="mt-4 font-display text-4xl font-light tracking-tight text-ink sm:text-5xl">
+					Engineered to outlast.
+				</h2>
+			</div>
+			<div className="mt-14 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-3">
+				{features.map((feature) => {
+					const Icon = feature.icon ?? Droplet;
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
-							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+						<div key={feature.title} className="flex flex-col items-start bg-cream p-8 sm:p-10">
+							<Icon className="h-6 w-6 text-bronze" />
+							<h3 className="mt-6 font-display text-2xl font-medium text-ink">{feature.title}.</h3>
+							<p className="mt-3 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
 						</div>
 					);
 				})}

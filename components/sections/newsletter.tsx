@@ -8,44 +8,70 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+		<section className="relative isolate overflow-hidden bg-cocoa text-cream">
+			{/* subtle gradient glow */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 opacity-70"
+				style={{
+					background:
+						"radial-gradient(ellipse at 80% 20%, oklch(0.55 0.06 50 / 0.45), transparent 55%), radial-gradient(ellipse at 10% 90%, oklch(0.18 0.025 250 / 0.55), transparent 60%)",
+				}}
+			/>
+			<div className="relative mx-auto max-w-[1400px] px-4 py-20 sm:px-6 sm:py-28 lg:px-10">
+				<div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-12 lg:gap-16">
+					<div className="lg:col-span-7">
+						{state?.success ? (
+							<div className="drift-up">
+								<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-cream/10 ring-1 ring-cream/20">
+									<CheckIcon className="h-5 w-5" />
+								</div>
+								<h2 className="font-display text-4xl font-light tracking-tight sm:text-5xl">
+									You&rsquo;re on the list.
+								</h2>
+								<p className="mt-4 max-w-md text-cream/70">{state.message}</p>
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
+						) : (
+							<>
+								<p className="eyebrow text-cream/60">The Insider List</p>
+								<h2 className="mt-4 font-display text-4xl font-light leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
+									Get the look
+									<br />
+									before everyone else.
+								</h2>
+								<p className="mt-6 max-w-md text-base leading-relaxed text-cream/70">
+									Early access to new drops, behind-the-scenes from our campaigns, and 15% off your first
+									order.
+								</p>
+							</>
+						)}
+					</div>
+
+					{!state?.success && (
+						<div className="lg:col-span-5">
+							<form action={action} className="flex flex-col gap-3 sm:flex-row">
 								<input
 									type="email"
 									name="email"
 									placeholder="your@email.com"
 									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
+									aria-label="Email address"
+									className="h-12 w-full flex-1 border-b border-cream/30 bg-transparent px-1 text-cream outline-none transition-colors placeholder:text-cream/40 focus:border-cream"
 								/>
 								<button
 									type="submit"
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
+									className="eyebrow inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-cream px-8 text-ink transition-colors hover:bg-dune disabled:opacity-50"
 								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
+									{isPending ? "Subscribing…" : "Subscribe"}
 									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
 								</button>
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
+							{state?.error && <p className="mt-4 text-sm text-red-200">{state.error}</p>}
+							<p className="mt-5 text-[11px] tracking-wide text-cream/40">
+								By subscribing you agree to receive marketing emails. Unsubscribe anytime.
+							</p>
+						</div>
 					)}
 				</div>
 			</div>
