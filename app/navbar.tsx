@@ -1,63 +1,48 @@
-"use client";
-
-import { Menu } from "lucide-react";
-import { useState } from "react";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Search } from "lucide-react";
+import { cacheLife } from "next/cache";
 import { YnsLink } from "@/components/yns-link";
-import { MobileSearchInput } from "./search-input";
+import { commerce } from "@/lib/commerce";
 
-export type NavLink = {
-	href: string;
-	label: string;
-};
+export async function Navbar() {
+	"use cache";
+	cacheLife("hours");
 
-export function Navbar({ links }: { links: NavLink[] }) {
-	const [open, setOpen] = useState(false);
+	const collections = await commerce.collectionBrowse({ limit: 5 });
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<button
-						type="button"
-						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-					>
-						<Menu className="h-6 w-6" />
-					</button>
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<YnsLink
-								key={link.href}
-								prefetch="eager"
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</YnsLink>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<YnsLink
-						key={link.href}
-						prefetch="eager"
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</YnsLink>
-				))}
-			</nav>
-		</>
+		<nav className="hidden sm:flex items-center gap-5">
+			<YnsLink
+				prefetch={"eager"}
+				href="/"
+				className="text-sm font-medium text-white/70 hover:text-brand transition-colors uppercase tracking-wide"
+			>
+				Home
+			</YnsLink>
+			<YnsLink
+				prefetch={"eager"}
+				href="/products"
+				className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+			>
+				Products
+			</YnsLink>
+			{collections.data.map((collection) => (
+				<YnsLink
+					prefetch={"eager"}
+					key={collection.id}
+					href={`/collection/${collection.slug}`}
+					className="text-sm font-medium text-white/70 hover:text-brand transition-colors uppercase tracking-wide"
+				>
+					{collection.name}
+				</YnsLink>
+			))}
+			<YnsLink
+				prefetch={"eager"}
+				href="/products"
+				className="text-white/70 hover:text-brand transition-colors"
+				aria-label="Search"
+			>
+				<Search className="w-5 h-5" />
+			</YnsLink>
+		</nav>
 	);
 }

@@ -137,10 +137,10 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 lg:mt-0 space-y-6">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-4">
+						<h1 className="font-heading text-3xl font-bold uppercase tracking-wide text-foreground lg:text-4xl">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -149,7 +149,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
 							>
 								<StarRow rating={reviewSummary.averageRating} />
-								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
+								<span className="font-bold text-brand">{reviewSummary.averageRating.toFixed(1)}</span>
 								<span className="text-muted-foreground underline-offset-4 hover:underline">
 									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
 								</span>
@@ -175,7 +175,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			{/* Full description (below the fold, full width) */}
 			{product.content && (
 				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
+					<h2 className="mb-6 font-heading text-2xl font-bold uppercase tracking-wide">Product details</h2>
 					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
 						<TiptapRenderer content={product.content} />
 					</div>

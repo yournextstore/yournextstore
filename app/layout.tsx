@@ -2,13 +2,13 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -30,6 +30,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
+});
+
+const oswald = Oswald({
+	variable: "--font-oswald",
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -92,8 +98,6 @@ async function getStoreMetadata(): Promise<Metadata> {
 
 export async function generateMetadata(): Promise<Metadata> {
 	const metadata = await getStoreMetadata();
-	// URL instances can't cross the "use cache" serialization boundary, so
-	// metadataBase is attached outside the cached scope (env-only, no IO).
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
@@ -112,41 +116,39 @@ async function getInitialCart() {
 	}
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
-	"use cache";
-	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
-}
-
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
+	const { cart, cartId } = await getInitialCart();
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				{/* Top utility bar */}
+				<div className="bg-[#1a1a1a] text-white/70 text-xs">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
+						<span className="hidden sm:inline">Helpline: (+800) 123 456 7890</span>
+						<div className="flex items-center gap-4 ml-auto">
+							<YnsLink prefetch={"eager"} href="/products" className="hover:text-white transition-colors">
+								Track your order
+							</YnsLink>
+						</div>
+					</div>
+				</div>
+
+				{/* Main header */}
+				<header className="sticky top-0 z-50 bg-[#222222] shadow-lg">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+						<div className="flex items-center justify-between h-16">
+							<div className="flex items-center gap-8">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-heading text-2xl font-bold text-white uppercase tracking-wider"
+								>
 									Your Next Store
 								</YnsLink>
-								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-4">
+								<Navbar />
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,13 +158,46 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+
+				{/* Yellow navigation bar */}
+				<div className="bg-brand text-brand-foreground font-heading">
+					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center h-12 gap-6 text-sm font-semibold uppercase tracking-wide overflow-x-auto">
+							<YnsLink
+								prefetch={"eager"}
+								href="/products"
+								className="whitespace-nowrap hover:opacity-80 transition-opacity"
+							>
+								Shop All
+							</YnsLink>
+							<Suspense>
+								<NavCollections />
+							</Suspense>
+						</div>
+					</div>
+				</div>
+
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
 			<CartSidebar />
 		</CartProvider>
 	);
+}
+
+async function NavCollections() {
+	const collections = await commerce.collectionBrowse({ limit: 5 });
+	return collections.data.map((collection) => (
+		<YnsLink
+			prefetch={"eager"}
+			key={collection.id}
+			href={`/collection/${collection.slug}`}
+			className="whitespace-nowrap hover:opacity-80 transition-opacity"
+		>
+			{collection.name}
+		</YnsLink>
+	));
 }
 
 async function getHtmlLang(): Promise<string> {
@@ -192,7 +227,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
