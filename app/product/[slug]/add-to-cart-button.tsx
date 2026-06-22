@@ -182,7 +182,6 @@ export function AddToCartButton({
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
 		openCart();
-		setQuantity(1);
 
 		// Instant local feedback OUTSIDE the transition, then REPLACE with the
 		// server-returned cart (never refetch — cartGet reads a replica that can lag
@@ -225,25 +224,33 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+		<div className="space-y-7">
+			{summary && (
+				<p className="text-[var(--color-on-surface-variant)] leading-relaxed whitespace-pre-line">
+					{summary}
+				</p>
+			)}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span className="font-serif text-2xl font-semibold tracking-tight">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<span className="text-lg text-[var(--color-on-surface-variant)] line-through">
+							{priceInfo.compareAt}
+						</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="label-caps neo-border bg-[var(--color-error-container)] text-[var(--color-on-error-container)] px-2 py-0.5 text-xs font-semibold">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
 				</div>
 
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					<p className="text-xs text-[var(--color-on-surface-variant)]">
+						Lowest price in the last 30 days: {omnibusPrice}
+					</p>
 				)}
 
 				{/* SKU & stock availability */}
@@ -263,7 +270,7 @@ export function AddToCartButton({
 							</span>
 						)}
 						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
+							<span className="text-[var(--color-on-surface-variant)]">
 								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
 							</span>
 						)}
@@ -304,7 +311,7 @@ export function AddToCartButton({
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="w-full label-caps neo-border bg-foreground text-background h-14 px-6 transition-all hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)] hover:neo-shadow active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-foreground disabled:hover:text-background disabled:hover:shadow-none"
 							>
 								{buttonText}
 							</button>
@@ -312,7 +319,9 @@ export function AddToCartButton({
 					)}
 				</>
 			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				<p className="text-sm text-[var(--color-on-surface-variant)]">
+					This subscription isn't available right now.
+				</p>
 			)}
 
 			<TrustBadges />

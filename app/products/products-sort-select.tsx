@@ -48,8 +48,8 @@ export function SortLinks({
 						key={option.value}
 						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
 						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
+							"label-caps transition-colors underline-offset-4",
+							isActive ? "text-foreground underline" : "text-muted-foreground hover:text-foreground",
 						)}
 					>
 						{option.label}

@@ -50,7 +50,7 @@ function CollapsibleList<T>({
 				<button
 					type="button"
 					onClick={() => setExpanded((prev) => !prev)}
-					className="mt-2 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+					className="label-caps mt-2 px-2 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
 				>
 					{expanded ? "Show less" : "Show more"}
 				</button>
@@ -160,12 +160,12 @@ function FilterControls({
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="label-caps">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
 						onClick={clearAll}
-						className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+						className="label-caps text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
 					>
 						Clear all
 					</button>
@@ -188,8 +188,8 @@ function FilterControls({
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full px-2 py-1.5 text-left text-sm transition-colors hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)]",
+													isActive ? "bg-foreground text-background" : "text-foreground",
 												)}
 											>
 												{category.name}
@@ -217,8 +217,8 @@ function FilterControls({
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full px-2 py-1.5 text-left text-sm transition-colors hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)]",
+													isActive ? "bg-foreground text-background" : "text-foreground",
 												)}
 											>
 												{collection.name}
@@ -279,8 +279,8 @@ function FilterControls({
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full px-2 py-1.5 text-left text-sm transition-colors hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)]",
+													isActive ? "bg-foreground text-background" : "text-foreground",
 												)}
 											>
 												{brand.name}

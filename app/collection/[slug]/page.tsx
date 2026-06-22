@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { ProductCard } from "@/components/product-card";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const collection = await getCollectionData(slug);
 
 	if (!collection) {
-		return { title: "Collection Not Found", robots: { index: false, follow: true } };
+		return { title: "Collection Not Found — Your Next Store" };
 	}
 
 	const { storeName } = await getStoreSeo();
@@ -37,21 +37,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		typeof collection.description === "string"
 			? collection.description
 			: `Shop the ${collection.name} collection at ${storeName}.`;
-	const canonical = `/collection/${collection.slug}`;
 
 	return {
-		title: collection.name,
+		title: `${collection.name} — Your Next Store`,
 		description,
-		alternates: { canonical },
 		openGraph: {
-			type: "website",
-			title: collection.name,
-			description,
-			url: canonical,
-			images: collection.image ? [{ url: collection.image, alt: collection.name }] : undefined,
-		},
-		twitter: {
-			card: collection.image ? "summary_large_image" : "summary",
 			title: collection.name,
 			description,
 			images: collection.image ? [collection.image] : undefined,
@@ -59,40 +49,42 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
+		<section className="bg-[var(--color-primary-container)] border-b border-foreground">
+			<div className="max-w-[1280px] mx-auto px-5 md:px-20 py-12 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+				<div>
+					<span className="label-caps text-[var(--color-on-primary-container)]">Collection</span>
+					<h1 className="font-serif text-4xl md:text-5xl lg:text-[64px] leading-[1.05] mt-3 text-[var(--color-on-primary-container)]">
+						{collection.name}
+					</h1>
+					{collection.description && (
+						<div className="mt-6 text-base md:text-lg leading-relaxed text-[var(--color-on-surface-variant)] prose max-w-xl">
+							{typeof collection.description === "string" ? (
+								<p>{collection.description}</p>
+							) : (
 								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
+							)}
+						</div>
+					)}
+					<div className="mt-6 inline-block label-caps neo-border px-3 py-2 bg-[var(--color-surface-container-lowest)]">
+						{count} {count === 1 ? "product" : "products"}
 					</div>
 				</div>
+				{collection.image && (
+					<div className="relative w-full aspect-[4/3] neo-border bg-[var(--color-surface-container-lowest)] hover:neo-shadow transition-shadow">
+						<YNSMedia
+							src={collection.image}
+							alt={collection.name}
+							fill
+							sizes="(max-width: 768px) 100vw, 50vw"
+							className="object-cover"
+							priority
+							fetchPriority="high"
+						/>
+					</div>
+				)}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
@@ -109,16 +101,22 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data;
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
+function CollectionProducts({ products }: { products: APIProductsBrowseResult["data"] }) {
+	if (products.length === 0) {
+		return (
+			<div className="neo-border bg-[var(--color-surface-container-lowest)] py-24 text-center">
+				<p className="font-serif text-2xl mb-2">Empty collection</p>
+				<p className="text-[var(--color-on-surface-variant)]">No products are assigned here yet.</p>
+			</div>
+		);
+	}
 
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+			{products.map((product) => (
+				<ProductCard key={product.id} product={product} />
+			))}
+		</div>
 	);
 }
 
@@ -155,8 +153,10 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+
 	return (
-		<>
+		<main>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
@@ -172,8 +172,12 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 					</BreadcrumbList>
 				</Breadcrumb>
 			</div>
-			<CollectionHeader collection={collection} />
-			<CollectionProducts collection={collection} />
-		</>
+			<CollectionHeader collection={collection} count={products.length} />
+			<section className="px-5 md:px-20 py-12 md:py-16 border-b border-foreground">
+				<div className="max-w-[1280px] mx-auto">
+					<CollectionProducts products={products} />
+				</div>
+			</section>
+		</main>
 	);
 }

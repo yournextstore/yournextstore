@@ -39,15 +39,18 @@ export async function ListingProducts({ basePath, ...query }: ListingQuery & { b
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="neo-border bg-[var(--color-surface-container-lowest)] py-24 text-center">
+				<p className="font-serif text-2xl mb-2">Nothing here yet</p>
+				<p className="text-[var(--color-on-surface-variant)]">
+					No products match these filters. Try a different combination.
+				</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}

@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { FooterNewsletter } from "@/app/newsletter/footer-newsletter";
 import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
@@ -13,11 +14,12 @@ async function FooterBlogLink() {
 	}
 
 	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
+		<Link
+			href="/blog"
+			className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+		>
+			Blog
+		</Link>
 	);
 }
 
@@ -31,11 +33,12 @@ async function FooterContactLink() {
 	}
 
 	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
+		<Link
+			href="/contact"
+			className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+		>
+			Contact Us
+		</Link>
 	);
 }
 
@@ -45,25 +48,24 @@ async function FooterCollections() {
 
 	const collections = await commerce.collectionBrowse({ active: true, limit: 5 });
 
-	if (collections.data.length === 0) {
-		return null;
-	}
-
 	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
+		<div className="flex flex-col gap-3 md:pl-6">
+			<h4 className="label-caps mb-2">Shop</h4>
+			<Link
+				href="/products"
+				className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+			>
+				All Products
+			</Link>
+			{collections.data.map((collection) => (
+				<Link
+					key={collection.id}
+					href={`/collection/${collection.slug}`}
+					className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+				>
+					{collection.name}
+				</Link>
+			))}
 		</div>
 	);
 }
@@ -74,25 +76,24 @@ async function FooterLegalPages() {
 
 	const pages = await commerce.legalPageBrowse();
 
-	if (pages.data.length === 0) {
-		return null;
-	}
-
 	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
+		<div className="flex flex-col gap-3 md:pl-6">
+			<h4 className="label-caps mb-2">Support</h4>
+			<Link
+				href="/faq"
+				className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+			>
+				FAQ
+			</Link>
+			{pages.data.map((page) => (
+				<Link
+					key={page.id}
+					href={`/legal${page.href}`}
+					className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+				>
+					{page.label}
+				</Link>
+			))}
 		</div>
 	);
 }
@@ -107,58 +108,44 @@ async function getCopyrightYear() {
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [me, year] = await Promise.all([meGetCached(), getCopyrightYear()]);
+	const storeName = (me.store.name || "Your Next Store").toLowerCase();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="bg-[var(--color-tertiary)] text-[var(--color-on-tertiary)] border-t border-foreground">
+			<div className="max-w-[1280px] mx-auto px-5 md:px-20 py-16 grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-0 md:divide-x md:divide-[var(--color-on-tertiary)]/30">
+				<div className="flex flex-col justify-between pr-6">
+					<Link
+						href="/"
+						className="font-serif text-3xl uppercase tracking-tight leading-none mb-8 font-semibold"
+					>
+						{storeName}
+					</Link>
+					<div className="flex flex-col gap-3 mt-4">
+						<Link
+							href="/about"
+							className="text-base text-[var(--color-on-tertiary)]/80 hover:text-[var(--color-on-tertiary)] transition-colors"
+						>
+							About Us
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<FooterContactLink />
+						<FooterBlogLink />
+					</div>
+					<div className="mt-auto flex flex-col gap-4">
+						<p className="text-sm opacity-80">
+							&copy; {year} {storeName}. All rights reserved.
 						</p>
+						<PaymentMethods />
 					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<FooterCollections />
+				<FooterLegalPages />
+
+				<div className="flex flex-col gap-3 md:pl-6">
+					<h4 className="label-caps mb-2">Newsletter</h4>
+					<p className="text-base opacity-80 mb-2">Join our list for $10 off your first order.</p>
+					<FooterNewsletter />
 				</div>
 			</div>
 		</footer>

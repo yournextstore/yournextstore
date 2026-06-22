@@ -49,31 +49,43 @@ export async function ProductsView({ filters }: { filters: ProductListingParams 
 	const filtersAvailable = hasFacets(facets);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} active={filters} />}
-
-				<div>
-					{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-					<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-						{filtersAvailable ? <ProductFiltersMobile facets={facets} active={filters} /> : <span />}
-						<SortSelect options={sortOptions} active={filters} />
-					</div>
-
-					{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-					<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-						<span className="text-sm text-muted-foreground">Sort by:</span>
-						<SortLinks options={sortOptions} active={filters} />
-					</div>
-
-					<ListingProducts basePath="/products" filters={filters} order={order} />
+		<>
+			<section className="bg-[var(--color-primary-container)] border-b border-foreground">
+				<div className="max-w-[1280px] mx-auto px-5 md:px-20 py-12 md:py-16">
+					<span className="label-caps text-[var(--color-on-primary-container)]">Shop</span>
+					<h1 className="font-serif text-4xl md:text-5xl lg:text-[64px] leading-[1.05] mt-3 text-[var(--color-on-primary-container)]">
+						All Products
+					</h1>
 				</div>
-			</div>
-		</div>
+			</section>
+
+			<section className="px-5 md:px-20 py-12 md:py-16 border-b border-foreground">
+				<div
+					className={
+						filtersAvailable
+							? "max-w-[1280px] mx-auto lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10"
+							: "max-w-[1280px] mx-auto"
+					}
+				>
+					{filtersAvailable && <ProductFilters facets={facets} active={filters} />}
+
+					<div>
+						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
+						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+							{filtersAvailable ? <ProductFiltersMobile facets={facets} active={filters} /> : <span />}
+							<SortSelect options={sortOptions} active={filters} />
+						</div>
+
+						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
+						<div className="mb-8 hidden flex-wrap items-center gap-4 lg:flex">
+							<span className="label-caps text-muted-foreground">Sort by</span>
+							<SortLinks options={sortOptions} active={filters} />
+						</div>
+
+						<ListingProducts basePath="/products" filters={filters} order={order} />
+					</div>
+				</div>
+			</section>
+		</>
 	);
 }
