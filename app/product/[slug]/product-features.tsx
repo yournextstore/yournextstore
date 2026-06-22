@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Heart, Leaf, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,42 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Real fruit, no nonsense",
+		description: "Made with juice and puree from actual fruit — never artificial flavors or colors.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Plant-based & gluten-free",
+		description: "Wobbly, jiggly, and made with ingredients you can pronounce. Vegan-friendly.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Under 60 calories",
+		description: "Light, refreshing, and packed with flavor — snack joy without the snack guilt.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Sparkles, Leaf, Heart];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
+		<section className="mt-20 border-t border-[var(--lilac)]/30 pt-16">
+			<p className="text-center font-display text-xs uppercase tracking-[0.3em] text-[var(--pink)]">
+				What&apos;s inside
+			</p>
+			<h2 className="mb-12 mt-3 text-center font-display text-3xl uppercase tracking-tight text-[var(--purple-deep)]">
+				Clean, weird &amp; wonderful.
+			</h2>
 			<div className="grid gap-8 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+							<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--pink)]/10 transition-colors group-hover:bg-[var(--pink)]">
+								<Icon className="h-7 w-7 text-[var(--pink)] transition-colors group-hover:text-white" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-display text-lg uppercase tracking-tight text-[var(--purple-deep)]">
+								{feature.title}
+							</h3>
+							<p className="text-sm text-[var(--purple-deep)]/70 leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}

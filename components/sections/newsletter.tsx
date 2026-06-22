@@ -1,54 +1,44 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { useActionState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
-	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
-							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
-							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
-					)}
-				</div>
+	if (state?.success) {
+		return (
+			<div className="flex w-full max-w-md items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[var(--purple-deep)] shadow-pop">
+				<CheckIcon className="h-5 w-5 text-[var(--pink)]" />
+				<span>You&apos;re on the list — get ready for jiggles.</span>
 			</div>
-		</section>
+		);
+	}
+
+	return (
+		<form
+			action={action}
+			className="relative flex w-full max-w-md items-center rounded-full bg-white p-1.5 shadow-pop"
+		>
+			<input
+				type="email"
+				name="email"
+				placeholder="Enter your email"
+				required
+				className="h-11 w-full flex-1 rounded-full bg-transparent px-5 text-sm text-[var(--purple-deep)] placeholder:text-[var(--purple-deep)]/50 focus:outline-none"
+			/>
+			<button
+				type="submit"
+				disabled={isPending}
+				className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--pink)] px-5 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-[var(--pink)]/90 disabled:opacity-50"
+			>
+				{isPending ? "…" : "Subscribe"}
+				{!isPending && <span aria-hidden>▸</span>}
+			</button>
+			{state?.error && (
+				<p className="absolute -bottom-7 left-0 right-0 text-center text-xs text-white/90">{state.error}</p>
+			)}
+		</form>
 	);
 }
