@@ -39,7 +39,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} — ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -55,8 +55,8 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-[4/5] bg-[var(--yns-cream)] overflow-hidden mb-5 border border-[var(--yns-ink)]/5">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -73,7 +73,7 @@ export function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,14 +86,13 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
+							className={`object-cover transition-all duration-700 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 						/>
 					))}
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -106,14 +105,23 @@ export function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+							priority={priority}
 						/>
 					))}
+				<div className="absolute top-3 right-3 yns-keep-case text-[10px] uppercase tracking-[0.25em] bg-[var(--yns-ink)] text-[var(--yns-cream)] px-2 py-1">
+					new
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-baseline justify-between gap-3">
+				<h3 className="text-sm sm:text-base text-[var(--yns-ink)] group-hover:text-[var(--yns-red)] transition-colors lowercase">
+					{product.name.toLowerCase()}
+				</h3>
+				<p className="text-sm sm:text-base text-[var(--yns-ink)] tabular-nums whitespace-nowrap">
+					{priceDisplay}
+				</p>
 			</div>
+			<p className="mt-1 text-xs text-[var(--yns-ink)]/55 lowercase">a soft ritual · 30 strips</p>
 		</YnsLink>
 	);
 }
