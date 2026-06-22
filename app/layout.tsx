@@ -1,14 +1,15 @@
 import "@/app/globals.css";
 
+import { Bell, Search } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -22,14 +23,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bodoniModa = Bodoni_Moda({
+	variable: "--font-display",
 	subsets: ["latin"],
+	style: ["normal", "italic"],
+	weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,51 +116,46 @@ async function getInitialCart() {
 	}
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
-	"use cache";
-	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
-}
-
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
+	const { cart, cartId } = await getInitialCart();
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+			<div className="flex min-h-screen flex-col overflow-x-hidden">
+				<header className="w-full px-6 py-8 md:px-12 relative z-50">
+					<div className="flex items-center justify-between">
+						{/* Logo */}
+						<YnsLink prefetch={"eager"} href="/" className="text-3xl font-display font-bold tracking-tight">
+							Skinclean.
+						</YnsLink>
+
+						{/* Center Navigation */}
+						<Navbar />
+
+						{/* Right side controls */}
+						<div className="flex items-center space-x-4 md:space-x-6">
+							<div className="border border-foreground rounded-full px-5 py-1.5 text-xs font-semibold hidden sm:block">
+								2025
 							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
-							</div>
+							<Suspense>
+								<SearchInput />
+							</Suspense>
+							{AUTH_ENABLED && <AuthButton />}
+							<YnsLink href="/search" className="hover:text-primary transition-colors" aria-label="Search">
+								<Search className="w-5 h-5" />
+							</YnsLink>
+							<button
+								type="button"
+								className="hover:text-primary transition-colors"
+								aria-label="Notifications"
+							>
+								<Bell className="w-5 h-5" />
+							</button>
+							<CartButton />
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<main className="flex-1 w-full">{children}</main>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +191,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bodoniModa.variable} ${inter.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

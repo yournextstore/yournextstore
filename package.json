@@ -52,6 +52,7 @@
 		"commerce-kit": "^0.49.0",
 		"date-fns": "4.4.0",
 		"embla-carousel-react": "8.6.0",
+		"framer-motion": "^12.35.2",
 		"input-otp": "1.4.2",
 		"lucide-react": "1.17.0",
 		"next": "16.3.0-canary.42",
