@@ -183,17 +183,21 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						{brand && (
+					{/* Title, Price, Description */}
+					<div className="space-y-4">
+						{brand ? (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center text-[11px] font-semibold uppercase tracking-[0.24em] text-terracotta transition-colors hover:text-terracotta-deep"
 							>
 								{brand.name}
 							</Link>
+						) : (
+							<p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-terracotta">
+								Your Next Store · P24
+							</p>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-display text-4xl lg:text-5xl text-ink leading-[1.05] tracking-tight text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -203,7 +207,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 							>
 								<StarRow rating={reviewSummary.averageRating} />
 								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
-								<span className="text-muted-foreground underline-offset-4 hover:underline">
+								<span className="text-clay underline-offset-4 hover:underline">
 									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
 								</span>
 							</a>

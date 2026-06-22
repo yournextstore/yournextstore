@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Pixelify_Sans } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const pixelify = Pixelify_Sans({
+	variable: "--font-pixelify",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -105,6 +105,32 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-ink text-cream text-[11px] tracking-[0.12em] uppercase">
+			<div className="max-w-7xl mx-auto px-4 py-2.5 text-center font-medium">
+				<span className="inline-flex items-center gap-3">
+					<span className="hidden sm:inline">★</span>
+					Free US shipping on every order. Try for 30 days or your money back.
+					<span className="hidden sm:inline">★</span>
+				</span>
+			</div>
+		</div>
+	);
+}
+
+function Wordmark() {
+	return (
+		<Link href="/" className="group inline-flex items-baseline gap-1.5 leading-none">
+			<span className="font-display text-[28px] sm:text-[32px] text-ink leading-none">yournext</span>
+			<span className="font-display text-[14px] sm:text-[16px] text-terracotta leading-none -ml-0.5">
+				store
+			</span>
+			<span className="ml-1 text-[9px] tracking-[0.2em] text-clay uppercase font-medium">P24</span>
+		</Link>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -128,25 +154,26 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-cream-grain">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border/60 bg-[color:var(--cream)]/85 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+							<div className="flex items-center justify-between h-16 sm:h-[68px]">
+								{/* The menu trigger (below lg) and the desktop links (absolutely centred on lg) live in
+								    Navbar, so it stays out of any hidden wrapper; the mobile trigger must stay reachable. */}
+								<div className="flex flex-1 items-center gap-2">
 									<Navbar links={links} />
+									<Wordmark />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,12 +187,18 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 text-ink hover:text-terracotta transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
 									</a>
 									<CartButton />
+									<Link
+										href="/products"
+										className="hidden sm:inline-flex items-center justify-center h-9 px-5 bg-terracotta text-cream rounded-sm text-[11px] tracking-[0.18em] font-semibold uppercase hover:bg-terracotta-light transition-colors"
+									>
+										Shop P24
+									</Link>
 								</div>
 							</div>
 						</div>
@@ -208,10 +241,10 @@ export default async function RootLayout({
 	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
 	const lang = await getHtmlLang();
 
+	// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 	return (
-		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${pixelify.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
