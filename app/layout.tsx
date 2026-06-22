@@ -137,12 +137,15 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+					<header className="sticky top-0 z-50 border-b-2 border-primary/10 bg-background/90 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+							<div className="flex items-center justify-between h-18">
+								<div className="flex items-center gap-8">
+									<Link href="/" className="flex items-center gap-2 group">
+										<span className="text-3xl animate-bounce-slow">🎈</span>
+										<span className="text-xl font-black gradient-text group-hover:scale-105 transition-transform">
+											Kids Wonder
+										</span>
 									</Link>
 									<Navbar links={links} />
 								</div>
@@ -160,7 +163,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
