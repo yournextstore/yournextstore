@@ -15,10 +15,19 @@ export function ThemeToggle() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Change theme" />}>
+			<DropdownMenuTrigger
+				render={
+					<Button
+						variant="outline"
+						size="icon-sm"
+						className="h-10 w-10 rounded-none border-2 border-foreground bg-background hover:bg-foreground hover:text-background"
+						aria-label="Change theme"
+					/>
+				}
+			>
 				{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
-				<Sun className="size-5 dark:hidden" />
-				<Moon className="hidden size-5 dark:block" />
+				<Sun className="size-4 dark:hidden" />
+				<Moon className="hidden size-4 dark:block" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>

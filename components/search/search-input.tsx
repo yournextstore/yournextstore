@@ -40,27 +40,24 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="hidden lg:inline-flex xl:hidden h-10 w-10 items-center justify-center border-2 border-foreground bg-background transition-colors hover:bg-foreground hover:text-background"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="h-4 w-4" />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
 					sideOffset={8}
 					initialFocus={iconInputRef}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
+					className="w-[min(24rem,calc(100vw-2rem))] rounded-none border-2 border-foreground bg-popover p-2 shadow-[4px_4px_0_0_#0f0f0f]"
 				>
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
-							/>
+							<Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground" />
 							<input
 								ref={iconInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="SEARCH…"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
 								onKeyDown={makeKeyHandler(
@@ -75,7 +72,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-full border-2 border-foreground bg-background pl-9 pr-3 text-xs font-bold uppercase tracking-[0.18em] text-foreground placeholder:text-foreground/50 focus:outline-none focus:bg-[#d4ff3a]"
 							/>
 						</div>
 					</form>
@@ -97,15 +94,12 @@ export function SearchInput() {
 			<form onSubmit={handleSubmit} className="hidden xl:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
-						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-							strokeWidth={1.75}
-						/>
+						<Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground" />
 						<input
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="SEARCH…"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,7 +118,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-10 w-56 border-2 border-foreground bg-background pl-9 pr-3 text-xs font-bold uppercase tracking-[0.18em] text-foreground placeholder:text-foreground/50 focus:outline-none focus:bg-[#d4ff3a]"
 						/>
 					</div>
 					<PopoverContent
@@ -132,7 +126,7 @@ export function SearchInput() {
 						sideOffset={8}
 						anchor={inlineAnchorRef}
 						initialFocus={false}
-						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
+						className="w-[min(22rem,calc(100vw-2rem))] rounded-none border-2 border-foreground bg-popover p-1.5 shadow-[4px_4px_0_0_#0f0f0f]"
 					>
 						<Suggestions
 							listboxId={inlineListboxId}
