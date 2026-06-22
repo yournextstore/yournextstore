@@ -4,9 +4,24 @@ import { try_ } from "safe-try";
 import { refusedCodeMessage } from "@/app/cart/discount-code";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { isPreviewHost } from "@/lib/demo-products";
 import { getStoreConfig } from "@/lib/store-config";
 
-export async function addToCart(variantId: string, quantity = 1, subscriptionPlanId?: string | null) {
+async function isPreviewAction(previewFlag: boolean | undefined) {
+	if (!previewFlag) return false;
+	return await isPreviewHost();
+}
+
+export async function addToCart(
+	variantId: string,
+	quantity = 1,
+	subscriptionPlanId?: string | null,
+	preview?: boolean,
+) {
+	// Demo products on a preview host are not real variants: nothing reaches the Store API.
+	if (await isPreviewAction(preview)) {
+		return { success: true, cart: null };
+	}
 	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
 	// the order and its emails speak it. Omitted when the store never set a default language.

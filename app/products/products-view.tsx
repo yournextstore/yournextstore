@@ -51,8 +51,13 @@ export async function ProductsView({ filters }: { filters: ProductListingParams 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+				<span className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--violet-deep)]">
+					Shop
+				</span>
+				<h1 className="mt-4 font-serif text-4xl sm:text-5xl tracking-tight">All products</h1>
+				<p className="mt-3 text-muted-foreground max-w-xl">
+					Digital drops, creator kits, and one-of-a-kind originals from indie makers on Your Next Store.
+				</p>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
