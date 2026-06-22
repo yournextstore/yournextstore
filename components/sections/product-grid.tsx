@@ -3,7 +3,6 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
@@ -22,17 +21,21 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	eyebrow?: string;
+	tone?: "cream" | "white";
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Bestsellers",
+	description = "Quiet favorites from the collection.",
 	products,
 	limit = 6,
 	showViewAll = true,
 	viewAllHref = "/products",
+	eyebrow = "Loved most",
+	tone = "cream",
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -40,41 +43,36 @@ export async function ProductGrid({
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	const bg = tone === "cream" ? "bg-[#F5F1EB]" : "bg-background";
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className={bg}>
+			<div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+				<div className="mb-12 text-center">
+					<p className="text-[11px] yns-letter-spacing-mid uppercase text-muted-foreground">{eyebrow}</p>
+					<h2 className="mt-3 font-serif text-4xl sm:text-5xl font-light text-foreground">{title}</h2>
+					{description && (
+						<p className="mt-3 font-serif text-lg italic text-muted-foreground">{description}</p>
+					)}
 				</div>
+
+				<div className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+					{displayProducts.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
+					))}
+				</div>
+
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+					<div className="mt-16 text-center">
+						<Link
+							href={viewAllHref}
+							className="inline-flex border-b border-foreground/60 pb-1 text-[11px] yns-letter-spacing-mid uppercase text-foreground hover:border-foreground"
+						>
+							View all
+						</Link>
+					</div>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }
