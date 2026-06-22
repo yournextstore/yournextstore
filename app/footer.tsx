@@ -1,3 +1,4 @@
+import { Camera, Mail } from "lucide-react";
 import { cacheLife } from "next/cache";
 import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
@@ -16,7 +17,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-background/80 hover:text-background transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +39,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-background/80 hover:text-background transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +59,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs tracking-[0.22em] uppercase text-muted-foreground">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/80 hover:text-foreground transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +89,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs tracking-[0.22em] uppercase text-muted-foreground">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/80 hover:text-foreground transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +109,52 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="bg-foreground text-background mt-20">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-20 pb-10">
+				{/* Big display word */}
+				<p className="yns-display text-background/95 leading-[0.85] tracking-[-0.04em] text-[18vw] sm:text-[14vw] lg:text-[12vw] font-medium">
+					<span className="bg-gradient-to-b from-background to-background/30 bg-clip-text text-transparent">
+						Your Next Store
+					</span>
+				</p>
+
+				<div className="grid grid-cols-2 md:grid-cols-5 gap-10 mt-16">
+					<div className="col-span-2 md:col-span-2 sm:max-w-sm">
+						<YnsLink prefetch={"eager"} href="/" className="yns-display text-2xl text-background">
+							YNS
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm text-background/70 leading-relaxed">
+							A small studio designing objects for slow, considered homes. Built since 2018 in collaboration
+							with 112 independent makers.
 						</p>
+						<div className="mt-6 flex items-center gap-3">
+							<a
+								href="https://instagram.com"
+								className="inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-background/20 hover:bg-background/10 transition-colors"
+								aria-label="Instagram"
+							>
+								<Camera className="h-4 w-4" />
+							</a>
+							<a
+								href="mailto:hello@yournextstore.com"
+								className="inline-flex h-10 items-center gap-2 rounded-full ring-1 ring-background/20 hover:bg-background/10 transition-colors px-4 text-sm"
+							>
+								<Mail className="h-4 w-4" />
+								hello@yournextstore.com
+							</a>
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-xs tracking-[0.22em] uppercase text-background/50">Support</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-background/80 hover:text-background transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +164,41 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-background/80 hover:text-background transition-colors"
 								>
 									FAQ
 								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/cart"
+									className="text-sm text-background/80 hover:text-background transition-colors"
+								>
+									Returns
+								</YnsLink>
+							</li>
+							<li>
+								<a
+									href="mailto:care@yournextstore.com"
+									className="text-sm text-background/80 hover:text-background transition-colors"
+								>
+									Contact us
+								</a>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
+				<div className="mt-16 pt-6 border-t border-background/10 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+					<p className="text-xs text-background/50">
 						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+					</p>
+					<p className="text-xs text-background/50 tracking-[0.18em] uppercase">
+						Designed quietly · Made to last
 					</p>
 				</div>
 			</div>

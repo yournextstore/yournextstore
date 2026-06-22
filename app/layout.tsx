@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -10,6 +10,7 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
+import { AnnouncementBar } from "@/components/announcement-bar";
 import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
@@ -22,14 +23,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const fraunces = Fraunces({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -50,9 +54,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 		},
 		description: storeDescription,
 		applicationName: storeName,
-		alternates: {
-			canonical: "/",
-		},
+		alternates: { canonical: "/" },
 		openGraph: {
 			type: "website",
 			siteName: storeName,
@@ -99,11 +101,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { cart: null, cartId: null };
-	}
-
+	if (!cartCookie?.id) return { cart: null, cartId: null };
 	try {
 		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { cart: cart ?? null, cartId: cartCookie.id };
@@ -136,12 +134,17 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="flex items-center justify-between h-16">
+							<div className="flex items-center gap-10">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="yns-display text-xl font-medium tracking-tight text-foreground"
+								>
 									Your Next Store
 								</YnsLink>
 								<Navbar links={links} />
@@ -156,7 +159,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -182,17 +185,12 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	const env = process.env.VERCEL_ENV || "development";
 	const lang = await getHtmlLang();
-
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${fraunces.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

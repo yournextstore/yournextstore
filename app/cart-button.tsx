@@ -10,18 +10,17 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
+			className="relative inline-flex items-center gap-2 h-10 px-4 rounded-full bg-foreground text-background hover:opacity-90 transition-all text-sm font-medium"
 			aria-label="Shopping cart"
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			<ShoppingCart className="w-4 h-4" />
+			<span className="hidden sm:inline">Cart</span>
+			<span
+				aria-live="polite"
+				className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-yns-sun text-foreground text-[11px] font-semibold"
+			>
+				{itemCount}
+			</span>
 		</button>
 	);
 }
