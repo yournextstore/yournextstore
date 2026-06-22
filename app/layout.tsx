@@ -2,12 +2,14 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Inter_Tight } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
+import { MysteryDiscountTab } from "@/app/mystery-discount-tab";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { AuthButton } from "@/components/auth-button";
@@ -22,14 +24,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const interTight = Inter_Tight({
+	variable: "--font-inter-tight",
 	subsets: ["latin"],
+	weight: ["500", "600", "700", "800"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -136,29 +141,49 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border/70 bg-white/85 backdrop-blur-xl">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+						<div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center h-16">
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight text-foreground"
+							>
+								<span
+									aria-hidden
+									className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-foreground/80 bg-background"
+								>
+									<span className="block h-2.5 w-2.5 rounded-[2px] border border-foreground/80" />
+								</span>
+								<span className="hidden sm:inline">YOUR NEXT STORE</span>
+								<span className="sm:hidden">YNS</span>
+							</YnsLink>
+							<div className="hidden lg:flex items-center justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-1.5 sm:gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="ml-1 inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:bg-[color:var(--brick-cobalt-deep)] hover:shadow-lg hover:shadow-primary/30"
+								>
+									Shop
+								</YnsLink>
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
+				<MysteryDiscountTab />
 			</div>
 			<CartSidebar />
 		</CartProvider>
@@ -192,7 +217,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${interTight.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

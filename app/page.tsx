@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
 import { Newsletter } from "@/components/sections/newsletter";
+import { PressStrip } from "@/components/sections/press-strip";
 import { ProductGrid } from "@/components/sections/product-grid";
 
 function ProductGridSkeleton() {
@@ -32,10 +33,11 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
+			<PressStrip />
 			<About />
+			<Suspense fallback={<ProductGridSkeleton />}>
+				<ProductGrid title="Built for focused living" description="A small, intentional catalog." limit={6} />
+			</Suspense>
 			<Newsletter />
 		</>
 	);
