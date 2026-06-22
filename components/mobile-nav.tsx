@@ -1,0 +1,41 @@
+"use client";
+
+import { Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import type { NavLink } from "@/app/navbar";
+import { MobileSearchInput } from "@/components/search/mobile-search-input";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+
+export function MobileNav({ links }: { links: NavLink[] }) {
+	const [open, setOpen] = useState(false);
+
+	return (
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary md:hidden"
+			>
+				<Menu className="h-6 w-6" />
+			</SheetTrigger>
+			<SheetContent side="left" className="gap-0 overflow-y-auto p-6 bg-background">
+				<SheetTitle className="sr-only">Menu</SheetTitle>
+				<div className="mt-6">
+					<MobileSearchInput onNavigate={() => setOpen(false)} />
+				</div>
+				<nav className="mt-6 flex flex-col gap-4">
+					{links.map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							onClick={() => setOpen(false)}
+							className="font-display text-2xl text-foreground transition-colors hover:text-primary"
+						>
+							{link.label}
+						</Link>
+					))}
+				</nav>
+			</SheetContent>
+		</Sheet>
+	);
+}
