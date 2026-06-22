@@ -4,6 +4,8 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import { CURRENCY, LOCALE } from "@/lib/constants";
+import type { DemoProduct } from "@/lib/demo-products";
+import { previewHref } from "@/lib/demo-products";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -14,11 +16,19 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+type AnyProduct = BrowseProduct | CollectionProduct | DemoProduct | FullProduct;
+
+function isDemoProduct(p: AnyProduct): p is DemoProduct {
+	return "tag" in p;
+}
+
 export function ProductCard({
 	product,
+	preview = false,
 	priority = false,
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: AnyProduct;
+	preview?: boolean;
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
@@ -39,7 +49,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -53,11 +63,18 @@ export function ProductCard({
 	const secondaryImage = allImages[1];
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const isDemo = isDemoProduct(product);
+	const tag = isDemo ? product.tag : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
+		<YnsLink prefetch={"eager"} href={previewHref(`/product/${product.slug}`, preview)} className="group">
+			<div className="relative aspect-[4/5] overflow-hidden bg-[#efe7d7] mb-5 rounded-sm border border-border/40">
+				{tag && (
+					<span className="absolute top-3 left-3 z-10 inline-flex items-center bg-background/85 backdrop-blur-sm px-2.5 py-1 text-[10px] tracking-luxe uppercase text-foreground/80">
+						{tag}
+					</span>
+				)}
+				{singleVariant && !preview && (
 					<QuickAddButton
 						variantId={singleVariant.id}
 						variantPrice={singleVariant.price}
@@ -73,7 +90,7 @@ export function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -85,15 +102,15 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							className={`object-cover transition-all duration-700 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 						/>
 					))}
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -106,13 +123,13 @@ export function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="space-y-1.5 text-center">
+				<h3 className="font-serif text-lg text-foreground tracking-tight">{product.name}</h3>
+				<p className="text-sm text-muted-foreground tracking-luxe uppercase">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);

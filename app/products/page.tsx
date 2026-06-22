@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
+import { DEMO_PRODUCTS, isPreview } from "@/lib/demo-products";
 import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
@@ -25,6 +26,7 @@ type ProductFilterParams = {
 	priceMin?: string;
 	priceMax?: string;
 	vts?: string;
+	preview?: string;
 };
 
 async function getFilterFacets() {
@@ -36,24 +38,18 @@ async function getFilterFacets() {
 export async function generateMetadata({
 	searchParams,
 }: {
-	searchParams: Promise<{ page?: string }>;
+	searchParams: Promise<ProductFilterParams>;
 }): Promise<Metadata> {
-	const { page } = await searchParams;
-	const pageNum = Math.max(1, Number(page) || 1);
-	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
-
-	return {
-		title,
-		description: "Browse our complete product collection.",
-		alternates: { canonical },
-		openGraph: {
-			type: "website",
-			title,
-			description: "Browse our complete product collection.",
-			url: canonical,
-		},
+	const params = await searchParams;
+	const preview = await isPreview(params);
+	const base: Metadata = {
+		title: "All Products — Your Next Store",
+		description: "Browse our complete fragrance collection.",
 	};
+	if (preview) {
+		return { ...base, robots: { index: false, follow: false } };
+	}
+	return base;
 }
 
 async function ProductList({ filters }: { filters: ProductFilterParams }) {
@@ -63,6 +59,17 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
+	const preview = await isPreview(filters);
+
+	if (preview) {
+		return (
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+				{DEMO_PRODUCTS.map((product) => (
+					<ProductCard key={product.id} product={product} preview />
+				))}
+			</div>
+		);
+	}
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -90,9 +97,9 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
@@ -137,10 +144,11 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+			<div className="text-center mb-14">
+				<p className="text-[11px] tracking-luxe uppercase text-[#8b6b4a] mb-3">The Maison Collection</p>
+				<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground">All fragrances</h1>
+				<div className="mt-6 mx-auto h-px w-12 bg-[#c9a87c]" />
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>

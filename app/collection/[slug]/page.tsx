@@ -1,6 +1,5 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -14,13 +13,29 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
+import { isPreview } from "@/lib/demo-products";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-	"use cache";
-	cacheLife("minutes");
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export async function generateMetadata({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ slug: string }>;
+	searchParams: SearchParams;
+}): Promise<Metadata> {
 	const { slug } = await params;
+	const preview = await isPreview(await searchParams);
+
+	if (preview) {
+		return {
+			title: `${slug} — Your Next Store`,
+			robots: { index: false, follow: false },
+		};
+	}
+
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
@@ -55,51 +70,67 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-cream-grain border-b border-[#e8dcc8]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
+				<div className="py-20 sm:py-24">
+					<div className="max-w-2xl mx-auto text-center">
+						<p className="text-[11px] tracking-luxe uppercase text-[#8b6b4a] mb-4">Collection</p>
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground">{collection.name}</h1>
 						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
+							<p className="mt-5 text-base text-muted-foreground leading-relaxed">
 								{typeof collection.description === "string"
 									? collection.description
 									: "Explore our curated collection"}
 							</p>
 						)}
+						<div className="mt-6 mx-auto h-px w-12 bg-[#c9a87c]" />
 					</div>
 				</div>
 			</div>
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block opacity-30">
 					<YNSMedia
 						src={collection.image}
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
 				</div>
 			)}
 		</section>
 	);
 }
 
+function PreviewCollectionHeader({ slug }: { slug: string }) {
+	return (
+		<section className="relative overflow-hidden bg-cream-grain border-b border-[#e8dcc8]">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="py-20 sm:py-24">
+					<div className="max-w-2xl mx-auto text-center">
+						<p className="text-[11px] tracking-luxe uppercase text-[#8b6b4a] mb-4">Collection</p>
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground capitalize">
+							{slug.replace(/-/g, " ")}
+						</h1>
+						<p className="mt-5 text-base text-muted-foreground leading-relaxed">
+							A small, hand-poured selection from the current Édition Hiver.
+						</p>
+						<div className="mt-6 mx-auto h-px w-12 bg-[#c9a87c]" />
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+}
+
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
+						<div className="aspect-[4/5] bg-secondary rounded-sm mb-5 animate-pulse" />
 					</div>
 				))}
 			</div>
@@ -115,19 +146,30 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			title={`${collection.name}`}
+			eyebrow={`${products.length} pieces`}
 			products={products}
 			showViewAll={false}
 		/>
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
-	"use cache";
-	cacheLife("minutes");
-
+export default async function CollectionPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: SearchParams;
+}) {
 	const { slug } = await props.params;
+	const preview = await isPreview(await props.searchParams);
+
+	if (preview) {
+		return (
+			<main>
+				<PreviewCollectionHeader slug={slug} />
+				<ProductGrid title="The collection" eyebrow="Curated for you" preview showViewAll={false} limit={6} />
+			</main>
+		);
+	}
+
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {

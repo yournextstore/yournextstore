@@ -1,10 +1,29 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { isPreviewHost } from "@/lib/demo-products";
+
+async function isPreviewRequest(): Promise<boolean> {
+	const headerList = await headers();
+	const host = headerList.get("host");
+	if (!isPreviewHost(host)) return false;
+	// Only treat as preview if the originating page also signaled it via referer ?preview=1
+	const referer = headerList.get("referer");
+	if (!referer) return false;
+	try {
+		const url = new URL(referer);
+		return url.searchParams.get("preview") === "1";
+	} catch {
+		return false;
+	}
+}
 
 export async function getCart() {
+	if (await isPreviewRequest()) return null;
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {
@@ -19,6 +38,10 @@ export async function getCart() {
 }
 
 export async function addToCart(variantId: string, quantity = 1) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	const cart = await commerce.cartUpsert({
@@ -36,10 +59,16 @@ export async function addToCart(variantId: string, quantity = 1) {
 	}
 	revalidatePath("/", "layout");
 
-	return { success: true, cart };
+	const fullCart = await commerce.cartGet({ cartId: cart.id });
+
+	return { success: true, cart: fullCart };
 }
 
 export async function removeFromCart(variantId: string) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {
@@ -59,8 +88,11 @@ export async function removeFromCart(variantId: string) {
 	}
 }
 
-// Set absolute quantity for a cart item
 export async function setCartQuantity(variantId: string, quantity: number) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {
