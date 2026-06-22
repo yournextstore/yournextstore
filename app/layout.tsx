@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Anton, Caveat, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,24 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const anton = Anton({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["400"],
+	display: "swap",
+});
+
+const caveat = Caveat({
+	variable: "--font-script",
+	subsets: ["latin"],
+	weight: ["500", "700"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,16 +147,46 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+				<div className="bg-[color:var(--yns-ink)] text-white">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-2 flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.16em] uppercase">
+						<span className="text-[color:var(--yns-pink)]">✦</span>
+						<span>Free shipping over $60 — Good hair days, delivered</span>
+						<span className="text-[color:var(--yns-pink)]">✦</span>
+					</div>
+				</div>
+				<header className="sticky top-0 z-50 border-b border-[color:var(--yns-ink)]/10 bg-[color:var(--yns-cream)]/95 backdrop-blur-md">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="flex items-center justify-between h-20">
+							<div className="flex items-center gap-10">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-script text-4xl leading-none text-[color:var(--yns-red)] -rotate-3 hover:rotate-0 transition-transform"
+								>
 									Your Next Store
 								</YnsLink>
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-1">
+								<a
+									href="#"
+									className="p-2.5 hover:bg-[color:var(--yns-ink)]/5 rounded-full transition-colors text-[color:var(--yns-ink)]"
+									aria-label="Account"
+								>
+									<svg
+										className="w-5 h-5"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth={1.5}
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0"
+										/>
+									</svg>
+								</a>
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +196,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +232,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${anton.variable} ${caveat.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
