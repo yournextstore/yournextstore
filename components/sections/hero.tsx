@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export function Hero() {
@@ -20,7 +20,7 @@ export function Hero() {
 								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
 							>
 								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
+								<ArrowRight className="h-4 w-4" />
 							</Link>
 							<Link
 								href="#about"
