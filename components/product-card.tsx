@@ -16,6 +16,14 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const accentRing = ["var(--yns-cyan)", "var(--yns-mint)", "var(--yns-honey)", "var(--yns-peach)"];
+
+function accentFromId(id: string) {
+	let hash = 0;
+	for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+	return accentRing[hash % accentRing.length];
+}
+
 export async function ProductCard({
 	product,
 	priority = false,
@@ -47,6 +55,7 @@ export async function ProductCard({
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
 	const singleVariant =
 		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const accent = accentFromId(product.id);
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -62,8 +71,15 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square rounded-3xl overflow-hidden bg-zinc-900 ring-1 ring-white/10 group-hover:ring-white/30 transition-all">
+				<div
+					aria-hidden
+					className="pointer-events-none absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity"
+					style={{
+						background: `radial-gradient(120% 100% at 50% 0%, ${accent}55 0%, transparent 60%)`,
+					}}
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -95,8 +111,8 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+							className={`object-cover transition-all duration-500 group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -116,17 +132,28 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+				<span
+					className="absolute top-3 left-3 rounded-full bg-black/70 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white"
+					style={{ borderLeft: `3px solid ${accent}` }}
+				>
+					30g Protein
+				</span>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="mt-4 flex items-start justify-between gap-3">
+				<div>
+					<h2 className="font-display uppercase text-sm sm:text-base tracking-wide text-white">
+						{product.name}
+					</h2>
+					<p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/40">14 fl oz · 414mL</p>
+				</div>
+				<p className="font-display text-base sm:text-lg text-white shrink-0">
+					{priceDisplay}
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="ml-2 font-sans text-xs text-white/40 line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>

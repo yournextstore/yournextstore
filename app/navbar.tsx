@@ -11,7 +11,13 @@ export type NavLink = {
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+export function Navbar({ links = [], position }: { links?: NavLink[]; position?: "left" | "right" }) {
+	const displayLinks =
+		position === "left"
+			? links.slice(0, Math.ceil(links.length / 2))
+			: position === "right"
+				? links.slice(Math.ceil(links.length / 2))
+				: links;
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -29,7 +35,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 						<MobileSearchInput onNavigate={() => setOpen(false)} />
 					</div>
 					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
+						{displayLinks.map((link) => (
 							<Link
 								key={link.href}
 								href={link.href}
@@ -42,12 +48,12 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
+			<nav className="hidden md:flex items-center gap-6">
+				{displayLinks.map((link) => (
 					<Link
 						key={link.href}
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="font-display uppercase text-[13px] tracking-[0.12em] text-black hover:text-[var(--yns-cyan)] transition-colors"
 					>
 						{link.label}
 					</Link>
