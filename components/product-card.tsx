@@ -56,7 +56,7 @@ export function ProductCard({
 
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-[4/5] bg-secondary rounded-2xl overflow-hidden mb-4 ring-1 ring-leaf-200/50">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -110,9 +110,11 @@ export function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-2">
+				<h3 className="text-sm font-medium text-foreground line-clamp-2 group-hover:underline underline-offset-4">
+					{product.name}
+				</h3>
+				<p className="text-sm font-semibold text-foreground whitespace-nowrap">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
