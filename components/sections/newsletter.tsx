@@ -8,24 +8,35 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
+		<section id="find-us" className="relative overflow-hidden bg-[color:#0f2a3f] text-[color:#f6efe2]">
+			<div
+				aria-hidden="true"
+				className="absolute inset-0 opacity-50"
+				style={{
+					backgroundImage:
+						"radial-gradient(at 15% 50%, rgba(238,122,26,0.22), transparent 50%), radial-gradient(at 85% 80%, rgba(124,31,18,0.30), transparent 55%)",
+				}}
+			/>
+
+			<div className="relative mx-auto max-w-[1280px] px-4 py-20 sm:px-6 lg:px-10 lg:py-24">
+				<div className="mx-auto max-w-2xl text-center">
 					{state?.success ? (
 						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+							<div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[color:#ee7a1a]">
+								<CheckIcon className="h-7 w-7 text-[color:#fff8ec]" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+							<h2 className="font-display text-3xl tracking-tight sm:text-4xl">A toast to you.</h2>
+							<p className="mt-3 text-[color:#c9b79b]">{state.message}</p>
 						</div>
 					) : (
 						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
+							<p className="divider-ornament text-[color:#c9b79b]">Letters from the Cellar</p>
+							<h2 className="mt-5 font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl lg:text-[56px]">
+								Recipes, harvests, and the occasional{" "}
+								<span className="italic text-[color:#ee7a1a]">scandal</span>.
 							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
+							<p className="mt-5 text-base leading-relaxed text-[color:#c9b79b] sm:text-lg">
+								One letter a month. Never sold, never spammed. Pour yourself a glass.
 							</p>
 							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
 								<input
@@ -33,18 +44,18 @@ export function Newsletter() {
 									name="email"
 									placeholder="your@email.com"
 									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
+									className="h-12 w-full flex-1 rounded-full border border-white/20 bg-white/5 px-5 text-[color:#f6efe2] outline-none transition-all placeholder:text-[color:#c9b79b]/60 focus:border-[color:#ee7a1a] focus:ring-2 focus:ring-[color:#ee7a1a]/30"
 								/>
 								<button
 									type="submit"
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
+									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[color:#ee7a1a] px-8 font-semibold text-[color:#fff8ec] transition-all hover:-translate-y-0.5 hover:bg-[color:#d96a10] disabled:opacity-50"
 								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
+									{isPending ? "Subscribing…" : "Subscribe"}
 									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
 								</button>
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
+							{state?.error && <p className="mt-4 text-sm text-[color:#f4d03a]">{state.error}</p>}
 						</>
 					)}
 				</div>
