@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { Search, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+// The variable names match the @theme block in globals.css (--font-inter, --font-playfair).
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const playfair = Playfair_Display({
+	variable: "--font-playfair",
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -124,6 +133,29 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	const items = [
+		"Free shipping on all orders over $75",
+		"New spring collection available now",
+		"Exclusive member discounts — join today",
+		"Sustainably crafted, delivered to your door",
+	];
+	const loop = [...items, ...items];
+
+	return (
+		<div className="bg-foreground text-background overflow-hidden text-[11px] tracking-[0.18em] uppercase">
+			<div className="flex animate-ticker whitespace-nowrap py-2.5 gap-12">
+				{loop.map((text, i) => (
+					<span key={`${text}-${i}`} className="flex items-center gap-12 shrink-0">
+						<span className="opacity-60">✦</span>
+						<span>{text}</span>
+					</span>
+				))}
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
@@ -132,21 +164,30 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl">
+						<div className="border-b border-border/70">
+							<div className="mx-auto grid h-16 max-w-[1440px] grid-cols-3 items-center px-6 lg:px-12">
+								<div className="hidden sm:block">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="col-span-3 flex items-center justify-center sm:col-span-1">
+									<Link
+										href="/"
+										className="font-display text-2xl font-medium tracking-[0.28em] uppercase text-foreground"
+									>
+										Your Next Store
+									</Link>
+								</div>
+								<div className="hidden items-center justify-end gap-1 sm:flex">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -155,22 +196,36 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
 									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
+										href={accountHref}
+										className="hidden md:inline-flex h-9 items-center rounded-full px-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
 									>
-										<UserRound className="w-5 h-5" />
+										Account
 									</a>
 									<CartButton />
 								</div>
 							</div>
 						</div>
+						<div className="border-b border-border/70 sm:hidden">
+							<div className="mx-auto flex max-w-[1440px] items-center justify-between gap-2 px-4 py-2">
+								<Link
+									href="/search"
+									className="rounded-full p-2 hover:bg-lilac-soft transition-colors"
+									aria-label="Search"
+								>
+									<Search className="h-5 w-5" strokeWidth={1.5} />
+								</Link>
+								<a
+									href={accountHref}
+									className="p-2 hover:bg-secondary transition-colors"
+									aria-label="Account"
+								>
+									<UserRound className="w-5 h-5" />
+								</a>
+								<CartButton />
+							</div>
+						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<div className="flex-1">{children}</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +266,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${playfair.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

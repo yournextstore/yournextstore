@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { ChevronRight, Gift, Heart, Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
@@ -12,14 +12,6 @@ import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { blurPreview } from "@/lib/blur-placeholder";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
@@ -142,58 +134,59 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 		...variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
+	const words = product.name.split(" ");
+	const brandLabel = (words.length > 1 ? (words[0] ?? "") : "YNS Atelier").toUpperCase();
+
 	const [productJsonLd, preview] = await Promise.all([
 		buildProductJsonLd(product, reviews, brand?.name ?? null),
 		blurPreview(allImages[0]),
 	]);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="mx-auto max-w-[1440px] px-6 py-8 lg:px-12">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+
+			<nav className="mb-6 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+				<Link href="/" className="hover:text-foreground transition-colors">
+					Home
+				</Link>
+				<ChevronRight className="h-3 w-3" strokeWidth={1.5} />
+				<Link href="/products" className="hover:text-foreground transition-colors">
+					Clothing
+				</Link>
+				{product.category && (
+					<>
+						<ChevronRight className="h-3 w-3" strokeWidth={1.5} />
+						<Link
+							href={`/collection/${product.category.slug}`}
+							className="hover:text-foreground transition-colors"
+						>
+							{product.category.name}
+						</Link>
+					</>
+				)}
+				<ChevronRight className="h-3 w-3" strokeWidth={1.5} />
+				<span className="text-foreground line-clamp-1">{product.name}</span>
+			</nav>
+
+			<div className="lg:grid lg:grid-cols-[1.2fr_1fr] lg:gap-16">
 				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
+				<div className="mt-8 space-y-6 lg:mt-0 lg:sticky lg:top-32 lg:self-start">
 					<div className="space-y-3">
-						{brand && (
+						{brand ? (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center text-[11px] uppercase tracking-[0.28em] text-lilac-deep transition-colors hover:text-foreground"
 							>
 								{brand.name}
 							</Link>
+						) : (
+							<p className="text-[11px] uppercase tracking-[0.28em] text-lilac-deep">{brandLabel}</p>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-display text-3xl font-medium leading-tight tracking-[-0.01em] text-foreground lg:text-4xl">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -208,7 +201,20 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								</span>
 							</a>
 						)}
+						<button
+							type="button"
+							className="ml-auto inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground transition-colors"
+						>
+							<Heart className="h-4 w-4" strokeWidth={1.5} />
+							Save
+						</button>
 					</div>
+
+					{product.summary && (
+						<p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+							{product.summary}
+						</p>
+					)}
 
 					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
 					    Renders only for bundle products, so it stays dormant for regular stores. */}
@@ -240,6 +246,19 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 							plans={plans}
 						/>
 					)}
+
+					<div className="flex items-start gap-3 border-y border-border bg-lilac-soft/50 p-4">
+						<div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+							<Gift className="h-4 w-4" strokeWidth={1.5} />
+						</div>
+						<div>
+							<p className="text-[11px] uppercase tracking-[0.22em] text-foreground">Welcome reward</p>
+							<p className="mt-1 text-sm text-muted-foreground">
+								Sign up to YNS members and enjoy <span className="text-foreground">15% off</span> your first
+								order.
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -256,7 +275,6 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}
 
-			{/* Features Section (full width below) */}
 			<ProductFeatures />
 
 			{/* Related Products */}

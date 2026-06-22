@@ -27,11 +27,12 @@ async function RelatedProductsContent({ productId }: { productId: string }) {
 
 	return (
 		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
+			eyebrow="You might also love"
+			title="More from the edit"
 			products={related}
 			showViewAll={false}
 			eagerFirstImage={false}
+			asymmetric={false}
 		/>
 	);
 }

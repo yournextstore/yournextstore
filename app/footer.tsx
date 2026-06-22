@@ -43,7 +43,7 @@ async function FooterCollections() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await commerce.collectionBrowse({ active: true, limit: 5 });
+	const collections = await commerce.collectionBrowse({ active: true, limit: 6 });
 
 	if (collections.data.length === 0) {
 		return null;
@@ -51,8 +51,8 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
@@ -80,8 +80,8 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
@@ -111,25 +111,30 @@ export async function Footer() {
 
 	return (
 		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+			<div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+				<div className="grid grid-cols-2 gap-10 py-16 sm:grid-cols-3 lg:grid-cols-5 lg:gap-12 lg:py-20">
+					<div className="col-span-2 lg:col-span-2 lg:max-w-xs">
+						<Link href="/" className="font-display text-xl tracking-[0.28em] uppercase text-foreground">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+							A destination for considered designer fashion — curated by the YNS atelier, shipped from
+							Antwerp.
 						</p>
+						<div className="mt-6 flex items-center gap-3 text-muted-foreground">
+							{["Instagram", "Pinterest", "TikTok", "YouTube"].map((label) => (
+								<span key={label} className="text-[11px] uppercase tracking-[0.22em]">
+									{label[0]}
+								</span>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">Support</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<Link
 									href="/about"
@@ -144,21 +149,31 @@ export async function Footer() {
 									href="/faq"
 									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
-									FAQ
+									Frequently Asked
 								</Link>
+							</li>
+							<li>
+								<span className="text-sm text-muted-foreground">Shipping & Returns</span>
+							</li>
+							<li>
+								<span className="text-sm text-muted-foreground">Size Guide</span>
+							</li>
+							<li>
+								<span className="text-sm text-muted-foreground">Personal Styling</span>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="flex flex-col gap-3 border-t border-border py-6 text-[11px] uppercase tracking-[0.18em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+					<p>&copy; {year} Your Next Store. Curated in Antwerp. All rights reserved.</p>
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+						<p>Worldwide express shipping · EUR · USD · GBP</p>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>
