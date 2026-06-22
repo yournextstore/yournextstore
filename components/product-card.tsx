@@ -16,9 +16,11 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 
 export function ProductCard({
 	product,
+	index,
 	priority = false,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
+	index?: number;
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
@@ -39,7 +41,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -53,10 +55,16 @@ export function ProductCard({
 	const secondaryImage = allImages[1];
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const numberLabel = typeof index === "number" ? String(index + 1).padStart(2, "0") : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch="eager" href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-[4/5] bg-[color:var(--yns-cream-soft)] overflow-hidden rounded-sm mb-4">
+				{numberLabel && (
+					<span className="absolute left-3 top-3 z-10 yns-eyebrow text-foreground/60 mix-blend-multiply">
+						N° {numberLabel}
+					</span>
+				)}
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -73,7 +81,7 @@ export function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -85,8 +93,8 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={`object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
@@ -105,14 +113,16 @@ export function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-3">
+				<h3 className="text-[15px] font-medium text-foreground leading-snug group-hover:text-[color:var(--yns-terracotta)] transition-colors">
+					{product.name}
+				</h3>
+				<p className="text-[15px] font-medium text-foreground tabular-nums shrink-0">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
