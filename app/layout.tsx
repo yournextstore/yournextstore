@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bagel_Fat_One, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const display = Bagel_Fat_One({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const sans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +40,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Spreadable, dippable, infinitely enjoyable goods.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,22 +135,108 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-ink text-cream text-[13px] font-medium tracking-wide">
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-center">
+				<span>
+					New flavors just dropped — free shipping over <span className="text-mustard">$45</span>
+				</span>
+				<button
+					type="button"
+					aria-label="Dismiss announcement"
+					className="absolute right-3 top-1/2 -translate-y-1/2 text-cream/70 hover:text-cream transition-colors"
+				>
+					<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+						<path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+					</svg>
+				</button>
+			</div>
+		</div>
+	);
+}
+
+function InstagramIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+			<rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.6" />
+			<circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6" />
+			<circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
+		</svg>
+	);
+}
+
+function TiktokIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+			<path d="M16.5 3h-2.7v12.1a2.8 2.8 0 1 1-2.8-2.8h.6V9.6h-.6a5.6 5.6 0 1 0 5.6 5.6V8.3c1 .8 2.3 1.3 3.6 1.3V6.9c-1.9 0-3.7-1.6-3.7-3.9Z" />
+		</svg>
+	);
+}
+
+function LinkIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+			<path
+				d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 1 0-5-5l-1 1M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 1 0 5 5l1-1"
+				stroke="currentColor"
+				strokeWidth="1.6"
+				strokeLinecap="round"
+			/>
+		</svg>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-cream">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-ink/10">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+						<div className="grid grid-cols-[auto_1fr_auto] items-center h-20 gap-4">
+							<div className="flex items-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="yns-display text-3xl text-ink leading-none tracking-tight"
+									aria-label="Your Next Store"
+								>
+									Y<span className="text-cherry">N</span>S
 								</YnsLink>
+							</div>
+							<div className="hidden sm:flex justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-1 sm:gap-2">
+								<a
+									href="https://instagram.com"
+									target="_blank"
+									rel="noreferrer noopener"
+									className="hidden md:inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
+									aria-label="Instagram"
+								>
+									<InstagramIcon />
+								</a>
+								<a
+									href="https://tiktok.com"
+									target="_blank"
+									rel="noreferrer noopener"
+									className="hidden md:inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
+									aria-label="TikTok"
+								>
+									<TiktokIcon />
+								</a>
+								<button
+									type="button"
+									className="hidden md:inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
+									aria-label="Share link"
+								>
+									<LinkIcon />
+								</button>
+								<div className="mx-1 hidden md:block h-6 w-px bg-ink/15" />
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +246,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +282,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${display.variable} ${sans.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

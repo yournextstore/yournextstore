@@ -40,83 +40,99 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-cream: var(--cream);
+	--color-ink: var(--ink);
+	--color-sky: var(--sky);
+	--color-cherry: var(--cherry);
+	--color-mustard: var(--mustard);
+	--color-navy: var(--navy);
+	--font-display: var(--font-display), "Bagel Fat One", system-ui, sans-serif;
+	--font-sans: var(--font-sans), "Inter", system-ui, sans-serif;
 }
 
 :root {
-	--radius: 0.625rem;
+	--radius: 1rem;
+
+	/* Playful artisan palette */
+	--cream: oklch(0.967 0.045 96);
+	--ink: oklch(0.155 0 0);
+	--sky: oklch(0.844 0.064 234);
+	--cherry: oklch(0.585 0.222 27);
+	--mustard: oklch(0.823 0.155 84);
+	--navy: oklch(0.355 0.07 257);
+
+	--background: var(--cream);
+	--foreground: var(--ink);
+
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
+	--card-foreground: var(--ink);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--popover-foreground: var(--ink);
+
+	--primary: var(--ink);
+	--primary-foreground: var(--cream);
+
+	--secondary: oklch(0.93 0.05 95);
+	--secondary-foreground: var(--ink);
+
+	--muted: oklch(0.93 0.04 95);
+	--muted-foreground: oklch(0.34 0.02 80);
+
+	--accent: var(--sky);
+	--accent-foreground: var(--ink);
+
+	--destructive: var(--cherry);
+	--border: oklch(0.155 0 0 / 12%);
+	--input: oklch(0.155 0 0 / 12%);
+	--ring: var(--ink);
+
+	--chart-1: var(--cherry);
+	--chart-2: var(--sky);
+	--chart-3: var(--mustard);
+	--chart-4: var(--navy);
+	--chart-5: var(--ink);
+
+	--sidebar: var(--cream);
+	--sidebar-foreground: var(--ink);
+	--sidebar-primary: var(--ink);
+	--sidebar-primary-foreground: var(--cream);
+	--sidebar-accent: oklch(0.93 0.05 95);
+	--sidebar-accent-foreground: var(--ink);
+	--sidebar-border: oklch(0.155 0 0 / 12%);
+	--sidebar-ring: var(--ink);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
+	--background: var(--ink);
+	--foreground: var(--cream);
+	--card: oklch(0.22 0 0);
+	--card-foreground: var(--cream);
+	--popover: oklch(0.22 0 0);
+	--popover-foreground: var(--cream);
+	--primary: var(--cream);
+	--primary-foreground: var(--ink);
+	--secondary: oklch(0.27 0 0);
+	--secondary-foreground: var(--cream);
+	--muted: oklch(0.27 0 0);
+	--muted-foreground: oklch(0.78 0.02 80);
+	--accent: var(--sky);
+	--accent-foreground: var(--ink);
+	--destructive: var(--cherry);
+	--border: oklch(1 0 0 / 12%);
 	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--ring: var(--cream);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		background-color: var(--cream);
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-feature-settings: "ss01", "cv11";
 	}
 }
 
@@ -132,11 +148,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		oklch(0.9 0.03 95) 0%,
+		oklch(0.94 0.04 95) 40%,
+		oklch(0.97 0.04 95) 50%,
+		oklch(0.94 0.04 95) 60%,
+		oklch(0.9 0.03 95) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -149,4 +165,44 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Marquee ribbon */
+@keyframes yns-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.yns-marquee {
+	animation: yns-marquee 38s linear infinite;
+}
+
+/* Chunky display type */
+.yns-display {
+	font-family: var(--font-display), "Bagel Fat One", system-ui, sans-serif;
+	font-weight: 400;
+	letter-spacing: -0.02em;
+	line-height: 0.82;
+	text-transform: uppercase;
+}
+
+/* Wobble for cloud */
+@keyframes yns-wobble {
+	0%, 100% { transform: translateY(0) rotate(-2deg); }
+	50% { transform: translateY(-8px) rotate(2deg); }
+}
+.yns-wobble {
+	animation: yns-wobble 7s ease-in-out infinite;
+}
+
+/* Spin for decorative orbits */
+@keyframes yns-spin-slow {
+	to { transform: rotate(360deg); }
+}
+.yns-spin-slow {
+	animation: yns-spin-slow 28s linear infinite;
 }
