@@ -54,9 +54,21 @@ export function ProductCard({
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
+	const tintClasses = [
+		"bg-[var(--color-sky)]/25",
+		"bg-[var(--color-sunshine)]/25",
+		"bg-[var(--color-coral)]/25",
+		"bg-[var(--color-mint)]/25",
+		"bg-[var(--color-yellow)]/40",
+	];
+	const tintIdx = product.id.split("").reduce((acc, ch) => (acc + ch.charCodeAt(0)) % tintClasses.length, 0);
+	const tint = tintClasses[tintIdx];
+
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div
+				className={`relative aspect-square ${tint} rounded-3xl overflow-hidden mb-4 transition-transform group-hover:-translate-y-1`}
+			>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -110,9 +122,11 @@ export function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-3 px-1">
+				<h3 className="text-base font-bold text-foreground leading-snug">{product.name}</h3>
+				<p className="shrink-0 rounded-full bg-secondary px-3 py-1 text-sm font-bold text-foreground">
+					{priceDisplay}
+				</p>
 			</div>
 		</YnsLink>
 	);

@@ -38,19 +38,24 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+			<div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<p className="text-xs font-extrabold uppercase tracking-[0.2em] text-muted-foreground mb-3">
+						Subscribe & save · 15% off
+					</p>
+					<h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
+						{title}
+					</h2>
+					<p className="mt-3 text-muted-foreground max-w-md">{description}</p>
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-background hover:bg-foreground/90 transition-colors"
 					>
-						View all
+						Shop all
 						<ArrowRight className="h-4 w-4" />
 					</YnsLink>
 				)}
@@ -67,9 +72,9 @@ export async function ProductGrid({
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-background hover:bg-foreground/90 transition-colors"
 					>
-						View all products
+						Shop all
 						<ArrowRight className="h-4 w-4" />
 					</YnsLink>
 				</div>

@@ -1,17 +1,42 @@
+import { PackageCheck, RefreshCcw, Sparkles } from "lucide-react";
+
+const perks = [
+	{
+		icon: Sparkles,
+		title: "Skip a month, cancel anytime",
+		body: "Your routine, your rules. Pause or cancel with two taps — no awkward emails.",
+		bg: "bg-[var(--color-sky)]/35",
+	},
+	{
+		icon: PackageCheck,
+		title: "Free carbon-neutral shipping",
+		body: "We offset every package and ship in compostable mailers from Salt Lake City.",
+		bg: "bg-[var(--color-yellow)]/55",
+	},
+	{
+		icon: RefreshCcw,
+		title: "Refill, save 20%",
+		body: "Send back your empty tubes — we'll refill and ship a fresh one at a discount.",
+		bg: "bg-[var(--color-coral)]/35",
+	},
+] as const;
+
 export function About() {
 	return (
-		<section id="about" className="bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-				<div className="max-w-2xl mx-auto text-center">
-					<h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">Our Story</h2>
-					<p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-						We believe in the power of thoughtful design. Every product in our collection is carefully
-						selected to bring quality, beauty, and functionality into your everyday life.
-					</p>
-					<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-						Our commitment to craftsmanship means we partner with makers who share our values — those who
-						prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-					</p>
+		<section id="about" className="bg-background">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+					{perks.map((p) => (
+						<div key={p.title} className={`rounded-3xl ${p.bg} p-6 sm:p-7`}>
+							<div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 text-[var(--color-navy)]">
+								<p.icon className="h-5 w-5" />
+							</div>
+							<h3 className="mt-5 font-display text-xl font-extrabold tracking-tight text-foreground">
+								{p.title}
+							</h3>
+							<p className="mt-2 text-sm text-foreground/75 leading-relaxed">{p.body}</p>
+						</div>
+					))}
 				</div>
 			</div>
 		</section>
