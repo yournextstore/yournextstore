@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Flame, Leaf, type LucideIcon, Sprout } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,46 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Clean by default",
+		description: "Never seed oils, fillers, or preservatives. If we wouldn't eat it, it doesn't go in.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Cold-blended",
+		description: "Lightly cooked to keep brightness, then bottled within twelve hours of mixing.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Shipped flat",
+		description: "Mailer-shaped bottles fit through a standard slot. No box waste, no doorstep theft.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Leaf, Flame, Sprout];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-[var(--brand-ink)]/10 pt-16">
+			<div className="mb-14 text-center">
+				<p className="font-mono-ed text-[10px] uppercase tracking-[0.32em] text-[var(--brand-ember)]">
+					Why this bottle
+				</p>
+				<h2 className="mt-4 font-display text-3xl font-medium tracking-tight text-[var(--brand-ink)] sm:text-4xl">
+					Crafted with intention.
+				</h2>
+			</div>
+			<div className="grid gap-12 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div key={feature.title} className="flex flex-col items-center text-center">
+							<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--brand-ember)]/30 text-[var(--brand-ember)]">
+								<Icon className="h-5 w-5" strokeWidth={1.5} />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-display text-lg font-medium tracking-tight text-[var(--brand-ink)]">
+								{feature.title}
+							</h3>
+							<p className="max-w-[20rem] font-mono-ed text-[11px] leading-relaxed text-[var(--brand-ink)]/65">
+								{feature.description}
+							</p>
 						</div>
 					);
 				})}
