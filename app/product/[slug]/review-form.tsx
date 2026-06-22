@@ -11,6 +11,7 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 		<div className="flex gap-1">
 			{Array.from({ length: 5 }, (_, i) => {
 				const starValue = i + 1;
+				const filled = starValue <= (hovered || value);
 				return (
 					<button
 						key={starValue}
@@ -19,10 +20,13 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						onMouseLeave={() => setHovered(0)}
 						onClick={() => onChange(starValue)}
 						className="transition-transform hover:scale-110"
+						aria-label={`Rate ${starValue} of 5`}
 					>
 						<Star
-							className={`h-6 w-6 ${
-								starValue <= (hovered || value) ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+							className={`h-7 w-7 ${
+								filled
+									? "fill-foreground text-foreground"
+									: "fill-[var(--color-surface-variant)] text-[var(--color-surface-variant)]"
 							}`}
 						/>
 					</button>
@@ -38,27 +42,36 @@ export function ReviewForm({ slug }: { slug: string }) {
 
 	if (state?.success) {
 		return (
-			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
-				<p className="font-medium">{state.message}</p>
+			<div className="neo-border bg-[var(--color-tertiary-container)] text-[var(--color-on-tertiary-container)] p-6 text-center">
+				<p className="font-serif text-xl">{state.message}</p>
 			</div>
 		);
 	}
 
+	const inputCls =
+		"w-full neo-border bg-[var(--color-surface-container-lowest)] px-3 py-2 text-sm focus:outline-none focus:neo-shadow-sm transition-shadow";
+
 	return (
-		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
-			<h3 className="text-lg font-medium">Write a Review</h3>
+		<form
+			action={action}
+			className="neo-border bg-[var(--color-surface-container-lowest)] p-6 space-y-5 md:sticky md:top-32"
+		>
+			<div>
+				<span className="label-caps">Write a Review</span>
+				<h3 className="font-serif text-2xl mt-1">Share your experience</h3>
+			</div>
 
 			<input type="hidden" name="slug" value={slug} />
 			<input type="hidden" name="rating" value={rating} />
 
 			<div>
-				<label className="mb-1.5 block text-sm font-medium">Rating</label>
+				<label className="label-caps mb-2 block">Rating</label>
 				<StarInput value={rating} onChange={setRating} />
 			</div>
 
-			<div className="grid gap-4 sm:grid-cols-2">
+			<div className="grid gap-3">
 				<div>
-					<label htmlFor="review-author" className="mb-1.5 block text-sm font-medium">
+					<label htmlFor="review-author" className="label-caps mb-2 block">
 						Name
 					</label>
 					<input
@@ -66,12 +79,12 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="author"
 						type="text"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className={inputCls}
 						placeholder="Your name"
 					/>
 				</div>
 				<div>
-					<label htmlFor="review-email" className="mb-1.5 block text-sm font-medium">
+					<label htmlFor="review-email" className="label-caps mb-2 block">
 						Email
 					</label>
 					<input
@@ -79,14 +92,14 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="email"
 						type="email"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-						placeholder="your@email.com"
+						className={inputCls}
+						placeholder="you@email.com"
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label htmlFor="review-content" className="mb-1.5 block text-sm font-medium">
+				<label htmlFor="review-content" className="label-caps mb-2 block">
 					Review
 				</label>
 				<textarea
@@ -94,19 +107,19 @@ export function ReviewForm({ slug }: { slug: string }) {
 					name="content"
 					required
 					rows={4}
-					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
-					placeholder="Share your experience with this product..."
+					className={`${inputCls} resize-none`}
+					placeholder="What did you think?"
 				/>
 			</div>
 
-			{state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+			{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
 
 			<button
 				type="submit"
 				disabled={isPending || rating === 0}
-				className="rounded-md bg-foreground px-6 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+				className="w-full label-caps neo-border bg-foreground text-background h-12 transition-all hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)] hover:neo-shadow active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:hover:bg-foreground disabled:hover:text-background disabled:hover:shadow-none"
 			>
-				{isPending ? "Submitting..." : "Submit Review"}
+				{isPending ? "Submitting…" : "Submit Review"}
 			</button>
 		</form>
 	);

@@ -27,12 +27,5 @@ async function RelatedProductsContent({
 
 	if (related.length === 0) return null;
 
-	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
-	);
+	return <ProductGrid title="You might also like" products={related} showViewAll={false} />;
 }

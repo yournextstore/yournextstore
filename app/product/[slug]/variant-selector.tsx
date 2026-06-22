@@ -48,7 +48,6 @@ function processVariants(variants: Variant[]) {
 		})),
 	);
 
-	// Track seen option IDs per label for O(1) deduplication
 	const seenOptionIds = new Map<string, Set<string>>();
 
 	const groupedByLabel = allCombinations.reduce(
@@ -82,22 +81,20 @@ function processVariants(variants: Variant[]) {
 	return Object.values(groupedByLabel);
 }
 
-export function VariantSelector({ variants, selectedVariantId }: VariantSelectorProps) {
+export function VariantSelector({ variants, selectedVariantId: _ }: VariantSelectorProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
-	// Build Maps for O(1) lookups
-	const { groupByLabel, optionsByValue, optionsById } = useMemo(() => {
-		const groupByLabel = new Map(variantGroups.map((g) => [g.label, g]));
+	const { optionsByValue, optionsById } = useMemo(() => {
 		const optionsByValue = new Map(
 			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.value, o]))]),
 		);
 		const optionsById = new Map(
 			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.id, o]))]),
 		);
-		return { groupByLabel, optionsByValue, optionsById };
+		return { optionsByValue, optionsById };
 	}, [variantGroups]);
 
 	const selectedOptions = useMemo(() => {
@@ -124,7 +121,6 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 		router.push(`${pathname}?${params.toString()}`, { scroll: false });
 	};
 
-	// Auto-redirect to first variant when no URL params exist (for multi-variant products)
 	useEffect(() => {
 		if (variants.length <= 1 || searchParams.size > 0) return;
 
@@ -136,15 +132,13 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 	}, [variants, searchParams.size, pathname]);
 
-	const groupsWithChoices = variantGroups.filter((group) => group.options.length > 1);
-
-	if (groupsWithChoices.length === 0) {
+	if (variantGroups.length === 0) {
 		return null;
 	}
 
 	return (
-		<div className="space-y-8">
-			{groupsWithChoices.map((group) => {
+		<div className="space-y-6">
+			{variantGroups.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
 					? optionsById.get(group.label)?.get(selectedOptionId)
@@ -152,72 +146,57 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 
 				return (
 					<fieldset key={group.label} className="border-0 p-0 m-0">
+						<div className="mb-3 flex items-center justify-between">
+							<legend className="label-caps">{group.label}</legend>
+							{selectedOption && (
+								<span className="text-sm text-[var(--color-on-surface-variant)]">{selectedOption.value}</span>
+							)}
+						</div>
 						{group.type === "color" ? (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
-									)}
-								</div>
-								<div className="flex gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-										const isLightColor =
-											option.colorValue?.toUpperCase() === "#FFFFFF" ||
-											option.colorValue?.toUpperCase() === "#FFFFF0" ||
-											option.colorValue?.toUpperCase() === "#FFF";
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
-													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
-												)}
-												style={{ backgroundColor: option.colorValue ?? "#fff" }}
-												aria-label={option.value}
-												title={option.value}
-											>
-												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
-												)}
-											</button>
-										);
-									})}
-								</div>
-							</>
+							<div className="flex flex-wrap gap-3">
+								{group.options.map((option) => {
+									const isSelected = selectedOptions[group.label] === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											className={cn(
+												"relative h-11 w-11 neo-border transition-all",
+												isSelected
+													? "neo-shadow translate-x-[-2px] translate-y-[-2px]"
+													: "hover:neo-shadow-sm",
+											)}
+											style={{ backgroundColor: option.colorValue ?? "#fff" }}
+											aria-label={option.value}
+											aria-pressed={isSelected}
+											title={option.value}
+										/>
+									);
+								})}
+							</div>
 						) : (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
-													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
-												)}
-											>
-												<span className="text-sm font-medium">{option.value}</span>
-											</button>
-										);
-									})}
-								</div>
-							</>
+							<div className="flex flex-wrap gap-2">
+								{group.options.map((option) => {
+									const isSelected = selectedOptions[group.label] === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											aria-pressed={isSelected}
+											className={cn(
+												"label-caps neo-border px-4 h-11 inline-flex items-center transition-colors",
+												isSelected
+													? "bg-foreground text-background"
+													: "bg-[var(--color-surface-container-lowest)] hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)]",
+											)}
+										>
+											{option.value}
+										</button>
+									);
+								})}
+							</div>
 						)}
 					</fieldset>
 				);

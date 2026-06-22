@@ -1,28 +1,13 @@
 import { Suspense } from "react";
 import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
 
-function ProductGridSkeleton() {
+function AboutSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
-					</div>
-				))}
+		<section className="bg-background border-t border-foreground py-10 md:py-14 px-5 md:px-10 lg:px-16">
+			<div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6">
+				<div className="lg:col-span-7 neo-border bg-[var(--color-surface-container-low)] h-[420px] animate-pulse" />
+				<div className="lg:col-span-5 neo-border bg-[var(--color-primary-container)] h-[420px] animate-pulse" />
 			</div>
 		</section>
 	);
@@ -30,13 +15,11 @@ function ProductGridSkeleton() {
 
 export default function Home() {
 	return (
-		<>
+		<main>
 			<Hero />
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+			<Suspense fallback={<AboutSkeleton />}>
+				<About />
 			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+		</main>
 	);
 }

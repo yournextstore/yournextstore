@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Work_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const workSans = Work_Sans({
+	variable: "--font-work-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const bodoniModa = Bodoni_Moda({
+	variable: "--font-bodoni-moda",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -50,9 +52,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 		},
 		description: storeDescription,
 		applicationName: storeName,
-		alternates: {
-			canonical: "/",
-		},
+		alternates: { canonical: "/" },
 		openGraph: {
 			type: "website",
 			siteName: storeName,
@@ -99,11 +99,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { cart: null, cartId: null };
-	}
-
+	if (!cartCookie?.id) return { cart: null, cartId: null };
 	try {
 		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { cart: cart ?? null, cartId: cartCookie.id };
@@ -131,32 +127,69 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[var(--color-secondary-container)] text-[var(--color-on-secondary-container)] label-caps border-b border-foreground">
+			<div className="max-w-[1280px] mx-auto px-5 md:px-20 py-2 flex justify-between items-center gap-4">
+				<div className="flex items-center gap-2">
+					<span className="hidden sm:inline">Customer service</span>
+					<span className="sm:hidden">Help</span>
+				</div>
+				<div className="text-center hidden md:block">Free US shipping on orders over $40</div>
+				<div className="flex items-center gap-2">
+					<span>$ USD</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
+	const [{ cart, cartId }, links, me] = await Promise.all([getInitialCart(), getNavLinks(), meGetCached()]);
+	const storeName = (me.store.settings?.storeName || "Your Next Store").toLowerCase();
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
-							</div>
+				<header className="sticky top-0 z-50 bg-[var(--color-surface-container-lowest)] border-b border-foreground">
+					<AnnouncementBar />
+					{/* Desktop nav */}
+					<nav className="hidden md:flex max-w-[1280px] mx-auto px-20 py-4 items-center justify-between gap-8">
+						<div className="flex items-center gap-8">
+							<Navbar links={links} />
 						</div>
-					</div>
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="font-serif text-3xl lg:text-[40px] uppercase tracking-tight leading-none font-semibold"
+						>
+							{storeName}
+						</YnsLink>
+						<div className="flex items-center gap-6">
+							<Suspense>
+								<SearchInput />
+							</Suspense>
+							{AUTH_ENABLED && <AuthButton />}
+							<CartButton />
+						</div>
+					</nav>
+					{/* Mobile nav */}
+					<nav className="flex md:hidden max-w-[1280px] mx-auto px-5 py-4 items-center justify-between">
+						<Suspense>
+							<SearchInput />
+						</Suspense>
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="font-serif text-2xl uppercase tracking-tight leading-none font-semibold"
+						>
+							{storeName}
+						</YnsLink>
+						{AUTH_ENABLED && <AuthButton />}
+						<CartButton />
+					</nav>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -182,17 +215,12 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	const env = process.env.VERCEL_ENV || "development";
 	const lang = await getHtmlLang();
-
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${workSans.variable} ${bodoniModa.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

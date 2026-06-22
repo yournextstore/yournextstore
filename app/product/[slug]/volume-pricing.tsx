@@ -53,39 +53,40 @@ export function VolumePricingDisplay({
 	if (tiers.length === 0) return null;
 
 	return (
-		<>
+		<div className="space-y-3">
 			{volumePrice && (
-				<p className="text-sm text-muted-foreground">
+				<p className="text-sm text-[var(--color-on-surface-variant)]">
 					{formatMoney({ amount: BigInt(volumePrice), currency: CURRENCY, locale: LOCALE })} per unit at qty{" "}
 					{quantity}
 				</p>
 			)}
-
 			<div>
-				<p className="text-sm font-medium mb-2">Buy more, save more</p>
-				<div className="overflow-hidden rounded-lg border border-border text-sm">
-					<table className="w-full">
+				<p className="label-caps mb-2">Buy more, save more</p>
+				<div className="neo-border bg-[var(--color-surface-container-lowest)] overflow-hidden">
+					<table className="w-full text-sm">
 						<thead>
-							<tr className="bg-muted/50 text-muted-foreground">
-								<th className="px-3 py-1.5 text-left font-medium">Quantity</th>
-								<th className="px-3 py-1.5 text-right font-medium">Price per unit</th>
+							<tr className="bg-[var(--color-surface-container)] border-b border-foreground">
+								<th className="px-3 py-2 text-left label-caps">Quantity</th>
+								<th className="px-3 py-2 text-right label-caps">Price / unit</th>
 							</tr>
 						</thead>
 						<tbody>
-							{tiers.map((tier, index) => {
+							{tiers.map((tier) => {
 								const isActive =
 									quantity >= tier.minQuantity && (tier.maxQuantity === null || quantity <= tier.maxQuantity);
 								return (
 									<tr
 										key={tier.id}
-										className={
-											isActive ? "bg-foreground/5 font-semibold" : index % 2 === 1 ? "bg-muted/20" : ""
-										}
+										className={`border-t border-foreground first:border-t-0 ${
+											isActive
+												? "bg-[var(--color-primary-container)] text-[var(--color-on-primary-container)] font-semibold"
+												: ""
+										}`}
 									>
-										<td className="px-3 py-1.5">
+										<td className="px-3 py-2">
 											{tier.maxQuantity ? `${tier.minQuantity}–${tier.maxQuantity}` : `${tier.minQuantity}+`}
 										</td>
-										<td className="px-3 py-1.5 text-right font-medium">
+										<td className="px-3 py-2 text-right font-semibold tabular-nums">
 											{formatMoney({ amount: BigInt(tier.price), currency: CURRENCY, locale: LOCALE })}
 										</td>
 									</tr>
@@ -95,6 +96,6 @@ export function VolumePricingDisplay({
 					</table>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }
