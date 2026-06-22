@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Droplets, Leaf, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,45 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Aloe Vera Infused",
+		description: "Hand-pressed aloe leaf for a cooling, soothing sip from the first crisp pour.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Prebiotic Fibers",
+		description: "Gut-friendly fibers that keep things glowing on the inside, where it counts.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "All-Natural",
+		description: "No artificial sweeteners, no syrupy fillers — just bright, botanical flavor.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Leaf, Sparkles, Droplets];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-[#0f0f10]/10 pt-16">
+			<div className="text-center mb-14">
+				<p className="text-[11px] tracking-[0.4em] uppercase text-[#e11226] font-semibold">
+					Why you&apos;ll love it
+				</p>
+				<h2 className="mt-3 font-serif text-4xl sm:text-5xl text-[#0f0f10] tracking-tight">
+					Brewed with <span className="italic text-[#e11226]">intention</span>.
+				</h2>
+			</div>
+			<div className="grid gap-12 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+							<div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#e11226]/30 bg-[#fbf6ec] transition-colors group-hover:bg-[#e11226]">
+								<Icon
+									className="h-7 w-7 text-[#e11226] transition-colors group-hover:text-[#fbf6ec]"
+									strokeWidth={1.5}
+								/>
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="font-serif text-2xl italic text-[#0f0f10]">{feature.title}</h3>
+							<p className="mt-3 max-w-xs text-sm text-[#0f0f10]/65 leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}
