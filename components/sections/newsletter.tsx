@@ -8,43 +8,57 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
+		<section id="contact" className="relative granite border-t border-white/5 overflow-hidden">
+			<div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#d9cde6]/10 blur-[180px]" />
+			<div className="relative max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 py-24 sm:py-32">
+				<div className="max-w-3xl">
+					<div className="text-[10px] tracking-[0.32em] uppercase text-lilac mb-6">— 05 / Stay Close</div>
 					{state?.success ? (
 						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+							<div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-lilac text-[#1a1a1e]">
+								<CheckIcon className="h-5 w-5" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+							<h2 className="font-display font-light text-bone text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-[-0.02em]">
+								You&apos;re on the <span className="italic">list</span>.
+							</h2>
+							<p className="mt-6 text-foreground/65 text-lg max-w-md">{state.message}</p>
 						</div>
 					) : (
 						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
+							<h2 className="font-display font-light text-bone text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-[-0.02em]">
+								Field <span className="italic">notes</span>, training drops, early flavors.
 							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
+							<p className="mt-6 text-foreground/65 text-lg max-w-xl">
+								One email a month from the lab and the track. No filler, no resends, no algorithms.
 							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+							<form action={action} className="mt-12 max-w-xl">
+								<div className="flex items-center border-b border-white/25 focus-within:border-lilac transition-colors">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										aria-label="Email address"
+										className="flex-1 h-14 bg-transparent text-bone text-lg outline-none placeholder:text-foreground/35"
+									/>
+									<button
+										type="submit"
+										disabled={isPending}
+										aria-label="Subscribe"
+										className="inline-flex h-12 w-12 shrink-0 items-center justify-center text-bone hover:text-lilac transition-colors disabled:opacity-40"
+									>
+										{isPending ? (
+											<span className="text-xs tracking-[0.2em] uppercase">…</span>
+										) : (
+											<ArrowRightIcon className="h-5 w-5" />
+										)}
+									</button>
+								</div>
+								<p className="mt-4 text-xs text-foreground/45">
+									By subscribing you agree to receive marketing emails. Unsubscribe anytime.
+								</p>
+								{state?.error && <p className="mt-4 text-sm text-destructive/90">{state.error}</p>}
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
 						</>
 					)}
 				</div>
