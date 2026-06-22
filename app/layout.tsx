@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const display = Bebas_Neue({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["400"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const body = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -50,9 +53,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 		},
 		description: storeDescription,
 		applicationName: storeName,
-		alternates: {
-			canonical: "/",
-		},
+		alternates: { canonical: "/" },
 		openGraph: {
 			type: "website",
 			siteName: storeName,
@@ -99,11 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { cart: null, cartId: null };
-	}
-
+	if (!cartCookie?.id) return { cart: null, cartId: null };
 	try {
 		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { cart: cart ?? null, cartId: cartCookie.id };
@@ -136,27 +133,54 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				{/* Announcement bar */}
+				<div className="hidden md:block bg-luxe-frame text-luxe-cream overflow-hidden">
+					<div className="flex animate-luxe-marquee gap-12 py-2 text-xs tracking-[0.3em] uppercase whitespace-nowrap">
+						{Array.from({ length: 2 }).map((_, group) => (
+							<div key={`marquee-${group}`} className="flex shrink-0 gap-12">
+								<span>✦ Complimentary shipping over $200</span>
+								<span>✦ Discover the new Iridescence collection</span>
+								<span>✦ Sample with every order</span>
+								<span>✦ Crafted in Grasse, France</span>
+								<span>✦ Complimentary shipping over $200</span>
+								<span>✦ Discover the new Iridescence collection</span>
+							</div>
+						))}
+					</div>
+				</div>
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+						<div className="grid grid-cols-3 items-center h-16">
+							<div className="flex items-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display text-3xl tracking-[0.04em] text-foreground"
+								>
+									Y<span className="text-[color:var(--color-luxe-violet)]">N</span>S
 								</YnsLink>
+							</div>
+							<div className="flex items-center justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-1 sm:gap-3">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<YnsLink
+									href="/products"
+									className="hidden sm:inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3"
+								>
+									Login
+								</YnsLink>
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -182,17 +206,12 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	const env = process.env.VERCEL_ENV || "development";
 	const lang = await getHtmlLang();
-
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${display.variable} ${body.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
