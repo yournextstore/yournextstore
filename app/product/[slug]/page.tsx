@@ -188,12 +188,12 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-foreground lg:text-5xl text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
