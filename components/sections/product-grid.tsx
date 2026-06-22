@@ -22,17 +22,19 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	variant?: "default" | "pink-band";
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "YNS Must-Haves",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	variant = "pink-band",
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -40,41 +42,68 @@ export async function ProductGrid({
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	if (variant === "pink-band") {
+		return (
+			<section id="products" className="yns-pink-band">
+				{/* Pink header strip */}
+				<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-14 pb-10">
+					<div className="flex items-end justify-between gap-6 flex-wrap">
+						<h2 className="font-display text-[color:var(--yns-ink)] text-4xl sm:text-5xl lg:text-6xl tracking-tight uppercase">
+							{title}
+						</h2>
+						{showViewAll && (
+							<Link
+								href={viewAllHref}
+								className="inline-flex items-center gap-2 text-[12px] font-extrabold tracking-[0.18em] uppercase text-[color:var(--yns-ink)] hover:text-white transition-colors"
+							>
+								Shop All
+								<ArrowRight className="h-4 w-4" />
+							</Link>
+						)}
+					</div>
+				</div>
+
+				<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pb-20">
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+						{displayProducts.map((product, index) => (
+							<div
+								key={product.id}
+								className="bg-white p-4 sm:p-6 group hover:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.18)] transition-shadow"
+							>
+								<ProductCard product={product} priority={eagerFirstImage && index === 0} />
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+		);
+	}
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+		<section id="products" className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-16 sm:py-24">
 			<div className="flex items-end justify-between mb-12">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-tight">
+						{title}
+					</h2>
+					{description && <p className="mt-2 text-muted-foreground">{description}</p>}
 				</div>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-1 text-[12px] font-extrabold tracking-[0.18em] uppercase text-[color:var(--yns-red)] hover:text-[color:var(--yns-ink)] transition-colors"
 					>
-						View all
+						Shop All
 						<ArrowRight className="h-4 w-4" />
 					</Link>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
 				{displayProducts.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

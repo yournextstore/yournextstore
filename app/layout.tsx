@@ -1,9 +1,8 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Anton, Caveat, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +24,24 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const anton = Anton({
+	variable: "--font-display",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["400"],
+	display: "swap",
+});
+
+const caveat = Caveat({
+	variable: "--font-script",
+	subsets: ["latin"],
+	weight: ["500", "700"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -128,29 +135,35 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+					<div className="bg-[color:var(--yns-ink)] text-white">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-2 flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.16em] uppercase">
+							<span className="text-[color:var(--yns-pink)]">✦</span>
+							<span>Free shipping over $60 — Good hair days, delivered</span>
+							<span className="text-[color:var(--yns-pink)]">✦</span>
+						</div>
+					</div>
+					<header className="sticky top-0 z-50 border-b border-[color:var(--yns-ink)]/10 bg-[color:var(--yns-cream)]/95 backdrop-blur-md">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+							<div className="flex items-center justify-between h-20">
+								<div className="flex items-center gap-10">
+									<Link
+										href="/"
+										className="font-script text-4xl leading-none text-[color:var(--yns-red)] -rotate-3 hover:rotate-0 transition-transform"
+									>
 										Your Next Store
 									</Link>
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
+								<div className="flex items-center gap-1">
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,11 +173,28 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
+										className="p-2.5 hover:bg-[color:var(--yns-ink)]/5 rounded-full transition-colors text-[color:var(--yns-ink)]"
 									>
-										<UserRound className="w-5 h-5" />
+										<span className="sr-only">Account</span>
+										<svg
+											className="w-5 h-5"
+											aria-hidden="true"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth={1.5}
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0"
+											/>
+										</svg>
 									</a>
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+									<ThemeToggle />
 									<CartButton />
 								</div>
 							</div>
@@ -175,7 +205,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -211,7 +241,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${anton.variable} ${caveat.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
