@@ -51,13 +51,15 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-primary-foreground mb-5">
+				Collections
+			</h4>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +82,15 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-primary-foreground mb-5">
+				Quick links
+			</h4>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,16 +114,17 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="bg-foreground text-primary-foreground">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="py-14 sm:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
+					{/* Brand / Mission */}
+					<div>
+						<h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-primary-foreground mb-5">
+							Our mission
+						</h4>
+						<p className="text-sm text-primary-foreground/60 leading-relaxed">
+							To honor and challenge traditional perceptions of fashion, merging function with contemporary
+							style.
 						</p>
 					</div>
 
@@ -153,11 +158,28 @@ export async function Footer() {
 
 					{/* Legal */}
 					<FooterLegalPages />
+
+					{/* Follow */}
+					<div>
+						<h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-primary-foreground mb-5">
+							Follow us
+						</h4>
+						<div className="flex gap-4">
+							{["Twitter", "Facebook", "Pinterest"].map((social) => (
+								<span
+									key={social}
+									className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors cursor-pointer"
+								>
+									{social}
+								</span>
+							))}
+						</div>
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-primary-foreground/10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<p className="text-xs text-primary-foreground/40">Copyright &copy; {year} Your Next Store</p>
 					<PaymentMethods />
 				</div>
 			</div>

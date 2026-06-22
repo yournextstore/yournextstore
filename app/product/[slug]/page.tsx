@@ -148,7 +148,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 	]);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
@@ -177,12 +177,12 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 					</BreadcrumbItem>
 				</BreadcrumbList>
 			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-12">
 				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 lg:mt-0 space-y-6">
 					{/* Title & reviews summary */}
 					<div className="space-y-3">
 						{brand && (
@@ -193,7 +193,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-3xl font-medium tracking-tight text-foreground lg:text-4xl">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
