@@ -40,84 +40,113 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+
+	/* PlantChi-inspired theme tokens */
+	--color-cream: #fbe9d7;
+	--color-marigold: #f5a623;
+	--color-mint: #a8e0dc;
+	--color-lavender: #9f9cf5;
+	--color-ink: #1b2a2e;
+	--color-peach: #f5cba7;
+
+	--font-display: var(--font-fraunces), "Recoleta", Georgia, serif;
+	--font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 1rem;
+
+	/* Mapped to PlantChi palette */
+	--background: #fbe9d7;
+	--foreground: #1b2a2e;
+	--card: #ffffff;
+	--card-foreground: #1b2a2e;
+	--popover: #ffffff;
+	--popover-foreground: #1b2a2e;
+	--primary: #1b2a2e;
+	--primary-foreground: #fbe9d7;
+	--secondary: #f3dcc4;
+	--secondary-foreground: #1b2a2e;
+	--muted: #f3dcc4;
+	--muted-foreground: #5b6a6f;
+	--accent: #9f9cf5;
+	--accent-foreground: #1b2a2e;
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: #e8d2b6;
+	--input: #e8d2b6;
+	--ring: #f5a623;
+	--chart-1: #f5a623;
+	--chart-2: #a8e0dc;
+	--chart-3: #9f9cf5;
+	--chart-4: #1b2a2e;
+	--chart-5: #fbe9d7;
+	--sidebar: #fbe9d7;
+	--sidebar-foreground: #1b2a2e;
+	--sidebar-primary: #1b2a2e;
+	--sidebar-primary-foreground: #fbe9d7;
+	--sidebar-accent: #f3dcc4;
+	--sidebar-accent-foreground: #1b2a2e;
+	--sidebar-border: #e8d2b6;
+	--sidebar-ring: #f5a623;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--background: #1b2a2e;
+	--foreground: #fbe9d7;
+	--card: #233a3f;
+	--card-foreground: #fbe9d7;
+	--popover: #233a3f;
+	--popover-foreground: #fbe9d7;
+	--primary: #fbe9d7;
+	--primary-foreground: #1b2a2e;
+	--secondary: #233a3f;
+	--secondary-foreground: #fbe9d7;
+	--muted: #233a3f;
+	--muted-foreground: #c5b8a8;
+	--accent: #9f9cf5;
+	--accent-foreground: #1b2a2e;
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--ring: #f5a623;
+	--chart-1: #f5a623;
+	--chart-2: #a8e0dc;
+	--chart-3: #9f9cf5;
+	--chart-4: #fbe9d7;
+	--chart-5: #f5cba7;
+	--sidebar: #1b2a2e;
+	--sidebar-foreground: #fbe9d7;
+	--sidebar-primary: #f5a623;
+	--sidebar-primary-foreground: #1b2a2e;
+	--sidebar-accent: #233a3f;
+	--sidebar-accent-foreground: #fbe9d7;
 	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--sidebar-ring: #f5a623;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		font-family: var(--font-sans);
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-sans);
 	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5 {
+		font-family: var(--font-display);
+		letter-spacing: -0.01em;
+	}
+}
+
+.font-display {
+	font-family: var(--font-display);
 }
 
 .prose {
@@ -149,4 +178,79 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* PlantChi-inspired graph paper backdrop */
+.bg-grid-paper {
+	background-color: #ffffff;
+	background-image:
+		linear-gradient(to right, rgba(27, 42, 46, 0.07) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(27, 42, 46, 0.07) 1px, transparent 1px);
+	background-size: 32px 32px;
+}
+
+.bg-grid-paper-sm {
+	background-color: #ffffff;
+	background-image:
+		linear-gradient(to right, rgba(27, 42, 46, 0.08) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(27, 42, 46, 0.08) 1px, transparent 1px);
+	background-size: 20px 20px;
+}
+
+.bg-grid-paper-mint {
+	background-color: #a8e0dc;
+	background-image:
+		linear-gradient(to right, rgba(27, 42, 46, 0.09) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(27, 42, 46, 0.09) 1px, transparent 1px);
+	background-size: 22px 22px;
+}
+
+.bg-grid-paper-marigold {
+	background-color: #f5a623;
+	background-image:
+		linear-gradient(to right, rgba(27, 42, 46, 0.1) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(27, 42, 46, 0.1) 1px, transparent 1px);
+	background-size: 22px 22px;
+}
+
+.bg-grid-paper-peach {
+	background-color: #f5cba7;
+	background-image:
+		linear-gradient(to right, rgba(27, 42, 46, 0.09) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(27, 42, 46, 0.09) 1px, transparent 1px);
+	background-size: 22px 22px;
+}
+
+/* Continuous marquee animation */
+@keyframes plantchi-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.plantchi-marquee {
+	animation: plantchi-marquee 38s linear infinite;
+	will-change: transform;
+}
+
+/* Soft floating animation for hero leaves */
+@keyframes plantchi-float {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-10px) rotate(2deg);
+	}
+}
+
+.plantchi-float {
+	animation: plantchi-float 7s ease-in-out infinite;
+}
+
+.plantchi-float-slow {
+	animation: plantchi-float 11s ease-in-out infinite;
 }

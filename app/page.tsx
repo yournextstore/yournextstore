@@ -1,8 +1,13 @@
 import { Suspense } from "react";
 import { About } from "@/components/sections/about";
+import { CertificationsMarquee } from "@/components/sections/certifications-marquee";
 import { Hero } from "@/components/sections/hero";
+import { IngredientSpotlight } from "@/components/sections/ingredient-spotlight";
 import { Newsletter } from "@/components/sections/newsletter";
+import { PressBar } from "@/components/sections/press-bar";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { RecipeInspiration } from "@/components/sections/recipe-inspiration";
+import { Testimonials } from "@/components/sections/testimonials";
 
 function ProductGridSkeleton() {
 	return (
@@ -14,7 +19,7 @@ function ProductGridSkeleton() {
 				</div>
 			</div>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
+				{Array.from({ length: 3 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
 						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
 						<div className="space-y-2">
@@ -32,10 +37,15 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
+			<CertificationsMarquee />
 			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+				<ProductGrid title="Shop the seasoning shelf" limit={3} />
 			</Suspense>
 			<About />
+			<IngredientSpotlight />
+			<PressBar />
+			<Testimonials />
+			<RecipeInspiration />
 			<Newsletter />
 		</>
 	);
