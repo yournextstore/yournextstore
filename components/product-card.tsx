@@ -16,9 +16,11 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 
 export function ProductCard({
 	product,
+	tintClass,
 	priority = false,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
+	tintClass?: string;
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
@@ -52,11 +54,18 @@ export function ProductCard({
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const singleVariant = variants?.length === 1 ? variants[0] : null;
+	const tint = tintClass ?? "bg-brand-cream";
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div
+				className={`relative aspect-square ${tint} rounded-[28px] overflow-hidden mb-4 ring-1 ring-black/[0.04] shadow-[0_1px_0_rgba(31,31,31,0.04),0_18px_40px_-20px_rgba(31,31,31,0.25)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_1px_0_rgba(31,31,31,0.04),0_28px_56px_-22px_rgba(31,31,31,0.35)]`}
+			>
+				<div
+					aria-hidden
+					className="absolute inset-0 opacity-[0.18] bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.8),transparent_55%)]"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -86,7 +95,7 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-contain p-6 transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
@@ -106,13 +115,13 @@ export function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-contain p-6 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="px-1 space-y-1">
+				<h3 className="text-base font-medium text-brand-ink leading-snug">{product.name}</h3>
+				<p className="text-base font-semibold text-brand-ink">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
