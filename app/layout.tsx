@@ -2,8 +2,9 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -22,14 +23,15 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const sans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const display = Space_Grotesk({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,26 +139,41 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-[#e4daf5]/60 bg-[#f1ecf8]/90 backdrop-blur-md">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="grid grid-cols-3 items-center h-16">
 							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display text-[28px] font-bold tracking-tight text-[#14111c] leading-none"
+								>
+									Your Next Store<span className="text-[#5e3ca8]">.</span>
 								</YnsLink>
-								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="hidden sm:flex justify-center">
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
+							</div>
+							<div className="flex items-center justify-end gap-3 sm:gap-4">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
+								<div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-[#14111c]/70">
+									<span className="inline-flex h-4 w-6 items-center justify-center rounded-sm bg-gradient-to-b from-[#5e3ca8] to-[#3a2575] text-[8px] text-white">
+										UK
+									</span>
+									<span>United Kingdom | GBP £</span>
+								</div>
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +209,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${sans.variable} ${display.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

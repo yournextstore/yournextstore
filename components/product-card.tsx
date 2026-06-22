@@ -14,6 +14,21 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const TINTS = [
+	"linear-gradient(160deg, #f1ecf8 0%, #d8c9f0 100%)",
+	"linear-gradient(160deg, #e6f0ee 0%, #b9d8d8 100%)",
+	"linear-gradient(160deg, #fdf3e6 0%, #f2c14a55 100%)",
+	"linear-gradient(160deg, #fbeee2 0%, #e8b89c80 100%)",
+	"linear-gradient(160deg, #f1ecf8 0%, #b4a4dd66 100%)",
+	"linear-gradient(160deg, #efeae0 0%, #d8c9f0 100%)",
+];
+
+function hashIndex(id: string, len: number) {
+	let h = 0;
+	for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+	return Math.abs(h) % len;
+}
+
 export function ProductCard({
 	product,
 	priority = false,
@@ -39,7 +54,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -53,10 +68,11 @@ export function ProductCard({
 	const secondaryImage = allImages[1];
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const tint = TINTS[hashIndex(product.id, TINTS.length)];
 
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4" style={{ background: tint }}>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -85,9 +101,8 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={`object-cover transition-all duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 						/>
 					))}
 				{secondaryImage &&
@@ -105,14 +120,15 @@ export function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							priority={priority}
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-3">
+				<h3 className="text-[14.5px] font-medium text-[#14111c] leading-tight">{product.name}</h3>
+				<p className="shrink-0 text-[14.5px] font-semibold text-[#5e3ca8] tabular-nums">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
