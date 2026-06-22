@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-cream/85 hover:text-white transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-cream/85 hover:text-white transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-cream/70">Shelves</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-cream/85 hover:text-white transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +80,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-cream/70">The fine print</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-cream/85 hover:text-white transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,54 +110,79 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+		<footer className="bg-ink text-cream relative overflow-hidden">
+			<div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-coral-gradient" />
+			<div aria-hidden className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-honey/10 blur-3xl" />
+			<div aria-hidden className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-sage/10 blur-3xl" />
+
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="py-16 sm:py-20 grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-8">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div className="col-span-2 sm:max-w-sm">
+						<Link href="/" className="font-serif italic text-3xl tracking-tight text-cream">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-cream/75 leading-relaxed">
+							Slow goods, quietly considered. A small pantry of botanicals, beans, and preserves — hand-packed
+							in Brooklyn since 2019.
 						</p>
+						<div className="mt-6 flex items-center gap-2">
+							{["IG", "PIN", "TW", "@"].map((s) => (
+								<span
+									key={s}
+									role="img"
+									aria-label={`Follow us on ${s}`}
+									className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-cream/20 text-cream/85 text-xs font-semibold"
+								>
+									{s}
+								</span>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-cream/70">Hello</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<Link href="/about" className="text-sm text-cream/85 hover:text-white transition-colors">
 									About Us
 								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<Link href="/faq" className="text-sm text-cream/85 hover:text-white transition-colors">
 									FAQ
 								</Link>
+							</li>
+							<li>
+								<Link href="/products" className="text-sm text-cream/85 hover:text-white transition-colors">
+									Shop all
+								</Link>
+							</li>
+							<li>
+								<a
+									href="mailto:hello@yournextstore.com"
+									className="text-sm text-cream/85 hover:text-white transition-colors"
+								>
+									hello@yournextstore.com
+								</a>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-cream/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+					<div className="flex flex-col gap-1">
+						<p className="text-xs text-cream/60">&copy; {year} Your Next Store. Brewed slowly in Brooklyn.</p>
+						<p className="text-xs text-cream/60 font-serif italic">
+							"The box of forgotten joys" — a YNS original.
+						</p>
+					</div>
 					<PaymentMethods />
 				</div>
 			</div>
