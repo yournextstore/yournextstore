@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-display text-xl text-cream hover:text-gold transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-display text-xl text-cream hover:text-gold transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-condensed text-[11px] tracking-[0.32em] text-gold">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-display text-xl text-cream hover:text-gold transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-condensed text-[11px] tracking-[0.32em] text-gold">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-display text-xl text-cream hover:text-gold transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +108,55 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="relative bg-soot text-cream overflow-hidden">
+			<div aria-hidden className="absolute inset-0 bg-soot-gradient opacity-90" />
+			<div
+				aria-hidden
+				className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-ember/20 blur-3xl pointer-events-none"
+			/>
+
+			<div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12">
+				{/* Top giant wordmark */}
+				<div className="pt-16 pb-10 border-b border-cream/10">
+					<YnsLink
+						prefetch={"eager"}
+						href="/"
+						className="block font-condensed text-[14vw] sm:text-[12vw] lg:text-[10vw] leading-none tracking-[-0.01em] text-cream/95 hover:text-gold transition-colors"
+					>
+						YOUR NEXT STORE
+					</YnsLink>
+				</div>
+
+				<div className="py-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
+					<div className="col-span-2">
+						<h3 className="font-condensed text-[11px] tracking-[0.32em] text-gold">The Kitchen</h3>
+						<p className="mt-5 text-cream/75 leading-relaxed max-w-sm">
+							Hand-jarred pasta sauce with attitude. Slow-simmered with Sangiovese, scorched garlic, and the
+							loudest chilies we can legally ship.
 						</p>
+						<div className="mt-6 flex items-center gap-3">
+							{["Instagram", "TikTok", "YouTube"].map((s) => (
+								<a
+									key={s}
+									href="#"
+									className="inline-flex h-9 px-3 items-center justify-center border border-cream/25 font-condensed text-[10px] tracking-[0.28em] text-cream/85 hover:bg-cream hover:text-soot transition-colors"
+								>
+									{s}
+								</a>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="font-condensed text-[11px] tracking-[0.32em] text-gold">Help</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-display text-xl text-cream hover:text-gold transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +166,40 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-display text-xl text-cream hover:text-gold transition-colors"
 								>
 									FAQ
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<a
+									href="#contact"
+									className="font-display text-xl text-cream hover:text-gold transition-colors"
+								>
+									Contact
+								</a>
+							</li>
+							<li>
+								<a
+									href="#find-us"
+									className="font-display text-xl text-cream hover:text-gold transition-colors"
+								>
+									Find Us
+								</a>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-6 border-t border-cream/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+					<p className="font-condensed text-[10px] tracking-[0.28em] text-cream/55">
+						© {new Date().getFullYear()} Your Next Store · Made with garlic & spite.
+					</p>
+					<p className="font-condensed text-[10px] tracking-[0.28em] text-cream/55">
+						Brooklyn · Napoli · The Pot On The Stove
 					</p>
 				</div>
 			</div>
