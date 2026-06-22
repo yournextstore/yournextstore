@@ -1,28 +1,35 @@
 import { Suspense } from "react";
 import { About } from "@/components/sections/about";
+import { Chapters } from "@/components/sections/chapters";
 import { Hero } from "@/components/sections/hero";
+import { IngredientStory } from "@/components/sections/ingredient-story";
 import { Newsletter } from "@/components/sections/newsletter";
+import { PressMarquee } from "@/components/sections/press-marquee";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { ScentQuiz } from "@/components/sections/scent-quiz";
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
+		<section className="bg-ink py-20 sm:py-28">
+			<div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+				<div className="mb-14 flex flex-col gap-6 sm:mb-20 sm:flex-row sm:items-end sm:justify-between">
+					<div>
+						<div className="h-3 w-32 animate-pulse bg-secondary" />
+						<div className="mt-4 h-12 w-72 animate-pulse bg-secondary" />
+						<div className="mt-4 h-4 w-80 animate-pulse bg-secondary" />
 					</div>
-				))}
+				</div>
+				<div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+					{Array.from({ length: 6 }).map((_, i) => (
+						<div key={`skeleton-${i}`}>
+							<div className="aspect-[4/5] animate-pulse bg-secondary" />
+							<div className="mt-5 space-y-3">
+								<div className="h-6 w-3/4 animate-pulse bg-secondary" />
+								<div className="h-4 w-1/3 animate-pulse bg-secondary" />
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		</section>
 	);
@@ -30,13 +37,17 @@ function ProductGridSkeleton() {
 
 export default function Home() {
 	return (
-		<>
+		<main className="bg-ink">
 			<Hero />
+			<Chapters />
+			<IngredientStory />
 			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+				<ProductGrid limit={6} />
 			</Suspense>
+			<PressMarquee />
+			<ScentQuiz />
 			<About />
 			<Newsletter />
-		</>
+		</main>
 	);
 }

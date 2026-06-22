@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Flame, type LucideIcon, Mountain, Wind } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,48 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "The Opening",
+		description:
+			"First seven minutes — bergamot torn from its peel, pink pepper, the static of a held breath.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "The Heart",
+		description:
+			"Iris root macerated for nine months. Vanilla split lengthwise. A bruised fig oozes through the middle.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "The Drydown",
+		description:
+			"Cedar smoulders for hours. Amber rests on warm skin. The room remembers you long after you've left.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Wind, Flame, Mountain];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-foreground/10 pt-20">
+			<div className="mb-14 text-center">
+				<p className="text-[10px] tracking-microcaps text-foreground/55">The Composition</p>
+				<h2 className="mt-3 font-serif-display text-4xl leading-[1.05] sm:text-5xl">
+					Three acts,
+					<span className="italic text-peach"> one confession.</span>
+				</h2>
+			</div>
+			<div className="grid gap-10 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div key={feature.title} className="group flex flex-col">
+							<div className="mb-6 flex items-center gap-3">
+								<span className="font-serif-display text-2xl italic text-saffron/85">
+									{(index + 1).toString().padStart(2, "0")}
+								</span>
+								<span className="h-px flex-1 bg-foreground/15" />
+								<Icon className="h-4 w-4 text-foreground/60" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="font-serif-display text-2xl text-foreground">{feature.title}</h3>
+							<p className="mt-3 text-sm leading-relaxed text-foreground/65">{feature.description}</p>
 						</div>
 					);
 				})}

@@ -60,7 +60,7 @@ export function QuickAddButton({ variantId, variantPrice, variantImages, product
 					<button
 						type="button"
 						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+						className="flex h-8 w-8 cursor-pointer items-center justify-center border border-bone/15 bg-ink/70 text-bone backdrop-blur-md transition-all opacity-100 hover:border-saffron hover:text-saffron sm:opacity-0 sm:group-hover:opacity-100 active:scale-95"
 						aria-label={`Add ${product.name} to cart`}
 					>
 						<ShoppingBag className="h-3.5 w-3.5" />
