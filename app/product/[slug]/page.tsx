@@ -139,8 +139,8 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-4">
+						<h1 className="font-heading text-3xl lg:text-5xl font-light tracking-wide text-foreground text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -157,7 +157,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
+					{/* Variant Selector, Quantity, Add to Cart */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
