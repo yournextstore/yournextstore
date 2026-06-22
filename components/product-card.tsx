@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square bg-card rounded-sm overflow-hidden mb-5 ring-1 ring-border/60 shadow-sm">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -96,7 +96,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -121,14 +121,18 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="text-center space-y-2">
+				<h2 className="font-display text-xl text-espresso leading-tight">{product.name}</h2>
+				{priceDisplay && (
+					<p className="text-sm font-medium tracking-[0.18em] uppercase text-terracotta">
+						{priceDisplay}
+						{compareAtDisplay && (
+							<span className="ml-2 font-normal normal-case tracking-normal text-espresso/45 line-through">
+								{compareAtDisplay}
+							</span>
+						)}
+					</p>
+				)}
 			</div>
 		</IntentLink>
 	);

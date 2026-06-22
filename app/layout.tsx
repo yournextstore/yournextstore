@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Display, Geist_Mono, Inter, Pacifico } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,15 +25,30 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bodyFont = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const displayFont = DM_Serif_Display({
+	variable: "--font-display",
+	subsets: ["latin"],
+	weight: ["400"],
+	display: "swap",
+});
+
+const scriptFont = Pacifico({
+	variable: "--font-script",
+	subsets: ["latin"],
+	weight: ["400"],
+	display: "swap",
+});
+
+// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
+const monoFont = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
 	preload: false,
 });
 
@@ -137,16 +152,23 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+					<header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+							<div className="grid grid-cols-3 items-center h-16 sm:h-20">
+								{/* Left: nav */}
+								<div className="flex items-center gap-6 sm:gap-8">
+									<Suspense>
+										<Navbar links={links} />
+									</Suspense>
+								</div>
+								{/* Center: serif wordmark */}
+								<div className="flex justify-center">
+									<Link href="/" className="font-display text-2xl sm:text-3xl tracking-wide text-foreground">
 										Your Next Store
 									</Link>
-									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								{/* Right: search + theme + account + cart */}
+								<div className="flex items-center justify-end gap-1 sm:gap-2">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,10 +182,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 rounded-full hover:bg-secondary transition-colors"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="w-5 h-5 text-foreground" />
 									</a>
 									<CartButton />
 								</div>
@@ -211,7 +233,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} ${monoFont.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
