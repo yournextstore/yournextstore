@@ -11,6 +11,7 @@ export type NavLink = {
 	label: string;
 };
 
+// The theme's nav: small uppercase tracked links on desktop, the same links in a sheet below lg.
 export function Navbar({ links }: { links: NavLink[] }) {
 	const [open, setOpen] = useState(false);
 
@@ -42,12 +43,12 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="hidden items-center gap-6 lg:flex">
 				{links.map((link) => (
 					<Link
 						key={link.href}
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
 					>
 						{link.label}
 					</Link>

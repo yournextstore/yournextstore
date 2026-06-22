@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,29 +33,69 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+	/* Flawless theme: skincare brand accent colors */
+	--color-brand-sage: var(--brand-sage);
+	--color-brand-mint: var(--brand-mint);
+	--color-brand-lime: var(--brand-lime);
+	--color-brand-cream: var(--brand-cream);
+	--color-brand-dark: var(--brand-dark);
+	--color-brand-peach: var(--brand-peach);
+	--font-heading: var(--font-playfair);
 }
 
 :root {
-	--radius: 0.625rem;
+	--radius: 0.25rem;
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
+	--card-foreground: oklch(0.17 0 0);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--popover-foreground: oklch(0.17 0 0);
+	--primary: oklch(0.23 0.02 160);
+	--primary-foreground: oklch(0.99 0 0);
+	--secondary: oklch(0.965 0.005 155);
+	--secondary-foreground: oklch(0.23 0.02 160);
+	--muted: oklch(0.96 0.005 155);
+	--muted-foreground: oklch(0.50 0 0);
+	--accent: oklch(0.82 0.12 140);
+	--accent-foreground: oklch(0.17 0 0);
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: oklch(0.91 0.005 155);
+	--input: oklch(0.91 0.005 155);
+	--ring: oklch(0.65 0.08 160);
+	--chart-1: oklch(0.646 0.222 41.116);
+	--chart-2: oklch(0.6 0.118 184.704);
+	--chart-3: oklch(0.398 0.07 227.392);
+	--chart-4: oklch(0.828 0.189 84.429);
+	--chart-5: oklch(0.769 0.188 70.08);
+	--sidebar: oklch(0.985 0 0);
+	--sidebar-foreground: oklch(0.17 0 0);
+	--sidebar-primary: oklch(0.23 0.02 160);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.96 0.005 155);
+	--sidebar-accent-foreground: oklch(0.23 0.02 160);
+	--sidebar-border: oklch(0.91 0.005 155);
+	--sidebar-ring: oklch(0.65 0.08 160);
+	--background: oklch(0.995 0.002 155);
+	--foreground: oklch(0.17 0 0);
+	/* Brand colors matching Flawless: soft greens, mints, sages */
+	--brand-sage: oklch(0.72 0.08 155);
+	--brand-mint: oklch(0.88 0.06 165);
+	--brand-lime: oklch(0.88 0.14 128);
+	--brand-cream: oklch(0.97 0.01 90);
+	--brand-dark: oklch(0.22 0.02 160);
+	--brand-peach: oklch(0.90 0.06 60);
 }
 
 .dark {
@@ -65,18 +105,37 @@
 	--card-foreground: oklch(0.985 0 0);
 	--popover: oklch(0.205 0 0);
 	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
+	--primary: oklch(0.82 0.08 155);
+	--primary-foreground: oklch(0.17 0 0);
 	--secondary: oklch(0.269 0 0);
 	--secondary-foreground: oklch(0.985 0 0);
 	--muted: oklch(0.269 0 0);
 	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--accent: oklch(0.72 0.08 155);
+	--accent-foreground: oklch(0.34 0 0);
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
 	--ring: oklch(0.556 0 0);
+	--chart-1: oklch(0.488 0.243 264.376);
+	--chart-2: oklch(0.696 0.17 162.48);
+	--chart-3: oklch(0.769 0.188 70.08);
+	--chart-4: oklch(0.627 0.265 303.9);
+	--chart-5: oklch(0.645 0.246 16.439);
+	--sidebar: oklch(0.205 0 0);
+	--sidebar-foreground: oklch(0.985 0 0);
+	--sidebar-primary: oklch(0.488 0.243 264.376);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.269 0 0);
+	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-ring: oklch(0.556 0 0);
+	--brand-sage: oklch(0.60 0.06 155);
+	--brand-mint: oklch(0.50 0.04 165);
+	--brand-lime: oklch(0.65 0.10 128);
+	--brand-cream: oklch(0.35 0.01 90);
+	--brand-dark: oklch(0.90 0.01 160);
+	--brand-peach: oklch(0.55 0.04 60);
 }
 
 @layer base {
@@ -195,4 +254,34 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Marquee animation for scrolling text */
+@keyframes marquee {
+	0% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.animate-marquee {
+	animation: marquee 20s linear infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fade-in-up {
+	animation: fadeInUp 0.6s ease-out forwards;
 }
