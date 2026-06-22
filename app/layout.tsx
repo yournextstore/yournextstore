@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 
+import { Heart } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Inter_Tight } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +23,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const interTight = Inter_Tight({
+	variable: "--font-inter-tight",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -50,9 +53,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 		},
 		description: storeDescription,
 		applicationName: storeName,
-		alternates: {
-			canonical: "/",
-		},
+		alternates: { canonical: "/" },
 		openGraph: {
 			type: "website",
 			siteName: storeName,
@@ -99,11 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { cart: null, cartId: null };
-	}
-
+	if (!cartCookie?.id) return { cart: null, cartId: null };
 	try {
 		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { cart: cart ?? null, cartId: cartCookie.id };
@@ -131,34 +128,67 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function BrandMark() {
+	return (
+		<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2.5 group">
+			<span
+				className="diamond-mark transition-transform duration-300 group-hover:scale-110"
+				aria-hidden="true"
+			/>
+			<span className="font-display text-[15px] font-semibold tracking-tight text-foreground">
+				/yournextstore<span className="text-primary">.</span>
+			</span>
+		</YnsLink>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
-							</div>
+			<div className="relative flex min-h-screen flex-col">
+				<div className="site-ambient" aria-hidden="true" />
+				<div className="relative z-10 flex min-h-screen flex-col">
+					{/* Announcement bar */}
+					<div className="border-b border-border bg-[#0a090c]">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+							<p className="flex items-center justify-center h-9 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+								<span className="inline-block h-1.5 w-1.5 rounded-full bg-primary mr-2 animate-pulse" />
+								Free express shipping on builds over $1,499 — limited time
+							</p>
 						</div>
 					</div>
-				</header>
-				<main className="flex-1">{children}</main>
-				<Footer />
-				<ReferralBadge />
+					<header className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+							<div className="grid grid-cols-2 md:grid-cols-[1fr_auto_1fr] items-center h-16">
+								<div className="flex items-center">
+									<BrandMark />
+								</div>
+								<div className="hidden md:flex items-center justify-center">
+									<Navbar links={links} />
+								</div>
+								<div className="flex items-center justify-end gap-1">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+									<YnsLink
+										href="/products"
+										aria-label="Wishlist"
+										className="hidden sm:inline-flex p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+									>
+										<Heart className="w-5 h-5" />
+									</YnsLink>
+									{AUTH_ENABLED && <AuthButton />}
+									<CartButton />
+								</div>
+							</div>
+						</div>
+					</header>
+					<div className="flex-1">{children}</div>
+					<Footer />
+					<ReferralBadge />
+				</div>
 			</div>
 			<CartSidebar />
 		</CartProvider>
@@ -182,17 +212,12 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	const env = process.env.VERCEL_ENV || "development";
 	const lang = await getHtmlLang();
-
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${interTight.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

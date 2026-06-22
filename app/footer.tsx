@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
+			<h3 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Catalog</h3>
 			<ul className="mt-4 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/80 hover:text-primary transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<h3 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Legal</h3>
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/80 hover:text-primary transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,17 +108,35 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="relative border-t border-border bg-[#0a090c]">
+			<div
+				aria-hidden="true"
+				className="absolute inset-x-0 -top-px h-px"
+				style={{
+					background:
+						"linear-gradient(90deg, transparent, rgba(217,70,196,0.6), rgba(168,85,247,0.6), transparent)",
+				}}
+			/>
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="col-span-2 lg:col-span-2 max-w-xs">
+						<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2.5">
+							<span className="diamond-mark" aria-hidden="true" />
+							<span className="font-display text-base font-semibold text-foreground tracking-tight">
+								/yournextstore<span className="text-primary">.</span>
+							</span>
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+							Custom gaming PCs, curated components, and gear engineered for serious players. Hand-built in
+							California since 2019.
 						</p>
+						<div className="mt-6 flex items-center gap-2">
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+								<span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+								<span className="text-[11px] text-muted-foreground">All systems shipping</span>
+							</span>
+						</div>
 					</div>
 
 					{/* Collections */}
@@ -126,7 +144,7 @@ export function Footer() {
 
 					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<h3 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Support</h3>
 						<ul className="mt-4 space-y-3">
 							<li>
 								<YnsLink
@@ -142,9 +160,27 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground/80 hover:text-primary transition-colors"
 								>
 									FAQ
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-foreground/80 hover:text-primary transition-colors"
+								>
+									Track order
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-foreground/80 hover:text-primary transition-colors"
+								>
+									Warranty
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
@@ -156,9 +192,12 @@ export function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
+					<p className="text-xs text-muted-foreground">
+						© {new Date().getFullYear()} Your Next Store. Built for performance.
+					</p>
+					<p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+						Shipping worldwide · USD
 					</p>
 				</div>
 			</div>

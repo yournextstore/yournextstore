@@ -2,7 +2,7 @@
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { ShoppingBag } from "lucide-react";
-import { startTransition } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -21,6 +21,7 @@ type QuickAddButtonProps = {
 };
 
 export function QuickAddButton({ variantId, variantPrice, variantImages, product }: QuickAddButtonProps) {
+	const [isPending, startTransition] = useTransition();
 	const { openCart, dispatch } = useCart();
 
 	const handleClick = (e: React.MouseEvent) => {
@@ -60,10 +61,11 @@ export function QuickAddButton({ variantId, variantPrice, variantImages, product
 					<button
 						type="button"
 						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+						disabled={isPending}
+						className="absolute bottom-3 right-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-background/70 backdrop-blur-md transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:border-primary/40 hover:bg-background/90 hover:scale-110 active:scale-95 disabled:opacity-50"
 						aria-label={`Add ${product.name} to cart`}
 					>
-						<ShoppingBag className="h-3.5 w-3.5" />
+						<ShoppingBag className={`h-3.5 w-3.5 ${isPending ? "animate-pulse" : ""}`} />
 					</button>
 				</TooltipTrigger>
 				<TooltipContent side="top" className="text-xs">
