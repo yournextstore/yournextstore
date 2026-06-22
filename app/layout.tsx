@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,13 +22,14 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const fraunces = Fraunces({
+	variable: "--font-fraunces",
 	subsets: ["latin"],
+	axes: ["SOFT", "opsz"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
@@ -37,7 +38,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Wholesome, hand-crafted snacks from our family to yours.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,19 +133,59 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function YnsLogo() {
+	return (
+		<YnsLink
+			prefetch="eager"
+			href="/"
+			aria-label="Your Next Store"
+			className="group inline-flex items-center"
+		>
+			<span className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#8C1F2A] text-[#FAF2E6] shadow-[inset_0_0_0_2px_rgba(250,242,230,0.35)] transition-transform group-hover:rotate-[8deg]">
+				<svg viewBox="0 0 44 44" className="h-9 w-9" aria-hidden="true">
+					<title>YNS mark</title>
+					<circle cx="22" cy="22" r="20" fill="none" stroke="#FAF2E6" strokeWidth="1" opacity="0.5" />
+					<text
+						x="22"
+						y="27"
+						textAnchor="middle"
+						fontFamily="Fraunces, serif"
+						fontWeight="900"
+						fontSize="17"
+						fill="#FAF2E6"
+					>
+						YNS
+					</text>
+				</svg>
+			</span>
+		</YnsLink>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+			<div className="flex min-h-screen flex-col bg-[#FAF2E6]">
+				{/* Maroon announcement bar */}
+				<div className="bg-[#8C1F2A] text-[#FAF2E6]">
+					<div className="mx-auto flex h-9 max-w-7xl items-center justify-center px-4 text-[11px] font-semibold uppercase tracking-[0.22em] sm:text-xs">
+						<span aria-hidden="true" className="mr-3 hidden sm:inline">
+							✦
+						</span>
+						Free shipping on orders over $45 — wholesome snacks, baked with love
+						<span aria-hidden="true" className="ml-3 hidden sm:inline">
+							✦
+						</span>
+					</div>
+				</div>
+
+				<header className="sticky top-0 z-50 border-b border-[#E5D3B7] bg-[#FAF2E6]/95 backdrop-blur-md">
+					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+						<div className="flex h-16 items-center justify-between gap-6">
+							<div className="flex items-center gap-8">
+								<YnsLogo />
 								<Navbar links={links} />
 							</div>
 							<div className="flex items-center gap-2">
@@ -156,7 +198,8 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +235,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${fraunces.variable} ${inter.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

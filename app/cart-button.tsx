@@ -10,14 +10,14 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
+			className="relative rounded-full p-2 text-[#2A2A2A] transition-colors hover:bg-[#8C1F2A]/10 hover:text-[#8C1F2A]"
 			aria-label="Shopping cart"
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<ShoppingCart className="h-6 w-6" />
 			{itemCount > 0 ? (
 				<span
 					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
+					className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#8C1F2A] text-xs font-bold text-[#FAF2E6]"
 				>
 					{itemCount}
 				</span>

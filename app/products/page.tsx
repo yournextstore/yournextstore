@@ -90,7 +90,7 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -137,10 +137,15 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+				<span className="inline-flex items-center gap-2 rounded-full border border-[#8C1F2A]/20 bg-[#8C1F2A]/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8C1F2A]">
+					Pantry
+				</span>
+				<h1 className="mt-4 font-display text-4xl font-black uppercase tracking-tight text-[#2A2A2A] sm:text-5xl">
+					All Snacks
+				</h1>
+				<p className="mt-3 text-[#5a4a3a]">Browse the full kitchen — every batch made by hand.</p>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>

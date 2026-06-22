@@ -138,9 +138,12 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					{/* Title, Badge, Reviews */}
+					<div className="space-y-4">
+						<span className="inline-flex items-center gap-2 rounded-full border border-[#8C1F2A]/20 bg-[#8C1F2A]/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8C1F2A]">
+							From the kitchen
+						</span>
+						<h1 className="text-balance font-display text-4xl font-black uppercase tracking-tight text-[#2A2A2A] lg:text-5xl">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
