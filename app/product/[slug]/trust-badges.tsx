@@ -1,28 +1,28 @@
-import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
-
 type TrustBadge = {
-	icon: LucideIcon;
 	title: string;
 	description: string;
 };
 
 const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+	{ title: "Free Shipping", description: "Orders over $500" },
+	{ title: "10-Year Warranty", description: "Full coverage" },
+	{ title: "30-Day Returns", description: "Hassle-free" },
 ];
 
 export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
-			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
-			))}
+		<div className="pt-8 border-t border-zinc-200">
+			<div className="grid grid-cols-3 gap-6">
+				{badges.map((badge, index) => (
+					<div key={badge.title} className="text-center">
+						<p className="text-xs tracking-[0.2em] uppercase text-zinc-400 mb-1">
+							{String(index + 1).padStart(2, "0")}
+						</p>
+						<p className="text-xs text-zinc-900 font-light">{badge.title}</p>
+						<p className="text-[10px] text-zinc-400 mt-0.5">{badge.description}</p>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }

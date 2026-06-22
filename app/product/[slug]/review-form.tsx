@@ -76,6 +76,7 @@ export function WriteReview({ productId }: { productId: string }) {
 		<div className="space-y-3">
 			<Button
 				variant="outline"
+				className="h-12 rounded-none border-zinc-900 bg-transparent px-6 text-xs tracking-[0.15em] uppercase text-zinc-900 hover:bg-zinc-900 hover:text-white"
 				// Only a failed check is worth repeating; the other answers hold until the shopper navigates.
 				disabled={checking || (answer !== null && answer.status !== "failed")}
 				onClick={async () => {
@@ -87,12 +88,12 @@ export function WriteReview({ productId }: { productId: string }) {
 				{checking ? "Checking..." : "Write a Review"}
 			</Button>
 			{answer && (
-				<p className="text-sm text-muted-foreground">
+				<p className="text-sm font-light text-zinc-500">
 					{NOTES[answer.status]}{" "}
 					{answer.status === "sign_in" && answer.canSignIn && (
 						<a
 							href={`/checkout/account/login?return_to=${encodeURIComponent(pathname)}`}
-							className="font-medium text-foreground underline underline-offset-4"
+							className="text-zinc-900 underline underline-offset-4"
 						>
 							Sign in to review
 						</a>
@@ -110,45 +111,60 @@ export function ReviewForm({ productId, token }: { productId: string; token: str
 
 	if (state?.success) {
 		return (
-			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
-				<p className="font-medium">{state.message}</p>
+			<div className="border border-zinc-200 bg-zinc-100 p-6 text-center">
+				<p className="text-sm font-light text-zinc-900">{state.message}</p>
 			</div>
 		);
 	}
 
 	return (
-		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
-			<h3 className="text-lg font-medium">Write a Review</h3>
+		<form action={action} className="space-y-6 border border-zinc-200 p-8">
+			<h3 className="text-xs tracking-[0.3em] uppercase text-zinc-400">Write a Review</h3>
 
 			<input type="hidden" name="product" value={productId} />
 			<input type="hidden" name="token" value={token} />
 			<input type="hidden" name="rating" value={rating} />
 
 			<div>
-				<span className="mb-1.5 block text-sm font-medium">Rating</span>
+				<span className="mb-1.5 block text-xs tracking-[0.2em] uppercase text-zinc-400">Rating</span>
 				<StarInput value={rating} onChange={setRating} />
 			</div>
 
 			<div className="space-y-1.5">
-				<Label htmlFor="review-author">Name</Label>
-				<Input id="review-author" name="author" type="text" required placeholder="Your name" />
+				<Label htmlFor="review-author" className="text-xs tracking-[0.2em] uppercase text-zinc-400">
+					Name
+				</Label>
+				<Input
+					id="review-author"
+					name="author"
+					type="text"
+					required
+					placeholder="Your name"
+					className="rounded-none border-zinc-200 bg-transparent font-light"
+				/>
 			</div>
 
 			<div className="space-y-1.5">
-				<Label htmlFor="review-content">Review</Label>
+				<Label htmlFor="review-content" className="text-xs tracking-[0.2em] uppercase text-zinc-400">
+					Review
+				</Label>
 				<textarea
 					id="review-content"
 					name="content"
 					required
 					rows={4}
-					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+					className="w-full rounded-none border border-zinc-200 bg-transparent px-3 py-2 text-sm font-light resize-none"
 					placeholder="Share your experience with this product..."
 				/>
 			</div>
 
 			{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-			<Button type="submit" disabled={isPending || rating === 0}>
+			<Button
+				type="submit"
+				disabled={isPending || rating === 0}
+				className="h-12 w-full rounded-none bg-zinc-900 text-xs tracking-[0.15em] uppercase text-white hover:bg-zinc-800"
+			>
 				{isPending ? "Submitting..." : "Submit Review"}
 			</Button>
 		</form>

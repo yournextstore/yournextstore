@@ -33,21 +33,21 @@ export function RestockNotify({
 				render={
 					<Button
 						variant="outline"
-						className="h-14 w-full rounded-full text-base font-medium tracking-wide"
+						className="h-14 w-full rounded-none border-zinc-900 bg-transparent text-xs tracking-[0.15em] uppercase text-zinc-900 hover:bg-zinc-900 hover:text-white"
 					/>
 				}
 			>
-				<BellRing className="h-5 w-5" />
+				<BellRing className="h-4 w-4" />
 				Remind me when back in stock
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Get a restock alert</DialogTitle>
+					<DialogTitle className="font-light">Get a restock alert</DialogTitle>
 					<DialogDescription>We'll email you as soon as {productName} is back in stock.</DialogDescription>
 				</DialogHeader>
 
 				{state?.success ? (
-					<p className="rounded-md bg-secondary/50 p-4 text-sm font-medium">{state.message}</p>
+					<p className="bg-zinc-100 p-4 text-sm font-light text-zinc-900">{state.message}</p>
 				) : (
 					<form action={action} className="space-y-4">
 						<input type="hidden" name="productVariantId" value={productVariantId} />
@@ -57,7 +57,11 @@ export function RestockNotify({
 						</div>
 						<NewsletterConsent checked={marketingConsent} onCheckedChange={setMarketingConsent} />
 						{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-						<Button type="submit" disabled={isPending} className="h-11 w-full rounded-full">
+						<Button
+							type="submit"
+							disabled={isPending}
+							className="h-11 w-full rounded-none bg-zinc-900 text-xs tracking-[0.15em] uppercase text-white hover:bg-zinc-800"
+						>
 							{isPending ? "Submitting..." : "Notify me"}
 						</Button>
 					</form>

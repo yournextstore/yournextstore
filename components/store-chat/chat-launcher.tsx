@@ -45,7 +45,7 @@ export function StoreChatLauncher({ badge, ...config }: StoreChatConfig & { badg
 					type="button"
 					onClick={openChat}
 					aria-label={`Chat with ${config.assistantName ?? config.storeName}`}
-					className="flex h-13 w-13 cursor-pointer items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-transform hover:scale-105 active:scale-95"
+					className="flex h-13 w-13 cursor-pointer items-center justify-center bg-zinc-900 text-white transition-colors hover:bg-zinc-800 active:scale-95"
 				>
 					<MessageCircle className="h-5 w-5" />
 				</button>

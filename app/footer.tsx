@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-light">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,10 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/contact"
+				className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-light"
+			>
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +54,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<p className="text-xs tracking-[0.2em] uppercase text-zinc-400 mb-6">Collections</p>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-light"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +83,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<p className="text-xs tracking-[0.2em] uppercase text-zinc-400 mb-6">Legal</p>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-light"
 						>
 							{page.label}
 						</Link>
@@ -110,54 +113,60 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+		<footer className="bg-[#FAFAF8]">
+			{/* Top border */}
+			<div className="h-px w-full bg-zinc-200" />
+
+			<div className="max-w-7xl mx-auto px-8 lg:px-16">
+				{/* Main footer content */}
+				<div className="py-20 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-16">
+					{/* Brand section */}
+					<div className="lg:col-span-5">
+						<Link href="/" className="text-xs tracking-[0.3em] uppercase text-zinc-900">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+						<p className="mt-8 text-sm text-zinc-500 leading-relaxed font-light max-w-sm">
 							Curated essentials for modern living. Quality products, thoughtfully designed.
 						</p>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
+					{/* Navigation columns */}
+					<div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-12">
+						<FooterCollections />
 
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
+						<div>
+							<p className="text-xs tracking-[0.2em] uppercase text-zinc-400 mb-6">Information</p>
+							<ul className="space-y-3">
+								<li>
+									<Link
+										href="/about"
+										className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-light"
+									>
+										About
+									</Link>
+								</li>
+								<FooterContactLink />
+								<li>
+									<Link
+										href="/shipping"
+										className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-light"
+									>
+										Shipping
+									</Link>
+								</li>
+								<FooterBlogLink />
+							</ul>
+						</div>
+
+						<FooterLegalPages />
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="h-px w-full bg-zinc-200" />
+				<div className="py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<p className="text-xs text-zinc-400 tracking-wide">{year} Your Next Store</p>
+					<p className="text-xs text-zinc-400 tracking-wide">All rights reserved</p>
 					<PaymentMethods />
 				</div>
 			</div>

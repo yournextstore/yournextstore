@@ -76,7 +76,7 @@ function buttonLabel(
 	if (!variant) return "Select options";
 	if (isOutOfStock) return "Out of stock";
 	if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-	return formattedTotal ? `Add to Cart — ${formattedTotal}` : "Add to Cart";
+	return formattedTotal ? `Add to Cart - ${formattedTotal}` : "Add to Cart";
 }
 
 // Headline price. For the selected variant we show its own price (and the struck-through
@@ -215,7 +215,7 @@ export function AddToCartButton({
 			if (result.success && result.cart && line) {
 				syncCart(result.cart);
 				if (line.quantity < previousQuantity + addedQuantity) {
-					toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
+					toast.warning(`Only ${line.quantity} in stock - quantity adjusted`);
 				}
 			} else {
 				await reconcile();
@@ -304,7 +304,7 @@ export function AddToCartButton({
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="w-full py-4 bg-zinc-900 text-white text-xs tracking-[0.15em] uppercase hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
 							>
 								{buttonText}
 							</button>
