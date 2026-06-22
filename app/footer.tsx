@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-foreground/65 hover:text-magenta transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-foreground/65 hover:text-magenta transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] font-semibold tracking-[0.22em] uppercase text-foreground">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/65 hover:text-magenta transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] font-semibold tracking-[0.22em] uppercase text-foreground">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/65 hover:text-magenta transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +108,42 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-cream border-t border-border/60">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+				<div className="py-16 grid grid-cols-2 gap-y-12 gap-x-8 sm:grid-cols-4 lg:grid-cols-5">
+					<div className="col-span-2 sm:col-span-4 lg:col-span-2 sm:max-w-sm">
+						<YnsLink prefetch={"eager"} href="/" className="inline-flex flex-col">
+							<span className="font-display text-3xl tracking-tight text-foreground leading-none">
+								Your<span className="italic text-magenta">Next</span>Store
+							</span>
+							<span className="mt-1 text-[10px] uppercase tracking-[0.32em] text-foreground/60">body</span>
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-foreground/65 leading-relaxed max-w-xs">
+							Body-positive essentials, made to disappear under everything and stay put through anything.
 						</p>
+						<div className="mt-6 flex items-center gap-3">
+							{["IG", "TT", "FB", "PIN"].map((handle) => (
+								<a
+									key={handle}
+									href="/"
+									className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white border border-border text-[10px] tracking-[0.14em] font-semibold text-foreground hover:bg-magenta hover:text-white hover:border-magenta transition-colors"
+								>
+									{handle}
+								</a>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[11px] font-semibold tracking-[0.22em] uppercase text-foreground">Help</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground/65 hover:text-magenta transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +153,42 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground/65 hover:text-magenta transition-colors"
 								>
 									FAQ
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-foreground/65 hover:text-magenta transition-colors"
+								>
+									Fit Guide
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-foreground/65 hover:text-magenta transition-colors"
+								>
+									Shipping & Returns
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-6 border-t border-border/60 flex flex-col sm:flex-row gap-3 items-center justify-between">
+					<p className="text-xs text-foreground/55">
+						&copy; {new Date().getFullYear()} Your Next Store. Designed with love.
+					</p>
+					<p className="text-[10px] tracking-[0.28em] uppercase text-foreground/55">
+						Skin-safe · Reusable · Body-positive
 					</p>
 				</div>
 			</div>
