@@ -2,6 +2,7 @@
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { ShoppingBag } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
@@ -21,6 +22,8 @@ type QuickAddButtonProps = {
 };
 
 export function QuickAddButton({ variantId, variantPrice, variantImages, product }: QuickAddButtonProps) {
+	const searchParams = useSearchParams();
+	const preview = searchParams.get("preview") === "1";
 	const { openCart, dispatch } = useCart();
 
 	const handleClick = (e: React.MouseEvent) => {
@@ -45,7 +48,7 @@ export function QuickAddButton({ variantId, variantPrice, variantImages, product
 
 			// The server clamps to available stock and still returns the cart — surface
 			// the failure instead of letting the optimistic item silently vanish.
-			const result = await addToCart(variantId, 1);
+			const result = await addToCart(variantId, 1, preview);
 			const line = result.cart?.lineItems.find((item) => item.productVariant.id === variantId);
 			if (!result.success || !line) {
 				toast.error("This item is out of stock");

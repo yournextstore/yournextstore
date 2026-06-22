@@ -1,26 +1,34 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductCard } from "@/components/product-card";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
+import { DEMO_PRODUCTS, isPreview, previewHref } from "@/lib/demo-products";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { YNSMedia } from "@/lib/yns-media";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
 	const { slug } = await params;
+
+	if (preview) {
+		return {
+			title: `${slug} — Your Next Store`,
+			robots: { index: false, follow: false },
+		};
+	}
+
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
@@ -53,110 +61,128 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({
+	name,
+	count,
+	slug,
+	previewMode,
+}: {
+	name: string;
+	count: number;
+	slug: string;
+	previewMode: boolean;
+}) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
+		<section className="hero-gradient">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="pt-6 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+					<YnsLink href={previewHref("/", previewMode)} className="hover:text-foreground transition-colors">
+						Home
+					</YnsLink>
+					<span className="mx-2">/</span>
+					<YnsLink
+						href={previewHref("/products", previewMode)}
+						className="hover:text-foreground transition-colors"
+					>
+						Shop
+					</YnsLink>
+					<span className="mx-2">/</span>
+					<span className="text-foreground">{name}</span>
+				</div>
+				<div className="pt-8 sm:pt-12 pb-10 sm:pb-14 flex items-end gap-3 flex-wrap">
+					<h1 className="font-display font-light text-foreground text-[56px] sm:text-[80px] lg:text-[112px] leading-[0.92] tracking-[-0.02em]">
+						{name}
+					</h1>
+					<sup className="font-mono-cap text-[12px] sm:text-[14px] -translate-y-4 sm:-translate-y-10 text-muted-foreground tracking-[0.18em]">
+						{count}
+					</sup>
+					{/* hidden helper to preserve slug var in static-analysis-friendly form */}
+					<span className="sr-only">collection {slug}</span>
 				</div>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
 
-function ProductGridSkeleton() {
+function CollectionProducts({
+	products,
+	previewMode,
+}: {
+	products: APICollectionGetByIdResult["productCollections"][number]["product"][];
+	previewMode: boolean;
+}) {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
-					</div>
+		<section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20">
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14">
+				{products.map((product) => (
+					<ProductCard key={product.id} product={product} previewMode={previewMode} />
 				))}
 			</div>
 		</section>
 	);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const ids = collection.productCollections.map((pc) => pc.product.id);
-	const products = (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
-		(product) => product !== null,
-	);
-
+function CollectionPreview({ slug }: { slug: string }) {
+	const title = slug.charAt(0).toUpperCase() + slug.slice(1);
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<>
+			<CollectionHeader name={title} count={DEMO_PRODUCTS.length} slug={slug} previewMode />
+			<section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20">
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14">
+					{DEMO_PRODUCTS.map((product) => (
+						<ProductCard key={product.id} product={product} previewMode />
+					))}
+				</div>
+			</section>
+		</>
 	);
 }
 
 export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+	const sp = await props.searchParams;
+	const preview = await isPreview(sp);
+	const { slug } = await props.params;
+
+	if (preview) {
+		return (
+			<main>
+				<CollectionPreview slug={slug} />
+			</main>
+		);
+	}
+
+	return (
+		<main>
+			<Suspense fallback={null}>
+				<CollectionContent slug={slug} previewMode={false} />
+			</Suspense>
+		</main>
+	);
+}
+
+async function CollectionContent({ slug, previewMode }: { slug: string; previewMode: boolean }) {
 	"use cache";
 	cacheLife("minutes");
 
-	const { slug } = await props.params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 
 	if (!collection) {
 		notFound();
 	}
 
+	const products = collection.productCollections.map((pc) => pc.product);
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
+			<CollectionHeader
+				name={collection.name}
+				count={products.length}
+				slug={slug}
+				previewMode={previewMode}
+			/>
+			<CollectionProducts products={products} previewMode={previewMode} />
 		</>
 	);
 }

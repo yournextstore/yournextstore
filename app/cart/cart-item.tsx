@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
@@ -17,6 +17,8 @@ type CartItemProps = {
 
 export function CartItem({ item }: CartItemProps) {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const preview = searchParams.get("preview") === "1";
 	const { dispatch, closeCart, startMutation } = useCart();
 	const [isPending, startTransition] = useTransition();
 
@@ -51,7 +53,7 @@ export function CartItem({ item }: CartItemProps) {
 						return; // newest value already sent
 					}
 					targetQuantityRef.current = null;
-					await setCartQuantity(productVariant.id, latest);
+					await setCartQuantity(productVariant.id, latest, preview);
 				});
 				// Drain the queue, then refresh — concurrent transitions land here together,
 				// so their refresh calls batch into one re-render.

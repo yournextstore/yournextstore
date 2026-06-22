@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
+import { DEMO_PRODUCTS, isPreview, previewHref } from "@/lib/demo-products";
 import { ProductsPagination } from "./products-pagination";
-import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -36,12 +36,21 @@ async function getFilterFacets() {
 export async function generateMetadata({
 	searchParams,
 }: {
-	searchParams: Promise<{ page?: string }>;
+	searchParams: Promise<{ page?: string; sort?: string; preview?: string }>;
 }): Promise<Metadata> {
-	const { page } = await searchParams;
-	const pageNum = Math.max(1, Number(page) || 1);
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
+	const pageNum = Math.max(1, Number(sp.page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
 	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+
+	if (preview) {
+		return {
+			title,
+			description: "Browse the complete edit.",
+			robots: { index: false, follow: false },
+		};
+	}
 
 	return {
 		title,
@@ -83,16 +92,16 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="text-lg text-muted-foreground">No pieces in the edit yet.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14">
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} previewMode={false} />
 				))}
 			</div>
 
@@ -101,33 +110,57 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	);
 }
 
-function ProductGridSkeleton() {
+async function PreviewProductList() {
+	"use cache";
+	cacheLife("minutes");
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-			{Array.from({ length: 6 }).map((_, i) => (
-				<div key={`skeleton-${i}`}>
-					<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-					<div className="space-y-2">
-						<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-						<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
+		<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14">
+			{DEMO_PRODUCTS.map((product) => (
+				<ProductCard key={product.id} product={product} previewMode />
 			))}
 		</div>
 	);
 }
 
-// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
-// stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
-async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	const filters = await searchParams;
-	return <ProductList filters={filters} />;
+function SortLink({
+	option,
+	filters,
+}: {
+	option: (typeof sortOptions)[number];
+	filters: ProductFilterParams;
+}) {
+	const isActive = option.value === (filters.sort ?? "newest");
+
+	// Preserve active filters when changing sort; reset to the first page.
+	const params = new URLSearchParams();
+	for (const [key, value] of Object.entries(filters)) {
+		if (value && key !== "sort" && key !== "page") {
+			params.set(key, value);
+		}
+	}
+	if (option.value !== "newest") {
+		params.set("sort", option.value);
+	}
+	const href = params.size ? `/products?${params}` : "/products";
+
+	return (
+		<YnsLink
+			prefetch="eager"
+			href={href}
+			className={`text-[11px] uppercase tracking-[0.22em] transition-colors ${
+				isActive
+					? "text-foreground border-b border-foreground pb-1"
+					: "text-muted-foreground hover:text-foreground"
+			}`}
+		>
+			{option.label}
+		</YnsLink>
+	);
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
+	const filters = await searchParams;
+	const preview = await isPreview(filters as Record<string, string | string[] | undefined>);
 	const facets = await getFilterFacets();
 	const filtersAvailable =
 		facets.categories.length > 0 ||
@@ -137,31 +170,37 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+			<div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-6">
+				<YnsLink href={previewHref("/", preview)} className="hover:text-foreground transition-colors">
+					Home
+				</YnsLink>
+				<span className="mx-2">/</span>
+				<span className="text-foreground">All products</span>
+			</div>
+
+			<div className="mb-10 flex items-end gap-3">
+				<h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-light leading-[0.95] tracking-[-0.02em]">
+					All Products
+				</h1>
+				<sup className="font-mono-cap text-[12px] text-muted-foreground tracking-[0.18em] -translate-y-3 sm:-translate-y-6">
+					{preview ? DEMO_PRODUCTS.length : ""}
+				</sup>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
 				{filtersAvailable && <ProductFilters facets={facets} />}
 
 				<div>
-					{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-					<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-						{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-						<SortSelect options={sortOptions} />
+					<div className="mb-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-border pt-6">
+						<span className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Sort by</span>
+						{sortOptions.map((option) => (
+							<SortLink key={option.value} option={option} filters={filters} />
+						))}
+						{filtersAvailable && <ProductFiltersMobile facets={facets} />}
 					</div>
 
-					{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-					<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-						<span className="text-sm text-muted-foreground">Sort by:</span>
-						<SortLinks options={sortOptions} />
-					</div>
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<ProductSection searchParams={searchParams} />
-					</Suspense>
+					{preview ? <PreviewProductList /> : <ProductList filters={filters} />}
 				</div>
 			</div>
 		</div>

@@ -2,8 +2,8 @@
 
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useCallback, useEffect, useId, useRef, useState, useTransition } from "react";
+import { YnsLink } from "@/components/yns-link";
 import { YNSMedia } from "@/lib/yns-media";
 import { type SearchSuggestion, searchSuggest } from "./search-suggest";
 
@@ -239,144 +239,63 @@ function Suggestions({
 	);
 }
 
+function SearchIcon({ className = "w-[18px] h-[18px]" }: { className?: string }) {
+	return (
+		<svg
+			width="18"
+			height="18"
+			viewBox="0 0 18 18"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+			aria-hidden="true"
+		>
+			<circle cx="8" cy="8" r="5.5" stroke="currentColor" strokeWidth="1.2" />
+			<path d="m12.2 12.2 3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+		</svg>
+	);
+}
+
 export function SearchInput() {
 	const searchParams = useSearchParams();
-	const c = useSearchController(searchParams.get("q") ?? "");
+	const router = useRouter();
+	const inputRef = useRef<HTMLInputElement>(null);
 
-	const [iconOpen, setIconOpen] = useState(false);
-	const [inlineOpen, setInlineOpen] = useState(false);
-	const iconInputRef = useRef<HTMLInputElement>(null);
-	const inlineInputRef = useRef<HTMLInputElement>(null);
-	const iconListboxId = useId();
-	const inlineListboxId = useId();
-
-	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, () => {
-		setIconOpen(false);
-		setInlineOpen(false);
-		iconInputRef.current?.blur();
-		inlineInputRef.current?.blur();
-	});
-
-	const iconPanelOpen = iconOpen && c.enoughChars;
-	const inlinePanelOpen = inlineOpen && c.enoughChars;
+	const handleSubmit = useCallback(
+		(e: React.FormEvent<HTMLFormElement>) => {
+			e.preventDefault();
+			const formData = new FormData(e.currentTarget);
+			const query = formData.get("q");
+			const preview = searchParams.get("preview") === "1" ? "&preview=1" : "";
+			if (typeof query === "string" && query.trim()) {
+				router.push(`/search?q=${encodeURIComponent(query.trim())}${preview}`);
+			}
+		},
+		[searchParams],
+	);
 
 	return (
 		<>
-			{/* lg only — icon trigger opens popover with input inside */}
-			<Popover open={iconOpen} onOpenChange={setIconOpen}>
-				<PopoverTrigger
-					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
-				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
-				</PopoverTrigger>
-				<PopoverContent
-					align="end"
-					sideOffset={8}
-					collisionPadding={16}
-					onOpenAutoFocus={(e) => {
-						e.preventDefault();
-						iconInputRef.current?.focus();
-					}}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
-				>
-					<form onSubmit={handleSubmit}>
-						<div className="relative">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
-							/>
-							<input
-								ref={iconInputRef}
-								type="search"
-								name="q"
-								placeholder="Search products"
-								value={c.query}
-								onChange={(e) => c.setQuery(e.target.value)}
-								onKeyDown={makeKeyHandler(
-									c,
-									iconPanelOpen,
-									() => setIconOpen(false),
-									() => goToSearch(c.query),
-								)}
-								role="combobox"
-								aria-expanded={iconPanelOpen}
-								aria-controls={iconListboxId}
-								aria-autocomplete="list"
-								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
-								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-							/>
-						</div>
-					</form>
-					{iconPanelOpen ? (
-						<div className="mt-2">
-							<Suggestions
-								listboxId={iconListboxId}
-								open={iconPanelOpen}
-								c={c}
-								onPick={goToProduct}
-								onSeeAll={() => goToSearch(c.query)}
-							/>
-						</div>
-					) : null}
-				</PopoverContent>
-			</Popover>
-
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
-				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
-					<PopoverAnchor asChild>
-						<div className="relative">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
-							/>
-							<input
-								ref={inlineInputRef}
-								type="search"
-								name="q"
-								placeholder="Search products"
-								value={c.query}
-								onChange={(e) => {
-									c.setQuery(e.target.value);
-									setInlineOpen(true);
-								}}
-								onFocus={() => setInlineOpen(true)}
-								onKeyDown={makeKeyHandler(
-									c,
-									inlinePanelOpen,
-									() => setInlineOpen(false),
-									() => goToSearch(c.query),
-								)}
-								role="combobox"
-								aria-expanded={inlinePanelOpen}
-								aria-controls={inlineListboxId}
-								aria-autocomplete="list"
-								aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
-								autoComplete="off"
-								className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-							/>
-						</div>
-					</PopoverAnchor>
-					<PopoverContent
-						align="end"
-						sideOffset={8}
-						collisionPadding={16}
-						onOpenAutoFocus={(e) => e.preventDefault()}
-						onPointerDownOutside={() => setInlineOpen(false)}
-						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
-					>
-						<Suggestions
-							listboxId={inlineListboxId}
-							open={inlinePanelOpen}
-							c={c}
-							onPick={goToProduct}
-							onSeeAll={() => goToSearch(c.query)}
-						/>
-					</PopoverContent>
-				</Popover>
+			<form onSubmit={handleSubmit} className="hidden md:block">
+				<div className="relative">
+					<SearchIcon className="absolute left-2 top-1/2 h-[16px] w-[16px] -translate-y-1/2 text-muted-foreground" />
+					<input
+						ref={inputRef}
+						type="search"
+						name="q"
+						placeholder="Search"
+						defaultValue={searchParams.get("q") ?? ""}
+						className="h-9 w-44 border-b border-border bg-transparent pl-7 pr-2 text-xs uppercase tracking-[0.18em] placeholder:text-muted-foreground/70 placeholder:uppercase placeholder:tracking-[0.18em] focus:outline-none focus:border-foreground transition-colors"
+					/>
+				</div>
 			</form>
+			<YnsLink
+				href="/search"
+				className="flex items-center justify-center w-9 h-9 hover:bg-accent/40 transition-colors md:hidden"
+				aria-label="Search"
+			>
+				<SearchIcon />
+			</YnsLink>
 		</>
 	);
 }

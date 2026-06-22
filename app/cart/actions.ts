@@ -1,8 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { PREVIEW_HOST_MARKER, PREVIEW_HOST_SUFFIX } from "@/lib/demo-products";
+
+async function isPreviewRequest(previewFlag: boolean | undefined): Promise<boolean> {
+	if (!previewFlag) return false;
+	const hdrs = await headers();
+	const host = (hdrs.get("host") ?? "").toLowerCase();
+	return host.includes(PREVIEW_HOST_MARKER) || host.endsWith(PREVIEW_HOST_SUFFIX);
+}
 
 export async function getCart() {
 	const cartCookie = await getCartCookieJson();
@@ -18,7 +27,11 @@ export async function getCart() {
 	}
 }
 
-export async function addToCart(variantId: string, quantity = 1) {
+export async function addToCart(variantId: string, quantity = 1, preview?: boolean) {
+	if (await isPreviewRequest(preview)) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	const cart = await commerce.cartUpsert({
@@ -36,10 +49,16 @@ export async function addToCart(variantId: string, quantity = 1) {
 	}
 	revalidatePath("/", "layout");
 
-	return { success: true, cart };
+	const fullCart = await commerce.cartGet({ cartId: cart.id });
+
+	return { success: true, cart: fullCart };
 }
 
-export async function removeFromCart(variantId: string) {
+export async function removeFromCart(variantId: string, preview?: boolean) {
+	if (await isPreviewRequest(preview)) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {
@@ -47,20 +66,24 @@ export async function removeFromCart(variantId: string) {
 	}
 
 	try {
-		// Quantity 0 removes the item; the response is the updated cart
-		const cart = await commerce.cartUpsert({
+		await commerce.cartUpsert({
 			cartId: cartCookie.id,
 			variantId,
 			quantity: 0,
 		});
+
+		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { success: true, cart };
 	} catch {
 		return { success: false, cart: null };
 	}
 }
 
-// Set absolute quantity for a cart item
-export async function setCartQuantity(variantId: string, quantity: number) {
+export async function setCartQuantity(variantId: string, quantity: number, preview?: boolean) {
+	if (await isPreviewRequest(preview)) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {
@@ -68,13 +91,14 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 	}
 
 	try {
-		// mode "set" replaces the line quantity atomically; 0 removes the item
-		const cart = await commerce.cartUpsert({
-			cartId: cartCookie.id,
-			variantId,
-			quantity: Math.max(quantity, 0),
-			mode: "set",
-		});
+		if (quantity <= 0) {
+			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: 0 });
+		} else {
+			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity: 0 });
+			await commerce.cartUpsert({ cartId: cartCookie.id, variantId, quantity });
+		}
+
+		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { success: true, cart };
 	} catch {
 		return { success: false, cart: null };

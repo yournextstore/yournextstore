@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
@@ -9,15 +9,9 @@ import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
+import { DEMO_PRODUCTS, findDemoProductBySlug, isPreview, previewHref } from "@/lib/demo-products";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { cn } from "@/lib/utils";
 
@@ -35,10 +29,31 @@ function StarRow({ rating }: { rating: number }) {
 	);
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
 	const { slug } = await params;
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
+
+	if (preview) {
+		const demo = findDemoProductBySlug(slug);
+		if (!demo) {
+			return { title: "Product Not Found", robots: { index: false, follow: false } };
+		}
+		return {
+			title: demo.name,
+			description: demo.summary ?? undefined,
+			robots: { index: false, follow: false },
+		};
+	}
+
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
@@ -70,15 +85,107 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
-	"use cache";
-	cacheLife("minutes");
+export default async function ProductPage(props: {
+	params: Promise<{ slug: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+	const sp = await props.searchParams;
+	const preview = await isPreview(sp);
+	const { slug } = await props.params;
 
-	return <ProductDetails params={props.params} />;
+	if (preview) {
+		return <PreviewProductDetails slug={slug} />;
+	}
+
+	return <CachedProductDetails slug={slug} />;
 }
 
-const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
-	const { slug } = await params;
+async function CachedProductDetails({ slug }: { slug: string }) {
+	"use cache";
+	cacheLife("minutes");
+	return <ProductDetails slug={slug} />;
+}
+
+function PreviewProductDetails({ slug }: { slug: string }) {
+	const demo = findDemoProductBySlug(slug);
+	if (!demo) {
+		notFound();
+	}
+	const variants = demo.variants;
+	const allImages = [
+		...demo.images,
+		...variants.flatMap((v) => v.images).filter((img) => !demo.images.includes(img)),
+	];
+
+	return (
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+			<div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-6">
+				<YnsLink href="/?preview=1" className="hover:text-foreground transition-colors">
+					Home
+				</YnsLink>
+				<span className="mx-2">/</span>
+				<YnsLink href="/products?preview=1" className="hover:text-foreground transition-colors">
+					Shop
+				</YnsLink>
+				<span className="mx-2">/</span>
+				<span className="text-foreground">{demo.name}</span>
+			</div>
+			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+				<MediaGallery images={allImages} productName={demo.name} variants={variants} />
+				<div className="mt-8 lg:mt-0 space-y-8">
+					<div className="space-y-4">
+						<p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+							{demo.category?.name ?? "The Edit"}
+						</p>
+						<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-light text-foreground tracking-tight">
+							{demo.name}
+						</h1>
+						{demo.summary && <p className="text-muted-foreground leading-relaxed">{demo.summary}</p>}
+					</div>
+					<AddToCartButton
+						variants={variants.map((v) => ({ ...v, omnibusPrice: null }))}
+						product={{
+							id: demo.id,
+							name: demo.name,
+							slug: demo.slug,
+							images: demo.images,
+						}}
+						summary={demo.summary}
+						volumePricingTiers={[]}
+					/>
+				</div>
+			</div>
+			<section className="mt-24 border-t border-border pt-12">
+				<h2 className="font-display text-3xl font-light tracking-tight mb-8">You might also like</h2>
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14">
+					{DEMO_PRODUCTS.filter((p) => p.id !== demo.id)
+						.slice(0, 4)
+						.map((p) => (
+							<YnsLink key={p.id} href={previewHref(`/product/${p.slug}`, true)} className="group block">
+								<div className="relative aspect-[3/4] gallery-frame overflow-hidden">
+									<Image
+										src={p.images[0] ?? "/scraped-0.jpg"}
+										alt={p.name}
+										fill
+										sizes="(max-width: 1024px) 50vw, 25vw"
+										className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+									/>
+								</div>
+								<div className="mt-3">
+									<p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+										{p.category?.name ?? "Your Next Store"}
+									</p>
+									<p className="text-sm mt-1">{p.name}</p>
+								</div>
+							</YnsLink>
+						))}
+				</div>
+			</section>
+		</div>
+	);
+}
+
+async function ProductDetails({ slug }: { slug: string }) {
 	const me = await meGetCached().catch(() => null);
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
 	const [product, reviews] = await Promise.all([
@@ -100,47 +207,31 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const productJsonLd = await buildProductJsonLd(product, reviews);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/products">Products</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
+			<div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-6">
+				<YnsLink href="/" className="hover:text-foreground transition-colors">
+					Home
+				</YnsLink>
+				<span className="mx-2">/</span>
+				<YnsLink href="/products" className="hover:text-foreground transition-colors">
+					Shop
+				</YnsLink>
+				<span className="mx-2">/</span>
+				<span className="text-foreground">{product.name}</span>
+			</div>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
-				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-4">
+						{product.category?.name && (
+							<p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+								{product.category.name}
+							</p>
+						)}
+						<h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-light text-foreground tracking-tight text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -157,7 +248,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
@@ -187,9 +277,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);
-};
+}
