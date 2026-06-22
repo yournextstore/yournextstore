@@ -18,9 +18,11 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 
 export async function ProductCard({
 	product,
+	tintClass,
 	priority = false,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
+	tintClass?: string;
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
@@ -61,9 +63,17 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const tint = tintClass ?? "bg-brand-cream";
+
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div
+				className={`relative aspect-square ${tint} rounded-[28px] overflow-hidden mb-4 ring-1 ring-black/[0.04] shadow-[0_1px_0_rgba(31,31,31,0.04),0_18px_40px_-20px_rgba(31,31,31,0.25)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_1px_0_rgba(31,31,31,0.04),0_28px_56px_-22px_rgba(31,31,31,0.35)]`}
+			>
+				<div
+					aria-hidden
+					className="absolute inset-0 opacity-[0.18] bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.8),transparent_55%)]"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -96,7 +106,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-contain p-6 transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -117,16 +127,16 @@ export async function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-contain p-6 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
+			<div className="px-1 space-y-1">
+				<h2 className="text-base font-medium text-brand-ink leading-snug">{product.name}</h2>
 				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+					<span className="text-base font-semibold text-brand-ink">{priceDisplay}</span>
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="text-sm text-brand-ink/50 line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>
