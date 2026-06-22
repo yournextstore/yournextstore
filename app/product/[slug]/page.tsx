@@ -42,30 +42,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
-		return { title: "Product Not Found", robots: { index: false, follow: true } };
+		return { title: "Product Not Found — Your Next Store" };
 	}
 
-	const seoTitle = product.seo?.title || product.name;
-	const seoDescription = product.seo?.description || product.summary || undefined;
-	const canonical = product.seo?.canonical || `/product/${product.slug}`;
-	const image = product.images[0];
-
 	return {
-		title: seoTitle,
-		description: seoDescription,
-		alternates: { canonical },
+		title: `${product.name} — Your Next Store`,
+		description: product.summary ?? undefined,
 		openGraph: {
-			type: "website",
-			title: seoTitle,
-			description: seoDescription,
-			url: canonical,
-			images: image ? [{ url: image, alt: product.name }] : undefined,
-		},
-		twitter: {
-			card: image ? "summary_large_image" : "summary",
-			title: seoTitle,
-			description: seoDescription,
-			images: image ? [image] : undefined,
+			title: product.name,
+			description: product.summary ?? undefined,
+			images: product.images[0] ? [product.images[0]] : undefined,
 		},
 	};
 }
@@ -97,11 +83,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
-	const productJsonLd = await buildProductJsonLd(product, reviews);
-
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<JsonLdScript data={productJsonLd} />
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+			<JsonLdScript data={await buildProductJsonLd(product, reviews)} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
@@ -133,14 +117,16 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				</BreadcrumbList>
 			</Breadcrumb>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+				{/* Left: Image Gallery */}
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+				<div className="mt-8 lg:mt-0 space-y-6">
+					<div className="space-y-4">
+						<h1
+							className="text-3xl font-medium tracking-tight text-foreground lg:text-4xl text-balance"
+							style={{ fontFamily: "var(--font-heading)" }}
+						>
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -157,7 +143,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
@@ -185,7 +170,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
 
-			{/* Features Section (full width below) */}
 			<ProductFeatures />
 
 			{/* Related Products */}
