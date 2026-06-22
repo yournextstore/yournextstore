@@ -140,7 +140,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
 					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold uppercase tracking-tight text-foreground text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
