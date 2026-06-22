@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,9 +22,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const playfair = Playfair_Display({
+	variable: "--font-playfair",
+	subsets: ["latin"],
+	style: ["normal", "italic"],
+	weight: ["400", "500", "600", "700", "800", "900"],
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -112,6 +121,20 @@ async function getInitialCart() {
 	}
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-foreground text-background">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex h-9 items-center justify-center gap-3 text-[11px] tracking-[0.18em] uppercase font-medium">
+					<span className="hidden sm:inline opacity-60">—</span>
+					<span>Complimentary white-glove delivery on orders above $500</span>
+					<span className="hidden sm:inline opacity-60">—</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -137,16 +160,27 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+						<div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center gap-4 h-16">
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="flex items-baseline gap-1 text-foreground"
+								aria-label="Your Next Store — home"
+							>
+								<span className="font-display italic text-[1.35rem] leading-none">your</span>
+								<span className="text-[0.75rem] tracking-[0.22em] uppercase font-medium pl-1">
+									next.store
+								</span>
+							</YnsLink>
+
+							<div className="hidden lg:flex justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+
+							<div className="flex items-center justify-end gap-2 sm:gap-3">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -154,9 +188,12 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 								<CartButton />
 							</div>
 						</div>
+						<div className="lg:hidden border-t border-border/60 py-2 flex justify-center">
+							<Navbar links={links} />
+						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +229,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${playfair.variable} ${geistMono.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

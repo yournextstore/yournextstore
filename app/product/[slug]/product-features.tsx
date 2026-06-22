@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Hammer, Leaf, type LucideIcon, Ruler } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,51 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Hand-laminated",
+		description:
+			"Seven sheets of beech veneer, pressed and cured for forty-eight hours before the shell is released.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Joinery you can read",
+		description:
+			"Mortise-and-tenon construction, brass hardware visible where it carries the load and hidden where it doesn't.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Drawn to scale",
+		description:
+			"Proportioned in the studio against the body, not the room — every dimension referenced from a physical sketch.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Leaf, Hammer, Ruler];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-24 border-t border-border/70 pt-16">
+			<div className="mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+				<div>
+					<p className="editorial-eyebrow text-muted-foreground">Three notes on the make</p>
+					<h2 className="mt-3 font-display italic text-4xl sm:text-5xl tracking-tight leading-[0.95]">
+						Made with patience.
+					</h2>
+				</div>
+				<p className="text-sm text-muted-foreground max-w-sm">
+					Every piece in the catalog goes through the same three checks before it leaves the studio.
+				</p>
+			</div>
+			<div className="grid gap-10 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div key={feature.title} className="group flex flex-col border-t border-foreground/15 pt-6">
+							<div className="flex items-baseline justify-between">
+								<span className="font-display italic text-foreground/30 text-3xl leading-none">
+									0{index + 1}
+								</span>
+								<Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.4} />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mt-6 font-display italic text-2xl text-foreground">{feature.title}</h3>
+							<p className="mt-3 text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}
