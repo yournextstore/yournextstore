@@ -100,7 +100,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const productJsonLd = await buildProductJsonLd(product, reviews);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			<Breadcrumb className="mb-6">
@@ -133,14 +133,11 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				</BreadcrumbList>
 			</Breadcrumb>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+				<div className="mt-8 lg:mt-0 space-y-6">
+					<div className="space-y-4">
+						<h1 className="font-heading text-3xl font-medium tracking-tight text-foreground lg:text-4xl text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -157,7 +154,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{

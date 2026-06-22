@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -15,6 +15,7 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
+import { AnnouncementBar } from "@/components/sections/announcement-bar";
 import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
 import { AUTH_ENABLED } from "@/lib/auth-config";
@@ -27,9 +28,10 @@ const geistSans = Geist({
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+	variable: "--font-playfair",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,16 +139,15 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border bg-background">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center justify-between h-[70px]">
+							<YnsLink prefetch={"eager"} href="/" className="font-heading text-2xl tracking-tight">
+								<span className="italic font-medium">glozin</span>
+							</YnsLink>
+							<Navbar links={links} />
+							<div className="flex items-center gap-1">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -192,7 +193,9 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${geistSans.variable} ${playfair.variable} antialiased font-[family-name:var(--font-geist-sans)]`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
