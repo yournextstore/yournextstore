@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Inter, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,23 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const display = Space_Grotesk({
+	variable: "--font-display",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const script = Caveat({
+	variable: "--font-script",
+	subsets: ["latin"],
+	display: "swap",
+	weight: ["700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +46,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Hydrating, buildable color — clean beauty made for everyday wear.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,22 +142,59 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[color:var(--color-slate-ink)] text-[color:var(--color-bone)]/95">
+			<div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10">
+				<div className="flex items-center justify-center gap-3 py-2 text-[0.7rem] tracking-[0.22em] uppercase font-medium">
+					<span className="hidden sm:inline-block size-1.5 rounded-full bg-[color:var(--color-terracotta)]" />
+					<span>
+						New: The Easy Way Hydrating Satin Lipstick —{" "}
+						<YnsLink
+							href="/products"
+							className="underline underline-offset-4 hover:text-[color:var(--color-blush)]"
+						>
+							Shop Now
+						</YnsLink>
+					</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-foreground/10 bg-background/85 backdrop-blur-md">
+					<div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="grid grid-cols-2 lg:grid-cols-3 items-center h-16 lg:h-20">
+							<div className="flex items-center gap-7">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="hidden lg:flex items-center justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									aria-label="Your Next Store"
+									className="font-script text-4xl leading-none text-foreground tracking-tight"
+								>
+									Your Next Store
+								</YnsLink>
+							</div>
+							<div className="flex items-center justify-end gap-2 sm:gap-5">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									aria-label="Your Next Store"
+									className="font-script text-3xl leading-none text-foreground lg:hidden"
+								>
+									YNS
+								</YnsLink>
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +204,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +240,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${display.variable} ${script.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
