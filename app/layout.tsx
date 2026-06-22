@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const interSans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const displayFont = Archivo_Black({
+	variable: "--font-display",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: "400",
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -42,7 +43,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription = me.store.settings?.storeDescription || "Built for travel. Built to last.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -124,6 +125,30 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	const items = [
+		"FREE SHIPPING OVER $100",
+		"BUILT FOR TRAVEL",
+		"LIFETIME GUARANTEE",
+		"NEW: WINTER COLLECTION",
+	];
+	const sequence = [...items, ...items, ...items];
+	return (
+		<div className="bg-[color:var(--color-yns-ink)] text-[color:var(--color-yns-bone)] overflow-hidden border-b border-black/40">
+			<div className="flex whitespace-nowrap yns-marquee py-2 text-[10px] sm:text-[11px] tracking-utility font-medium">
+				{sequence.map((item, i) => (
+					<span
+						key={`${item}-${i}`}
+						className="px-6 flex items-center gap-6 shrink-0 after:content-[''] after:inline-block after:w-1 after:h-1 after:rounded-full after:bg-[color:var(--color-yns-cork)]"
+					>
+						{item}
+					</span>
+				))}
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
@@ -137,16 +162,21 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-[color:var(--color-yns-ink)]/15 bg-[color:var(--color-yns-cream)]/90 backdrop-blur-md">
+						<div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-10">
+							<div className="flex items-center justify-between h-14 sm:h-16">
+								<div className="flex items-center gap-10">
+									<Link
+										href="/"
+										className="font-display text-2xl sm:text-3xl font-black tracking-[-0.02em] text-[color:var(--color-yns-ink)] leading-none"
+										style={{ fontStretch: "125%" }}
+									>
+										YOUR NEXT STORE
 									</Link>
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-1 sm:gap-2">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,7 +190,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 text-[color:var(--color-yns-ink)] hover:text-[color:var(--color-yns-wood)] transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -211,7 +241,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${interSans.variable} ${displayFont.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

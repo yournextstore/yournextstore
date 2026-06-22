@@ -14,7 +14,10 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/blog"
+				className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
+			>
 				Blog
 			</Link>
 		</li>
@@ -32,7 +35,10 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/contact"
+				className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
+			>
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +57,15 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] tracking-utility font-semibold text-[color:var(--color-yns-cream)]/55 mb-5">
+				COLLECTIONS
+			</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +88,15 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] tracking-utility font-semibold text-[color:var(--color-yns-cream)]/55 mb-5">
+				FINE PRINT
+			</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,30 +120,37 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="bg-[color:var(--color-yns-ink)] text-[color:var(--color-yns-cream)]">
+			<div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-10">
+				{/* Massive wordmark */}
+				<div aria-hidden="true" className="pt-16 pb-6 sm:pt-20 sm:pb-8 overflow-hidden">
+					<div className="font-display font-black uppercase leading-[0.85] tracking-[-0.04em] text-[color:var(--color-yns-dust)] text-[18vw] sm:text-[14vw] lg:text-[180px] whitespace-nowrap">
+						YOUR&nbsp;NEXT&nbsp;STORE
+					</div>
+				</div>
+
+				<div className="grid grid-cols-2 sm:grid-cols-4 gap-10 sm:gap-12 pb-12 border-t border-[color:var(--color-yns-cream)]/15 pt-12">
+					<div className="col-span-2 sm:col-span-1 max-w-xs">
+						<p className="text-[10px] tracking-utility font-semibold text-[color:var(--color-yns-cream)]/55 mb-5">
+							YNS WORKSHOP
+						</p>
+						<p className="text-sm text-[color:var(--color-yns-cream)]/70 leading-relaxed">
+							Field-tested, workshop-built goods for travelers, players, and people who notice the details.
+							Made in small batches. Backed for life.
 						</p>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[10px] tracking-utility font-semibold text-[color:var(--color-yns-cream)]/55 mb-5">
+							SUPPORT
+						</h3>
+						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,23 +159,59 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
 								>
 									FAQ
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/products"
+									className="font-display text-base font-bold uppercase tracking-tight text-[color:var(--color-yns-cream)] hover:text-[color:var(--color-yns-dust)] transition-colors"
+								>
+									Shipping &amp; Returns
 								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-[color:var(--color-yns-cream)]/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+					<p className="text-[10px] tracking-utility font-semibold text-[color:var(--color-yns-cream)]/55">
+						© {year} YOUR NEXT STORE — ALL RIGHTS RESERVED
+					</p>
+					<div className="flex flex-wrap items-center gap-5">
+						<PaymentMethods />
+						<div className="flex items-center gap-5 text-[10px] tracking-utility font-semibold text-[color:var(--color-yns-cream)]/55">
+							<a
+								href="https://instagram.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="hover:text-[color:var(--color-yns-dust)] transition-colors"
+							>
+								INSTAGRAM
+							</a>
+							<a
+								href="https://youtube.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="hover:text-[color:var(--color-yns-dust)] transition-colors"
+							>
+								YOUTUBE
+							</a>
+							<a
+								href="https://twitter.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="hover:text-[color:var(--color-yns-dust)] transition-colors"
+							>
+								TWITTER
+							</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</footer>
