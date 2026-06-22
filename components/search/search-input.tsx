@@ -53,14 +53,14 @@ export function SearchInput() {
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
 							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
 								strokeWidth={1.75}
 							/>
 							<input
 								ref={iconInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="Search medicines, vitamins, healthcare…"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
 								onKeyDown={makeKeyHandler(
@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-full rounded-full border border-border/80 bg-secondary/40 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[color:var(--mint)] focus:bg-background focus:outline-none focus:ring-2 focus:ring-[color:var(--mint)]/30 transition-all"
 							/>
 						</div>
 					</form>
@@ -98,14 +98,14 @@ export function SearchInput() {
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
 							strokeWidth={1.75}
 						/>
 						<input
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="Search medicines, vitamins, healthcare…"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-10 w-full rounded-full border border-border/80 bg-secondary/40 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[color:var(--mint)] focus:bg-background focus:outline-none focus:ring-2 focus:ring-[color:var(--mint)]/30 transition-all"
 						/>
 					</div>
 					<PopoverContent

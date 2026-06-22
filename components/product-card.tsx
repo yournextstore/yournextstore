@@ -42,6 +42,10 @@ export async function ProductCard({
 	const compareAtDisplay = listing?.compareAt
 		? formatMoney({ amount: listing.compareAt, currency, locale })
 		: null;
+	// The OFF badge is the real discount from the variant's pre-promotion price, shown only when there is one.
+	const discount = listing?.compareAt
+		? Math.round((Number(listing.compareAt - listing.amount) * 100) / Number(listing.compareAt))
+		: 0;
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
@@ -63,7 +67,12 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-square overflow-hidden rounded-2xl bg-secondary/60 ring-1 ring-border/60 transition-shadow group-hover:shadow-[0_18px_40px_-22px_rgba(15,47,26,0.35)]">
+				{discount > 0 && (
+					<span className="absolute left-3 top-3 z-10 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[color:var(--mint-deep)] shadow-sm ring-1 ring-[color:var(--mint-deep)]/10">
+						{discount}% OFF
+					</span>
+				)}
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -95,7 +104,7 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
@@ -116,19 +125,26 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="mt-3 flex items-end justify-between gap-2">
+				<div className="min-w-0">
+					<h2 className="truncate text-sm font-semibold text-foreground">{product.name}</h2>
+					<p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-sm font-bold text-[color:var(--mint-deep)]">
+						<span>{priceDisplay}</span>
+						{compareAtDisplay && (
+							<span className="text-xs font-normal text-muted-foreground line-through">
+								{compareAtDisplay}
+							</span>
+						)}
+					</p>
+				</div>
+				<span className="inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-[color:var(--mint-deep)]/15 bg-white px-2.5 text-[11px] font-semibold text-[color:var(--mint-deep)] transition-colors group-hover:bg-[color:var(--mint-deep)] group-hover:text-[color:var(--mint-soft)]">
+					+ Add
+				</span>
 			</div>
 		</IntentLink>
 	);
