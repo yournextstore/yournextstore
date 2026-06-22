@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-mono text-[11px] uppercase tracking-[0.22em] text-honey/70 hover:text-honey transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,13 +38,17 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-mono text-[11px] uppercase tracking-[0.22em] text-honey/70 hover:text-honey transition-colors"
 			>
 				Contact Us
 			</YnsLink>
 		</li>
 	);
 }
+
+const linkClass =
+	"font-mono text-[11px] uppercase tracking-[0.22em] text-honey/70 hover:text-honey transition-colors";
+const headingClass = "font-mono mb-5 text-[10px] uppercase tracking-[0.32em] text-honey/55";
 
 async function FooterCollections() {
 	"use cache";
@@ -58,15 +62,11 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className={headingClass}>Shop</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
+						<YnsLink prefetch="eager" href={`/collection/${collection.slug}`} className={linkClass}>
 							{collection.name}
 						</YnsLink>
 					</li>
@@ -88,15 +88,11 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className={headingClass}>Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
+						<YnsLink prefetch="eager" href={`/legal${page.href}`} className={linkClass}>
 							{page.label}
 						</YnsLink>
 					</li>
@@ -108,58 +104,82 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
+		<footer className="bg-mahogany relative isolate overflow-hidden text-honey">
+			<div className="mx-auto max-w-[1400px] px-6 sm:px-10">
+				<div className="grid grid-cols-2 gap-10 py-20 sm:grid-cols-4 lg:grid-cols-5">
+					<div className="col-span-2 lg:col-span-2">
+						<YnsLink
+							prefetch="eager"
+							href="/"
+							className="font-display block text-3xl font-medium uppercase leading-none tracking-tight text-honey sm:text-4xl"
+							style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1' }}
+						>
 							Your Next Store
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="font-mono mt-5 max-w-xs text-xs leading-relaxed text-honey/65">
+							Small-batch ghee &amp; cultured butter, slow simmered, hand jarred — for the home cook, the
+							host, the label-reader.
 						</p>
+						<div className="mt-8 flex gap-3">
+							{["IG", "TT", "PT", "YT"].map((s) => (
+								<span
+									key={s}
+									className="font-mono inline-flex h-9 w-9 items-center justify-center border border-honey/30 text-[10px] uppercase tracking-[0.2em] text-honey/70 transition-colors hover:bg-honey hover:text-mahogany"
+								>
+									{s}
+								</span>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className={headingClass}>Support</h3>
+						<ul className="space-y-3">
 							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<YnsLink prefetch={"eager"} href="/about" className={linkClass}>
 									About Us
 								</YnsLink>
 							</li>
 							<FooterContactLink />
 							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<YnsLink prefetch="eager" href="/faq" className={linkClass}>
 									FAQ
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink prefetch="eager" href="/products" className={linkClass}>
+									Wholesale
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink prefetch="eager" href="/products" className={linkClass}>
+									Find us
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="relative">
+					<div
+						aria-hidden
+						className="font-display pointer-events-none -mb-4 select-none whitespace-nowrap text-[clamp(4rem,15vw,11rem)] font-medium leading-none tracking-tight text-honey/[0.07] sm:-mb-8"
+						style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1' }}
+					>
+						Your Next Store.
+					</div>
+				</div>
+
+				<div className="flex flex-col items-start justify-between gap-2 border-t border-honey/15 py-6 sm:flex-row sm:items-center">
+					<p className="font-mono text-[10px] uppercase tracking-[0.25em] text-honey/55">
+						© {new Date().getFullYear()} Your Next Store — small batch, big flavor.
 					</p>
+					<p className="font-mono text-[10px] uppercase tracking-[0.25em] text-honey/55">Vermont, USA</p>
 				</div>
 			</div>
 		</footer>
