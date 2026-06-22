@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] tracking-arame uppercase text-bone/55 mb-5">Collections</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] tracking-arame uppercase text-bone/55 mb-5">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -106,33 +106,84 @@ async function FooterLegalPages() {
 	);
 }
 
+function SocialIcons() {
+	const items = [
+		{
+			label: "Instagram",
+			path: (
+				<>
+					<rect x="3" y="3" width="18" height="18" rx="4" />
+					<circle cx="12" cy="12" r="3.5" />
+					<circle cx="17" cy="7" r="0.6" fill="currentColor" />
+				</>
+			),
+		},
+		{
+			label: "Pinterest",
+			path: (
+				<>
+					<circle cx="12" cy="12" r="9" />
+					<path d="M11 7c2 0 4 1 4 3.5 0 2.5-2 4-3.5 4-0.7 0-1.3-0.3-1.5-0.7M10 21l1.5-7" />
+				</>
+			),
+		},
+		{
+			label: "TikTok",
+			path: (
+				<>
+					<path d="M14 4v9.5a3.5 3.5 0 1 1-3.5-3.5" />
+					<path d="M14 4c0 2 1.5 4 4 4" />
+				</>
+			),
+		},
+	];
+	return (
+		<div className="flex gap-4">
+			{items.map((it) => (
+				<a
+					key={it.label}
+					href="#"
+					aria-label={it.label}
+					className="text-bone/65 hover:text-bone transition-colors"
+				>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+						{it.path}
+					</svg>
+				</a>
+			))}
+		</div>
+	);
+}
+
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="bg-cocoa text-bone">
+			<div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14">
+				<div className="py-20 grid grid-cols-2 md:grid-cols-12 gap-y-12 gap-x-8">
+					<div className="col-span-2 md:col-span-4">
+						<div className="font-serif tracking-arame uppercase text-base">Your Next Store</div>
+						<p className="mt-1 text-[10px] tracking-[0.45em] uppercase text-bone/55">Est · Daily Ritual</p>
+						<p className="mt-7 font-serif italic text-base text-bone/75 leading-relaxed max-w-xs">
+							A quiet ritual for daily care — botanically grounded, clinically considered, kept slow on
+							purpose.
 						</p>
+						<div className="mt-8">
+							<SocialIcons />
+						</div>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
+					<div className="col-span-1 md:col-span-2 md:col-start-6">
+						<FooterCollections />
+					</div>
 
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+					<div className="col-span-1 md:col-span-2">
+						<h3 className="text-[11px] tracking-arame uppercase text-bone/55 mb-5">Help</h3>
+						<ul className="space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +193,43 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
 								>
 									FAQ
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="#story"
+									className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
+								>
+									Our Story
+								</YnsLink>
+							</li>
+							<li>
+								<a
+									href="mailto:hello@yournextstore.com"
+									className="font-serif text-base text-bone/85 hover:text-bone transition-colors"
+								>
+									Contact
+								</a>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
-					<FooterLegalPages />
+					<div className="col-span-2 md:col-span-2">
+						<FooterLegalPages />
+					</div>
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-7 border-t border-bone/15 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+					<p className="text-[10px] tracking-arame uppercase text-bone/55">
+						&copy; {new Date().getFullYear()} Your Next Store — All rights reserved
+					</p>
+					<p className="font-serif italic text-sm text-bone/55">
+						Composed with care · Shipped from our atelier
 					</p>
 				</div>
 			</div>
