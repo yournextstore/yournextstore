@@ -12,14 +12,6 @@ import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { blurPreview } from "@/lib/blur-placeholder";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
@@ -48,30 +40,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const product = await productGetCached(slug);
 
 	if (!product) {
-		return { title: "Product Not Found", robots: { index: false, follow: true } };
+		return { title: "Product Not Found — Your Next Store" };
 	}
 
-	const seoTitle = product.seo?.title || product.name;
-	const seoDescription = product.seo?.description || product.summary || undefined;
-	const canonical = product.seo?.canonical || `/product/${product.slug}`;
-	const image = product.images[0];
-
 	return {
-		title: seoTitle,
-		description: seoDescription,
-		alternates: { canonical },
+		title: `${product.name} — Your Next Store`,
+		description: product.summary ?? undefined,
 		openGraph: {
-			type: "website",
-			title: seoTitle,
-			description: seoDescription,
-			url: canonical,
-			images: image ? [{ url: image, alt: product.name }] : undefined,
-		},
-		twitter: {
-			card: image ? "summary_large_image" : "summary",
-			title: seoTitle,
-			description: seoDescription,
-			images: image ? [image] : undefined,
+			title: product.name,
+			description: product.summary ?? undefined,
+			images: product.images[0] ? [product.images[0]] : undefined,
 		},
 	};
 }
@@ -148,38 +126,15 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 	]);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
+			<div className="lg:grid lg:grid-cols-2 lg:gap-12">
+				{/* Left: Image Gallery */}
+				<div className="bg-card rounded-3xl p-4 shadow-soft">
+					<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
+				</div>
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
@@ -193,7 +148,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -256,7 +211,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}
 
-			{/* Features Section (full width below) */}
+			{/* Features Section */}
 			<ProductFeatures />
 
 			{/* Related Products */}

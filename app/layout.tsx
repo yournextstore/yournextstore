@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,29 +12,25 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar } from "@/app/navbar";
+import { SearchBar } from "@/app/search-bar";
+import { ThemeToggle } from "@/app/theme-toggle";
+import { WishlistButton } from "@/app/wishlist-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const plusJakartaSans = Plus_Jakarta_Sans({
+	variable: "--font-sans",
 	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["400", "500", "600", "700", "800"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -105,25 +101,6 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
-	"use cache";
-	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ active: true, limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
-}
-
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
@@ -131,26 +108,35 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const storeConfig = await getStoreConfig();
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
+					{/* Aura Audio Header */}
+					<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
+						<div className="max-w-[1600px] mx-auto px-4 md:px-6 py-4">
+							<nav className="flex flex-col md:flex-row items-center justify-between gap-4">
+								{/* Logo */}
 								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+									<div className="w-8 h-8 bg-foreground text-background rounded-lg flex items-center justify-center font-bold text-xl">
+										A
+									</div>
+									<Link href="/" className="text-xl font-bold tracking-tight">
+										aura.
 									</Link>
-									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+
+								{/* Search Bar */}
+								<SearchBar />
+
+								{/* Action Buttons */}
+								<div className="flex items-center gap-3">
+									<Navbar />
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,17 +146,19 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="w-10 h-10 bg-card rounded-full flex items-center justify-center shadow-soft hover:bg-secondary transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
 									</a>
 									<CartButton />
+									<WishlistButton />
+									<ThemeToggle />
 								</div>
-							</div>
+							</nav>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<div className="flex-1">{children}</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +199,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${plusJakartaSans.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

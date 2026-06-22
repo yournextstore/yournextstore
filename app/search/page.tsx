@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
-import { SearchPageInput } from "@/components/search/search-page-input";
+import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
-import { ActiveFilters, CategorySidebar, MobileControls, SortSelect } from "./search-controls";
 import { SearchPagination } from "./search-pagination";
-import { getSortFromParams, sortToBrowseParams } from "./sort";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -17,123 +13,52 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { q } = await searchParams;
 	return {
-		title: q ? `Search: ${q}` : "Search",
+		title: q ? `Search: ${q} — Your Next Store` : "Search — Your Next Store",
 		description: q ? `Search results for "${q}"` : "Search our store",
-		alternates: { canonical: "/search" },
-		robots: { index: false, follow: true },
 	};
 }
 
-async function getActiveCategories() {
-	"use cache";
-	cacheLife("hours");
-	const { data } = await commerce.categoriesBrowse({ active: true, limit: 50 });
-	return data.filter((c) => !c.parentId).map((c) => ({ id: c.id, slug: c.slug, name: c.name }));
-}
-
-// One browse serves both the header count and the results grid: the second call with the
-// same arguments is a cache hit, not another API request.
-async function searchProducts({
-	q,
-	page,
-	sort,
-	category,
-}: {
-	q: string;
-	page?: string;
-	sort: ReturnType<typeof getSortFromParams>;
-	category?: string;
-}) {
+async function searchProducts(query: string, page: number) {
 	"use cache";
 	cacheLife("minutes");
-	const currentPage = Math.max(1, Number(page) || 1);
+
+	const offset = (page - 1) * PRODUCTS_PER_PAGE;
 	return commerce.productBrowse({
-		query: q.trim(),
+		query: query.trim(),
 		active: true,
 		limit: PRODUCTS_PER_PAGE,
-		offset: (currentPage - 1) * PRODUCTS_PER_PAGE,
-		...sortToBrowseParams(sort),
-		...(category ? { category } : {}),
+		offset,
 	});
 }
 
-async function SearchResults({
-	q,
-	page,
-	sort,
-	category,
-}: {
-	q: string;
-	page?: string;
-	sort: ReturnType<typeof getSortFromParams>;
-	category?: string;
-}) {
-	"use cache";
-	cacheLife("minutes");
-
+async function SearchResults({ query, page }: { query: string; page?: string }) {
 	const currentPage = Math.max(1, Number(page) || 1);
-	const result = await searchProducts({ q, page, sort, category });
+	const results = await searchProducts(query, currentPage);
+	const totalPages = Math.ceil(results.meta.count / PRODUCTS_PER_PAGE);
 
-	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
-
-	if (result.data.length === 0) {
+	if (results.data.length === 0) {
 		return (
-			<div>
-				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
-				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-					Nothing matched &ldquo;{q}&rdquo;
-				</h2>
-				<p className="mt-6 max-w-md text-sm text-muted-foreground">
-					Try a shorter spelling, a broader term, or remove a filter.
-				</p>
+			<div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 py-16">
+				<div className="bg-card rounded-3xl p-8 md:p-12 shadow-soft text-center">
+					<h1 className="text-2xl md:text-3xl font-bold mb-4">No results found</h1>
+					<p className="text-muted-foreground">
+						No products found for &quot;{query}&quot;. Try a different search term.
+					</p>
+				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-			<SearchPagination
-				currentPage={currentPage}
-				totalPages={totalPages}
-				query={q}
-				sort={sort}
-				category={category}
+		<>
+			<ProductGrid
+				title={`Search results for "${query}"`}
+				description={`${results.meta.count} product${results.meta.count === 1 ? "" : "s"} found`}
+				products={results.data}
+				showViewAll={false}
 			/>
-		</div>
-	);
-}
-
-function EmptyQuery({ categories }: { categories: { id: string; slug: string; name: string }[] }) {
-	return (
-		<div className="border-t border-border pt-12 sm:pt-20">
-			<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Search</p>
-			<h2 className="mt-3 max-w-3xl text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-6xl">
-				What are you looking for?
-			</h2>
-			{categories.length ? (
-				<div className="mt-12">
-					<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Or browse</p>
-					<ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-lg">
-						{categories.slice(0, 8).map((c) => (
-							<li key={c.id}>
-								{/* A category alone shows nothing here (results need a query): browse its page. */}
-								<Link
-									href={`/category/${c.slug}`}
-									className="border-b border-foreground/30 pb-0.5 text-foreground transition-colors hover:border-foreground"
-								>
-									{c.name}
-								</Link>
-							</li>
-						))}
-					</ul>
-				</div>
-			) : null}
-		</div>
+			<SearchPagination currentPage={currentPage} totalPages={totalPages} query={query} />
+		</>
 	);
 }
 
@@ -141,76 +66,27 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 // the results are ready, with no skeleton.
 export const instant = false;
 
-export default function SearchPage(props: {
-	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
-}) {
+export default function SearchPage(props: { searchParams: Promise<{ q?: string; page?: string }> }) {
 	return <SearchContent searchParams={props.searchParams} />;
 }
 
-const SearchContent = async ({
-	searchParams,
-}: {
-	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
-}) => {
-	const { q, page, sort: sortParam, category } = await searchParams;
-	const query = q?.trim() ?? "";
-	const sort = getSortFromParams(sortParam);
-	const [categories, totalCount] = await Promise.all([
-		getActiveCategories(),
-		query
-			? searchProducts({ q: query, page, sort, category }).then(({ meta }) => meta.count)
-			: Promise.resolve(0),
-	]);
+const SearchContent = async ({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) => {
+	const { q, page } = await searchParams;
 
-	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
-				<div className="mx-auto max-w-3xl">
-					<SearchPageInput initialQuery={query} />
+	if (!q || q.trim() === "") {
+		return (
+			<div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 py-16">
+				<div className="bg-card rounded-3xl p-8 md:p-12 shadow-soft text-center">
+					<h1 className="text-2xl md:text-3xl font-bold mb-4">Search Products</h1>
+					<p className="text-muted-foreground">Enter a search term to find products.</p>
 				</div>
 			</div>
+		);
+	}
 
-			{query ? (
-				<>
-					<header className="pt-10 pb-8 sm:pt-14 sm:pb-12">
-						<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-							<div>
-								<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
-								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-									{query}
-								</h1>
-								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
-									</span>
-									<ActiveFilters categories={categories} activeCategory={category} />
-								</div>
-							</div>
-							<div className="hidden sm:block">
-								<SortSelect value={sort} />
-							</div>
-						</div>
-					</header>
-
-					<MobileControls
-						categories={categories}
-						activeCategory={category}
-						sort={sort}
-						totalCount={totalCount}
-					/>
-
-					<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
-						<aside className="hidden sm:block">
-							<div className="sticky top-24">
-								<CategorySidebar categories={categories} activeCategory={category} totalCount={totalCount} />
-							</div>
-						</aside>
-						<SearchResults q={query} page={page} sort={sort} category={category} />
-					</div>
-				</>
-			) : (
-				<EmptyQuery categories={categories} />
-			)}
-		</section>
+	return (
+		<main>
+			<SearchResults query={q} page={page} />
+		</main>
 	);
 };
