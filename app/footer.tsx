@@ -14,7 +14,10 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/blog"
+				className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+			>
 				Blog
 			</Link>
 		</li>
@@ -32,7 +35,10 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/contact"
+				className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+			>
 				Contact Us
 			</Link>
 		</li>
@@ -46,18 +52,40 @@ async function FooterCollections() {
 	const collections = await commerce.collectionBrowse({ active: true, limit: 5 });
 
 	if (collections.data.length === 0) {
-		return null;
+		return (
+			<div>
+				<h3 className="text-[10px] tracking-[0.32em] uppercase text-[var(--cream)]/60 mb-5">Shop</h3>
+				<ul className="space-y-3">
+					<li>
+						<Link
+							href="/products"
+							className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+						>
+							All products
+						</Link>
+					</li>
+				</ul>
+			</div>
+		);
 	}
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] tracking-[0.32em] uppercase text-[var(--cream)]/60 mb-5">Shop</h3>
+			<ul className="space-y-3">
+				<li>
+					<Link
+						href="/products"
+						className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+					>
+						All products
+					</Link>
+				</li>
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +108,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] tracking-[0.32em] uppercase text-[var(--cream)]/60 mb-5">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,30 +138,59 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+		<footer className="bg-[var(--olive-dark)] text-[var(--cream)]">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+				<div className="py-16 lg:py-24 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 lg:gap-16">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div className="col-span-2 lg:col-span-2 max-w-sm">
+						<Link href="/" className="font-display text-3xl lg:text-4xl text-[var(--cream)] leading-none">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-[var(--cream)]/70 leading-relaxed">
+							A new era of nurturing. Quiet objects, considered design, and slow rituals — shipped from our
+							studio to your home.
 						</p>
+						<div className="mt-8 flex items-center gap-3">
+							<a
+								href="https://instagram.com"
+								target="_blank"
+								rel="noreferrer"
+								className="text-[10px] tracking-[0.28em] uppercase text-[var(--cream)]/80 hover:text-[var(--olive)] transition-colors"
+							>
+								Instagram
+							</a>
+							<span className="text-[var(--cream)]/30">·</span>
+							<a
+								href="https://pinterest.com"
+								target="_blank"
+								rel="noreferrer"
+								className="text-[10px] tracking-[0.28em] uppercase text-[var(--cream)]/80 hover:text-[var(--olive)] transition-colors"
+							>
+								Pinterest
+							</a>
+							<span className="text-[var(--cream)]/30">·</span>
+							<a
+								href="https://tiktok.com"
+								target="_blank"
+								rel="noreferrer"
+								className="text-[10px] tracking-[0.28em] uppercase text-[var(--cream)]/80 hover:text-[var(--olive)] transition-colors"
+							>
+								TikTok
+							</a>
+						</div>
 					</div>
 
-					{/* Collections */}
+					{/* Shop */}
 					<FooterCollections />
 
 					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[10px] tracking-[0.32em] uppercase text-[var(--cream)]/60 mb-5">Support</h3>
+						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,9 +199,33 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
 								>
 									FAQ
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/faq"
+									className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+								>
+									Instructions
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/cart"
+									className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+								>
+									Shipping & returns
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/cart"
+									className="text-sm text-[var(--cream)]/85 hover:text-[var(--olive)] transition-colors"
+								>
+									Contact
 								</Link>
 							</li>
 							<FooterBlogLink />
@@ -156,9 +237,14 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-[var(--cream)]/15 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+					{/* Official marks on a cream chip: they are full-colour logos and would vanish on the olive footer. */}
+					<div className="rounded-sm bg-[var(--cream)] px-2.5 py-1.5 w-fit">
+						<PaymentMethods />
+					</div>
+					<p className="text-[10px] tracking-[0.22em] uppercase text-[var(--cream)]/55">
+						© {year} Your Next Store — Designed in Denmark.
+					</p>
 				</div>
 			</div>
 		</footer>
