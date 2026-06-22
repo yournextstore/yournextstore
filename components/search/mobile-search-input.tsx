@@ -30,16 +30,13 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 					Search products
 				</label>
 				<div className="relative">
-					<Search
-						className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-						strokeWidth={1.75}
-					/>
+					<Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<input
 						ref={inputRef}
 						id={`${listboxId}-input`}
 						type="search"
 						name="q"
-						placeholder="Search products"
+						placeholder="Search the collection"
 						value={c.query}
 						onChange={(e) => c.setQuery(e.target.value)}
 						onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}
@@ -50,7 +47,7 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-12 w-full rounded-full border border-border bg-background pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+						className="h-10 w-full rounded-full border border-border bg-background/70 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-foreground/60 focus:bg-background transition-all"
 					/>
 				</div>
 				{panelOpen ? (

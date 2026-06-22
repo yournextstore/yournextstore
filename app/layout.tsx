@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,19 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const playfair = Playfair_Display({
+	variable: "--font-playfair",
+	subsets: ["latin"],
+	style: ["normal", "italic"],
+	// Only the 400 weight is used: `.font-display` sets no weight, so the italic serif paints at 400.
+	weight: "400",
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -105,6 +115,20 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-foreground text-background">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex h-9 items-center justify-center gap-3 text-[11px] tracking-[0.18em] uppercase font-medium">
+					<span className="hidden sm:inline opacity-60">—</span>
+					<span>Complimentary white-glove delivery on orders above $500</span>
+					<span className="hidden sm:inline opacity-60">—</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -137,16 +161,26 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+							<div className="grid grid-cols-2 lg:grid-cols-[1fr_auto_1fr] items-center gap-4 h-16">
+								<Link
+									href="/"
+									className="flex items-baseline gap-1 text-foreground"
+									aria-label="Your Next Store — home"
+								>
+									<span className="font-display italic text-[1.35rem] leading-none">your</span>
+									<span className="text-[0.75rem] tracking-[0.22em] uppercase font-medium pl-1">
+										next.store
+									</span>
+								</Link>
+
+								<div className="hidden lg:flex justify-center">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+
+								<div className="flex items-center justify-end gap-2 sm:gap-3">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,13 +194,16 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="rounded-full p-2 transition-colors hover:bg-secondary/60"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
 									</a>
 									<CartButton />
 								</div>
+							</div>
+							<div className="lg:hidden border-t border-border/60 py-2 flex justify-center">
+								<Navbar links={links} />
 							</div>
 						</div>
 					</header>
@@ -211,7 +248,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${playfair.variable} ${geistMono.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

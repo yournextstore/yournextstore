@@ -8,19 +8,24 @@ type TrustBadge = {
 };
 
 const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+	{ icon: Truck, title: "White-glove delivery", description: "Complimentary on orders over $500" },
+	{ icon: Shield, title: "10-year warranty", description: "On every joinery & finish" },
+	{ icon: RotateCcw, title: "30-day returns", description: "No question asked" },
 ];
 
 export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
-			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
+		<div className="grid grid-cols-3 gap-0 rounded-sm border border-border/70 bg-background overflow-hidden">
+			{badges.map((badge, idx) => (
+				<div
+					key={badge.title}
+					className={`flex flex-col items-center text-center p-4 sm:p-5 ${idx > 0 ? "border-l border-border/70" : ""}`}
+				>
+					<badge.icon className="mb-2.5 h-4 w-4 text-muted-foreground" strokeWidth={1.4} />
+					<span className="editorial-eyebrow text-foreground">{badge.title}</span>
+					<span className="mt-1 text-[10px] text-muted-foreground leading-snug max-w-[20ch]">
+						{badge.description}
+					</span>
 				</div>
 			))}
 		</div>
