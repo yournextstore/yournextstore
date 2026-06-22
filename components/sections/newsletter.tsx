@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
+import Image from "next/image";
 import { useActionState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 
@@ -8,45 +9,67 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+		<section className="relative overflow-hidden bg-bone-deep">
+			<div className="absolute inset-0 opacity-50 mix-blend-multiply">
+				<Image src="/scraped-2.jpg" alt="" fill sizes="100vw" className="object-cover" />
+			</div>
+			<div
+				aria-hidden="true"
+				className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/40"
+			/>
+			<div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
+				<div className="grid lg:grid-cols-2 gap-12 items-center">
+					<div>
+						<p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground">The dispatch</p>
+						<h2 className="mt-5 font-display text-[2.1rem] sm:text-[2.8rem] leading-[1.05] tracking-[-0.03em] text-balance">
+							Quiet letters on cellular health, sent every other Sunday.
+						</h2>
+						<p className="mt-5 max-w-md text-[0.95rem] text-muted-foreground">
+							Research summaries, practitioner conversations, and the occasional protocol update. No subject
+							lines in all caps.
+						</p>
+					</div>
+					<div className="lg:pl-8">
+						{state?.success ? (
+							<div className="animate-float-up rounded-xl bg-background p-8">
+								<div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-moss text-bone">
+									<CheckIcon className="h-5 w-5" />
+								</div>
+								<h3 className="font-display text-[1.4rem] tracking-tight">You&apos;re on the list.</h3>
+								<p className="mt-2 text-sm text-muted-foreground">{state.message}</p>
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
+						) : (
+							<form action={action} className="rounded-xl bg-background p-8 shadow-sm">
+								<label
+									htmlFor="newsletter-email"
+									className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground"
 								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+									Email address
+								</label>
+								<div className="mt-3 flex flex-col gap-3 sm:flex-row">
+									<input
+										id="newsletter-email"
+										type="email"
+										name="email"
+										placeholder="you@home.com"
+										required
+										className="h-12 w-full flex-1 rounded-full border border-border bg-background px-5 text-foreground outline-none transition-all placeholder:text-muted-foreground/60 focus:border-moss focus:ring-2 focus:ring-moss/20"
+									/>
+									<button
+										type="submit"
+										disabled={isPending}
+										className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-foreground px-7 text-sm font-medium text-primary-foreground transition-all hover:bg-moss disabled:opacity-50"
+									>
+										{isPending ? "Sending…" : "Subscribe"}
+									</button>
+								</div>
+								<p className="mt-4 text-[0.72rem] text-muted-foreground">
+									By subscribing you agree to our Privacy Policy. Unsubscribe in one click.
+								</p>
+								{state?.error && <p className="mt-3 text-sm text-destructive">{state.error}</p>}
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
-					)}
+						)}
+					</div>
 				</div>
 			</div>
 		</section>

@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const display = DM_Sans({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const sans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +115,18 @@ async function getInitialCart() {
 	}
 }
 
+function WordmarkLogo() {
+	return (
+		<span className="flex items-baseline gap-[0.18rem] font-display text-[1.05rem] font-medium tracking-tight text-foreground">
+			<span className="lowercase">your</span>
+			<span className="text-moss" aria-hidden="true">
+				+
+			</span>
+			<span className="lowercase">next store</span>
+		</span>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -137,26 +152,35 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
+					<div className="max-w-7xl mx-auto px-5 sm:px-8">
+						<div className="grid grid-cols-2 md:grid-cols-[1fr_auto_1fr] items-center h-16">
+							<YnsLink prefetch={"eager"} href="/" aria-label="Your Next Store — home">
+								<WordmarkLogo />
+							</YnsLink>
+							<div className="hidden md:block">
+								<Suspense fallback={<div className="h-5 w-72 rounded bg-secondary animate-pulse" />}>
+									<Navbar links={links} />
+								</Suspense>
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-1.5 sm:gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-xs font-medium tracking-wide text-primary-foreground uppercase transition-all hover:bg-moss"
+								>
+									Shop
+								</YnsLink>
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +216,9 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${display.variable} ${sans.variable} font-sans antialiased bg-background text-foreground`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

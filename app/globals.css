@@ -9,6 +9,8 @@
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--font-display: var(--font-display);
+	--font-sans: var(--font-sans);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -40,41 +42,59 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-forest: var(--forest);
+	--color-moss: var(--moss);
+	--color-sage: var(--sage);
+	--color-bone: var(--bone);
+	--color-bone-deep: var(--bone-deep);
+	--color-stone: var(--stone);
+	--color-clay: var(--clay);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 0.5rem;
+
+	/* Wellness palette */
+	--bone: #f3f1ec;
+	--bone-deep: #ebe7dd;
+	--clay: #d9d4c7;
+	--stone: #a9a294;
+	--forest: #1a1a1a;
+	--moss: #3e5a33;
+	--sage: #6b7a4a;
+
+	--background: var(--bone);
+	--foreground: var(--forest);
+
+	--card: #ffffff;
+	--card-foreground: var(--forest);
+	--popover: #ffffff;
+	--popover-foreground: var(--forest);
+	--primary: var(--forest);
+	--primary-foreground: var(--bone);
+	--secondary: var(--bone-deep);
+	--secondary-foreground: var(--forest);
+	--muted: var(--bone-deep);
+	--muted-foreground: #5b5a52;
+	--accent: var(--moss);
+	--accent-foreground: var(--bone);
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: rgba(26, 26, 26, 0.08);
+	--input: rgba(26, 26, 26, 0.1);
+	--ring: var(--moss);
+	--chart-1: var(--moss);
+	--chart-2: var(--sage);
+	--chart-3: var(--stone);
+	--chart-4: var(--clay);
+	--chart-5: var(--forest);
+	--sidebar: var(--bone);
+	--sidebar-foreground: var(--forest);
+	--sidebar-primary: var(--forest);
+	--sidebar-primary-foreground: var(--bone);
+	--sidebar-accent: var(--bone-deep);
+	--sidebar-accent-foreground: var(--forest);
+	--sidebar-border: rgba(26, 26, 26, 0.08);
+	--sidebar-ring: var(--moss);
 }
 
 .dark {
@@ -115,15 +135,59 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-feature-settings: "ss01", "cv11";
+	}
+	::selection {
+		background: var(--moss);
+		color: var(--bone);
+	}
+}
+
+@layer utilities {
+	.font-display {
+		font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+		letter-spacing: -0.025em;
+	}
+	.font-sans {
+		font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+	}
+	.text-balance {
+		text-wrap: balance;
+	}
+	.text-pretty {
+		text-wrap: pretty;
+	}
+	.bg-hero-fade {
+		background-image: radial-gradient(
+			ellipse at top,
+			var(--bone) 0%,
+			var(--bone) 55%,
+			var(--bone-deep) 100%
+		);
+	}
+	.bg-forest-gradient {
+		background-image: linear-gradient(
+			180deg,
+			#0d1a09 0%,
+			#1c2e16 45%,
+			#2c4022 100%
+		);
+	}
+	.bg-noise {
+		background-image: radial-gradient(rgba(26, 26, 26, 0.04) 1px, transparent 1px);
+		background-size: 6px 6px;
 	}
 }
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
 	--tw-prose-headings: var(--foreground);
-	--tw-prose-links: var(--foreground);
+	--tw-prose-links: var(--moss);
 	--tw-prose-bold: var(--foreground);
 	--tw-prose-bullets: var(--muted-foreground);
 	--tw-prose-counters: var(--muted-foreground);
@@ -132,11 +196,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--bone-deep) 0%,
+		var(--clay) 40%,
+		var(--bone) 50%,
+		var(--clay) 60%,
+		var(--bone-deep) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -149,4 +213,19 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+@keyframes float-up {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-float-up {
+	animation: float-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
