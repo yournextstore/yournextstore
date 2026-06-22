@@ -63,7 +63,7 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-[4/5] bg-gradient-to-br from-[color:var(--color-luxe-cream)] to-[color:var(--color-luxe-lilac)]/40 rounded-3xl overflow-hidden mb-4 ring-1 ring-white/60 shadow-[0_20px_50px_-30px_rgba(42,31,74,0.45)] transition-transform duration-500 group-hover:scale-[1.01]">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -121,12 +121,15 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="flex items-start justify-between gap-3 px-1">
+				<div className="min-w-0 space-y-1">
+					<h2 className="truncate font-display text-lg tracking-wide text-foreground">{product.name}</h2>
+					<p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Eau de Parfum</p>
+				</div>
+				<p className="shrink-0 text-sm font-semibold text-foreground">
+					{priceDisplay}
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="ml-2 text-muted-foreground font-normal line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>
