@@ -22,17 +22,19 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	compact?: boolean;
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title,
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	compact = false,
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -41,40 +43,59 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="bg-background relative">
+			{/* subtle dot grid */}
+			<div
+				aria-hidden="true"
+				className="absolute inset-0 opacity-[0.05] pointer-events-none"
+				style={{
+					backgroundImage: "radial-gradient(#3b2418 1px, transparent 1px)",
+					backgroundSize: "24px 24px",
+				}}
+			/>
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+				{(title || description) && (
+					<div className="flex items-end justify-between mb-8 sm:mb-10 gap-6 flex-wrap">
+						<div>
+							{title && (
+								<h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-yns-cocoa italic">
+									{title}
+								</h2>
+							)}
+							{description && <p className="mt-2 text-base text-yns-cocoa/70 max-w-md">{description}</p>}
+						</div>
+						{showViewAll && (
+							<Link
+								href={viewAllHref}
+								className="hidden sm:inline-flex items-center gap-1.5 text-sm font-extrabold uppercase tracking-wider text-yns-green hover:text-yns-green-dark transition-colors yns-nav-underline"
+							>
+								View all
+								<ArrowRight className="h-4 w-4" strokeWidth={3} />
+							</Link>
+						)}
+					</div>
+				)}
+
+				<div
+					className={`grid gap-5 sm:gap-6 ${compact ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : "grid-cols-2 lg:grid-cols-4"}`}
+				>
+					{displayProducts.map((product, i) => (
+						<ProductCard key={product.id} product={product} priority={eagerFirstImage && i === 0} />
+					))}
 				</div>
+
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+					<div className="mt-10 text-center sm:hidden">
+						<Link
+							href={viewAllHref}
+							className="inline-flex items-center gap-1 text-sm font-extrabold uppercase tracking-wider text-yns-green"
+						>
+							View all products
+							<ArrowRight className="h-4 w-4" strokeWidth={3} />
+						</Link>
+					</div>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }
