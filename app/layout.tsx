@@ -2,13 +2,13 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import type { NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
 import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -22,13 +22,14 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const bebas = Bebas_Neue({
+	variable: "--font-display",
+	weight: "400",
 	subsets: ["latin"],
 });
 
@@ -37,7 +38,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Fuel your everyday with whole-food protein bars";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,22 +133,60 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-bronze-gradient text-espresso text-[11px] sm:text-xs font-bold tracking-[0.18em] uppercase text-center py-2 px-4">
+			Pre-order your bars today — free shipping over $40
+		</div>
+	);
+}
+
+function Wordmark() {
+	return (
+		<YnsLink
+			prefetch={"eager"}
+			href="/"
+			className="flex flex-col items-center leading-none"
+			aria-label="Your Next Store"
+		>
+			<span className="font-display text-2xl sm:text-3xl text-cream tracking-tight">YOUR NEXT</span>
+			<span className="font-display text-[10px] sm:text-[11px] tracking-[0.32em] text-bronze-light -mt-0.5">
+				STORE
+			</span>
+		</YnsLink>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 bg-espresso/85 backdrop-blur-md border-b border-cream/5">
+					<div className="max-w-screen-2xl mx-auto px-4 sm:px-8">
+						<div className="grid grid-cols-3 items-center h-16 sm:h-20">
+							<div className="flex items-center gap-6 justify-start">
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="font-display text-xs sm:text-sm tracking-[0.24em] text-cream hover:text-bronze-light transition-colors"
+								>
+									SHOP YNS
 								</YnsLink>
-								<Navbar links={links} />
+								<YnsLink
+									prefetch={"eager"}
+									href="#story"
+									className="hidden md:inline font-display text-xs sm:text-sm tracking-[0.24em] text-cream/70 hover:text-bronze-light transition-colors"
+								>
+									STORY
+								</YnsLink>
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex justify-center">
+								<Wordmark />
+							</div>
+							<div className="flex items-center gap-3 sm:gap-4 justify-end">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +196,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +232,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${bebas.variable} antialiased bg-espresso text-cream`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
