@@ -55,8 +55,8 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-square rounded-[28px] overflow-hidden mb-4 bg-[var(--color-mint-soft)] ring-1 ring-black/5 group-hover:ring-[var(--color-peach)]/50 transition-all duration-300">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -110,9 +110,14 @@ export function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="text-center space-y-1 px-1">
+				<h3
+					className="font-heading text-base sm:text-lg leading-snug text-foreground"
+					style={{ fontVariationSettings: "'SOFT' 100" }}
+				>
+					{product.name}
+				</h3>
+				<p className="text-sm font-medium text-muted-foreground">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
