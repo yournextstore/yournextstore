@@ -3,35 +3,46 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
-import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
+import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
-export async function ProductCard({
+export function ProductCard({
 	product,
 	priority = false,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
 }) {
-	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
-	const { min: minPrice, max: maxPrice } =
-		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
+	const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
+	const { minPrice, maxPrice } =
+		variants && firstVariantPrice !== null
+			? variants.reduce(
+					(acc, v) => {
+						const price = BigInt(v.price);
+						return {
+							minPrice: price < acc.minPrice ? price : acc.minPrice,
+							maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
+						};
+					},
+					{ minPrice: firstVariantPrice, maxPrice: firstVariantPrice },
+				)
+			: { minPrice: null, maxPrice: null };
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
-				? formatMoney({ amount: minPrice, currency, locale })
+				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
 
 	const allImages = [
@@ -44,28 +55,17 @@ export async function ProductCard({
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
-	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
-	const variantSearch = (() => {
-		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
-			return "";
-		}
-		const params = new URLSearchParams();
-		for (const combination of onlyVariant.combinations) {
-			params.set(combination.variantValue.variantType.label, combination.variantValue.value);
-		}
-		return `?${params.toString()}`;
-	})();
-
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink
+			prefetch={"eager"}
+			href={`/product/${product.slug}`}
+			className="group rounded-2xl border border-border bg-card p-3 transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--forest)]/20"
+		>
+			<div className="relative aspect-[4/3] bg-[var(--cream)] rounded-xl overflow-hidden">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
 						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
 						variantImages={singleVariant.images}
 						product={{
 							id: product.id,
@@ -114,11 +114,22 @@ export async function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+
+				{priceDisplay && (
+					<div className="absolute top-3 left-3 inline-flex items-center rounded-full bg-[var(--lime)] text-[var(--forest-deep)] px-3 py-1 text-xs font-semibold shadow-sm">
+						{priceDisplay}
+					</div>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-3 px-1 pt-4 pb-2">
+				<div className="min-w-0">
+					<h3 className="text-[15px] font-semibold text-foreground truncate">{product.name}</h3>
+					<p className="mt-1 text-xs text-muted-foreground">Tap to view specs & install kit</p>
+				</div>
+				<span className="shrink-0 mt-0.5 flex size-8 items-center justify-center rounded-full bg-[var(--cream)] text-[var(--forest-deep)] group-hover:bg-[var(--lime)] transition-colors">
+					<ArrowUpRight className="size-4" />
+				</span>
 			</div>
-		</Link>
+		</YnsLink>
 	);
 }
