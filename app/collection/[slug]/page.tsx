@@ -16,7 +16,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
-import { commerce, getStoreSeo } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -32,11 +32,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		return { title: "Collection Not Found", robots: { index: false, follow: true } };
 	}
 
-	const { storeName } = await getStoreSeo();
 	const description =
 		typeof collection.description === "string"
 			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+			: `Shop the ${collection.name} collection.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -61,18 +60,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-[#1a1a1a]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
+				<div className="py-10 sm:py-14 lg:py-16">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<h1 className="font-[family-name:var(--font-heading)] text-2xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-tight text-white">
 							{collection.name}
 						</h1>
 						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
 						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+							<p className="mt-3 text-base text-white/60 leading-relaxed">{collection.description}</p>
 						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
+							<div className="prose prose-invert mt-3 max-w-none text-base text-white/60 leading-relaxed tiptap-content">
 								<TiptapRenderer content={collection.description} />
 							</div>
 						) : null}
@@ -86,11 +85,11 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-[#1a1a1a] to-transparent" />
 				</div>
 			)}
 		</section>

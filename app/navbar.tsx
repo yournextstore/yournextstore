@@ -11,6 +11,7 @@ export type NavLink = {
 	label: string;
 };
 
+// The links come from the layout's cached `getNavLinks`, so the nav never reads the request.
 export function Navbar({ links }: { links: NavLink[] }) {
 	const [open, setOpen] = useState(false);
 
@@ -19,7 +20,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger
 					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+					className="-order-1 rounded-full p-2 text-white/90 transition-colors hover:bg-white/5 hover:text-gold lg:hidden"
 				>
 					<Menu className="h-6 w-6" />
 				</SheetTrigger>
@@ -34,7 +35,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 								key={link.href}
 								href={link.href}
 								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+								className="rounded-sm px-3 py-3 text-base font-medium uppercase tracking-wide text-foreground transition-colors hover:bg-secondary hover:text-primary"
 							>
 								{link.label}
 							</Link>
@@ -42,12 +43,12 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="hidden lg:flex items-center gap-1">
 				{links.map((link) => (
 					<Link
 						key={link.href}
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="px-4 py-3 text-sm font-medium text-white/90 hover:text-gold hover:bg-white/5 transition-colors uppercase tracking-wide whitespace-nowrap"
 					>
 						{link.label}
 					</Link>
