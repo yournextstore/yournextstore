@@ -1,9 +1,11 @@
 import "@/app/globals.css";
 
+import { User } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -22,14 +24,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-serif",
 	subsets: ["latin"],
+	weight: ["400", "500", "600"],
+	style: ["normal", "italic"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +43,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Silk hair accessories & sleep care from Your Next Store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -137,26 +144,53 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+						{/* Top bar: search left, centered wordmark, right utilities */}
+						<div className="grid grid-cols-3 items-center h-16">
+							<div className="flex items-center justify-start">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
+							</div>
+							<div className="flex items-center justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-serif text-2xl sm:text-[28px] tracking-[0.18em] uppercase text-foreground"
+									aria-label="Your Next Store"
+								>
+									Your Next Store
+								</YnsLink>
+							</div>
+							<div className="flex items-center justify-end gap-1 sm:gap-3">
+								<YnsLink
+									href="#about"
+									className="hidden md:inline-flex text-[11px] tracking-[0.22em] uppercase font-medium text-foreground/80 hover:text-foreground transition-colors"
+								>
+									Our Story
+								</YnsLink>
+								<button
+									type="button"
+									aria-label="Account"
+									className="p-2 hover:bg-secondary rounded-full transition-colors"
+								>
+									<User className="w-5 h-5" strokeWidth={1.5} />
+								</button>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
 							</div>
 						</div>
+						{/* Centered horizontal nav */}
+						<div className="flex items-center justify-center pb-3">
+							<Suspense>
+								<Navbar links={links} />
+							</Suspense>
+						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +226,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${cormorant.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
