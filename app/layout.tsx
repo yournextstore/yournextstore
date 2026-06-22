@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const fraunces = Fraunces({
+	variable: "--font-display",
 	subsets: ["latin"],
+	axes: ["SOFT", "WONK", "opsz"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +39,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Books, journals & curiosities for big questions and little wonders.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,22 +135,46 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-ink text-cream text-[11px] sm:text-xs tracking-[0.22em] uppercase font-medium">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-2 sm:gap-6">
+				<span className="hidden sm:inline opacity-70">Free shipping on US orders over $40</span>
+				<span className="hidden sm:inline opacity-30">•</span>
+				<span>New release: Ask Better Questions — out now</span>
+				<span className="hidden sm:inline opacity-30">•</span>
+				<span className="hidden sm:inline opacity-70">Hand-bound, small-batch</span>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+						<div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 sm:h-20 gap-4">
+							<div className="flex items-center justify-start">
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
 							</div>
-							<div className="flex items-center gap-2">
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="font-display text-xl sm:text-2xl font-black tracking-tight text-foreground whitespace-nowrap"
+							>
+								<span className="inline-flex items-center gap-1.5">
+									Your Next Store
+									<span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full bg-cobalt" />
+								</span>
+							</YnsLink>
+							<div className="flex items-center justify-end gap-1 sm:gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +184,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +220,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${fraunces.variable} ${inter.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
