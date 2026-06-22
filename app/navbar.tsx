@@ -11,8 +11,26 @@ export type NavLink = {
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+export function Navbar({ links, side }: { links: NavLink[]; side?: "left" | "right" }) {
 	const [open, setOpen] = useState(false);
+	const half = Math.ceil(links.length / 2);
+	const visibleLinks = side === "right" ? links.slice(half) : links.slice(0, half);
+
+	if (side === "right") {
+		return (
+			<nav className="hidden lg:flex items-center gap-6">
+				{visibleLinks.map((link) => (
+					<Link
+						key={link.href}
+						href={link.href}
+						className="block rounded-lg px-3 py-2 text-sm text-[color:var(--color-mush-espresso)] hover:bg-[color:var(--color-mush-cream)]"
+					>
+						{link.label}
+					</Link>
+				))}
+			</nav>
+		);
+	}
 
 	return (
 		<>
@@ -42,12 +60,12 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
+			<nav className="hidden lg:flex items-center gap-6">
+				{visibleLinks.map((link) => (
 					<Link
 						key={link.href}
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="block rounded-lg px-3 py-2 text-sm text-[color:var(--color-mush-espresso)] hover:bg-[color:var(--color-mush-cream)]"
 					>
 						{link.label}
 					</Link>
