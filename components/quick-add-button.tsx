@@ -31,7 +31,7 @@ export function QuickAddButton({
 	variantImages,
 	product,
 }: QuickAddButtonProps) {
-	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
+	const { openCart, dispatch, syncCart, reconcile, startMutation, isMutating } = useCart();
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -77,10 +77,11 @@ export function QuickAddButton({
 			<TooltipTrigger
 				delay={1000}
 				onClick={handleClick}
-				className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+				disabled={isMutating}
+				className="absolute bottom-3 right-3 z-10 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-forest text-cream shadow-lg transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-leaf hover:scale-110 active:scale-95 disabled:opacity-50"
 				aria-label={`Add ${product.name} to cart`}
 			>
-				<ShoppingBag className="h-3.5 w-3.5" />
+				<ShoppingBag className={`h-4 w-4 ${isMutating ? "animate-pulse" : ""}`} strokeWidth={2.4} />
 			</TooltipTrigger>
 			<TooltipContent side="top" className="text-xs">
 				Add to cart

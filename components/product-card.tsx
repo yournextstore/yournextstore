@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square overflow-hidden rounded-[28px] border-2 border-forest/10 bg-[var(--cream-deep)]/70 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_30px_50px_-25px_rgba(15,61,46,0.45)] group-hover:border-forest/30">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -96,7 +96,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-transform duration-500 group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -121,13 +121,16 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
+			<div className="mt-5 flex items-end justify-between gap-3">
+				<div>
+					<h2 className="font-display uppercase tracking-[0.06em] text-forest text-lg leading-tight">
+						{product.name}
+					</h2>
+					<p className="mt-1 text-sm text-forest/60">Plant-powered &middot; Small batch</p>
+				</div>
+				<p className="shrink-0 rounded-full bg-forest text-cream font-display uppercase tracking-[0.1em] text-xs px-3 py-2">
+					{priceDisplay}
+					{compareAtDisplay && <span className="ml-2 line-through opacity-60">{compareAtDisplay}</span>}
 				</p>
 			</div>
 		</IntentLink>

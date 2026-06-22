@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
+import { Leaf } from "@/components/sections/leaves";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -14,7 +15,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-cream/75 hover:text-cream transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +33,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-cream/75 hover:text-cream transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +52,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-display uppercase tracking-[0.22em] text-sm text-marigold">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-cream/75 hover:text-cream transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +81,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-display uppercase tracking-[0.22em] text-sm text-marigold">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-cream/75 hover:text-cream transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,55 +111,72 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+		<footer className="relative overflow-hidden bg-forest text-cream">
+			<div className="absolute -top-8 -left-8 opacity-30">
+				<Leaf className="w-32 h-48 -rotate-12" color="#2e7d3a" />
+			</div>
+			<div className="absolute -bottom-12 -right-10 opacity-30">
+				<Leaf className="w-40 h-56 rotate-12" color="#2e7d3a" />
+			</div>
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="py-16 sm:py-20 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-10">
+					<div className="col-span-2">
+						<Link href="/" className="font-display text-3xl uppercase tracking-tight text-cream">
 							Your Next Store
+							<span className="text-marigold">.</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 max-w-xs text-sm text-cream/70 leading-relaxed">
+							Plant-based goods, sourced thoughtfully and made for every table. Inclusivity, made delicious.
 						</p>
+						<div className="mt-6 flex gap-3">
+							{["IG", "TT", "YT", "X"].map((label) => (
+								<span
+									key={label}
+									className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream/25 text-xs font-bold tracking-wider hover:bg-cream hover:text-forest transition-colors"
+								>
+									{label}
+								</span>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="font-display uppercase tracking-[0.22em] text-sm text-marigold">Help</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<Link href="/about" className="text-sm text-cream/75 hover:text-cream transition-colors">
 									About Us
 								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<Link href="/faq" className="text-sm text-cream/75 hover:text-cream transition-colors">
 									FAQ
+								</Link>
+							</li>
+							<li>
+								<Link href="/products" className="text-sm text-cream/75 hover:text-cream transition-colors">
+									All Products
 								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-cream/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+					<p className="text-xs text-cream/55 tracking-wider uppercase">
+						&copy; {year} Your Next Store. Grown with love.
+					</p>
+					<div className="flex flex-wrap items-center gap-4">
+						<p className="text-xs text-cream/55 tracking-wider uppercase">Plant-powered &amp; family-run</p>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>
