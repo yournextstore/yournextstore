@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { User } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,15 +25,23 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const display = Archivo_Black({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
+const sans = Inter({
+	variable: "--font-sans",
+	subsets: ["latin"],
+	display: "swap",
+});
+
+// Store-chat code spans only: loads on use instead of blocking every first paint.
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
 	preload: false,
 });
 
@@ -124,6 +132,20 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[#0e0e0e] text-[#f2f2f2] text-[10px] tracking-[0.28em] uppercase font-semibold">
+			<div className="mx-auto flex h-8 max-w-7xl items-center justify-center gap-3 overflow-hidden px-4 sm:px-6 lg:px-8">
+				<span className="hidden sm:inline">Free shipping on orders over $40</span>
+				<span className="hidden sm:inline text-[#ffcc00]">●</span>
+				<span>Brewed bold, shipped fresh</span>
+				<span className="hidden sm:inline text-[#ffcc00]">●</span>
+				<span className="hidden sm:inline">Subscribe & save 15%</span>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
@@ -136,20 +158,29 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-[#0e0e0e]/10 bg-background/95 backdrop-blur-md">
+						<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+							<div className="grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4">
+								{/* Left: search */}
+								<div className="flex items-center justify-start">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
+								</div>
+
+								{/* Center: wordmark */}
+								<Link href="/" className="flex flex-col items-center leading-none">
+									<span className="jolt-headline text-2xl sm:text-3xl tracking-[0.05em] text-foreground">
+										YOUR&nbsp;NEXT
+									</span>
+									<span className="jolt-eyebrow mt-1 text-[#6e6e6e]">— Coffee Co. —</span>
+								</Link>
+
+								{/* Right: nav + cart */}
+								<div className="flex items-center justify-end gap-6">
+									<Navbar links={links} />
 									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
@@ -160,17 +191,17 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 text-foreground/80 transition-colors hover:text-foreground"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<User className="h-5 w-5" strokeWidth={1.5} />
 									</a>
 									<CartButton />
 								</div>
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<div className="flex-1">{children}</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +242,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${display.variable} ${sans.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
