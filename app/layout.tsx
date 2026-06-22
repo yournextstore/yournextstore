@@ -136,17 +136,35 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+			<div className="flex min-h-screen flex-col bg-background">
+				{/* Announcement bar */}
+				<div className="bg-[var(--yns-lime)] text-black">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.18em] font-medium">
+						<span className="hidden sm:inline">Free shipping on orders over $120</span>
+						<span aria-hidden="true" className="hidden sm:inline opacity-60">
+							·
+						</span>
+						<span>Trail-ready since 2021</span>
+						<span aria-hidden="true" className="opacity-60">
+							·
+						</span>
+						<span className="hidden sm:inline">Lifetime cap guarantee</span>
+					</div>
+				</div>
+				<header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center justify-between h-14">
+							<div className="flex items-center gap-10">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="text-[1.35rem] leading-none font-display lowercase tracking-[-0.03em] text-white"
+								>
+									your<span className="text-[var(--yns-lime)]">.</span>next.store
 								</YnsLink>
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-1">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +174,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +210,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
