@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,14 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+	variable: "--font-heading",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -125,23 +123,31 @@ async function getNavLinks(): Promise<NavLink[]> {
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
-	// take the header, nav and footer out of the prerendered shell and leave the page
-	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// Only cached reads here. Awaiting anything request-time (cookies, headers) would take
+	// the header, nav and footer out of the prerendered shell and leave the page blank until
+	// the server responds; CartProvider loads the cart in the browser. No <Suspense> around
+	// this component either: the boundary itself is what streams the chrome out of the shell,
+	// whether or not anything inside it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+					{/* Announcement Bar */}
+					<div className="bg-primary text-primary-foreground text-center text-xs tracking-[0.2em] uppercase py-2.5 px-4">
+						Free shipping on orders over $150
+					</div>
+
+					{/* Header */}
+					<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+							<div className="flex items-center justify-between h-18">
+								<div className="flex items-center gap-10">
+									<Link
+										href="/"
+										className="font-[family-name:var(--font-heading)] text-2xl tracking-wide text-foreground hover:text-foreground/80 transition-colors"
+									>
 										Your Next Store
 									</Link>
 									<Navbar links={links} />
@@ -170,12 +176,13 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 							</div>
 						</div>
 					</header>
+
 					<main className="flex-1">{children}</main>
 					<Footer />
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -211,7 +218,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${playfair.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
