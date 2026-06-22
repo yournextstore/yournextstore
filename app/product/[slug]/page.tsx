@@ -100,7 +100,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const productJsonLd = await buildProductJsonLd(product, reviews);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-[1820px] mx-auto px-5 sm:px-8 lg:px-10 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			<Breadcrumb className="mb-6">
@@ -140,7 +140,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
 					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-[family-name:var(--font-prompt)] text-4xl font-black tracking-tight text-foreground lg:text-5xl uppercase">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (

@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Prompt } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const prompt = Prompt({
+	variable: "--font-prompt",
 	subsets: ["latin"],
+	weight: ["700", "800", "900"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,11 +139,22 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+				{/* Announcement Bar */}
+				<div className="bg-foreground text-primary-foreground text-center text-sm font-medium py-2.5 px-4">
+					<span className="font-[family-name:var(--font-prompt)] uppercase tracking-wider text-xs">
+						Free shipping on orders over $50 — Hot stuff!
+					</span>
+				</div>
+
+				<header className="sticky top-0 z-50 border-b-[3px] border-foreground bg-background">
+					<div className="max-w-[1820px] mx-auto px-5 sm:px-8 lg:px-10">
+						<div className="flex items-center justify-between h-[72px]">
+							<div className="flex items-center gap-10">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-[family-name:var(--font-prompt)] text-2xl sm:text-3xl font-black uppercase tracking-tight"
+								>
 									Your Next Store
 								</YnsLink>
 								<Navbar links={links} />
@@ -156,7 +169,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +205,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${prompt.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
