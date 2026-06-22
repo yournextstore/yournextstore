@@ -93,8 +93,8 @@ export function SearchInput() {
 				</PopoverContent>
 			</Popover>
 
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			{/* md+ — inline input bar */}
+			<form onSubmit={handleSubmit} className="hidden md:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-9 w-40 rounded-full border border-border bg-background/60 pl-9 pr-3 text-[0.8rem] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
 						/>
 					</div>
 					<PopoverContent
