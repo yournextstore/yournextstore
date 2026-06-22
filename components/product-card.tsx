@@ -3,6 +3,7 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { ArrowRight } from "lucide-react";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
@@ -55,8 +56,13 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-charcoal/10 bg-card transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-[0_20px_50px_rgba(58,26,18,0.15)]">
+				{/* Decorative corner badge */}
+				<div className="absolute top-4 left-4 z-10">
+					<span className="tofu-badge px-3 py-1 text-[10px]">12g Protein</span>
+				</div>
+
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -86,7 +92,7 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-500 ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-105"}`}
 							priority={priority}
 						/>
 					))}
@@ -109,10 +115,28 @@ export function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+
+				{/* Bottom flavor strip */}
+				<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/85 via-charcoal/50 to-transparent p-4 pt-12">
+					<div className="flex items-end justify-between gap-3">
+						<div className="min-w-0">
+							<p className="font-display text-[10px] uppercase tracking-[0.22em] text-cream/70">
+								Savory Protein Snack
+							</p>
+							<h3 className="mt-1 font-display text-lg sm:text-xl font-extrabold uppercase text-cream leading-tight truncate">
+								{product.name}
+							</h3>
+						</div>
+						<ArrowRight className="h-5 w-5 shrink-0 text-cream transition-transform group-hover:translate-x-1" />
+					</div>
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+
+			<div className="mt-4 flex items-baseline justify-between px-1">
+				<p className="text-sm text-mahogany/80">
+					<span className="font-display uppercase tracking-[0.12em] text-charcoal">{product.name}</span>
+				</p>
+				<p className="font-display text-lg font-extrabold text-chili">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);

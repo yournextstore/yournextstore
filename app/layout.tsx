@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display, Sora } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,22 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const body = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const display = Sora({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["700", "800"],
+});
+
+const italic = Playfair_Display({
+	variable: "--font-italic",
+	subsets: ["latin"],
+	style: ["italic"],
+	weight: ["500", "600"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +120,53 @@ async function getInitialCart() {
 	}
 }
 
+function AnnouncementBar() {
+	const items = [
+		"Free shipping on orders over $40",
+		"New flavor drop — Smoky Sesame is live",
+		"12g protein • 0g added sugar • All plants",
+		"Enter the giveaway — win a year of snacks",
+	];
+	const stream = [...items, ...items, ...items, ...items];
+	return (
+		<div className="border-b border-charcoal/15 bg-chili text-cream text-xs tracking-[0.18em] uppercase font-medium">
+			<div className="flex overflow-hidden py-2.5">
+				<div className="yns-marquee flex shrink-0 gap-12 whitespace-nowrap pr-12">
+					{stream.map((item, i) => (
+						<span key={`a-${i}`} className="inline-flex items-center gap-12">
+							<span>{item}</span>
+							<span aria-hidden className="text-cream/60">
+								✦
+							</span>
+						</span>
+					))}
+				</div>
+				<div className="yns-marquee flex shrink-0 gap-12 whitespace-nowrap pr-12" aria-hidden>
+					{stream.map((item, i) => (
+						<span key={`b-${i}`} className="inline-flex items-center gap-12">
+							<span>{item}</span>
+							<span className="text-cream/60">✦</span>
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function GiveawayTab() {
+	return (
+		<a
+			href="#newsletter"
+			className="fixed left-0 top-1/2 z-40 hidden -translate-y-1/2 items-center justify-center bg-chili px-2 py-6 text-cream shadow-[0_8px_24px_rgba(58,26,18,0.25)] transition-transform hover:translate-x-1 sm:flex"
+		>
+			<span className="giveaway-tab text-[11px] font-bold uppercase tracking-[0.28em]">
+				Enter the Giveaway →
+			</span>
+		</a>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,27 +191,42 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-cream">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-40 border-b border-charcoal/10 bg-cream/90 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+						<div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 sm:h-20 gap-4">
+							<div className="flex items-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display text-2xl sm:text-3xl font-extrabold text-chili tracking-tight"
+								>
+									YOUR NEXT STORE
 								</YnsLink>
+							</div>
+							<div className="hidden md:flex justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-1 sm:gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
+								<div className="hidden sm:flex items-center gap-1 text-xs font-medium text-mahogany/80 px-3 py-1.5 rounded-full border border-charcoal/10">
+									<span aria-hidden>🇨🇦</span>
+									<span>USD&nbsp;$</span>
+								</div>
 								<CartButton />
 							</div>
 						</div>
+						<div className="md:hidden pb-2">
+							<Navbar links={links} />
+						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<GiveawayTab />
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +262,9 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${body.variable} ${display.variable} ${italic.variable} font-sans antialiased bg-cream text-charcoal`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
