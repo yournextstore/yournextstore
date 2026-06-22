@@ -16,6 +16,13 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const palette = ["#f7e4d4", "#fce3cf", "#f0e1ff", "#fff4d4", "#ffe0cd", "#e8e0ff"];
+
+function hashIndex(id: string, mod: number) {
+	const hash = [...id].reduce((h, char) => (h * 31 + char.charCodeAt(0)) | 0, 0);
+	return Math.abs(hash) % mod;
+}
+
 export async function ProductCard({
 	product,
 	priority = false,
@@ -47,6 +54,7 @@ export async function ProductCard({
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
 	const singleVariant =
 		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const bg = palette[hashIndex(product.id, palette.length)];
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -63,7 +71,10 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div
+				className="relative aspect-square rounded-[2rem] overflow-hidden mb-4 transition-transform group-hover:-translate-y-1 shadow-[0_4px_0_rgba(26,15,77,0.08)]"
+				style={{ backgroundColor: bg }}
+			>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -96,7 +107,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -121,14 +132,16 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="flex items-start justify-between gap-3 px-1">
+				<h2 className="text-base font-extrabold text-[#1a0f4d] leading-snug">{product.name}</h2>
+				{priceDisplay && (
+					<p className="flex flex-wrap items-baseline justify-end gap-2 text-base font-extrabold text-[#4b1fb5] whitespace-nowrap">
+						{priceDisplay}
+						{compareAtDisplay && (
+							<span className="text-sm font-medium text-[#6b5b9a] line-through">{compareAtDisplay}</span>
+						)}
+					</p>
+				)}
 			</div>
 		</IntentLink>
 	);
