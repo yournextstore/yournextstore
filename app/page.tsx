@@ -1,25 +1,23 @@
 import { Suspense } from "react";
 import { About } from "@/components/sections/about";
+import { Categories } from "@/components/sections/categories";
+import { FaqPreview } from "@/components/sections/faq-preview";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { Journal } from "@/components/sections/journal";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { ValueProps } from "@/components/sections/value-props";
 
 function ProductGridSkeleton() {
 	return (
 		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
+			<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+				<div className="md:col-span-1 rounded-2xl bg-[var(--sand)]/60 h-72 animate-pulse" />
+				{Array.from({ length: 3 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
 						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-4 w-3/4 bg-secondary rounded animate-pulse" />
+							<div className="h-4 w-1/4 bg-secondary rounded animate-pulse" />
 						</div>
 					</div>
 				))}
@@ -30,13 +28,18 @@ function ProductGridSkeleton() {
 
 export default function Home() {
 	return (
-		<>
+		<main>
 			<Hero />
 			<Suspense fallback={<ProductGridSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+				<ProductGrid limit={3} variant="favorites" />
+			</Suspense>
+			<Suspense>
+				<Categories />
 			</Suspense>
 			<About />
-			<Newsletter />
-		</>
+			<ValueProps />
+			<FaqPreview />
+			<Journal />
+		</main>
 	);
 }
