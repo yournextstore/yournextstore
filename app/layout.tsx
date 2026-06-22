@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bowlby_One, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const bowlby = Bowlby_One({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -136,27 +139,31 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+			<div className="flex min-h-screen flex-col bg-background">
+				<header className="sticky top-0 z-50 border-b border-border bg-[var(--cream)]/95 backdrop-blur-md">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+						<div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 sm:h-20 gap-4">
+							<div className="flex items-center gap-3 justify-self-start">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
+							</div>
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="font-display text-2xl sm:text-3xl tracking-tight text-charcoal text-[color:var(--charcoal)] justify-self-center"
+							>
+								Your Next Store
+							</YnsLink>
+							<div className="flex items-center gap-4 sm:gap-6 justify-self-end">
+								<Navbar links={links} />
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +199,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${bowlby.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
