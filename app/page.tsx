@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
 import { Newsletter } from "@/components/sections/newsletter";
+import { Press } from "@/components/sections/press";
 import { ProductGrid } from "@/components/sections/product-grid";
 
 export const metadata: Metadata = {
@@ -14,8 +15,9 @@ export default function Home() {
 			<Hero />
 			{/* No <Suspense>: the grid is "use cache", so it renders into the prerendered shell in document order. A boundary
 			    around cached data still ships the skeleton first and the content later in the HTML. */}
-			<ProductGrid title="Featured Products" limit={6} />
+			<ProductGrid title="Pick your flavor" limit={3} />
 			<About />
+			<Press />
 			<Newsletter />
 		</>
 	);

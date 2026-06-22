@@ -14,7 +14,10 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/blog"
+				className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
+			>
 				Blog
 			</Link>
 		</li>
@@ -32,7 +35,10 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/contact"
+				className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
+			>
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +57,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-display uppercase text-[var(--cobalt)] text-sm tracking-wide mb-4">Shop</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +86,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-display uppercase text-[var(--cobalt)] text-sm tracking-wide mb-4">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -96,6 +102,24 @@ async function FooterLegalPages() {
 		</div>
 	);
 }
+
+const socials = [
+	{
+		label: "Instagram",
+		href: "#",
+		path: "M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm5.5-.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z",
+	},
+	{
+		label: "TikTok",
+		href: "#",
+		path: "M14 3v10a3 3 0 1 1-3-3v3a6 6 0 1 0 6 6V8a5 5 0 0 0 4 2V7a4 4 0 0 1-4-4h-3Z",
+	},
+	{
+		label: "YouTube",
+		href: "#",
+		path: "M21 7a3 3 0 0 0-2-2c-2-1-7-1-7-1s-5 0-7 1a3 3 0 0 0-2 2c-1 2-1 5-1 5s0 3 1 5a3 3 0 0 0 2 2c2 1 7 1 7 1s5 0 7-1a3 3 0 0 0 2-2c1-2 1-5 1-5s0-3-1-5ZM10 15V9l5 3-5 3Z",
+	},
+];
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
 // shell, reading it during the prerender is an error. Caching pins it to the entry.
@@ -110,30 +134,41 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+		<footer className="relative bg-[var(--lavender)] text-[var(--cobalt)] overflow-hidden">
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12">
+					<div className="lg:max-w-xs">
+						<Link href="/" className="font-display text-3xl italic leading-none">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm text-[var(--cobalt)]/75 leading-relaxed">
+							Better-for-you snacks with a bakery-warm soul. Good stuff, zero fluff.
 						</p>
+						<div className="mt-6 flex gap-3">
+							{socials.map((s) => (
+								<a
+									key={s.label}
+									href={s.href}
+									className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--cobalt)]/30 text-[var(--cobalt)] hover:bg-[var(--cobalt)] hover:text-white transition-colors"
+								>
+									<svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+										<path d={s.path} />
+									</svg>
+									<span className="sr-only">{s.label}</span>
+								</a>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="font-display uppercase text-[var(--cobalt)] text-sm tracking-wide mb-4">Help</h3>
+						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,23 +177,40 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
 								>
 									FAQ
 								</Link>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<Link
+									href="/products"
+									className="text-sm text-[var(--cobalt)]/75 hover:text-[var(--cobalt)] transition-colors"
+								>
+									All Snacks
+								</Link>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="mt-16 relative">
+					<div
+						aria-hidden="true"
+						className="select-none pointer-events-none font-display italic text-[var(--cobalt)]/12 leading-none text-[20vw] sm:text-[18vw] lg:text-[16vw] -mb-6 truncate"
+					>
+						your next store
+					</div>
+					<div className="pt-6 border-t border-[var(--cobalt)]/15 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+						<p className="text-xs text-[var(--cobalt)]/65">&copy; {year} Your Next Store. Baked with care.</p>
+						<p className="text-xs text-[var(--cobalt)]/65 uppercase tracking-wider">
+							Good Stuff · Zero Fluff
+						</p>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>
