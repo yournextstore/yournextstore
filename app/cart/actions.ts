@@ -1,12 +1,34 @@
 "use server";
 
+import { headers } from "next/headers";
 import { try_ } from "safe-try";
 import { refusedCodeMessage } from "@/app/cart/discount-code";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { isPreviewHost } from "@/lib/demo-products";
 import { getStoreConfig } from "@/lib/store-config";
 
+// The demo storefront on a preview host never writes to a real cart. It needs the originating page to
+// signal it with `?preview=1` in the referer, so a plain request to the host is not a preview.
+async function isPreviewRequest(): Promise<boolean> {
+	const headerList = await headers();
+	const host = headerList.get("host");
+	if (!isPreviewHost(host)) return false;
+	const referer = headerList.get("referer");
+	if (!referer) return false;
+	try {
+		const url = new URL(referer);
+		return url.searchParams.get("preview") === "1";
+	} catch {
+		return false;
+	}
+}
+
 export async function addToCart(variantId: string, quantity = 1, subscriptionPlanId?: string | null) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
+
 	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
 	// the order and its emails speak it. Omitted when the store never set a default language.
@@ -85,6 +107,10 @@ export async function setCartQuantity(
 	quantity: number,
 	subscriptionPlanId?: string | null,
 ) {
+	if (await isPreviewRequest()) {
+		return { success: true, cart: null };
+	}
+
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {

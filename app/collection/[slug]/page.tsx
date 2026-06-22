@@ -61,36 +61,35 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-cream-grain border-b border-[#e8dcc8]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
+				<div className="py-20 sm:py-24">
+					<div className="max-w-2xl mx-auto text-center">
+						<p className="text-[11px] tracking-luxe uppercase text-[#8b6b4a] mb-4">Collection</p>
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground">{collection.name}</h1>
 						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
 						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+							<p className="mt-5 text-base text-muted-foreground leading-relaxed">{collection.description}</p>
 						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
+							<div className="prose mt-5 max-w-none text-base text-muted-foreground leading-relaxed tiptap-content">
 								<TiptapRenderer content={collection.description} />
 							</div>
 						) : null}
+						<div className="mt-6 mx-auto h-px w-12 bg-[#c9a87c]" />
 					</div>
 				</div>
 			</div>
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block opacity-30">
 					<YNSMedia
 						src={collection.image}
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover"
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
 				</div>
 			)}
 		</section>
@@ -114,8 +113,8 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			title={`${collection.name}`}
+			eyebrow={`${products.length} pieces`}
 			products={products}
 			showViewAll={false}
 		/>
