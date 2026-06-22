@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 
+import { MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito, Sniglet } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +23,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const sniglet = Sniglet({
+	variable: "--font-sniglet",
 	subsets: ["latin"],
+	weight: ["400", "800"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const nunito = Nunito({
+	variable: "--font-nunito",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +116,49 @@ async function getInitialCart() {
 	}
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[#a8b5a0] text-[#3a2418]">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-center gap-2 text-center text-xs sm:text-sm font-medium tracking-wide">
+				<MapPin className="h-3.5 w-3.5" aria-hidden />
+				<span>Now in more stores! Find us near you</span>
+			</div>
+		</div>
+	);
+}
+
+function StoreBadge() {
+	return (
+		<YnsLink prefetch="eager" href="/" aria-label="Your Next Store" className="group inline-flex">
+			<span className="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-[#fbf4e8] border-2 border-[#c99a5e] shadow-[0_8px_24px_-12px_rgba(74,44,26,0.4)] transition-transform group-hover:rotate-3">
+				<svg viewBox="0 0 96 96" className="h-full w-full" aria-hidden>
+					<defs>
+						<path id="circle-text" d="M 48,48 m -34,0 a 34,34 0 1,1 68,0 a 34,34 0 1,1 -68,0" />
+					</defs>
+					<text
+						fontFamily="var(--font-sniglet)"
+						fontSize="9"
+						fontWeight="800"
+						fill="#4a2c1a"
+						letterSpacing="1.2"
+					>
+						<textPath href="#circle-text" startOffset="2%">
+							YOUR NEXT STORE · WHOLESOME SMALL-BATCH ·
+						</textPath>
+					</text>
+					<g transform="translate(48 50)">
+						<circle r="14" fill="#f5e6d3" stroke="#c99a5e" strokeWidth="1.5" />
+						<path d="M -8 4 Q -4 -6 0 -4 Q 4 -6 8 4 Z" fill="#c99a5e" />
+						<circle cx="-3" cy="-1" r="1.4" fill="#4a2c1a" />
+						<circle cx="3" cy="-1" r="1.4" fill="#4a2c1a" />
+						<path d="M -3 5 Q 0 7 3 5" stroke="#4a2c1a" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+					</g>
+				</svg>
+			</span>
+		</YnsLink>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,27 +183,37 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 bg-[#f5e6d3]/95 backdrop-blur-md border-b border-[#d9c1a3]/60">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
+						<div className="relative flex items-center justify-between h-20 sm:h-24">
+							<div className="flex items-center gap-6">
+								<Suspense>
+									<Navbar links={links} />
+								</Suspense>
+							</div>
+							<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+								<StoreBadge />
 							</div>
 							<div className="flex items-center gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
+								<YnsLink
+									prefetch="eager"
+									href="/products"
+									className="hidden md:inline-flex items-center justify-center h-10 px-5 rounded-full bg-[#c99a5e] text-[#4a2c1a] text-xs sm:text-sm font-bold tracking-[0.18em] uppercase border-2 border-[#8b5e3c] shadow-[0_4px_0_0_#8b5e3c] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#8b5e3c] transition-all"
+								>
+									Where to Buy
+								</YnsLink>
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +249,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${sniglet.variable} ${nunito.variable} font-body antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
