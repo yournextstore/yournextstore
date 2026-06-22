@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -10,6 +10,7 @@ import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { SearchInput } from "@/app/search-input";
+import { AnnouncementMarquee } from "@/components/announcement-marquee";
 import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
@@ -22,13 +23,14 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bricolage = Bricolage_Grotesque({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
 });
 
@@ -137,26 +139,39 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<AnnouncementMarquee />
+				<header className="sticky top-0 z-50 border-b-2 border-foreground bg-background">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+						<div className="grid grid-cols-3 items-center h-16">
+							<div className="flex items-center gap-4 justify-self-start">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
+								<Navbar links={links} />
+							</div>
+							<YnsLink prefetch={"eager"} href="/" className="justify-self-center text-center leading-none">
+								<span className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">
+									YOUR NEXT STORE
+								</span>
+								<span className="block text-[10px] tracking-[0.3em] text-muted-foreground mt-0.5">
+									HONEY FRUIT SNACKS
+								</span>
+							</YnsLink>
+							<div className="flex items-center gap-2 sm:gap-3 justify-self-end">
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="hidden md:inline-flex items-center justify-center h-10 px-5 rounded-full bg-[--color-sun-pop] text-foreground font-display font-extrabold text-sm tracking-wide border-2 border-foreground pill-shadow hover:translate-y-[-2px] transition-transform"
+								>
+									SHOP NOW
+								</YnsLink>
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +207,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bricolage.variable} ${inter.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Droplets, Heart, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,47 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Real honey, not corn syrup",
+		description: "Sweetness straight from the hive — nothing artificial, nothing weird.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Built to fuel",
+		description: "An electrolyte blend that supports steady energy through 60 minutes of play.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Safe for the squad",
+		description: "Made in a nut‑free facility. Non‑GMO, gluten‑free, dye‑free, allergen‑smart.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Heart, Droplets, Sparkles];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+		<section className="mt-20 border-t-2 border-foreground/20 pt-16">
+			<div className="text-center">
+				<span className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-3 py-1 text-[10px] font-bold tracking-[0.25em]">
+					WHY KIDS LOVE IT
+				</span>
+				<h2 className="mt-4 mb-12 text-center font-display text-3xl sm:text-4xl font-extrabold uppercase tracking-tight">
+					Feel‑good fuel, by design
+				</h2>
+			</div>
+			<div className="grid gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group flex flex-col items-center text-center rounded-3xl border-2 border-foreground/15 bg-[--color-butter] p-8 transition-transform hover:-translate-y-1"
+						>
+							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white border-2 border-foreground">
+								<Icon className="h-6 w-6 text-foreground" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-display text-lg font-extrabold uppercase tracking-wide">
+								{feature.title}
+							</h3>
+							<p className="text-sm text-foreground/70">{feature.description}</p>
 						</div>
 					);
 				})}
