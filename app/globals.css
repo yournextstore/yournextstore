@@ -40,75 +40,85 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+
+	/* Mushroom theme — earthy wellness palette */
+	--color-mush-yellow: #f5c66b;
+	--color-mush-yellow-deep: #e9b248;
+	--color-mush-caramel: #7a3a1c;
+	--color-mush-espresso: #3d1f0f;
+	--color-mush-cream: #efe5da;
+	--color-mush-cream-deep: #e6d8c6;
+	--color-mush-chartreuse: #d9f24a;
+	--color-mush-ink: #1a1a1a;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 1rem;
+	--background: #efe5da;
+	--foreground: #3d1f0f;
+	--card: #ffffff;
+	--card-foreground: #3d1f0f;
+	--popover: #ffffff;
+	--popover-foreground: #3d1f0f;
+	--primary: #3d1f0f;
+	--primary-foreground: #efe5da;
+	--secondary: #e6d8c6;
+	--secondary-foreground: #3d1f0f;
+	--muted: #e6d8c6;
+	--muted-foreground: #7a3a1c;
+	--accent: #f5c66b;
+	--accent-foreground: #3d1f0f;
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: #d9c7b1;
+	--input: #d9c7b1;
+	--ring: #f5c66b;
+	--chart-1: #f5c66b;
+	--chart-2: #7a3a1c;
+	--chart-3: #d9f24a;
+	--chart-4: #e6d8c6;
+	--chart-5: #3d1f0f;
+	--sidebar: #efe5da;
+	--sidebar-foreground: #3d1f0f;
+	--sidebar-primary: #3d1f0f;
+	--sidebar-primary-foreground: #efe5da;
+	--sidebar-accent: #f5c66b;
+	--sidebar-accent-foreground: #3d1f0f;
+	--sidebar-border: #d9c7b1;
+	--sidebar-ring: #f5c66b;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--background: #1a1a1a;
+	--foreground: #efe5da;
+	--card: #2a1810;
+	--card-foreground: #efe5da;
+	--popover: #2a1810;
+	--popover-foreground: #efe5da;
+	--primary: #f5c66b;
+	--primary-foreground: #1a1a1a;
+	--secondary: #3d1f0f;
+	--secondary-foreground: #efe5da;
+	--muted: #3d1f0f;
+	--muted-foreground: #c9b89e;
+	--accent: #d9f24a;
+	--accent-foreground: #1a1a1a;
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--ring: #f5c66b;
+	--chart-1: #f5c66b;
+	--chart-2: #7a3a1c;
+	--chart-3: #d9f24a;
+	--chart-4: #efe5da;
+	--chart-5: #ffffff;
+	--sidebar: #1a1a1a;
+	--sidebar-foreground: #efe5da;
+	--sidebar-primary: #f5c66b;
+	--sidebar-primary-foreground: #1a1a1a;
+	--sidebar-accent: #3d1f0f;
+	--sidebar-accent-foreground: #efe5da;
 	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--sidebar-ring: #f5c66b;
 }
 
 @layer base {
@@ -117,7 +127,29 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-body, "Inter", system-ui, sans-serif);
 	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-family: var(--font-display, "Alfa Slab One", "Cooper Black", Georgia, serif);
+		letter-spacing: -0.01em;
+	}
+}
+
+.font-script {
+	font-family: var(--font-script, "Yellowtail", "Pacifico", cursive);
+	font-weight: 400;
+	letter-spacing: 0.005em;
+}
+
+.font-display {
+	font-family: var(--font-display, "Alfa Slab One", "Cooper Black", Georgia, serif);
+}
+
+.font-body {
+	font-family: var(--font-body, "Inter", system-ui, sans-serif);
 }
 
 .prose {
@@ -149,4 +181,67 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Hero earthy gradient — evokes oyster mushroom gills */
+.mush-hero-gradient {
+	background:
+		radial-gradient(ellipse 80% 60% at 30% 40%, rgba(245, 198, 107, 0.35), transparent 60%),
+		radial-gradient(ellipse 60% 70% at 80% 70%, rgba(122, 58, 28, 0.55), transparent 60%),
+		linear-gradient(135deg, #5c2a14 0%, #3d1f0f 45%, #2a1408 100%);
+}
+
+.mush-cream-gradient {
+	background: linear-gradient(180deg, #efe5da 0%, #e6d8c6 100%);
+}
+
+.mush-yellow-gradient {
+	background: linear-gradient(90deg, #f5c66b 0%, #e9b248 100%);
+}
+
+/* Marquee strip animation */
+@keyframes mush-marquee {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.mush-marquee {
+	animation: mush-marquee 38s linear infinite;
+}
+
+/* Diagonal stripe pattern used below the marquee */
+.mush-stripes {
+	background-image: repeating-linear-gradient(
+		-45deg,
+		#3d1f0f 0,
+		#3d1f0f 1px,
+		transparent 1px,
+		transparent 7px
+	);
+}
+
+/* Hand-drawn paint splash backgrounds for product carousel cards */
+.mush-splash-yellow {
+	background:
+		radial-gradient(ellipse 70% 65% at 50% 55%, #f5c66b 0%, #f5c66b 55%, transparent 70%);
+}
+.mush-splash-blue {
+	background:
+		radial-gradient(ellipse 70% 65% at 50% 55%, #b6e3f4 0%, #b6e3f4 55%, transparent 70%);
+}
+.mush-splash-lime {
+	background:
+		radial-gradient(ellipse 70% 65% at 50% 55%, #d9f24a 0%, #d9f24a 55%, transparent 70%);
+}
+.mush-splash-cream {
+	background:
+		radial-gradient(ellipse 70% 65% at 50% 55%, #f7eedf 0%, #f7eedf 55%, transparent 70%);
+}
+.mush-splash-peach {
+	background:
+		radial-gradient(ellipse 70% 65% at 50% 55%, #f4c9a0 0%, #f4c9a0 55%, transparent 70%);
 }

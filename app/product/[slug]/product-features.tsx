@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { FlaskConical, Leaf, type LucideIcon, Sprout } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,44 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Forest-grown",
+		description: "Cultivated on hardwood logs in shaded canopies — no industrial growhouses.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Dual-extracted",
+		description: "Hot water + ethanol extraction unlocks both beta-glucans and triterpenes.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Independently lab-tested",
+		description: "Each batch is screened for actives, heavy metals, and contaminants.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Leaf, Sprout, FlaskConical];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
+		<section className="mt-20 border-t border-[color:var(--color-mush-cream-deep)] pt-16">
+			<p className="text-center font-script text-2xl text-[color:var(--color-mush-caramel)]">
+				Why it&apos;s different
+			</p>
+			<h2 className="mb-12 text-center font-display text-3xl sm:text-4xl tracking-tight text-[color:var(--color-mush-espresso)]">
+				Made by farmers, not factories.
+			</h2>
 			<div className="grid gap-8 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--color-mush-yellow)] transition-colors group-hover:bg-[color:var(--color-mush-espresso)]">
+								<Icon className="h-6 w-6 text-[color:var(--color-mush-espresso)] transition-colors group-hover:text-[color:var(--color-mush-yellow)]" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-display text-lg text-[color:var(--color-mush-espresso)]">
+								{feature.title}
+							</h3>
+							<p className="text-sm text-[color:var(--color-mush-caramel)] leading-relaxed max-w-xs">
+								{feature.description}
+							</p>
 						</div>
 					);
 				})}

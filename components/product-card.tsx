@@ -56,7 +56,7 @@ export function ProductCard({
 
 	return (
 		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-square bg-[color:var(--color-mush-cream-deep)] rounded-2xl overflow-hidden mb-4">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -111,8 +111,10 @@ export function ProductCard({
 					))}
 			</div>
 			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+				<h3 className="font-display text-sm tracking-[0.12em] uppercase text-[color:var(--color-mush-espresso)] group-hover:text-[color:var(--color-mush-caramel)] transition-colors">
+					{product.name}
+				</h3>
+				<p className="text-base font-semibold text-[color:var(--color-mush-caramel)]">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);
