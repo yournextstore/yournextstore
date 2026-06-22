@@ -183,8 +183,8 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					{/* Title, Price, Description */}
+					<div className="space-y-4">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
@@ -208,10 +208,18 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								</span>
 							</a>
 						)}
+						{product.summary && (
+							<p className="text-muted-foreground leading-relaxed whitespace-pre-line">{product.summary}</p>
+						)}
+						{product.content && (
+							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
+								<TiptapRenderer content={product.content} />
+							</div>
+						)}
 					</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
+					{/* Configurable bundle → group builder; otherwise the variant selector, quantity, add to cart, trust badges.
+					    The bundle builder renders only for bundle products, so it stays dormant for regular stores. */}
 					{product.type === "bundle" && product.bundle?.groups?.length ? (
 						<BundleBuilder
 							bundleId={product.id}
@@ -242,16 +250,6 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 					)}
 				</div>
 			</div>
-
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
-			)}
 
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}

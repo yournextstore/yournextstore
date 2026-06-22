@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-foreground/75 hover:text-primary transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-foreground/75 hover:text-primary transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,15 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] tracking-[0.32em] uppercase text-foreground/65 mb-5 font-medium">
+				Collections
+			</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/75 hover:text-primary transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +82,15 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[10px] tracking-[0.32em] uppercase text-foreground/65 mb-5 font-medium">
+				Fine print
+			</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground/75 hover:text-primary transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -96,6 +100,8 @@ async function FooterLegalPages() {
 		</div>
 	);
 }
+
+const certifications = ["NSF Certified", "Third-party Tested", "B Corp Pending", "Carbon-neutral shipping"];
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
 // shell, reading it during the prerender is an error. Caching pins it to the entry.
@@ -110,54 +116,103 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-cream border-t border-border/60">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid gap-12 lg:grid-cols-5">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="lg:col-span-2 max-w-sm">
+						<Link
+							href="/"
+							className="text-base font-serif font-bold tracking-[0.18em] uppercase text-primary leading-tight"
+						>
+							<span className="block">Your Next</span>
+							<span className="block">Store</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+							A small-batch apothecary for restful evenings. Hand-blended, clinically-dosed, and shipped from
+							our studio with a handwritten card.
 						</p>
+						<div className="mt-6 flex items-center gap-3">
+							<a
+								href="https://instagram.com"
+								target="_blank"
+								rel="noreferrer"
+								className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 text-foreground/65 hover:text-primary hover:border-primary/30 transition-colors"
+								aria-label="Instagram"
+							>
+								<span className="sr-only">Instagram</span>
+								<svg
+									className="h-4 w-4"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth={1.5}
+									aria-hidden="true"
+									role="img"
+								>
+									<title>Instagram</title>
+									<rect x="3" y="3" width="18" height="18" rx="5" />
+									<circle cx="12" cy="12" r="4" />
+									<circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+								</svg>
+							</a>
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
 					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[10px] tracking-[0.32em] uppercase text-foreground/65 mb-5 font-medium">
+							Help
+						</h3>
+						<ul className="space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground/75 hover:text-primary transition-colors"
 								>
 									About Us
 								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
+								<Link href="/faq" className="text-sm text-foreground/75 hover:text-primary transition-colors">
+									Frequently asked
+								</Link>
+							</li>
+							<li>
 								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									href="/products"
+									className="text-sm text-foreground/75 hover:text-primary transition-colors"
 								>
-									FAQ
+									Shop all
 								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
+				{/* Certifications strip */}
+				<div className="py-5 border-t border-border/60 flex flex-wrap gap-x-6 gap-y-2 items-center justify-center text-[10px] tracking-[0.28em] uppercase text-foreground/55">
+					{certifications.map((c) => (
+						<span key={c}>{c}</span>
+					))}
+				</div>
+
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-border/60 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex flex-col gap-2">
+						<p className="text-xs text-muted-foreground">
+							&copy; {year} Your Next Store. Made slowly in small batches.
+						</p>
+						<p className="text-[10px] tracking-[0.28em] uppercase text-foreground/45">
+							These statements have not been evaluated by the FDA.
+						</p>
+					</div>
 					<PaymentMethods />
 				</div>
 			</div>
