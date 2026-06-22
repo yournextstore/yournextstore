@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bodyFont = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const displayFont = Cormorant_Garamond({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -50,9 +53,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 		},
 		description: storeDescription,
 		applicationName: storeName,
-		alternates: {
-			canonical: "/",
-		},
+		alternates: { canonical: "/" },
 		openGraph: {
 			type: "website",
 			siteName: storeName,
@@ -99,11 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { cart: null, cartId: null };
-	}
-
+	if (!cartCookie?.id) return { cart: null, cartId: null };
 	try {
 		const cart = await commerce.cartGet({ cartId: cartCookie.id });
 		return { cart: cart ?? null, cartId: cartCookie.id };
@@ -131,22 +128,37 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="border-b hairline bg-[var(--cream)] text-foreground/80">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex items-center justify-center h-9 text-xs tracking-[0.14em] uppercase">
+					Complimentary delivery on orders over $1,500 · Made-to-order, crafted in Europe
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b hairline bg-background/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+						<div className="grid grid-cols-[1fr_auto_1fr] items-center h-20">
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="justify-self-start font-display text-2xl tracking-tight text-foreground"
+							>
+								Your Next Store<span className="text-[var(--clay)]">.</span>
+							</YnsLink>
+							<Navbar links={links} />
+							<div className="flex items-center gap-1 justify-self-end">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +168,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -182,17 +194,12 @@ async function NewsletterPopupSection() {
 	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
 }
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	const env = process.env.VERCEL_ENV || "development";
 	const lang = await getHtmlLang();
-
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bodyFont.variable} ${displayFont.variable} font-body antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

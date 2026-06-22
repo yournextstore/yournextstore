@@ -25,10 +25,10 @@ type ProductGridProps = {
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Featured products",
+	description = "Pieces in the season's quiet rotation.",
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
@@ -38,42 +38,47 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="bg-background">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+				<div className="flex items-end justify-between border-b hairline pb-6 mb-12">
+					<div>
+						<p className="eyebrow text-[var(--clay)] mb-3">The collection</p>
+						<h2 className="font-display text-4xl sm:text-5xl tracking-tight text-foreground leading-[1.05]">
+							{title}
+						</h2>
+						<p className="mt-3 text-foreground/60 max-w-md">{description}</p>
+					</div>
+					{showViewAll && (
+						<YnsLink
+							prefetch={"eager"}
+							href={viewAllHref}
+							className="hidden sm:inline-flex items-center gap-2 text-[0.7rem] tracking-[0.2em] uppercase text-foreground/70 hover:text-foreground border-b hairline pb-1 transition-colors"
+						>
+							View archive
+							<ArrowRight className="h-3.5 w-3.5" />
+						</YnsLink>
+					)}
 				</div>
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+					{displayProducts.map((product) => (
+						<ProductCard key={product.id} product={product} />
+					))}
+				</div>
+
 				{showViewAll && (
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+					<div className="mt-14 text-center sm:hidden">
+						<YnsLink
+							prefetch={"eager"}
+							href={viewAllHref}
+							className="inline-flex items-center gap-2 text-[0.7rem] tracking-[0.2em] uppercase text-foreground/70 hover:text-foreground border-b hairline pb-1 transition-colors"
+						>
+							View archive
+							<ArrowRight className="h-3.5 w-3.5" />
+						</YnsLink>
+					</div>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
-				</div>
-			)}
 		</section>
 	);
 }
