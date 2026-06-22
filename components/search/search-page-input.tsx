@@ -30,9 +30,9 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 				<label htmlFor={`${listboxId}-input`} className="sr-only">
 					Search products
 				</label>
-				<div className="relative border-b border-foreground/30 transition-colors focus-within:border-foreground">
+				<div className="relative">
 					<Search
-						className="pointer-events-none absolute left-0 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground/60"
+						className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#3a4a8c]/60"
 						strokeWidth={1.5}
 					/>
 					<input
@@ -56,7 +56,7 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-14 w-full border-0 bg-transparent pl-8 pr-2 text-2xl font-medium tracking-tight text-foreground placeholder:font-medium placeholder:text-foreground/40 focus:outline-none sm:text-3xl"
+						className="h-12 w-full rounded-full border-2 border-[#3a4a8c]/15 bg-[#fff8e7] pl-11 pr-6 text-base font-medium text-[#3a4a8c] placeholder:text-[#3a4a8c]/45 focus:outline-none focus:ring-4 focus:ring-[#e8456a]/20 focus:border-[#e8456a]"
 					/>
 				</div>
 				{panelOpen ? (

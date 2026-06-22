@@ -40,7 +40,7 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="hidden lg:inline-flex xl:hidden rounded-full p-2 text-[#3a4a8c] transition-colors hover:bg-[#fff8e7]"
 				>
 					<Search className="h-6 w-6" strokeWidth={1.75} />
 				</PopoverTrigger>
@@ -53,7 +53,7 @@ export function SearchInput() {
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
 							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3a4a8c]/60"
 								strokeWidth={1.75}
 							/>
 							<input
@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-full rounded-full border-2 border-[#3a4a8c]/15 bg-[#fff8e7] pl-10 pr-4 text-sm font-medium text-[#3a4a8c] placeholder:text-[#3a4a8c]/45 focus:outline-none focus:ring-4 focus:ring-[#e8456a]/20 focus:border-[#e8456a]"
 							/>
 						</div>
 					</form>
@@ -98,7 +98,7 @@ export function SearchInput() {
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3a4a8c]/60"
 							strokeWidth={1.75}
 						/>
 						<input
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-10 w-56 rounded-full border-2 border-[#3a4a8c]/15 bg-[#fff8e7] pl-10 pr-4 text-sm font-medium text-[#3a4a8c] placeholder:text-[#3a4a8c]/45 focus:outline-none focus:ring-4 focus:ring-[#e8456a]/20 focus:border-[#e8456a]"
 						/>
 					</div>
 					<PopoverContent

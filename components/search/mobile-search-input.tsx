@@ -31,7 +31,7 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 				</label>
 				<div className="relative">
 					<Search
-						className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+						className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#3a4a8c]/60"
 						strokeWidth={1.75}
 					/>
 					<input
@@ -50,7 +50,7 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-12 w-full rounded-full border border-border bg-background pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+						className="h-12 w-full rounded-full border-2 border-[#3a4a8c]/15 bg-[#fff8e7] pl-11 pr-4 text-base font-medium text-[#3a4a8c] placeholder:text-[#3a4a8c]/45 focus:outline-none focus:ring-4 focus:ring-[#e8456a]/20 focus:border-[#e8456a]"
 					/>
 				</div>
 				{panelOpen ? (
