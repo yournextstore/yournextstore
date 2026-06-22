@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-cream/70 hover:text-cream transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-cream/70 hover:text-cream transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-chartreuse">Shelves</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-cream/70 hover:text-cream transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +80,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-chartreuse">Fine print</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-cream/70 hover:text-cream transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -106,59 +106,100 @@ async function getCopyrightYear() {
 	return new Date().getFullYear();
 }
 
+function Mascot() {
+	return (
+		<svg viewBox="0 0 64 64" className="w-14 h-14" aria-hidden>
+			<circle cx="32" cy="28" r="14" fill="var(--cream)" />
+			<circle cx="27" cy="26" r="2.5" fill="var(--ink)" />
+			<circle cx="37" cy="26" r="2.5" fill="var(--ink)" />
+			<path d="M27 33 Q32 36 37 33" stroke="var(--ink)" strokeWidth="2" fill="none" strokeLinecap="round" />
+			<circle cx="32" cy="18" r="2.5" fill="var(--chartreuse)" />
+			<line x1="32" y1="20" x2="32" y2="14" stroke="var(--cream)" strokeWidth="1.5" />
+			<path
+				d="M18 42 L12 56 M24 44 L20 60 M32 45 L32 62 M40 44 L44 60 M46 42 L52 56"
+				stroke="var(--cream)"
+				strokeWidth="2"
+				strokeLinecap="round"
+			/>
+		</svg>
+	);
+}
+
 export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="relative overflow-hidden text-cream" style={{ background: "#0a0f3d" }}>
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-24 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-10 sm:gap-12">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div className="col-span-2 lg:col-span-2 sm:max-w-xs">
+						<Link href="/" className="font-display text-2xl sm:text-3xl font-black text-cream">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm text-cream/70 leading-relaxed">
+							A small bookshop with big questions on every shelf. Curated, hand-bound, sent in recycled paper.
 						</p>
+						<div className="mt-6 flex items-center gap-4">
+							<Mascot />
+							<p
+								className="font-display italic text-lg text-chartreuse"
+								style={{ fontVariationSettings: "'SOFT' 100, 'WONK' 1" }}
+							>
+								Ask. Open. Discover.
+							</p>
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-chartreuse">Help</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<Link href="/about" className="text-sm text-cream/70 hover:text-cream transition-colors">
 									About Us
 								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
+								<Link href="/faq" className="text-sm text-cream/70 hover:text-cream transition-colors">
 									FAQ
 								</Link>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<Link href="/products" className="text-sm text-cream/70 hover:text-cream transition-colors">
+									All titles
+								</Link>
+							</li>
+							<li>
+								<Link href="/search" className="text-sm text-cream/70 hover:text-cream transition-colors">
+									Search the shelf
+								</Link>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-cream/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+					<p className="text-xs text-cream/55 tracking-wide">
+						&copy; {year} Your Next Store. Printed slowly, shipped politely.
+					</p>
+					<div className="flex flex-col items-start gap-4 sm:items-end">
+						<div className="flex items-center gap-5 text-xs text-cream/55">
+							{["Instagram", "Substack", "Are.na"].map((label) => (
+								// biome-ignore lint/a11y/useValidAnchor: placeholder profile links until the store owner sets the URLs
+								<a key={label} href="#" className="hover:text-chartreuse transition-colors">
+									{label}
+								</a>
+							))}
+						</div>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>
