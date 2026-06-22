@@ -16,6 +16,13 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const TONES = ["bg-sky/70", "bg-mustard/70", "bg-cherry/15", "bg-sky/45", "bg-mustard/45", "bg-cherry/25"];
+
+function hashTone(id: string) {
+	const hash = id.split("").reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) >>> 0, 0);
+	return TONES[hash % TONES.length];
+}
+
 export async function ProductCard({
 	product,
 	priority = false,
@@ -61,9 +68,13 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const tone = hashTone(product.id);
+
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div
+				className={`relative aspect-square ${tone} rounded-[2rem] overflow-hidden mb-4 ring-1 ring-ink/5 transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-[0_22px_50px_-25px_rgba(14,14,14,0.45)]`}
+			>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -121,14 +132,18 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="flex items-start justify-between gap-3 px-1">
+				<h2 className="text-base font-semibold text-ink leading-snug group-hover:text-cherry transition-colors">
+					{product.name}
+				</h2>
+				{priceDisplay && (
+					<p className="shrink-0 inline-flex flex-wrap items-baseline gap-x-2 rounded-full border-2 border-ink px-3 py-1 text-sm font-bold text-ink">
+						<span>{priceDisplay}</span>
+						{compareAtDisplay && (
+							<span className="text-xs font-medium text-ink/50 line-through">{compareAtDisplay}</span>
+						)}
+					</p>
+				)}
 			</div>
 		</IntentLink>
 	);

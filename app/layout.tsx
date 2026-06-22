@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bagel_Fat_One, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const display = Bagel_Fat_One({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const sans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -42,7 +43,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Spreadable, dippable, infinitely enjoyable goods.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -124,29 +126,112 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-ink text-cream text-[13px] font-medium tracking-wide">
+			<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-center">
+				<span>
+					New flavors just dropped — free shipping over <span className="text-mustard">$45</span>
+				</span>
+				<button
+					type="button"
+					aria-label="Dismiss announcement"
+					className="absolute right-3 top-1/2 -translate-y-1/2 text-cream/70 hover:text-cream transition-colors"
+				>
+					<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+						<path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+					</svg>
+				</button>
+			</div>
+		</div>
+	);
+}
+
+function InstagramIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+			<rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.6" />
+			<circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6" />
+			<circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
+		</svg>
+	);
+}
+
+function TiktokIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+			<path d="M16.5 3h-2.7v12.1a2.8 2.8 0 1 1-2.8-2.8h.6V9.6h-.6a5.6 5.6 0 1 0 5.6 5.6V8.3c1 .8 2.3 1.3 3.6 1.3V6.9c-1.9 0-3.7-1.6-3.7-3.9Z" />
+		</svg>
+	);
+}
+
+function LinkIcon() {
+	return (
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+			<path
+				d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 1 0-5-5l-1 1M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 1 0 5 5l1-1"
+				stroke="currentColor"
+				strokeWidth="1.6"
+				strokeLinecap="round"
+			/>
+		</svg>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
-	// take the header, nav and footer out of the prerendered shell and leave the page
-	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// Only cached reads here. Awaiting anything request-time (cookies, headers) would take the
+	// header, nav and footer out of the prerendered shell and leave the page blank until the
+	// server responds; CartProvider loads the cart in the browser. No <Suspense> around this
+	// component either: the boundary itself is what streams the chrome out of the shell.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-cream">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-ink/10">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+							<div className="grid grid-cols-[auto_1fr_auto] items-center h-20 gap-4">
+								<div className="flex items-center">
+									<Link
+										href="/"
+										className="yns-display text-3xl text-ink leading-none tracking-tight"
+										aria-label="Your Next Store"
+									>
+										Y<span className="text-cherry">N</span>S
 									</Link>
+								</div>
+								<div className="hidden sm:flex justify-center">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center justify-end gap-1 sm:gap-2">
+									<a
+										href="https://instagram.com"
+										target="_blank"
+										rel="noreferrer noopener"
+										className="hidden md:inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
+										aria-label="Instagram"
+									>
+										<InstagramIcon />
+									</a>
+									<a
+										href="https://tiktok.com"
+										target="_blank"
+										rel="noreferrer noopener"
+										className="hidden md:inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
+										aria-label="TikTok"
+									>
+										<TiktokIcon />
+									</a>
+									<button
+										type="button"
+										className="hidden md:inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
+										aria-label="Share link"
+									>
+										<LinkIcon />
+									</button>
+									<div className="mx-1 hidden md:block h-6 w-px bg-ink/15" />
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,7 +245,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="inline-flex p-2 text-ink/80 hover:text-ink transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -175,7 +260,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -208,10 +293,10 @@ export default async function RootLayout({
 	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
 	const lang = await getHtmlLang();
 
+	// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 	return (
-		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${display.variable} ${sans.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
