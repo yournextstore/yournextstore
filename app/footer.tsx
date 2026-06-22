@@ -14,7 +14,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-muted-foreground hover:text-ember transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +32,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-muted-foreground hover:text-ember transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +51,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.22em] font-medium text-bone/90">Shop</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-muted-foreground hover:text-ember transition-colors"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +80,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.22em] font-medium text-bone/90">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-muted-foreground hover:text-ember transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -106,34 +106,53 @@ async function getCopyrightYear() {
 	return new Date().getFullYear();
 }
 
+const SOCIAL_LINKS = [
+	{ label: "Instagram", href: "#" },
+	{ label: "TikTok", href: "#" },
+	{ label: "YouTube", href: "#" },
+];
+
 export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="relative border-t border-border bg-black">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 grid grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="col-span-2 lg:col-span-4 max-w-xs">
+						<Link href="/" className="font-display text-3xl italic font-extrabold tracking-tight text-bone">
+							yns<span className="text-ember">.</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+							A small object for a quieter life. Reclaim your evenings, one tap at a time.
 						</p>
+						<div className="mt-7 flex items-center gap-4">
+							{SOCIAL_LINKS.map(({ label, href }) => (
+								<a
+									key={label}
+									href={href}
+									className="text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-ember transition-colors"
+								>
+									{label}
+								</a>
+							))}
+						</div>
 					</div>
 
 					{/* Collections */}
-					<FooterCollections />
+					<div className="col-span-1 lg:col-span-2 lg:col-start-6">
+						<FooterCollections />
+					</div>
 
 					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+					<div className="col-span-1 lg:col-span-2">
+						<h3 className="text-[11px] uppercase tracking-[0.22em] font-medium text-bone/90">Support</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-muted-foreground hover:text-ember transition-colors"
 								>
 									About Us
 								</Link>
@@ -142,9 +161,25 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-muted-foreground hover:text-ember transition-colors"
 								>
 									FAQ
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/products"
+									className="text-sm text-muted-foreground hover:text-ember transition-colors"
+								>
+									Returns
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/products"
+									className="text-sm text-muted-foreground hover:text-ember transition-colors"
+								>
+									Shipping
 								</Link>
 							</li>
 							<FooterBlogLink />
@@ -152,12 +187,15 @@ export async function Footer() {
 					</div>
 
 					{/* Legal */}
-					<FooterLegalPages />
+					<div className="col-span-1 lg:col-span-2">
+						<FooterLegalPages />
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-7 border-t border-border flex flex-col gap-3 items-start sm:flex-row sm:items-center justify-between">
+					<p className="text-xs text-muted-foreground">© {year} Your Next Store. Built quietly.</p>
+					<p className="text-xs text-muted-foreground">Designed in Brooklyn · Made on Earth</p>
 					<PaymentMethods />
 				</div>
 			</div>

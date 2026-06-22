@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useId, useRef, useState } from "react";
 import { Suggestions } from "@/components/search/suggestions";
@@ -36,6 +37,15 @@ export function SearchInput() {
 
 	return (
 		<>
+			{/* below lg — plain link to the search page */}
+			<Link
+				href="/search"
+				aria-label="Search"
+				className="p-2 hover:bg-secondary rounded-full transition-colors lg:hidden"
+			>
+				<Search className="w-6 h-6" />
+			</Link>
+
 			{/* lg only — icon trigger opens popover with input inside */}
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
@@ -75,7 +85,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-9 w-full rounded-full border border-bone/10 bg-bone/5 pl-9 pr-3 text-sm text-bone placeholder:text-muted-foreground/70 focus:outline-none focus:border-ember/60 focus:ring-2 focus:ring-ember/20"
 							/>
 						</div>
 					</form>
@@ -124,7 +134,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-9 w-44 rounded-full border border-bone/10 bg-bone/5 pl-9 pr-3 text-sm text-bone placeholder:text-muted-foreground/70 focus:outline-none focus:border-ember/60 focus:ring-2 focus:ring-ember/20"
 						/>
 					</div>
 					<PopoverContent
