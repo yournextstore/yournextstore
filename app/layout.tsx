@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const fraunces = Fraunces({
+	variable: "--font-display",
 	subsets: ["latin"],
+	display: "swap",
+	axes: ["opsz", "SOFT"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -112,6 +115,32 @@ async function getInitialCart() {
 	}
 }
 
+function AnnouncementBar() {
+	const items = [
+		"Complimentary shipping on orders over $250",
+		"The Series Seven — 70 years in the making",
+		"Editorial collection — new objects every season",
+		"Hand-finished in Denmark since 1955",
+	];
+	return (
+		<div
+			className="border-b border-border bg-ink text-paper overflow-hidden"
+			style={{ backgroundColor: "#1A1A1A", color: "#F4F1EC" }}
+		>
+			<div className="relative flex whitespace-nowrap py-2 text-[11px] uppercase tracking-[0.28em]">
+				<div className="flex animate-marquee">
+					{[...items, ...items].map((t, i) => (
+						<span key={i} className="mx-8 inline-flex items-center gap-8">
+							<span>{t}</span>
+							<span className="opacity-40">✕</span>
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -137,16 +166,23 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
+				<AnnouncementBar />
+				<header
+					className="sticky top-0 z-50 border-b border-border bg-paper/85 backdrop-blur-xl"
+					style={{ backgroundColor: "rgba(244, 241, 236, 0.85)" }}
+				>
+					<div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+						<div className="grid grid-cols-3 items-center h-16">
 							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+								<YnsLink prefetch={"eager"} href="/" className="group inline-flex items-center gap-2">
+									<span className="block h-2 w-2 rounded-full bg-foreground" />
+									<span className="text-[13px] tracking-[0.18em] uppercase font-medium">Your Next Store</span>
 								</YnsLink>
+							</div>
+							<div className="flex justify-center">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-end gap-3">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +192,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +228,10 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${fraunces.variable} antialiased font-sans`}
+				style={{ fontFamily: "var(--font-sans), system-ui, sans-serif" }}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
