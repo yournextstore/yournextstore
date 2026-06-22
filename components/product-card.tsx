@@ -61,9 +61,21 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const tintClasses = [
+		"bg-[var(--color-sky)]/25",
+		"bg-[var(--color-sunshine)]/25",
+		"bg-[var(--color-coral)]/25",
+		"bg-[var(--color-mint)]/25",
+		"bg-[var(--color-yellow)]/40",
+	];
+	const tintIdx = product.id.split("").reduce((acc, ch) => (acc + ch.charCodeAt(0)) % tintClasses.length, 0);
+	const tint = tintClasses[tintIdx];
+
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div
+				className={`relative aspect-square ${tint} rounded-3xl overflow-hidden mb-4 transition-transform group-hover:-translate-y-1`}
+			>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -121,12 +133,12 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="flex items-start justify-between gap-3 px-1">
+				<h2 className="text-base font-bold text-foreground leading-snug">{product.name}</h2>
+				<p className="shrink-0 rounded-full bg-secondary px-3 py-1 text-sm font-bold text-foreground">
+					{priceDisplay}
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="ml-2 font-normal text-muted-foreground line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>
