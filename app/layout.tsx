@@ -1,9 +1,15 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import {
+	ChevronDown as ChevronDownIcon,
+	Gift as GiftIcon,
+	Heart as HeartIcon,
+	Search as SearchIcon,
+	User as UserIcon,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +31,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const display = Archivo({
+	variable: "--font-display",
+	subsets: ["latin"],
+	weight: ["500", "600", "700", "800", "900"],
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -42,7 +56,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Premium performance apparel engineered for movement, designed for life beyond the gym.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -124,6 +140,53 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[--ink] text-[--bone] text-[11px] tracking-[0.18em] uppercase">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between">
+				<div className="hidden md:flex items-center gap-6 text-[--bone]/70">
+					<span>Free shipping on US orders $75+</span>
+					<span>·</span>
+					<span>Easy 60-day returns</span>
+				</div>
+				<div className="flex-1 md:flex-none text-center md:text-left text-[--bone]">
+					Every Move. Every Form. Shop Your Next Store™ Form
+				</div>
+				<div className="hidden md:flex items-center gap-4 text-[--bone]/80">
+					<button type="button" className="inline-flex items-center gap-1 hover:text-[--bone]">
+						<GiftIcon className="h-3 w-3" /> Gift Cards
+					</button>
+					<button type="button" className="inline-flex items-center gap-1 hover:text-[--bone]">
+						<span className="inline-block h-2 w-2 rounded-full bg-[--bone]" /> US
+						<ChevronDownIcon className="h-3 w-3" />
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function YNSLogo() {
+	return (
+		<Link href="/" className="flex items-center gap-2 group" aria-label="Your Next Store">
+			<svg
+				viewBox="0 0 40 24"
+				className="h-5 w-auto"
+				aria-hidden="true"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path d="M2 22 L12 4 L22 22" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+				<path d="M16 22 L26 4 L36 22" stroke="var(--oxblood)" strokeWidth="3" strokeLinecap="round" />
+				<circle cx="32" cy="4" r="2" fill="#e3b766" />
+			</svg>
+			<span className="display-section text-[17px] font-bold tracking-[-0.02em] uppercase">
+				Your Next Store
+			</span>
+		</Link>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
@@ -136,21 +199,38 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+							<div className="flex items-center justify-between h-14">
+								<div className="hidden lg:flex flex-1 items-center gap-7">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
+								<div className="flex lg:flex-1 lg:justify-center">
+									<YNSLogo />
+								</div>
+								<div className="flex flex-1 items-center justify-end gap-3 text-foreground/80">
+									<div className="hidden md:flex items-center text-xs uppercase tracking-[0.14em] gap-4 mr-1">
+										<Link href="/legal/sign-up" className="hover:text-foreground">
+											Sign Up
+										</Link>
+										<Link href="/products" className="hover:text-foreground">
+											Find a Store
+										</Link>
+									</div>
+									<div className="hidden sm:block">
+										<Suspense>
+											<SearchInput />
+										</Suspense>
+									</div>
+									<button
+										type="button"
+										aria-label="Search"
+										className="sm:hidden p-2 hover:text-foreground transition-colors"
+									>
+										<SearchIcon className="h-5 w-5" />
+									</button>
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,11 +240,19 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
 										aria-label="Account"
+										className="p-2 hover:text-foreground transition-colors"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserIcon className="h-5 w-5" />
 									</a>
+									<button
+										type="button"
+										aria-label="Wishlist"
+										className="hidden md:inline-flex p-2 hover:text-foreground transition-colors"
+									>
+										<HeartIcon className="h-5 w-5" />
+									</button>
+									<ThemeToggle />
 									<CartButton />
 								</div>
 							</div>
@@ -211,7 +299,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${display.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
