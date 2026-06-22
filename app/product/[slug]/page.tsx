@@ -177,14 +177,14 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 					</BreadcrumbItem>
 				</BreadcrumbList>
 			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-12">
 				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 lg:mt-0 space-y-6">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					<div className="space-y-4">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
@@ -193,7 +193,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl font-semibold tracking-wide text-foreground lg:text-4xl text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -207,6 +207,12 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
 								</span>
 							</a>
+						)}
+						<div className="border-t border-border" />
+						{product.summary && (
+							<p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+								{product.summary}
+							</p>
 						)}
 					</div>
 
@@ -233,7 +239,6 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								slug: product.slug,
 								images: product.images,
 							}}
-							summary={product.summary}
 							volumePricingTiers={product.volumePricingTiers}
 							restockNotificationsEnabled={restockNotificationsEnabled}
 							subscriptionMode={product.subscriptionMode}

@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Josefin_Sans, Source_Sans_3 } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const josefinSans = Josefin_Sans({
+	variable: "--font-heading",
 	subsets: ["latin"],
+	weight: ["300", "400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const sourceSans = Source_Sans_3({
+	variable: "--font-body",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["300", "400", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,11 +137,17 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+					{/* Announcement Bar */}
+					<div className="bg-foreground text-primary-foreground text-center py-2 text-xs tracking-widest uppercase">
+						Free shipping and returns over $50
+					</div>
+
+					{/* Header */}
+					<header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+							<div className="flex items-center justify-between h-14">
+								<div className="flex items-center gap-8">
+									<Link href="/" className="font-heading text-lg font-semibold tracking-wider uppercase">
 										Your Next Store
 									</Link>
 									<Navbar links={links} />
@@ -211,7 +217,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${josefinSans.variable} ${sourceSans.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
