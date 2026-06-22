@@ -9,6 +9,8 @@
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+	--font-display: var(--font-display), "Inter", system-ui, sans-serif;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -40,41 +42,62 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-ink: var(--ink);
+	--color-bone: var(--bone);
+	--color-clay: var(--clay);
+	--color-oxblood: var(--oxblood);
+	--color-sand: var(--sand);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 0.25rem;
+
+	/* Brand palette: editorial athletic / west-coast minimal */
+	--ink: #0e0e10;
+	--ink-soft: #2c2c2e;
+	--oxblood: #8c2a24;
+	--bone: #f2efea;
+	--sand: #a89a86;
+	--clay: #c9bfae;
+
+	--background: #ffffff;
+	--foreground: var(--ink);
+
+	--card: #ffffff;
+	--card-foreground: var(--ink);
+	--popover: #ffffff;
+	--popover-foreground: var(--ink);
+
+	--primary: var(--ink);
+	--primary-foreground: #ffffff;
+
+	--secondary: var(--bone);
+	--secondary-foreground: var(--ink);
+
+	--muted: var(--bone);
+	--muted-foreground: #5a564f;
+
+	--accent: var(--oxblood);
+	--accent-foreground: #ffffff;
+
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
+	--border: #e6e1d8;
+	--input: #e6e1d8;
+	--ring: var(--ink);
+
 	--chart-1: oklch(0.646 0.222 41.116);
 	--chart-2: oklch(0.6 0.118 184.704);
 	--chart-3: oklch(0.398 0.07 227.392);
 	--chart-4: oklch(0.828 0.189 84.429);
 	--chart-5: oklch(0.769 0.188 70.08);
 	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--sidebar-foreground: var(--ink);
+	--sidebar-primary: var(--ink);
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: var(--bone);
+	--sidebar-accent-foreground: var(--ink);
+	--sidebar-border: #e6e1d8;
+	--sidebar-ring: var(--ink);
 }
 
 .dark {
@@ -96,19 +119,6 @@
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
 	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -117,7 +127,99 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
 	}
+	h1,
+	h2,
+	h3,
+	.font-display {
+		font-family: var(--font-display), "Inter", system-ui, sans-serif;
+		font-stretch: condensed;
+		letter-spacing: -0.01em;
+	}
+}
+
+/* Editorial display class — bold condensed, all-caps option */
+.display-hero {
+	font-family: var(--font-display), "Inter", system-ui, sans-serif;
+	font-weight: 800;
+	letter-spacing: -0.025em;
+	line-height: 0.92;
+	text-transform: capitalize;
+}
+
+.display-section {
+	font-family: var(--font-display), "Inter", system-ui, sans-serif;
+	font-weight: 600;
+	letter-spacing: -0.015em;
+}
+
+/* Cinematic gradients used in hero / banners */
+.bg-hero-fade {
+	background:
+		linear-gradient(180deg, rgba(14, 14, 16, 0) 35%, rgba(14, 14, 16, 0.65) 100%),
+		linear-gradient(90deg, rgba(14, 14, 16, 0.35), rgba(14, 14, 16, 0));
+}
+
+.bg-cinematic {
+	background:
+		radial-gradient(ellipse 80% 60% at 30% 40%, #2a1818 0%, #0e0e10 60%),
+		linear-gradient(180deg, #14110f, #0e0e10);
+}
+
+.bg-court {
+	background:
+		linear-gradient(135deg, rgba(140, 42, 36, 0.55), rgba(14, 14, 16, 0.85)),
+		radial-gradient(circle at 70% 30%, rgba(255, 200, 120, 0.25), transparent 55%);
+}
+
+.bg-mono {
+	background:
+		linear-gradient(135deg, #1a1a1c 0%, #0e0e10 60%, #050505 100%),
+		radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08), transparent 50%);
+}
+
+.bg-sand-gradient {
+	background:
+		linear-gradient(180deg, #f6f2eb 0%, #ece4d3 100%),
+		radial-gradient(ellipse at top right, rgba(168, 154, 134, 0.25), transparent 60%);
+}
+
+.bg-bone-gradient {
+	background: linear-gradient(180deg, #ffffff 0%, var(--bone) 100%);
+}
+
+.bg-coastal {
+	background:
+		linear-gradient(180deg, rgba(168, 154, 134, 0.05), rgba(14, 14, 16, 0.55)),
+		linear-gradient(135deg, #c9bfae 0%, #8b8576 55%, #2c2c2e 100%);
+}
+
+/* Marquee for press strip */
+@keyframes marquee {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+.animate-marquee {
+	animation: marquee 32s linear infinite;
+}
+
+/* Subtle film grain overlay for hero */
+.film-grain::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+	opacity: 0.15;
+	pointer-events: none;
+	mix-blend-mode: overlay;
 }
 
 .prose {
@@ -149,4 +251,13 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Hide horizontal scroll bar for category carousel */
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+.no-scrollbar {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 }
