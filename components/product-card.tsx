@@ -16,6 +16,21 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const TINTS = [
+	"linear-gradient(160deg, #f1ecf8 0%, #d8c9f0 100%)",
+	"linear-gradient(160deg, #e6f0ee 0%, #b9d8d8 100%)",
+	"linear-gradient(160deg, #fdf3e6 0%, #f2c14a55 100%)",
+	"linear-gradient(160deg, #fbeee2 0%, #e8b89c80 100%)",
+	"linear-gradient(160deg, #f1ecf8 0%, #b4a4dd66 100%)",
+	"linear-gradient(160deg, #efeae0 0%, #d8c9f0 100%)",
+];
+
+function hashIndex(id: string, len: number) {
+	let h = 0;
+	for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+	return Math.abs(h) % len;
+}
+
 export async function ProductCard({
 	product,
 	priority = false,
@@ -24,6 +39,7 @@ export async function ProductCard({
 	priority?: boolean;
 }) {
 	const variants = "variants" in product ? product.variants : null;
+
 	const allImages = [
 		...(product.images ?? []),
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
@@ -61,9 +77,11 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const tint = TINTS[hashIndex(product.id, TINTS.length)];
+
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4" style={{ background: tint }}>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -95,8 +113,8 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={`object-cover transition-all duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -116,17 +134,18 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							priority={priority}
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="flex items-start justify-between gap-3">
+				<h2 className="text-[14.5px] font-medium text-[#14111c] leading-tight">{product.name}</h2>
+				<p className="shrink-0 flex flex-wrap items-baseline justify-end gap-2 text-[14.5px] font-semibold text-[#5e3ca8] tabular-nums">
+					<span>{priceDisplay}</span>
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="text-[13px] font-normal text-[#14111c]/45 line-through">{compareAtDisplay}</span>
 					)}
 				</p>
 			</div>

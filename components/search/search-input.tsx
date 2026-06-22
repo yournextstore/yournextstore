@@ -60,7 +60,7 @@ export function SearchInput() {
 								ref={iconInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="Search shades, sets…"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
 								onKeyDown={makeKeyHandler(
@@ -105,7 +105,7 @@ export function SearchInput() {
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="Search shades, sets…"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-9 w-44 rounded-full border border-[#e4daf5] bg-white/70 pl-9 pr-3 text-[13px] text-[#14111c] placeholder:text-[#14111c]/40 focus:outline-none focus:ring-2 focus:ring-[#5e3ca8]/30 focus:border-[#b4a4dd]"
 						/>
 					</div>
 					<PopoverContent

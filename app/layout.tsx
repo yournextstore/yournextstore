@@ -3,11 +3,12 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
+import { AnnouncementBar } from "@/app/announcement-bar";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -25,16 +26,15 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const sans = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const display = Space_Grotesk({
+	variable: "--font-display",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,20 +137,27 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-[#e4daf5]/60 bg-[#f1ecf8]/90 backdrop-blur-md">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+							<div className="grid grid-cols-3 items-center h-16">
 								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+									<Link
+										href="/"
+										className="font-display text-[28px] font-bold tracking-tight text-[#14111c] leading-none"
+									>
+										Your Next Store<span className="text-[#5e3ca8]">.</span>
 									</Link>
-									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="hidden sm:flex justify-center">
+									<Suspense>
+										<Navbar links={links} />
+									</Suspense>
+								</div>
+								<div className="flex items-center justify-end gap-3 sm:gap-4">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,11 +167,18 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#14111c] hover:bg-white/60 transition-colors"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="w-5 h-5" strokeWidth={1.8} />
 									</a>
+									<ThemeToggle />
+									<div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-[#14111c]/70">
+										<span className="inline-flex h-4 w-6 items-center justify-center rounded-sm bg-gradient-to-b from-[#5e3ca8] to-[#3a2575] text-[8px] text-white">
+											UK
+										</span>
+										<span>United Kingdom | GBP £</span>
+									</div>
 									<CartButton />
 								</div>
 							</div>
@@ -175,7 +189,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -211,7 +225,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${sans.variable} ${display.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
