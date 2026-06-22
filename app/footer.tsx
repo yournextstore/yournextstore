@@ -1,3 +1,4 @@
+import { Mail, MapPin, Phone } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
@@ -14,7 +15,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +33,7 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/contact" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
 				Contact Us
 			</Link>
 		</li>
@@ -51,18 +52,23 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.22em] text-[#f5f1ea]/55 mb-5">Shop</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors"
 						>
 							{collection.name}
 						</Link>
 					</li>
 				))}
+				<li>
+					<Link href="/products" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
+						All products
+					</Link>
+				</li>
 			</ul>
 		</div>
 	);
@@ -74,19 +80,37 @@ async function FooterLegalPages() {
 
 	const pages = await commerce.legalPageBrowse();
 
-	if (pages.data.length === 0) {
-		return null;
-	}
-
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.22em] text-[#f5f1ea]/55 mb-5">Company</h3>
+			<ul className="space-y-3">
+				<li>
+					<Link href="/about" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
+						About Us
+					</Link>
+				</li>
+				<FooterContactLink />
+				<li>
+					<Link href="/faq" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
+						FAQ
+					</Link>
+				</li>
+				<li>
+					<Link href="/products" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
+						Lookbook
+					</Link>
+				</li>
+				<li>
+					<Link href="/products" className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors">
+						Trade program
+					</Link>
+				</li>
+				<FooterBlogLink />
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[#f5f1ea]/80 hover:text-[#e89b3c] transition-colors"
 						>
 							{page.label}
 						</Link>
@@ -110,55 +134,104 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+		<footer className="bg-[#141b24] text-[#f5f1ea]">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-10">
+				<div className="grid grid-cols-2 md:grid-cols-12 gap-10 sm:gap-12">
+					{/* Brand block */}
+					<div className="col-span-2 md:col-span-5">
+						<Link href="/" className="font-display text-2xl tracking-tight text-[#f5f1ea]">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 max-w-sm text-sm text-[#f5f1ea]/65 leading-relaxed">
+							Calm, considered furniture for slow homes. Heirloom craft delivered, anywhere.
 						</p>
+						<ul className="mt-7 space-y-3 text-sm text-[#f5f1ea]/75">
+							<li className="flex items-center gap-3">
+								<MapPin className="h-4 w-4 text-[#c8a57a]" /> 24 Linen Yard, Brooklyn NY
+							</li>
+							<li className="flex items-center gap-3">
+								<Mail className="h-4 w-4 text-[#c8a57a]" /> hello@yournextstore.com
+							</li>
+							<li className="flex items-center gap-3">
+								<Phone className="h-4 w-4 text-[#c8a57a]" /> +1 (212) 555-0421
+							</li>
+						</ul>
+						<div className="mt-7 flex items-center gap-3">
+							<a
+								href="https://instagram.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-[#f5f1ea]/15 hover:bg-[#e89b3c] hover:text-[#1f2933] hover:border-transparent transition-colors"
+							>
+								<span className="sr-only">Instagram</span>
+								<svg
+									aria-hidden="true"
+									className="h-4 w-4"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.8"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<rect x="3" y="3" width="18" height="18" rx="5" />
+									<circle cx="12" cy="12" r="4" />
+									<circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+								</svg>
+							</a>
+							<a
+								href="https://pinterest.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-[#f5f1ea]/15 hover:bg-[#e89b3c] hover:text-[#1f2933] hover:border-transparent transition-colors"
+							>
+								<span className="sr-only">Pinterest</span>
+								<svg
+									aria-hidden="true"
+									className="h-4 w-4"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.8"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<circle cx="12" cy="12" r="9" />
+									<path d="M11 7.5c2.5 0 4.5 1.5 4.5 4 0 2.5-1.6 4-3.5 4-1 0-1.7-.5-1.7-.5L9.6 19" />
+								</svg>
+							</a>
+						</div>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+					<div className="md:col-span-2">
+						<FooterCollections />
+					</div>
+					<div className="md:col-span-2">
+						<FooterLegalPages />
+					</div>
+					<div className="md:col-span-3">
+						<h3 className="text-[11px] uppercase tracking-[0.22em] text-[#f5f1ea]/55 mb-5">Visit us</h3>
+						<ul className="space-y-3 text-sm text-[#f5f1ea]/80">
+							<li>Brooklyn Showroom · 11–7 daily</li>
+							<li>Lisbon Atelier · by appointment</li>
+							<li>Copenhagen Pop-up · Spring 2026</li>
 						</ul>
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				{/* Oversized wordmark */}
+				<div aria-hidden="true" className="mt-16 sm:mt-20 overflow-hidden">
+					<div className="brand-wordmark text-[22vw] sm:text-[18vw] lg:text-[15vw] text-[#f5f1ea]/95 leading-[0.78] -mb-[2vw]">
+						Your Next Store
+					</div>
+				</div>
+
+				<div className="mt-10 pt-6 border-t border-[#f5f1ea]/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#f5f1ea]/55">
+					<p>&copy; {year} Your Next Store. Slow craft, anywhere.</p>
+					<div className="flex flex-col items-start gap-3 sm:items-end">
+						<PaymentMethods className="sm:justify-end" />
+						<p className="uppercase tracking-[0.22em]">Made by hand · Shipped with care</p>
+					</div>
 				</div>
 			</div>
 		</footer>
