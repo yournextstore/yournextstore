@@ -55,8 +55,12 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-square bg-cream rounded-2xl overflow-hidden mb-3 border border-border/60 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(14,59,46,0.25)]">
+				<span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-forest-deep text-cream text-[10px] font-semibold px-2.5 py-1">
+					<span className="h-1 w-1 rounded-full bg-lime" />
+					Free Delivery
+				</span>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -85,8 +89,8 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={`object-cover transition-transform duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
@@ -105,14 +109,25 @@ export function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="space-y-1 px-1">
+				<h3 className="text-sm font-medium text-forest-deep line-clamp-2 leading-snug min-h-[2.5rem]">
+					{product.name}
+				</h3>
+				<div className="flex items-center justify-between gap-2 pt-1">
+					<p className="text-base font-display font-bold text-forest-deep">{priceDisplay}</p>
+					<span className="text-[10px] font-semibold text-forest/60 inline-flex items-center gap-1">
+						<svg className="h-3 w-3 text-lime" viewBox="0 0 24 24" fill="currentColor">
+							<title>star</title>
+							<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+						</svg>
+						4.8
+					</span>
+				</div>
 			</div>
 		</YnsLink>
 	);

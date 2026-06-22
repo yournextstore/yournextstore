@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Leaf, type LucideIcon, Sprout, Truck } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,40 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Sourced locally",
+		description: "Partnered with family-run farms within 100 miles of your delivery zone.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Picked at peak ripeness",
+		description: "Harvested the morning your order ships — never warehoused, never waxed.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Delivered in 30 minutes",
+		description: "Refrigerated couriers and zero-waste packaging keep your basket fresh.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Sprout, Leaf, Truck];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
-		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
+		<section className="mt-20 rounded-3xl bg-cream border border-border p-10 sm:p-14">
+			<p className="text-xs uppercase tracking-[0.18em] font-semibold text-forest/70 mb-3 text-center">
+				The fresh promise
+			</p>
+			<h2 className="mb-12 text-center font-display text-3xl sm:text-4xl font-semibold tracking-tight text-forest-deep">
+				Tended with care, every step.
+			</h2>
 			<div className="grid gap-8 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-lime/30 transition-colors group-hover:bg-lime">
+								<Icon className="h-6 w-6 text-forest-deep" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-display text-lg font-semibold text-forest-deep">{feature.title}</h3>
+							<p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}
