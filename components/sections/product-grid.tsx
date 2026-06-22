@@ -25,10 +25,10 @@ type ProductGridProps = {
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "The Apothecary",
+	description = "Small-batch staples, picked petal by petal",
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
@@ -38,42 +38,44 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="bg-background">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
+				<div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+					<div>
+						<h2 className="font-serif text-3xl sm:text-4xl text-cocoa">{title}</h2>
+						<p className="mt-1 text-sm text-muted-foreground italic">{description}</p>
+					</div>
+					{showViewAll && (
+						<YnsLink
+							prefetch={"eager"}
+							href={viewAllHref}
+							className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-cocoa/70 hover:text-cocoa transition-colors group"
+						>
+							Browse the shelf
+							<ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+						</YnsLink>
+					)}
 				</div>
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+					{displayProducts.map((product) => (
+						<ProductCard key={product.id} product={product} />
+					))}
+				</div>
+
 				{showViewAll && (
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+					<div className="mt-10 text-center sm:hidden">
+						<YnsLink
+							prefetch={"eager"}
+							href={viewAllHref}
+							className="inline-flex items-center gap-1.5 text-sm font-medium text-cocoa/70 hover:text-cocoa transition-colors"
+						>
+							Browse the shelf
+							<ArrowRight className="h-3.5 w-3.5" />
+						</YnsLink>
+					</div>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
-				</div>
-			)}
 		</section>
 	);
 }

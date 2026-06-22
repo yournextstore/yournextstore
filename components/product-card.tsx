@@ -55,8 +55,12 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-square bg-sand rounded-3xl overflow-hidden mb-4 ring-1 ring-border/60 group-hover:ring-cocoa/15 group-hover:shadow-lg group-hover:shadow-cocoa/5 transition-all duration-500">
+				<div
+					className="absolute inset-0 bg-gradient-to-br from-cream/30 via-transparent to-sage/20 pointer-events-none"
+					aria-hidden="true"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -110,9 +114,11 @@ export function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="space-y-0.5 px-1">
+				<h3 className="font-serif text-lg text-cocoa group-hover:text-terracotta transition-colors">
+					{product.name}
+				</h3>
+				<p className="text-sm font-medium text-cocoa/80 tracking-wide">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);

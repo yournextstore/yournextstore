@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { Flower2, Leaf, type LucideIcon, Sparkles } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,40 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Whole-plant botanicals",
+		description: "Foraged, gently dried and milled in small batches — no synthetic stand-ins.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Prebiotic nutrients",
+		description: "Formulated with vitamins, minerals and antioxidants that support daily wellness.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "Quietly considered",
+		description: "Glass vessels, plant-based inks, and a soft footprint from garden to shelf.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [Leaf, Sparkles, Flower2];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
 		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+			<div className="text-center max-w-xl mx-auto mb-12">
+				<span className="text-xs uppercase tracking-[0.25em] text-terracotta font-medium">
+					Made with care
+				</span>
+				<h2 className="mt-3 font-serif text-3xl sm:text-4xl text-cocoa">Crafted with botanical intention</h2>
+			</div>
+			<div className="grid gap-10 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+							<div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-sand ring-1 ring-cocoa/10 transition-colors group-hover:bg-sage">
+								<Icon className="h-6 w-6 text-terracotta transition-colors group-hover:text-cocoa" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="mb-2 font-serif text-2xl text-cocoa">{feature.title}</h3>
+							<p className="text-sm text-cocoa/70 leading-relaxed max-w-xs">{feature.description}</p>
 						</div>
 					);
 				})}
