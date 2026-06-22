@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-foreground hover:text-foreground/70 transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-foreground hover:text-foreground/70 transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Collections</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground hover:text-foreground/70 transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-foreground hover:text-foreground/70 transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +108,50 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-background border-t border-border">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="pt-16 sm:pt-20 pb-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-12 gap-10 sm:gap-8">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
+					<div className="col-span-2 lg:col-span-5 lg:pr-10">
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="inline-flex items-center gap-2 text-base font-semibold tracking-tight text-foreground"
+						>
+							<span
+								aria-hidden
+								className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-foreground text-background"
+							>
+								<span className="block h-2.5 w-2.5 rounded-sm bg-accent" />
+							</span>
 							Your Next Store
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm leading-relaxed text-muted-foreground max-w-sm">
+							A small, opinionated shop of everyday essentials — built to outlast a trend cycle and to make
+							ordering feel effortless.
 						</p>
+						<div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground">
+							<span className="inline-block h-1.5 w-1.5 rounded-full bg-accent pulse-ring" />
+							Studio open · ships within 24h
+						</div>
 					</div>
 
 					{/* Collections */}
-					<FooterCollections />
+					<div className="lg:col-span-2">
+						<FooterCollections />
+					</div>
 
 					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+					<div className="lg:col-span-2">
+						<h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+							Support
+						</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground hover:text-foreground/70 transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,9 +161,27 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-foreground hover:text-foreground/70 transition-colors"
 								>
 									FAQ
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-foreground hover:text-foreground/70 transition-colors"
+								>
+									All products
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/search"
+									className="text-sm text-foreground hover:text-foreground/70 transition-colors"
+								>
+									Search
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
@@ -152,14 +189,15 @@ export function Footer() {
 					</div>
 
 					{/* Legal */}
-					<FooterLegalPages />
+					<div className="lg:col-span-3">
+						<FooterLegalPages />
+					</div>
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
-					</p>
+				<div className="py-6 border-t border-border flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-xs text-muted-foreground">
+					<p>&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.</p>
+					<p className="tracking-tight">Made with quiet attention — shipped from the studio.</p>
 				</div>
 			</div>
 		</footer>
