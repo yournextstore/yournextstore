@@ -24,12 +24,14 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+			<SheetContent className="flex flex-col w-full sm:max-w-lg border-l border-border/50">
+				<SheetHeader className="border-b border-border/50 pb-6">
+					<SheetTitle className="flex items-center gap-3 text-lg font-serif font-light tracking-wide">
+						Shopping Bag
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="text-xs font-sans tracking-[0.1em] uppercase text-muted-foreground">
+								({itemCount} items)
+							</span>
 						)}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -38,42 +40,46 @@ export function CartSidebar() {
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+					<div className="flex-1 flex flex-col items-center justify-center gap-6 py-16">
+						<div className="flex h-24 w-24 items-center justify-center border border-border/50">
+							<ShoppingBag className="h-10 w-10 text-primary/50" />
 						</div>
 						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+							<p className="text-lg font-serif font-light">Your bag is empty</p>
+							<p className="text-sm text-muted-foreground mt-2">Discover our exquisite collections</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
+						<Button
+							variant="outline"
+							onClick={closeCart}
+							className="tracking-[0.1em] uppercase text-xs h-12 px-8 border-primary/30 hover:bg-primary hover:text-primary-foreground"
+						>
 							Continue Shopping
 						</Button>
 					</div>
 				) : (
 					<>
 						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+							<div className="divide-y divide-border/50">
 								{items.map((item) => (
 									<CartItem key={item.productVariant.id} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">Subtotal</span>
-									<span className="font-semibold">
+						<SheetFooter className="border-t border-border/50 pt-6 mt-auto">
+							<div className="w-full space-y-6">
+								<div className="flex items-center justify-between">
+									<span className="text-xs tracking-[0.15em] uppercase text-muted-foreground">Subtotal</span>
+									<span className="text-lg font-light text-primary">
 										{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}
 									</span>
 								</div>
-								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
+								<p className="text-xs text-muted-foreground">Complimentary shipping on orders over $500</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
+								<Button asChild className="w-full h-14 text-xs tracking-[0.15em] uppercase font-medium">
 									<a
 										href={checkoutUrl}
 										aria-disabled={isMutating}
@@ -91,14 +97,14 @@ export function CartSidebar() {
 												Updating…
 											</>
 										) : (
-											"Checkout"
+											"Proceed to Checkout"
 										)}
 									</a>
 								</Button>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full text-xs tracking-[0.1em] uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
 								>
 									Continue Shopping
 								</button>

@@ -1,7 +1,6 @@
 import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
@@ -9,14 +8,6 @@ import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { cn } from "@/lib/utils";
@@ -100,47 +91,21 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const productJsonLd = await buildProductJsonLd(product, reviews);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/products">Products</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-20">
 				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-10 lg:mt-0 space-y-8">
+					{/* Category badge */}
+					<p className="text-xs tracking-[0.3em] uppercase text-primary">Fine Jewelry</p>
+
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-6">
+						<h1 className="text-3xl lg:text-4xl font-serif font-light tracking-tight text-foreground">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -155,9 +120,22 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 								</span>
 							</a>
 						)}
+						{product.summary && (
+							<p className="text-muted-foreground leading-relaxed border-l-2 border-primary/30 pl-4">
+								{product.summary}
+							</p>
+						)}
+						{product.content && (
+							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+								<TiptapRenderer content={product.content} />
+							</div>
+						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
+					{/* Divider */}
+					<div className="w-16 h-px bg-border" />
+
+					{/* Variant Selector, Quantity, Add to Cart, Trust Badges */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
