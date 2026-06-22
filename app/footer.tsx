@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,19 +58,28 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="heritage-smallcaps text-[var(--cream)]/80">Shop</h3>
+			<ul className="mt-5 space-y-2.5">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
 					</li>
 				))}
+				<li>
+					<YnsLink
+						prefetch={"eager"}
+						href="/products"
+						className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
+					>
+						The whole catalogue
+					</YnsLink>
+				</li>
 			</ul>
 		</div>
 	);
@@ -88,14 +97,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="heritage-smallcaps text-[var(--cream)]/80">The Fine Print</h3>
+			<ul className="mt-5 space-y-2.5">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,31 +117,54 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="heritage-oxblood-gradient text-[var(--cream)]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+				<div className="pt-16 sm:pt-20 pb-12 grid grid-cols-2 lg:grid-cols-12 gap-10">
+					<div className="col-span-2 lg:col-span-4">
+						<YnsLink prefetch={"eager"} href="/" className="block">
+							<span className="font-display text-3xl sm:text-4xl tracking-[-0.01em] text-[var(--cream)]">
+								Your Next Store
+							</span>
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 max-w-sm text-[15px] italic leading-relaxed text-[var(--cream)]/75">
+							A heritage mattress workshop on Elizabeth Street. Hand-tufted goods, ticking-striped cotton, and
+							a hundred-year ledger of slow, repairable sleep.
 						</p>
+						<address className="mt-6 not-italic font-sans text-[13px] leading-relaxed text-[var(--cream)]/65">
+							The Workshop, 114 Elizabeth Street
+							<br />
+							New York · Open by appointment
+							<br />
+							<a
+								href="mailto:bench@yournextstore.com"
+								className="underline-offset-4 hover:text-[var(--sand)]"
+							>
+								bench@yournextstore.com
+							</a>
+						</address>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
+					<div className="col-span-1 lg:col-span-2">
+						<FooterCollections />
+					</div>
 
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+					<div className="col-span-1 lg:col-span-2">
+						<h3 className="heritage-smallcaps text-[var(--cream)]/80">Workroom</h3>
+						<ul className="mt-5 space-y-2.5">
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/#story"
+									className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
+								>
+									Our story
+								</YnsLink>
+							</li>
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,23 +174,52 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
 								>
 									FAQ
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/#journal"
+									className="font-display italic text-[15px] text-[var(--cream)]/85 hover:text-[var(--sand)] transition-colors"
+								>
+									Journal
+								</YnsLink>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
-					<FooterLegalPages />
+					<div className="col-span-2 lg:col-span-2">
+						<FooterLegalPages />
+					</div>
+
+					<div className="col-span-2 lg:col-span-2">
+						<h3 className="heritage-smallcaps text-[var(--cream)]/80">Correspondence</h3>
+						<ul className="mt-5 space-y-2.5 font-display italic text-[15px] text-[var(--cream)]/85">
+							{[
+								{ label: "Instagram", href: "https://instagram.com" },
+								{ label: "Pinterest", href: "https://pinterest.com" },
+								{ label: "Substack", href: "https://substack.com" },
+							].map((s) => (
+								<li key={s.label}>
+									<a href={s.href} className="hover:text-[var(--sand)] transition-colors">
+										{s.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="border-t border-[var(--cream)]/15 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+					<p className="font-sans text-[12px] tracking-[0.18em] uppercase text-[var(--cream)]/55">
+						© {new Date().getFullYear()} Your Next Store · Est. an heirloom
+					</p>
+					<p className="font-display italic text-[13px] text-[var(--cream)]/65">
+						Made slowly, in a brownstone, in New York.
 					</p>
 				</div>
 			</div>
