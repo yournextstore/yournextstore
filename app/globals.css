@@ -9,12 +9,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 12px);
+	--radius-3xl: calc(var(--radius) + 24px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,29 +33,67 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+
+	/* Furnix brand colors */
+	--color-yns-peach: #f5e8e4;
+	--color-yns-peach-soft: #fbf1ec;
+	--color-yns-orange: #ff6b35;
+	--color-yns-blue: #2f62f6;
+	--color-yns-green: #1fb36b;
+	--color-yns-lime: #d9f560;
+	--color-yns-ink: #0f0f0f;
+
+	--font-display: var(--font-archivo-black), "Archivo Black", system-ui, sans-serif;
+	--font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+	--font-mono: var(--font-geist-mono);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
+	--radius: 0.75rem;
 	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--foreground: oklch(0.18 0.01 60);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.18 0.01 60);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.18 0.01 60);
+	--primary: oklch(0.18 0.01 60);
+	--primary-foreground: oklch(0.985 0 0);
+	--secondary: oklch(0.965 0.012 40);
+	--secondary-foreground: oklch(0.18 0.01 60);
+	--muted: oklch(0.965 0.012 40);
+	--muted-foreground: oklch(0.48 0.02 50);
+	--accent: oklch(0.965 0.012 40);
+	--accent-foreground: oklch(0.18 0.01 60);
+	--destructive: oklch(0.577 0.245 27.325);
+	--border: oklch(0.92 0.012 50);
+	--input: oklch(0.92 0.012 50);
+	--ring: oklch(0.708 0 0);
+	--chart-1: oklch(0.7 0.21 35); /* orange */
+	--chart-2: oklch(0.58 0.22 260); /* blue */
+	--chart-3: oklch(0.65 0.18 150); /* green */
+	--chart-4: oklch(0.93 0.18 115); /* lime */
+	--chart-5: oklch(0.7 0.05 50);
+	--sidebar: oklch(0.985 0 0);
+	--sidebar-foreground: oklch(0.145 0 0);
+	--sidebar-primary: oklch(0.205 0 0);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.97 0 0);
+	--sidebar-accent-foreground: oklch(0.205 0 0);
+	--sidebar-border: oklch(0.922 0 0);
+	--sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
@@ -77,6 +115,19 @@
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
 	--ring: oklch(0.556 0 0);
+	--chart-1: oklch(0.488 0.243 264.376);
+	--chart-2: oklch(0.696 0.17 162.48);
+	--chart-3: oklch(0.769 0.188 70.08);
+	--chart-4: oklch(0.627 0.265 303.9);
+	--chart-5: oklch(0.645 0.246 16.439);
+	--sidebar: oklch(0.205 0 0);
+	--sidebar-foreground: oklch(0.985 0 0);
+	--sidebar-primary: oklch(0.488 0.243 264.376);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.269 0 0);
+	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -84,7 +135,16 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-[#ededed] text-foreground;
+		font-family: var(--font-sans);
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	.font-display {
+		font-family: var(--font-display);
+		letter-spacing: -0.01em;
 	}
 }
 
@@ -161,6 +221,38 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Furnix-style hero gradient: soft peach/pink with subtle sun glow */
+.yns-hero-gradient {
+	background:
+		radial-gradient(ellipse 60% 50% at 65% 35%, rgba(255, 230, 200, 0.7), transparent 70%),
+		radial-gradient(ellipse 50% 40% at 20% 80%, rgba(217, 245, 96, 0.18), transparent 70%),
+		radial-gradient(ellipse 60% 60% at 100% 0%, rgba(255, 107, 53, 0.12), transparent 70%),
+		linear-gradient(135deg, #f8e9e1 0%, #f5e8e4 40%, #efe4dd 100%);
+}
+
+.yns-page-shell {
+	background: #ededed;
+}
+
+.yns-card-shell {
+	background: #ffffff;
+	border-radius: 2rem;
+}
+
+/* Category tile gradients */
+.yns-tile-orange {
+	background: linear-gradient(160deg, #ff8a5b 0%, #ff6b35 60%, #ef4f17 100%);
+}
+.yns-tile-blue {
+	background: linear-gradient(160deg, #5d8bff 0%, #2f62f6 60%, #1c46d0 100%);
+}
+.yns-tile-green {
+	background: linear-gradient(160deg, #2ed98a 0%, #1fb36b 60%, #138c52 100%);
+}
+.yns-tile-white {
+	background: linear-gradient(160deg, #ffffff 0%, #f7f4f1 100%);
 }
 
 /* Store-chat assistant bubbles: compact Markdown, not document chrome. */

@@ -1,6 +1,7 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -32,6 +33,8 @@ export function QuickAddButton({
 	product,
 }: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
+	// Local to this button: the pulse and the disabled state show this card's add, not the whole cart.
+	const [isPending, setIsPending] = useState(false);
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -58,16 +61,21 @@ export function QuickAddButton({
 			},
 		});
 
+		setIsPending(true);
 		startMutation(async () => {
-			// The server clamps to available stock and still returns the cart — surface
-			// the failure instead of letting the optimistic item silently vanish.
-			const result = await addToCart(variantId, 1);
-			const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(variantId));
-			if (result.success && result.cart && line) {
-				syncCart(result.cart);
-			} else {
-				await reconcile();
-				toast.error("This item is out of stock");
+			try {
+				// The server clamps to available stock and still returns the cart — surface
+				// the failure instead of letting the optimistic item silently vanish.
+				const result = await addToCart(variantId, 1);
+				const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(variantId));
+				if (result.success && result.cart && line) {
+					syncCart(result.cart);
+				} else {
+					await reconcile();
+					toast.error("This item is out of stock");
+				}
+			} finally {
+				setIsPending(false);
 			}
 		});
 	};
@@ -77,10 +85,11 @@ export function QuickAddButton({
 			<TooltipTrigger
 				delay={1000}
 				onClick={handleClick}
-				className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+				disabled={isPending}
+				className="absolute bottom-3 right-3 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#0f0f0f] text-white shadow-md transition-all hover:bg-[#ff6b35] hover:scale-105 active:scale-95 disabled:opacity-50"
 				aria-label={`Add ${product.name} to cart`}
 			>
-				<ShoppingBag className="h-3.5 w-3.5" />
+				<PlusIcon className={`h-4 w-4 ${isPending ? "animate-pulse" : ""}`} />
 			</TooltipTrigger>
 			<TooltipContent side="top" className="text-xs">
 				Add to cart

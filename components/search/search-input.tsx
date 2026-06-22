@@ -60,7 +60,7 @@ export function SearchInput() {
 								ref={iconInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="Search furniture"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
 								onKeyDown={makeKeyHandler(
@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-full rounded-full bg-[#f5e8e4]/60 ring-1 ring-black/5 pl-9 pr-3 text-sm text-[#0f0f0f] placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff6b35]/40"
 							/>
 						</div>
 					</form>
@@ -105,7 +105,7 @@ export function SearchInput() {
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="Search furniture"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-11 w-56 lg:w-64 rounded-full bg-[#f5e8e4]/60 ring-1 ring-black/5 pl-9 pr-3 text-sm text-[#0f0f0f] placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff6b35]/40"
 						/>
 					</div>
 					<PopoverContent

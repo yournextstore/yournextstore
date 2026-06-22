@@ -14,7 +14,7 @@ export default function Home() {
 			<Hero />
 			{/* No <Suspense>: the grid is "use cache", so it renders into the prerendered shell in document order. A boundary
 			    around cached data still ships the skeleton first and the content later in the HTML. */}
-			<ProductGrid title="Featured Products" limit={6} />
+			<ProductGrid title="Featured Furniture" limit={3} />
 			<About />
 			<Newsletter />
 		</>

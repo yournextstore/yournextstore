@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,15 +25,21 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
+const archivoBlack = Archivo_Black({
+	variable: "--font-archivo-black",
+	subsets: ["latin"],
+	weight: "400",
+});
+
+// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
 	preload: false,
 });
 
@@ -105,6 +111,21 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function LogoMark() {
+	return (
+		<span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#0f0f0f] text-white">
+			<svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+				<path
+					d="M5 19V9l7-5 7 5v10h-4v-6h-6v6H5z"
+					stroke="currentColor"
+					strokeWidth="1.6"
+					strokeLinejoin="round"
+				/>
+			</svg>
+		</span>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,41 +157,48 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
+				<div className="flex min-h-screen flex-col yns-page-shell">
+					<div className="mx-auto w-full max-w-[1280px] px-3 sm:px-5 lg:px-6 pt-3 sm:pt-5">
+						<header className="sticky top-3 z-50 rounded-3xl bg-white/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,15,15,0.12)] ring-1 ring-black/5">
+							<div className="px-4 sm:px-6">
+								<div className="flex items-center justify-between h-16 sm:h-[68px]">
+									<Link
+										href="/"
+										className="flex items-center gap-2.5 font-display text-xl sm:text-2xl tracking-tight text-[#0f0f0f]"
 									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
+										<LogoMark />
+										<span className="hidden sm:inline">YNS</span>
+									</Link>
+									{/* The navbar's own breakpoints: the menu trigger below lg, the links from md. */}
+									<div className="flex flex-1 items-center justify-start md:justify-center">
+										<Navbar links={links} />
+									</div>
+									<div className="flex items-center gap-2 sm:gap-3">
+										<Suspense>
+											<SearchInput />
+										</Suspense>
+										<ThemeToggle />
+										{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+										    Static on purpose: reading the session here would pull the header out of the
+										    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+										<a
+											href={
+												storeConfig.language
+													? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+													: "/account"
+											}
+											className="rounded-full p-2 transition-colors hover:bg-[#f5e8e4]"
+											aria-label="Account"
+										>
+											<UserRound className="w-5 h-5" />
+										</a>
+										<CartButton />
+									</div>
 								</div>
 							</div>
-						</div>
-					</header>
-					<main className="flex-1">{children}</main>
+						</header>
+					</div>
+					<main className="flex-1 mx-auto w-full max-w-[1280px] px-3 sm:px-5 lg:px-6 pb-6">{children}</main>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +239,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${archivoBlack.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
