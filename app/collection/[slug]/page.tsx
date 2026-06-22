@@ -1,21 +1,12 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { YNSMedia } from "@/lib/yns-media";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -53,52 +44,54 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
+		<section className="bg-background border-b border-border">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+				<nav
+					aria-label="Breadcrumb"
+					className="pt-8 sm:pt-10 flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-muted-foreground"
+				>
+					<YnsLink href="/" className="hover:text-foreground transition-colors">
+						Home
+					</YnsLink>
+					<span aria-hidden>—</span>
+					<YnsLink href="/products" className="hover:text-foreground transition-colors">
+						Collections
+					</YnsLink>
+					<span aria-hidden>—</span>
+					<span className="text-foreground">{collection.name}</span>
+				</nav>
+
+				<div className="pt-6 sm:pt-8 pb-10 flex items-end gap-3 sm:gap-4">
+					<h1 className="font-display text-5xl sm:text-7xl lg:text-[88px] leading-[0.95] tracking-[-0.01em] text-foreground uppercase">
+						{collection.name}
+					</h1>
+					<span className="font-display text-base sm:text-lg text-muted-foreground mb-3 sm:mb-5">
+						<sup>{count}</sup>
+					</span>
 				</div>
+
+				{collection.description && typeof collection.description === "string" && (
+					<p className="pb-10 max-w-xl text-sm leading-relaxed text-muted-foreground">
+						{collection.description}
+					</p>
+				)}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
 
 function ProductGridSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
+		<section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-14">
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
+				{Array.from({ length: 8 }).map((_, i) => (
 					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+						<div className="aspect-[3/4] bg-[color:var(--cream)] mb-4 animate-pulse" />
 						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+							<div className="h-3 w-1/2 bg-secondary rounded animate-pulse" />
+							<div className="h-3 w-3/4 bg-secondary rounded animate-pulse" />
 						</div>
 					</div>
 				))}
@@ -113,14 +106,7 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 		(product) => product !== null,
 	);
 
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
+	return <ProductGrid title={collection.name} products={products} showViewAll={false} />;
 }
 
 export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
@@ -134,26 +120,13 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 		notFound();
 	}
 
+	const count = collection.productCollections.length;
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
+			<CollectionHeader collection={collection} count={count} />
 			<Suspense fallback={<ProductGridSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>

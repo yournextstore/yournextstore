@@ -3,6 +3,7 @@ import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
@@ -11,9 +12,9 @@ const PRODUCTS_PER_PAGE = 12;
 
 const sortOptions = [
 	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
+	{ value: "price-asc", label: "Price ↑", orderBy: "price", orderDirection: "asc" },
+	{ value: "price-desc", label: "Price ↓", orderBy: "price", orderDirection: "desc" },
+	{ value: "name", label: "A – Z", orderBy: "name", orderDirection: "asc" },
 ] as const;
 
 type ProductFilterParams = {
@@ -41,16 +42,16 @@ export async function generateMetadata({
 	const { page } = await searchParams;
 	const pageNum = Math.max(1, Number(page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+	const title = pageNum > 1 ? `The Collection — Page ${pageNum}` : "The Collection";
 
 	return {
 		title,
-		description: "Browse our complete product collection.",
+		description: "Browse the complete edit of considered apparel and accessories.",
 		alternates: { canonical },
 		openGraph: {
 			type: "website",
 			title,
-			description: "Browse our complete product collection.",
+			description: "Browse the complete edit of considered apparel and accessories.",
 			url: canonical,
 		},
 	};
@@ -83,16 +84,16 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="text-sm tracking-[0.2em] uppercase text-muted-foreground">No products available yet.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
@@ -103,13 +104,14 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 function ProductGridSkeleton() {
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-			{Array.from({ length: 6 }).map((_, i) => (
+		<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
+			{Array.from({ length: 8 }).map((_, i) => (
 				<div key={`skeleton-${i}`}>
-					<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+					<div className="aspect-[3/4] bg-[color:var(--cream)] mb-4 animate-pulse" />
 					<div className="space-y-2">
-						<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-						<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+						<div className="h-3 w-1/3 bg-secondary rounded animate-pulse" />
+						<div className="h-4 w-3/4 bg-secondary rounded animate-pulse" />
+						<div className="h-4 w-1/4 bg-secondary rounded animate-pulse" />
 					</div>
 				</div>
 			))}
@@ -137,10 +139,22 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-12">
+			<nav
+				aria-label="Breadcrumb"
+				className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-muted-foreground"
+			>
+				<YnsLink href="/" className="hover:text-foreground transition-colors">
+					Home
+				</YnsLink>
+				<span aria-hidden>—</span>
+				<span className="text-foreground">All</span>
+			</nav>
+
+			<div className="pt-6 pb-6 flex items-end gap-3 sm:gap-4">
+				<h1 className="font-display text-5xl sm:text-7xl lg:text-[88px] leading-[0.95] tracking-[-0.01em] text-foreground uppercase">
+					The Collection
+				</h1>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
@@ -148,14 +162,14 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
 				<div>
 					{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-					<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+					<div className="pb-10 flex items-center justify-between gap-3 lg:hidden">
 						{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
 						<SortSelect options={sortOptions} />
 					</div>
 
 					{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-					<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-						<span className="text-sm text-muted-foreground">Sort by:</span>
+					<div className="pb-10 hidden flex-wrap items-center gap-3 lg:flex">
+						<span className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground">Sort</span>
 						<SortLinks options={sortOptions} />
 					</div>
 

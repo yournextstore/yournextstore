@@ -46,11 +46,11 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="hidden lg:flex items-center gap-6">
 				{links.map((link) => (
 					<YnsLink
 						key={link.href}
-						prefetch="eager"
+						prefetch={"eager"}
 						href={link.href}
 						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
 					>
