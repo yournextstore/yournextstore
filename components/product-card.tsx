@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-[3/4] bg-secondary overflow-hidden">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +82,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -95,8 +95,8 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={`object-cover transition-all duration-700 ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-[1.03]"}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -104,7 +104,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -114,21 +114,25 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt={`${product.name} – alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="pt-4 flex items-start justify-between gap-3">
+				<h2 className="font-serif text-[18px] sm:text-[19px] font-light tracking-tight text-foreground leading-tight">
+					{product.name}
+				</h2>
+				{priceDisplay && (
+					<p className="shrink-0 flex flex-wrap items-baseline justify-end gap-2 text-[12px] text-foreground/80 tabular-nums tracking-wide">
+						<span>{priceDisplay}</span>
+						{compareAtDisplay && (
+							<span className="text-muted-foreground line-through">{compareAtDisplay}</span>
+						)}
+					</p>
+				)}
 			</div>
 		</IntentLink>
 	);
