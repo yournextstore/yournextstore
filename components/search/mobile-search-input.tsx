@@ -39,7 +39,7 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						id={`${listboxId}-input`}
 						type="search"
 						name="q"
-						placeholder="Search products"
+						placeholder="Search the wild…"
 						value={c.query}
 						onChange={(e) => c.setQuery(e.target.value)}
 						onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}

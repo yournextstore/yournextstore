@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-[4/5] bg-[var(--tropic-cyan)]/10 rounded-[28px] overflow-hidden border border-[#e6d6b1]">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +82,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -96,7 +96,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -120,15 +120,28 @@ export async function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+
+				{/* Tag */}
+				<div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#15323b]">
+					<span className="h-1.5 w-1.5 rounded-full bg-[var(--tropic-red)]" />
+					Plant Powered
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="mt-4 flex items-start justify-between gap-3">
+				<div className="min-w-0">
+					<h2 className="font-display text-lg sm:text-xl font-medium text-[#15323b] truncate">
+						{product.name}
+					</h2>
+					<p className="mt-0.5 text-xs uppercase tracking-[0.22em] text-[#486870]">Adventure essential</p>
+				</div>
+				{priceDisplay && (
+					<div className="shrink-0 inline-flex flex-wrap items-baseline gap-x-2 rounded-full bg-[#15323b] px-3 py-1.5 text-sm font-semibold text-[var(--tropic-yellow)]">
+						<span>{priceDisplay}</span>
+						{compareAtDisplay && (
+							<span className="text-xs font-normal line-through opacity-70">{compareAtDisplay}</span>
+						)}
+					</div>
+				)}
 			</div>
 		</IntentLink>
 	);

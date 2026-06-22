@@ -1,13 +1,13 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
+import { AnnouncementMarquee } from "@/app/announcement-marquee";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
@@ -25,16 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const fraunces = Fraunces({
+	variable: "--font-fraunces",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	display: "swap",
+	axes: ["SOFT", "opsz"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -136,17 +137,29 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
+				<div className="flex min-h-screen flex-col bg-[var(--tropic-cyan)]">
+					<AnnouncementMarquee />
+					<header className="sticky top-0 z-50 bg-[var(--tropic-cyan)] text-white">
+						<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+							<div className="grid grid-cols-3 items-center h-16 sm:h-20">
+								{/* Navbar renders its own mobile menu trigger, so it is not wrapped in a lg-only box. */}
+								<div className="flex items-center gap-3">
+									<Suspense>
+										<Navbar links={links} />
+									</Suspense>
 								</div>
-								<div className="flex items-center gap-2">
+
+								<Link href="/" className="flex flex-col items-center group">
+									<span className="font-display text-2xl sm:text-[26px] font-semibold tracking-[0.18em] text-[var(--tropic-yellow)] uppercase leading-none">
+										Your Next Store
+										<span className="ml-1 align-super text-[10px] tracking-normal opacity-90">™</span>
+									</span>
+									<span className="mt-1 text-[10px] sm:text-[11px] tracking-[0.32em] uppercase text-white/90">
+										Plant Powered Protection
+									</span>
+								</Link>
+
+								<div className="flex items-center justify-end gap-1.5">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,17 +173,33 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
+										className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/15"
 									>
-										<UserRound className="w-5 h-5" />
+										<svg
+											width="20"
+											height="20"
+											viewBox="0 0 20 20"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											aria-hidden="true"
+										>
+											<title>Account</title>
+											<circle cx="10" cy="7" r="3.2" stroke="currentColor" strokeWidth="1.4" />
+											<path
+												d="M3.5 17c1.4-3.2 3.9-4.6 6.5-4.6S15.1 13.8 16.5 17"
+												stroke="currentColor"
+												strokeWidth="1.4"
+												strokeLinecap="round"
+											/>
+										</svg>
+										<span className="sr-only">Account</span>
 									</a>
 									<CartButton />
 								</div>
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<main className="flex-1 bg-[var(--tropic-cyan)]">{children}</main>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +240,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${fraunces.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

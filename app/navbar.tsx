@@ -19,7 +19,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger
 					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+					className="-order-1 rounded-full p-2 transition-colors hover:bg-white/15 lg:hidden"
 				>
 					<Menu className="h-6 w-6" />
 				</SheetTrigger>
@@ -47,7 +47,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					<Link
 						key={link.href}
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-[12px] font-semibold uppercase tracking-[0.22em] hover:text-[var(--tropic-yellow)] transition-colors"
 					>
 						{link.label}
 					</Link>
