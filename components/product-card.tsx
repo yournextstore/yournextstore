@@ -16,6 +16,21 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const cardSurfaces = [
+	"bg-pop-yellow",
+	"bg-pop-mint",
+	"bg-pop-pink-soft",
+	"bg-pop-cream",
+	"bg-pop-mint-soft",
+	"bg-pop-yellow-soft",
+];
+
+function pickSurface(id: string) {
+	let hash = 0;
+	for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	return cardSurfaces[hash % cardSurfaces.length];
+}
+
 export async function ProductCard({
 	product,
 	priority = false,
@@ -47,6 +62,7 @@ export async function ProductCard({
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
 	const singleVariant =
 		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const surface = pickSurface(product.id);
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -63,7 +79,10 @@ export async function ProductCard({
 
 	return (
 		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+			<div
+				className={`relative aspect-square ${surface} rounded-[1.75rem] overflow-hidden mb-4 shadow-[5px_5px_0_rgba(47,47,47,0.92)] transition-transform group-hover:-translate-y-1 group-hover:shadow-[8px_8px_0_rgba(47,47,47,0.92)]`}
+			>
+				<div aria-hidden className="absolute inset-0 bg-pop-dots opacity-25 mix-blend-overlay" />
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -96,7 +115,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""} group-hover:scale-105`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -121,14 +140,18 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="flex items-end justify-between gap-3 px-1">
+				<h2 className="font-display text-xl uppercase tracking-wide text-pop-ink leading-tight">
+					{product.name}
+				</h2>
+				{priceDisplay && (
+					<p className="shrink-0 rounded-full bg-pop-ink px-3 py-1 text-xs font-bold text-pop-yellow">
+						{priceDisplay}
+						{compareAtDisplay && (
+							<span className="ml-2 font-normal text-white/60 line-through">{compareAtDisplay}</span>
+						)}
+					</p>
+				)}
 			</div>
 		</IntentLink>
 	);
