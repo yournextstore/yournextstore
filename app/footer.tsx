@@ -1,3 +1,4 @@
+import { Clock, Leaf, MapPin, Phone, Truck } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
@@ -14,7 +15,10 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/blog"
+				className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
+			>
 				Blog
 			</Link>
 		</li>
@@ -32,7 +36,10 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/contact"
+				className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
+			>
 				Contact Us
 			</Link>
 		</li>
@@ -51,13 +58,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
+			<h3 className="font-display text-sm font-semibold text-white">Shop fresh</h3>
 			<ul className="mt-4 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +87,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<h3 className="font-display text-sm font-semibold text-white">Legal</h3>
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
 						>
 							{page.label}
 						</Link>
@@ -110,30 +117,68 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+		<footer className="bg-[var(--brand-deep)] text-white">
+			{/* Trust ribbon */}
+			<div className="border-b border-white/10">
+				<div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:gap-8 lg:px-8">
+					{[
+						{
+							icon: Truck,
+							title: "Same-day delivery",
+							sub: "Order before 4pm, get it tonight",
+						},
+						{ icon: Leaf, title: "Organic & local", sub: "Direct from regional growers" },
+						{ icon: Clock, title: "Fresh guarantee", sub: "Picked at dawn, packed at noon" },
+						{ icon: Phone, title: "24/7 support", sub: "We're here whenever you need us" },
+					].map((item) => (
+						<div key={item.title} className="flex items-start gap-3">
+							<span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-[var(--accent-saffron)]">
+								<item.icon className="h-5 w-5" />
+							</span>
+							<div>
+								<div className="font-display text-sm font-semibold text-white">{item.title}</div>
+								<div className="text-xs text-white/65">{item.sub}</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<div className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="lg:col-span-2">
+						<Link href="/" className="inline-flex items-center gap-2">
+							<span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--accent-saffron)] text-[var(--brand-deep)]">
+								<Leaf className="h-5 w-5" />
+							</span>
+							<span className="font-display text-xl font-bold">Your Next Store</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
+							Fresh groceries and pantry essentials, delivered to your door from neighbourhood growers and
+							makers.
 						</p>
+						<div className="mt-5 space-y-2 text-sm text-white/75">
+							<div className="flex items-center gap-2">
+								<MapPin className="h-4 w-4 text-[var(--accent-saffron)]" />
+								221 Harvest Lane, Brooklyn NY
+							</div>
+							<div className="flex items-center gap-2">
+								<Phone className="h-4 w-4 text-[var(--accent-saffron)]" />
+								(555) 010-FRESH
+							</div>
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<h3 className="font-display text-sm font-semibold text-white">Support</h3>
 						<ul className="mt-4 space-y-3">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
 								>
 									About Us
 								</Link>
@@ -142,23 +187,42 @@ export async function Footer() {
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
 								>
-									FAQ
+									Help center
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/products"
+									className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
+								>
+									Delivery info
+								</Link>
+							</li>
+							<li>
+								<Link
+									href="/search"
+									className="text-sm text-white/70 transition-colors hover:text-[var(--accent-saffron)]"
+								>
+									Track an order
 								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="border-t border-white/10 py-6">
+					<div className="flex flex-col items-start justify-between gap-4 text-sm text-white/60 sm:flex-row sm:items-center">
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+							<p>&copy; {year} Your Next Store. Grown with care.</p>
+							<p className="text-xs">Fresh groceries · Delivered daily · Made in the city</p>
+						</div>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>

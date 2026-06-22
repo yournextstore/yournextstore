@@ -60,76 +60,110 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const productHref = `/product/${product.slug}${variantSearch}`;
+
+	// Sub-label: derive from variant count or product slug suffix
+	const subLabel = variants && variants.length > 1 ? `${variants.length} options` : "Fresh today";
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
+		<div className="group flex flex-col overflow-hidden rounded-2xl bg-white p-3 shadow-soft ring-1 ring-[var(--border)] transition hover:-translate-y-0.5 hover:shadow-card">
+			<IntentLink href={productHref} className="block">
+				<div className="relative aspect-square overflow-hidden rounded-xl bg-[var(--secondary)]">
+					{primaryImage &&
+						(isVideoUrl(primaryImage) ? (
+							<video
+								className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+								src={primaryImage}
+								muted
+								loop
+								autoPlay
+								playsInline
+							/>
+						) : (
+							<YNSMedia
+								src={primaryImage}
+								preview={preview}
+								alt={product.name}
+								fill
+								sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+								className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+								priority={priority}
+								fetchPriority={priority ? "high" : undefined}
+							/>
+						))}
+					{secondaryImage &&
+						(isVideoUrl(secondaryImage) ? (
+							<video
+								className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+								src={secondaryImage}
+								muted
+								loop
+								autoPlay
+								playsInline
+							/>
+						) : (
+							<YNSMedia
+								src={secondaryImage}
+								alt={`${product.name} - alternate view`}
+								fill
+								sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+								className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							/>
+						))}
+				</div>
+			</IntentLink>
+
+			<div className="flex flex-1 flex-col px-1 pt-3">
+				<IntentLink href={productHref} className="block">
+					<h2 className="line-clamp-1 font-display text-sm font-semibold text-[var(--brand-deep)]">
+						{product.name}
+					</h2>
+					<p className="mt-0.5 line-clamp-1 text-[11px] text-[var(--muted-foreground)]">{subLabel}</p>
+				</IntentLink>
+
+				<div className="mt-3 flex items-end justify-between">
+					<div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+						<span className="font-display text-lg font-extrabold leading-none text-[var(--brand-deep)]">
+							{priceDisplay ?? "—"}
+						</span>
+						{compareAtDisplay && (
+							<span className="text-xs text-[var(--muted-foreground)] line-through">{compareAtDisplay}</span>
+						)}
+					</div>
+					{singleVariant ? (
+						<QuickAddButton
+							variantId={singleVariant.id}
+							variantSku={"sku" in singleVariant ? singleVariant.sku : null}
+							variantPrice={singleVariant.price}
+							variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
+							variantImages={singleVariant.images}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images ?? [],
+							}}
 						/>
 					) : (
-						<YNSMedia
-							src={primaryImage}
-							preview={preview}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
-			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<IntentLink
+							href={productHref}
+							aria-label={`Choose options for ${product.name}`}
+							className="grid h-9 w-9 place-items-center rounded-full bg-[var(--brand-soft)] text-[var(--brand-deep)] transition hover:bg-[var(--brand)] hover:text-white"
+						>
+							<svg
+								viewBox="0 0 24 24"
+								className="h-4 w-4"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="3"
+								aria-hidden="true"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+							</svg>
+						</IntentLink>
 					)}
-				</p>
+				</div>
 			</div>
-		</IntentLink>
+		</div>
 	);
 }

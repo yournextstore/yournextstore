@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { MapPin, Phone, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const poppins = Poppins({
+	variable: "--font-display",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["400", "500", "600", "700"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -124,49 +125,118 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function BrandMark() {
+	return (
+		<Link href="/" className="flex items-center gap-2">
+			<span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--brand)] text-white shadow-soft">
+				<svg
+					viewBox="0 0 24 24"
+					className="h-5 w-5"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2.4"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M12 21c0-5 3-9 8-10-1 5-4 9-8 10Z" fill="currentColor" stroke="none" opacity=".9" />
+					<path d="M12 21c0-5-3-9-8-10 1 5 4 9 8 10Z" fill="currentColor" stroke="none" opacity=".7" />
+					<path d="M12 21V8" />
+				</svg>
+			</span>
+			<span className="font-display text-lg font-bold tracking-tight text-white">Your Next Store</span>
+		</Link>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
-	// take the header, nav and footer out of the prerendered shell and leave the page
-	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// Only cached reads here. Awaiting anything request-time (cookies, headers) would take the
+	// header, nav and footer out of the prerendered shell and leave the page blank until the
+	// server responds; CartProvider loads the cart in the browser. No <Suspense> around this
+	// component either: the boundary itself is what streams the chrome out of the shell.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	// Plain <a> on purpose: /account is a proxied zone, and a soft navigation into it 500s (AGENTS.md).
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
+				<div className="flex min-h-screen flex-col bg-background">
+					<header className="sticky top-0 z-50 bg-[var(--brand-deep)] text-white">
+						{/* Announcement strip */}
+						<div className="border-b border-white/10 bg-[var(--brand-deep)]/95">
+							<div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-[12px] text-white/80 sm:px-6 lg:px-8">
+								<div className="flex items-center gap-4">
+									<span className="hidden items-center gap-1.5 sm:flex">
+										<MapPin className="h-3.5 w-3.5" />
+										Deliver to 10001 — New York
+									</span>
+									<span className="hidden items-center gap-1.5 md:flex">
+										<Phone className="h-3.5 w-3.5" />
+										(555) 010-FRESH
+									</span>
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-4">
+									<span className="hidden sm:inline">Free same-day delivery on orders over $35</span>
+									<span className="rounded-full bg-[var(--accent-saffron)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--brand-deep)]">
+										New
+									</span>
+								</div>
+							</div>
+						</div>
+						{/* Main header */}
+						<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+							<div className="flex h-20 items-center gap-4">
+								<BrandMark />
+								<div className="hidden flex-1 md:block">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								</div>
+								<div className="ml-auto flex items-center gap-1 md:gap-2">
+									<ThemeToggle className="text-white hover:bg-white/10 hover:text-white" />
 									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
+										href={accountHref}
 										aria-label="Account"
+										className="grid h-10 w-10 place-items-center rounded-full text-white transition hover:bg-white/10 lg:hidden"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="h-5 w-5" />
+									</a>
+									<a
+										href={accountHref}
+										className="hidden items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 lg:flex"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											className="h-4 w-4"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+											strokeWidth="2"
+											aria-hidden="true"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87m6-4a4 4 0 100-8 4 4 0 000 8z"
+											/>
+										</svg>
+										Sign in
 									</a>
 									<CartButton />
 								</div>
+							</div>
+							<div className="border-t border-white/10 md:hidden">
+								<div className="py-3">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+								</div>
+							</div>
+							<div className="hidden md:block">
+								<Navbar links={links} />
 							</div>
 						</div>
 					</header>
@@ -175,7 +245,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -211,7 +281,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${poppins.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
