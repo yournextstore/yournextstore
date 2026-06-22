@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+	--font-sans: var(--font-inter);
+	--font-serif: var(--font-cormorant);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -40,83 +42,97 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-bone: #F5F1EB;
+	--color-cream: #E8DFD3;
+	--color-sand: #C9BFB1;
+	--color-taupe: #A89C8C;
+	--color-olive: #3B3A33;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
+	--radius: 0.5rem;
+	/* Editorial warm-neutral pet care palette */
+	--background: #F5F1EB;
+	--foreground: #3B3A33;
+	--card: #FFFFFF;
+	--card-foreground: #3B3A33;
+	--popover: #FFFFFF;
+	--popover-foreground: #3B3A33;
+	--primary: #3B3A33;
+	--primary-foreground: #F5F1EB;
+	--secondary: #E8DFD3;
+	--secondary-foreground: #3B3A33;
+	--muted: #E8DFD3;
+	--muted-foreground: #6B6354;
+	--accent: #C9BFB1;
+	--accent-foreground: #3B3A33;
 	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--border: #D7CCBD;
+	--input: #D7CCBD;
+	--ring: #A89C8C;
+	--chart-1: #A89C8C;
+	--chart-2: #C9BFB1;
+	--chart-3: #E8DFD3;
+	--chart-4: #6B6354;
+	--chart-5: #3B3A33;
+	--sidebar: #F5F1EB;
+	--sidebar-foreground: #3B3A33;
+	--sidebar-primary: #3B3A33;
+	--sidebar-primary-foreground: #F5F1EB;
+	--sidebar-accent: #E8DFD3;
+	--sidebar-accent-foreground: #3B3A33;
+	--sidebar-border: #D7CCBD;
+	--sidebar-ring: #A89C8C;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
+	--background: #2A2924;
+	--foreground: #F5F1EB;
+	--card: #3B3A33;
+	--card-foreground: #F5F1EB;
+	--popover: #3B3A33;
+	--popover-foreground: #F5F1EB;
+	--primary: #E8DFD3;
+	--primary-foreground: #3B3A33;
+	--secondary: #4A4940;
+	--secondary-foreground: #F5F1EB;
+	--muted: #4A4940;
+	--muted-foreground: #C9BFB1;
+	--accent: #4A4940;
+	--accent-foreground: #F5F1EB;
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--border: rgba(245, 241, 235, 0.12);
+	--input: rgba(245, 241, 235, 0.18);
+	--ring: #A89C8C;
+	--chart-1: #A89C8C;
+	--chart-2: #C9BFB1;
+	--chart-3: #E8DFD3;
+	--chart-4: #6B6354;
+	--chart-5: #F5F1EB;
+	--sidebar: #3B3A33;
+	--sidebar-foreground: #F5F1EB;
+	--sidebar-primary: #E8DFD3;
+	--sidebar-primary-foreground: #3B3A33;
+	--sidebar-accent: #4A4940;
+	--sidebar-accent-foreground: #F5F1EB;
+	--sidebar-border: rgba(245, 241, 235, 0.12);
+	--sidebar-ring: #A89C8C;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		font-family: var(--font-inter), system-ui, sans-serif;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-feature-settings: "ss01", "cv11";
+	}
+	.font-serif {
+		font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+		letter-spacing: -0.01em;
 	}
 }
 
@@ -132,11 +148,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#E8DFD3 0%,
+		#EFE7DA 40%,
+		#F5F1EB 50%,
+		#EFE7DA 60%,
+		#E8DFD3 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -149,4 +165,52 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Marquee animation */
+@keyframes yns-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.yns-marquee {
+	animation: yns-marquee 38s linear infinite;
+}
+
+/* Editorial hero radial wash */
+.yns-hero-wash {
+	background:
+		radial-gradient(ellipse at 50% 40%, rgba(232, 223, 211, 0.55) 0%, rgba(201, 191, 177, 0.85) 60%, #A89C8C 100%),
+		linear-gradient(180deg, #C9BFB1 0%, #A89C8C 100%);
+}
+
+.yns-ingredient-wash {
+	background: linear-gradient(135deg, #F5F1EB 0%, #E8DFD3 100%);
+}
+
+.yns-quiet-wash {
+	background:
+		radial-gradient(circle at 20% 30%, rgba(245, 241, 235, 0.9) 0%, transparent 55%),
+		radial-gradient(circle at 80% 70%, rgba(201, 191, 177, 0.6) 0%, transparent 55%),
+		#E8DFD3;
+}
+
+.yns-footer-wash {
+	background: linear-gradient(180deg, #3B3A33 0%, #2A2924 100%);
+}
+
+.yns-sepia {
+	filter: sepia(0.35) saturate(0.85) contrast(1.02);
+}
+
+.yns-letter-spacing-display {
+	letter-spacing: 0.32em;
+}
+
+.yns-letter-spacing-mid {
+	letter-spacing: 0.18em;
 }
