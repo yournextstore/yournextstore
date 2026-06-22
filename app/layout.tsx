@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -131,32 +134,67 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function MascotMark() {
+	return (
+		<svg
+			width="22"
+			height="26"
+			viewBox="0 0 22 26"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			aria-hidden="true"
+		>
+			<title>YNS mascot</title>
+			<path d="M6 2 L6 8 M16 2 L16 8" stroke="#f4f2f8" strokeWidth="1.5" strokeLinecap="round" />
+			<ellipse cx="11" cy="14" rx="8" ry="9" stroke="#f4f2f8" strokeWidth="1.5" fill="none" />
+			<circle cx="8" cy="13" r="1.2" fill="#f4f2f8" />
+			<circle cx="14" cy="13" r="1.2" fill="#f4f2f8" />
+			<path d="M9 17 Q11 19 13 17" stroke="#f4f2f8" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+		</svg>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+			<div className="flex min-h-screen flex-col bg-background text-foreground">
+				<header className="fixed top-0 left-0 right-0 z-50">
+					<div className="absolute inset-0 bg-gradient-to-b from-[#050817]/80 via-[#050817]/40 to-transparent pointer-events-none" />
+					<div className="relative max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
+						<div className="flex items-center justify-between h-16">
+							<div className="flex items-center gap-3">
+								<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2.5 group">
+									<MascotMark />
+									<span className="font-serif text-base tracking-tight text-foreground hidden sm:inline">
+										Your Next Store
+									</span>
 								</YnsLink>
+							</div>
+
+							<div className="hidden md:flex items-center gap-8">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+
+							<div className="flex items-center gap-3">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="btn-cobalt inline-flex items-center justify-center h-8 px-5 rounded-full text-[13px] font-medium text-white"
+								>
+									Buy
+								</YnsLink>
 								<CartButton />
 							</div>
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1 pt-16">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +230,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${cormorant.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
