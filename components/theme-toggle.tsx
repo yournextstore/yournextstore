@@ -2,7 +2,6 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -15,10 +14,18 @@ export function ThemeToggle() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Change theme" />}>
+			<DropdownMenuTrigger
+				render={
+					<button
+						type="button"
+						className="p-2 hover:text-accent transition-colors"
+						aria-label="Change theme"
+					/>
+				}
+			>
 				{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
-				<Sun className="size-5 dark:hidden" />
-				<Moon className="hidden size-5 dark:block" />
+				<Sun className="w-[18px] h-[18px] dark:hidden" strokeWidth={1.25} />
+				<Moon className="hidden w-[18px] h-[18px] dark:block" strokeWidth={1.25} />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>

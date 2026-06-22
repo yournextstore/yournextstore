@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-[4/5] overflow-hidden mb-5" style={{ backgroundColor: "#e8dcc6" }}>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +82,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -96,7 +96,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-700 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -104,7 +104,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -117,19 +117,31 @@ export async function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
+				<div
+					className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+					style={{ background: "linear-gradient(180deg, transparent 60%, rgba(14,13,11,0.18) 100%)" }}
+				/>
+				<span className="absolute top-3 right-3 font-mono text-[0.55rem] tracking-[0.3em] uppercase text-ink/55 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+					View →
+				</span>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+			<div className="flex items-baseline justify-between gap-4">
+				<h2 className="font-serif text-xl text-ink tracking-tight">{product.name}</h2>
+				<div className="flex flex-wrap items-baseline justify-end gap-2">
+					{priceDisplay && (
+						<span className="font-mono text-[0.78rem] tracking-wide text-ink/75">{priceDisplay}</span>
 					)}
-				</p>
+					{compareAtDisplay && (
+						<span className="font-mono text-[0.78rem] tracking-wide text-taupe/75 line-through">
+							{compareAtDisplay}
+						</span>
+					)}
+				</div>
 			</div>
+			<p className="mt-1 font-mono text-[0.6rem] tracking-[0.25em] uppercase text-taupe/75">Daily protocol</p>
 		</IntentLink>
 	);
 }

@@ -27,7 +27,7 @@ export function NewsletterConsent({
 	className?: string;
 }) {
 	return (
-		<Label className={cn("flex cursor-pointer items-start gap-2 text-left font-normal", className)}>
+		<Label className={cn("flex cursor-pointer items-start gap-3 text-left font-normal", className)}>
 			<Checkbox
 				name="marketingConsent"
 				checked={checked}
@@ -35,7 +35,7 @@ export function NewsletterConsent({
 				disabled={disabled}
 				className="mt-0.5 shrink-0"
 			/>
-			<span className="text-sm leading-snug opacity-80">
+			<span className="font-mono text-[0.62rem] leading-relaxed tracking-[0.12em] uppercase text-taupe">
 				I agree to receive marketing emails and accept the privacy policy. You can unsubscribe at any time.
 			</span>
 		</Label>
