@@ -94,10 +94,10 @@ async function FooterLegalPages() {
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
-							href={`/legal${page.path}`}
+							href={`/legal${page.href}`}
 							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
-							{page.title}
+							{page.label}
 						</YnsLink>
 					</li>
 				))}

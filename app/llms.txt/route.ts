@@ -80,7 +80,7 @@ export async function GET() {
 		sections.push("## Policies");
 		sections.push("");
 		for (const p of legalPages.data) {
-			sections.push(`- [${p.title}](${baseUrl}/legal${p.path})`);
+			sections.push(`- [${p.label}](${baseUrl}/legal${p.href})`);
 		}
 		sections.push("");
 	}

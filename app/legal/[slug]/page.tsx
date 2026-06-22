@@ -13,15 +13,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		return { title: "Page Not Found", robots: { index: false, follow: true } };
 	}
 
-	const canonical = `/legal${page.path}`;
+	const canonical = `/legal${page.href}`;
 
 	return {
-		title: page.title,
-		description: `${page.title} — read our policy and terms.`,
+		title: page.label,
+		description: `${page.label} — read our policy and terms.`,
 		alternates: { canonical },
 		openGraph: {
 			type: "article",
-			title: page.title,
+			title: page.label,
 			url: canonical,
 		},
 	};
@@ -40,9 +40,9 @@ export default async function LegalPage(props: { params: Promise<{ slug: string 
 
 	return (
 		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-			<h1 className="text-3xl font-bold tracking-tight mb-8">{page.title}</h1>
-			{page.content ? (
-				<div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: page.content }} />
+			<h1 className="text-3xl font-bold tracking-tight mb-8">{page.label}</h1>
+			{page.contentHtml ? (
+				<div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: page.contentHtml }} />
 			) : (
 				<p className="text-muted-foreground">No content available.</p>
 			)}

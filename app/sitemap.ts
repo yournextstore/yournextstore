@@ -25,7 +25,7 @@ async function getAllCollections() {
 
 async function getAllLegalPages() {
 	const result = await commerce.legalPageBrowse();
-	return result.data.map((p) => ({ path: p.path, updatedAt: p.updatedAt }));
+	return result.data.map((p) => ({ path: p.href, updatedAt: p.updatedAt }));
 }
 
 async function getContactFormEnabled() {
