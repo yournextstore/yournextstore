@@ -8,43 +8,76 @@ export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
+		<section
+			className="relative overflow-hidden text-cream"
+			style={{
+				background:
+					"radial-gradient(ellipse at 20% 30%, rgba(216,201,224,0.35) 0%, transparent 55%), radial-gradient(ellipse at 80% 70%, rgba(155,143,184,0.4) 0%, transparent 55%), linear-gradient(135deg, #4A3F58 0%, #2B2530 100%)",
+				color: "#F5F1EC",
+			}}
+		>
+			<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-10 py-24 sm:py-32">
+				<div className="text-center">
 					{state?.success ? (
 						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
+							<div
+								className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full"
+								style={{ backgroundColor: "rgba(245,241,236,0.12)" }}
+							>
 								<CheckIcon className="h-6 w-6" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+							<h2 className="font-serif text-3xl sm:text-4xl tracking-tight">You&apos;re on the list</h2>
+							<p className="mt-3 text-cream/70" style={{ color: "rgba(245,241,236,0.7)" }}>
+								{state.message}
+							</p>
 						</div>
 					) : (
 						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
+							<p
+								className="text-[10px] sm:text-[11px] font-medium tracking-[0.32em] uppercase"
+								style={{ color: "rgba(245,241,236,0.7)" }}
+							>
+								Join the Ritual
 							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
+							<h2 className="font-serif mt-4 text-[2.1rem] sm:text-[3rem] lg:text-[3.5rem] leading-[1.05] tracking-tight">
+								Soft moments, sent <span className="italic">straight to you</span>
+							</h2>
+							<p
+								className="mt-5 text-base sm:text-lg leading-relaxed max-w-lg mx-auto"
+								style={{ color: "rgba(245,241,236,0.7)" }}
+							>
+								Affirmations, gentle routines, and first dibs on new arrivals — once a month, never more.
+							</p>
+							<form action={action} className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row">
 								<input
 									type="email"
 									name="email"
 									placeholder="your@email.com"
 									required
-									className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
+									className="h-12 w-full flex-1 border bg-transparent px-5 outline-none transition-all"
+									style={{
+										color: "#F5F1EC",
+										borderColor: "rgba(245,241,236,0.35)",
+									}}
 								/>
 								<button
 									type="submit"
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
+									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 px-8 text-[11px] font-medium tracking-[0.22em] uppercase transition-all disabled:opacity-50"
+									style={{
+										backgroundColor: "#F5F1EC",
+										color: "#2B2530",
+									}}
 								>
-									{isPending ? "Subscribing\u2026" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+									{isPending ? "Subscribing…" : "Subscribe"}
+									{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
 								</button>
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
+							{state?.error && (
+								<p className="mt-4 text-sm" style={{ color: "#f4b3b3" }}>
+									{state.error}
+								</p>
+							)}
 						</>
 					)}
 				</div>

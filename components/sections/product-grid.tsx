@@ -3,7 +3,6 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
@@ -22,13 +21,13 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	eyebrow?: string;
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Your Healthy Hair Routine Starts Here",
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
@@ -38,42 +37,49 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="bg-background">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-4 pb-24 sm:pb-32">
+				<div className="flex items-end justify-between mb-8 gap-4">
+					<h2 className="font-serif text-[1.5rem] sm:text-[1.85rem] lg:text-[2.1rem] leading-tight tracking-tight text-foreground italic max-w-[28ch]">
+						{title.split(" Starts Here").length > 1 ? (
+							<>
+								<span className="not-italic font-normal">{title.replace(" Starts Here", "")}</span>{" "}
+								<span className="italic">Starts Here</span>
+							</>
+						) : (
+							title
+						)}
+					</h2>
+					{showViewAll && (
+						<YnsLink
+							prefetch={"eager"}
+							href={viewAllHref}
+							className="shrink-0 text-[10px] sm:text-[11px] font-medium tracking-[0.22em] uppercase text-foreground underline underline-offset-[6px] decoration-foreground/40 hover:decoration-foreground transition-colors"
+						>
+							Find Your Perfect Ritual
+						</YnsLink>
+					)}
 				</div>
-				{showViewAll && (
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
-				)}
-			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<YnsLink
-						prefetch={"eager"}
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+				<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+					{displayProducts.map((product, i) => (
+						<ProductCard
+							key={product.id}
+							product={product}
+							cardBg={
+								i % 4 === 0
+									? "yns-card-mauve"
+									: i % 4 === 1
+										? "yns-card-lavender"
+										: i % 4 === 2
+											? "yns-card-cream"
+											: "yns-card-mauve"
+							}
+							showSaveBadge={i === 0}
+						/>
+					))}
 				</div>
-			)}
+			</div>
 		</section>
 	);
 }
