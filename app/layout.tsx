@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bagel_Fat_One, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,13 +22,14 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const bagel = Bagel_Fat_One({
+	variable: "--font-display",
+	weight: "400",
 	subsets: ["latin"],
 });
 
@@ -131,22 +132,60 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="w-full bg-[var(--butter)] text-[var(--cobalt)]">
+			<div className="max-w-7xl mx-auto px-4 py-2 text-center text-[11px] sm:text-xs font-medium tracking-wide">
+				Fuel your day the perfect way — Your Next Store is now stocked nationwide. Grab a bag and your
+				favorite protein drink for the perfect pairing.
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border bg-white/85 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+						<div className="grid grid-cols-3 items-center h-16">
+							<div className="flex items-center gap-6">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display text-3xl text-[var(--cobalt)] leading-none italic tracking-tight"
+								>
+									Your Next Store
+								</YnsLink>
+							</div>
+							<div className="flex items-center justify-end gap-2">
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="hidden md:inline-flex items-center gap-1.5 h-9 px-4 rounded-full border border-[var(--cobalt)] text-[var(--cobalt)] text-xs font-semibold uppercase tracking-wide hover:bg-[var(--cobalt)] hover:text-white transition-colors"
+								>
+									<svg
+										aria-hidden="true"
+										className="h-3.5 w-3.5"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2.5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
+										<path d="M20 10c0 7-8 12-8 12s-8-5-8-12a8 8 0 1 1 16 0Z" />
+										<circle cx="12" cy="10" r="3" />
+									</svg>
+									Find Near You
+								</YnsLink>
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +195,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +231,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${bagel.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
