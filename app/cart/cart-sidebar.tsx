@@ -17,10 +17,10 @@ import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-export function CartSidebar() {
-	const { isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
+export function CartSidebar({ baseUrl }: { baseUrl: string }) {
+	const { isOpen, closeCart, items, itemCount, subtotal, cartId, isMutating } = useCart();
 
-	const checkoutUrl = `/checkout`;
+	const checkoutUrl = cartId ? `${baseUrl}/api/v1/carts/${cartId}/checkout` : "#";
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
