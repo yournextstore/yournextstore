@@ -39,7 +39,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} – ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -55,8 +55,8 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-[3/4] overflow-hidden bg-cream">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -85,7 +85,7 @@ export function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
@@ -105,14 +105,14 @@ export function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="mt-3.5 space-y-1">
+				<h3 className="text-[13px] font-normal text-foreground tracking-wide">{product.name}</h3>
+				<p className="text-[13px] text-mushroom">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);

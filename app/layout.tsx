@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bodyFont = Inter({
+	variable: "--font-body",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const displayFont = Outfit({
+	variable: "--font-display",
 	subsets: ["latin"],
+	display: "swap",
+	weight: ["300", "400", "500", "600"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +40,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Considered tailoring, knitwear, and accessories for modern living.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,32 +136,66 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	const items = [
+		"Complimentary shipping on orders over $150",
+		"Pre-Spring 2026 — now arriving",
+		"Free returns within 30 days",
+		"Sign in for early access to The Atelier",
+	];
+	const loop = [...items, ...items];
+	return (
+		<div className="bg-ink text-cream">
+			<div className="flex overflow-hidden">
+				<div className="animate-marquee flex shrink-0 gap-12 py-2.5 whitespace-nowrap">
+					{loop.map((item, i) => (
+						<span key={`ann-${i}`} className="utility-caps inline-flex items-center gap-12 text-cream/80">
+							{item}
+							<span className="text-cream/30">·</span>
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
+			<div className="flex min-h-screen flex-col bg-background">
+				<AnnouncementBar />
+				<header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
+					<div className="mx-auto max-w-[1600px] px-6 lg:px-10">
+						{/* Utility row */}
+						<div className="flex items-center justify-between pt-5 pb-3">
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="font-wordmark text-2xl text-foreground tracking-[0.22em]"
+							>
+								Your Next Store
+							</YnsLink>
+							<div className="flex items-center gap-5">
+								<div className="hidden md:flex w-64 lg:w-80">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+								</div>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
 							</div>
 						</div>
+						{/* Primary nav */}
+						<div className="flex items-center justify-between pb-4">
+							<Navbar links={links} />
+							<div className="hidden md:flex utility-caps text-mushroom">Pre-Spring 2026</div>
+						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +231,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
