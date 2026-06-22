@@ -18,6 +18,8 @@
   "dependencies": {
     "@ai-sdk/react": "4.0.169",
     "@base-ui/react": "1.9.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-image": "3.33.0",
     "@tiptap/extension-text-align": "3.33.0",
@@ -37,7 +39,8 @@
     "safe-try": "0.0.4",
     "sonner": "2.0.8",
     "streamdown": "2.7.1",
-    "tailwind-merge": "3.7.0"
+    "tailwind-merge": "3.7.0",
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",

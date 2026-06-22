@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
 			{ protocol: "https", hostname: "**.yns.store" },
 			{ protocol: "https", hostname: "yns.cx" },
 			{ protocol: "https", hostname: "**.yns.cx" },
+			// The theme's product grid shows Unsplash photos.
+			{ protocol: "https", hostname: "images.unsplash.com" },
 		],
 	},
 	// Filtered, sorted and paginated listings render per request on their own routes, so the default views stay
