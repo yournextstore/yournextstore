@@ -122,8 +122,8 @@ export function AddToCartButton({
 		}
 
 		const prices = variants.map((v) => BigInt(v.price));
-		const minPrice = prices.reduce((min, p) => (p < min ? p : min), prices[0] ?? 0n);
-		const maxPrice = prices.reduce((max, p) => (p > max ? p : max), prices[0] ?? 0n);
+		const minPrice = prices.reduce((min, p) => (p < min ? p : min), prices[0] ?? BigInt(0));
+		const maxPrice = prices.reduce((max, p) => (p > max ? p : max), prices[0] ?? BigInt(0));
 		return {
 			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
 			compareAt: null,
@@ -251,7 +251,7 @@ export function AddToCartButton({
 				<button
 					type="submit"
 					disabled={!selectedVariant || isOutOfStock}
-					className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-14 bg-brand-dark text-white py-4 px-8 rounded-sm text-sm font-semibold uppercase tracking-widest hover:bg-brand-dark/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{buttonText}
 				</button>
