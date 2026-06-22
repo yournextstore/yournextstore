@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import Link from "next/link";
+import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -13,9 +13,13 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<YnsLink
+				prefetch={"eager"}
+				href="/blog"
+				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+			>
 				Blog
-			</Link>
+			</YnsLink>
 		</li>
 	);
 }
@@ -31,9 +35,13 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<YnsLink
+				prefetch={"eager"}
+				href="/contact"
+				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+			>
 				Contact Us
-			</Link>
+			</YnsLink>
 		</li>
 	);
 }
@@ -50,16 +58,17 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
+			<h3 className="text-sm font-semibold text-foreground tracking-wide uppercase">Shop</h3>
 			<ul className="mt-4 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<Link
+						<YnsLink
+							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{collection.name}
-						</Link>
+						</YnsLink>
 					</li>
 				))}
 			</ul>
@@ -79,16 +88,17 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<h3 className="text-sm font-semibold text-foreground tracking-wide uppercase">Legal</h3>
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<Link
+						<YnsLink
+							prefetch={"eager"}
 							href={`/legal${page.href}`}
 							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{page.label}
-						</Link>
+						</YnsLink>
 					</li>
 				))}
 			</ul>
@@ -96,55 +106,60 @@ async function FooterLegalPages() {
 	);
 }
 
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
-export async function Footer() {
-	const year = await getCopyrightYear();
-
+export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="border-t border-border bg-secondary/30">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-12 sm:py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div className="sm:col-span-2 lg:col-span-1">
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="font-heading text-2xl font-semibold text-foreground"
+						>
 							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						</YnsLink>
+						<p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">
+							Clean beauty essentials for every skin type. Thoughtfully formulated, cruelty-free, and designed
+							to make you glow.
 						</p>
 					</div>
 
 					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
+					{/* Help */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<h3 className="text-sm font-semibold text-foreground tracking-wide uppercase">Help</h3>
 						<ul className="mt-4 space-y-3">
 							<li>
-								<Link
+								<YnsLink
+									prefetch={"eager"}
 									href="/about"
 									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
 									About Us
-								</Link>
+								</YnsLink>
 							</li>
 							<FooterContactLink />
 							<li>
-								<Link
+								<YnsLink
+									prefetch={"eager"}
 									href="/faq"
 									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
 									FAQ
-								</Link>
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									Shipping Info
+								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
@@ -155,8 +170,10 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p className="text-xs text-muted-foreground">
+						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+					</p>
 				</div>
 			</div>
 		</footer>
