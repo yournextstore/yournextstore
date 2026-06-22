@@ -40,7 +40,7 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 						id={`${listboxId}-input`}
 						type="search"
 						name="q"
-						placeholder="Search the store"
+						placeholder="Search the apothecary…"
 						value={c.query}
 						onFocus={() => setInteractive(true)}
 						onBlur={() => setTimeout(() => setInteractive(false), 120)}

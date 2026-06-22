@@ -62,8 +62,12 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-square bg-sand rounded-3xl overflow-hidden mb-4 ring-1 ring-border/60 group-hover:ring-cocoa/15 group-hover:shadow-lg group-hover:shadow-cocoa/5 transition-all duration-500">
+				<div
+					className="absolute inset-0 bg-gradient-to-br from-cream/30 via-transparent to-sage/20 pointer-events-none"
+					aria-hidden="true"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -121,13 +125,13 @@ export async function ProductCard({
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
+			<div className="space-y-0.5 px-1">
+				<h2 className="font-serif text-lg text-cocoa group-hover:text-terracotta transition-colors">
+					{product.name}
+				</h2>
+				<p className="flex flex-wrap items-baseline gap-2 text-sm font-medium text-cocoa/80 tracking-wide">
+					<span>{priceDisplay}</span>
+					{compareAtDisplay && <span className="text-muted-foreground line-through">{compareAtDisplay}</span>}
 				</p>
 			</div>
 		</IntentLink>
