@@ -11,7 +11,7 @@ export type NavLink = {
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+export function Navbar({ links }: { links: NavLink[]; side?: string }) {
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -52,7 +52,7 @@ export function Navbar({ links }: { links: NavLink[] }) {
 						key={link.href}
 						prefetch="eager"
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-[#f7e4d4] transition-colors"
 					>
 						{link.label}
 					</YnsLink>
