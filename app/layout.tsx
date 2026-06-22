@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Geist_Mono, Inter, Pacifico } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,24 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const archivoBlack = Archivo_Black({
+	variable: "--font-archivo-black",
+	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
+});
+
+const pacifico = Pacifico({
+	variable: "--font-pacifico",
+	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -42,7 +57,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "Clean, weird & wonderful plant-based snacks.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -124,6 +140,18 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="relative isolate overflow-hidden bg-[var(--pink)] text-white">
+			<div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center text-[11px] font-semibold uppercase tracking-[0.18em] sm:text-xs">
+				<span aria-hidden="true">★</span>
+				<span>Now Available at Whole Foods and Target!</span>
+				<span aria-hidden="true">★</span>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
@@ -137,16 +165,20 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-white/20 bg-[var(--pink)]/95 text-white backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+							<div className="grid grid-cols-2 md:grid-cols-3 items-center h-16">
+								<div className="hidden md:flex items-center gap-6">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<Link
+									href="/"
+									className="font-script text-2xl sm:text-3xl text-white drop-shadow-[0_1px_0_rgba(90,43,174,0.5)] justify-self-start md:justify-self-center"
+								>
+									Your Next Store
+								</Link>
+								<div className="flex items-center gap-1 justify-end">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,17 +192,17 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="inline-flex size-9 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="size-5" />
 									</a>
 									<CartButton />
 								</div>
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<div className="flex-1">{children}</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +243,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${archivoBlack.variable} ${pacifico.variable} ${geistMono.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
