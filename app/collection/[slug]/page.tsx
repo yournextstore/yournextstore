@@ -7,14 +7,6 @@ import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -59,28 +51,44 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+		<section className="hero-gradient relative overflow-hidden">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+				<div className="pt-6 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+					<Link href="/" className="hover:text-foreground transition-colors">
+						Home
+					</Link>
+					<span className="mx-2">/</span>
+					<Link href="/products" className="hover:text-foreground transition-colors">
+						Shop
+					</Link>
+					<span className="mx-2">/</span>
+					<span className="text-foreground">{collection.name}</span>
+				</div>
+				<div className="pt-8 sm:pt-12 pb-10 sm:pb-14">
+					<div className="flex items-end gap-3 flex-wrap">
+						<h1 className="font-display font-light text-foreground text-[56px] sm:text-[80px] lg:text-[112px] leading-[0.92] tracking-[-0.02em]">
 							{collection.name}
 						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
+						<sup className="font-mono-cap text-[12px] sm:text-[14px] -translate-y-4 sm:-translate-y-10 text-muted-foreground tracking-[0.18em]">
+							{count}
+						</sup>
 					</div>
+					{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
+					{typeof collection.description === "string" ? (
+						<p className="mt-6 max-w-2xl text-base text-muted-foreground leading-relaxed">
+							{collection.description}
+						</p>
+					) : collection.description ? (
+						<div className="prose mt-6 max-w-2xl text-base text-muted-foreground leading-relaxed tiptap-content">
+							<TiptapRenderer content={collection.description} />
+						</div>
+					) : null}
 				</div>
 			</div>
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block pointer-events-none">
 					<YNSMedia
 						src={collection.image}
 						alt={collection.name}
@@ -90,7 +98,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-background/60 to-transparent" />
 				</div>
 			)}
 		</section>
@@ -155,24 +163,13 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		notFound();
 	}
 
+	const products = collection.productCollections.map((pc) => pc.product);
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
+			<CollectionHeader collection={collection} count={products.length} />
 			<CollectionProducts collection={collection} />
 		</>
 	);
