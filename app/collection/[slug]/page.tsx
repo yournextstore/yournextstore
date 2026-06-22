@@ -123,10 +123,7 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
-	"use cache";
-	cacheLife("minutes");
-
+export default async function CollectionPage(props: { params: Promise<{ slug: string }> }) {
 	const { slug } = await props.params;
 	const collection = await commerce.collectionGet({ idOrSlug: slug });
 

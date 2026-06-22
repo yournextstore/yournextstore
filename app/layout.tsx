@@ -1,8 +1,11 @@
 import "@/app/globals.css";
 
+import { Heart, ShoppingBag } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
+import Link from "next/link";
+import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -14,22 +17,23 @@ import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { ReferralBadge } from "@/components/referral-badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { YnsLink } from "@/components/yns-link";
 import { AUTH_ENABLED } from "@/lib/auth-config";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-display",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700", "900"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+	variable: "--font-body",
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -97,6 +101,14 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function CartButtonFallback() {
+	return (
+		<div className="w-5 h-5 opacity-20">
+			<ShoppingBag className="w-5 h-5" />
+		</div>
+	);
+}
+
 async function getInitialCart() {
 	const cartCookie = await getCartCookieJson();
 
@@ -134,33 +146,54 @@ async function getNavLinks(): Promise<NavLink[]> {
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
+	const isStaging = process.env.YNS_API_KEY?.startsWith("sk-s-");
+	const baseUrl = isStaging ? "https://yns.cx" : "https://yns.store";
+
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
-							</div>
+			<div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 paper-bg transition-colors duration-300">
+				<main className="w-full max-w-[1400px] border border-border relative overflow-hidden shadow-2xl bg-card backdrop-blur-sm">
+					{/* Brutalist Grid Header */}
+					<header className="grid grid-cols-12 grid-border-b h-16 md:h-20 items-center">
+						{/* Logo */}
+						<div className="col-span-4 md:col-span-3 h-full flex items-center px-6 grid-border-r">
+							<Link href="/">
+								<h1 className="font-display font-bold text-lg tracking-tighter uppercase">Sneakers</h1>
+							</Link>
 						</div>
-					</div>
-				</header>
-				<main className="flex-1">{children}</main>
-				<Footer />
-				<ReferralBadge />
+
+						{/* Navigation - Hidden on mobile */}
+						<nav className="hidden md:col-span-6 md:flex h-full items-center justify-center space-x-12 grid-border-r font-medium text-sm tracking-wide">
+							<Navbar links={links} />
+						</nav>
+
+						{/* Empty space on mobile */}
+						<div className="col-span-4 md:hidden h-full grid-border-r" />
+
+						{/* Icons */}
+						<div className="col-span-4 md:col-span-3 h-full flex items-center justify-end px-6 space-x-6">
+							<Suspense>
+								<SearchInput />
+							</Suspense>
+							{AUTH_ENABLED && <AuthButton />}
+							<button type="button" aria-label="Favorites" className="hover:text-primary transition-colors">
+								<Heart className="w-5 h-5" />
+							</button>
+							<Suspense fallback={<CartButtonFallback />}>
+								<CartButton />
+							</Suspense>
+						</div>
+					</header>
+
+					{/* Page Content */}
+					<div className="flex-1">{children}</div>
+
+					{/* Footer */}
+					<Footer />
+				</main>
 			</div>
-			<CartSidebar />
+			<CartSidebar baseUrl={baseUrl} />
+			<ThemeToggle />
 		</CartProvider>
 	);
 }
@@ -191,8 +224,8 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang} className="scroll-smooth" suppressHydrationWarning>
+			<body className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -200,9 +233,11 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<Suspense>
-					<CartProviderWrapper>{children}</CartProviderWrapper>
-				</Suspense>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+					<Suspense fallback={null}>
+						<CartProviderWrapper>{children}</CartProviderWrapper>
+					</Suspense>
+				</ThemeProvider>
 				<Suspense>
 					<NewsletterPopupSection />
 				</Suspense>
