@@ -61,18 +61,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
+		<section className="relative overflow-hidden bg-gradient-to-br from-[#2d5016]/90 via-[#3a6b1e]/80 to-[#4a7c28]/70">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
+				<div className="py-10 sm:py-14 lg:py-18 relative z-10">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
 							{collection.name}
 						</h1>
 						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
 						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+							<p className="mt-3 text-base text-white/80 leading-relaxed">{collection.description}</p>
 						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
+							// prose-invert: the header sits on the dark green gradient, so the rich text takes light colours.
+							<div className="prose prose-invert mt-3 max-w-none text-base leading-relaxed tiptap-content">
 								<TiptapRenderer content={collection.description} />
 							</div>
 						) : null}
@@ -86,11 +87,11 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						alt={collection.name}
 						fill
 						sizes="50vw"
-						className="object-cover opacity-30"
+						className="object-cover opacity-20"
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-r from-[#2d5016] to-transparent" />
 				</div>
 			)}
 		</section>
