@@ -1,8 +1,9 @@
 import "@/app/globals.css";
 
+import { Menu } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,13 +23,8 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const dmSans = DM_Sans({
+	variable: "--font-heading",
 	subsets: ["latin"],
 });
 
@@ -137,25 +133,48 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
+				{/* Announcement Bar */}
+				<div className="bg-foreground text-primary-foreground">
+					<div className="flex items-center justify-center py-2.5 px-4">
+						<p className="text-xs tracking-[0.2em] uppercase font-medium">Free delivery from 130 USD</p>
+					</div>
+				</div>
+
+				{/* Header */}
+				<header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+					<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+						<div className="flex items-center justify-between h-16 lg:h-20">
+							{/* Logo */}
+							<YnsLink
+								prefetch={"eager"}
+								href="/"
+								className="text-lg sm:text-xl font-bold tracking-tight uppercase"
+							>
+								YNS
+							</YnsLink>
+
+							{/* Center Nav */}
+							<Navbar links={links} />
+
+							{/* Right Icons */}
+							<div className="flex items-center gap-1">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
+								<button
+									type="button"
+									className="p-2 hover:bg-secondary rounded-sm transition-colors sm:hidden"
+									aria-label="Menu"
+								>
+									<Menu className="w-5 h-5" />
+								</button>
 							</div>
 						</div>
 					</div>
 				</header>
+
 				<main className="flex-1">{children}</main>
 				<Footer />
 				<ReferralBadge />
@@ -192,7 +211,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${dmSans.variable} antialiased font-[family-name:var(--font-heading)]`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
