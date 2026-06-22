@@ -148,7 +148,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 	]);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-[1820px] mx-auto px-5 sm:px-8 lg:px-10 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
@@ -188,12 +188,12 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center font-[family-name:var(--font-prompt)] text-xs font-bold uppercase tracking-wider text-foreground underline-offset-4 hover:underline"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-[family-name:var(--font-prompt)] text-4xl font-black tracking-tight text-foreground lg:text-5xl uppercase">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (

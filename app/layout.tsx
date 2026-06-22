@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Prompt } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,16 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const prompt = Prompt({
+	variable: "--font-prompt",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	weight: ["700", "800", "900"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -137,11 +137,21 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
+					{/* Announcement Bar */}
+					<div className="bg-foreground text-primary-foreground text-center text-sm font-medium py-2.5 px-4">
+						<span className="font-[family-name:var(--font-prompt)] uppercase tracking-wider text-xs">
+							Free shipping on orders over $50 — Hot stuff!
+						</span>
+					</div>
+
+					<header className="sticky top-0 z-50 border-b-[3px] border-foreground bg-background">
+						<div className="max-w-[1820px] mx-auto px-5 sm:px-8 lg:px-10">
+							<div className="flex items-center justify-between h-[72px]">
+								<div className="flex items-center gap-10">
+									<Link
+										href="/"
+										className="font-[family-name:var(--font-prompt)] text-2xl sm:text-3xl font-black uppercase tracking-tight"
+									>
 										Your Next Store
 									</Link>
 									<Navbar links={links} />
@@ -160,10 +170,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 hover:bg-secondary rounded-full transition-colors border-2 border-transparent hover:border-foreground"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="w-6 h-6" />
 									</a>
 									<CartButton />
 								</div>
@@ -211,7 +221,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${prompt.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

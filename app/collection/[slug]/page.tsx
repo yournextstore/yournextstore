@@ -61,18 +61,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<section className="relative overflow-hidden bg-[#ffda22]">
+			<div className="max-w-[1820px] mx-auto px-5 sm:px-8 lg:px-10">
 				<div className="py-12 sm:py-16 lg:py-20">
 					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
+						<h1 className="font-[family-name:var(--font-prompt)] text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-black">
 							{collection.name}
 						</h1>
 						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
 						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+							<p className="mt-4 text-lg text-black/70 leading-relaxed">{collection.description}</p>
 						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
+							<div className="prose mt-4 max-w-none text-lg text-black/70 leading-relaxed tiptap-content">
 								<TiptapRenderer content={collection.description} />
 							</div>
 						) : null}
@@ -90,7 +90,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div className="absolute inset-0 bg-linear-to-r from-[#ffda22] to-transparent" />
 				</div>
 			)}
 		</section>
@@ -159,7 +159,7 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+			<div className="max-w-[1820px] mx-auto px-5 sm:px-8 lg:px-10 pt-6">
 				<Breadcrumb>
 					<BreadcrumbList>
 						<BreadcrumbItem>
