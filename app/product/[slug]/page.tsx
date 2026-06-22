@@ -18,7 +18,10 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce, meGetCached } from "@/lib/commerce";
+import { CURRENCY, LOCALE } from "@/lib/constants";
+import { DEMO_PRODUCTS, getDemoProduct, isPreview } from "@/lib/demo-products";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 function StarRow({ rating }: { rating: number }) {
@@ -35,50 +38,107 @@ function StarRow({ rating }: { rating: number }) {
 	);
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-	"use cache";
-	cacheLife("minutes");
+type Params = Promise<{ slug: string }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export async function generateMetadata({
+	params,
+	searchParams,
+}: {
+	params: Params;
+	searchParams: SearchParams;
+}): Promise<Metadata> {
 	const { slug } = await params;
+	const sp = await searchParams;
+	const preview = await isPreview(sp);
+
+	if (preview) {
+		const demo = getDemoProduct(slug);
+		return {
+			title: `${demo?.name ?? "Preview"} — Your Next Store`,
+			description: demo?.summary ?? undefined,
+			robots: { index: false, follow: false },
+		};
+	}
+
 	const product = await commerce.productGet({ idOrSlug: slug });
 
 	if (!product) {
-		return { title: "Product Not Found", robots: { index: false, follow: true } };
+		return { title: "Product Not Found — Your Next Store" };
 	}
 
-	const seoTitle = product.seo?.title || product.name;
-	const seoDescription = product.seo?.description || product.summary || undefined;
-	const canonical = product.seo?.canonical || `/product/${product.slug}`;
-	const image = product.images[0];
-
 	return {
-		title: seoTitle,
-		description: seoDescription,
-		alternates: { canonical },
+		title: `${product.name} — Your Next Store`,
+		description: product.summary ?? undefined,
 		openGraph: {
-			type: "website",
-			title: seoTitle,
-			description: seoDescription,
-			url: canonical,
-			images: image ? [{ url: image, alt: product.name }] : undefined,
-		},
-		twitter: {
-			card: image ? "summary_large_image" : "summary",
-			title: seoTitle,
-			description: seoDescription,
-			images: image ? [image] : undefined,
+			title: product.name,
+			description: product.summary ?? undefined,
+			images: product.images[0] ? [product.images[0]] : undefined,
 		},
 	};
 }
 
-export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
+export default async function ProductPage(props: { params: Params; searchParams: SearchParams }) {
+	const sp = await props.searchParams;
+	const preview = await isPreview(sp);
+	const { slug } = await props.params;
+
+	if (preview) {
+		return <PreviewProductDetails slug={slug} />;
+	}
+
+	return <ProductDetails slug={slug} />;
+}
+
+async function PreviewProductDetails({ slug }: { slug: string }) {
+	const demo = getDemoProduct(slug) ?? DEMO_PRODUCTS[0];
+	if (!demo) {
+		notFound();
+	}
+	const variant = demo.variants[0];
+	const priceDisplay = variant
+		? formatMoney({ amount: BigInt(variant.price), currency: CURRENCY, locale: LOCALE })
+		: "";
+	return (
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+				<MediaGallery images={demo.images} productName={demo.name} variants={demo.variants} />
+				<div className="mt-8 lg:mt-0 space-y-8">
+					<div className="space-y-4">
+						<p className="text-[11px] uppercase tracking-[0.32em] text-clay/80">
+							{demo.category?.name ?? "Atelier"}
+						</p>
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-walnut text-balance">
+							{demo.name}
+						</h1>
+						<p className="font-serif text-2xl text-clay">{priceDisplay}</p>
+						{demo.summary && <p className="text-base text-espresso/70 leading-relaxed">{demo.summary}</p>}
+					</div>
+					<AddToCartButton
+						variants={demo.variants.map((v) => ({
+							id: v.id,
+							price: v.price,
+							originalPrice: v.originalPrice,
+							sku: v.sku,
+							images: v.images,
+							stock: v.stock,
+							omnibusPrice: null,
+							combinations: [],
+						}))}
+						product={{ id: demo.id, name: demo.name, slug: demo.slug, images: demo.images }}
+						volumePricingTiers={[]}
+					/>
+				</div>
+			</div>
+			<ProductFeatures />
+		</div>
+	);
+}
+
+const ProductDetails = async ({ slug }: { slug: string }) => {
 	"use cache";
 	cacheLife("minutes");
 
-	return <ProductDetails params={props.params} />;
-}
-
-const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
-	const { slug } = await params;
 	const me = await meGetCached().catch(() => null);
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
 	const [product, reviews] = await Promise.all([
@@ -100,7 +160,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const productJsonLd = await buildProductJsonLd(product, reviews);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			<Breadcrumb className="mb-6">
@@ -133,14 +193,15 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				</BreadcrumbList>
 			</Breadcrumb>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
 				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
 
-				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+					<div className="space-y-4">
+						{product.category?.name && (
+							<p className="text-[11px] uppercase tracking-[0.32em] text-clay/80">{product.category.name}</p>
+						)}
+						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-walnut text-balance">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -157,7 +218,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
 					<AddToCartButton
 						variants={product.variants}
 						product={{
@@ -187,8 +247,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);

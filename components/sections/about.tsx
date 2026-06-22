@@ -1,17 +1,35 @@
-export function About() {
+import { ArrowRightIcon } from "lucide-react";
+import { YnsLink } from "../yns-link";
+
+type AboutProps = {
+	isPreview?: boolean;
+};
+
+export function About({ isPreview = false }: AboutProps) {
+	const href = isPreview ? "/faq?preview=1" : "/faq";
+
 	return (
-		<section id="about" className="bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-				<div className="max-w-2xl mx-auto text-center">
-					<h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">Our Story</h2>
-					<p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-						We believe in the power of thoughtful design. Every product in our collection is carefully
-						selected to bring quality, beauty, and functionality into your everyday life.
+		<section id="about" className="bg-aura-clay text-cream py-20 sm:py-28">
+			<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="grid sm:grid-cols-[auto_1fr] gap-10 sm:gap-16 items-end">
+					<p className="text-[11px] uppercase tracking-[0.32em] text-cream/70 sm:[writing-mode:vertical-rl] sm:rotate-180">
+						Our story · Atelier
 					</p>
-					<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-						Our commitment to craftsmanship means we partner with makers who share our values — those who
-						prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-					</p>
+					<div>
+						<h2 className="font-serif text-3xl sm:text-5xl tracking-tight leading-tight text-balance">
+							Founded in a Puglian courtyard in 2018, our atelier is a small studio of makers who believe a
+							home should feel like a long, slow afternoon —
+							<span className="italic"> warm, quiet, lived-in.</span>
+						</h2>
+						<YnsLink
+							href={href}
+							prefetch={"eager"}
+							className="mt-10 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] border-b border-cream/40 pb-1.5 hover:border-cream"
+						>
+							Meet the makers
+							<ArrowRightIcon className="h-3.5 w-3.5" />
+						</YnsLink>
+					</div>
 				</div>
 			</div>
 		</section>

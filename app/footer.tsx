@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.28em] text-cream/55 mb-5">Shop</h3>
+			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-[11px] uppercase tracking-[0.28em] text-cream/55 mb-5">Legal</h3>
+			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -108,26 +108,37 @@ async function FooterLegalPages() {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-aura-espresso text-cream">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="max-w-sm">
+						<YnsLink prefetch={"eager"} href="/" className="block">
+							<span className="font-serif italic text-2xl">Your</span>{" "}
+							<span className="font-serif tracking-[0.18em] uppercase">Next Store</span>
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-cream/65 leading-relaxed">
+							Slow-made objects for unhurried homes. Stone, clay and linen — shaped by hand in our Puglian
+							atelier.
 						</p>
+						<div className="mt-7 flex items-center gap-3">
+							{["Instagram", "Pinterest", "Journal"].map((label) => (
+								<YnsLink
+									key={label}
+									href="#"
+									className="text-[10px] uppercase tracking-[0.22em] text-cream/65 border border-cream/15 rounded-full px-3 py-1.5 hover:border-cream/40 hover:text-cream transition-colors"
+								>
+									{label}
+								</YnsLink>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-[11px] uppercase tracking-[0.28em] text-cream/55 mb-5">Atelier</h3>
+						<ul className="space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
@@ -142,23 +153,40 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
 								>
-									FAQ
+									Journal
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/faq"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
+								>
+									Care & repair
+								</YnsLink>
+							</li>
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/faq"
+									className="font-serif text-base text-cream/80 hover:text-cream transition-colors"
+								>
+									Contact
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-6 border-t border-cream/12 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-[11px] uppercase tracking-[0.22em] text-cream/45">
+					<p>&copy; {new Date().getFullYear()} Your Next Store · Made in Puglia</p>
+					<p className="font-serif italic normal-case tracking-normal text-cream/55 text-sm">
+						&ldquo;Slowness is a kindness.&rdquo;
 					</p>
 				</div>
 			</div>

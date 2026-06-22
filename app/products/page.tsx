@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
+import { DEMO_PRODUCTS, isPreview } from "@/lib/demo-products";
 import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
@@ -25,6 +26,7 @@ type ProductFilterParams = {
 	priceMin?: string;
 	priceMax?: string;
 	vts?: string;
+	preview?: string;
 };
 
 async function getFilterFacets() {
@@ -36,24 +38,16 @@ async function getFilterFacets() {
 export async function generateMetadata({
 	searchParams,
 }: {
-	searchParams: Promise<{ page?: string }>;
+	searchParams: Promise<ProductFilterParams>;
 }): Promise<Metadata> {
-	const { page } = await searchParams;
-	const pageNum = Math.max(1, Number(page) || 1);
-	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
-
-	return {
-		title,
-		description: "Browse our complete product collection.",
-		alternates: { canonical },
-		openGraph: {
-			type: "website",
-			title,
-			description: "Browse our complete product collection.",
-			url: canonical,
-		},
+	const params = await searchParams;
+	const preview = await isPreview(params);
+	const base: Metadata = {
+		title: "All Products — Your Next Store",
+		description: "Browse our complete collection of slow-made home essentials.",
 	};
+	if (preview) base.robots = { index: false, follow: false };
+	return base;
 }
 
 async function ProductList({ filters }: { filters: ProductFilterParams }) {
@@ -63,6 +57,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
+	const preview = await isPreview(filters);
+
+	if (preview) {
+		const data = DEMO_PRODUCTS;
+		return (
+			<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+				{data.map((product) => (
+					<ProductCard key={product.id} product={product} isPreview={true} />
+				))}
+			</div>
+		);
+	}
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -83,16 +89,16 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="font-serif text-lg text-espresso/70">No products match these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
@@ -103,13 +109,13 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 function ProductGridSkeleton() {
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-			{Array.from({ length: 6 }).map((_, i) => (
+		<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+			{Array.from({ length: 8 }).map((_, i) => (
 				<div key={`skeleton-${i}`}>
-					<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+					<div className="aspect-[4/5] bg-sand rounded-md mb-4 animate-pulse" />
 					<div className="space-y-2">
-						<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-						<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+						<div className="h-5 w-3/4 bg-sand rounded animate-pulse" />
+						<div className="h-3 w-1/3 bg-sand rounded animate-pulse" />
 					</div>
 				</div>
 			))}
@@ -137,10 +143,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+				<p className="text-[11px] uppercase tracking-[0.32em] text-clay/80 mb-3">The shop</p>
+				<h1 className="font-serif text-4xl sm:text-6xl tracking-tight text-walnut">All products</h1>
+				<p className="mt-3 text-base text-espresso/65 max-w-md">
+					Browse the full collection — one season at a time, made by hand.
+				</p>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
