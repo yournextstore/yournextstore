@@ -20,6 +20,8 @@ type Variant = {
 	sku: string | null;
 	images: string[];
 	stock: number | null;
+	/** EU Omnibus: lowest price in the last 30 days (null unless the store enables omnibus). */
+	omnibusPrice: string | null;
 	combinations: {
 		variantValue: {
 			id: string;
@@ -43,8 +45,6 @@ type AddToCartButtonProps = {
 		images: string[];
 	};
 	summary?: string | null;
-	/** EU Omnibus 30-day low price keyed by variant id (empty unless the store enables omnibus). */
-	omnibusPrices?: Record<string, string>;
 	volumePricingTiers?: VolumeTier[];
 };
 
@@ -54,7 +54,6 @@ export function AddToCartButton({
 	variants,
 	product,
 	summary,
-	omnibusPrices,
 	volumePricingTiers = [],
 }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
@@ -135,10 +134,10 @@ export function AddToCartButton({
 	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
 	const omnibusPrice = useMemo(() => {
 		if (!selectedVariant || !priceInfo.compareAt) return null;
-		const lowest = omnibusPrices?.[selectedVariant.id];
+		const lowest = selectedVariant.omnibusPrice;
 		if (!lowest) return null;
 		return formatMoney({ amount: BigInt(lowest), currency: CURRENCY, locale: LOCALE });
-	}, [selectedVariant, priceInfo.compareAt, omnibusPrices]);
+	}, [selectedVariant, priceInfo.compareAt]);
 
 	// Stock availability. null stock means it isn't tracked (treated as in stock).
 	const stockStatus = useMemo(() => {
