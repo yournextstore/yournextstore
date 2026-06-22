@@ -41,14 +41,24 @@ export async function ProductGrid({
 		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
 			<div className="flex items-end justify-between mb-12">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="font-display text-4xl sm:text-5xl tracking-tight text-[var(--ink)]">
+						{title.split(" ").map((word, i, arr) =>
+							i === arr.length - 1 ? (
+								<em key={word} className="italic">
+									{word}
+								</em>
+							) : (
+								<span key={word}>{word} </span>
+							),
+						)}
+					</h2>
+					<p className="mt-3 text-[var(--ink)]/65 text-[15px] max-w-md">{description}</p>
 				</div>
 				{showViewAll && (
 					<YnsLink
 						prefetch={"eager"}
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.18em] uppercase text-[var(--ink)] hover:text-[var(--coral)] transition-colors"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
@@ -56,9 +66,9 @@ export async function ProductGrid({
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
