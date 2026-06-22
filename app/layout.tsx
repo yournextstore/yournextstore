@@ -3,10 +3,9 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Inter, Space_Grotesk } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
-import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -19,22 +18,28 @@ import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const display = Space_Grotesk({
+	variable: "--font-display",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	display: "swap",
+});
+
+const script = Caveat({
+	variable: "--font-script",
+	subsets: ["latin"],
+	display: "swap",
+	weight: ["700"],
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -42,7 +47,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription ||
+		"Hydrating, buildable color — clean beauty made for everyday wear.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -124,33 +131,67 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[color:var(--color-slate-ink)] text-[color:var(--color-bone)]/95">
+			<div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10">
+				<div className="flex items-center justify-center gap-3 py-2 text-[0.7rem] tracking-[0.22em] uppercase font-medium">
+					<span className="hidden sm:inline-block size-1.5 rounded-full bg-[color:var(--color-terracotta)]" />
+					<span>
+						New: The Easy Way Hydrating Satin Lipstick —{" "}
+						<Link
+							href="/products"
+							className="underline underline-offset-4 hover:text-[color:var(--color-blush)]"
+						>
+							Shop Now
+						</Link>
+					</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell, whether or not anything inside
+	// it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-foreground/10 bg-background/85 backdrop-blur-md">
+						<div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10">
+							<div className="grid grid-cols-2 lg:grid-cols-3 items-center h-16 lg:h-20">
+								<div className="flex items-center gap-7">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="hidden lg:flex items-center justify-center">
+									<Link
+										href="/"
+										aria-label="Your Next Store"
+										className="font-script text-4xl leading-none text-foreground tracking-tight"
+									>
+										Your Next Store
+									</Link>
+								</div>
+								<div className="flex items-center justify-end gap-2 sm:gap-5">
+									<Link
+										href="/"
+										aria-label="Your Next Store"
+										className="font-script text-3xl leading-none text-foreground lg:hidden"
+									>
+										YNS
+									</Link>
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,7 +201,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="inline-flex size-9 items-center justify-center text-foreground hover:text-[color:var(--color-terracotta)] transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -175,7 +216,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
-			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
+				    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
 					<StoreChatSection />
 				</Suspense>
@@ -209,9 +250,8 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
-		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang}>
+			<body className={`${inter.variable} ${display.variable} ${script.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -219,13 +259,11 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					<CartProviderWrapper>{children}</CartProviderWrapper>
-					<Suspense>
-						<NewsletterPopupSection />
-					</Suspense>
-					<Toaster richColors position="top-center" />
-				</ThemeProvider>
+				<CartProviderWrapper>{children}</CartProviderWrapper>
+				<Suspense>
+					<NewsletterPopupSection />
+				</Suspense>
+				<Toaster richColors position="top-center" />
 				{env === "development" && (
 					<>
 						<NavigationReporter />
