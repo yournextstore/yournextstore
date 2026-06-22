@@ -1,4 +1,4 @@
-import { Award, Hammer, Leaf, type LucideIcon } from "lucide-react";
+import { BatteryChargingIcon, type LucideIcon, ShieldCheckIcon, SunIcon } from "lucide-react";
 
 type Feature = {
 	title: string;
@@ -12,35 +12,47 @@ type ProductFeaturesProps = {
 
 const defaultFeatures: Feature[] = [
 	{
-		title: "Sustainable Materials",
-		description: "Crafted from responsibly sourced materials with minimal environmental impact.",
+		title: "Engineered for real rooftops",
+		description: "Mono PERC cells with anti-PID coating perform across heat, salt air and partial shading.",
 	},
 	{
-		title: "Expert Craftsmanship",
-		description: "Each piece is carefully made by skilled artisans with attention to detail.",
+		title: "Built for storage",
+		description:
+			"Drop-in compatible with our hybrid inverter and battery line — go grid-tied today, off-grid later.",
 	},
 	{
-		title: "Quality Guaranteed",
-		description: "Built to last with premium components and rigorous quality standards.",
+		title: "25-year peace of mind",
+		description:
+			"Linear warranty guarantees at least 84.8% rated output at year 25, backed by a US-based service team.",
 	},
 ];
 
-const defaultIcons = [Leaf, Hammer, Award];
+const defaultIcons = [SunIcon, BatteryChargingIcon, ShieldCheckIcon];
 
 export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesProps) {
 	return (
 		<section className="mt-20 border-t border-border pt-16">
-			<h2 className="mb-12 text-center text-3xl font-medium tracking-tight">Crafted with intention</h2>
-			<div className="grid gap-8 md:grid-cols-3">
+			<div className="text-center mb-12">
+				<p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--forest)]/70">
+					Why this product
+				</p>
+				<h2 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+					Engineered to outlast the install
+				</h2>
+			</div>
+			<div className="grid gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
 					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length];
 					return (
-						<div key={feature.title} className="group flex flex-col items-center text-center">
-							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-foreground">
-								<Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-background" />
+						<div
+							key={feature.title}
+							className="group flex flex-col gap-3 rounded-2xl border border-border p-6 hover:border-[var(--forest)]/30 hover:shadow-md transition"
+						>
+							<div className="flex size-11 items-center justify-center rounded-xl bg-[var(--forest)] text-[var(--lime)] group-hover:bg-[var(--lime)] group-hover:text-[var(--forest-deep)] transition-colors">
+								<Icon className="h-5 w-5" />
 							</div>
-							<h3 className="mb-2 text-lg font-medium">{feature.title}</h3>
-							<p className="text-sm text-muted-foreground">{feature.description}</p>
+							<h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
+							<p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
 						</div>
 					);
 				})}

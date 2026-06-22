@@ -3,6 +3,7 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { ArrowUpRight } from "lucide-react";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
@@ -55,8 +56,12 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink
+			prefetch={"eager"}
+			href={`/product/${product.slug}`}
+			className="group rounded-2xl border border-border bg-card p-3 transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--forest)]/20"
+		>
+			<div className="relative aspect-[4/3] bg-[var(--cream)] rounded-xl overflow-hidden">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -109,10 +114,21 @@ export function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+
+				{priceDisplay && (
+					<div className="absolute top-3 left-3 inline-flex items-center rounded-full bg-[var(--lime)] text-[var(--forest-deep)] px-3 py-1 text-xs font-semibold shadow-sm">
+						{priceDisplay}
+					</div>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-start justify-between gap-3 px-1 pt-4 pb-2">
+				<div className="min-w-0">
+					<h3 className="text-[15px] font-semibold text-foreground truncate">{product.name}</h3>
+					<p className="mt-1 text-xs text-muted-foreground">Tap to view specs & install kit</p>
+				</div>
+				<span className="shrink-0 mt-0.5 flex size-8 items-center justify-center rounded-full bg-[var(--cream)] text-[var(--forest-deep)] group-hover:bg-[var(--lime)] transition-colors">
+					<ArrowUpRight className="size-4" />
+				</span>
 			</div>
 		</YnsLink>
 	);
