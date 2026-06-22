@@ -40,7 +40,7 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="hidden lg:inline-flex xl:hidden rounded-full p-2 text-[var(--brand-ink)] transition-colors hover:bg-[var(--brand-ink)]/5"
 				>
 					<Search className="h-6 w-6" strokeWidth={1.75} />
 				</PopoverTrigger>
@@ -53,14 +53,14 @@ export function SearchInput() {
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
 							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand-ink)]/45"
 								strokeWidth={1.75}
 							/>
 							<input
 								ref={iconInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="Search the shelf…"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
 								onKeyDown={makeKeyHandler(
@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="font-mono-ed h-10 w-full border-b border-[var(--brand-ink)]/20 bg-transparent pl-9 pr-3 text-[11px] uppercase tracking-[0.18em] text-[var(--brand-ink)] placeholder:text-[var(--brand-ink)]/35 focus:border-[var(--brand-ink)] focus:outline-none"
 							/>
 						</div>
 					</form>
@@ -98,14 +98,14 @@ export function SearchInput() {
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand-ink)]/45"
 							strokeWidth={1.75}
 						/>
 						<input
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="Search the shelf…"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="font-mono-ed h-9 w-48 border-b border-[var(--brand-ink)]/20 bg-transparent pl-8 pr-2 text-[11px] uppercase tracking-[0.18em] text-[var(--brand-ink)] placeholder:text-[var(--brand-ink)]/35 focus:border-[var(--brand-ink)] focus:outline-none"
 						/>
 					</div>
 					<PopoverContent
