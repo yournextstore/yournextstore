@@ -3,7 +3,6 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
@@ -22,17 +21,19 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	heading?: boolean;
 	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
 	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
 	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	heading = false,
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
@@ -40,41 +41,49 @@ export async function ProductGrid({
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
+	if (displayProducts.length === 0) {
+		return null;
+	}
+
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="bg-background">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pb-16 sm:pb-24">
+				{heading && (
+					<div className="flex items-end justify-between mb-8 pt-12">
+						<div>
+							<p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground">The Collection</p>
+							<h2 className="mt-2 font-display text-3xl sm:text-4xl text-foreground">{title}</h2>
+							{description && <p className="mt-2 text-sm text-muted-foreground max-w-md">{description}</p>}
+						</div>
+						{showViewAll && (
+							<Link
+								href={viewAllHref}
+								className="hidden sm:inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-medium text-foreground/80 hover:text-foreground transition-colors border-b border-foreground/30 hover:border-foreground pb-1"
+							>
+								Shop all →
+							</Link>
+						)}
+					</div>
+				)}
+
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
+					{displayProducts.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
+					))}
 				</div>
+
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+					<div className="mt-14 flex flex-col items-center gap-4">
+						<div className="editorial-rule w-32" />
+						<Link
+							href={viewAllHref}
+							className="inline-flex items-center justify-center h-11 px-10 rounded-full border border-foreground text-[11px] tracking-[0.25em] uppercase font-medium hover:bg-foreground hover:text-background transition-colors"
+						>
+							Load more
+						</Link>
+					</div>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

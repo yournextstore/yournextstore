@@ -7,18 +7,9 @@ import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { YNSMedia } from "@/lib/yns-media";
 
 const COLLECTION_PRODUCTS_LIMIT = 100;
 
@@ -59,40 +50,45 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
+		<section className="bg-background border-b border-border">
+			<div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
+				<nav
+					aria-label="Breadcrumb"
+					className="pt-8 sm:pt-10 flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-muted-foreground"
+				>
+					<Link href="/" className="hover:text-foreground transition-colors">
+						Home
+					</Link>
+					<span aria-hidden>—</span>
+					<Link href="/products" className="hover:text-foreground transition-colors">
+						Collections
+					</Link>
+					<span aria-hidden>—</span>
+					<span className="text-foreground">{collection.name}</span>
+				</nav>
+
+				<div className="pt-6 sm:pt-8 pb-10 flex items-end gap-3 sm:gap-4">
+					<h1 className="font-display text-5xl sm:text-7xl lg:text-[88px] leading-[0.95] tracking-[-0.01em] text-foreground uppercase">
+						{collection.name}
+					</h1>
+					<span className="font-display text-base sm:text-lg text-muted-foreground mb-3 sm:mb-5">
+						<sup>{count}</sup>
+					</span>
+				</div>
+
+				{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
+				{typeof collection.description === "string" ? (
+					<p className="pb-10 max-w-xl text-sm leading-relaxed text-muted-foreground">
+						{collection.description}
+					</p>
+				) : collection.description ? (
+					<div className="prose pb-10 max-w-xl text-sm leading-relaxed text-muted-foreground tiptap-content">
+						<TiptapRenderer content={collection.description} />
 					</div>
-				</div>
+				) : null}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
@@ -112,14 +108,7 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
+	return <ProductGrid title={collection.name} products={products} showViewAll={false} />;
 }
 
 // Every known address prerenders in full; one added later renders on its first visit (lib/catalog-paths.ts).
@@ -155,24 +144,13 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		notFound();
 	}
 
+	const count = collection.productCollections.length;
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
+			<CollectionHeader collection={collection} count={count} />
 			<CollectionProducts collection={collection} />
 		</>
 	);
