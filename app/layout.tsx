@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Display, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,16 +25,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const grotesk = Inter({
+	variable: "--font-grotesk",
 	subsets: ["latin"],
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const display = DM_Serif_Display({
+	variable: "--font-display",
+	weight: "400",
+	style: ["italic", "normal"],
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
-	preload: false,
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -42,7 +44,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription =
+		me.store.settings?.storeDescription || "sleep is not optional. essentials for the cult of rest.";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
 	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
@@ -124,29 +127,58 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="yns-keep-case bg-[var(--yns-ink)] text-[var(--yns-cream)] text-[11px] tracking-[0.18em] uppercase">
+			<div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between">
+				<span className="hidden sm:inline opacity-80">free shipping over $50 · 30-day returns</span>
+				<span className="flex items-center gap-2">
+					<span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--yns-red)] yns-blink" />
+					new drop · sleep strips waitlist now open
+				</span>
+				<span className="hidden md:inline opacity-80">est. 2026 · ny / la / tokyo</span>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
-	// take the header, nav and footer out of the prerendered shell and leave the page
-	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
+	// Only cached reads here. Awaiting anything request-time (cookies, headers) would take the
+	// header, nav and footer out of the prerendered shell and leave the page blank until the
+	// server responds; CartProvider loads the cart in the browser. No <Suspense> around this
+	// component either: the boundary itself is what streams the chrome out of the shell, whether
+	// or not anything inside it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-[var(--yns-ink)]/10 bg-[var(--yns-paper)]/90 backdrop-blur-md">
+						<div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+							<div className="grid grid-cols-3 items-center h-14 sm:h-16">
+								<div className="flex items-center gap-6">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center justify-center">
+									<Link
+										href="/"
+										className="yns-keep-case font-[family-name:var(--font-display)] italic text-[var(--yns-red)] text-xl sm:text-2xl tracking-tight"
+									>
+										your next store<span className="not-italic">.</span>
+									</Link>
+								</div>
+								<div className="flex items-center justify-end gap-1 sm:gap-2">
+									<button
+										type="button"
+										className="hidden md:inline-flex items-center gap-1 px-2 h-9 text-xs text-[var(--yns-ink)]/70 hover:text-[var(--yns-red)] transition-colors"
+									>
+										usd $
+										<svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+											<path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1" />
+										</svg>
+									</button>
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,10 +192,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="flex h-9 w-9 items-center justify-center text-[var(--yns-ink)]/70 hover:text-[var(--yns-red)] transition-colors"
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="size-5" />
 									</a>
 									<CartButton />
 								</div>
@@ -211,7 +243,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${grotesk.variable} ${display.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
