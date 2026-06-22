@@ -36,9 +36,7 @@ export async function ProductCard({
 		blurPreview(primaryImage),
 	]);
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const priceDisplay = listing ? formatMoney({ amount: listing.amount, currency, locale }) : null;
 	const compareAtDisplay = listing?.compareAt
 		? formatMoney({ amount: listing.compareAt, currency, locale })
 		: null;
@@ -62,8 +60,19 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div
+				className="relative aspect-[4/5] overflow-hidden rounded-sm mb-5"
+				style={{
+					background: "radial-gradient(ellipse 80% 60% at 50% 60%, #efe7d7 0%, #e5dccb 60%, #ddd1bd 100%)",
+				}}
+			>
+				{/* subtle ground shadow */}
+				<div
+					aria-hidden
+					className="absolute inset-x-[10%] bottom-[8%] h-[6%] rounded-full"
+					style={{ background: "radial-gradient(ellipse at center, rgba(26,26,26,0.18), transparent 70%)" }}
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -96,7 +105,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-contain p-8 transition-all duration-700 group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -117,18 +126,35 @@ export async function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-contain p-8 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+				{/* hover tag */}
+				<div className="absolute bottom-3 right-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+					<span
+						className="inline-flex items-center gap-1.5 rounded-full bg-ink text-paper px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase"
+						style={{ backgroundColor: "#1A1A1A", color: "#F4F1EC" }}
+					>
+						View object →
+					</span>
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
-				</p>
+			<div className="flex items-start justify-between gap-4">
+				<div className="space-y-1">
+					<div className="text-[10px] tracking-[0.22em] uppercase text-foreground/45">Edition</div>
+					<h2 className="display-italic text-xl tracking-[-0.01em] leading-tight">{product.name}</h2>
+				</div>
+				<div className="text-right shrink-0">
+					<div className="text-[10px] tracking-[0.22em] uppercase text-foreground/45">
+						{listing?.from ? "From" : "Price"}
+					</div>
+					<p className="text-sm font-medium text-foreground tabular-nums">
+						{priceDisplay}
+						{compareAtDisplay && (
+							<span className="ml-2 text-foreground/45 line-through">{compareAtDisplay}</span>
+						)}
+					</p>
+				</div>
 			</div>
 		</IntentLink>
 	);

@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const fraunces = Fraunces({
+	variable: "--font-display",
+	subsets: ["latin"],
+	display: "swap",
+	axes: ["opsz", "SOFT"],
 });
 
 const geistMono = Geist_Mono({
@@ -105,6 +113,32 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function AnnouncementBar() {
+	const items = [
+		"Complimentary shipping on orders over $250",
+		"The Series Seven — 70 years in the making",
+		"Editorial collection — new objects every season",
+		"Hand-finished in Denmark since 1955",
+	];
+	return (
+		<div
+			className="border-b border-border bg-ink text-paper overflow-hidden"
+			style={{ backgroundColor: "#1A1A1A", color: "#F4F1EC" }}
+		>
+			<div className="relative flex whitespace-nowrap py-2 text-[11px] uppercase tracking-[0.28em]">
+				<div className="flex animate-marquee">
+					{[...items, ...items].map((t, i) => (
+						<span key={i} className="mx-8 inline-flex items-center gap-8">
+							<span>{t}</span>
+							<span className="opacity-40">✕</span>
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -137,16 +171,25 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
+					<AnnouncementBar />
+					<header
+						className="sticky top-0 z-50 border-b border-border bg-paper/85 backdrop-blur-xl"
+						style={{ backgroundColor: "rgba(244, 241, 236, 0.85)" }}
+					>
+						<div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+							<div className="grid grid-cols-3 items-center h-16">
 								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+									<Link href="/" className="group inline-flex items-center gap-2">
+										<span className="block h-2 w-2 rounded-full bg-foreground" />
+										<span className="text-[13px] tracking-[0.18em] uppercase font-medium">
+											Your Next Store
+										</span>
 									</Link>
+								</div>
+								<div className="flex justify-center">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center justify-end gap-3">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,7 +203,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 rounded-full hover:bg-secondary transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -170,7 +213,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<div className="flex-1">{children}</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -211,7 +254,10 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${fraunces.variable} ${geistMono.variable} antialiased font-sans`}
+				style={{ fontFamily: "var(--font-sans), system-ui, sans-serif" }}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
