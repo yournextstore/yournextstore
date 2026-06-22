@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-[4/5] bg-secondary overflow-hidden mb-5">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -82,7 +82,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -96,7 +96,7 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-all duration-700 group-hover:scale-[1.04] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -120,15 +120,21 @@ export async function ProductCard({
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
+				<span className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-ink text-bone px-2.5 py-1 text-[9px] tracking-[0.3em] uppercase">
+					<span className="block w-1 h-1 bg-brick" /> YNS
+				</span>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+			<div className="flex items-baseline justify-between gap-4">
+				<h2 className="text-[15px] font-medium text-foreground tracking-tight">{product.name}</h2>
+				<p className="flex flex-wrap items-baseline justify-end gap-x-2 text-[15px] font-semibold text-foreground tabular-nums">
+					<span>{priceDisplay}</span>
 					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+						<span className="text-sm font-normal text-muted-foreground line-through">{compareAtDisplay}</span>
 					)}
 				</p>
+			</div>
+			<div className="mt-1 text-[10px] tracking-[0.3em] uppercase text-ink/55">
+				{variants && variants.length > 1 ? `${variants.length} variants` : "Single edition"}
 			</div>
 		</IntentLink>
 	);
