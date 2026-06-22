@@ -54,7 +54,14 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 	);
 }
 
-export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBrowseResult; slug: string }) {
+export function ProductReviews({
+	reviews,
+	slug,
+}: {
+	reviews: APIProductReviewsBrowseResult | null;
+	slug: string;
+}) {
+	if (!reviews) return null;
 	return (
 		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
