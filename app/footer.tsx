@@ -16,7 +16,7 @@ async function FooterBlogLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
 			>
 				Blog
 			</YnsLink>
@@ -38,7 +38,7 @@ async function FooterContactLink() {
 			<YnsLink
 				prefetch={"eager"}
 				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+				className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
 			>
 				Contact Us
 			</YnsLink>
@@ -58,14 +58,14 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-display uppercase tracking-[0.18em] text-[var(--yellow)] text-sm">Collections</h3>
+			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
 						>
 							{collection.name}
 						</YnsLink>
@@ -88,14 +88,14 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="font-display uppercase tracking-[0.18em] text-[var(--yellow)] text-sm">Legal</h3>
+			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<YnsLink
 							prefetch={"eager"}
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
 						>
 							{page.label}
 						</YnsLink>
@@ -106,33 +106,68 @@ async function FooterLegalPages() {
 	);
 }
 
+function FooterMarquee() {
+	const phrases = ["YOUR NEXT STORE", "(♥,♥)", "BOLDLY DELICIOUS", "(♥,♥)", "LIVE DELICIOUSLY", "(♥,♥)"];
+	const items = Array.from({ length: 4 }).flatMap(() => phrases);
+	return (
+		<div className="bg-[var(--pink)] text-white font-display uppercase tracking-[0.3em] py-3 overflow-hidden">
+			<div className="yns-marquee">
+				<div className="yns-marquee__track whitespace-nowrap text-sm">
+					{items.map((p, i) => (
+						<span key={`fm-${i}`} className="flex items-center gap-10">
+							<span>{p}</span>
+						</span>
+					))}
+				</div>
+				<div className="yns-marquee__track whitespace-nowrap text-sm" aria-hidden="true">
+					{items.map((p, i) => (
+						<span key={`fm2-${i}`} className="flex items-center gap-10">
+							<span>{p}</span>
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export function Footer() {
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-[var(--burgundy)] text-[var(--cream)]">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
+				<div className="py-14 sm:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+					<div className="sm:max-w-xs lg:col-span-1">
+						<YnsLink
+							prefetch={"eager"}
+							href="/"
+							className="font-display uppercase text-[var(--pink)] text-3xl leading-none"
+						>
 							Your Next Store
 						</YnsLink>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-[var(--cream)]/75 leading-relaxed">
+							A boldly delicious next-gen store. Curated, hand-packed, and a little bit naughty — in the best
+							way.
 						</p>
+						<div className="mt-6 flex gap-3">
+							{["IG", "TT", "PIN", "YT"].map((s) => (
+								<span
+									key={s}
+									className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--pink)] text-white text-xs font-display tracking-widest"
+								>
+									{s}
+								</span>
+							))}
+						</div>
 					</div>
-
-					{/* Collections */}
 					<FooterCollections />
-
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="font-display uppercase tracking-[0.18em] text-[var(--yellow)] text-sm">Support</h3>
+						<ul className="mt-5 space-y-3">
 							<li>
 								<YnsLink
 									prefetch={"eager"}
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
 								>
 									About Us
 								</YnsLink>
@@ -142,26 +177,34 @@ export function Footer() {
 								<YnsLink
 									prefetch={"eager"}
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
 								>
 									FAQ
 								</YnsLink>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<YnsLink
+									prefetch={"eager"}
+									href="/products"
+									className="text-sm text-[var(--cream)]/80 hover:text-white transition-colors"
+								>
+									Shop All
+								</YnsLink>
+							</li>
 						</ul>
 					</div>
-
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+				<div className="py-6 border-t border-[var(--cream)]/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+					<p className="text-xs text-[var(--cream)]/60">
+						&copy; {new Date().getFullYear()} Your Next Store. Made with love and a little gossip.
 					</p>
+					<p className="text-xs uppercase tracking-[0.3em] text-[var(--cream)]/60">YNS — Boldly Delicious</p>
 				</div>
 			</div>
+			<FooterMarquee />
 		</footer>
 	);
 }

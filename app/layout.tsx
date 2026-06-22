@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bowlby_One, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,14 +22,17 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bowlby = Bowlby_One({
+	variable: "--font-bowlby",
 	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
@@ -37,7 +40,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
+	const storeDescription = me.store.settings?.storeDescription || "A boldly delicious next-gen store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
@@ -131,22 +134,64 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function AnnouncementMarquee() {
+	const phrases = [
+		"YOUR NEXT STORE",
+		"BOLDLY DELICIOUS — SHOP NOW",
+		"OUR EYES ARE UP HERE <3",
+		"LIVE DELICIOUSLY",
+		"YOUR NEXT STORE",
+		"BOLDLY DELICIOUS — SHOP NOW",
+		"OUR EYES ARE UP HERE <3",
+		"LIVE DELICIOUSLY",
+	];
+	return (
+		<div className="bg-[var(--pink)] text-white font-display text-xs sm:text-sm py-2 overflow-hidden">
+			<div className="yns-marquee">
+				<div className="yns-marquee__track whitespace-nowrap">
+					{phrases.map((p, i) => (
+						<span key={`a-${i}`} className="flex items-center gap-8">
+							<span className="opacity-90">(♥,♥)</span>
+							<span>{p}</span>
+						</span>
+					))}
+				</div>
+				<div className="yns-marquee__track whitespace-nowrap" aria-hidden="true">
+					{phrases.map((p, i) => (
+						<span key={`b-${i}`} className="flex items-center gap-8">
+							<span className="opacity-90">(♥,♥)</span>
+							<span>{p}</span>
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="flex min-h-screen flex-col bg-background">
+				<header className="sticky top-0 z-50 bg-[var(--cream)]/95 backdrop-blur-md border-b border-[var(--pink)]/15">
+					<AnnouncementMarquee />
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
+						<div className="grid grid-cols-3 items-center h-16 sm:h-20">
+							<div className="flex items-center gap-6">
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center justify-center">
+								<YnsLink
+									prefetch={"eager"}
+									href="/"
+									className="font-display text-2xl sm:text-4xl text-[var(--pink)] tracking-tight uppercase leading-none text-center"
+								>
+									Your Next<span className="hidden sm:inline"> </span>Store
+								</YnsLink>
+							</div>
+							<div className="flex items-center justify-end gap-2">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +201,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -192,7 +237,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bowlby.variable} ${inter.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
