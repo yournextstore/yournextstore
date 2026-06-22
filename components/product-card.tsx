@@ -62,8 +62,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-[3/4] overflow-hidden bg-cream">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -95,7 +95,7 @@ export async function ProductCard({
 							preview={preview}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
@@ -116,18 +116,16 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
-					{compareAtDisplay && (
-						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
-					)}
+			<div className="mt-3.5 space-y-1">
+				<h2 className="text-[13px] font-normal text-foreground tracking-wide">{product.name}</h2>
+				<p className="flex flex-wrap items-baseline gap-2 text-[13px] text-mushroom">
+					<span>{priceDisplay}</span>
+					{compareAtDisplay && <span className="line-through">{compareAtDisplay}</span>}
 				</p>
 			</div>
 		</IntentLink>
