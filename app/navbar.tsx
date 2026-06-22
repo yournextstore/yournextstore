@@ -42,12 +42,12 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</nav>
 				</SheetContent>
 			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+			<nav className="hidden sm:flex items-center gap-6">
 				{links.map((link) => (
 					<Link
 						key={link.href}
 						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
 					>
 						{link.label}
 					</Link>
