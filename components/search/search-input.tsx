@@ -60,7 +60,7 @@ export function SearchInput() {
 								ref={iconInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="search the archive…"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
 								onKeyDown={makeKeyHandler(
@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-9 w-full rounded-full border border-border bg-background/60 pl-9 pr-4 font-editorial italic text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:bg-background transition-all"
 							/>
 						</div>
 					</form>
@@ -105,7 +105,7 @@ export function SearchInput() {
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="search the archive…"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-9 w-56 rounded-full border border-border bg-background/60 pl-9 pr-4 font-editorial italic text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:bg-background transition-all"
 						/>
 					</div>
 					<PopoverContent
