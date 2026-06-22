@@ -39,7 +39,7 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} — ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
 				: null;
@@ -55,8 +55,16 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+			<div className="relative aspect-[4/5] rounded-2xl overflow-hidden mb-5 skylrk-tile-1 border border-border/50">
+				{/* inner halo */}
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 pointer-events-none transition-opacity duration-500 group-hover:opacity-70 opacity-100"
+					style={{
+						background: "radial-gradient(circle at 50% 30%, rgba(166,201,214,0.18), transparent 65%)",
+					}}
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -73,7 +81,7 @@ export function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 w-full h-full object-contain p-6 transition-all duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,14 +94,14 @@ export function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-contain p-6 transition-all duration-700 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 w-full h-full object-contain p-6 opacity-0 transition-all duration-700 group-hover:opacity-100 group-hover:scale-105"
 							src={secondaryImage}
 							muted
 							loop
@@ -106,13 +114,20 @@ export function ProductCard({
 							alt={`${product.name} - alternate view`}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-contain p-6 opacity-0 transition-all duration-700 group-hover:opacity-100 group-hover:scale-105"
 						/>
 					))}
+
+				{/* corner tag */}
+				<div className="absolute top-3 left-3">
+					<span className="font-mono text-[9px] uppercase tracking-[0.24em] text-foreground/60">
+						[ 00{((Number.parseInt(product.id?.toString().slice(-1) ?? "1", 36) || 1) % 6) + 1} ]
+					</span>
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex items-baseline justify-between gap-3">
+				<h3 className="text-sm font-medium text-foreground tracking-tight">{product.name}</h3>
+				<p className="text-sm font-mono text-foreground/80 shrink-0">{priceDisplay}</p>
 			</div>
 		</YnsLink>
 	);

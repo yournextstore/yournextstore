@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -22,13 +22,18 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+	variable: "--font-display",
+	subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+	variable: "--font-mono",
 	subsets: ["latin"],
 });
 
@@ -131,22 +136,43 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+function Bracketed({ children }: { children: React.ReactNode }) {
+	return (
+		<span className="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.22em] uppercase">
+			<span className="text-foreground/40">[</span>
+			<span>{children}</span>
+			<span className="text-foreground/40">]</span>
+		</span>
+	);
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+				{/* Announcement bar */}
+				<div className="bg-foreground text-background">
+					<div className="max-w-[1400px] mx-auto px-6 py-2 flex items-center justify-center gap-3 text-[11px] font-mono uppercase tracking-[0.24em]">
+						<span className="opacity-60">[</span>
+						<span>Drop 003 — Free shipping over $150 worldwide</span>
+						<span className="opacity-60">]</span>
+					</div>
+				</div>
+
+				<header className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl">
+					<div className="max-w-[1400px] mx-auto px-6">
+						<div className="flex items-center justify-between h-16">
+							<div className="flex items-center gap-10">
+								<YnsLink prefetch={"eager"} href="/" className="group flex items-center gap-2">
+									<Bracketed>
+										<span className="font-display font-semibold tracking-[0.32em] text-foreground">YNS</span>
+									</Bracketed>
 								</YnsLink>
 								<Navbar links={links} />
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-3">
 								<Suspense>
 									<SearchInput />
 								</Suspense>
@@ -156,7 +182,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
@@ -191,8 +217,10 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		<html lang={lang}>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		<html lang={lang} className="dark">
+			<body
+				className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased font-sans`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
