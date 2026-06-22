@@ -1,3 +1,4 @@
+import { LeafIcon } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
@@ -51,8 +52,8 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Shop</h3>
+			<ul className="mt-5 space-y-3.5">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
@@ -80,8 +81,8 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Legal</h3>
+			<ul className="mt-5 space-y-3.5">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
@@ -110,26 +111,39 @@ export async function Footer() {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
+		<footer className="bg-leaf-50 border-t border-leaf-200/70">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-16 sm:py-20 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-10">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+					<div className="col-span-2 lg:col-span-2 sm:max-w-xs">
+						<Link href="/" className="flex items-center gap-2">
+							<span className="grid place-items-center h-8 w-8 rounded-full bg-primary text-primary-foreground">
+								<LeafIcon className="h-4 w-4" />
+							</span>
+							<span className="font-display text-2xl text-foreground">Your Next Store</span>
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-xs">
+							Pure, plant-powered essentials thoughtfully formulated to support your daily rituals.
 						</p>
+						<div className="mt-6 flex items-center gap-2">
+							{["Instagram", "Twitter", "YouTube"].map((label) => (
+								<button
+									key={label}
+									type="button"
+									aria-label={label}
+									className="grid place-items-center h-9 w-9 rounded-full ring-1 ring-leaf-200 text-foreground hover:bg-foreground hover:text-background hover:ring-foreground transition-colors text-[10px] font-semibold uppercase tracking-wider"
+								>
+									{label.charAt(0)}
+								</button>
+							))}
+						</div>
 					</div>
 
-					{/* Collections */}
 					<FooterCollections />
 
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Support</h3>
+						<ul className="mt-5 space-y-3.5">
 							<li>
 								<Link
 									href="/about"
@@ -148,16 +162,34 @@ export async function Footer() {
 								</Link>
 							</li>
 							<FooterBlogLink />
+							<li>
+								<Link
+									href="/search"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									Track order
+								</Link>
+							</li>
+							<li>
+								<span className="text-sm text-muted-foreground">care@yournextstore.com</span>
+							</li>
 						</ul>
 					</div>
 
-					{/* Legal */}
 					<FooterLegalPages />
+
+					<div>
+						<h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">Our promise</h3>
+						<ul className="mt-5 space-y-3.5 text-sm text-muted-foreground">
+							<li>Carbon-neutral shipping</li>
+							<li>Lab-tested formulas</li>
+							<li>Glass refill program</li>
+						</ul>
+					</div>
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="py-7 border-t border-leaf-200/70 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<p className="text-xs text-muted-foreground">&copy; {year} Your Next Store. Rooted in nature.</p>
 					<PaymentMethods />
 				</div>
 			</div>
