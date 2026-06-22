@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Geist_Mono, Inter, Pinyon_Script } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -25,9 +25,24 @@ import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/li
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
+	display: "swap",
+});
+
+const pinyon = Pinyon_Script({
+	variable: "--font-pinyon",
+	subsets: ["latin"],
+	weight: ["400"],
+	display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -105,6 +120,18 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
+function AnnouncementBar() {
+	return (
+		<div className="bg-[#3e2a1c] text-[#f2ebdd]">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex items-center justify-center h-9 text-[11px] tracking-[0.22em] uppercase font-light">
+					Complimentary shipping on orders over $80 · 30-day returns
+				</div>
+			</div>
+		</div>
+	);
+}
+
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
@@ -136,17 +163,27 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
-				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-foreground/10 bg-background/85 backdrop-blur-md">
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
+							<div className="relative flex items-center justify-between h-16 sm:h-20">
+								<div className="flex items-center gap-7">
 									<Navbar links={links} />
 								</div>
-								<div className="flex items-center gap-2">
+
+								<Link
+									href="/"
+									className="absolute left-1/2 -translate-x-1/2 font-serif text-[26px] sm:text-[32px] tracking-[0.01em] text-foreground leading-none"
+									style={{ fontFamily: "var(--font-serif)" }}
+								>
+									<span className="relative">
+										Your Next Store
+										<sup className="ml-0.5 text-[10px] tracking-normal text-foreground/50">™</sup>
+									</span>
+								</Link>
+
+								<div className="flex items-center gap-4 sm:gap-6">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
@@ -160,7 +197,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className="p-2 text-foreground/75 hover:text-foreground transition-colors"
 										aria-label="Account"
 									>
 										<UserRound className="w-5 h-5" />
@@ -211,7 +248,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${cormorant.variable} ${pinyon.variable} ${geistMono.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
