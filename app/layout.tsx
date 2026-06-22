@@ -137,12 +137,15 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	return (
 		<CartProvider initialCart={cart} initialCartId={cartId}>
 			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+				<header className="sticky top-0 z-50 border-b-2 border-primary/10 bg-background/90 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
+						<div className="flex items-center justify-between h-18">
+							<div className="flex items-center gap-8">
+								<YnsLink prefetch={"eager"} href="/" className="flex items-center gap-2 group">
+									<span className="text-3xl animate-bounce-slow">🎈</span>
+									<span className="text-xl font-black gradient-text group-hover:scale-105 transition-transform">
+										Kids Wonder
+									</span>
 								</YnsLink>
 								<Navbar links={links} />
 							</div>
@@ -156,7 +159,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						</div>
 					</div>
 				</header>
-				<main className="flex-1">{children}</main>
+				<div className="flex-1">{children}</div>
 				<Footer />
 				<ReferralBadge />
 			</div>
