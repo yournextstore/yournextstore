@@ -182,18 +182,18 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
 
 				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 lg:mt-0 space-y-6">
 					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					<div className="space-y-4">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center font-heading text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="font-heading text-3xl font-bold uppercase tracking-wide text-foreground lg:text-4xl">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -202,7 +202,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
 							>
 								<StarRow rating={reviewSummary.averageRating} />
-								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
+								<span className="font-bold text-brand">{reviewSummary.averageRating.toFixed(1)}</span>
 								<span className="text-muted-foreground underline-offset-4 hover:underline">
 									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
 								</span>
@@ -246,7 +246,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 			{/* Full description (below the fold, full width) */}
 			{product.content && (
 				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
+					<h2 className="mb-6 font-heading text-2xl font-bold uppercase tracking-wide">Product details</h2>
 					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
 						<TiptapRenderer content={product.content} />
 					</div>
