@@ -51,9 +51,19 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
+			<h3 className="text-sm font-medium text-foreground uppercase tracking-wider">Home</h3>
 			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
+				<li>
+					<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+						Products
+					</Link>
+				</li>
+				<li>
+					<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+						Home
+					</Link>
+				</li>
+				{collections.data.slice(0, 3).map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
@@ -80,7 +90,7 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<h3 className="text-sm font-medium text-foreground uppercase tracking-wider">Support</h3>
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
@@ -112,14 +122,14 @@ export async function Footer() {
 	return (
 		<footer className="border-t border-border bg-background">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
+				<div className="py-12 sm:py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
+					<div className="sm:col-span-2 lg:col-span-1">
+						<Link href="/" className="text-xl font-bold text-foreground tracking-tight">
 							Your Next Store
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">
+							Discover what we are doing to achieve our mission responsibly and enjoy your positive life
 						</p>
 					</div>
 
@@ -128,7 +138,7 @@ export async function Footer() {
 
 					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<h3 className="text-sm font-medium text-foreground uppercase tracking-wider">Support</h3>
 						<ul className="mt-4 space-y-3">
 							<li>
 								<Link
@@ -156,9 +166,14 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="py-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+					<p className="text-xs text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+					<div className="flex items-center gap-4">
+						<Link href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+							Privacy policy
+						</Link>
+						<PaymentMethods />
+					</div>
 				</div>
 			</div>
 		</footer>
