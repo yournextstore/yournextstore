@@ -230,7 +230,7 @@ export function BundleBuilder({
 											{outOfStock && <span className="text-destructive text-xs">Out of stock</span>}
 											{item.forced && (
 												<Badge variant="secondary" className="w-fit">
-													Included
+													{item.fixedQuantity > 1 ? `Included ×${item.fixedQuantity}` : "Included"}
 												</Badge>
 											)}
 										</button>
