@@ -4,6 +4,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
+import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
@@ -157,18 +158,23 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Short description, price, SKU, stock, variants, quantity, add to cart */}
-					<AddToCartButton
-						variants={product.variants}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images,
-						}}
-						summary={product.summary}
-						volumePricingTiers={product.volumePricingTiers}
-					/>
+					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
+					    Renders only for bundle products, so it stays dormant for regular stores. */}
+					{product.type === "bundle" && product.bundle?.groups?.length ? (
+						<BundleBuilder bundleId={product.id} bundle={product.bundle} />
+					) : (
+						<AddToCartButton
+							variants={product.variants}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images,
+							}}
+							summary={product.summary}
+							volumePricingTiers={product.volumePricingTiers}
+						/>
+					)}
 				</div>
 			</div>
 

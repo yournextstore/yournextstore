@@ -32,6 +32,9 @@ export type CartLineItem = {
 			}>;
 		};
 	};
+	// Present (non-empty) on configurable-bundle lines: the customer's chosen components.
+	// Its presence is how we tell a configurable bundle from a legacy fixed one.
+	setSelections?: Array<{ quantity: number }>;
 };
 
 export type Cart = {
@@ -42,7 +45,16 @@ export type Cart = {
 /** Get the effective unit price for a line item, computing bundle price from constituents if needed. */
 export function getLineItemUnitPrice(item: CartLineItem): bigint {
 	const { product } = item.productVariant;
-	if (product.type === "bundle" && product.bundleProducts && product.bundleProducts.length > 0) {
+	// Configurable bundles are priced server-side from the customer's selections; the per-unit price
+	// is already on productVariant.price. Only the legacy fixed-bundle shape (no selections) needs
+	// client-side reconstruction from its constituents.
+	const isConfigurable = (item.setSelections?.length ?? 0) > 0;
+	if (
+		!isConfigurable &&
+		product.type === "bundle" &&
+		product.bundleProducts &&
+		product.bundleProducts.length > 0
+	) {
 		let total = 0n;
 		for (const bp of product.bundleProducts) {
 			let net = BigInt(bp.variant.price);
