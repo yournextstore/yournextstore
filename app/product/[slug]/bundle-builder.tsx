@@ -188,9 +188,11 @@ export function BundleBuilder({
 									(stock == null || qty < stock) &&
 									!atGroupMax;
 								// Variant option values (e.g. "Charcoal"). In a swatch group they become the
-								// card label; a color option also renders a swatch dot.
-								const optionText = item.variant.options.map((o) => o.value).join(" / ");
-								const swatchColor = item.variant.options.find((o) => o.colorValue)?.colorValue ?? null;
+								// card label; a color option also renders a swatch dot. Guard against an
+								// older API deployment that doesn't send `options` yet (version skew).
+								const options = item.variant.options ?? [];
+								const optionText = options.map((o) => o.value).join(" / ");
+								const swatchColor = options.find((o) => o.colorValue)?.colorValue ?? null;
 								const label = isSwatchGroup && optionText ? optionText : item.variant.productName;
 
 								return (
