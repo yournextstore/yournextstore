@@ -152,6 +152,11 @@ export function BundleBuilder({
 				const isRadio = group.maxQuantity === 1 && !group.allowDuplicates;
 				const atGroupMax = group.maxQuantity != null && picked >= group.maxQuantity;
 				const isForcedGroup = group.items.every((i) => i.forced);
+				// A "swatch group" is a choice among variants of one product (e.g. colors): label the
+				// options by their variant value instead of the repeated product name. Groups made of
+				// distinct products keep their product names.
+				const isSwatchGroup =
+					group.items.length > 1 && new Set(group.items.map((i) => i.variant.productSlug)).size === 1;
 
 				return (
 					<section key={group.id} className="grid gap-3">
@@ -182,6 +187,11 @@ export function BundleBuilder({
 									qty < itemCap &&
 									(stock == null || qty < stock) &&
 									!atGroupMax;
+								// Variant option values (e.g. "Charcoal"). In a swatch group they become the
+								// card label; a color option also renders a swatch dot.
+								const optionText = item.variant.options.map((o) => o.value).join(" / ");
+								const swatchColor = item.variant.options.find((o) => o.colorValue)?.colorValue ?? null;
+								const label = isSwatchGroup && optionText ? optionText : item.variant.productName;
 
 								return (
 									<div
@@ -212,14 +222,23 @@ export function BundleBuilder({
 												{image ? (
 													<Image
 														src={image}
-														alt={item.variant.productName}
+														alt={label}
 														width={160}
 														height={160}
 														className="size-full object-cover"
 													/>
 												) : null}
 											</div>
-											<span className="line-clamp-2 font-medium text-sm">{item.variant.productName}</span>
+											<span className="flex items-center gap-1.5 font-medium text-sm">
+												{swatchColor && (
+													<span
+														aria-hidden
+														className="inline-block size-3 shrink-0 rounded-full border border-border"
+														style={{ backgroundColor: swatchColor }}
+													/>
+												)}
+												<span className="line-clamp-2">{label}</span>
+											</span>
 											<span className="text-muted-foreground text-sm">
 												{formatMoney({
 													amount: BigInt(item.variant.price),
