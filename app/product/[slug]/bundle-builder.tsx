@@ -20,6 +20,31 @@ type GroupItem = Group["items"][number];
 // quantity chosen per variant, scoped per group
 type GroupSelections = Record<string, Record<string, number>>;
 
+// Raw bundle pricing fields off the product (commerce-kit 0.50). `discountPercentage` is already on
+// the clean `bundle` object; the mode + fixed/amount values live on the product for now.
+// TODO: fold priceMode/fixedPriceAmount/amountOffAmount into `serializeBundleForApi` and read from
+// `product.bundle` instead of the raw fields (needs a commerce-kit release) — see YNS-1449.
+type Pricing = {
+	mode: "fixed" | "percent" | "amount";
+	fixedPriceAmount: string | null;
+	amountOffAmount: string | null;
+};
+
+// Preview total (minor units). The cart response is authoritative; this mirrors the core modes so
+// fixed-price and amount-off bundles don't show the full component sum on the PDP.
+const priceTotal = (sum: bigint, pricing: Pricing, discountPercentage: number | null): bigint => {
+	if (pricing.mode === "fixed") {
+		return pricing.fixedPriceAmount != null ? BigInt(pricing.fixedPriceAmount) : sum;
+	}
+	if (pricing.mode === "amount") {
+		const off = BigInt(pricing.amountOffAmount ?? "0");
+		return sum > off ? sum - off : 0n;
+	}
+	// percent: core stores percent × 1000, so pct/100 becomes (sum × round(pct×1000)) / 100000.
+	const pct = discountPercentage ?? 0;
+	return pct > 0 ? sum - (sum * BigInt(Math.round(pct * 1000))) / 100_000n : sum;
+};
+
 const groupTotal = (sel: Record<string, number> | undefined) =>
 	sel ? Object.values(sel).reduce((sum, q) => sum + q, 0) : 0;
 
@@ -36,7 +61,15 @@ const initialSelections = (groups: Group[]): GroupSelections => {
 	return out;
 };
 
-export function BundleBuilder({ bundleId, bundle }: { bundleId: string; bundle: Bundle }) {
+export function BundleBuilder({
+	bundleId,
+	bundle,
+	pricing,
+}: {
+	bundleId: string;
+	bundle: Bundle;
+	pricing: Pricing;
+}) {
 	const { groups, discountPercentage } = bundle;
 	const { openCart } = useCart();
 
@@ -75,12 +108,8 @@ export function BundleBuilder({ bundleId, bundle }: { bundleId: string; bundle: 
 				if (item) sum += BigInt(item.variant.price) * BigInt(quantity);
 			}
 		}
-		// discountPercentage is a 0–100 number; core stores percent × 1000, so `pct/100`
-		// becomes `(sum × round(pct×1000)) / 100000`.
-		const pct = discountPercentage ?? 0;
-		const discounted = pct > 0 ? sum - (sum * BigInt(Math.round(pct * 1000))) / 100_000n : sum;
-		return { total: discounted, originalTotal: sum };
-	}, [groups, selections, itemByVariant, discountPercentage]);
+		return { total: priceTotal(sum, pricing, discountPercentage), originalTotal: sum };
+	}, [groups, selections, itemByVariant, discountPercentage, pricing]);
 
 	const hasSavings = total < originalTotal;
 

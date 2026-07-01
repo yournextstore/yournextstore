@@ -161,7 +161,15 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
 					    Renders only for bundle products, so it stays dormant for regular stores. */}
 					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder bundleId={product.id} bundle={product.bundle} />
+						<BundleBuilder
+							bundleId={product.id}
+							bundle={product.bundle}
+							pricing={{
+								mode: product.bundlePriceMode,
+								fixedPriceAmount: product.bundleFixedPriceAmount,
+								amountOffAmount: product.bundleAmountOffAmount,
+							}}
+						/>
 					) : (
 						<AddToCartButton
 							variants={product.variants}
