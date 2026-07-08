@@ -7,7 +7,9 @@
 		"build": "bun next build",
 		"start": "bun next start",
 		"prepare": "husky",
-		"lint": "bun run biome check --write --unsafe"
+		"lint": "bun run biome check --write --unsafe",
+		"publish:store": "bash scripts/publish.sh",
+		"api": "bash scripts/api.sh"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "5.4.0",
