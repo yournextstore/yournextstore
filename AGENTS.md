@@ -12,6 +12,8 @@ bun run lint      # Biome lint (--write to auto-fix)
 bun run format    # Biome format
 bun test          # Run tests (bun:test)
 tsgo --noEmit     # Type check
+bun run publish:store                 # Production publish (CLI twin of the admin "Publish" button; deploys remote main)
+bun run api <METHOD> <path> [json]    # Call any Store API endpoint with the store key, e.g. bun run api GET /me
 ```
 
 ## Key Files & Directories
@@ -22,6 +24,7 @@ components/ui/        # Shadcn UI components (50+)
 lib/commerce.ts       # Commerce API client
 lib/money.ts          # Currency formatting (formatMoney)
 lib/utils.ts          # Utilities
+scripts/              # CLI helpers: api.sh (generic Store API caller), publish.sh (production publish + wait)
 biome.json            # Lint/format config
 next.config.mjs       # Next.js config
 hooks/                # Custom React hooks

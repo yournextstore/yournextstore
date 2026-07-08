@@ -78,6 +78,20 @@ Copy `.env.example` to `.env.local` and set:
 
 - `YNS_API_KEY` — Your API token from the admin panel
 
+## Publishing & Store API from the CLI
+
+Two small scripts in `scripts/` talk to the YNS platform using only the store's `YNS_API_KEY` (read from `.env.local` / `.env`):
+
+```bash
+bun run publish:store            # Trigger a production publish (same as the admin "Publish" button) and wait for the build
+bun run publish:store --no-wait  # Fire and forget
+
+bun run api GET  /products?limit=5                      # Call any Store API endpoint
+bun run api POST /products '{"name":"Tee","price":29.99}'
+```
+
+`scripts/publish.sh` deploys the tenant repo's **remote `main`** — push your commits first. `scripts/api.sh` is a thin wrapper around `curl` that handles auth, base-URL resolution, and pretty JSON output for every `/api/v1/*` endpoint (see the [API documentation](https://yns.store/manage/settings/api)).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for coding conventions and PR checklist.
