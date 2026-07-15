@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
+import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -46,6 +47,8 @@ type AddToCartButtonProps = {
 	};
 	summary?: string | null;
 	volumePricingTiers?: VolumeTier[];
+	/** Show a "remind me when back in stock" flow when out of stock (Restock Notifications module). */
+	restockNotificationsEnabled?: boolean;
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -55,6 +58,7 @@ export function AddToCartButton({
 	product,
 	summary,
 	volumePricingTiers = [],
+	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
@@ -247,15 +251,19 @@ export function AddToCartButton({
 
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 
-			<form onSubmit={handleSubmit}>
-				<button
-					type="submit"
-					disabled={!selectedVariant || isOutOfStock}
-					className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-				>
-					{buttonText}
-				</button>
-			</form>
+			{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+				<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
+			) : (
+				<form onSubmit={handleSubmit}>
+					<button
+						type="submit"
+						disabled={!selectedVariant || isOutOfStock}
+						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{buttonText}
+					</button>
+				</form>
+			)}
 
 			<TrustBadges />
 		</div>

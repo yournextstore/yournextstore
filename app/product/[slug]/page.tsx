@@ -82,6 +82,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const { slug } = await params;
 	const me = await meGetCached().catch(() => null);
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
+	const restockNotificationsEnabled = me?.store.settings?.enabledTools?.restockNotifications ?? false;
 	const [product, reviews] = await Promise.all([
 		commerce.productGet({ idOrSlug: slug }),
 		reviewsEnabled ? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }) : Promise.resolve(null),
@@ -181,6 +182,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							}}
 							summary={product.summary}
 							volumePricingTiers={product.volumePricingTiers}
+							restockNotificationsEnabled={restockNotificationsEnabled}
 						/>
 					)}
 				</div>
