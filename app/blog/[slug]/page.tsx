@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
@@ -11,6 +12,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Skeleton } from "@/components/ui/skeleton";
 import { YnsLink } from "@/components/yns-link";
 import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
 import { LOCALE } from "@/lib/constants";
@@ -65,16 +67,40 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
+function BlogPostSkeleton() {
+	return (
+		<article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<Skeleton className="h-5 w-48" />
+			<Skeleton className="mt-6 h-6 w-40" />
+			<Skeleton className="mt-4 h-10 w-3/4" />
+			<Skeleton className="mt-10 aspect-[3/2] rounded-2xl" />
+		</article>
+	);
+}
+
+// Awaiting params at the top of the page blocks the static shell — the page
+// stays a sync shell and the params-dependent content streams inside Suspense.
+export default function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
+	return (
+		<Suspense fallback={<BlogPostSkeleton />}>
+			<BlogPostContent params={props.params} />
+		</Suspense>
+	);
+}
+
+const getBlogPostData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
 
 	if (!(await isBlogEnabled())) {
-		notFound();
+		return null;
 	}
+	return commerce.postGet({ idOrSlug: slug });
+};
 
-	const { slug } = await props.params;
-	const post = await commerce.postGet({ idOrSlug: slug });
+const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }) => {
+	const { slug } = await params;
+	const post = await getBlogPostData(slug);
 
 	if (!post?.active) {
 		notFound();
@@ -172,4 +198,4 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
 			</div>
 		</article>
 	);
-}
+};

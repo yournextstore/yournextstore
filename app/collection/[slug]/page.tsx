@@ -124,12 +124,43 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	);
 }
 
-export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+function CollectionPageSkeleton() {
+	return (
+		<>
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+			</div>
+			<section className="bg-secondary/30">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="py-12 sm:py-16 lg:py-20">
+						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
+					</div>
+				</div>
+			</section>
+			<ProductGridSkeleton />
+		</>
+	);
+}
+
+// Awaiting params at the top of the page blocks the static shell — the page
+// stays a sync shell and the params-dependent content streams inside Suspense.
+export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
+	return (
+		<Suspense fallback={<CollectionPageSkeleton />}>
+			<CollectionContent params={props.params} />
+		</Suspense>
+	);
+}
+
+const getCollectionData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
+	return commerce.collectionGet({ idOrSlug: slug });
+};
 
-	const { slug } = await props.params;
-	const collection = await commerce.collectionGet({ idOrSlug: slug });
+const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
+	const { slug } = await params;
+	const collection = await getCollectionData(slug);
 
 	if (!collection) {
 		notFound();
@@ -160,4 +191,4 @@ export default async function CollectionPage(props: PageProps<"/collection/[slug
 			</Suspense>
 		</>
 	);
-}
+};

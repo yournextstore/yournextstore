@@ -172,18 +172,50 @@ async function CategoryProducts({
 	);
 }
 
-export default async function CategoryPage(props: {
+function CategoryPageSkeleton() {
+	return (
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
+			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+			<ProductGridSkeleton />
+		</div>
+	);
+}
+
+// Awaiting params/searchParams at the top of the page blocks the static shell —
+// the page stays a sync shell and the dynamic content streams inside Suspense.
+export default function CategoryPage(props: {
 	params: Promise<{ slugs: string[] }>;
 	searchParams: Promise<CategoryFilterParams>;
 }) {
-	const { slugs } = await props.params;
-	const filters = await props.searchParams;
+	return (
+		<Suspense fallback={<CategoryPageSkeleton />}>
+			<CategoryContent params={props.params} searchParams={props.searchParams} />
+		</Suspense>
+	);
+}
+
+const getCategoryData = async (slug: string) => {
+	"use cache";
+	cacheLife("minutes");
+	return commerce.categoryGet({ idOrSlug: slug });
+};
+
+const CategoryContent = async ({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ slugs: string[] }>;
+	searchParams: Promise<CategoryFilterParams>;
+}) => {
+	const { slugs } = await params;
+	const filters = await searchParams;
 	const slug = slugs.at(-1);
 	if (!slug) {
 		notFound();
 	}
 
-	const category = await commerce.categoryGet({ idOrSlug: slug });
+	const category = await getCategoryData(slug);
 	if (!category?.active) {
 		notFound();
 	}
@@ -258,4 +290,4 @@ export default async function CategoryPage(props: {
 			</div>
 		</div>
 	);
-}
+};

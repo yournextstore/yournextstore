@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -28,12 +30,38 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-export default async function LegalPage(props: { params: Promise<{ slug: string }> }) {
+function LegalPageSkeleton() {
+	return (
+		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<Skeleton className="mb-8 h-9 w-64" />
+			<div className="space-y-3">
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-5/6" />
+				<Skeleton className="h-4 w-2/3" />
+			</div>
+		</div>
+	);
+}
+
+// Awaiting params at the top of the page blocks the static shell — the page
+// stays a sync shell and the params-dependent content streams inside Suspense.
+export default function LegalPage(props: { params: Promise<{ slug: string }> }) {
+	return (
+		<Suspense fallback={<LegalPageSkeleton />}>
+			<LegalPageContent params={props.params} />
+		</Suspense>
+	);
+}
+
+const getLegalPage = async (slug: string) => {
 	"use cache";
 	cacheLife("hours");
+	return commerce.legalPageGet(slug);
+};
 
-	const { slug } = await props.params;
-	const page = await commerce.legalPageGet(slug);
+const LegalPageContent = async ({ params }: { params: Promise<{ slug: string }> }) => {
+	const { slug } = await params;
+	const page = await getLegalPage(slug);
 
 	if (!page) {
 		notFound();
@@ -49,4 +77,4 @@ export default async function LegalPage(props: { params: Promise<{ slug: string 
 			)}
 		</div>
 	);
-}
+};

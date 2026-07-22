@@ -146,11 +146,38 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 	);
 }
 
-export default async function SearchPage({
+function SearchPageSkeleton() {
+	return (
+		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
+				<div className="mx-auto max-w-3xl">
+					<div className="h-12 w-full animate-pulse bg-secondary motion-reduce:animate-none" />
+				</div>
+			</div>
+			<div className="pt-10">
+				<SearchResultsSkeleton />
+			</div>
+		</section>
+	);
+}
+
+// Awaiting searchParams at the top of the page blocks the static shell — the
+// page stays a sync shell and the query-dependent content streams inside Suspense.
+export default function SearchPage(props: {
+	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
+}) {
+	return (
+		<Suspense fallback={<SearchPageSkeleton />}>
+			<SearchContent searchParams={props.searchParams} />
+		</Suspense>
+	);
+}
+
+const SearchContent = async ({
 	searchParams,
 }: {
 	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
-}) {
+}) => {
 	const { q, page, sort: sortParam, category } = await searchParams;
 	const query = q?.trim() ?? "";
 	const sort = getSortFromParams(sortParam);
@@ -212,4 +239,4 @@ export default async function SearchPage({
 			)}
 		</section>
 	);
-}
+};

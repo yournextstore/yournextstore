@@ -1,8 +1,9 @@
 import { CheckCircle } from "lucide-react";
 import type { Metadata } from "next";
-import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
@@ -15,11 +16,28 @@ export const metadata: Metadata = {
 	robots: { index: false, follow: false },
 };
 
-export default async function OrderSuccessPage(props: { params: Promise<{ id: string }> }) {
-	"use cache";
-	cacheLife("seconds");
+function OrderSkeleton() {
+	return (
+		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div className="text-center mb-10 flex flex-col items-center">
+				<Skeleton className="h-16 w-16 rounded-full" />
+				<Skeleton className="mt-4 h-8 w-72" />
+				<Skeleton className="mt-3 h-4 w-52" />
+			</div>
+			<Skeleton className="h-64 rounded-lg" />
+		</div>
+	);
+}
 
-	return <OrderDetails params={props.params} />;
+// Awaiting params at the top of the page blocks the static shell — the page
+// stays a sync shell and the order details stream inside Suspense. The order
+// fetch stays uncached so the confirmation always reflects the latest state.
+export default function OrderSuccessPage(props: { params: Promise<{ id: string }> }) {
+	return (
+		<Suspense fallback={<OrderSkeleton />}>
+			<OrderDetails params={props.params} />
+		</Suspense>
+	);
 }
 
 const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
