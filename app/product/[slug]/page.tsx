@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
@@ -18,9 +19,44 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { cn } from "@/lib/utils";
+
+// MediaGallery and the purchase panel read useSearchParams (selected variant),
+// so they need a Suspense boundary to keep the rest of the page prerenderable.
+function GallerySkeleton() {
+	return (
+		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+			<Skeleton className="aspect-square rounded-2xl" />
+		</div>
+	);
+}
+
+function PurchasePanelSkeleton() {
+	return (
+		<div className="space-y-4">
+			<Skeleton className="h-9 w-40" />
+			<Skeleton className="h-12 w-full rounded-full" />
+		</div>
+	);
+}
+
+function ProductPageSkeleton() {
+	return (
+		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<Skeleton className="mb-6 h-5 w-64" />
+			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+				<GallerySkeleton />
+				<div className="mt-8 lg:mt-0 space-y-8">
+					<Skeleton className="h-12 w-3/4" />
+					<PurchasePanelSkeleton />
+				</div>
+			</div>
+		</div>
+	);
+}
 
 function StarRow({ rating }: { rating: number }) {
 	const rounded = Math.round(rating);
@@ -71,15 +107,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
+// Awaiting params at the top of the page blocks the static shell — the page
+// stays a sync shell and the params-dependent content streams inside Suspense.
+export default function ProductPage(props: { params: Promise<{ slug: string }> }) {
+	return (
+		<Suspense fallback={<ProductPageSkeleton />}>
+			<ProductDetails params={props.params} />
+		</Suspense>
+	);
+}
+
+const getProductPageData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
 
-	return <ProductDetails params={props.params} />;
-}
-
-const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
-	const { slug } = await params;
 	const me = await meGetCached().catch(() => null);
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
 	const restockNotificationsEnabled = me?.store.settings?.enabledTools?.restockNotifications ?? false;
@@ -87,6 +128,13 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		commerce.productGet({ idOrSlug: slug }),
 		reviewsEnabled ? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }) : Promise.resolve(null),
 	]);
+
+	return { product, reviews, restockNotificationsEnabled };
+};
+
+const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
+	const { slug } = await params;
+	const { product, reviews, restockNotificationsEnabled } = await getProductPageData(slug);
 
 	if (!product) {
 		notFound();
@@ -136,7 +184,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			</Breadcrumb>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				{/* Left: Image Gallery (sticky on desktop) */}
-				<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
+				<Suspense fallback={<GallerySkeleton />}>
+					<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
+				</Suspense>
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
@@ -172,18 +222,20 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							}}
 						/>
 					) : (
-						<AddToCartButton
-							variants={product.variants}
-							product={{
-								id: product.id,
-								name: product.name,
-								slug: product.slug,
-								images: product.images,
-							}}
-							summary={product.summary}
-							volumePricingTiers={product.volumePricingTiers}
-							restockNotificationsEnabled={restockNotificationsEnabled}
-						/>
+						<Suspense fallback={<PurchasePanelSkeleton />}>
+							<AddToCartButton
+								variants={product.variants}
+								product={{
+									id: product.id,
+									name: product.name,
+									slug: product.slug,
+									images: product.images,
+								}}
+								summary={product.summary}
+								volumePricingTiers={product.volumePricingTiers}
+								restockNotificationsEnabled={restockNotificationsEnabled}
+							/>
+						</Suspense>
 					)}
 				</div>
 			</div>
