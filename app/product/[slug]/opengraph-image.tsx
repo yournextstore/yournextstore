@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 import { try_ } from "safe-try";
@@ -16,12 +17,19 @@ export const size = {
 export const contentType = "image/png";
 export const alt = "";
 
+const productGetCached = async (slug: string) => {
+	"use cache";
+	cacheLife("minutes");
+	const [error, product] = await try_(commerce.productGet({ idOrSlug: slug }));
+	return error ? null : product;
+};
+
 export default async function Image(props: { params: Promise<{ slug: string }> }) {
 	const { slug } = await props.params;
 	const geistRegular = readFile(join(process.cwd(), "app/product/[slug]/Geist-Regular.ttf"));
 
-	const [error, product] = await try_(commerce.productGet({ idOrSlug: slug }));
-	if (error || !product) {
+	const product = await productGetCached(slug);
+	if (!product) {
 		notFound();
 	}
 
