@@ -3,19 +3,25 @@ import type { Metadata } from "next";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YnsLink } from "@/components/yns-link";
+import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
-export const metadata: Metadata = {
-	title: "FAQ",
-	description: "Frequently asked questions about orders, payments, shipping, returns, and more.",
-	alternates: { canonical: "/faq" },
-	openGraph: {
-		type: "website",
-		title: "Frequently Asked Questions",
-		description: "Frequently asked questions about orders, payments, shipping, returns, and more.",
-		url: "/faq",
-	},
-};
+export async function generateMetadata(): Promise<Metadata> {
+	const { storeName } = await getStoreSeo();
+	const description = `Frequently asked questions about orders, payments, shipping, and returns at ${storeName}.`;
+
+	return {
+		title: "FAQ",
+		description,
+		alternates: { canonical: "/faq" },
+		openGraph: {
+			type: "website",
+			title: "Frequently Asked Questions",
+			description,
+			url: "/faq",
+		},
+	};
+}
 
 function buildFaqJsonLd(categories: FAQCategory[]): Record<string, unknown> {
 	const mainEntity = categories.flatMap((category) =>

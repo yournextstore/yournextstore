@@ -3,7 +3,7 @@ import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import { commerce } from "@/lib/commerce";
+import { commerce, getStoreSeo } from "@/lib/commerce";
 import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
@@ -42,15 +42,19 @@ export async function generateMetadata({
 	const pageNum = Math.max(1, Number(page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
 	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+	const { storeName, storeDescription } = await getStoreSeo();
+	const description = storeDescription
+		? `Browse the complete ${storeName} collection. ${storeDescription}`
+		: `Browse the complete ${storeName} product collection.`;
 
 	return {
 		title,
-		description: "Browse our complete product collection.",
+		description,
 		alternates: { canonical },
 		openGraph: {
 			type: "website",
 			title,
-			description: "Browse our complete product collection.",
+			description,
 			url: canonical,
 		},
 	};

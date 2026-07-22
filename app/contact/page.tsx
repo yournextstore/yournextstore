@@ -3,22 +3,25 @@ import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/app/contact/contact-form";
 import { YnsLink } from "@/components/yns-link";
-import { meGetCached } from "@/lib/commerce";
+import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
-export const metadata: Metadata = {
-	title: "Contact Us",
-	description:
-		"Get in touch with our team. Questions about orders, products, or anything else — we're here to help.",
-	alternates: { canonical: "/contact" },
-	openGraph: {
-		type: "website",
+export async function generateMetadata(): Promise<Metadata> {
+	const { storeName } = await getStoreSeo();
+	const description = `Get in touch with the ${storeName} team. Questions about orders, products, or anything else — we're here to help.`;
+
+	return {
 		title: "Contact Us",
-		description:
-			"Get in touch with our team. Questions about orders, products, or anything else — we're here to help.",
-		url: "/contact",
-	},
-};
+		description,
+		alternates: { canonical: "/contact" },
+		openGraph: {
+			type: "website",
+			title: "Contact Us",
+			description,
+			url: "/contact",
+		},
+	};
+}
 
 const contactJsonLd = {
 	"@context": "https://schema.org",

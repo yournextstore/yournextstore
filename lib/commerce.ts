@@ -1,4 +1,6 @@
 import { Commerce } from "commerce-kit";
+import { cacheLife } from "next/cache";
+import { try_ } from "safe-try";
 
 // Override the API host (defaults to yns.store / yns.cx by key prefix). Useful for
 // pointing at a dev deployment, e.g. YNS_API_URL=https://dev.axelgrubba.com
@@ -18,6 +20,22 @@ export const meGetCached = async (token?: string) => {
 	const commerce = Commerce({ token, endpoint });
 	return commerce.meGet();
 };
+
+// Store name + description for page-level metadata. Same cache posture as the
+// root layout's getStoreMetadata so it stays in the static shell.
+export async function getStoreSeo() {
+	"use cache";
+	cacheLife("hours");
+
+	const [error, me] = await try_(meGetCached());
+	if (error) {
+		return { storeName: "Your Next Store", storeDescription: null };
+	}
+	return {
+		storeName: me.store.name || "Your Next Store",
+		storeDescription: me.store.settings?.storeDescription || null,
+	};
+}
 
 export function getStoreFaviconUrl(
 	settings: Awaited<ReturnType<typeof commerce.meGet>>["store"]["settings"],

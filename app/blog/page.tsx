@@ -11,24 +11,29 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { YnsLink } from "@/components/yns-link";
-import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
+import { commerce, getCanonicalUrl, getStoreSeo, meGetCached } from "@/lib/commerce";
 import { LOCALE } from "@/lib/constants";
 import { JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
 const POSTS_LIMIT = 24;
 
-export const metadata: Metadata = {
-	title: "Blog",
-	description: "News, guides, and stories from our team.",
-	alternates: { canonical: "/blog" },
-	openGraph: {
-		type: "website",
+export async function generateMetadata(): Promise<Metadata> {
+	const { storeName } = await getStoreSeo();
+	const description = `News, guides, and stories from ${storeName}.`;
+
+	return {
 		title: "Blog",
-		description: "News, guides, and stories from our team.",
-		url: "/blog",
-	},
-};
+		description,
+		alternates: { canonical: "/blog" },
+		openGraph: {
+			type: "website",
+			title: "Blog",
+			description,
+			url: "/blog",
+		},
+	};
+}
 
 async function isBlogEnabled(): Promise<boolean> {
 	try {

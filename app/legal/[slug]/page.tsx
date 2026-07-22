@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
-import { commerce } from "@/lib/commerce";
+import { commerce, getStoreSeo } from "@/lib/commerce";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -14,10 +14,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	}
 
 	const canonical = `/legal${page.href}`;
+	const { storeName } = await getStoreSeo();
 
 	return {
 		title: page.label,
-		description: `${page.label} — read our policy and terms.`,
+		description: `Read the ${page.label} for ${storeName}.`,
 		alternates: { canonical },
 		openGraph: {
 			type: "article",

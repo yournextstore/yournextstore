@@ -13,7 +13,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { commerce } from "@/lib/commerce";
+import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -27,10 +27,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		return { title: "Collection Not Found", robots: { index: false, follow: true } };
 	}
 
+	const { storeName } = await getStoreSeo();
 	const description =
 		typeof collection.description === "string"
 			? collection.description
-			: `Shop the ${collection.name} collection.`;
+			: `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {

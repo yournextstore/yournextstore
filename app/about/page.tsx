@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { YnsLink } from "@/components/yns-link";
-import { meGetCached } from "@/lib/commerce";
+import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
-export const metadata: Metadata = {
-	title: "About Us",
-	description: "Learn about our story, our values, and the people behind the products we make.",
-	alternates: { canonical: "/about" },
-	openGraph: {
-		type: "website",
+export async function generateMetadata(): Promise<Metadata> {
+	const { storeName, storeDescription } = await getStoreSeo();
+	const description = storeDescription
+		? `Learn more about ${storeName}. ${storeDescription}`
+		: `Learn about ${storeName} — our story, our values, and the people behind the products.`;
+
+	return {
 		title: "About Us",
-		description: "Learn about our story, our values, and the people behind the products we make.",
-		url: "/about",
-	},
-};
+		description,
+		alternates: { canonical: "/about" },
+		openGraph: {
+			type: "website",
+			title: "About Us",
+			description,
+			url: "/about",
+		},
+	};
+}
 
 async function getStoreInfo() {
 	try {
