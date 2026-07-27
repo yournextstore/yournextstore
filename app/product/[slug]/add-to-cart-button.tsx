@@ -191,7 +191,7 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed">{summary}</p>}
+			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
