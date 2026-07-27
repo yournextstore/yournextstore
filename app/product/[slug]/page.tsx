@@ -153,7 +153,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 					</div>
 
 					{product.summary && (
-						<p className="text-sm leading-relaxed text-muted-foreground">{product.summary}</p>
+						<p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+							{product.summary}
+						</p>
 					)}
 
 					<AddToCartButton
