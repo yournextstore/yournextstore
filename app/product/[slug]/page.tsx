@@ -155,7 +155,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 								</span>
 							</a>
 						)}
-						{product.summary && <p className="text-muted-foreground leading-relaxed">{product.summary}</p>}
+						{product.summary && (
+							<p className="text-muted-foreground leading-relaxed whitespace-pre-line">{product.summary}</p>
+						)}
 						{product.content && (
 							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
 								<TiptapRenderer content={product.content} />
