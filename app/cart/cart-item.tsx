@@ -1,10 +1,9 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
-import { type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
+import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
@@ -16,8 +15,7 @@ type CartItemProps = {
 };
 
 export function CartItem({ item }: CartItemProps) {
-	const router = useRouter();
-	const { dispatch, closeCart, startMutation } = useCart();
+	const { dispatch, closeCart, startMutation, syncCart, reconcile } = useCart();
 	const [isPending, startTransition] = useTransition();
 
 	const { productVariant, quantity } = item;
@@ -29,6 +27,8 @@ export function CartItem({ item }: CartItemProps) {
 
 	const targetQuantityRef = useRef<number | null>(null);
 	const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
+	const latestCartRef = useRef<Cart | null>(null);
+	const sendFailedRef = useRef(false);
 
 	// Optimistic update + queued sync: rapid clicks collapse into the newest absolute
 	// quantity (safe thanks to mode "set"), one request in flight per line, and each
@@ -51,16 +51,30 @@ export function CartItem({ item }: CartItemProps) {
 						return; // newest value already sent
 					}
 					targetQuantityRef.current = null;
-					await setCartQuantity(productVariant.id, latest);
+					const res = await setCartQuantity(productVariant.id, latest);
+					// Remember the newest server-returned cart so we can sync from it (never
+					// refetch — the layout cartGet hits a read-replica and can rebase stale).
+					if (res.success && res.cart) {
+						latestCartRef.current = res.cart;
+					} else {
+						sendFailedRef.current = true;
+					}
 				});
-				// Drain the queue, then refresh — concurrent transitions land here together,
-				// so their refresh calls batch into one re-render.
+				// Drain the queue, then reconcile once. Concurrent transitions land here
+				// together, so this runs a single sync per batch.
 				let tail: Promise<void>;
 				do {
 					tail = sendQueueRef.current;
 					await tail;
 				} while (tail !== sendQueueRef.current);
-				router.refresh();
+				if (sendFailedRef.current) {
+					sendFailedRef.current = false;
+					latestCartRef.current = null;
+					await reconcile();
+				} else if (latestCartRef.current) {
+					syncCart(latestCartRef.current);
+					latestCartRef.current = null;
+				}
 			} finally {
 				resolveDone();
 			}

@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY } from "@/lib/constants";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
@@ -22,11 +21,21 @@ export async function getCart() {
 export async function addToCart(variantId: string, quantity = 1) {
 	const cartCookie = await getCartCookieJson();
 
-	const cart = await commerce.cartUpsert({
-		cartId: cartCookie?.id,
-		variantId,
-		quantity,
-	});
+	// The yns_cart cookie can point at a cartId that no longer exists server-side
+	// (expired, store re-seeded, old session). cartUpsert then throws "Cart not found";
+	// retry once with a FRESH cart so the add always lands. No revalidatePath — the
+	// client syncs from this action's returned cart (the layout cartGet hits a
+	// read-replica and can return the pre-write cart, dropping the just-added line).
+	let cart = null;
+	try {
+		cart = await commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity });
+	} catch {
+		try {
+			cart = await commerce.cartUpsert({ variantId, quantity });
+		} catch {
+			return { success: false, cart: null };
+		}
+	}
 
 	if (!cart) {
 		return { success: false, cart: null };
@@ -35,7 +44,6 @@ export async function addToCart(variantId: string, quantity = 1) {
 	if (cart.id !== cartCookie?.id) {
 		await setCartCookie({ id: cart.id });
 	}
-	revalidatePath("/", "layout");
 
 	return { success: true, cart };
 }
@@ -61,7 +69,6 @@ export async function addBundleToCart(
 		if (cart.id !== cartCookie?.id) {
 			await setCartCookie({ id: cart.id });
 		}
-		revalidatePath("/", "layout");
 
 		return { success: true as const, cart };
 	} catch (error) {
