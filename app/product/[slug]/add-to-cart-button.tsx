@@ -62,7 +62,7 @@ export function AddToCartButton({
 }: AddToCartButtonProps) {
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
-	const { items, openCart, dispatch, startMutation } = useCart();
+	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
 	const selectedVariant = useMemo(() => {
 		if (variants.length === 1) {
@@ -166,29 +166,35 @@ export function AddToCartButton({
 		openCart();
 		setQuantity(1);
 
-		startMutation(async () => {
-			dispatch({
-				type: "ADD_ITEM",
-				item: {
-					quantity: addedQuantity,
-					productVariant: {
-						id: variantId,
-						price: selectedVariant.price,
-						images: selectedVariant.images,
-						product,
-					},
+		// Instant local feedback OUTSIDE the transition, then REPLACE with the
+		// server-returned cart (never refetch — the layout cartGet hits a stale
+		// read replica). See patterns/cart-sync.md.
+		dispatch({
+			type: "ADD_ITEM",
+			item: {
+				quantity: addedQuantity,
+				productVariant: {
+					id: variantId,
+					price: selectedVariant.price,
+					images: selectedVariant.images,
+					product,
 				},
-			});
+			},
+		});
 
+		startMutation(async () => {
 			// The server clamps line quantities to available stock and still responds
-			// with the updated cart — compare against what we asked for so the
-			// optimistic item doesn't silently vanish on revert.
+			// with the updated cart — sync from the RETURNED cart; reconcile only on failure.
 			const result = await addToCart(variantId, addedQuantity);
 			const line = result.cart?.lineItems.find((item) => item.productVariant.id === variantId);
-			if (!result.success || !line) {
+			if (result.success && result.cart && line) {
+				syncCart(result.cart);
+				if (line.quantity < previousQuantity + addedQuantity) {
+					toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
+				}
+			} else {
+				await reconcile();
 				toast.error("This item is out of stock");
-			} else if (line.quantity < previousQuantity + addedQuantity) {
-				toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
 			}
 		});
 	};
