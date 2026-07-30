@@ -15,7 +15,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
+
+// The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
+const SMART_COLLECTION_LIMIT = 100;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -108,11 +113,56 @@ function ProductGridSkeleton() {
 	);
 }
 
+// Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
+// the smart filters are evaluated against the whole catalog when the storefront asks for them.
+// Re-expressing each one as the equivalent product browse is what keeps those collections from
+// rendering as an empty grid.
+async function getCollectionProducts(collection: APICollectionGetByIdResult) {
+	const { filter } = collection;
+
+	if (filter.type === "manual") {
+		const ids = collection.productCollections.map((pc) => pc.product.id);
+		return (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
+			(product) => product !== null,
+		);
+	}
+
+	if (filter.type === "variantValues") {
+		const { data } = await commerce.productBrowse({
+			active: true,
+			limit: SMART_COLLECTION_LIMIT,
+			vts: encodeVts(filter.values),
+		});
+		return data;
+	}
+
+	if (filter.type === "dynamicPrice") {
+		const { data } = await commerce.productBrowse({
+			active: true,
+			limit: SMART_COLLECTION_LIMIT,
+			priceMin: filter.min ?? undefined,
+			priceMax: filter.max ?? undefined,
+		});
+		return data;
+	}
+
+	const { data } = await commerce.productBrowse({
+		active: true,
+		limit: SMART_COLLECTION_LIMIT,
+		orderBy: "createdAt",
+		orderDirection: "desc",
+	});
+
+	// A rolling "new arrivals" window has no browse equivalent, so the age bound is applied here.
+	if (typeof filter.days !== "number") {
+		return data;
+	}
+	const cutoff = Date.now() - filter.days * MS_PER_DAY;
+	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
+}
+
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const ids = collection.productCollections.map((pc) => pc.product.id);
-	const products = (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
-		(product) => product !== null,
-	);
+	const products = await getCollectionProducts(collection);
 
 	return (
 		<ProductGrid
