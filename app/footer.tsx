@@ -106,7 +106,18 @@ async function FooterLegalPages() {
 	);
 }
 
-export function Footer() {
+// `new Date()` is an unstable value: now that the footer is part of the prerendered
+// shell, reading it during the prerender is an error. Caching pins it to the entry.
+async function getCopyrightYear() {
+	"use cache";
+	cacheLife("days");
+
+	return new Date().getFullYear();
+}
+
+export async function Footer() {
+	const year = await getCopyrightYear();
+
 	return (
 		<footer className="border-t border-border bg-background">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,9 +168,7 @@ export function Footer() {
 
 				{/* Bottom bar */}
 				<div className="py-6 border-t border-border">
-					<p className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
-					</p>
+					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
 				</div>
 			</div>
 		</footer>
