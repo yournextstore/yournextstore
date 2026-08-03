@@ -43,6 +43,35 @@ hooks/                # Custom React hooks
 
 Auth (better-auth: sign-in/up, account dropdown, `/account` protection) ships **disabled**. To enable it, set `AUTH_ENABLED = true` in `lib/auth-config.ts` — that single switch turns on the header sign-in button, the `/login` + `/signup` pages, and `/account` route protection. When `false`, those surfaces 404 / hide and the store behaves as if auth never existed. Auth relies on better-auth running on the apex backend (global users); there is no local backend to configure.
 
+## The prerendered shell
+
+`cacheComponents` is on. Everything the root layout awaits before rendering the chrome ends up in the prerendered shell; anything request-time (`cookies()`, `headers()`, `searchParams`) takes it back out. So `app/layout.tsx` awaits **only cached reads**, and the one per-customer read — the cart cookie — sits in `CartBootstrapper`, inside its own Suspense boundary *below* the header and footer.
+
+Do not hoist a request-time read above the chrome. The layout's Suspense boundaries have no fallback, so the cost is not a spinner: the shell prerenders empty and the page paints blank white until the server responds. That stays invisible during soft navigation (the old UI remains on screen) and is glaring on any full document load.
+
+Check it after touching the layout — the header must be in the prerendered HTML, not only in a streamed chunk:
+
+```bash
+bun run build && grep -c '<header' .next/server/app/index.html   # must be ≥ 1
+```
+
+## Adding locales
+
+The storefront ships single-locale. If you add locales, put **every** locale behind a real route segment (`app/[locale]/…`) and map the unprefixed default-locale URLs onto it. That mapping is split, and the split is not stylistic:
+
+| URL | Where | Why |
+|---|---|---|
+| `/` | `proxy.ts` | a `rewrites()` entry whose `source` is the bare `"/"` gets no RSC twin |
+| `/:path*` | `next.config.ts` `afterFiles` | proxy runs *before* the public directory and would swallow `/logo.svg` |
+
+A bare-`"/"` rewrite makes the router's flight request for the root (`/?_rsc=…`, `RSC: 1`) resolve to the HTML route and return `text/html`. Next soft-navigates only on `text/x-component`, so every in-app navigation to `/` — the header logo, the locale switcher back to the default language — degrades to a full document load. Path rewrites are unaffected because the `.rsc` suffix rides along inside the param, which is why this breaks exactly one URL and reads like a rendering bug rather than a routing one. `proxy.ts` sees the real request, RSC header included, so `NextResponse.rewrite` keeps the response a flight payload.
+
+The reverse pull is just as real: proxy is step 3 of the routing order and the `public/` directory is step 5, so a broad proxy matcher rewrites static assets into the locale segment and 404s them. Keep the proxy matcher on `"/"`.
+
+```bash
+curl -sI -H 'RSC: 1' https://<store>/ | grep content-type   # must be text/x-component
+```
+
 ## Biome Rules
 
 Avoid: default exports, `any`, `for...of`, `forEach` for mutations, missing hook deps, unnecessary type annotations, function names ending with "Action" (unless server action).

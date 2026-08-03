@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
-import { CartProvider } from "@/app/cart/cart-context";
+import { CartBootstrap, CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
@@ -131,11 +131,23 @@ async function getNavLinks(): Promise<NavLink[]> {
 	];
 }
 
+// The customer's cart is a cookie read, so it can never be part of the prerendered
+// shell. Kept in its own component (and its own Suspense boundary below) so the await
+// lands BELOW the chrome instead of above it.
+async function CartBootstrapper() {
+	const { cart, cartId } = await getInitialCart();
+
+	return <CartBootstrap cart={cart} cartId={cartId} />;
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
+	// Only cached reads here. Awaiting anything request-time (cookies, headers, the
+	// cart) would take the header, nav and footer out of the prerendered shell and
+	// leave the page blank until the server responds.
+	const links = await getNavLinks();
 
 	return (
-		<CartProvider initialCart={cart} initialCartId={cartId}>
+		<CartProvider>
 			<div className="flex min-h-screen flex-col">
 				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -161,6 +173,9 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				<ReferralBadge />
 			</div>
 			<CartSidebar />
+			<Suspense>
+				<CartBootstrapper />
+			</Suspense>
 		</CartProvider>
 	);
 }
