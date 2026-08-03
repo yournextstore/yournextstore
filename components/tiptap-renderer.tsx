@@ -6,6 +6,11 @@ import { Youtube } from "@tiptap/extension-youtube";
 import { StarterKit } from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer";
 import type { JSONContent } from "commerce-kit";
+import type { ReactNode } from "react";
+
+// The admin editor writes images as `imageResize`. Alias it onto Image rather than pull the
+// editor-only dependency into the storefront.
+const ImageResize = Image.extend({ name: "imageResize" });
 
 const extensions = [
 	StarterKit.configure({
@@ -28,6 +33,7 @@ const extensions = [
 	FontSize,
 	Youtube.configure({}),
 	Image.configure({ allowBase64: false, inline: true }),
+	ImageResize.configure({ allowBase64: false, inline: true }),
 ];
 
 type Node = TiptapJSONContent;
@@ -37,7 +43,7 @@ function hasMeaningfulContent(node: Node | undefined | null): boolean {
 	if (!node) return false;
 	if (typeof node.text === "string" && node.text.trim().length > 0) return true;
 	// Self-contained media nodes count as meaningful even without text children.
-	if (node.type && ["image", "youtube", "horizontalRule", "hardBreak"].includes(node.type)) {
+	if (node.type && ["image", "imageResize", "youtube", "horizontalRule", "hardBreak"].includes(node.type)) {
 		return true;
 	}
 	if (Array.isArray(node.content)) {
@@ -124,6 +130,12 @@ function pruneEmptyNodes(nodes: Node[]): Node[] {
 	return result;
 }
 
+// Passed as `unhandledNode`/`unhandledMark`: without them a node or mark with no matching
+// extension makes the whole render throw and the article comes out blank.
+function passThrough({ children }: { children?: ReactNode | ReactNode[] }): ReactNode {
+	return children ?? null;
+}
+
 export function TiptapRenderer({ content }: { content: JSONContent | null | undefined }) {
 	if (!content) return null;
 	const root = content as TiptapJSONContent;
@@ -134,10 +146,13 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 	if (prunedChildren.length === 0) return null;
 	const pruned: TiptapJSONContent = { ...root, content: prunedChildren };
 
-	try {
-		return <>{renderToReactElement({ content: pruned, extensions })}</>;
-	} catch (error) {
-		console.error("TiptapRenderer failed to render content", error);
-		return null;
-	}
+	return (
+		<>
+			{renderToReactElement({
+				content: pruned,
+				extensions,
+				options: { unhandledNode: passThrough, unhandledMark: passThrough },
+			})}
+		</>
+	);
 }
