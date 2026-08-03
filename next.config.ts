@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
 	reactCompiler: true,
 	cacheComponents: true,
 	experimental: {
+		useTypeScriptCli: true,
 		typedEnv: true,
 		serverComponentsHmrCache: false,
 		optimizePackageImports: [
