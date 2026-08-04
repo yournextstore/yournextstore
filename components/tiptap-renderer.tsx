@@ -130,6 +130,31 @@ function pruneEmptyNodes(nodes: Node[]): Node[] {
 	return result;
 }
 
+/**
+ * Typography the store's design system owns, which pasted content routinely carries as inline
+ * styles. Copying an article out of Word/Google Docs/an old CMS brings the *source's* font stack
+ * along, so a single paragraph renders in Helvetica inside an otherwise serif page. The store
+ * decides the typeface and the type scale; text colour is left alone because merchants do apply
+ * it deliberately from the editor toolbar.
+ */
+const OVERRIDDEN_TEXT_STYLES = ["fontFamily", "fontSize"] as const;
+
+function stripPastedTypography(nodes: Node[]): Node[] {
+	return nodes.map((node) => {
+		const marks = node.marks?.map((mark) => {
+			if (mark.type !== "textStyle" || !mark.attrs) return mark;
+			const attrs = { ...mark.attrs };
+			for (const attr of OVERRIDDEN_TEXT_STYLES) delete attrs[attr];
+			return { ...mark, attrs };
+		});
+		return {
+			...node,
+			...(marks ? { marks } : {}),
+			...(node.content ? { content: stripPastedTypography(node.content) } : {}),
+		};
+	});
+}
+
 // Passed as `unhandledNode`/`unhandledMark`: without them a node or mark with no matching
 // extension makes the whole render throw and the article comes out blank.
 function passThrough({ children }: { children?: ReactNode | ReactNode[] }): ReactNode {
@@ -142,7 +167,7 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 	const children = root.content;
 	if (!Array.isArray(children) || children.length === 0) return null;
 
-	const prunedChildren = pruneEmptyNodes(liftNestedBlocks(children));
+	const prunedChildren = pruneEmptyNodes(liftNestedBlocks(stripPastedTypography(children)));
 	if (prunedChildren.length === 0) return null;
 	const pruned: TiptapJSONContent = { ...root, content: prunedChildren };
 
