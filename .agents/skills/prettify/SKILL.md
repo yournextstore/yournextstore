@@ -79,7 +79,7 @@ Examples of *bad* changes (these are redesigns, not enrichment):
 - Re-screenshot at all three widths.
 - Compare side-by-side with the previous screenshot.
 - If the change made it worse or didn't move the needle, **revert it**. Don't accumulate regressions.
-- Run `bun lint` and `bun tsgo --noEmit` if you touched TypeScript.
+- Run `bun lint` and `bun tsc --noEmit` if you touched TypeScript.
 
 ### 5. Log the iteration
 

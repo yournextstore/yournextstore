@@ -36,7 +36,7 @@ What's YNS-specific:
 ## Before Submitting a PR
 
 ```bash
-tsgo --noEmit     # No type errors
+tsc --noEmit     # No type errors
 bun run lint      # No lint errors
 bun test          # Tests pass
 bun run build     # Build succeeds
