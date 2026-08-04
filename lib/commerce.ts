@@ -61,7 +61,20 @@ export function getCanonicalUrl(): string {
 	return "http://localhost:3000";
 }
 
-export const getSubdomainPublicUrl = async () => {
+// Memoized per isolate: the proxy calls this on every proxied request, and the
+// fallback branch is a network round trip that "use cache" does not shield in
+// the middleware runtime. The result is deployment-constant, so caching the
+// promise is safe; a rejection clears it so a transient failure can retry.
+let subdomainPublicUrlPromise: ReturnType<typeof resolveSubdomainPublicUrl> | null = null;
+export const getSubdomainPublicUrl = () => {
+	subdomainPublicUrlPromise ??= resolveSubdomainPublicUrl().catch((error) => {
+		subdomainPublicUrlPromise = null;
+		throw error;
+	});
+	return subdomainPublicUrlPromise;
+};
+
+const resolveSubdomainPublicUrl = async () => {
 	const tenant = process.env.NEXT_PUBLIC_YNS_API_TENANT;
 	if (tenant) {
 		const tenantUrl = new URL(tenant);

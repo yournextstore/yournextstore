@@ -29,6 +29,10 @@ const getDecimalAmountFromInt = ({ amount: minor, currency }: MoneyInt) => {
 	return (Number(minor) / multiplier).toFixed(getDecimalsForCurrency(currency));
 };
 
+/** Minor units to the major-unit number analytics/ad APIs expect (2000 → 20). */
+export const minorUnitsToMajor = ({ amount, currency }: MoneyInt) =>
+	Number.parseFloat(getDecimalAmountFromInt({ amount, currency }));
+
 // https://docs.stripe.com/currencies#zero-decimal
 const edgeCaseCurrencies = {
 	BIF: 0,

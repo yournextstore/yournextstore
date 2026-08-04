@@ -12,6 +12,7 @@ import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { trackAddToCart } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
 type Variant = {
@@ -162,6 +163,8 @@ export function AddToCartButton({
 		const variantId = selectedVariant.id;
 		const addedQuantity = effectiveQuantity;
 		const previousQuantity = items.find((item) => item.productVariant.id === variantId)?.quantity ?? 0;
+
+		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
 		openCart();
 		setQuantity(1);

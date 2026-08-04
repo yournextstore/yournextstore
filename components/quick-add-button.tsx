@@ -6,9 +6,11 @@ import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
 	variantId: string;
+	variantSku?: string | null;
 	variantPrice: string;
 	variantImages: string[];
 	product: {
@@ -19,12 +21,20 @@ type QuickAddButtonProps = {
 	};
 };
 
-export function QuickAddButton({ variantId, variantPrice, variantImages, product }: QuickAddButtonProps) {
+export function QuickAddButton({
+	variantId,
+	variantSku,
+	variantPrice,
+	variantImages,
+	product,
+}: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile } = useCart();
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
+
+		trackAddToCart({ id: variantId, sku: variantSku, price: variantPrice }, product.name, 1);
 
 		openCart();
 

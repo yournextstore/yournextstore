@@ -6,6 +6,7 @@
 import { XIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { notifyConsentChanged } from "@/lib/track";
 
 // Must match CONSENT_COOKIE in ./cookie-consent.tsx
 const CONSENT_COOKIE = "yns-cookie-consent";
@@ -21,6 +22,9 @@ const recordChoice = (choice: "accepted" | "declined") => {
 		ad_personalization: state,
 		analytics_storage: state,
 	});
+	// Nudges the platform storefront kit to re-read the cookie and start its
+	// trackers without a reload.
+	notifyConsentChanged();
 };
 
 declare global {

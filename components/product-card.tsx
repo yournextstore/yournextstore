@@ -60,6 +60,7 @@ export function ProductCard({
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
+						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
 						variantPrice={singleVariant.price}
 						variantImages={singleVariant.images}
 						product={{

@@ -30,6 +30,16 @@ next.config.mjs       # Next.js config
 hooks/                # Custom React hooks
 ```
 
+## Platform-managed files — DO NOT MODIFY
+
+`instrumentation-client.ts`, `lib/track.tsx`, and `proxy.ts` carry the platform integration
+(analytics kit injection, the `track()` event contract, the `/_public` + `/checkout` proxies).
+They are updated by platform releases only — the platform's tooling **rejects edits to
+them, and any out-of-band change is restored to the platform version on every save**. Trackers, consent handling, and event forwarding live in
+a platform-served script (`/_public/kit.js`, generated per store), so **never** add tracker
+snippets (fbq, gtag, GTM, pixels) to template code. To track a commerce event from new UI,
+call `track()` from `lib/track.tsx`.
+
 ## Project Patterns
 
 - Use `safe-try` for error handling: `const [error, result] = await safe(...)`

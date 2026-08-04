@@ -19,6 +19,17 @@ export async function proxy(request: NextRequest) {
 		}
 	}
 
+	// Platform-owned scripts under /_public/ — forwarded verbatim (plus the store, so the
+	// platform can generate per-store responses) and served by the platform. Which paths are
+	// static and which are dynamic is the platform's decision; this branch holds no knowledge
+	// of individual assets. Do not modify.
+	if (request.nextUrl.pathname.startsWith("/_public/")) {
+		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
+		const destination = new URL(request.nextUrl.pathname, publicUrl);
+		destination.searchParams.set("store", subdomain);
+		return NextResponse.rewrite(destination);
+	}
+
 	// Checkout & feed proxy: rewrite to the backend
 	if (proxiedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
 		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
@@ -49,5 +60,6 @@ export const config = {
 		"/api/feed/openai",
 		"/account",
 		"/account/:path*",
+		"/_public/:path*",
 	],
 };

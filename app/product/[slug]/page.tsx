@@ -22,6 +22,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { TrackProductView } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
 // MediaGallery and the purchase panel read useSearchParams (selected variant),
@@ -153,6 +154,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
+			{product.variants[0] && <TrackProductView variant={product.variants[0]} name={product.name} />}
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
 					<BreadcrumbItem>
