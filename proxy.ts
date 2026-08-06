@@ -5,7 +5,9 @@ import { getSubdomainPublicUrl } from "./lib/commerce";
 
 // /account is auth-only: when auth is off it is neither protected nor proxied.
 const protectedRoutes = AUTH_ENABLED ? ["/account"] : [];
-const proxiedRoutes = AUTH_ENABLED ? ["/checkout", "/api/feed/", "/account"] : ["/checkout", "/api/feed/"];
+const proxiedRoutes = AUTH_ENABLED
+	? ["/checkout", "/api/feed/", "/api/chat", "/account"]
+	: ["/checkout", "/api/feed/", "/api/chat"];
 
 export async function proxy(request: NextRequest) {
 	// Auth: redirect unauthenticated users away from protected routes
@@ -58,6 +60,8 @@ export const config = {
 		"/api/feed/gmc",
 		"/api/feed/meta",
 		"/api/feed/openai",
+		"/api/chat",
+		"/api/chat/:path*",
 		"/account",
 		"/account/:path*",
 		"/_public/:path*",

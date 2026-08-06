@@ -15,6 +15,7 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { ReferralBadge } from "@/components/referral-badge";
+import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
 import { AUTH_ENABLED } from "@/lib/auth-config";
@@ -175,6 +176,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 			<CartSidebar />
 			<Suspense>
 				<CartBootstrapper />
+			</Suspense>
+			{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context */}
+			<Suspense>
+				<StoreChatSection />
 			</Suspense>
 		</CartProvider>
 	);

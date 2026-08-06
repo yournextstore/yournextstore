@@ -12,6 +12,7 @@
 		"api": "bash scripts/api.sh"
 	},
 	"dependencies": {
+		"@ai-sdk/react": "4.0.58",
 		"@hookform/resolvers": "5.5.7",
 		"@radix-ui/react-accordion": "1.2.20",
 		"@radix-ui/react-alert-dialog": "1.1.23",
@@ -46,6 +47,7 @@
 		"@tiptap/extension-youtube": "3.29.2",
 		"@tiptap/starter-kit": "3.29.2",
 		"@tiptap/static-renderer": "3.29.2",
+		"ai": "7.0.55",
 		"better-auth": "1.5.6",
 		"class-variance-authority": "0.7.1",
 		"clsx": "2.1.1",
