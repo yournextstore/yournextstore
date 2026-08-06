@@ -8,6 +8,7 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { YnsLink } from "@/components/yns-link";
 import { formatMoney } from "@/lib/money";
+import { trackAddToCart } from "@/lib/track";
 
 export type ChatProduct = {
 	productId: string;
@@ -18,6 +19,7 @@ export type ChatProduct = {
 	imageUrl: string | null;
 	variants: Array<{
 		id: string;
+		sku: string | null;
 		label: string;
 		price: number;
 		inStock: boolean;
@@ -63,6 +65,13 @@ export function ChatProductCard({
 			productId: product.productId,
 			variantId: selectedVariant.id,
 		});
+		// Same storefront analytics contract as QuickAddButton — a cart add from chat
+		// must reach the store's trackers like any other.
+		trackAddToCart(
+			{ id: selectedVariant.id, sku: selectedVariant.sku, price: String(selectedVariant.price) },
+			product.name,
+			1,
+		);
 
 		openCart();
 		// Same optimistic flow as QuickAddButton: instant local item, then replace
