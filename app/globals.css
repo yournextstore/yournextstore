@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+/* Streamdown (store-chat markdown) ships its own Tailwind classes — Tailwind must scan them. */
+@source "../node_modules/streamdown/dist/*.js";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -149,4 +152,38 @@
 	100% {
 		background-position: -200% 0;
 	}
+}
+
+/* Store-chat assistant bubbles: compact Markdown, not document chrome. */
+.chat-markdown {
+	@apply min-w-0 space-y-2 text-sm;
+}
+
+.chat-markdown > :first-child {
+	@apply mt-0;
+}
+
+.chat-markdown > :last-child {
+	@apply mb-0;
+}
+
+.chat-markdown [data-streamdown^="heading-"] {
+	@apply mb-1 mt-2 text-sm font-semibold tracking-normal;
+}
+
+.chat-markdown [data-streamdown="ordered-list"],
+.chat-markdown [data-streamdown="unordered-list"] {
+	@apply my-1 space-y-0.5 pl-5 text-sm;
+}
+
+.chat-markdown [data-streamdown="list-item"] {
+	@apply py-0;
+}
+
+.chat-markdown [data-streamdown="inline-code"] {
+	@apply rounded-sm border bg-muted px-1 py-0.5 font-mono text-[0.85em];
+}
+
+.chat-markdown [data-streamdown="link"] {
+	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
 }

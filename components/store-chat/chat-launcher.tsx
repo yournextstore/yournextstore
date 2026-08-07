@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ export type StoreChatConfig = {
 	locale: string;
 };
 
-export function StoreChatLauncher(config: StoreChatConfig) {
+export function StoreChatLauncher({ badge, ...config }: StoreChatConfig & { badge?: React.ReactNode }) {
 	const [open, setOpen] = useState(false);
 	const [loaded, setLoaded] = useState(false);
 
@@ -29,27 +29,27 @@ export function StoreChatLauncher(config: StoreChatConfig) {
 		}
 	}, []);
 
-	const toggle = () => {
+	const openChat = () => {
 		setLoaded(true);
-		setOpen((value) => !value);
+		setOpen(true);
 	};
 
 	return (
 		<>
 			{loaded && <ChatPanel config={config} open={open} onClose={() => setOpen(false)} />}
-			<button
-				type="button"
-				onClick={toggle}
-				aria-label={open ? "Close chat" : `Chat with ${config.assistantName ?? config.storeName}`}
-				className={cn(
-					"fixed bottom-4 right-4 z-50 flex h-13 w-13 cursor-pointer items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-transform hover:scale-105 active:scale-95",
-					// On mobile the panel is full-screen and has its own Close button — the
-					// launcher would sit right on top of the composer's send button.
-					open && "hidden sm:flex",
-				)}
-			>
-				{open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
-			</button>
+			{/* Badge and launcher share one dock so they never overlap. The panel now
+			    occupies this corner while open, so the whole dock steps aside. */}
+			<div className={cn("fixed bottom-4 right-4 z-50 flex items-center gap-2", open && "hidden")}>
+				{badge}
+				<button
+					type="button"
+					onClick={openChat}
+					aria-label={`Chat with ${config.assistantName ?? config.storeName}`}
+					className="flex h-13 w-13 cursor-pointer items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-transform hover:scale-105 active:scale-95"
+				>
+					<MessageCircle className="h-5 w-5" />
+				</button>
+			</div>
 		</>
 	);
 }

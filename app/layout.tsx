@@ -14,7 +14,6 @@ import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { ReferralBadge } from "@/components/referral-badge";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
@@ -171,13 +170,13 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 				</header>
 				<main className="flex-1">{children}</main>
 				<Footer />
-				<ReferralBadge />
 			</div>
 			<CartSidebar />
 			<Suspense>
 				<CartBootstrapper />
 			</Suspense>
-			{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context */}
+			{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
+			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 			<Suspense>
 				<StoreChatSection />
 			</Suspense>
