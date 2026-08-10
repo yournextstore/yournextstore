@@ -17,10 +17,13 @@ export async function setCartCookie(cartCookieJson: CartCookieJson) {
 	}
 }
 
-export async function getCartCookieJson(): Promise<null | CartCookieJson> {
-	const cartCookieJson_ = (await cookies()).get(CART_COOKIE)?.value;
+/** Pure parser for the cart cookie value — exported separately so it can be unit tested. */
+export function parseCartCookie(value: string | undefined | null): CartCookieJson | null {
+	if (!value) {
+		return null;
+	}
 	try {
-		const cartCookieJson = cartCookieJson_ ? JSON.parse(cartCookieJson_) : null;
+		const cartCookieJson: unknown = JSON.parse(value);
 		if (
 			!cartCookieJson ||
 			typeof cartCookieJson !== "object" ||
@@ -33,4 +36,8 @@ export async function getCartCookieJson(): Promise<null | CartCookieJson> {
 	} catch {
 		return null;
 	}
+}
+
+export async function getCartCookieJson(): Promise<null | CartCookieJson> {
+	return parseCartCookie((await cookies()).get(CART_COOKIE)?.value);
 }
