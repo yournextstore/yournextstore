@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
+import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -95,24 +96,13 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 				))}
 			</div>
 
-			<ProductsPagination currentPage={currentPage} totalPages={totalPages} filters={filters} />
+			<ListingPagination
+				basePath="/products"
+				currentPage={currentPage}
+				totalPages={totalPages}
+				filters={filters}
+			/>
 		</>
-	);
-}
-
-function ProductGridSkeleton() {
-	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-			{Array.from({ length: 6 }).map((_, i) => (
-				<div key={`skeleton-${i}`}>
-					<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-					<div className="space-y-2">
-						<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-						<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			))}
-		</div>
 	);
 }
 

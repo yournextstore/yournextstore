@@ -32,7 +32,8 @@ function buildUrl(basePath: string, page: number, filters: Record<string, string
 	return params.size ? `${basePath}?${params}` : basePath;
 }
 
-export function CategoryPagination({
+/** Numbered pagination for product listing pages. Carries every active filter across page links. */
+export function ListingPagination({
 	basePath,
 	currentPage,
 	totalPages,

@@ -4,6 +4,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
 import {
 	Breadcrumb,
@@ -95,20 +96,10 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 	);
 }
 
-function ProductGridSkeleton() {
+function CollectionProductsSkeleton() {
 	return (
 		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={`skeleton-${i}`}>
-						<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-						<div className="space-y-2">
-							<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-							<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-						</div>
-					</div>
-				))}
-			</div>
+			<ProductGridSkeleton className="lg:grid-cols-3" />
 		</section>
 	);
 }
@@ -187,7 +178,7 @@ function CollectionPageSkeleton() {
 					</div>
 				</div>
 			</section>
-			<ProductGridSkeleton />
+			<CollectionProductsSkeleton />
 		</>
 	);
 }
@@ -236,7 +227,7 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 				</Breadcrumb>
 			</div>
 			<CollectionHeader collection={collection} />
-			<Suspense fallback={<ProductGridSkeleton />}>
+			<Suspense fallback={<CollectionProductsSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
 		</>
