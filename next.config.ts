@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
 	// Instant Navigations (16.3): every <Link> prefetches the route's shared App Shell.
 	partialPrefetching: true,
 	experimental: {
+		// Run the React Compiler natively in Turbopack instead of through Babel (16.3 experimental).
+		turbopackRustReactCompiler: true,
 		useTypeScriptCli: true,
 		typedEnv: true,
 		serverComponentsHmrCache: false,
