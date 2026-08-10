@@ -12,6 +12,7 @@ bun run lint      # Biome lint (--write to auto-fix)
 bun run format    # Biome format
 bun test          # Run tests (bun:test)
 tsc --noEmit     # Type check
+bun run check     # Everything but the build: biome check + tsc --noEmit + bun test
 bun run publish:store                 # Production publish (CLI twin of the admin "Publish" button; deploys remote main)
 bun run api <METHOD> <path> [json]    # Call any Store API endpoint with the store key, e.g. bun run api GET /me
 ```
@@ -158,6 +159,15 @@ test("formatMoney handles USD correctly", () => {
   expect(result).toBe("$19.99");
 });
 ```
+
+## Checks run locally, not in CI
+
+There is no GitHub Actions workflow — the husky `pre-commit` hook is the only automated gate. It
+runs `lint-staged`: Biome over the staged files, then `bun tsc --noEmit` and `bun test` whenever a
+`.ts`/`.tsx` file is staged. `bun run check` runs the same three by hand.
+
+`bun run build` stays out of both, because prerendering reads live store data through `YNS_API_KEY`.
+Run it yourself before publishing.
 
 ## Validation Checklist
 
