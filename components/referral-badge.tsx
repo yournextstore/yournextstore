@@ -1,10 +1,10 @@
-import { commerce } from "@/lib/commerce";
+import { meGetCached } from "@/lib/commerce";
 import { cn } from "@/lib/utils";
 
 export async function ReferralBadge({ docked = false }: { docked?: boolean }) {
 	let subdomain = "store";
 	try {
-		const { store } = await commerce.meGet();
+		const { store } = await meGetCached();
 		subdomain = store.subdomain;
 	} catch {}
 
