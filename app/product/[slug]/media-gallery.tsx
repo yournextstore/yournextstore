@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -36,21 +37,17 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	// we just jump the active image to that variant's first photo within the full gallery.
 	const displayImages = images;
 
-	const variantImageIndex = useMemo(() => {
-		const selectedVariant = variants.find(
-			(v) =>
-				v.combinations.length > 0 &&
-				v.combinations.every(
-					(c) => searchParams.get(c.variantValue.variantType.label) === c.variantValue.value,
-				),
-		);
+	const selectedVariant = useSelectedVariant(variants);
 
-		const firstVariantImage = selectedVariant?.images[0];
+	const variantImageIndex = useMemo(() => {
+		// Only variants with real combinations drive the gallery jump.
+		const firstVariantImage =
+			selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
 		if (!firstVariantImage) return 0;
 
 		const index = images.indexOf(firstVariantImage);
 		return index >= 0 ? index : 0;
-	}, [variants, searchParams, images]);
+	}, [selectedVariant, images]);
 
 	// Jump to the selected variant's image when the variant changes (avoids useEffect)
 	const searchParamsKey = searchParams.toString();

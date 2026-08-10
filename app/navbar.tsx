@@ -2,9 +2,9 @@
 
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import { MobileSearchInput } from "@/components/search/mobile-search-input";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { YnsLink } from "@/components/yns-link";
-import { MobileSearchInput } from "./search-input";
 
 export type NavLink = {
 	href: string;

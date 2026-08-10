@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
@@ -8,6 +7,7 @@ import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { TrustBadges } from "@/app/product/[slug]/trust-badges";
+import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { useStoreConfig } from "@/components/store-config-provider";
@@ -62,31 +62,10 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
 	const { currency, locale } = useStoreConfig();
-	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
-	const selectedVariant = useMemo(() => {
-		if (variants.length === 1) {
-			return variants[0];
-		}
-
-		if (searchParams.size === 0) {
-			return undefined;
-		}
-
-		const paramsOptions: Record<string, string> = {};
-		searchParams.forEach((valueName, key) => {
-			paramsOptions[key] = valueName;
-		});
-
-		return variants.find((variant) =>
-			variant.combinations.every(
-				(combination) =>
-					paramsOptions[combination.variantValue.variantType.label] === combination.variantValue.value,
-			),
-		);
-	}, [variants, searchParams]);
+	const selectedVariant = useSelectedVariant(variants);
 
 	// stock === null means stock isn't tracked for this variant (unlimited)
 	const isOutOfStock = selectedVariant?.stock === 0;

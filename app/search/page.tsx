@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
-import { SearchPageInput } from "@/app/search-input";
 import { ProductCard } from "@/components/product-card";
+import { SearchPageInput } from "@/components/search/search-page-input";
 import { commerce } from "@/lib/commerce";
 import { ActiveFilters, CategorySidebar, MobileControls, SortSelect } from "./search-controls";
 import { SearchPagination } from "./search-pagination";
