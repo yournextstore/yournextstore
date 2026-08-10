@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      YNS_API_KEY: ${{ secrets.YNS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run biome check
+      - run: bun tsc --noEmit
+      - run: bun test
+        env:
+          # Tests never call the API but lib/commerce asserts the key at module load.
+          YNS_API_KEY: ${{ secrets.YNS_API_KEY || 'ci-placeholder-key' }}
+      - name: Restore Next.js build cache
+        if: env.YNS_API_KEY != ''
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('bun.lock') }}-${{ github.sha }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('bun.lock') }}-
+            nextjs-${{ runner.os }}-
+      # Prerendering reads live store data, so the build only runs when the
+      # YNS_API_KEY repository secret is configured.
+      - name: Build
+        if: env.YNS_API_KEY != ''
+        run: bun run build
