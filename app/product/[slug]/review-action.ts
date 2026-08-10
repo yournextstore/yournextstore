@@ -1,5 +1,6 @@
 "use server";
 
+import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
 
 type ReviewState = {
@@ -36,14 +37,16 @@ export async function submitReview(_prev: ReviewState, formData: FormData): Prom
 		return { success: false, message: "", error: "Please select a rating." };
 	}
 
-	try {
-		await commerce.productReviewCreate(
+	const [error] = await try_(
+		commerce.productReviewCreate(
 			{ idOrSlug: slug },
 			{ author: author.trim(), email, content: content.trim(), rating: ratingNum },
-		);
-
-		return { success: true, message: "Thanks for your review! It will appear once approved." };
-	} catch {
+		),
+	);
+	if (error) {
+		console.error("review: productReviewCreate failed", { slug, error });
 		return { success: false, message: "", error: "Something went wrong. Please try again." };
 	}
+
+	return { success: true, message: "Thanks for your review! It will appear once approved." };
 }

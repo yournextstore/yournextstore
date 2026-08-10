@@ -1,5 +1,6 @@
 "use server";
 
+import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
 
 type ContactState = {
@@ -20,11 +21,11 @@ export async function sendContactMessage(_prev: ContactState, formData: FormData
 		return { success: false, message: "", error: "Please enter a message." };
 	}
 
-	try {
-		await commerce.contactMessageCreate({ email, message });
-
-		return { success: true, message: "Thanks for reaching out! We'll get back to you soon." };
-	} catch {
+	const [error] = await try_(commerce.contactMessageCreate({ email, message }));
+	if (error) {
+		console.error("contact: contactMessageCreate failed", { error });
 		return { success: false, message: "", error: "Something went wrong. Please try again." };
 	}
+
+	return { success: true, message: "Thanks for reaching out! We'll get back to you soon." };
 }

@@ -44,7 +44,9 @@ export const getSession = cache(async (): Promise<Session | null> => {
 
 		const session: Session = await response.json();
 		return session;
-	} catch {
+	} catch (error) {
+		// Treat an unreachable auth backend as signed-out, but keep it visible in logs.
+		console.error("auth: get-session fetch failed", { error });
 		return null;
 	}
 });

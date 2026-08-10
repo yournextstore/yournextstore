@@ -1,10 +1,17 @@
 import { Commerce } from "commerce-kit";
 import { cacheLife } from "next/cache";
 import { try_ } from "safe-try";
+import { invariant } from "@/lib/invariant";
 
 // Override the API host (defaults to yns.store / yns.cx by key prefix). Useful for
 // pointing at a dev deployment, e.g. YNS_API_URL=https://dev.axelgrubba.com
 const endpoint = process.env.YNS_API_URL || undefined;
+
+// Fail loudly at boot — without the key every SDK call surfaces as an opaque API error.
+invariant(
+	process.env.YNS_API_KEY,
+	"Missing YNS_API_KEY environment variable. Add it to .env.local (see .env.example).",
+);
 
 export const commerce = Commerce({
 	token: process.env.YNS_API_KEY,
