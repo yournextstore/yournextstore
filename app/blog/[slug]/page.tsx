@@ -14,23 +14,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { YnsLink } from "@/components/yns-link";
-import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
-import { LOCALE } from "@/lib/constants";
+import { commerce, getCanonicalUrl } from "@/lib/commerce";
+import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
+import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
-
-async function isBlogEnabled(): Promise<boolean> {
-	try {
-		const me = await meGetCached();
-		return me.store.settings?.enabledTools?.blog ?? false;
-	} catch {
-		return false;
-	}
-}
-
-function formatDate(value: string): string {
-	return new Date(value).toLocaleDateString(LOCALE, { year: "numeric", month: "long", day: "numeric" });
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -92,7 +80,7 @@ const getBlogPostData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
 
-	if (!(await isBlogEnabled())) {
+	if (!(await isStoreToolEnabled("blog"))) {
 		return null;
 	}
 	return commerce.postGet({ idOrSlug: slug });

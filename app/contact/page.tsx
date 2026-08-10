@@ -3,8 +3,9 @@ import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/app/contact/contact-form";
 import { YnsLink } from "@/components/yns-link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
+import { isStoreToolEnabled } from "@/lib/store-tools";
 
 export async function generateMetadata(): Promise<Metadata> {
 	const { storeName } = await getStoreSeo();
@@ -30,20 +31,11 @@ const contactJsonLd = {
 	description: "Get in touch with our team. Questions about orders, products, or anything else.",
 };
 
-async function isContactFormEnabled(): Promise<boolean> {
-	try {
-		const me = await meGetCached();
-		return me.store.settings?.enabledTools?.contactForm ?? false;
-	} catch {
-		return false;
-	}
-}
-
 export default async function ContactPage() {
 	"use cache";
 	cacheLife("minutes");
 
-	if (!(await isContactFormEnabled())) {
+	if (!(await isStoreToolEnabled("contactForm"))) {
 		notFound();
 	}
 

@@ -11,9 +11,10 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { YnsLink } from "@/components/yns-link";
-import { commerce, getCanonicalUrl, getStoreSeo, meGetCached } from "@/lib/commerce";
-import { LOCALE } from "@/lib/constants";
+import { commerce, getCanonicalUrl, getStoreSeo } from "@/lib/commerce";
+import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
+import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
 
 const POSTS_LIMIT = 24;
@@ -35,24 +36,11 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function isBlogEnabled(): Promise<boolean> {
-	try {
-		const me = await meGetCached();
-		return me.store.settings?.enabledTools?.blog ?? false;
-	} catch {
-		return false;
-	}
-}
-
-function formatDate(value: string): string {
-	return new Date(value).toLocaleDateString(LOCALE, { year: "numeric", month: "long", day: "numeric" });
-}
-
 export default async function BlogPage() {
 	"use cache";
 	cacheLife("minutes");
 
-	if (!(await isBlogEnabled())) {
+	if (!(await isStoreToolEnabled("blog"))) {
 		notFound();
 	}
 
