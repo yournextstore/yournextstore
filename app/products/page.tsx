@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { getFilterFacets } from "@/lib/facets";
 import { ProductsPagination } from "./products-pagination";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
@@ -26,12 +27,6 @@ type ProductFilterParams = {
 	priceMax?: string;
 	vts?: string;
 };
-
-async function getFilterFacets() {
-	"use cache";
-	cacheLife("minutes");
-	return commerce.productFilters();
-}
 
 export async function generateMetadata({
 	searchParams,

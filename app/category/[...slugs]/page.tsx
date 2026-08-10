@@ -14,6 +14,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
+import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { CategoryPagination } from "./category-pagination";
 
@@ -28,25 +29,6 @@ type CategoryFilterParams = {
 	priceMax?: string;
 	vts?: string;
 };
-
-const EMPTY_FACETS = {
-	priceBounds: { min: 0, max: 0 },
-	variantTypes: [],
-	categories: [],
-	collections: [],
-	brands: [],
-} satisfies Awaited<ReturnType<typeof commerce.productFilters>>;
-
-async function getFilterFacets() {
-	"use cache";
-	cacheLife("minutes");
-	// Filters are an enhancement — never let a facets failure take down the product list.
-	try {
-		return await commerce.productFilters();
-	} catch {
-		return EMPTY_FACETS;
-	}
-}
 
 // The SDK loads the parent chain up to 2 levels deep (self -> parent -> grandparent),
 // so the canonical path is capped at 3 segments (e.g. fashion/tops/t-shirts).
@@ -215,12 +197,11 @@ const CategoryContent = async ({
 		notFound();
 	}
 
-	const category = await getCategoryData(slug);
+	// Both reads are cached and independent — fetch them in parallel.
+	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
 	if (!category?.active) {
 		notFound();
 	}
-
-	const facets = await getFilterFacets();
 	// Category facet is hidden here (it's the page context), so don't count it.
 	const filtersAvailable =
 		facets.collections.length > 0 ||
