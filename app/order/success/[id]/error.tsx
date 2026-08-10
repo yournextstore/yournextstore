@@ -2,7 +2,7 @@
 
 import { RouteErrorFallback } from "@/components/route-error";
 
-export default function RootError({
+export default function OrderError({
 	error,
 	retry,
 }: {
@@ -11,8 +11,8 @@ export default function RootError({
 }) {
 	return (
 		<RouteErrorFallback
-			title="Something went wrong"
-			description="An unexpected error occurred. Please try again or return to the store."
+			title="We couldn't load your order"
+			description="Your payment went through if you completed checkout — this page just failed to load. Try again in a moment."
 			error={error}
 			retry={retry}
 		/>

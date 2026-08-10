@@ -2,7 +2,7 @@
 
 import { RouteErrorFallback } from "@/components/route-error";
 
-export default function RootError({
+export default function ProductError({
 	error,
 	retry,
 }: {
@@ -11,8 +11,8 @@ export default function RootError({
 }) {
 	return (
 		<RouteErrorFallback
-			title="Something went wrong"
-			description="An unexpected error occurred. Please try again or return to the store."
+			title="We couldn't load this product"
+			description="This is usually temporary. Try again, or keep browsing the store."
 			error={error}
 			retry={retry}
 		/>
