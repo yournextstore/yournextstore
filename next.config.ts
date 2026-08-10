@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
 	devIndicators: false,
 	reactCompiler: true,
 	cacheComponents: true,
+	// Instant Navigations (16.3): every <Link> prefetches the route's shared App Shell.
+	partialPrefetching: true,
 	experimental: {
 		useTypeScriptCli: true,
 		typedEnv: true,

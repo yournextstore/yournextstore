@@ -1,11 +1,11 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { YnsLink } from "@/components/yns-link";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -101,26 +101,24 @@ export function CartItem({ item }: CartItemProps) {
 	return (
 		<div className="flex gap-3 py-4">
 			{/* Product Image */}
-			<YnsLink
-				prefetch={"eager"}
+			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
 				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
-			</YnsLink>
+			</Link>
 
 			{/* Product Details */}
 			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
 				<div className="flex items-start justify-between gap-2">
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
 						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
 					>
 						{product.name}
-					</YnsLink>
+					</Link>
 					<button
 						type="button"
 						onClick={handleRemove}

@@ -1,10 +1,10 @@
 import { CheckCircle } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
 import { getStoreConfig } from "@/lib/store-config";
@@ -132,9 +132,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 			{/* Continue Shopping Button */}
 			<div className="mt-8 text-center">
 				<Button asChild>
-					<YnsLink prefetch="eager" href="/">
-						Continue Shopping
-					</YnsLink>
+					<Link href="/">Continue Shopping</Link>
 				</Button>
 			</div>
 		</div>
@@ -169,24 +167,22 @@ async function OrderItem({ item }: { item: OrderLineItem }) {
 	return (
 		<div className="flex gap-4 p-6">
 			{/* Product Image */}
-			<YnsLink
-				prefetch="eager"
+			<Link
 				href={`/product/${product.slug}`}
 				className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-secondary"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
-			</YnsLink>
+			</Link>
 
 			{/* Product Details */}
 			<div className="flex min-w-0 flex-1 flex-col justify-between">
 				<div>
-					<YnsLink
-						prefetch="eager"
+					<Link
 						href={`/product/${product.slug}`}
 						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
 					>
 						{product.name}
-					</YnsLink>
+					</Link>
 					<p className="text-sm text-muted-foreground mt-1">Qty: {quantity}</p>
 				</div>
 				<p className="text-sm font-semibold">{formatMoney({ amount: lineTotal, currency, locale })}</p>

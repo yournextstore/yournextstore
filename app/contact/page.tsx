@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/app/contact/contact-form";
-import { YnsLink } from "@/components/yns-link";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
@@ -45,13 +45,9 @@ export default async function ContactPage() {
 
 			{/* Header */}
 			<div className="mb-10">
-				<YnsLink
-					prefetch="eager"
-					href="/"
-					className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-				>
+				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
 					Home
-				</YnsLink>
+				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">Contact Us</span>
 				<h1 className="mt-4 text-4xl font-medium tracking-tight">Contact Us</h1>
@@ -67,9 +63,9 @@ export default async function ContactPage() {
 			{/* FAQ link */}
 			<p className="mt-10 text-sm text-muted-foreground">
 				Looking for a quick answer? Check our{" "}
-				<YnsLink prefetch="eager" href="/faq" className="font-medium text-foreground hover:underline">
+				<Link href="/faq" className="font-medium text-foreground hover:underline">
 					frequently asked questions
-				</YnsLink>
+				</Link>
 				.
 			</p>
 		</div>

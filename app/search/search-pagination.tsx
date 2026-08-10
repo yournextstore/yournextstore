@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 
 function buildSearchUrl({
 	query,
@@ -43,7 +43,7 @@ export function SearchPagination({
 			className="mt-20 flex items-center justify-between border-t border-border pt-8"
 		>
 			{prevHref ? (
-				<YnsLink
+				<Link
 					href={prevHref}
 					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
 					rel="prev"
@@ -53,7 +53,7 @@ export function SearchPagination({
 						strokeWidth={1.5}
 					/>
 					Previous
-				</YnsLink>
+				</Link>
 			) : (
 				<span className="text-xs uppercase tracking-[0.18em] text-muted-foreground/40">Previous</span>
 			)}
@@ -63,7 +63,7 @@ export function SearchPagination({
 			</span>
 
 			{nextHref ? (
-				<YnsLink
+				<Link
 					href={nextHref}
 					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
 					rel="next"
@@ -73,7 +73,7 @@ export function SearchPagination({
 						className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
 						strokeWidth={1.5}
 					/>
-				</YnsLink>
+				</Link>
 			) : (
 				<span className="text-xs uppercase tracking-[0.18em] text-muted-foreground/40">Next</span>
 			)}

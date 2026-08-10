@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -56,13 +56,9 @@ export default async function AboutPage() {
 
 			{/* Header */}
 			<div className="mb-10">
-				<YnsLink
-					prefetch="eager"
-					href="/"
-					className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-				>
+				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
 					Home
-				</YnsLink>
+				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">About Us</span>
 				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
@@ -117,21 +113,19 @@ export default async function AboutPage() {
 					Explore our products or get in touch — we would love to hear from you.
 				</p>
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<YnsLink
-						prefetch="eager"
+					<Link
 						href="/products"
 						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
 					>
 						Shop products
-					</YnsLink>
+					</Link>
 					{contactFormEnabled && (
-						<YnsLink
-							prefetch="eager"
+						<Link
 							href="/contact"
 							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
 						>
 							Contact us
-						</YnsLink>
+						</Link>
 					)}
 				</div>
 			</div>

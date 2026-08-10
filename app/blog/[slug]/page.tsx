@@ -13,7 +13,6 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
-import { YnsLink } from "@/components/yns-link";
 import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
@@ -176,13 +175,12 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 
 			{/* Footer nav */}
 			<div className="mt-16 border-t border-border pt-8">
-				<YnsLink
-					prefetch="eager"
+				<Link
 					href="/blog"
 					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 				>
 					← Back to blog
-				</YnsLink>
+				</Link>
 			</div>
 		</article>
 	);

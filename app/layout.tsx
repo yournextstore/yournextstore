@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartBootstrap, CartProvider } from "@/app/cart/cart-context";
@@ -19,7 +20,6 @@ import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { YnsLink } from "@/components/yns-link";
 import { AUTH_ENABLED } from "@/lib/auth-config";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
@@ -158,9 +158,9 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 							<div className="relative flex items-center justify-between h-16">
 								<div className="flex items-center gap-2">
-									<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+									<Link href="/" className="text-xl font-bold">
 										Your Next Store
-									</YnsLink>
+									</Link>
 									<Navbar links={links} />
 								</div>
 								<div className="flex items-center gap-2">

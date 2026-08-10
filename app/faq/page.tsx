@@ -1,8 +1,8 @@
 import { Mail } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { YnsLink } from "@/components/yns-link";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -97,13 +97,9 @@ export default function FAQPage() {
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
 			{/* Header */}
 			<div className="mb-10">
-				<YnsLink
-					prefetch="eager"
-					href="/"
-					className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-				>
+				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
 					Home
-				</YnsLink>
+				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">FAQ</span>
 				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>

@@ -2,11 +2,11 @@
 
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
-import { YnsLink } from "@/components/yns-link";
 import { formatMoney } from "@/lib/money";
 import { trackAddToCart } from "@/lib/track";
 
@@ -108,7 +108,7 @@ export function ChatProductCard({
 
 	return (
 		<div className="w-44 shrink-0 snap-start overflow-hidden rounded-xl border bg-background">
-			<YnsLink
+			<Link
 				href={`/product/${product.slug}`}
 				onClick={() => reportEvent({ messageId, type: "card_click", productId: product.productId })}
 			>
@@ -117,15 +117,15 @@ export function ChatProductCard({
 						<Image src={product.imageUrl} alt={product.name} fill sizes="176px" className="object-cover" />
 					) : null}
 				</div>
-			</YnsLink>
+			</Link>
 			<div className="grid gap-2 p-2.5">
-				<YnsLink
+				<Link
 					href={`/product/${product.slug}`}
 					className="line-clamp-2 text-xs font-medium leading-snug hover:underline"
 					onClick={() => reportEvent({ messageId, type: "card_click", productId: product.productId })}
 				>
 					{product.name}
-				</YnsLink>
+				</Link>
 				{selectedVariant && (
 					<div className="text-xs font-semibold tabular-nums">
 						{formatMoney({ amount: selectedVariant.price, currency: product.currency, locale })}

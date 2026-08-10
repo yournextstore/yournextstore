@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -13,13 +13,9 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/blog"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-			>
+			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
 				Blog
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -35,13 +31,9 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/contact"
-				className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-			>
+			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
 				Contact Us
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -62,13 +54,12 @@ async function FooterCollections() {
 			<ul className="mt-4 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{collection.name}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -92,13 +83,12 @@ async function FooterLegalPages() {
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/legal${page.href}`}
 							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
 							{page.label}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -124,9 +114,9 @@ export async function Footer() {
 				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
 					{/* Brand */}
 					<div className="sm:max-w-xs">
-						<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold text-foreground">
+						<Link href="/" className="text-xl font-bold text-foreground">
 							Your Next Store
-						</YnsLink>
+						</Link>
 						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
 							Curated essentials for modern living. Quality products, thoughtfully designed.
 						</p>
@@ -140,23 +130,21 @@ export async function Footer() {
 						<h3 className="text-sm font-semibold text-foreground">Support</h3>
 						<ul className="mt-4 space-y-3">
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/about"
 									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
 									About Us
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/faq"
 									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
 									FAQ
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>

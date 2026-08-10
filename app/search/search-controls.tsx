@@ -1,10 +1,10 @@
 "use client";
 
 import { SlidersHorizontal, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { YnsLink } from "@/components/yns-link";
 import { SORT_OPTIONS, type SortKey } from "./sort";
 
 type Category = { id: string; slug: string; name: string };
@@ -43,7 +43,7 @@ function FilterRow({
 		: "text-muted-foreground";
 	return (
 		<li>
-			<YnsLink
+			<Link
 				href={href}
 				onClick={onClick}
 				className={`flex items-baseline justify-between gap-2 border-b border-border ${py} transition-colors hover:text-foreground ${activeClass}`}
@@ -53,7 +53,7 @@ function FilterRow({
 					{label}
 				</span>
 				{typeof count === "number" ? <span className="text-xs tabular-nums">{count}</span> : null}
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -72,13 +72,13 @@ export function ActiveFilters({
 	return (
 		<div className="flex items-center gap-2 text-sm">
 			<span className="text-muted-foreground">in</span>
-			<YnsLink
+			<Link
 				href={buildUrl(searchParams, { category: null })}
 				className="group inline-flex items-center gap-1.5 border-b border-foreground/70 pb-0.5 text-foreground transition-colors hover:border-foreground"
 			>
 				<span>{active.name}</span>
 				<X className="h-3 w-3 opacity-60 group-hover:opacity-100" strokeWidth={1.5} />
-			</YnsLink>
+			</Link>
 		</div>
 	);
 }

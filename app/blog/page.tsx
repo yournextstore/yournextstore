@@ -10,7 +10,6 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { YnsLink } from "@/components/yns-link";
 import { commerce, getCanonicalUrl, getStoreSeo } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
@@ -93,7 +92,7 @@ export default async function BlogPage() {
 			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 					{posts.map((post) => (
-						<YnsLink key={post.id} prefetch="eager" href={`/blog/${post.slug}`} className="group">
+						<Link key={post.id} href={`/blog/${post.slug}`} className="group">
 							<div className="relative aspect-[3/2] bg-secondary rounded-2xl overflow-hidden mb-4">
 								{post.image && (
 									<YNSMedia
@@ -120,7 +119,7 @@ export default async function BlogPage() {
 									{post.title}
 								</h2>
 							</div>
-						</YnsLink>
+						</Link>
 					))}
 				</div>
 			)}
