@@ -20,14 +20,13 @@ bun run api <METHOD> <path> [json]    # Call any Store API endpoint with the sto
 
 ```
 app/                  # Pages, layouts, actions (App Router)
-components/ui/        # Shadcn UI components (50+)
+components/ui/        # Shadcn UI components (add more with: bunx shadcn add <name>)
 lib/commerce.ts       # Commerce API client
 lib/money.ts          # Currency formatting (formatMoney)
 lib/utils.ts          # Utilities
 scripts/              # CLI helpers: api.sh (generic Store API caller), publish.sh (production publish + wait)
 biome.json            # Lint/format config
-next.config.mjs       # Next.js config
-hooks/                # Custom React hooks
+next.config.ts        # Next.js config
 ```
 
 ## Platform-managed files — DO NOT MODIFY

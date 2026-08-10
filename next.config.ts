@@ -33,7 +33,15 @@ const nextConfig: NextConfig = {
 		],
 	},
 	images: {
-		remotePatterns: [{ protocol: "https", hostname: "**" }],
+		// Store media lives on Vercel Blob (per-store subdomain) and the YNS platform hosts.
+		// A "**" wildcard would make the image optimizer an open proxy for any https URL.
+		remotePatterns: [
+			{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+			{ protocol: "https", hostname: "yns.store" },
+			{ protocol: "https", hostname: "**.yns.store" },
+			{ protocol: "https", hostname: "yns.cx" },
+			{ protocol: "https", hostname: "**.yns.cx" },
+		],
 	},
 	async headers() {
 		if (isProd) return [];
