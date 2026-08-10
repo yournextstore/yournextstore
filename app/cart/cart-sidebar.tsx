@@ -3,6 +3,7 @@
 import { Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -13,11 +14,11 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
+	const { currency, locale } = useStoreConfig();
 	const { isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
 
 	const checkoutUrl = `/checkout`;
@@ -64,9 +65,7 @@ export function CartSidebar() {
 							<div className="w-full space-y-4">
 								<div className="flex items-center justify-between text-base">
 									<span className="font-medium">Subtotal</span>
-									<span className="font-semibold">
-										{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}
-									</span>
+									<span className="font-semibold">{formatMoney({ amount: subtotal, currency, locale })}</span>
 								</div>
 								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a

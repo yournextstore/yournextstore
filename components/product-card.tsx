@@ -3,8 +3,8 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
@@ -14,13 +14,14 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
-export function ProductCard({
+export async function ProductCard({
 	product,
 	priority = false,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
 }) {
+	const { currency, locale } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
 	const { minPrice, maxPrice } =
@@ -39,9 +40,9 @@ export function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })} - ${formatMoney({ amount: maxPrice, currency: CURRENCY, locale: LOCALE })}`
+			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
 			: minPrice
-				? formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })
+				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
 
 	const allImages = [

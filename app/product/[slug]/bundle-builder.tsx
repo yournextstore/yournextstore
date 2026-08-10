@@ -7,9 +7,9 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addBundleToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +71,7 @@ export function BundleBuilder({
 	pricing: Pricing;
 }) {
 	const { groups, discountPercentage } = bundle;
+	const { currency, locale } = useStoreConfig();
 	const { openCart } = useCart();
 
 	const [selections, setSelections] = useState<GroupSelections>(() => initialSelections(groups));
@@ -244,8 +245,8 @@ export function BundleBuilder({
 											<span className="text-muted-foreground text-sm">
 												{formatMoney({
 													amount: BigInt(item.variant.price),
-													currency: CURRENCY,
-													locale: LOCALE,
+													currency,
+													locale,
 												})}
 											</span>
 											{outOfStock && <span className="text-destructive text-xs">Out of stock</span>}
@@ -292,12 +293,10 @@ export function BundleBuilder({
 				<div className="flex items-baseline gap-2">
 					{hasSavings && (
 						<span className="text-muted-foreground text-lg line-through">
-							{formatMoney({ amount: originalTotal, currency: CURRENCY, locale: LOCALE })}
+							{formatMoney({ amount: originalTotal, currency, locale })}
 						</span>
 					)}
-					<span className="font-bold text-2xl">
-						{formatMoney({ amount: total, currency: CURRENCY, locale: LOCALE })}
-					</span>
+					<span className="font-bold text-2xl">{formatMoney({ amount: total, currency, locale })}</span>
 				</div>
 				<Button
 					type="button"

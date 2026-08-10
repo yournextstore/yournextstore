@@ -2,8 +2,8 @@
 
 import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
-import { CURRENCY } from "@/lib/constants";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { getStoreConfig } from "@/lib/store-config";
 
 export async function getCart() {
 	const cartCookie = await getCartCookieJson();
@@ -52,14 +52,14 @@ export async function addBundleToCart(
 	bundleId: string,
 	selections: Array<{ variantId: string; groupId: string; quantity: number }>,
 ) {
-	const cartCookie = await getCartCookieJson();
+	const [cartCookie, { currency }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 
 	const [error, cart] = await try_(
 		commerce.cartAddBundle({
 			cartId: cartCookie?.id,
 			bundleId,
 			selections,
-			currency: CURRENCY,
+			currency,
 		}),
 	);
 

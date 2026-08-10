@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CURRENCY, LOCALE } from "@/lib/constants";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 
 export type VolumeTier = {
@@ -50,14 +50,14 @@ export function VolumePricingDisplay({
 	quantity: number;
 	volumePrice: string | null;
 }) {
+	const { currency, locale } = useStoreConfig();
 	if (tiers.length === 0) return null;
 
 	return (
 		<>
 			{volumePrice && (
 				<p className="text-sm text-muted-foreground">
-					{formatMoney({ amount: BigInt(volumePrice), currency: CURRENCY, locale: LOCALE })} per unit at qty{" "}
-					{quantity}
+					{formatMoney({ amount: BigInt(volumePrice), currency, locale })} per unit at qty {quantity}
 				</p>
 			)}
 
@@ -86,7 +86,7 @@ export function VolumePricingDisplay({
 											{tier.maxQuantity ? `${tier.minQuantity}–${tier.maxQuantity}` : `${tier.minQuantity}+`}
 										</td>
 										<td className="px-3 py-1.5 text-right font-medium">
-											{formatMoney({ amount: BigInt(tier.price), currency: CURRENCY, locale: LOCALE })}
+											{formatMoney({ amount: BigInt(tier.price), currency, locale })}
 										</td>
 									</tr>
 								);

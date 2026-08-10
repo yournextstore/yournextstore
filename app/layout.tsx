@@ -16,6 +16,7 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
+import { StoreConfigProvider } from "@/components/store-config-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
@@ -23,6 +24,7 @@ import { AUTH_ENABLED } from "@/lib/auth-config";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { getStoreConfig } from "@/lib/store-config";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -146,44 +148,46 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers, the
 	// cart) would take the header, nav and footer out of the prerendered shell and
 	// leave the page blank until the server responds.
-	const links = await getNavLinks();
+	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
-		<CartProvider>
-			<div className="flex min-h-screen flex-col">
-				<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="relative flex items-center justify-between h-16">
-							<div className="flex items-center gap-2">
-								<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
-									Your Next Store
-								</YnsLink>
-								<Navbar links={links} />
-							</div>
-							<div className="flex items-center gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								<ThemeToggle />
-								{AUTH_ENABLED && <AuthButton />}
-								<CartButton />
+		<StoreConfigProvider value={storeConfig}>
+			<CartProvider>
+				<div className="flex min-h-screen flex-col">
+					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+							<div className="relative flex items-center justify-between h-16">
+								<div className="flex items-center gap-2">
+									<YnsLink prefetch={"eager"} href="/" className="text-xl font-bold">
+										Your Next Store
+									</YnsLink>
+									<Navbar links={links} />
+								</div>
+								<div className="flex items-center gap-2">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+									<ThemeToggle />
+									{AUTH_ENABLED && <AuthButton />}
+									<CartButton />
+								</div>
 							</div>
 						</div>
-					</div>
-				</header>
-				<main className="flex-1">{children}</main>
-				<Footer />
-			</div>
-			<CartSidebar />
-			<Suspense>
-				<CartBootstrapper />
-			</Suspense>
-			{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
+					</header>
+					<main className="flex-1">{children}</main>
+					<Footer />
+				</div>
+				<CartSidebar />
+				<Suspense>
+					<CartBootstrapper />
+				</Suspense>
+				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
 			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
-			<Suspense>
-				<StoreChatSection />
-			</Suspense>
-		</CartProvider>
+				<Suspense>
+					<StoreChatSection />
+				</Suspense>
+			</CartProvider>
+		</StoreConfigProvider>
 	);
 }
 

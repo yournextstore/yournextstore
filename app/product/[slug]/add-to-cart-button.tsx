@@ -10,7 +10,7 @@ import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
-import { CURRENCY, LOCALE } from "@/lib/constants";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { trackAddToCart } from "@/lib/track";
 import { cn } from "@/lib/utils";
@@ -61,6 +61,7 @@ export function AddToCartButton({
 	volumePricingTiers = [],
 	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
+	const { currency, locale } = useStoreConfig();
 	const searchParams = useSearchParams();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
@@ -105,15 +106,15 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency: CURRENCY, locale: LOCALE })}`;
+			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
 		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, totalPrice]);
+	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
 	const priceInfo = useMemo(() => {
-		const fmt = (amount: bigint) => formatMoney({ amount, currency: CURRENCY, locale: LOCALE });
+		const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 
 		if (selectedVariant) {
 			const price = BigInt(selectedVariant.price);
@@ -134,15 +135,15 @@ export function AddToCartButton({
 			compareAt: null,
 			discountPercent: null,
 		};
-	}, [selectedVariant, variants]);
+	}, [selectedVariant, variants, locale, currency]);
 
 	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
 	const omnibusPrice = useMemo(() => {
 		if (!selectedVariant || !priceInfo.compareAt) return null;
 		const lowest = selectedVariant.omnibusPrice;
 		if (!lowest) return null;
-		return formatMoney({ amount: BigInt(lowest), currency: CURRENCY, locale: LOCALE });
-	}, [selectedVariant, priceInfo.compareAt]);
+		return formatMoney({ amount: BigInt(lowest), currency, locale });
+	}, [selectedVariant, priceInfo.compareAt, locale, currency]);
 
 	// Stock availability. null stock means it isn't tracked (treated as in stock).
 	const stockStatus = useMemo(() => {

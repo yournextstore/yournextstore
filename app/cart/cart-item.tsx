@@ -4,8 +4,8 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { YnsLink } from "@/components/yns-link";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -15,6 +15,7 @@ type CartItemProps = {
 };
 
 export function CartItem({ item }: CartItemProps) {
+	const { currency, locale } = useStoreConfig();
 	const { dispatch, closeCart, startMutation, syncCart, reconcile } = useCart();
 	const [isPending, startTransition] = useTransition();
 
@@ -160,7 +161,7 @@ export function CartItem({ item }: CartItemProps) {
 
 					{/* Price */}
 					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency: CURRENCY, locale: LOCALE })}
+						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>
 			</div>

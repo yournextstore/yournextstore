@@ -4,6 +4,7 @@ import type { APIProductFiltersResult } from "commerce-kit";
 import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,7 +17,6 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
@@ -66,6 +66,7 @@ type FilterControlsProps = {
 };
 
 function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+	const { currency, locale } = useStoreConfig();
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -301,8 +302,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									}
 								/>
 								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
-									<span>{formatMoney({ amount: priceRange[0], currency: CURRENCY, locale: LOCALE })}</span>
-									<span>{formatMoney({ amount: priceRange[1], currency: CURRENCY, locale: LOCALE })}</span>
+									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
+									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
 								</div>
 							</div>
 						</AccordionContent>

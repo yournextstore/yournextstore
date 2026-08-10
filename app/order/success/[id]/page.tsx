@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { YnsLink } from "@/components/yns-link";
 import { commerce } from "@/lib/commerce";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { getStoreConfig } from "@/lib/store-config";
 import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -42,6 +42,7 @@ export default function OrderSuccessPage(props: { params: Promise<{ id: string }
 
 const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 	const { id } = await params;
+	const { currency, locale } = await getStoreConfig();
 	const order = await commerce.orderGet({ id });
 
 	if (!order) {
@@ -93,17 +94,17 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 				<div className="bg-secondary/30 px-6 py-4 space-y-2">
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-muted-foreground">Subtotal</span>
-						<span>{formatMoney({ amount: subtotal, currency: CURRENCY, locale: LOCALE })}</span>
+						<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 					</div>
 					{shipping && (
 						<div className="flex items-center justify-between text-sm">
 							<span className="text-muted-foreground">Shipping ({shipping.name})</span>
-							<span>{formatMoney({ amount: shippingCost, currency: CURRENCY, locale: LOCALE })}</span>
+							<span>{formatMoney({ amount: shippingCost, currency, locale })}</span>
 						</div>
 					)}
 					<div className="flex items-center justify-between font-semibold pt-2 border-t border-border">
 						<span>Total</span>
-						<span>{formatMoney({ amount: total, currency: CURRENCY, locale: LOCALE })}</span>
+						<span>{formatMoney({ amount: total, currency, locale })}</span>
 					</div>
 				</div>
 			</div>
@@ -156,7 +157,8 @@ type OrderLineItem = {
 	};
 };
 
-function OrderItem({ item }: { item: OrderLineItem }) {
+async function OrderItem({ item }: { item: OrderLineItem }) {
+	const { currency, locale } = await getStoreConfig();
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
 
@@ -187,9 +189,7 @@ function OrderItem({ item }: { item: OrderLineItem }) {
 					</YnsLink>
 					<p className="text-sm text-muted-foreground mt-1">Qty: {quantity}</p>
 				</div>
-				<p className="text-sm font-semibold">
-					{formatMoney({ amount: lineTotal, currency: CURRENCY, locale: LOCALE })}
-				</p>
+				<p className="text-sm font-semibold">{formatMoney({ amount: lineTotal, currency, locale })}</p>
 			</div>
 		</div>
 	);

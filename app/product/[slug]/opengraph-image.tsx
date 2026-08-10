@@ -5,8 +5,8 @@ import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
 import { try_ } from "safe-try";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
+import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 
 export const size = {
@@ -34,6 +34,7 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
 	}
 
 	const { storeName } = await getStoreSeo();
+	const { currency, locale } = await getStoreConfig();
 	const image = product.images.find((url) => !isVideoUrl(url));
 	const minPrice = product.variants
 		.map((v) => BigInt(v.price))
@@ -64,7 +65,7 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
 					<p tw="font-black text-5xl mb-0">{product.name}</p>
 					{minPrice !== null && (
 						<p tw="font-normal text-neutral-800 mt-0 text-3xl">
-							{formatMoney({ amount: minPrice, currency: CURRENCY, locale: LOCALE })}
+							{formatMoney({ amount: minPrice, currency, locale })}
 						</p>
 					)}
 					<p tw="font-normal text-xl max-h-28">{product.summary || ""}</p>
