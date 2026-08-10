@@ -217,7 +217,8 @@ export function CartProvider({ children }: CartProviderProps) {
 		// the layout's read-replica cartGet and can rebase onto a stale read).
 		const onPageShow = (event: PageTransitionEvent) => {
 			if (event.persisted) {
-				void reconcile();
+				// Keep showing the current cart if the refetch fails — never an unhandled rejection.
+				void reconcile().catch(() => undefined);
 			}
 		};
 		window.addEventListener("pageshow", onPageShow);
