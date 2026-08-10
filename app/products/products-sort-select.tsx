@@ -12,7 +12,7 @@ function buildSortHref(
 	searchParams: ReadonlyURLSearchParams,
 	pathname: string,
 	value: string,
-	defaultValue: string,
+	defaultValue: string | undefined,
 ): string {
 	const params = new URLSearchParams(searchParams.toString());
 	// Any sort change keeps the result set but reorders it — return to the first page.

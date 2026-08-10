@@ -92,10 +92,12 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	}
 
 	return (
-		<div
-			tabIndex={0}
+		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
+		<section
+			aria-roledescription="carousel"
+			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded-2xl lg:sticky lg:top-24 lg:self-start"
+			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
 		>
 			{/* Main Image */}
 			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
@@ -111,7 +113,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					/>
 				) : (
 					<YNSMedia
-						src={displayImages[selectedIndex]}
+						src={displayImages[selectedIndex] ?? ""}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
 						sizes="(max-width: 1024px) 100vw, 50vw"
@@ -207,6 +209,6 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					))}
 				</div>
 			)}
-		</div>
+		</section>
 	);
 }

@@ -229,7 +229,7 @@ export function AddToCartButton({
 				)}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} selectedVariantId={selectedVariant?.id} />}
+			{variants.length > 1 && <VariantSelector variants={variants} />}
 
 			<QuantitySelector
 				quantity={effectiveQuantity}

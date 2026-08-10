@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -16,8 +16,8 @@
 			"!**/bun.lockb",
 			"!**/vercel.json",
 			"!**/components/ui",
-			"!**/hooks/use-mobile.ts",
-			"!**/*.css"
+			"!**/*.css",
+			"!**/*.svg"
 		]
 	},
 	"css": {
@@ -51,11 +51,11 @@
 			},
 			"correctness": {
 				"useUniqueElementIds": "off",
-				"noUnusedFunctionParameters": "off",
-				"noUnusedVariables": "off",
+				"noUnusedFunctionParameters": "warn",
+				"noUnusedVariables": "warn",
 				"noUnusedImports": {
 					"options": {},
-					"level": "warn",
+					"level": "error",
 					"fix": "unsafe"
 				},
 				"useExhaustiveDependencies": {
@@ -89,8 +89,8 @@
 					"level": "error",
 					"options": {
 						"deniedGlobals": {
-							"name": "TODO: Add a custom message here.",
-							"event": "TODO: Add a custom message here."
+							"name": "Global `name` (window.name) is almost never intended — declare a local variable.",
+							"event": "Global `event` is deprecated — use the handler's event parameter instead."
 						}
 					}
 				},
@@ -111,20 +111,7 @@
 				"noExplicitAny": "error",
 				"noDocumentCookie": "off"
 			},
-			"a11y": {
-				"useSemanticElements": "off",
-				"noRedundantRoles": "off",
-				"noLabelWithoutControl": "off",
-				"noNoninteractiveTabindex": "off",
-				"noSvgWithoutTitle": "off",
-				"useFocusableInteractive": "off",
-				"useKeyWithClickEvents": "off",
-				"useAriaPropsForRole": "off",
-				"noStaticElementInteractions": "off",
-				"useValidAnchor": "off"
-			},
 			"security": {
-				"noBlankTarget": "off",
 				"noDangerouslySetInnerHtml": "off"
 			}
 		}

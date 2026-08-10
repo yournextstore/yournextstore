@@ -38,7 +38,6 @@ type VariantGroup = {
 
 type VariantSelectorProps = {
 	variants: Variant[];
-	selectedVariantId: string | undefined;
 };
 
 function processVariants(variants: Variant[]) {
@@ -82,22 +81,21 @@ function processVariants(variants: Variant[]) {
 	return Object.values(groupedByLabel);
 }
 
-export function VariantSelector({ variants, selectedVariantId }: VariantSelectorProps) {
+export function VariantSelector({ variants }: VariantSelectorProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
 	// Build Maps for O(1) lookups
-	const { groupByLabel, optionsByValue, optionsById } = useMemo(() => {
-		const groupByLabel = new Map(variantGroups.map((g) => [g.label, g]));
+	const { optionsByValue, optionsById } = useMemo(() => {
 		const optionsByValue = new Map(
 			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.value, o]))]),
 		);
 		const optionsById = new Map(
 			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.id, o]))]),
 		);
-		return { groupByLabel, optionsByValue, optionsById };
+		return { optionsByValue, optionsById };
 	}, [variantGroups]);
 
 	const selectedOptions = useMemo(() => {
@@ -129,6 +127,7 @@ export function VariantSelector({ variants, selectedVariantId }: VariantSelector
 		if (variants.length <= 1 || searchParams.size > 0) return;
 
 		const firstVariant = variants[0];
+		if (!firstVariant) return;
 		const params = new URLSearchParams();
 		firstVariant.combinations.forEach((c) => {
 			params.set(c.variantValue.variantType.label, c.variantValue.value);

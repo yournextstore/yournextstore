@@ -52,7 +52,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 			<input type="hidden" name="rating" value={rating} />
 
 			<div>
-				<label className="mb-1.5 block text-sm font-medium">Rating</label>
+				<span className="mb-1.5 block text-sm font-medium">Rating</span>
 				<StarInput value={rating} onChange={setRating} />
 			</div>
 

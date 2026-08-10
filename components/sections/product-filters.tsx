@@ -286,7 +286,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									step={1}
 									minStepsBetweenThumbs={1}
 									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommit={([min, max]) =>
+									onValueCommit={([min = priceFloor, max = priceCeil]) =>
 										commit((params) => {
 											if (min <= priceFloor) {
 												params.delete("priceMin");
