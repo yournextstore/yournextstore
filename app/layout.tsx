@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartBootstrap, CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
@@ -15,6 +16,7 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { YnsLink } from "@/components/yns-link";
 import { AUTH_ENABLED } from "@/lib/auth-config";
@@ -162,6 +164,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 								<Suspense>
 									<SearchInput />
 								</Suspense>
+								<ThemeToggle />
 								{AUTH_ENABLED && <AuthButton />}
 								<CartButton />
 							</div>
@@ -210,7 +213,8 @@ export default async function RootLayout({
 	const lang = await getHtmlLang();
 
 	return (
-		<html lang={lang}>
+		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
+		<html lang={lang} suppressHydrationWarning>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
@@ -219,13 +223,15 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<Suspense>
-					<CartProviderWrapper>{children}</CartProviderWrapper>
-				</Suspense>
-				<Suspense>
-					<NewsletterPopupSection />
-				</Suspense>
-				<Toaster richColors position="top-center" />
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+					<Suspense>
+						<CartProviderWrapper>{children}</CartProviderWrapper>
+					</Suspense>
+					<Suspense>
+						<NewsletterPopupSection />
+					</Suspense>
+					<Toaster richColors position="top-center" />
+				</ThemeProvider>
 				{env === "development" && (
 					<>
 						<NavigationReporter />

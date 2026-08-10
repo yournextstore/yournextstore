@@ -128,7 +128,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 
 					<div className="flex flex-col sm:flex-row">
 						{imageUrl && (
-							<div className="relative hidden min-h-75 bg-neutral-100 sm:block sm:w-1/2">
+							<div className="relative hidden min-h-75 bg-muted sm:block sm:w-1/2">
 								<Image src={imageUrl} alt="" fill className="object-cover" unoptimized />
 							</div>
 						)}
@@ -179,7 +179,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 									{discountCode && (
 										<div className="py-3">
 											<p className="text-muted-foreground mb-2 text-sm">Your code</p>
-											<div className="inline-block rounded-md bg-neutral-100 px-4 py-2 font-mono text-lg font-semibold">
+											<div className="inline-block rounded-md bg-muted px-4 py-2 font-mono text-lg font-semibold">
 												{discountCode}
 											</div>
 										</div>
@@ -206,7 +206,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 					<button
 						type="button"
 						onClick={() => setIsTeaserHidden(true)}
-						className="rounded-full bg-neutral-100 p-1.5 text-neutral-600 shadow-sm transition-colors hover:bg-neutral-200 hover:text-neutral-900"
+						className="rounded-full bg-muted p-1.5 text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground"
 						aria-label="Dismiss"
 					>
 						<XIcon className="h-3.5 w-3.5" />
