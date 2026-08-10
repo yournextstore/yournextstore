@@ -59,6 +59,8 @@ export const YNSMedia = ({ autoPlay = true, controls = false, ...props }: YNSMed
 	if (isVideoUrl(src)) {
 		return (
 			<video
+				// Videos have no alt attribute — surface the image alt text to assistive tech instead.
+				aria-label={props.alt || undefined}
 				className={typeof props.className === "string" ? props.className : undefined}
 				style={
 					props.fill
