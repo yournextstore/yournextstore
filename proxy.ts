@@ -38,8 +38,17 @@ export async function proxy(request: NextRequest) {
 		const destinationUrl = new URL(publicUrl);
 
 		const requestHeaders = new Headers(request.headers);
+		// Only reaches a local / self-hosted backend: on Vercel the platform's edge
+		// replaces this with the real Host before the app ever sees it.
 		requestHeaders.set("x-forwarded-host", destinationUrl.host);
-		requestHeaders.set("origin", destinationUrl.toString());
+		// The browser's `Origin` is forwarded verbatim, and a request that carried none
+		// still arrives with none. Overwriting it with the platform origin — as this proxy
+		// used to — laundered every cross-site POST into a trusted one, disabling CSRF
+		// protection for both Next's Server Action check and better-auth. The platform
+		// validates the forwarded origin against this store's own domains instead.
+		// This header marks the proxy as one that forwards; the platform only uses it to
+		// *tighten* the check, so it grants nothing if forged.
+		requestHeaders.set("x-yns-forwarded-origin", "1");
 
 		const url = new URL(`/${subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, destinationUrl);
 		url.searchParams.set("auth", "0");
