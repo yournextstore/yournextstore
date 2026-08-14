@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-[#ede4d3] border-y border-foreground/10">
@@ -30,24 +32,28 @@ export function Newsletter() {
 						<p className="mt-6 max-w-md mx-auto text-[15px] leading-[1.8] text-foreground/65">
 							New releases, slow reads, and the occasional invitation. Twice a month, never more.
 						</p>
-						<form
-							action={action}
-							className="mx-auto mt-10 flex max-w-md items-center rounded-full border border-foreground/25 bg-background/60 backdrop-blur-sm pl-6 pr-1.5 py-1.5"
-						>
-							<input
-								type="email"
-								name="email"
-								placeholder="your@email.com"
-								required
-								className="h-10 w-full flex-1 bg-transparent outline-none text-[14px] text-foreground placeholder:text-foreground/40"
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+							<div className="flex items-center rounded-full border border-foreground/25 bg-background/60 backdrop-blur-sm pl-6 pr-1.5 py-1.5">
+								<input
+									type="email"
+									name="email"
+									placeholder="your@email.com"
+									required
+									className="h-10 w-full flex-1 bg-transparent outline-none text-[14px] text-foreground placeholder:text-foreground/40"
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="realm-pill inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-foreground px-6 text-[11px] tracking-[0.28em] uppercase text-background font-medium hover:bg-foreground/90 disabled:opacity-60"
+								>
+									{isPending ? "…" : "Subscribe"}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="realm-pill inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-foreground px-6 text-[11px] tracking-[0.28em] uppercase text-background font-medium hover:bg-foreground/90 disabled:opacity-60"
-							>
-								{isPending ? "…" : "Subscribe"}
-							</button>
+							/>
 						</form>
 						{state?.error && <p className="mt-4 text-sm text-red-700">{state.error}</p>}
 					</>
