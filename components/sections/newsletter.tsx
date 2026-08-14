@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative bg-[var(--color-butter)] overflow-hidden border-b-2 border-foreground/10">
@@ -58,25 +60,29 @@ export function Newsletter() {
 							Get $5 off your first 6-pack when you join the Happy Tummy Club. New drops, recipes, and the
 							occasional cow pic.
 						</p>
-						<form
-							action={action}
-							className="mt-10 max-w-lg mx-auto flex flex-col sm:flex-row gap-3 bg-white rounded-full p-1.5 border-2 border-foreground/10 shadow-[4px_4px_0_var(--color-espresso)]"
-						>
-							<input
-								type="email"
-								name="email"
-								required
-								placeholder="your@email.com"
-								aria-label="Email address"
-								className="flex-1 h-11 px-5 rounded-full bg-transparent text-foreground outline-none placeholder:text-foreground/40 font-medium"
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mt-10 max-w-lg mx-auto flex flex-col gap-4">
+							<div className="flex flex-col sm:flex-row gap-3 bg-white rounded-full p-1.5 border-2 border-foreground/10 shadow-[4px_4px_0_var(--color-espresso)]">
+								<input
+									type="email"
+									name="email"
+									required
+									placeholder="your@email.com"
+									aria-label="Email address"
+									className="flex-1 h-11 px-5 rounded-full bg-transparent text-foreground outline-none placeholder:text-foreground/40 font-medium"
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="h-11 inline-flex shrink-0 items-center justify-center px-7 bg-[var(--color-espresso)] text-[var(--color-cream)] rounded-full text-sm font-bold uppercase tracking-[0.2em] hover:bg-[var(--color-espresso-deep)] transition-colors disabled:opacity-60"
+								>
+									{isPending ? "Joining…" : "Join the club"}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="h-11 inline-flex shrink-0 items-center justify-center px-7 bg-[var(--color-espresso)] text-[var(--color-cream)] rounded-full text-sm font-bold uppercase tracking-[0.2em] hover:bg-[var(--color-espresso-deep)] transition-colors disabled:opacity-60"
-							>
-								{isPending ? "Joining…" : "Join the club"}
-							</button>
+							/>
 						</form>
 						{state?.error && (
 							<p className="mt-4 text-sm text-[var(--color-pink)] font-medium">{state.error}</p>
