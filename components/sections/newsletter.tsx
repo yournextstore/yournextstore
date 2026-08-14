@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative overflow-hidden bg-[var(--color-coral)] text-[var(--color-navy)]">
@@ -42,25 +44,29 @@ export function Newsletter() {
 							<p className="mt-6 text-base sm:text-lg max-w-md mx-auto text-[var(--color-navy)]/75">
 								Drops, flavor releases, and the occasional dentist gossip — straight to your inbox.
 							</p>
-							<form
-								action={action}
-								className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row sm:items-center sm:rounded-full sm:bg-white sm:p-1.5 sm:shadow-[0_10px_40px_-15px_rgba(30,36,54,0.4)]"
-							>
-								<input
-									type="email"
-									name="email"
-									placeholder="you@yournextstore.com"
-									required
-									className="h-12 w-full flex-1 rounded-full bg-white px-5 text-[var(--color-navy)] outline-none placeholder:text-[var(--color-navy)]/40 sm:bg-transparent sm:px-4"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:rounded-full sm:bg-white sm:p-1.5 sm:shadow-[0_10px_40px_-15px_rgba(30,36,54,0.4)]">
+									<input
+										type="email"
+										name="email"
+										placeholder="you@yournextstore.com"
+										required
+										className="h-12 w-full flex-1 rounded-full bg-white px-5 text-[var(--color-navy)] outline-none placeholder:text-[var(--color-navy)]/40 sm:bg-transparent sm:px-4"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--color-navy)] px-7 text-sm font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[var(--color-navy)]/90 disabled:opacity-50"
+									>
+										{isPending ? "Subscribing…" : "Subscribe"}
+										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--color-navy)] px-7 text-sm font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[var(--color-navy)]/90 disabled:opacity-50"
-								>
-									{isPending ? "Subscribing…" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-rose-900">{state.error}</p>}
 						</>
