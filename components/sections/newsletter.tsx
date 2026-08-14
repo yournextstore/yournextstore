@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-[#f5f5f0] py-16 sm:py-20">
@@ -26,21 +28,28 @@ export function Newsletter() {
 							</div>
 						) : (
 							<>
-								<form className="flex max-w-md" action={action}>
-									<input
-										type="email"
-										name="email"
-										placeholder="Enter your email"
-										required
-										className="flex-1 h-12 px-4 bg-white border border-border text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
-									/>
-									<button
-										type="submit"
+								<form action={action} className="max-w-md flex flex-col gap-4">
+									<div className="flex">
+										<input
+											type="email"
+											name="email"
+											placeholder="Enter your email"
+											required
+											className="flex-1 h-12 px-4 bg-white border border-border text-sm focus:outline-none focus:ring-1 focus:ring-foreground"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="h-12 px-6 bg-foreground text-primary-foreground text-sm uppercase tracking-widest font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
+										>
+											{isPending ? "Subscribing\u2026" : "Subscribe"}
+										</button>
+									</div>
+									<NewsletterConsent
+										checked={marketingConsent}
+										onCheckedChange={setMarketingConsent}
 										disabled={isPending}
-										className="h-12 px-6 bg-foreground text-primary-foreground text-sm uppercase tracking-widest font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
-									>
-										{isPending ? "Subscribing\u2026" : "Subscribe"}
-									</button>
+									/>
 								</form>
 								{state?.error && <p className="mt-3 text-sm text-red-600">{state.error}</p>}
 							</>
