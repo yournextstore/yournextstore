@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-foreground text-background relative overflow-hidden">
@@ -38,22 +40,29 @@ export function Newsletter() {
 							<p className="mt-6 text-sm sm:text-base leading-relaxed text-background/60 max-w-md mx-auto">
 								A weekly letter on new arrivals, archived discoveries, and the makers behind them. No noise.
 							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-none border-0 border-b border-background/30 bg-transparent px-1 text-background outline-none transition-all placeholder:text-background/30 focus:border-background"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										className="h-12 w-full flex-1 rounded-none border-0 border-b border-background/30 bg-transparent px-1 text-background outline-none transition-all placeholder:text-background/30 focus:border-background"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border border-background px-8 text-[11px] tracking-[0.25em] uppercase font-medium transition-all hover:bg-background hover:text-foreground disabled:opacity-50"
+									>
+										{isPending ? "Subscribing…" : "Subscribe"}
+										{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border border-background px-8 text-[11px] tracking-[0.25em] uppercase font-medium transition-all hover:bg-background hover:text-foreground disabled:opacity-50"
-								>
-									{isPending ? "Subscribing…" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
 							<p className="mt-6 text-[10px] tracking-[0.25em] uppercase text-background/40">
