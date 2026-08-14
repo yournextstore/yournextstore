@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 	const [isTeaserHidden, setIsTeaserHidden] = useState(false);
 	const [step, setStep] = useState<PopupStep>("cta");
 	const [email, setEmail] = useState("");
+	const [marketingConsent, setMarketingConsent] = useState(false);
 	const [isPending, startTransition] = useTransition();
 
 	const delaySeconds = settings?.delaySeconds ?? 30;
@@ -89,6 +91,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 		setShowTeaser(false);
 		setStep("cta");
 		setEmail("");
+		setMarketingConsent(false);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -97,6 +100,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 		startTransition(async () => {
 			const formData = new FormData();
 			formData.set("email", email);
+			formData.set("marketingConsent", marketingConsent ? "on" : "off");
 			const result = await subscribeToNewsletter(null, formData);
 			if (result?.success) {
 				setStep("success");
@@ -162,7 +166,17 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 											autoFocus
 											className="text-center"
 										/>
-										<Button type="submit" size="lg" className="w-full" disabled={!email || isPending}>
+										<NewsletterConsent
+											checked={marketingConsent}
+											onCheckedChange={setMarketingConsent}
+											disabled={isPending}
+										/>
+										<Button
+											type="submit"
+											size="lg"
+											className="w-full"
+											disabled={!email || !marketingConsent || isPending}
+										>
 											{isPending ? <Loader2Icon className="size-4 animate-spin" /> : "Subscribe"}
 										</Button>
 									</form>

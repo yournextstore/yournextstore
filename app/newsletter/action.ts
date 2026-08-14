@@ -19,7 +19,17 @@ export async function subscribeToNewsletter(
 		return { success: false, message: "", error: "Please enter a valid email address." };
 	}
 
-	const [error] = await try_(commerce.subscriberCreate({ email }));
+	// The form disables its submit button until the box is ticked; this is the server-side
+	// half of that gate, so a signup with no marketing consent is never recorded.
+	if (formData.get("marketingConsent") !== "on") {
+		return {
+			success: false,
+			message: "",
+			error: "Please accept marketing permissions to subscribe.",
+		};
+	}
+
+	const [error] = await try_(commerce.subscriberCreate({ email, marketingConsent: true }));
 	if (error) {
 		console.error("newsletter: subscriberCreate failed", { error });
 		return { success: false, message: "", error: "Something went wrong. Please try again." };
