@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section aria-label="Newsletter" className="bg-hero-mint overflow-hidden">
@@ -58,22 +60,29 @@ export function Newsletter() {
 							<p className="mt-4 text-base sm:text-lg text-[var(--color-ink)]/70 max-w-md mx-auto">
 								Be the first to meet new friends, peek behind-the-seams, and snag early-bird gifts.
 							</p>
-							<form action={action} className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full bg-white px-5 text-[var(--color-ink)] outline-none ring-1 ring-black/5 placeholder:text-[var(--color-ink)]/40 focus:ring-2 focus:ring-[var(--color-peach)]"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-9 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										className="h-12 w-full flex-1 rounded-full bg-white px-5 text-[var(--color-ink)] outline-none ring-1 ring-black/5 placeholder:text-[var(--color-ink)]/40 focus:ring-2 focus:ring-[var(--color-peach)]"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-7 text-sm font-semibold tracking-wide text-[var(--color-cream)] hover:bg-[var(--color-ink)]/85 disabled:opacity-50 transition-colors"
+									>
+										{isPending ? "Joining…" : "Join the post"}
+										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-7 text-sm font-semibold tracking-wide text-[var(--color-cream)] hover:bg-[var(--color-ink)]/85 disabled:opacity-50 transition-colors"
-								>
-									{isPending ? "Joining…" : "Join the post"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-red-700">{state.error}</p>}
 							<p className="mt-4 text-xs text-[var(--color-ink)]/60">
