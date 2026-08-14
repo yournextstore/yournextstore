@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-[color:var(--color-yns-blue-300)] text-[color:var(--color-yns-navy)] overflow-hidden">
@@ -29,29 +31,36 @@ export function Newsletter() {
 									Brew notes, new harvests, the occasional recipe.
 								</h2>
 							</div>
-							<form action={action} className="flex flex-col gap-3">
-								<div className="flex border-b border-[color:var(--color-yns-navy)]/30 focus-within:border-[color:var(--color-yns-navy)] transition-colors">
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										className="h-12 w-full flex-1 bg-transparent text-[color:var(--color-yns-navy)] outline-none placeholder:text-[color:var(--color-yns-navy)]/45"
-									/>
-									<button
-										type="submit"
-										disabled={isPending}
-										className="shrink-0 px-3 text-[11px] tracking-[0.32em] uppercase text-[color:var(--color-yns-navy)] hover:opacity-70 transition-opacity disabled:opacity-50"
-									>
-										{isPending ? "Sending…" : "Subscribe"}
-									</button>
+							<form action={action} className="flex flex-col gap-4">
+								<div className="flex flex-col gap-3">
+									<div className="flex border-b border-[color:var(--color-yns-navy)]/30 focus-within:border-[color:var(--color-yns-navy)] transition-colors">
+										<input
+											type="email"
+											name="email"
+											placeholder="your@email.com"
+											required
+											className="h-12 w-full flex-1 bg-transparent text-[color:var(--color-yns-navy)] outline-none placeholder:text-[color:var(--color-yns-navy)]/45"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="shrink-0 px-3 text-[11px] tracking-[0.32em] uppercase text-[color:var(--color-yns-navy)] hover:opacity-70 transition-opacity disabled:opacity-50"
+										>
+											{isPending ? "Sending…" : "Subscribe"}
+										</button>
+									</div>
+									{state?.error && (
+										<p className="text-sm text-[color:var(--color-yns-navy-deep)]">{state.error}</p>
+									)}
+									<p className="text-xs text-[color:var(--color-yns-navy)]/60">
+										No noise, ever. Unsubscribe with a single click.
+									</p>
 								</div>
-								{state?.error && (
-									<p className="text-sm text-[color:var(--color-yns-navy-deep)]">{state.error}</p>
-								)}
-								<p className="text-xs text-[color:var(--color-yns-navy)]/60">
-									No noise, ever. Unsubscribe with a single click.
-								</p>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 						</>
 					)}
