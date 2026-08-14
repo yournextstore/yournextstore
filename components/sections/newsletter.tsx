@@ -1,8 +1,9 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 function Heart({ className }: { className?: string }) {
 	return (
@@ -14,6 +15,7 @@ function Heart({ className }: { className?: string }) {
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section id="sustainability" className="relative bg-[var(--maroon)] text-[var(--cream)] overflow-hidden">
@@ -46,24 +48,28 @@ export function Newsletter() {
 							New batches, secret recipes, and the occasional pre-launch peek at gift boxes. 10% off your
 							first order, plus an actual cookie story or two.
 						</p>
-						<form
-							action={action}
-							className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row sm:items-center sm:bg-white sm:rounded-full sm:p-1.5 sm:ring-1 sm:ring-white/20"
-						>
-							<input
-								type="email"
-								name="email"
-								placeholder="your@email.com"
-								required
-								className="h-12 w-full flex-1 rounded-full bg-white px-5 text-[var(--ink)] outline-none placeholder:text-[var(--ink)]/40 focus:ring-2 focus:ring-[var(--candy)]/30 sm:bg-transparent sm:focus:ring-0"
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+							<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:bg-white sm:rounded-full sm:p-1.5 sm:ring-1 sm:ring-white/20">
+								<input
+									type="email"
+									name="email"
+									placeholder="your@email.com"
+									required
+									className="h-12 w-full flex-1 rounded-full bg-white px-5 text-[var(--ink)] outline-none placeholder:text-[var(--ink)]/40 focus:ring-2 focus:ring-[var(--candy)]/30 sm:bg-transparent sm:focus:ring-0"
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--candy)] px-8 text-sm font-bold uppercase tracking-[0.18em] text-white transition-all hover:bg-[var(--ink)] disabled:opacity-50"
+								>
+									{isPending ? "Sending…" : "Subscribe"}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--candy)] px-8 text-sm font-bold uppercase tracking-[0.18em] text-white transition-all hover:bg-[var(--ink)] disabled:opacity-50"
-							>
-								{isPending ? "Sending…" : "Subscribe"}
-							</button>
+							/>
 						</form>
 						{state?.error && <p className="mt-4 text-sm text-[var(--blush)]">{state.error}</p>}
 						<p className="mt-5 text-xs tracking-[0.18em] uppercase text-cream/50">
