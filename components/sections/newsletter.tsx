@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative overflow-hidden" style={{ backgroundColor: "#1A1A1A", color: "#F4F1EC" }}>
@@ -50,37 +52,44 @@ export function Newsletter() {
 					</div>
 					<div className="col-span-12 lg:col-span-5">
 						{!state?.success && (
-							<form action={action} className="space-y-4">
-								<label className="block text-[11px] tracking-[0.22em] uppercase text-paper/50 mb-2">
-									Subscribe
-								</label>
-								<div className="flex gap-0 border-b border-paper/30 focus-within:border-paper transition-colors">
-									<input
-										type="email"
-										name="email"
-										placeholder="your.address@studio"
-										required
-										className="flex-1 h-12 bg-transparent text-paper text-base placeholder:text-paper/30 outline-none"
-										style={{ color: "#F4F1EC" }}
-									/>
-									<button
-										type="submit"
-										disabled={isPending}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 px-6 text-[11px] tracking-[0.22em] uppercase text-paper hover:text-ember transition-colors disabled:opacity-50"
-										style={{ color: isPending ? "rgba(244,241,236,0.5)" : undefined }}
-									>
-										{isPending ? "Sending" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
-									</button>
-								</div>
-								{state?.error && (
-									<p className="text-sm" style={{ color: "#e57373" }}>
-										{state.error}
+							<form action={action} className="flex flex-col gap-4">
+								<div className="space-y-4">
+									<label className="block text-[11px] tracking-[0.22em] uppercase text-paper/50 mb-2">
+										Subscribe
+									</label>
+									<div className="flex gap-0 border-b border-paper/30 focus-within:border-paper transition-colors">
+										<input
+											type="email"
+											name="email"
+											placeholder="your.address@studio"
+											required
+											className="flex-1 h-12 bg-transparent text-paper text-base placeholder:text-paper/30 outline-none"
+											style={{ color: "#F4F1EC" }}
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="inline-flex h-12 shrink-0 items-center justify-center gap-2 px-6 text-[11px] tracking-[0.22em] uppercase text-paper hover:text-ember transition-colors disabled:opacity-50"
+											style={{ color: isPending ? "rgba(244,241,236,0.5)" : undefined }}
+										>
+											{isPending ? "Sending" : "Subscribe"}
+											{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
+										</button>
+									</div>
+									{state?.error && (
+										<p className="text-sm" style={{ color: "#e57373" }}>
+											{state.error}
+										</p>
+									)}
+									<p className="text-[11px] tracking-[0.18em] uppercase text-paper/40 pt-2">
+										Four letters per year. No more.
 									</p>
-								)}
-								<p className="text-[11px] tracking-[0.18em] uppercase text-paper/40 pt-2">
-									Four letters per year. No more.
-								</p>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 						)}
 					</div>
