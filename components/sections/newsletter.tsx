@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-yns-blue text-white overflow-hidden relative">
@@ -36,28 +38,32 @@ export function Newsletter() {
 							<h2 className="font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
 								Join the YNS Family
 							</h2>
-							<form
-								action={action}
-								className="mx-auto mt-10 flex max-w-md flex-col sm:flex-row gap-3 items-center"
-							>
-								<div className="relative w-full flex-1">
-									<input
-										type="email"
-										name="email"
-										placeholder="Email"
-										required
-										aria-label="Email"
-										className="h-12 w-full rounded-sm border-2 border-white/30 bg-transparent px-4 pr-12 text-white text-base outline-none transition-all placeholder:text-white/60 focus:border-white focus:bg-white/5"
-									/>
-									<button
-										type="submit"
-										disabled={isPending}
-										aria-label="Subscribe"
-										className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-sm bg-white/0 text-white hover:bg-white hover:text-yns-blue transition-colors disabled:opacity-50"
-									>
-										<ArrowRightIcon className="h-5 w-5" strokeWidth={2.5} />
-									</button>
+							<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col sm:flex-row gap-3 items-center">
+									<div className="relative w-full flex-1">
+										<input
+											type="email"
+											name="email"
+											placeholder="Email"
+											required
+											aria-label="Email"
+											className="h-12 w-full rounded-sm border-2 border-white/30 bg-transparent px-4 pr-12 text-white text-base outline-none transition-all placeholder:text-white/60 focus:border-white focus:bg-white/5"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											aria-label="Subscribe"
+											className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-sm bg-white/0 text-white hover:bg-white hover:text-yns-blue transition-colors disabled:opacity-50"
+										>
+											<ArrowRightIcon className="h-5 w-5" strokeWidth={2.5} />
+										</button>
+									</div>
 								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-yns-yellow">{state.error}</p>}
 						</>
