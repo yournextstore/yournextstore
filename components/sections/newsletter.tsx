@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-accent text-accent-foreground border-y border-border">
@@ -29,25 +31,29 @@ export function Newsletter() {
 								<p className="text-sm text-foreground/80 mb-5">
 									Twice a month. Always considered. Unsubscribe whenever.
 								</p>
-								<form
-									action={action}
-									className="flex border-b border-foreground/30 focus-within:border-foreground transition-colors"
-								>
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										aria-label="Email address"
-										className="h-12 flex-1 bg-transparent px-1 text-base text-foreground outline-none placeholder:text-foreground/50"
-									/>
-									<button
-										type="submit"
+								<form action={action} className="flex flex-col gap-4">
+									<div className="flex border-b border-foreground/30 focus-within:border-foreground transition-colors">
+										<input
+											type="email"
+											name="email"
+											placeholder="your@email.com"
+											required
+											aria-label="Email address"
+											className="h-12 flex-1 bg-transparent px-1 text-base text-foreground outline-none placeholder:text-foreground/50"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="px-4 text-[11px] uppercase tracking-[0.22em] text-foreground font-medium hover:opacity-70 disabled:opacity-50 transition-opacity"
+										>
+											{isPending ? "Sending…" : "Subscribe"}
+										</button>
+									</div>
+									<NewsletterConsent
+										checked={marketingConsent}
+										onCheckedChange={setMarketingConsent}
 										disabled={isPending}
-										className="px-4 text-[11px] uppercase tracking-[0.22em] text-foreground font-medium hover:opacity-70 disabled:opacity-50 transition-opacity"
-									>
-										{isPending ? "Sending…" : "Subscribe"}
-									</button>
+									/>
 								</form>
 								{state?.error && <p className="mt-3 text-xs text-destructive">{state.error}</p>}
 							</>
