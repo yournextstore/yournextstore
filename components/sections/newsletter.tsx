@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-brand-dark py-16 text-white sm:py-20">
@@ -26,21 +28,28 @@ export function Newsletter() {
 						<p className="mt-3 text-sm text-white/70">
 							Stay updated on product launches, special offers, and company news.
 						</p>
-						<form action={action} className="mt-8 flex gap-0">
-							<input
-								type="email"
-								name="email"
-								placeholder="E-mail"
-								className="w-full border border-white/30 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none"
-								required
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mt-8 flex flex-col gap-4">
+							<div className="flex gap-0">
+								<input
+									type="email"
+									name="email"
+									placeholder="E-mail"
+									className="w-full border border-white/30 bg-transparent px-4 py-3 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none"
+									required
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="shrink-0 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-brand-dark transition-colors hover:bg-brand-cream disabled:opacity-50"
+								>
+									{isPending ? "Subscribing\u2026" : "Subscribe"}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="shrink-0 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-brand-dark transition-colors hover:bg-brand-cream disabled:opacity-50"
-							>
-								{isPending ? "Subscribing\u2026" : "Subscribe"}
-							</button>
+							/>
 						</form>
 						{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
 					</>
