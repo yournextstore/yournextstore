@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative bg-[var(--yns-red)] text-white overflow-hidden">
@@ -44,27 +46,31 @@ export function Newsletter() {
 								letters, rituals, and first-access to every drop. no spam, no algorithms, just a tiny love
 								note in your inbox at sundown.
 							</p>
-							<form
-								action={action}
-								className="mx-auto mt-10 flex max-w-xl flex-col sm:flex-row items-stretch border-b border-white/40 focus-within:border-white transition-colors"
-							>
-								<input
-									type="email"
-									name="email"
-									placeholder="your email · lowercase only"
-									required
-									className="h-14 w-full flex-1 bg-transparent px-2 text-white outline-none placeholder:text-white/40 text-base sm:text-lg lowercase"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-10 max-w-xl flex flex-col gap-4">
+								<div className="flex flex-col sm:flex-row items-stretch border-b border-white/40 focus-within:border-white transition-colors">
+									<input
+										type="email"
+										name="email"
+										placeholder="your email · lowercase only"
+										required
+										className="h-14 w-full flex-1 bg-transparent px-2 text-white outline-none placeholder:text-white/40 text-base sm:text-lg lowercase"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="group inline-flex h-14 shrink-0 items-center justify-center gap-3 px-4 text-white text-xs uppercase tracking-[0.3em] disabled:opacity-50 hover:text-[var(--yns-cream)] transition-colors"
+									>
+										{isPending ? "sending…" : "subscribe"}
+										{!isPending && (
+											<ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+										)}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="group inline-flex h-14 shrink-0 items-center justify-center gap-3 px-4 text-white text-xs uppercase tracking-[0.3em] disabled:opacity-50 hover:text-[var(--yns-cream)] transition-colors"
-								>
-									{isPending ? "sending…" : "subscribe"}
-									{!isPending && (
-										<ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-									)}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-[var(--yns-cream)]">{state.error}</p>}
 							<p className="mt-6 text-[10px] uppercase tracking-[0.3em] text-white/50">
