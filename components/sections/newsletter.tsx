@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRight, Check, Mail } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative overflow-hidden bg-[--ink] text-white">
@@ -40,34 +42,38 @@ export function Newsletter() {
 								<p className="mt-2 text-white/65">{state.message}</p>
 							</div>
 						) : (
-							<form
-								action={action}
-								className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-2 sm:p-3 backdrop-blur"
-							>
-								<div className="flex flex-col sm:flex-row items-stretch gap-2">
-									<div className="relative flex-1">
-										<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-										<input
-											type="email"
-											name="email"
-											placeholder="your@email.com"
-											required
-											className="h-12 sm:h-14 w-full rounded-2xl bg-white/0 pl-11 pr-4 text-white placeholder:text-white/35 outline-none focus:bg-white/5 transition-colors"
-										/>
+							<form action={action} className="flex flex-col gap-4">
+								<div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-2 sm:p-3 backdrop-blur">
+									<div className="flex flex-col sm:flex-row items-stretch gap-2">
+										<div className="relative flex-1">
+											<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+											<input
+												type="email"
+												name="email"
+												placeholder="your@email.com"
+												required
+												className="h-12 sm:h-14 w-full rounded-2xl bg-white/0 pl-11 pr-4 text-white placeholder:text-white/35 outline-none focus:bg-white/5 transition-colors"
+											/>
+										</div>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="inline-flex h-12 sm:h-14 items-center justify-center gap-2 rounded-2xl bg-[--ember] px-7 font-medium text-white transition-all hover:bg-[--sun] hover:text-[--ink] disabled:opacity-50"
+										>
+											{isPending ? "Subscribing…" : "Subscribe"}
+											{!isPending && <ArrowRight className="h-4 w-4" />}
+										</button>
 									</div>
-									<button
-										type="submit"
-										disabled={isPending}
-										className="inline-flex h-12 sm:h-14 items-center justify-center gap-2 rounded-2xl bg-[--ember] px-7 font-medium text-white transition-all hover:bg-[--sun] hover:text-[--ink] disabled:opacity-50"
-									>
-										{isPending ? "Subscribing…" : "Subscribe"}
-										{!isPending && <ArrowRight className="h-4 w-4" />}
-									</button>
+									{state?.error && <p className="mt-3 px-2 text-sm text-[--sun]">{state.error}</p>}
+									<p className="mt-3 px-2 text-xs text-white/40">
+										By subscribing you agree to occasional emails. Unsubscribe anytime.
+									</p>
 								</div>
-								{state?.error && <p className="mt-3 px-2 text-sm text-[--sun]">{state.error}</p>}
-								<p className="mt-3 px-2 text-xs text-white/40">
-									By subscribing you agree to occasional emails. Unsubscribe anytime.
-								</p>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 						)}
 					</div>
