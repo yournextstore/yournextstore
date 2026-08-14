@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-background border-t border-border">
@@ -29,24 +31,28 @@ export function Newsletter() {
 						<p className="mt-6 text-espresso/65 max-w-md mx-auto leading-relaxed">
 							New flavors, seasonal drops and quiet stories from the roastery — sent every other Sunday.
 						</p>
-						<form
-							action={action}
-							className="mx-auto mt-10 flex max-w-lg flex-col gap-3 sm:flex-row items-stretch"
-						>
-							<input
-								type="email"
-								name="email"
-								placeholder="your@email.com"
-								required
-								className="h-12 w-full flex-1 rounded-sm border border-espresso/30 bg-cream-soft px-5 text-espresso outline-none transition-all placeholder:text-espresso/40 focus:border-espresso focus:ring-2 focus:ring-terracotta/30"
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mx-auto mt-10 max-w-lg flex flex-col gap-4">
+							<div className="flex flex-col gap-3 sm:flex-row items-stretch">
+								<input
+									type="email"
+									name="email"
+									placeholder="your@email.com"
+									required
+									className="h-12 w-full flex-1 rounded-sm border border-espresso/30 bg-cream-soft px-5 text-espresso outline-none transition-all placeholder:text-espresso/40 focus:border-espresso focus:ring-2 focus:ring-terracotta/30"
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="btn-fill-espresso justify-center disabled:opacity-50"
+								>
+									{isPending ? "Joining…" : "Subscribe"}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="btn-fill-espresso justify-center disabled:opacity-50"
-							>
-								{isPending ? "Joining…" : "Subscribe"}
-							</button>
+							/>
 						</form>
 						{state?.error && <p className="mt-4 text-sm text-destructive">{state.error}</p>}
 					</>
