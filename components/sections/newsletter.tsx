@@ -1,8 +1,9 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 function Star({ className }: { className?: string }) {
 	return (
@@ -14,6 +15,7 @@ function Star({ className }: { className?: string }) {
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-[var(--tizz-orange)] tizz-noise relative overflow-hidden">
@@ -47,22 +49,29 @@ export function Newsletter() {
 								Drops, restocks, behind-the-scenes weirdness — straight to your inbox. No spam, no shouting,
 								no five-emoji subject lines (probably).
 							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="you@somewhere.cool"
-									required
-									className="h-14 w-full flex-1 rounded-full border-2 border-[var(--tizz-deep)] bg-[var(--tizz-cream)] px-6 text-[var(--tizz-deep)] tizz-overline text-sm placeholder:text-[var(--tizz-deep)]/40 focus:outline-none focus:bg-white"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row">
+									<input
+										type="email"
+										name="email"
+										placeholder="you@somewhere.cool"
+										required
+										className="h-14 w-full flex-1 rounded-full border-2 border-[var(--tizz-deep)] bg-[var(--tizz-cream)] px-6 text-[var(--tizz-deep)] tizz-overline text-sm placeholder:text-[var(--tizz-deep)]/40 focus:outline-none focus:bg-white"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--tizz-deep)] px-8 tizz-overline text-sm text-[var(--tizz-cream)] hover:bg-[var(--tizz-yellow)] hover:text-[var(--tizz-deep)] disabled:opacity-60 transition-colors border-2 border-[var(--tizz-deep)]"
+									>
+										{isPending ? "Subscribing…" : "Sign me up"}
+										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-full bg-[var(--tizz-deep)] px-8 tizz-overline text-sm text-[var(--tizz-cream)] hover:bg-[var(--tizz-yellow)] hover:text-[var(--tizz-deep)] disabled:opacity-60 transition-colors border-2 border-[var(--tizz-deep)]"
-								>
-									{isPending ? "Subscribing…" : "Sign me up"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-[var(--tizz-yellow)]">{state.error}</p>}
 						</>
