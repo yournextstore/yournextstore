@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-[#a8e0dc] border-y border-[#1b2a2e]/10">
@@ -37,38 +39,42 @@ export function Newsletter() {
 								<p className="mt-2 text-sm text-[#1b2a2e]/70">{state.message}</p>
 							</div>
 						) : (
-							<form
-								action={action}
-								className="rounded-3xl bg-[#fbe9d7] p-6 sm:p-8 border border-[#1b2a2e]/15 shadow-[0_25px_60px_-25px_rgba(27,42,46,0.4)]"
-							>
-								<label
-									htmlFor="newsletter-email"
-									className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1b2a2e]/60"
-								>
-									Email
-								</label>
-								<div className="mt-2 flex flex-col gap-3 sm:flex-row">
-									<input
-										id="newsletter-email"
-										type="email"
-										name="email"
-										placeholder="hello@example.com"
-										required
-										className="h-12 w-full flex-1 rounded-full border border-[#1b2a2e]/15 bg-white px-5 text-[#1b2a2e] outline-none transition-all placeholder:text-[#1b2a2e]/40 focus:border-[#1b2a2e]/40 focus:ring-2 focus:ring-[#9f9cf5]/40"
-									/>
-									<button
-										type="submit"
-										disabled={isPending}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[#1b2a2e] px-6 font-semibold text-[#fbe9d7] transition-all hover:bg-[#0f1c1f] disabled:opacity-50"
+							<form action={action} className="flex flex-col gap-4">
+								<div className="rounded-3xl bg-[#fbe9d7] p-6 sm:p-8 border border-[#1b2a2e]/15 shadow-[0_25px_60px_-25px_rgba(27,42,46,0.4)]">
+									<label
+										htmlFor="newsletter-email"
+										className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1b2a2e]/60"
 									>
-										{isPending ? "Subscribing…" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-									</button>
+										Email
+									</label>
+									<div className="mt-2 flex flex-col gap-3 sm:flex-row">
+										<input
+											id="newsletter-email"
+											type="email"
+											name="email"
+											placeholder="hello@example.com"
+											required
+											className="h-12 w-full flex-1 rounded-full border border-[#1b2a2e]/15 bg-white px-5 text-[#1b2a2e] outline-none transition-all placeholder:text-[#1b2a2e]/40 focus:border-[#1b2a2e]/40 focus:ring-2 focus:ring-[#9f9cf5]/40"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[#1b2a2e] px-6 font-semibold text-[#fbe9d7] transition-all hover:bg-[#0f1c1f] disabled:opacity-50"
+										>
+											{isPending ? "Subscribing…" : "Subscribe"}
+											{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+										</button>
+									</div>
+									<p className="mt-3 text-[11px] text-[#1b2a2e]/55">
+										By subscribing you agree to receive marketing emails. We&apos;ll never share your address.
+									</p>
+									{state?.error && <p className="mt-2 text-sm text-red-700">{state.error}</p>}
 								</div>
-								<p className="mt-3 text-[11px] text-[#1b2a2e]/55">
-									By subscribing you agree to receive marketing emails. We&apos;ll never share your address.
-								</p>
-								{state?.error && <p className="mt-2 text-sm text-red-700">{state.error}</p>}
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 						)}
 					</div>
