@@ -2,11 +2,13 @@
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-cream-grain">
@@ -48,7 +50,7 @@ export function Newsletter() {
 									New arrivals, private trade events, and the occasional letter from the workshop. No more
 									than once a month.
 								</p>
-								<form action={action} className="mt-10 max-w-md">
+								<form action={action} className="mt-10 max-w-md flex flex-col gap-4">
 									<div className="flex items-center gap-0 rounded-sm border hairline-light bg-[var(--cream)]/5 backdrop-blur-sm focus-within:border-[var(--cream)]/50 transition-colors">
 										<input
 											type="email"
@@ -59,7 +61,7 @@ export function Newsletter() {
 										/>
 										<button
 											type="submit"
-											disabled={isPending}
+											disabled={isPending || !marketingConsent}
 											className="h-12 shrink-0 inline-flex items-center gap-2 px-6 bg-[var(--cream)] text-[var(--forest)] text-[0.78rem] tracking-[0.16em] uppercase hover:bg-background transition-colors disabled:opacity-50"
 										>
 											{isPending ? "Subscribing…" : "Subscribe"}
@@ -70,6 +72,11 @@ export function Newsletter() {
 									<p className="mt-5 text-xs tracking-wide text-[var(--cream)]/45">
 										By subscribing you agree to receive marketing emails from Your Next Store.
 									</p>
+									<NewsletterConsent
+										checked={marketingConsent}
+										onCheckedChange={setMarketingConsent}
+										disabled={isPending}
+									/>
 								</form>
 							</div>
 						)}
