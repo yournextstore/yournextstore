@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon, Gift } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section id="newsletter" className="relative isolate overflow-hidden bg-chili text-cream">
@@ -44,24 +46,31 @@ export function Newsletter() {
 							New flavors, early drops, behind-the-scenes glaze chaos. Plus, one new subscriber every month
 							gets a year of snacks on us.
 						</p>
-						<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row sm:gap-2">
-							<input
-								type="email"
-								name="email"
-								placeholder="your@email.com"
-								required
-								className="h-14 w-full flex-1 rounded-full border-2 border-cream/30 bg-cream/10 px-6 text-cream outline-none transition-all placeholder:text-cream/50 focus:border-cream focus:bg-cream/20"
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+							<div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+								<input
+									type="email"
+									name="email"
+									placeholder="your@email.com"
+									required
+									className="h-14 w-full flex-1 rounded-full border-2 border-cream/30 bg-cream/10 px-6 text-cream outline-none transition-all placeholder:text-cream/50 focus:border-cream focus:bg-cream/20"
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="group inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-full bg-cream px-8 font-display text-sm uppercase tracking-[0.18em] text-chili transition-all hover:bg-charcoal hover:text-cream disabled:opacity-50"
+								>
+									{isPending ? "Joining…" : "Enter"}
+									{!isPending && (
+										<ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+									)}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="group inline-flex h-14 shrink-0 items-center justify-center gap-2 rounded-full bg-cream px-8 font-display text-sm uppercase tracking-[0.18em] text-chili transition-all hover:bg-charcoal hover:text-cream disabled:opacity-50"
-							>
-								{isPending ? "Joining…" : "Enter"}
-								{!isPending && (
-									<ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-								)}
-							</button>
+							/>
 						</form>
 						{state?.error && <p className="mt-4 text-sm text-cream/90">{state.error}</p>}
 						<p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-cream/50">
