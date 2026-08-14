@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section
@@ -57,21 +59,28 @@ export function Newsletter() {
 							<br />
 							jar drops first.
 						</h2>
-						<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-2 sm:flex-row">
-							<input
-								type="email"
-								name="email"
-								placeholder="your@email.com"
-								required
-								className="h-12 w-full flex-1 border border-mahogany/30 bg-honey/30 px-5 font-mono text-sm text-mahogany placeholder:text-mahogany/40 outline-none transition-all focus:border-mahogany focus:bg-honey/60"
-							/>
-							<button
-								type="submit"
+						<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+							<div className="flex flex-col gap-2 sm:flex-row">
+								<input
+									type="email"
+									name="email"
+									placeholder="your@email.com"
+									required
+									className="h-12 w-full flex-1 border border-mahogany/30 bg-honey/30 px-5 font-mono text-sm text-mahogany placeholder:text-mahogany/40 outline-none transition-all focus:border-mahogany focus:bg-honey/60"
+								/>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="font-mono inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-mahogany px-8 text-xs uppercase tracking-[0.25em] text-honey transition-all hover:bg-amber-deep disabled:opacity-50"
+								>
+									{isPending ? "subscribing…" : "subscribe"}
+								</button>
+							</div>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="font-mono inline-flex h-12 shrink-0 items-center justify-center gap-2 bg-mahogany px-8 text-xs uppercase tracking-[0.25em] text-honey transition-all hover:bg-amber-deep disabled:opacity-50"
-							>
-								{isPending ? "subscribing…" : "subscribe"}
-							</button>
+							/>
 						</form>
 						<p className="font-mono mt-4 text-[10px] uppercase tracking-[0.3em] text-mahogany/55">
 							no spam · unsubscribe any time
