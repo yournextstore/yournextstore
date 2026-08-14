@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-[var(--cream)] border-t border-[var(--ink)]/12">
@@ -31,26 +33,30 @@ export function Newsletter() {
 							books on the bench. No promotions; no haste.
 						</p>
 
-						<form
-							action={action}
-							className="mx-auto mt-10 flex max-w-xl flex-col sm:flex-row items-stretch gap-4"
-						>
-							<div className="relative flex-1">
-								<input
-									type="email"
-									name="email"
-									placeholder="your.name@example.com"
-									required
-									className="w-full h-12 bg-transparent border-0 border-b border-[var(--ink)]/40 px-1 text-base text-[var(--ink)] placeholder:text-[var(--ink)]/40 placeholder:italic focus:outline-none focus:border-[var(--oxblood)] transition-colors"
-								/>
+						<form action={action} className="mx-auto mt-10 max-w-xl flex flex-col gap-4">
+							<div className="flex flex-col sm:flex-row items-stretch gap-4">
+								<div className="relative flex-1">
+									<input
+										type="email"
+										name="email"
+										placeholder="your.name@example.com"
+										required
+										className="w-full h-12 bg-transparent border-0 border-b border-[var(--ink)]/40 px-1 text-base text-[var(--ink)] placeholder:text-[var(--ink)]/40 placeholder:italic focus:outline-none focus:border-[var(--oxblood)] transition-colors"
+									/>
+								</div>
+								<button
+									type="submit"
+									disabled={isPending || !marketingConsent}
+									className="heritage-smallcaps inline-flex h-12 shrink-0 items-center justify-center border border-[var(--ink)] px-6 text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--cream)] transition-colors disabled:opacity-50"
+								>
+									{isPending ? "Sending…" : "Subscribe"}
+								</button>
 							</div>
-							<button
-								type="submit"
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
 								disabled={isPending}
-								className="heritage-smallcaps inline-flex h-12 shrink-0 items-center justify-center border border-[var(--ink)] px-6 text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--cream)] transition-colors disabled:opacity-50"
-							>
-								{isPending ? "Sending…" : "Subscribe"}
-							</button>
+							/>
 						</form>
 						{state?.error && <p className="mt-4 text-sm italic text-[var(--oxblood)]">{state.error}</p>}
 					</>
