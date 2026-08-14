@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative overflow-hidden bg-foreground text-background">
@@ -58,29 +60,36 @@ export function Newsletter() {
 					</div>
 
 					{!state?.success && (
-						<form action={action} className="lg:col-span-5 flex flex-col gap-3">
-							<label className="editorial-eyebrow text-background/50">Subscribe</label>
-							<div className="relative">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-14 w-full rounded-full border border-background/20 bg-background/5 px-6 pr-40 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/50 focus:bg-background/10"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="absolute right-1.5 top-1.5 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-background px-6 text-[0.7rem] uppercase tracking-[0.22em] font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-								>
-									{isPending ? "Sending…" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
-								</button>
+						<form action={action} className="flex flex-col gap-4">
+							<div className="lg:col-span-5 flex flex-col gap-3">
+								<label className="editorial-eyebrow text-background/50">Subscribe</label>
+								<div className="relative">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										className="h-14 w-full rounded-full border border-background/20 bg-background/5 px-6 pr-40 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/50 focus:bg-background/10"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="absolute right-1.5 top-1.5 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-background px-6 text-[0.7rem] uppercase tracking-[0.22em] font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
+									>
+										{isPending ? "Sending…" : "Subscribe"}
+										{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
+									</button>
+								</div>
+								{state?.error && <p className="text-sm text-red-300/90">{state.error}</p>}
+								<p className="text-[11px] text-background/40 tracking-wide">
+									No promotional spam. Unsubscribe in a click.
+								</p>
 							</div>
-							{state?.error && <p className="text-sm text-red-300/90">{state.error}</p>}
-							<p className="text-[11px] text-background/40 tracking-wide">
-								No promotional spam. Unsubscribe in a click.
-							</p>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
+								disabled={isPending}
+							/>
 						</form>
 					)}
 				</div>
