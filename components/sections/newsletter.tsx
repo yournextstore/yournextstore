@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative bg-[var(--pink)] overflow-hidden">
@@ -45,24 +47,28 @@ export function Newsletter() {
 							<p className="mt-5 text-white/90 max-w-md mx-auto leading-relaxed">
 								Get first dibs on new drops, flirty offers, and the spiciest dispatches from the studio.
 							</p>
-							<form
-								action={action}
-								className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row sm:gap-2"
-							>
-								<input
-									type="email"
-									name="email"
-									placeholder="hi@yournextstore.com"
-									required
-									className="h-12 w-full flex-1 rounded-full bg-white px-6 text-[var(--burgundy)] placeholder:text-[var(--burgundy)]/40 outline-none focus:ring-4 focus:ring-white/40"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+									<input
+										type="email"
+										name="email"
+										placeholder="hi@yournextstore.com"
+										required
+										className="h-12 w-full flex-1 rounded-full bg-white px-6 text-[var(--burgundy)] placeholder:text-[var(--burgundy)]/40 outline-none focus:ring-4 focus:ring-white/40"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[var(--burgundy)] px-8 font-display uppercase tracking-[0.2em] text-xs text-white hover:bg-[var(--burgundy)]/90 disabled:opacity-50 transition-all"
+									>
+										{isPending ? "Sending…" : "Sign me up"}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[var(--burgundy)] px-8 font-display uppercase tracking-[0.2em] text-xs text-white hover:bg-[var(--burgundy)]/90 disabled:opacity-50 transition-all"
-								>
-									{isPending ? "Sending…" : "Sign me up"}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-white/90">{state.error}</p>}
 						</>
