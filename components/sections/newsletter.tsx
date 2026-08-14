@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-arame-soft border-t border-border/50">
@@ -31,7 +33,7 @@ export function Newsletter() {
 								A slow monthly note — new rituals, growers we&apos;ve met, and the occasional invitation to an
 								in-person tasting.
 							</p>
-							<form action={action} className="mt-10 mx-auto max-w-md">
+							<form action={action} className="mt-10 mx-auto max-w-md flex flex-col gap-4">
 								<div className="relative border-b border-foreground/40 focus-within:border-foreground transition-colors">
 									<input
 										type="email"
@@ -42,7 +44,7 @@ export function Newsletter() {
 									/>
 									<button
 										type="submit"
-										disabled={isPending}
+										disabled={isPending || !marketingConsent}
 										aria-label="Subscribe"
 										className="absolute right-0 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors disabled:opacity-50"
 									>
@@ -65,6 +67,11 @@ export function Newsletter() {
 								<p className="mt-4 text-[10px] tracking-arame uppercase text-foreground/45">
 									Unsubscribe in a single click
 								</p>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm text-destructive">{state.error}</p>}
 						</>
