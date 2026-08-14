@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative bg-skin overflow-hidden">
@@ -38,27 +40,34 @@ export function Newsletter() {
 							<p className="mt-6 font-serif italic text-ink/75 text-lg sm:text-xl leading-relaxed">
 								New volumes, private previews, and the occasional unhurried Sunday note. No noise.
 							</p>
-							<form action={action} className="mt-12 mx-auto max-w-md flex items-end gap-4 text-left">
-								<div className="flex-1 relative">
-									<label htmlFor="newsletter-email" className="eyebrow text-ink/60 text-[0.6rem]">
-										Your Email
-									</label>
-									<input
-										id="newsletter-email"
-										type="email"
-										name="email"
-										placeholder="name@email.com"
-										required
-										className="mt-2 w-full bg-transparent border-0 border-b border-ink/40 pb-2 text-ink placeholder:text-ink/35 font-serif text-xl focus:outline-none focus:border-ink transition-colors"
-									/>
+							<form action={action} className="mt-12 mx-auto max-w-md flex flex-col gap-4">
+								<div className="flex items-end gap-4 text-left">
+									<div className="flex-1 relative">
+										<label htmlFor="newsletter-email" className="eyebrow text-ink/60 text-[0.6rem]">
+											Your Email
+										</label>
+										<input
+											id="newsletter-email"
+											type="email"
+											name="email"
+											placeholder="name@email.com"
+											required
+											className="mt-2 w-full bg-transparent border-0 border-b border-ink/40 pb-2 text-ink placeholder:text-ink/35 font-serif text-xl focus:outline-none focus:border-ink transition-colors"
+										/>
+									</div>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="shrink-0 pb-2 eyebrow text-ink border-b border-ink hover:text-rosewood hover:border-rosewood transition-colors disabled:opacity-50"
+									>
+										{isPending ? "Sending…" : "Subscribe"}
+									</button>
 								</div>
-								<button
-									type="submit"
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="shrink-0 pb-2 eyebrow text-ink border-b border-ink hover:text-rosewood hover:border-rosewood transition-colors disabled:opacity-50"
-								>
-									{isPending ? "Sending…" : "Subscribe"}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-4 text-sm font-serif italic text-mahogany">{state.error}</p>}
 							<p className="mt-8 eyebrow text-ink/45 text-[0.6rem]">
