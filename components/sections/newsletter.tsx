@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative border-t border-border/60 bg-foreground text-background overflow-hidden">
@@ -45,39 +47,46 @@ export function Newsletter() {
 								<p className="mt-3 text-background/60">{state.message}</p>
 							</div>
 						) : (
-							<form action={action} className="space-y-5">
-								<label className="block">
-									<span className="text-[11px] tracking-[0.22em] uppercase text-background/50">
-										Your name (optional)
-									</span>
-									<input
-										type="text"
-										name="name"
-										placeholder="Jane Holt"
-										className="mt-3 h-11 w-full border-b border-background/30 bg-transparent px-0 text-[15px] text-background outline-none transition-colors placeholder:text-background/30 focus:border-amber-accent"
-									/>
-								</label>
-								<label className="block">
-									<span className="text-[11px] tracking-[0.22em] uppercase text-background/50">
-										Email address
-									</span>
-									<input
-										type="email"
-										name="email"
-										placeholder="jane@studio.dk"
-										required
-										className="mt-3 h-11 w-full border-b border-background/30 bg-transparent px-0 text-[15px] text-background outline-none transition-colors placeholder:text-background/30 focus:border-amber-accent"
-									/>
-								</label>
-								<button
-									type="submit"
+							<form action={action} className="flex flex-col gap-4">
+								<div className="space-y-5">
+									<label className="block">
+										<span className="text-[11px] tracking-[0.22em] uppercase text-background/50">
+											Your name (optional)
+										</span>
+										<input
+											type="text"
+											name="name"
+											placeholder="Jane Holt"
+											className="mt-3 h-11 w-full border-b border-background/30 bg-transparent px-0 text-[15px] text-background outline-none transition-colors placeholder:text-background/30 focus:border-amber-accent"
+										/>
+									</label>
+									<label className="block">
+										<span className="text-[11px] tracking-[0.22em] uppercase text-background/50">
+											Email address
+										</span>
+										<input
+											type="email"
+											name="email"
+											placeholder="jane@studio.dk"
+											required
+											className="mt-3 h-11 w-full border-b border-background/30 bg-transparent px-0 text-[15px] text-background outline-none transition-colors placeholder:text-background/30 focus:border-amber-accent"
+										/>
+									</label>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="mt-4 inline-flex h-12 items-center gap-3 border border-background/40 px-7 text-[12px] tracking-[0.22em] uppercase text-background transition-all hover:bg-amber-accent hover:text-foreground hover:border-amber-accent disabled:opacity-50"
+									>
+										{isPending ? "Subscribing…" : "Subscribe to the letter"}
+										<span aria-hidden="true">→</span>
+									</button>
+									{state?.error && <p className="text-sm text-amber-accent">{state.error}</p>}
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="mt-4 inline-flex h-12 items-center gap-3 border border-background/40 px-7 text-[12px] tracking-[0.22em] uppercase text-background transition-all hover:bg-amber-accent hover:text-foreground hover:border-amber-accent disabled:opacity-50"
-								>
-									{isPending ? "Subscribing…" : "Subscribe to the letter"}
-									<span aria-hidden="true">→</span>
-								</button>
-								{state?.error && <p className="text-sm text-amber-accent">{state.error}</p>}
+								/>
 							</form>
 						)}
 					</div>
