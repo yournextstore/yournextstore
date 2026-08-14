@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section
@@ -48,30 +50,37 @@ export function Newsletter() {
 							>
 								Affirmations, gentle routines, and first dibs on new arrivals — once a month, never more.
 							</p>
-							<form action={action} className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 border bg-transparent px-5 outline-none transition-all"
-									style={{
-										color: "#F5F1EC",
-										borderColor: "rgba(245,241,236,0.35)",
-									}}
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-9 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										className="h-12 w-full flex-1 border bg-transparent px-5 outline-none transition-all"
+										style={{
+											color: "#F5F1EC",
+											borderColor: "rgba(245,241,236,0.35)",
+										}}
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 px-8 text-[11px] font-medium tracking-[0.22em] uppercase transition-all disabled:opacity-50"
+										style={{
+											backgroundColor: "#F5F1EC",
+											color: "#2B2530",
+										}}
+									>
+										{isPending ? "Subscribing…" : "Subscribe"}
+										{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 px-8 text-[11px] font-medium tracking-[0.22em] uppercase transition-all disabled:opacity-50"
-									style={{
-										backgroundColor: "#F5F1EC",
-										color: "#2B2530",
-									}}
-								>
-									{isPending ? "Subscribing…" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
-								</button>
+								/>
 							</form>
 							{state?.error && (
 								<p className="mt-4 text-sm" style={{ color: "#f4b3b3" }}>
