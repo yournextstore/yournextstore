@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon, Gift } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-editorial-gradient">
@@ -51,29 +53,38 @@ export function Newsletter() {
 
 						{!state?.success && (
 							<div className="flex flex-col justify-center">
-								<form action={action} className="flex flex-col gap-3">
-									<label className="text-[11px] uppercase tracking-[0.22em] text-background/60">Email</label>
-									<div className="flex items-center gap-0 border-b border-background/30 pb-1">
-										<input
-											type="email"
-											name="email"
-											placeholder="hello@yournextstore.com"
-											required
-											className="h-12 w-full flex-1 bg-transparent text-base text-background outline-none placeholder:text-background/40"
-										/>
-										<button
-											type="submit"
-											disabled={isPending}
-											className="inline-flex h-10 shrink-0 items-center gap-2 px-4 text-[11px] uppercase tracking-[0.22em] text-background transition-opacity hover:opacity-80 disabled:opacity-50"
-										>
-											{isPending ? "Sending" : "Subscribe"}
-											{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
-										</button>
+								<form action={action} className="flex flex-col gap-4">
+									<div className="flex flex-col gap-3">
+										<label className="text-[11px] uppercase tracking-[0.22em] text-background/60">
+											Email
+										</label>
+										<div className="flex items-center gap-0 border-b border-background/30 pb-1">
+											<input
+												type="email"
+												name="email"
+												placeholder="hello@yournextstore.com"
+												required
+												className="h-12 w-full flex-1 bg-transparent text-base text-background outline-none placeholder:text-background/40"
+											/>
+											<button
+												type="submit"
+												disabled={isPending || !marketingConsent}
+												className="inline-flex h-10 shrink-0 items-center gap-2 px-4 text-[11px] uppercase tracking-[0.22em] text-background transition-opacity hover:opacity-80 disabled:opacity-50"
+											>
+												{isPending ? "Sending" : "Subscribe"}
+												{!isPending && <ArrowRightIcon className="h-3.5 w-3.5" />}
+											</button>
+										</div>
+										<p className="text-[11px] text-background/50">
+											By subscribing you accept our terms and privacy policy.
+										</p>
+										{state?.error && <p className="text-sm text-rose-300">{state.error}</p>}
 									</div>
-									<p className="text-[11px] text-background/50">
-										By subscribing you accept our terms and privacy policy.
-									</p>
-									{state?.error && <p className="text-sm text-rose-300">{state.error}</p>}
+									<NewsletterConsent
+										checked={marketingConsent}
+										onCheckedChange={setMarketingConsent}
+										disabled={isPending}
+									/>
 								</form>
 							</div>
 						)}
