@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRight, Check } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative overflow-hidden bg-[var(--brand-ember)] text-[var(--brand-cream)]">
@@ -42,37 +44,44 @@ export function Newsletter() {
 							<p className="mt-3 font-mono-ed text-[12px] text-[var(--brand-cream)]/85">{state.message}</p>
 						</div>
 					) : (
-						<form action={action} className="space-y-4">
-							<label
-								htmlFor="newsletter-email"
-								className="block font-mono-ed text-[10px] uppercase tracking-[0.28em] text-[var(--brand-cream)]/70"
-							>
-								Your email
-							</label>
-							<div className="flex flex-col gap-3 sm:flex-row">
-								<input
-									id="newsletter-email"
-									type="email"
-									name="email"
-									placeholder="hello@yournextstore.com"
-									required
-									className="h-12 flex-1 border-b border-[var(--brand-cream)]/40 bg-transparent px-1 font-mono-ed text-[13px] tracking-wide text-[var(--brand-cream)] outline-none transition-colors placeholder:text-[var(--brand-cream)]/45 focus:border-[var(--brand-cream)]"
-								/>
-								<button
-									type="submit"
-									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border border-[var(--brand-cream)] bg-[var(--brand-cream)] px-7 font-mono-ed text-[11px] uppercase tracking-[0.18em] text-[var(--brand-ember)] transition-colors hover:bg-[var(--brand-cream)]/90 disabled:opacity-60"
+						<form action={action} className="flex flex-col gap-4">
+							<div className="space-y-4">
+								<label
+									htmlFor="newsletter-email"
+									className="block font-mono-ed text-[10px] uppercase tracking-[0.28em] text-[var(--brand-cream)]/70"
 								>
-									{isPending ? "Subscribing…" : "Subscribe"}
-									{!isPending && <ArrowRight className="h-3.5 w-3.5" />}
-								</button>
+									Your email
+								</label>
+								<div className="flex flex-col gap-3 sm:flex-row">
+									<input
+										id="newsletter-email"
+										type="email"
+										name="email"
+										placeholder="hello@yournextstore.com"
+										required
+										className="h-12 flex-1 border-b border-[var(--brand-cream)]/40 bg-transparent px-1 font-mono-ed text-[13px] tracking-wide text-[var(--brand-cream)] outline-none transition-colors placeholder:text-[var(--brand-cream)]/45 focus:border-[var(--brand-cream)]"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 border border-[var(--brand-cream)] bg-[var(--brand-cream)] px-7 font-mono-ed text-[11px] uppercase tracking-[0.18em] text-[var(--brand-ember)] transition-colors hover:bg-[var(--brand-cream)]/90 disabled:opacity-60"
+									>
+										{isPending ? "Subscribing…" : "Subscribe"}
+										{!isPending && <ArrowRight className="h-3.5 w-3.5" />}
+									</button>
+								</div>
+								{state?.error && (
+									<p className="font-mono-ed text-[11px] text-[var(--brand-cream)]/90">{state.error}</p>
+								)}
+								<p className="font-mono-ed text-[10px] uppercase tracking-[0.22em] text-[var(--brand-cream)]/55">
+									No spam. Unsubscribe anytime.
+								</p>
 							</div>
-							{state?.error && (
-								<p className="font-mono-ed text-[11px] text-[var(--brand-cream)]/90">{state.error}</p>
-							)}
-							<p className="font-mono-ed text-[10px] uppercase tracking-[0.22em] text-[var(--brand-cream)]/55">
-								No spam. Unsubscribe anytime.
-							</p>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
+								disabled={isPending}
+							/>
 						</form>
 					)}
 				</div>
