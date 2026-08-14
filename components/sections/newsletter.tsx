@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-background border-t border-border/60">
@@ -36,21 +38,28 @@ export function Newsletter() {
 									A quiet, occasional letter — capsule releases, the journal, and 15% off your first order
 									with us.
 								</p>
-								<form action={action} className="relative">
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										className="w-full h-12 bg-transparent border-0 border-b border-foreground/40 text-foreground px-0 pr-32 text-[15px] outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
-									/>
-									<button
-										type="submit"
+								<form action={action} className="flex flex-col gap-4">
+									<div className="relative">
+										<input
+											type="email"
+											name="email"
+											placeholder="your@email.com"
+											required
+											className="w-full h-12 bg-transparent border-0 border-b border-foreground/40 text-foreground px-0 pr-32 text-[15px] outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="absolute right-0 top-0 h-12 font-eyebrow text-[11px] text-foreground editorial-underline disabled:opacity-50"
+										>
+											{isPending ? "Subscribing…" : "Subscribe →"}
+										</button>
+									</div>
+									<NewsletterConsent
+										checked={marketingConsent}
+										onCheckedChange={setMarketingConsent}
 										disabled={isPending}
-										className="absolute right-0 top-0 h-12 font-eyebrow text-[11px] text-foreground editorial-underline disabled:opacity-50"
-									>
-										{isPending ? "Subscribing…" : "Subscribe →"}
-									</button>
+									/>
 								</form>
 								{state?.error && <p className="mt-3 text-xs text-destructive">{state.error}</p>}
 								<p className="mt-5 text-[11px] text-muted-foreground/80">
