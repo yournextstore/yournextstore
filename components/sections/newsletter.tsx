@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative overflow-hidden mush-yellow-gradient">
@@ -45,22 +47,29 @@ export function Newsletter() {
 							<p className="mt-4 text-lg leading-relaxed text-[color:var(--color-mush-espresso)]/80 max-w-xl mx-auto">
 								Mushroom dispatches, recipe rituals and 10% off your first harvest. Unsubscribe anytime.
 							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row">
-								<input
-									type="email"
-									name="email"
-									placeholder="your@email.com"
-									required
-									className="h-12 w-full flex-1 rounded-full border border-[color:var(--color-mush-espresso)]/20 bg-white px-5 text-[color:var(--color-mush-espresso)] outline-none transition-all placeholder:text-[color:var(--color-mush-espresso)]/40 focus:border-[color:var(--color-mush-espresso)] focus:ring-2 focus:ring-[color:var(--color-mush-espresso)]/15"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mx-auto mt-10 max-w-md flex flex-col gap-4">
+								<div className="flex flex-col gap-3 sm:flex-row">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@email.com"
+										required
+										className="h-12 w-full flex-1 rounded-full border border-[color:var(--color-mush-espresso)]/20 bg-white px-5 text-[color:var(--color-mush-espresso)] outline-none transition-all placeholder:text-[color:var(--color-mush-espresso)]/40 focus:border-[color:var(--color-mush-espresso)] focus:ring-2 focus:ring-[color:var(--color-mush-espresso)]/15"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[color:var(--color-mush-espresso)] px-7 font-display text-xs tracking-[0.22em] uppercase text-[color:var(--color-mush-cream)] transition-all hover:bg-[color:var(--color-mush-caramel)] disabled:opacity-50"
+									>
+										{isPending ? "Sending…" : "Subscribe"}
+										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-[color:var(--color-mush-espresso)] px-7 font-display text-xs tracking-[0.22em] uppercase text-[color:var(--color-mush-cream)] transition-all hover:bg-[color:var(--color-mush-caramel)] disabled:opacity-50"
-								>
-									{isPending ? "Sending…" : "Subscribe"}
-									{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-								</button>
+								/>
 							</form>
 							{state?.error && (
 								<p className="mt-4 text-sm text-[color:var(--color-mush-espresso)]/90">{state.error}</p>

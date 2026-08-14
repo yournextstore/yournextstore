@@ -1,5 +1,6 @@
 "use server";
 
+import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
 
 type NewsletterState = {
@@ -18,11 +19,21 @@ export async function subscribeToNewsletter(
 		return { success: false, message: "", error: "Please enter a valid email address." };
 	}
 
-	try {
-		await commerce.subscriberCreate({ email });
+	// The form disables its submit button until the box is ticked; this is the server-side
+	// half of that gate, so a signup with no marketing consent is never recorded.
+	if (formData.get("marketingConsent") !== "on") {
+		return {
+			success: false,
+			message: "",
+			error: "Please accept marketing permissions to subscribe.",
+		};
+	}
 
-		return { success: true, message: "Thanks for subscribing!" };
-	} catch {
+	const [error] = await try_(commerce.subscriberCreate({ email, marketingConsent: true }));
+	if (error) {
+		console.error("newsletter: subscriberCreate failed", { error });
 		return { success: false, message: "", error: "Something went wrong. Please try again." };
 	}
+
+	return { success: true, message: "Thanks for subscribing!" };
 }
