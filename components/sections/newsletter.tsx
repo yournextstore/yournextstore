@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowUpRightIcon, CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="mt-4 sm:mt-5 relative overflow-hidden rounded-[2rem] bg-[#0f0f0f] text-white">
@@ -42,7 +44,7 @@ export function Newsletter() {
 								Early access to drops, design notes from our studios, and the occasional summer sale.
 							</p>
 						</div>
-						<form action={action} className="w-full">
+						<form action={action} className="w-full flex flex-col gap-4">
 							<div className="flex flex-col sm:flex-row gap-3 rounded-full bg-white/5 ring-1 ring-white/15 p-2">
 								<input
 									type="email"
@@ -53,7 +55,7 @@ export function Newsletter() {
 								/>
 								<button
 									type="submit"
-									disabled={isPending}
+									disabled={isPending || !marketingConsent}
 									className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#ff6b35] px-6 font-semibold text-white transition-all hover:bg-[#ff8a5b] disabled:opacity-50"
 								>
 									{isPending ? "Subscribing…" : "Subscribe"}
@@ -62,6 +64,11 @@ export function Newsletter() {
 							</div>
 							{state?.error && <p className="mt-3 text-sm text-red-300">{state.error}</p>}
 							<p className="mt-3 text-xs text-white/40">We only send the good stuff. Unsubscribe anytime.</p>
+							<NewsletterConsent
+								checked={marketingConsent}
+								onCheckedChange={setMarketingConsent}
+								disabled={isPending}
+							/>
 						</form>
 					</>
 				)}
