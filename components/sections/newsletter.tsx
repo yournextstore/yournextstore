@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="relative border-t border-foreground/10 bg-ink">
@@ -33,24 +35,28 @@ export function Newsletter() {
 								Slow, quarterly letters from the perfumer. New chapters, batch releases, and notes from things
 								we&rsquo;re reading. No mass mail.
 							</p>
-							<form
-								action={action}
-								className="mt-8 flex max-w-md items-end gap-4 border-b border-foreground/25 pb-3"
-							>
-								<input
-									type="email"
-									name="email"
-									placeholder="your@address"
-									required
-									className="flex-1 bg-transparent text-base text-foreground placeholder:text-foreground/35 focus:outline-none"
-								/>
-								<button
-									type="submit"
+							<form action={action} className="mt-8 max-w-md flex flex-col gap-4">
+								<div className="flex items-end gap-4 border-b border-foreground/25 pb-3">
+									<input
+										type="email"
+										name="email"
+										placeholder="your@address"
+										required
+										className="flex-1 bg-transparent text-base text-foreground placeholder:text-foreground/35 focus:outline-none"
+									/>
+									<button
+										type="submit"
+										disabled={isPending || !marketingConsent}
+										className="shrink-0 text-[10px] tracking-microcaps text-foreground/80 transition-colors hover:text-saffron disabled:opacity-50"
+									>
+										{isPending ? "Sending…" : "Subscribe →"}
+									</button>
+								</div>
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
-									className="shrink-0 text-[10px] tracking-microcaps text-foreground/80 transition-colors hover:text-saffron disabled:opacity-50"
-								>
-									{isPending ? "Sending…" : "Subscribe →"}
-								</button>
+								/>
 							</form>
 							{state?.error && <p className="mt-3 text-sm text-rust">{state.error}</p>}
 							<p className="mt-5 text-[10px] tracking-microcaps text-foreground/40">
