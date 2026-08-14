@@ -1,11 +1,13 @@
 "use client";
 
 import { CheckIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { NewsletterConsent } from "@/components/newsletter-consent";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
+	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	return (
 		<section className="bg-olive-grad text-[var(--cream)] relative overflow-hidden">
@@ -44,22 +46,33 @@ export function Newsletter() {
 							</div>
 						) : (
 							<form action={action} className="flex flex-col gap-4">
-								<div className="flex flex-col sm:flex-row gap-3 items-stretch border-b border-[var(--cream)]/30 pb-2">
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										className="h-12 w-full flex-1 bg-transparent px-1 text-[var(--cream)] outline-none placeholder:text-[var(--cream)]/40 text-base"
-									/>
-									<button type="submit" disabled={isPending} className="btn-olive shrink-0">
-										{isPending ? "Subscribing…" : "Subscribe"}
-									</button>
+								<div className="flex flex-col gap-4">
+									<div className="flex flex-col sm:flex-row gap-3 items-stretch border-b border-[var(--cream)]/30 pb-2">
+										<input
+											type="email"
+											name="email"
+											placeholder="your@email.com"
+											required
+											className="h-12 w-full flex-1 bg-transparent px-1 text-[var(--cream)] outline-none placeholder:text-[var(--cream)]/40 text-base"
+										/>
+										<button
+											type="submit"
+											disabled={isPending || !marketingConsent}
+											className="btn-olive shrink-0"
+										>
+											{isPending ? "Subscribing…" : "Subscribe"}
+										</button>
+									</div>
+									<p className="text-[10px] tracking-[0.18em] uppercase text-[var(--cream)]/55">
+										By subscribing you agree to our privacy policy.
+									</p>
+									{state?.error && <p className="text-sm text-red-300">{state.error}</p>}
 								</div>
-								<p className="text-[10px] tracking-[0.18em] uppercase text-[var(--cream)]/55">
-									By subscribing you agree to our privacy policy.
-								</p>
-								{state?.error && <p className="text-sm text-red-300">{state.error}</p>}
+								<NewsletterConsent
+									checked={marketingConsent}
+									onCheckedChange={setMarketingConsent}
+									disabled={isPending}
+								/>
 							</form>
 						)}
 					</div>
