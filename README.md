@@ -92,6 +92,11 @@ bun run api POST /products '{"name":"Tee","price":29.99}'
 
 `scripts/publish.sh` deploys the tenant repo's **remote `main`** — push your commits first. `scripts/api.sh` is a thin wrapper around `curl` that handles auth, base-URL resolution, and pretty JSON output for every `/api/v1/*` endpoint (see the [API documentation](https://yns.store/manage/settings/api)).
 
+## Syncing a store with the template
+
+Stores are seeded from a snapshot of this repo and share no commits with it, so a plain merge has no
+base. See [docs/sync.md](docs/sync.md) for the graft-and-merge procedure and why merge beats rebase here.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for coding conventions and PR checklist.
