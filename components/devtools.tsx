@@ -80,11 +80,9 @@ export function ErrorOverlayRemover() {
 	useEffect(() => {
 		if (window.parent === window) return;
 
-		// Merchants see this dev server through the builder iframe, so none of the Next.js dev
-		// chrome belongs to them: the error dialog covers the preview, and the indicator chip
-		// ("N Insights" / "N Issues") opens a panel that locks scrolling inside the frame.
-		// The chip is `[data-next-badge-root]`; naming both it and the `[data-nextjs-toast]`
-		// container it currently sits in keeps this working if either one is restructured.
+		// Merchants watch this dev server through the builder iframe, so none of the Next.js dev
+		// chrome belongs to them. Both the chip and the container it sits in are named, so a
+		// restructure of either one still leaves it hidden.
 		const hiddenSelectors = ["[data-nextjs-dialog-overlay]", "[data-next-badge-root]", "[data-nextjs-toast]"];
 
 		const inject = () => {
@@ -97,8 +95,7 @@ export function ErrorOverlayRemover() {
 			style.textContent = `${hiddenSelectors.join(",\n")} { display: none !important; }`;
 			shadowRoot.appendChild(style);
 
-			// A Next.js upgrade that renames these would otherwise degrade silently, into
-			// merchants seeing dev chrome over their storefront preview.
+			// Otherwise a Next.js rename degrades silently into dev chrome over the preview.
 			if (!hiddenSelectors.some((selector) => shadowRoot.querySelector(selector))) {
 				console.warn("Next.js dev overlay found, but none of its chrome selectors matched:", hiddenSelectors);
 			}
@@ -107,9 +104,8 @@ export function ErrorOverlayRemover() {
 
 		if (inject()) return;
 
-		// The overlay portal mounts after hydration, so watch for it instead of giving up. It is
-		// appended to <body> directly, so no subtree, and the watch is bounded — a portal that
-		// never arrives must not leave a live observer on the page the merchant is editing.
+		// The portal mounts after hydration and lands directly on <body>. Bounded, so a portal
+		// that never arrives cannot leave a live observer on the preview.
 		const observer = new MutationObserver(() => {
 			if (inject()) observer.disconnect();
 		});
