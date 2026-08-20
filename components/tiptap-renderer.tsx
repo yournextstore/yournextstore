@@ -1,4 +1,4 @@
-import type { JSONContent as TiptapJSONContent } from "@tiptap/core";
+import { type JSONContent as TiptapJSONContent, Node as TiptapNode } from "@tiptap/core";
 import { Image } from "@tiptap/extension-image";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Color, FontFamily, FontSize, LineHeight, TextStyle } from "@tiptap/extension-text-style";
@@ -7,10 +7,21 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer";
 import type { JSONContent } from "commerce-kit";
 import type { ReactNode } from "react";
+import { BlogProductEmbed } from "@/components/blog-product-embed";
 
 // The admin editor writes images as `imageResize`. Alias it onto Image rather than pull the
 // editor-only dependency into the storefront.
 const ImageResize = Image.extend({ name: "imageResize" });
+
+// The admin editor's featured-products block, declared for the same reason as the image alias.
+// A leaf: the products are rendered from `productIds`, it has no child content.
+const ProductEmbed = TiptapNode.create({
+	name: "productEmbed",
+	group: "block",
+	addAttributes: () => ({ productIds: { default: [] as string[] } }),
+	parseHTML: () => [{ tag: "div[data-type='product-embed']" }],
+	renderHTML: () => ["div", { "data-type": "product-embed" }],
+});
 
 const extensions = [
 	StarterKit.configure({
@@ -34,6 +45,7 @@ const extensions = [
 	Youtube.configure({}),
 	Image.configure({ allowBase64: false, inline: true }),
 	ImageResize.configure({ allowBase64: false, inline: true }),
+	ProductEmbed,
 ];
 
 type Node = TiptapJSONContent;
@@ -43,7 +55,10 @@ function hasMeaningfulContent(node: Node | undefined | null): boolean {
 	if (!node) return false;
 	if (typeof node.text === "string" && node.text.trim().length > 0) return true;
 	// Self-contained media nodes count as meaningful even without text children.
-	if (node.type && ["image", "imageResize", "youtube", "horizontalRule", "hardBreak"].includes(node.type)) {
+	if (
+		node.type &&
+		["image", "imageResize", "youtube", "horizontalRule", "hardBreak", "productEmbed"].includes(node.type)
+	) {
 		return true;
 	}
 	if (Array.isArray(node.content)) {
@@ -176,7 +191,18 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 			{renderToReactElement({
 				content: pruned,
 				extensions,
-				options: { unhandledNode: passThrough, unhandledMark: passThrough },
+				options: {
+					nodeMapping: {
+						productEmbed: ({ node }) => {
+							const ids = node.attrs.productIds;
+							return Array.isArray(ids) ? (
+								<BlogProductEmbed productIds={ids.filter((id) => typeof id === "string")} />
+							) : null;
+						},
+					},
+					unhandledNode: passThrough,
+					unhandledMark: passThrough,
+				},
 			})}
 		</>
 	);

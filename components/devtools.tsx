@@ -80,14 +80,46 @@ export function ErrorOverlayRemover() {
 	useEffect(() => {
 		if (window.parent === window) return;
 
-		const host = document.querySelector("nextjs-portal");
-		if (host?.shadowRoot) {
+		// Merchants see this dev server through the builder iframe, so none of the Next.js dev
+		// chrome belongs to them: the error dialog covers the preview, and the indicator chip
+		// ("N Insights" / "N Issues") opens a panel that locks scrolling inside the frame.
+		// The chip is `[data-next-badge-root]`; naming both it and the `[data-nextjs-toast]`
+		// container it currently sits in keeps this working if either one is restructured.
+		const hiddenSelectors = ["[data-nextjs-dialog-overlay]", "[data-next-badge-root]", "[data-nextjs-toast]"];
+
+		const inject = () => {
+			const shadowRoot = document.querySelector("nextjs-portal")?.shadowRoot;
+			if (!shadowRoot) return false;
+			if (shadowRoot.querySelector("style[data-yns-hide-dev-chrome]")) return true;
+
 			const style = document.createElement("style");
-			style.textContent = /* css */ `[data-nextjs-dialog-overlay] { display: none !important; }`;
-			host.shadowRoot.appendChild(style);
-		} else {
-			console.warn("Could not find Next.js error overlay host element.");
-		}
+			style.setAttribute("data-yns-hide-dev-chrome", "");
+			style.textContent = `${hiddenSelectors.join(",\n")} { display: none !important; }`;
+			shadowRoot.appendChild(style);
+
+			// A Next.js upgrade that renames these would otherwise degrade silently, into
+			// merchants seeing dev chrome over their storefront preview.
+			if (!hiddenSelectors.some((selector) => shadowRoot.querySelector(selector))) {
+				console.warn("Next.js dev overlay found, but none of its chrome selectors matched:", hiddenSelectors);
+			}
+			return true;
+		};
+
+		if (inject()) return;
+
+		// The overlay portal mounts after hydration, so watch for it instead of giving up. It is
+		// appended to <body> directly, so no subtree, and the watch is bounded — a portal that
+		// never arrives must not leave a live observer on the page the merchant is editing.
+		const observer = new MutationObserver(() => {
+			if (inject()) observer.disconnect();
+		});
+		observer.observe(document.body, { childList: true });
+		const stopWatching = setTimeout(() => observer.disconnect(), 10_000);
+
+		return () => {
+			clearTimeout(stopWatching);
+			observer.disconnect();
+		};
 	}, []);
 
 	return null;
