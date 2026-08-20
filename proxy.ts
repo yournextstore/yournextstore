@@ -1,26 +1,12 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { AUTH_ENABLED } from "./lib/auth-config";
 import { getSubdomainPublicUrl } from "./lib/commerce";
 
-// /account is auth-only: when auth is off it is neither protected nor proxied.
-const protectedRoutes = AUTH_ENABLED ? ["/account"] : [];
-const proxiedRoutes = AUTH_ENABLED
-	? ["/checkout", "/api/feed/", "/api/chat", "/account"]
-	: ["/checkout", "/api/feed/", "/api/chat"];
+// /account is the platform-rendered shopper account area (unified sign-in); the platform
+// handles unauthenticated access itself, so it is proxied like /checkout, never guarded here.
+const proxiedRoutes = ["/checkout", "/api/feed/", "/api/chat", "/account"];
 
 export async function proxy(request: NextRequest) {
-	// Auth: redirect unauthenticated users away from protected routes
-	const isProtected = protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
-	if (isProtected) {
-		const sessionCookie = request.cookies.get("better-auth.session_token");
-		if (!sessionCookie) {
-			const loginUrl = new URL("/login", request.url);
-			loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
-			return NextResponse.redirect(loginUrl);
-		}
-	}
-
 	// Platform-owned scripts under /_public/ — forwarded verbatim (plus the store, so the
 	// platform can generate per-store responses) and served by the platform. Which paths are
 	// static and which are dynamic is the platform's decision; this branch holds no knowledge

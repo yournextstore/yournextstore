@@ -35,7 +35,6 @@
     "@tiptap/starter-kit": "3.30.2",
     "@tiptap/static-renderer": "3.30.2",
     "ai": "7.0.69",
-    "better-auth": "1.7.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "commerce-kit": "0.57.2",

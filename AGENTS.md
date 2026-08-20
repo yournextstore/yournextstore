@@ -47,11 +47,11 @@ call `track()` from `lib/track.tsx`.
 - Use functional array methods (`map`, `filter`, `reduce`), not loops
 - No `any` types; rely on type inference; minimal return type annotations
 - **Always quote paths** with special characters in shell commands: `rg "term" "app/(auth)/login"`
-- **ALL `/checkout` links MUST be plain `<a>` tags.** Never use `<Link>` (or any link wrapper) for `/checkout` links — they 500.
+- **ALL `/checkout` and `/account` links MUST be plain `<a>` tags.** Never use `<Link>` (or any link wrapper) for links into a proxied zone (`/checkout`, `/account`) — a soft RSC navigation into the cross-zone rewrite 500s.
 
-## Enabling auth
+## Shopper auth
 
-Auth (better-auth: sign-in/up, account dropdown, `/account` protection) ships **disabled**. To enable it, set `AUTH_ENABLED = true` in `lib/auth-config.ts` — that single switch turns on the header sign-in button, the `/login` + `/signup` pages, and `/account` route protection. When `false`, those surfaces 404 / hide and the store behaves as if auth never existed. Auth relies on better-auth running on the apex backend (global users); there is no local backend to configure.
+There is **no auth in this app**. Shopper sign-in happens exclusively through the platform's unified account system: inline email-code sign-in inside the proxied `/checkout`, and the platform-rendered account area behind the proxied `/account` (see `proxy.ts`). Never add `/login` or `/signup` pages, auth forms, or session handling here — the only local piece is `app/api/auth/[...all]/route.ts`, a passthrough that forwards the platform components' client-side `/api/auth/*` calls (e.g. sign-out in the account area) to the apex backend.
 
 ## The prerendered shell
 
