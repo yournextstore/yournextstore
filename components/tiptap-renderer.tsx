@@ -14,11 +14,14 @@ import { BlogProductEmbed } from "@/components/blog-product-embed";
 const ImageResize = Image.extend({ name: "imageResize" });
 
 // The admin editor's featured-products block, declared for the same reason as the image alias.
-// A leaf: the products are rendered from `productIds`, it has no child content.
+// A leaf: rendered from `productIds` (+ optional `variantIds` productId → variantId map), no children.
 const ProductEmbed = TiptapNode.create({
 	name: "productEmbed",
 	group: "block",
-	addAttributes: () => ({ productIds: { default: [] as string[] } }),
+	addAttributes: () => ({
+		productIds: { default: [] as string[] },
+		variantIds: { default: {} as Record<string, string> },
+	}),
 	parseHTML: () => [{ tag: "div[data-type='product-embed']" }],
 	renderHTML: () => ["div", { "data-type": "product-embed" }],
 });
@@ -195,8 +198,19 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 					nodeMapping: {
 						productEmbed: ({ node }) => {
 							const ids = node.attrs.productIds;
+							const variantIds =
+								node.attrs.variantIds && typeof node.attrs.variantIds === "object"
+									? Object.fromEntries(
+											Object.entries(node.attrs.variantIds as Record<string, unknown>).filter(
+												(entry): entry is [string, string] => typeof entry[1] === "string",
+											),
+										)
+									: {};
 							return Array.isArray(ids) ? (
-								<BlogProductEmbed productIds={ids.filter((id) => typeof id === "string")} />
+								<BlogProductEmbed
+									productIds={ids.filter((id) => typeof id === "string")}
+									variantIds={variantIds}
+								/>
 							) : null;
 						},
 					},
