@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 
+import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -166,6 +167,16 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 										<SearchInput />
 									</Suspense>
 									<ThemeToggle />
+									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+									    Static on purpose: reading the session here would pull the header out of the
+									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+									<a
+										href="/account"
+										className="p-2 hover:bg-secondary transition-colors"
+										aria-label="Account"
+									>
+										<UserRound className="w-5 h-5" />
+									</a>
 									<CartButton />
 								</div>
 							</div>
