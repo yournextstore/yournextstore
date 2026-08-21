@@ -55,8 +55,21 @@ export async function ProductCard({
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
+	// A single-variant card deep-links to that variant; a bare link would show the product's default.
+	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const variantSearch = (() => {
+		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
+			return "";
+		}
+		const params = new URLSearchParams();
+		for (const combination of onlyVariant.combinations) {
+			params.set(combination.variantValue.variantType.label, combination.variantValue.value);
+		}
+		return `?${params.toString()}`;
+	})();
+
 	return (
-		<Link href={`/product/${product.slug}`} className="group">
+		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
 			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 				{singleVariant && (
 					<QuickAddButton

@@ -14,11 +14,7 @@ type VariantLike = {
 	}[];
 };
 
-/**
- * Derives the currently-selected variant from the URL search params: the single
- * variant when there is only one, otherwise the variant whose combinations all
- * match the `?<variantType.label>=<value>` params (or undefined when none match).
- */
+/** Derives the selected variant from `?<variantType.label>=<value>` params; partial links still resolve. */
 export function useSelectedVariant<T extends VariantLike>(variants: T[]): T | undefined {
 	const searchParams = useSearchParams();
 
@@ -31,11 +27,22 @@ export function useSelectedVariant<T extends VariantLike>(variants: T[]): T | un
 			return undefined;
 		}
 
-		return variants.find((variant) =>
-			variant.combinations.every(
-				(combination) =>
-					searchParams.get(combination.variantValue.variantType.label) === combination.variantValue.value,
-			),
-		);
+		// Labels present in the URL must match; absent ones are wildcards. Score = matched labels,
+		// so a full match outranks a partial one and a variant matching nothing is dropped.
+		const score = (variant: T) => {
+			let matched = 0;
+			for (const { variantValue } of variant.combinations) {
+				const param = searchParams.get(variantValue.variantType.label);
+				if (param === null) continue;
+				if (param !== variantValue.value) return 0;
+				matched += 1;
+			}
+			return matched;
+		};
+
+		return variants
+			.map((variant) => ({ variant, score: score(variant) }))
+			.filter(({ score }) => score > 0)
+			.sort((a, b) => b.score - a.score)[0]?.variant;
 	}, [variants, searchParams]);
 }
