@@ -17,8 +17,10 @@ import {
 	type CartAction,
 	type CartLineItem,
 	cartReducer,
+	getCartDisplaySubtotal,
 	getLineItemUnitPrice,
 } from "@/app/cart/cart-math";
+import { useStoreConfig } from "@/components/store-config-provider";
 
 // Re-exported so consumers keep importing cart types and pricing from the context module.
 export { type Cart, type CartLineItem, getLineItemUnitPrice };
@@ -51,6 +53,7 @@ type CartProviderProps = {
 };
 
 export function CartProvider({ children }: CartProviderProps) {
+	const { taxBehavior } = useStoreConfig();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isMutating, startMutation] = useTransition();
 
@@ -108,10 +111,10 @@ export function CartProvider({ children }: CartProviderProps) {
 
 	const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
 
-	const subtotal = useMemo(
-		() => items.reduce((sum, item) => sum + getLineItemUnitPrice(item) * BigInt(item.quantity), BigInt(0)),
-		[items],
-	);
+	// The API's own subtotal when the cart is the server's (already net or gross per the
+	// store's tax behaviour, discounts applied); a local sum of display prices while a
+	// mutation is in flight, because `cartReducer` clears the totals it just invalidated.
+	const subtotal = useMemo(() => getCartDisplaySubtotal(cart, taxBehavior), [cart, taxBehavior]);
 
 	const openCart = useCallback(() => setIsOpen(true), []);
 	const closeCart = useCallback(() => setIsOpen(false), []);

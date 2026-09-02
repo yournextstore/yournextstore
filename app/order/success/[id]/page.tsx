@@ -1,3 +1,4 @@
+import type { APIOrderGetByIdResult } from "commerce-kit";
 import { CheckCircle } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
+import { cartDisplaySubtotal, displayAmount, displayPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -42,24 +44,45 @@ export default function OrderSuccessPage(props: { params: Promise<{ id: string }
 
 const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 	const { id } = await params;
-	const { currency, locale } = await getStoreConfig();
+	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const order = await commerce.orderGet({ id });
 
 	if (!order) {
 		notFound();
 	}
 
-	const lineItems = order.orderData.lineItems;
-	const shippingAddress = order.orderData.shippingAddress;
-	const shipping = order.orderData.shipping;
-	const customer = order.orderData.customer;
+	const { lineItems, shippingAddress, shipping, customer } = order.orderData;
 
-	const subtotal = lineItems.reduce((acc, item) => {
-		return acc + BigInt(item.productVariant.price) * BigInt(item.quantity);
-	}, BigInt(0));
+	// The order's own totals are authoritative — they are what the customer was charged,
+	// already net or gross per the store's tax behaviour. Fall back to a line-item sum
+	// only when the order predates them (or the store prices through Stripe Tax).
+	const apiSubtotal = cartDisplaySubtotal(order.orderData, taxBehavior);
+	const subtotal =
+		apiSubtotal !== null
+			? BigInt(Math.round(apiSubtotal))
+			: lineItems.reduce(
+					(acc, item) => acc + BigInt(displayPrice(item.productVariant, taxBehavior)) * BigInt(item.quantity),
+					BigInt(0),
+				);
 
-	const shippingCost = shipping ? BigInt(shipping.price) : BigInt(0);
-	const total = subtotal + shippingCost;
+	// The shipping rate carries its own gross twin, so the row shows what the customer paid for
+	// delivery in the same basis as every other price on the page.
+	const shippingCost = shipping
+		? BigInt(displayAmount(shipping.price, shipping.priceGross, taxBehavior) ?? shipping.price)
+		: BigInt(0);
+
+	// Only an exclusive store adds tax on top of what it displayed; an inclusive one has
+	// it inside the subtotal already.
+	const taxAmount =
+		taxBehavior === "exclusive" && order.orderData.totalTax
+			? BigInt(Math.round(order.orderData.totalTax))
+			: null;
+
+	const apiTotal = order.orderData.total;
+	const total =
+		apiTotal !== null && apiTotal !== undefined
+			? BigInt(Math.round(apiTotal))
+			: subtotal + shippingCost + (taxAmount ?? BigInt(0));
 
 	return (
 		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -102,6 +125,12 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 							<span>{formatMoney({ amount: shippingCost, currency, locale })}</span>
 						</div>
 					)}
+					{taxAmount !== null && (
+						<div className="flex items-center justify-between text-sm">
+							<span className="text-muted-foreground">Tax</span>
+							<span>{formatMoney({ amount: taxAmount, currency, locale })}</span>
+						</div>
+					)}
 					<div className="flex items-center justify-between font-semibold pt-2 border-t border-border">
 						<span>Total</span>
 						<span>{formatMoney({ amount: total, currency, locale })}</span>
@@ -139,29 +168,17 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 	);
 };
 
-type OrderLineItem = {
-	id: string;
-	quantity: number;
-	productVariant: {
-		id: string;
-		price: string;
-		images: string[];
-		product: {
-			id: string;
-			name: string;
-			slug: string;
-			images: string[];
-		};
-	};
-};
+// Taken from the API type rather than restated: the line item's variant carries the gross twins
+// (`priceGross`, `calculatedPriceGross`, …) that `displayPrice` picks from.
+type OrderLineItem = APIOrderGetByIdResult["orderData"]["lineItems"][number];
 
 async function OrderItem({ item }: { item: OrderLineItem }) {
-	const { currency, locale } = await getStoreConfig();
+	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
 
 	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
-	const price = BigInt(productVariant.price);
+	const price = BigInt(displayPrice(productVariant, taxBehavior));
 	const lineTotal = price * BigInt(quantity);
 
 	return (

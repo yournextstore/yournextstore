@@ -233,7 +233,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							pricing={{
 								mode: product.bundlePriceMode,
 								fixedPriceAmount: product.bundleFixedPriceAmount,
+								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
 								amountOffAmount: product.bundleAmountOffAmount,
+								amountOffAmountGross: product.bundleAmountOffAmountGross,
 							}}
 						/>
 					) : (

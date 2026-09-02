@@ -15,7 +15,7 @@ type CartItemProps = {
 };
 
 export function CartItem({ item }: CartItemProps) {
-	const { currency, locale } = useStoreConfig();
+	const { currency, locale, taxBehavior } = useStoreConfig();
 	const { dispatch, closeCart, startMutation, syncCart, reconcile } = useCart();
 	const [isPending, startTransition] = useTransition();
 
@@ -23,7 +23,7 @@ export function CartItem({ item }: CartItemProps) {
 	const { product } = productVariant;
 
 	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
-	const price = getLineItemUnitPrice(item);
+	const price = getLineItemUnitPrice(item, taxBehavior);
 	const lineTotal = price * BigInt(quantity);
 
 	const targetQuantityRef = useRef<number | null>(null);

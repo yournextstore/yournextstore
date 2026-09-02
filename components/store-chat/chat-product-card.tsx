@@ -7,7 +7,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
+import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
+import { displayPrice } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
 
 export type ChatProduct = {
@@ -21,7 +23,10 @@ export type ChatProduct = {
 		id: string;
 		sku: string | null;
 		label: string;
+		/** Net, minor units. */
 		price: number;
+		/** Gross twin; absent when the chat backend predates tax-behaviour-aware pricing. */
+		priceGross?: number | null;
 		inStock: boolean;
 		imageUrl: string | null;
 	}>;
@@ -51,11 +56,20 @@ export function ChatProductCard({
 	messageId: string;
 	locale: string;
 }) {
+	const { taxBehavior } = useStoreConfig();
 	const { openCart, dispatch, syncCart, reconcile } = useCart();
 	const [selectedVariantId, setSelectedVariantId] = useState(
 		product.variants.find((variant) => variant.inStock)?.id ?? product.variants[0]?.id,
 	);
 	const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId);
+	// The chat tool sends numbers, not the API's string price pair — normalise to the
+	// shape lib/pricing works with so the one display rule stays in one place.
+	const selectedPrices = selectedVariant
+		? {
+				price: String(selectedVariant.price),
+				priceGross: selectedVariant.priceGross == null ? null : String(selectedVariant.priceGross),
+			}
+		: null;
 
 	const handleAddToCart = () => {
 		if (!selectedVariant) return;
@@ -83,6 +97,7 @@ export function ChatProductCard({
 				productVariant: {
 					id: selectedVariant.id,
 					price: String(selectedVariant.price),
+					priceGross: selectedPrices?.priceGross,
 					images: selectedVariant.imageUrl ? [selectedVariant.imageUrl] : [],
 					product: {
 						id: product.productId,
@@ -126,9 +141,13 @@ export function ChatProductCard({
 				>
 					{product.name}
 				</Link>
-				{selectedVariant && (
+				{selectedPrices && (
 					<div className="text-xs font-semibold tabular-nums">
-						{formatMoney({ amount: selectedVariant.price, currency: product.currency, locale })}
+						{formatMoney({
+							amount: displayPrice(selectedPrices, taxBehavior),
+							currency: product.currency,
+							locale,
+						})}
 					</div>
 				)}
 				{product.variants.length > 1 && (

@@ -1,19 +1,23 @@
 import { useMemo } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
+import { displayTierPrice, type TaxBehavior } from "@/lib/pricing";
 
 export type VolumeTier = {
 	id: string;
 	price: string;
+	priceGross?: string | null;
 	minQuantity: number;
 	maxQuantity: number | null;
 	productVariantId: string | null;
 };
 
+/** `volumePrice` comes back in the basis the shopper should see, ready to format. */
 export function useVolumePricing(
 	tiers: VolumeTier[],
 	selectedVariantId: string | undefined,
 	quantity: number,
+	taxBehavior: TaxBehavior,
 ) {
 	const resolvedTiers = useMemo(() => {
 		if (tiers.length === 0 || !selectedVariantId) return [];
@@ -32,11 +36,11 @@ export function useVolumePricing(
 				quantity >= tier.minQuantity &&
 				(tier.maxQuantity === null || quantity <= tier.maxQuantity)
 			) {
-				return tier.price;
+				return displayTierPrice(tier, taxBehavior);
 			}
 		}
 		return null;
-	}, [resolvedTiers, quantity]);
+	}, [resolvedTiers, quantity, taxBehavior]);
 
 	return { resolvedTiers, volumePrice };
 }
@@ -50,7 +54,7 @@ export function VolumePricingDisplay({
 	quantity: number;
 	volumePrice: string | null;
 }) {
-	const { currency, locale } = useStoreConfig();
+	const { currency, locale, taxBehavior } = useStoreConfig();
 	if (tiers.length === 0) return null;
 
 	return (
@@ -86,7 +90,11 @@ export function VolumePricingDisplay({
 											{tier.maxQuantity ? `${tier.minQuantity}–${tier.maxQuantity}` : `${tier.minQuantity}+`}
 										</td>
 										<td className="px-3 py-1.5 text-right font-medium">
-											{formatMoney({ amount: BigInt(tier.price), currency, locale })}
+											{formatMoney({
+												amount: BigInt(displayTierPrice(tier, taxBehavior)),
+												currency,
+												locale,
+											})}
 										</td>
 									</tr>
 								);

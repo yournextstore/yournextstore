@@ -6,6 +6,7 @@ import { ImageResponse } from "next/og";
 import { try_ } from "safe-try";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
+import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 
@@ -34,11 +35,9 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
 	}
 
 	const { storeName } = await getStoreSeo();
-	const { currency, locale } = await getStoreConfig();
+	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const image = product.images.find((url) => !isVideoUrl(url));
-	const minPrice = product.variants
-		.map((v) => BigInt(v.price))
-		.reduce<bigint | null>((min, price) => (min === null || price < min ? price : min), null);
+	const minPrice = product.variants.length > 0 ? priceRange(product.variants, taxBehavior).min : null;
 
 	return new ImageResponse(
 		<div

@@ -12,6 +12,8 @@ type QuickAddButtonProps = {
 	variantId: string;
 	variantSku?: string | null;
 	variantPrice: string;
+	/** Gross twin of `variantPrice`, so the optimistic cart line matches the store's tax behaviour. */
+	variantPriceGross?: string | null;
 	variantImages: string[];
 	product: {
 		id: string;
@@ -25,6 +27,7 @@ export function QuickAddButton({
 	variantId,
 	variantSku,
 	variantPrice,
+	variantPriceGross,
 	variantImages,
 	product,
 }: QuickAddButtonProps) {
@@ -48,6 +51,7 @@ export function QuickAddButton({
 				productVariant: {
 					id: variantId,
 					price: variantPrice,
+					priceGross: variantPriceGross,
 					images: variantImages,
 					product,
 				},

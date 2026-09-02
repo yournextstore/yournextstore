@@ -74,6 +74,11 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	const selectedVts = parseVts(searchParams.get("vts"));
 	const [optimisticVts, setOptimisticVts] = useOptimistic(selectedVts);
 
+	// KNOWN LIMITATION: the filters endpoint reports price bounds — and matches
+	// priceMin/priceMax — in NET minor units, with no gross twin. On a tax-inclusive
+	// store the slider therefore reads slightly below the prices shown on the cards.
+	// Grossing them up here would desync the slider from the query the API actually
+	// runs, so the bounds stay net until the endpoint exposes gross bounds of its own.
 	const { min: priceFloor, max: priceCeil } = facets.priceBounds;
 	const priceMinParam = searchParams.get("priceMin");
 	const priceMaxParam = searchParams.get("priceMax");

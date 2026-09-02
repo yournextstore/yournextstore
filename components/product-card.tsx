@@ -5,6 +5,7 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
+import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -21,22 +22,10 @@ export async function ProductCard({
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
 }) {
-	const { currency, locale } = await getStoreConfig();
+	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
-	const firstVariantPrice = variants?.[0] ? BigInt(variants[0].price) : null;
-	const { minPrice, maxPrice } =
-		variants && firstVariantPrice !== null
-			? variants.reduce(
-					(acc, v) => {
-						const price = BigInt(v.price);
-						return {
-							minPrice: price < acc.minPrice ? price : acc.minPrice,
-							maxPrice: price > acc.maxPrice ? price : acc.maxPrice,
-						};
-					},
-					{ minPrice: firstVariantPrice, maxPrice: firstVariantPrice },
-				)
-			: { minPrice: null, maxPrice: null };
+	const { min: minPrice, max: maxPrice } =
+		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
@@ -76,6 +65,7 @@ export async function ProductCard({
 						variantId={singleVariant.id}
 						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
 						variantPrice={singleVariant.price}
+						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
 						variantImages={singleVariant.images}
 						product={{
 							id: product.id,

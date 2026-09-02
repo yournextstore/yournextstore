@@ -11,6 +11,7 @@ import { useStoreConfig } from "@/components/store-config-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/money";
+import { displayAmount, displayPrice, type TaxBehavior } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 type Bundle = NonNullable<APIProductGetByIdResult["bundle"]>;
@@ -22,25 +23,38 @@ type GroupSelections = Record<string, Record<string, number>>;
 
 // Raw bundle pricing fields off the product (commerce-kit 0.50). `discountPercentage` is already on
 // the clean `bundle` object; the mode + fixed/amount values live on the product for now.
-// TODO: fold priceMode/fixedPriceAmount/amountOffAmount into `serializeBundleForApi` and read from
-// `product.bundle` instead of the raw fields (needs a commerce-kit release) — see YNS-1449.
+// TODO: fold priceMode/fixedPriceAmount/amountOffAmount (and their gross twins) into
+// `serializeBundleForApi` and read from `product.bundle` instead of the raw fields — see YNS-1449.
 type Pricing = {
 	mode: "fixed" | "percent" | "amount";
 	fixedPriceAmount: string | null;
+	fixedPriceAmountGross: string | null;
 	amountOffAmount: string | null;
+	amountOffAmountGross: string | null;
 };
 
-// Preview total (minor units). The cart response is authoritative; this mirrors the core modes so
-// fixed-price and amount-off bundles don't show the full component sum on the PDP.
-const priceTotal = (sum: bigint, pricing: Pricing, discountPercentage: number | null): bigint => {
+// Preview total (minor units), in the basis the shopper sees: `sum` already comes in gross for an
+// inclusive store, so the fixed/amount-off operands must match it. The cart response is
+// authoritative; this mirrors the core modes so fixed-price and amount-off bundles don't show the
+// full component sum on the PDP.
+const priceTotal = (
+	sum: bigint,
+	pricing: Pricing,
+	discountPercentage: number | null,
+	taxBehavior: TaxBehavior,
+): bigint => {
 	if (pricing.mode === "fixed") {
-		return pricing.fixedPriceAmount != null ? BigInt(pricing.fixedPriceAmount) : sum;
+		const fixed = displayAmount(pricing.fixedPriceAmount, pricing.fixedPriceAmountGross, taxBehavior);
+		return fixed != null ? BigInt(fixed) : sum;
 	}
 	if (pricing.mode === "amount") {
-		const off = BigInt(pricing.amountOffAmount ?? "0");
+		const off = BigInt(
+			displayAmount(pricing.amountOffAmount, pricing.amountOffAmountGross, taxBehavior) ?? "0",
+		);
 		return sum > off ? sum - off : 0n;
 	}
 	// percent: core stores percent × 1000, so pct/100 becomes (sum × round(pct×1000)) / 100000.
+	// A ratio needs no gross twin — scaling a gross sum gives the gross discounted total.
 	const pct = discountPercentage ?? 0;
 	return pct > 0 ? sum - (sum * BigInt(Math.round(pct * 1000))) / 100_000n : sum;
 };
@@ -71,7 +85,7 @@ export function BundleBuilder({
 	pricing: Pricing;
 }) {
 	const { groups, discountPercentage } = bundle;
-	const { currency, locale } = useStoreConfig();
+	const { currency, locale, taxBehavior } = useStoreConfig();
 	const { openCart } = useCart();
 
 	const [selections, setSelections] = useState<GroupSelections>(() => initialSelections(groups));
@@ -98,7 +112,9 @@ export function BundleBuilder({
 		setSelections((prev) => ({ ...prev, [group.id]: { [variantId]: 1 } }));
 	};
 
-	// Preview only — the cart response is authoritative for the final (taxed) price.
+	// Preview only — the cart response is authoritative for the final (taxed) price. Component
+	// prices and the fixed/amount-off pricing fields both carry gross twins, so an inclusive store
+	// previews the bundle inc-tax throughout.
 	const { total, originalTotal } = useMemo(() => {
 		let sum = 0n;
 		for (const group of groups) {
@@ -106,11 +122,11 @@ export function BundleBuilder({
 			for (const [variantId, quantity] of Object.entries(inner)) {
 				if (quantity <= 0) continue;
 				const item = itemByVariant.get(`${group.id}:${variantId}`);
-				if (item) sum += BigInt(item.variant.price) * BigInt(quantity);
+				if (item) sum += BigInt(displayPrice(item.variant, taxBehavior)) * BigInt(quantity);
 			}
 		}
-		return { total: priceTotal(sum, pricing, discountPercentage), originalTotal: sum };
-	}, [groups, selections, itemByVariant, discountPercentage, pricing]);
+		return { total: priceTotal(sum, pricing, discountPercentage, taxBehavior), originalTotal: sum };
+	}, [groups, selections, itemByVariant, discountPercentage, pricing, taxBehavior]);
 
 	const hasSavings = total < originalTotal;
 
@@ -244,7 +260,7 @@ export function BundleBuilder({
 											</span>
 											<span className="text-muted-foreground text-sm">
 												{formatMoney({
-													amount: BigInt(item.variant.price),
+													amount: BigInt(displayPrice(item.variant, taxBehavior)),
 													currency,
 													locale,
 												})}

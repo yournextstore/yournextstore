@@ -18,7 +18,7 @@ import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
-	const { currency, locale } = useStoreConfig();
+	const { currency, locale, taxBehavior } = useStoreConfig();
 	const { isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
 
 	const checkoutUrl = `/checkout`;
@@ -67,7 +67,13 @@ export function CartSidebar() {
 									<span className="font-medium">Subtotal</span>
 									<span className="font-semibold">{formatMoney({ amount: subtotal, currency, locale })}</span>
 								</div>
-								<p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout</p>
+								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
+								    "calculate taxes at checkout" there would read as an extra charge to come. */}
+								<p className="text-xs text-muted-foreground">
+									{taxBehavior === "inclusive"
+										? "Shipping calculated at checkout"
+										: "Shipping and taxes calculated at checkout"}
+								</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would

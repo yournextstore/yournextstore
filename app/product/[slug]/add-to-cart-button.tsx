@@ -12,18 +12,25 @@ import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
+import { displayPrice, priceRange } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
+// Every net price below has a gross twin; which of the pair a shopper sees is the store's
+// `taxBehavior` (see lib/pricing.ts). The twins stay optional so this still renders against
+// an older API payload that sends the net values only.
 type Variant = {
 	id: string;
 	price: string;
+	priceGross?: string;
 	originalPrice: string;
+	originalPriceGross?: string | null;
 	sku: string | null;
 	images: string[];
 	stock: number | null;
 	/** EU Omnibus: lowest price in the last 30 days (null unless the store enables omnibus). */
 	omnibusPrice: string | null;
+	omnibusPriceGross?: string | null;
 	combinations: {
 		variantValue: {
 			id: string;
@@ -61,7 +68,7 @@ export function AddToCartButton({
 	volumePricingTiers = [],
 	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
-	const { currency, locale } = useStoreConfig();
+	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -76,9 +83,10 @@ export function AddToCartButton({
 		volumePricingTiers,
 		selectedVariant?.id,
 		effectiveQuantity,
+		taxBehavior,
 	);
 
-	const unitPrice = volumePrice ?? selectedVariant?.price;
+	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
 	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
 
 	const buttonText = useMemo(() => {
@@ -96,8 +104,11 @@ export function AddToCartButton({
 		const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 
 		if (selectedVariant) {
-			const price = BigInt(selectedVariant.price);
-			const listPrice = BigInt(selectedVariant.originalPrice);
+			const price = BigInt(displayPrice(selectedVariant, taxBehavior));
+			const listPrice = BigInt(
+				displayPrice(selectedVariant, taxBehavior, "originalPrice") ??
+					displayPrice(selectedVariant, taxBehavior),
+			);
 			const onSale = listPrice > price;
 			return {
 				display: fmt(price),
@@ -106,23 +117,21 @@ export function AddToCartButton({
 			};
 		}
 
-		const prices = variants.map((v) => BigInt(v.price));
-		const minPrice = prices.reduce((min, p) => (p < min ? p : min), prices[0] ?? 0n);
-		const maxPrice = prices.reduce((max, p) => (p > max ? p : max), prices[0] ?? 0n);
+		const { min: minPrice, max: maxPrice } = priceRange(variants, taxBehavior);
 		return {
 			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
 			compareAt: null,
 			discountPercent: null,
 		};
-	}, [selectedVariant, variants, locale, currency]);
+	}, [selectedVariant, variants, locale, currency, taxBehavior]);
 
 	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
 	const omnibusPrice = useMemo(() => {
 		if (!selectedVariant || !priceInfo.compareAt) return null;
-		const lowest = selectedVariant.omnibusPrice;
+		const lowest = displayPrice(selectedVariant, taxBehavior, "omnibusPrice");
 		if (!lowest) return null;
 		return formatMoney({ amount: BigInt(lowest), currency, locale });
-	}, [selectedVariant, priceInfo.compareAt, locale, currency]);
+	}, [selectedVariant, priceInfo.compareAt, locale, currency, taxBehavior]);
 
 	// Stock availability. null stock means it isn't tracked (treated as in stock).
 	const stockStatus = useMemo(() => {
@@ -159,6 +168,9 @@ export function AddToCartButton({
 				productVariant: {
 					id: variantId,
 					price: selectedVariant.price,
+					// Carry the gross twin so the optimistic line renders in the same basis the
+					// server-returned cart will use — no net/gross flip while the write is in flight.
+					priceGross: selectedVariant.priceGross,
 					images: selectedVariant.images,
 					product,
 				},

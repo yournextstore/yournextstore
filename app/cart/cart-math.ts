@@ -1,8 +1,12 @@
+import { cartDisplaySubtotal, displayPrice, type TaxBehavior } from "@/lib/pricing";
+
 export type CartLineItem = {
 	quantity: number;
 	productVariant: {
 		id: string;
 		price: string;
+		/** Gross twin of `price`; absent on optimistic lines built before the server replies. */
+		priceGross?: string | null;
 		images: string[];
 		product: {
 			id: string;
@@ -13,7 +17,7 @@ export type CartLineItem = {
 			bundleDiscountPercentage?: string | null;
 			bundleProducts?: Array<{
 				quantity: number;
-				variant: { price: string };
+				variant: { price: string; priceGross?: string | null };
 			}>;
 		};
 	};
@@ -25,10 +29,19 @@ export type CartLineItem = {
 export type Cart = {
 	id: string;
 	lineItems: CartLineItem[];
+	// Authoritative money totals (minor units) as the API computed them. `null` when the
+	// store prices through Stripe Tax, and cleared by `cartReducer` because an optimistic
+	// local mutation invalidates them — see `withoutStaleTotals`.
+	subtotal?: number | null;
+	subtotalNet?: number | null;
+	subtotalGross?: number | null;
 };
 
-/** Get the effective unit price for a line item, computing bundle price from constituents if needed. */
-export function getLineItemUnitPrice(item: CartLineItem): bigint {
+/**
+ * The effective unit price for a line item, in the basis the shopper should see,
+ * computing the bundle price from its constituents if needed.
+ */
+export function getLineItemUnitPrice(item: CartLineItem, taxBehavior: TaxBehavior): bigint {
 	const { product } = item.productVariant;
 	// Configurable bundles are priced server-side from the customer's selections; the per-unit price
 	// is already on productVariant.price. Only the legacy fixed-bundle shape (no selections) needs
@@ -40,19 +53,43 @@ export function getLineItemUnitPrice(item: CartLineItem): bigint {
 		product.bundleProducts &&
 		product.bundleProducts.length > 0
 	) {
-		let total = 0n;
-		for (const bp of product.bundleProducts) {
-			let net = BigInt(bp.variant.price);
-			if (product.bundleDiscountPercentage) {
-				const discount = (net * BigInt(product.bundleDiscountPercentage)) / 100_000n;
-				net = net - discount;
-			}
-			total += net * BigInt(bp.quantity);
-		}
-		return total;
+		return product.bundleProducts.reduce((total, bp) => {
+			const unit = BigInt(displayPrice(bp.variant, taxBehavior));
+			const discount = product.bundleDiscountPercentage
+				? (unit * BigInt(product.bundleDiscountPercentage)) / 100_000n
+				: 0n;
+			return total + (unit - discount) * BigInt(bp.quantity);
+		}, 0n);
 	}
-	return BigInt(item.productVariant.price);
+	return BigInt(displayPrice(item.productVariant, taxBehavior));
 }
+
+/**
+ * The cart subtotal a shopper should see: the API's own total when the cart is the
+ * server's, otherwise a local sum of display prices (optimistic, in-flight carts).
+ */
+export function getCartDisplaySubtotal(cart: Cart | null, taxBehavior: TaxBehavior): bigint {
+	const fromApi = cartDisplaySubtotal(cart, taxBehavior);
+	if (fromApi !== null) {
+		return BigInt(Math.round(fromApi));
+	}
+	return (cart?.lineItems ?? []).reduce(
+		(sum, item) => sum + getLineItemUnitPrice(item, taxBehavior) * BigInt(item.quantity),
+		0n,
+	);
+}
+
+/**
+ * Drop the server's money totals. Any local mutation makes them stale, and a stale total
+ * is worse than none: without them the cart falls back to summing display prices, which
+ * keeps the subtotal in the same net/gross basis instead of flipping mid-mutation.
+ */
+const withoutStaleTotals = (cart: Cart): Cart => ({
+	...cart,
+	subtotal: null,
+	subtotalNet: null,
+	subtotalGross: null,
+});
 
 export type CartAction =
 	| { type: "INCREASE"; variantId: string }
@@ -64,6 +101,11 @@ export type CartAction =
 // REPLACES this with the server-returned cart (syncCart) — plain state, no rebase,
 // so a local mutation can never be re-applied on top of the authoritative cart.
 export function cartReducer(state: Cart | null, action: CartAction): Cart | null {
+	const next = applyCartAction(state, action);
+	return next && next !== state ? withoutStaleTotals(next) : next;
+}
+
+function applyCartAction(state: Cart | null, action: CartAction): Cart | null {
 	if (!state) {
 		if (action.type === "ADD_ITEM") {
 			return { id: "local", lineItems: [action.item] };

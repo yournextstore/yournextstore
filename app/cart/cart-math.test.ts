@@ -1,5 +1,11 @@
 import { expect, test } from "bun:test";
-import { type Cart, type CartLineItem, cartReducer, getLineItemUnitPrice } from "@/app/cart/cart-math";
+import {
+	type Cart,
+	type CartLineItem,
+	cartReducer,
+	getCartDisplaySubtotal,
+	getLineItemUnitPrice,
+} from "@/app/cart/cart-math";
 
 const lineItem = (
 	overrides: Partial<CartLineItem["productVariant"]["product"]> = {},
@@ -22,7 +28,7 @@ const lineItem = (
 });
 
 test("getLineItemUnitPrice returns the variant price for regular products", () => {
-	expect(getLineItemUnitPrice(lineItem())).toBe(1000n);
+	expect(getLineItemUnitPrice(lineItem(), "exclusive")).toBe(1000n);
 });
 
 test("getLineItemUnitPrice reconstructs legacy fixed-bundle prices from constituents", () => {
@@ -35,7 +41,7 @@ test("getLineItemUnitPrice reconstructs legacy fixed-bundle prices from constitu
 			{ quantity: 1, variant: { price: "4000" } }, //  1 × (4000 - 1000)  =  3000
 		],
 	});
-	expect(getLineItemUnitPrice(item)).toBe(18000n);
+	expect(getLineItemUnitPrice(item, "exclusive")).toBe(18000n);
 });
 
 test("getLineItemUnitPrice truncates (never rounds up) BigInt discount math", () => {
@@ -45,7 +51,7 @@ test("getLineItemUnitPrice truncates (never rounds up) BigInt discount math", ()
 		bundleDiscountPercentage: "33333",
 		bundleProducts: [{ quantity: 1, variant: { price: "999" } }],
 	});
-	expect(getLineItemUnitPrice(item)).toBe(999n - 332n);
+	expect(getLineItemUnitPrice(item, "exclusive")).toBe(999n - 332n);
 });
 
 test("getLineItemUnitPrice uses the server-computed price for configurable bundles", () => {
@@ -58,12 +64,65 @@ test("getLineItemUnitPrice uses the server-computed price for configurable bundl
 		},
 		{ setSelections: [{ quantity: 1 }] },
 	);
-	expect(getLineItemUnitPrice(item)).toBe(1000n);
+	expect(getLineItemUnitPrice(item, "exclusive")).toBe(1000n);
+});
+
+test("getLineItemUnitPrice returns the gross price for an inclusive store", () => {
+	const item = lineItem();
+	item.productVariant.priceGross = "1230";
+	expect(getLineItemUnitPrice(item, "inclusive")).toBe(1230n);
+});
+
+test("getLineItemUnitPrice falls back to net when a line carries no gross twin", () => {
+	// Optimistic lines built client-side, and older API payloads, are net-only.
+	expect(getLineItemUnitPrice(lineItem(), "inclusive")).toBe(1000n);
+});
+
+test("getLineItemUnitPrice discounts legacy bundle constituents in the displayed basis", () => {
+	const item = lineItem({
+		type: "bundle",
+		bundleDiscountPercentage: "25000",
+		bundleProducts: [{ quantity: 2, variant: { price: "10000", priceGross: "12300" } }],
+	});
+	expect(getLineItemUnitPrice(item, "inclusive")).toBe(2n * (12300n - 3075n));
+});
+
+test("getCartDisplaySubtotal prefers the API totals over a local sum", () => {
+	const cart: Cart = {
+		id: "c-1",
+		lineItems: [{ ...lineItem(), quantity: 3 }],
+		subtotal: 2500,
+		subtotalNet: 2500,
+		subtotalGross: 3075,
+	};
+	expect(getCartDisplaySubtotal(cart, "exclusive")).toBe(2500n);
+	expect(getCartDisplaySubtotal(cart, "inclusive")).toBe(3075n);
+});
+
+test("getCartDisplaySubtotal sums display prices when the cart has no totals", () => {
+	const cart: Cart = { id: "local", lineItems: [{ ...lineItem(), quantity: 3 }] };
+	expect(getCartDisplaySubtotal(cart, "exclusive")).toBe(3000n);
+	expect(getCartDisplaySubtotal(null, "exclusive")).toBe(0n);
+});
+
+test("cartReducer drops the server totals so the subtotal never mixes bases", () => {
+	const cart: Cart = { id: "c-1", lineItems: [lineItem()], subtotal: 1000, subtotalGross: 1230 };
+	const next = cartReducer(cart, { type: "INCREASE", variantId: "v-1" });
+	expect(next?.subtotal).toBeNull();
+	expect(next?.subtotalGross).toBeNull();
+	// …and the fallback sum is now the one the sidebar shows.
+	expect(getCartDisplaySubtotal(next, "exclusive")).toBe(2000n);
 });
 
 test("cartReducer ADD_ITEM creates a local cart from null state", () => {
 	const next = cartReducer(null, { type: "ADD_ITEM", item: lineItem() });
-	expect(next).toEqual({ id: "local", lineItems: [lineItem()] });
+	expect(next).toEqual({
+		id: "local",
+		lineItems: [lineItem()],
+		subtotal: null,
+		subtotalNet: null,
+		subtotalGross: null,
+	});
 });
 
 test("cartReducer ignores non-add actions on null state", () => {

@@ -4,16 +4,8 @@ import type {
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
 import { getCanonicalUrl, meGetCached } from "@/lib/commerce";
-import { CURRENCY } from "@/lib/constants";
-
-async function getCurrency(): Promise<string> {
-	try {
-		const me = await meGetCached();
-		return me.store.currency?.toUpperCase() || CURRENCY;
-	} catch {
-		return CURRENCY;
-	}
-}
+import { priceRange } from "@/lib/pricing";
+import { getStoreConfig } from "@/lib/store-config";
 
 function getDecimalPrice(minorAmount: string): string {
 	return (Number(minorAmount) / 100).toFixed(2);
@@ -36,11 +28,14 @@ export async function buildProductJsonLd(
 	product: APIProductGetByIdResult,
 	reviews: APIProductReviewsBrowseResult | null,
 ): Promise<Record<string, unknown>> {
-	const prices = product.variants.map((v) => Number(v.price));
-	const lowPrice = getDecimalPrice(String(Math.min(...prices)));
-	const highPrice = getDecimalPrice(String(Math.max(...prices)));
+	const { currency: storeCurrency, taxBehavior } = await getStoreConfig();
+	// schema.org `price` must be the price the shopper sees on the page — gross on an
+	// inclusive store, net on an exclusive one. Same rule the platform storefront emits.
+	const { min, max } = priceRange(product.variants, taxBehavior);
+	const lowPrice = getDecimalPrice(String(min));
+	const highPrice = getDecimalPrice(String(max));
 	const baseUrl = getBaseUrl();
-	const currency = await getCurrency();
+	const currency = storeCurrency.toUpperCase();
 
 	const jsonLd: Record<string, unknown> = {
 		"@context": "https://schema.org",
