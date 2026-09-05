@@ -34,6 +34,8 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
+	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
+	preload: false,
 });
 
 async function getStoreMetadata(): Promise<Metadata> {
