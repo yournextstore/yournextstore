@@ -75,6 +75,34 @@ Then, per path:
    - `bun.lock`: never copied — regenerate with `bun install` after the reconcile.
    - `.env*`, `deploy_key.pem`: never touched.
 
+## Targeted edits for the shell rollout
+
+The performance/accessibility pass on template main (prerendered chrome, optimizer-served favicon,
+AA colour tokens) is mostly self-propagating, but two paths need help:
+
+- **New files land on their own** under rule 4 — `scripts/check-shell.sh`, `scripts/audit.sh`,
+  `lib/contrast.ts`, `lib/contrast.test.ts`, `app/palette.test.ts`, `lint-staged.config.mjs`.
+  Nothing to do.
+- **`package.json` `scripts.build`** must be ported even when the file counts as customized,
+  because the build gate is the whole point of the change:
+  ```
+  jq '.scripts.build = "bun next build && bash scripts/check-shell.sh"' package.json | sponge package.json
+  ```
+  Add `.scripts.audit = "bash scripts/audit.sh"` the same way. Everything else in `scripts` stays as
+  the store has it.
+- **`app/layout.tsx`** is ~52 commits of churn on main and will almost always come back as
+  `skipped (customized)`. Do not merge it. Put it in the "needs manual follow-up" list with these
+  three targeted edits spelled out, so a follow-up run (or a human) can apply them:
+  1. remove the `<Suspense>` around the children/chrome wrapper **if** everything it awaits is a
+     cached read — the boundary alone streams the chrome out of the prerendered shell; a store that
+     still awaits its cart cookie there must move that read into a `CartBootstrapper` below the
+     chrome first;
+  2. replace the `icons` block in the metadata with the optimizer version — one `icon` entry built
+     with `getImageProps` and **no** `type`, `apple` left on the original URL, no `shortcut`;
+  3. `Geist_Mono({ …, preload: false })`.
+
+  After such a follow-up, `bun run build` in the store repo is the check that says it worked.
+
 ## Verify, commit, push
 
 In each store repo, in order — a failure at any step means **do not push**; report instead:
