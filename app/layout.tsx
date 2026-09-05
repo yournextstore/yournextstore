@@ -4,6 +4,7 @@ import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
@@ -42,6 +43,10 @@ async function getStoreMetadata(): Promise<Metadata> {
 	const storeName = me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
+	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
+	// the image optimizer so browsers fetch a few KB from this origin, not the blob host.
+	const iconUrl = (size: number) =>
+		getImageProps({ src: faviconUrl, width: size, height: size, alt: "" }).props.src;
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
 	const ogImage = me.store.settings?.ogimage || storeLogo || "/logo.svg";
@@ -82,12 +87,11 @@ async function getStoreMetadata(): Promise<Metadata> {
 			},
 		},
 		icons: {
-			icon: [
-				{ url: faviconUrl, sizes: "any", type: "image/svg+xml" },
-				{ url: faviconUrl, sizes: "192x192", type: "image/png" },
-			],
+			// No `type`: the URL is whatever the admin uploaded and the optimizer negotiates the
+			// format, and declaring image/svg+xml over a PNG makes Chrome drop the icon.
+			icon: [{ url: iconUrl(64), sizes: "64x64" }],
+			// iOS wants a PNG here (the optimizer negotiates WebP), so the original stays for the home-screen icon.
 			apple: [{ url: faviconUrl, sizes: "180x180" }],
-			shortcut: faviconUrl,
 		},
 		manifest: "/manifest.webmanifest",
 	};
