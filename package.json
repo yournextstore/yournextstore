@@ -12,7 +12,8 @@
     "api": "bash scripts/api.sh",
     "test": "bun test",
     "format": "bun run biome format --write",
-    "check": "bun run biome check && bun tsc --noEmit && bun test"
+    "check": "bun run biome check && bun tsc --noEmit && bun test",
+    "audit": "bash scripts/audit.sh"
   },
   "dependencies": {
     "@ai-sdk/react": "4.0.93",
