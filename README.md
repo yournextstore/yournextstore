@@ -66,6 +66,10 @@ Open [localhost:3000](http://localhost:3000) — your store is running.
 - **TypeScript** — Strict type-safe development
 - **Biome** — Lightning-fast linter and formatter
 
+Performance and accessibility defaults — prerendered chrome on every route, optimizer-served icons,
+WCAG-AA colour tokens, tappable controls — are spelled out in [AGENTS.md](AGENTS.md#performance--accessibility-baseline)
+and checked by `bun run build` and `bun test`.
+
 ## Prerequisites
 
 - [Node.js 24+](https://nodejs.org/)

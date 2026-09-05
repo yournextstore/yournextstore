@@ -95,10 +95,16 @@ hunk by hunk — don't blanket-pick a side. The decisions that recur:
 
 ## Validate before pushing
 
-Beyond `bun run check` and `bun run build`, confirm the prerendered shell survived the layout merge:
+`bun run build` already confirms the prerendered shell survived the layout merge: it runs
+`scripts/check-shell.sh` over every prerendered document and fails if the chrome landed in a
+streamed segment instead of the first flush — which is exactly what a resolution that keeps the
+store's `<Suspense>` around the children wrapper, or its cart cookie read above the chrome, produces.
+See AGENTS.md, "The prerendered shell". Run it together with `bun run check`.
+
+After deploying, apply the same rule to the live response, whose first flush is that same shell:
 
 ```bash
-grep -c '<header' .next/server/app/index.html    # must be >= 1
+bash scripts/check-shell.sh https://<store>/
 ```
 
 Then smoke the routes the merge touched (`/`, `/products`, `/search`, any locale prefix) and confirm

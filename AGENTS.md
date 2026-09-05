@@ -6,13 +6,14 @@ Your Next Store — e-commerce app built with Next.js App Router + Commerce Kit 
 
 ```bash
 bun dev           # Dev server (port 3000)
-bun run build     # Production build
+bun run build     # Production build + verify the prerendered shell (scripts/check-shell.sh)
 bun start         # Production server
 bun run lint      # Biome lint (--write to auto-fix)
 bun run format    # Biome format
 bun test          # Run tests (bun:test)
 tsc --noEmit     # Type check
 bun run check     # Everything but the build: biome check + tsc --noEmit + bun test
+bun run audit <url> [--desktop]       # Lighthouse performance + accessibility on a running URL
 bun run publish:store                 # Production publish (CLI twin of the admin "Publish" button; deploys remote main)
 bun run api <METHOD> <path> [json]    # Call any Store API endpoint with the store key, e.g. bun run api GET /me
 ```
@@ -25,7 +26,8 @@ components/ui/        # Shadcn UI components (add more with: bunx shadcn add <na
 lib/commerce.ts       # Commerce API client
 lib/money.ts          # Currency formatting (formatMoney)
 lib/utils.ts          # Utilities
-scripts/              # CLI helpers: api.sh (generic Store API caller), publish.sh (production publish + wait)
+scripts/              # CLI helpers: api.sh (Store API caller), publish.sh (publish + wait),
+                      # check-shell.sh (prerendered-shell gate), audit.sh (Lighthouse runner)
 biome.json            # Lint/format config
 next.config.ts        # Next.js config
 ```
@@ -59,11 +61,66 @@ There is **no auth in this app**. Shopper sign-in happens exclusively through th
 
 Do not hoist a request-time read above the chrome. The layout's Suspense boundaries have no fallback, so the cost is not a spinner: the shell prerenders empty and the page paints blank white until the server responds. That stays invisible during soft navigation (the old UI remains on screen) and is glaring on any full document load.
 
-Check it after touching the layout — the header must be in the prerendered HTML, not only in a streamed chunk:
+`bun run build` verifies this: after `next build` it runs `scripts/check-shell.sh` over every
+`*.html` under `.next/server/app`, and a regression fails the build rather than the next Lighthouse
+run. Counting headers is not enough — React writes the boundaries that resolved *after* the first
+flush into the same static file, as `<div hidden id="S:…">` segments revealed by an inline `$RC`
+script at the end, so a chrome that streamed still greps as present. The check compares byte
+offsets: the header must come *before* the first such segment, or first paint waits for the whole
+shell to parse and for that runtime script to run. To look at one document by hand:
 
 ```bash
-bun run build && grep -c '<header' .next/server/app/index.html   # must be ≥ 1
+grep -b -o -m1 '<header' .next/server/app/index.html | cut -d: -f1             # byte offset of the header
+grep -b -o -m1 '<div hidden id="S:' .next/server/app/index.html | cut -d: -f1  # must be larger (or empty)
 ```
+
+The same rule holds for a deployed store, because the static shell is the first flush of the live
+response too: `bash scripts/check-shell.sh https://<store>/`. `YNS_SHELL_CHECK=warn` prints the
+failures and exits 0 (the release valve when a store must ship anyway), `YNS_SHELL_CHECK=off` skips
+the check entirely. Error documents are skipped by design — `_global-error` and anything that
+resolved to `notFound()` while prerendering replace the root layout, so they carry no chrome to
+measure.
+
+Two corollaries, one for the chrome and one for listings:
+
+- A chrome component that reads `usePathname()` or `useSearchParams()` sits inside its **own**
+  `<Suspense>`, the way `SearchInput` does in the header. Never a boundary around the layout's
+  children: the boundary itself is what streams the chrome out, whether or not anything inside it is
+  request-time. The link primitive in particular must not read `usePathname()` — active styling goes
+  in a small client component with its own boundary inside the nav.
+- Listing controls that read `useSearchParams()` share the grid's boundary instead of sitting above
+  it (`app/products/page.tsx`, `CategoryContent`): one skeleton for filters, sort and grid together,
+  with the heading outside so it prerenders. Controls outside any boundary fail the build.
+
+## Performance & accessibility baseline
+
+The defaults below are load-bearing — every one of them came back as a Lighthouse finding on a live
+store. Keep them when you touch the chrome, the tokens or a `<head>` asset.
+
+- **`<head>` assets stay same-origin.** The favicon goes through the image optimizer
+  (`getImageProps` inside `getStoreMetadata`), not the blob host: one `icon` entry with **no**
+  `type` — declaring `image/svg+xml` over a PNG makes Chrome drop the icon and the optimizer
+  negotiates the format anyway — and `apple` left on the original URL because iOS wants a real PNG.
+  `app/favicon.ico/route.ts` redirects to the same optimizer URL. `manifest.webmanifest` icons stay
+  PNG (PWA installs need them).
+- **Fonts.** Variable faces, no `weight` arrays beyond what is used, and `preload: false` for any
+  face that does not paint above the fold — `Geist_Mono` only appears in chat and code spans, so it
+  loads on use instead of blocking every first paint. `Geist` stays preloaded.
+- **Images.** `priority` only on the LCP image, never on something the viewport may not show.
+  Never `unoptimized` on platform media: pass `sizes` matching the box it renders into and let the
+  optimizer resize.
+- **Contrast.** `app/palette.test.ts` asserts every text/surface token pair in `:root` and `.dark`
+  clears WCAG AA (4.5:1), and an unparseable value fails rather than skips. When it trips, darken
+  the *text* token — the tint is the design, the token clears AA on it.
+- **Touch targets.** Interactive elements are ≥ 24×24 CSS px. Use the `Button` sizes (`icon-sm` for
+  icon buttons); never shrink one back down with `h-auto p-1`. A decorative dot belongs in an
+  `aria-hidden` span inside a 24 px button, not as the button.
+- **Fixed docks.** The "Made with YNS" badge, the chat launcher and the newsletter launcher all sit
+  at `z-50`/`bottom-4`; the consent banner is `z-[60]` so its controls stay above them and clickable.
+- **Measure it.** `bun run audit <url>` against `bun start` while working, and
+  `bun run audit https://<store>/` after publishing. The accessibility audits are deterministic —
+  a failure is a real defect; the simulated performance numbers swing ±0.3 s run to run, so compare
+  trends, and PageSpeed on the live URL is the score that counts.
 
 ## Adding locales
 
@@ -164,18 +221,21 @@ test("formatMoney handles USD correctly", () => {
 
 There is no GitHub Actions workflow — the husky `pre-commit` hook is the only automated gate. It
 runs `lint-staged`: Biome over the staged files, then `bun tsc --noEmit` and `bun test` whenever a
-`.ts`/`.tsx` file is staged. `bun run check` runs the same three by hand.
+`.ts`/`.tsx` file is staged, plus `bun test app/palette.test.ts` whenever `app/globals.css` is
+staged — a CSS-only commit stages no TypeScript, so the contrast assertions would otherwise never
+run on the one file that can break them. `bun run check` runs the whole suite by hand.
 
 `bun run build` stays out of both, because prerendering reads live store data through `YNS_API_KEY`.
-Run it yourself before publishing.
+Run it yourself before publishing — it is also where the prerendered-shell check runs.
 
 ## Validation Checklist
 
 - [ ] `tsc --noEmit` — no type errors
 - [ ] `bun run lint` — no lint errors
 - [ ] `bun run format` — code formatted
-- [ ] `bun test` — tests pass
-- [ ] `bun run build` — build succeeds
+- [ ] `bun test` — tests pass (includes the palette contrast assertions)
+- [ ] `bun run build` — build succeeds, including the prerendered-shell check
+- [ ] `bun run audit <url>` — accessibility ≥ 0.98, no new failing audits
 - [ ] `bun dev` — runs without errors, feature works in browser
 - [ ] No console errors, images load, responsive layout
 - [ ] No hardcoded secrets; env vars set (`.env.local` / Vercel dashboard)
