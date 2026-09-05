@@ -133,7 +133,14 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 					<div className="flex flex-col sm:flex-row">
 						{imageUrl && (
 							<div className="relative hidden min-h-75 bg-muted sm:block sm:w-1/2">
-								<Image src={imageUrl} alt="" fill className="object-cover" unoptimized />
+								{/* Half of the dialog panel, which caps at max-w-3xl (768px); hidden below sm. */}
+								<Image
+									src={imageUrl}
+									alt=""
+									fill
+									sizes="(min-width: 640px) 384px, 0px"
+									className="object-cover"
+								/>
 							</div>
 						)}
 
