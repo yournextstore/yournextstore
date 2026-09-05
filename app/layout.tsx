@@ -146,7 +146,9 @@ async function CartBootstrapper() {
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
 	// Only cached reads here. Awaiting anything request-time (cookies, headers, the
 	// cart) would take the header, nav and footer out of the prerendered shell and
-	// leave the page blank until the server responds.
+	// leave the page blank until the server responds. The other half of the rule: no
+	// <Suspense> around this component either — the boundary itself is what streams the
+	// chrome out of the shell, whether or not anything inside it is request-time.
 	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
 
 	return (
@@ -236,9 +238,7 @@ export default async function RootLayout({
 					<StoreJsonLd />
 				</Suspense>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					<Suspense>
-						<CartProviderWrapper>{children}</CartProviderWrapper>
-					</Suspense>
+					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
 					</Suspense>
