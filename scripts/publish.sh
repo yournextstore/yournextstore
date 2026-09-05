@@ -8,6 +8,7 @@
 set -euo pipefail
 
 API="$(dirname "${BASH_SOURCE[0]}")/api.sh"
+SHELL_CHECK="$(dirname "${BASH_SOURCE[0]}")/check-shell.sh"
 
 POLL_INTERVAL=5
 POLL_ATTEMPTS=180
@@ -69,6 +70,12 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 		READY)
 			printf '  %-12s (%ds)\n' "published" "$ELAPSED"
 			printf '  → https://%s\n' "$DEPLOYMENT_URL"
+			# Informational only — the deploy already happened, so a regressed shell
+			# is reported, not fatal. The live first flush is the same shell the
+			# build gate measures.
+			if [ -n "$DEPLOYMENT_URL" ]; then
+				YNS_SHELL_CHECK=warn bash "$SHELL_CHECK" "https://$DEPLOYMENT_URL/" || true
+			fi
 			exit 0
 			;;
 		ERROR | CANCELED)
