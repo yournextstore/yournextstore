@@ -132,27 +132,29 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
 			</div>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} />}
+			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
+			    boundary with the grid while the chrome and the heading above prerender. */}
+			<Suspense fallback={<ProductGridSkeleton />}>
+				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+					{filtersAvailable && <ProductFilters facets={facets} />}
 
-				<div>
-					{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-					<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-						{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-						<SortSelect options={sortOptions} />
-					</div>
+					<div>
+						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
+						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+							<SortSelect options={sortOptions} />
+						</div>
 
-					{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-					<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-						<span className="text-sm text-muted-foreground">Sort by:</span>
-						<SortLinks options={sortOptions} />
-					</div>
+						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
+						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
+							<span className="text-sm text-muted-foreground">Sort by:</span>
+							<SortLinks options={sortOptions} />
+						</div>
 
-					<Suspense fallback={<ProductGridSkeleton />}>
 						<ProductSection searchParams={searchParams} />
-					</Suspense>
+					</div>
 				</div>
-			</div>
+			</Suspense>
 		</div>
 	);
 }
