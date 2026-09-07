@@ -76,6 +76,11 @@ function buildDemoProduct(input: DemoInput): DemoProduct {
 		],
 		subscriptionPlanProducts: [],
 		volumePricingTiers: [],
+		// Demo products are plain products, never bundles.
+		bundlePriceMode: "fixed" as const,
+		bundleFixedPriceAmount: null,
+		bundleAmountOffAmount: null,
+		bundleGroups: [],
 	} satisfies DemoProduct;
 }
 
