@@ -1,9 +1,9 @@
 "use client";
 
 import { Menu } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { YnsLink } from "@/components/yns-link";
 import { MobileSearchInput } from "./search-input";
 
 export type NavLink = {
@@ -33,29 +33,27 @@ export function Navbar({ links }: { links: NavLink[] }) {
 					</div>
 					<nav className="mt-4 flex flex-col gap-1">
 						{links.map((link) => (
-							<YnsLink
+							<Link
 								key={link.href}
-								prefetch="eager"
 								href={link.href}
 								onClick={() => setOpen(false)}
 								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
 							>
 								{link.label}
-							</YnsLink>
+							</Link>
 						))}
 					</nav>
 				</SheetContent>
 			</Sheet>
 			<nav className="hidden lg:flex items-center gap-6">
 				{links.map((link) => (
-					<YnsLink
+					<Link
 						key={link.href}
-						prefetch={"eager"}
 						href={link.href}
 						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
 					>
 						{link.label}
-					</YnsLink>
+					</Link>
 				))}
 			</nav>
 		</>

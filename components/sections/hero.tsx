@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function Hero() {
 	return (
@@ -75,21 +75,19 @@ export function Hero() {
 							can feel — for a home that loves you back.
 						</p>
 						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<YnsLink
-								prefetch={"eager"}
+							<Link
 								href="/products"
 								className="group inline-flex items-center justify-center gap-2 h-12 px-8 bg-[var(--olive-deep)] text-[var(--cream)] rounded-full text-sm tracking-wide font-medium hover:bg-[var(--olive)] transition-all shadow-[0_8px_24px_-12px_rgb(56_70_38/0.5)]"
 							>
 								Shop Collection
 								<ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-							</YnsLink>
-							<YnsLink
-								prefetch={"eager"}
+							</Link>
+							<Link
 								href="#mission"
 								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-[var(--olive-deep)]/30 text-[var(--olive-deep)] rounded-full text-sm tracking-wide font-medium hover:bg-[var(--olive-deep)]/5 transition-colors"
 							>
 								Read Our Story
-							</YnsLink>
+							</Link>
 						</div>
 
 						{/* Trust badges */}

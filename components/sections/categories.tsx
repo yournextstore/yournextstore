@@ -1,8 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
+import Link from "next/link";
 import { commerce } from "@/lib/commerce";
-import { YnsLink } from "../yns-link";
 
 const FALLBACK_TILES = [
 	{ name: "Botanicals", slug: "botanicals", image: "/scraped-2.jpg", caption: "Skin & body" },
@@ -71,9 +71,8 @@ export async function Categories() {
 
 				<div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
 					{tiles.map((tile, i) => (
-						<YnsLink
+						<Link
 							key={tile.slug}
-							prefetch={"eager"}
 							href={`/collection/${tile.slug}`}
 							className="group relative aspect-[3/4] rounded-3xl overflow-hidden bg-[var(--cream)]/5 border border-[var(--cream)]/10 hover:border-[var(--cream)]/30 transition-all"
 						>
@@ -101,7 +100,7 @@ export async function Categories() {
 									<ArrowUpRight className="h-4 w-4" />
 								</span>
 							</div>
-						</YnsLink>
+						</Link>
 					))}
 				</div>
 			</div>

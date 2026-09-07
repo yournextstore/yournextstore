@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -13,13 +13,12 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
+			<Link
 				href="/blog"
 				className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 			>
 				Blog
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -35,13 +34,12 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
+			<Link
 				href="/contact"
 				className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 			>
 				Contact Us
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -62,13 +60,12 @@ async function FooterCollections() {
 			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 						>
 							{collection.name}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -92,13 +89,12 @@ async function FooterLegalPages() {
 			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/legal${page.href}`}
 							className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 						>
 							{page.label}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -106,7 +102,18 @@ async function FooterLegalPages() {
 	);
 }
 
-export function Footer() {
+// `new Date()` is an unstable value: now that the footer is part of the prerendered
+// shell, reading it during the prerender is an error. Caching pins it to the entry.
+async function getCopyrightYear() {
+	"use cache";
+	cacheLife("days");
+
+	return new Date().getFullYear();
+}
+
+export async function Footer() {
+	const year = await getCopyrightYear();
+
 	return (
 		<footer className="relative bg-[var(--olive-deep)] text-[var(--cream)] mt-0">
 			{/* Decorative top arch */}
@@ -171,41 +178,37 @@ export function Footer() {
 						<h3 className="text-[11px] tracking-[0.22em] uppercase text-[var(--cream)]/60 mb-5">Support</h3>
 						<ul className="space-y-3">
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/about"
 									className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 								>
 									About Us
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/faq"
 									className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 								>
 									FAQ
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/products"
 									className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 								>
 									Shipping & Returns
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/products"
 									className="text-sm text-[var(--cream)]/85 hover:text-[var(--cream)] transition-colors"
 								>
 									Refill Programme
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
@@ -215,7 +218,7 @@ export function Footer() {
 				</div>
 
 				<div className="py-8 border-t border-[var(--cream)]/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[11px] tracking-[0.18em] uppercase text-[var(--cream)]/50">
-					<p>&copy; {new Date().getFullYear()} Your Next Store · Crafted slowly</p>
+					<p>&copy; {year} Your Next Store · Crafted slowly</p>
 					<p>Carbon-neutral shipping · 1% for the Planet · B-Corp pending</p>
 				</div>
 			</div>

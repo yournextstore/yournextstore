@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function Promo() {
 	return (
@@ -69,7 +69,7 @@ export function Promo() {
 						/>
 						<div className="absolute inset-0 bg-gradient-to-l from-transparent to-[var(--clay)]/30 lg:hidden" />
 
-						<YnsLink
+						<Link
 							href="/products"
 							className="absolute bottom-6 right-6 flex items-center gap-2 backdrop-blur-md bg-[var(--cream)]/90 rounded-full pl-5 pr-2 py-2 text-xs font-medium text-[var(--olive-deep)] hover:bg-[var(--cream)] transition-colors"
 						>
@@ -77,7 +77,7 @@ export function Promo() {
 							<span className="h-7 w-7 rounded-full bg-[var(--olive-deep)] text-[var(--cream)] flex items-center justify-center">
 								<ArrowUpRight className="h-3.5 w-3.5" />
 							</span>
-						</YnsLink>
+						</Link>
 					</div>
 				</div>
 			</div>

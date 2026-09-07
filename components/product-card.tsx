@@ -3,12 +3,12 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import Link from "next/link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
-import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -55,7 +55,7 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group flex flex-col">
+		<Link href={`/product/${product.slug}`} className="group flex flex-col">
 			<div className="relative aspect-[4/5] bg-[var(--cream)] rounded-3xl overflow-hidden mb-5 border border-[var(--border)]/60">
 				{singleVariant && (
 					<QuickAddButton
@@ -122,6 +122,6 @@ export function ProductCard({
 				</h3>
 				<p className="text-xs tracking-[0.18em] uppercase text-[var(--stone)]">Slow-made · Refillable</p>
 			</div>
-		</YnsLink>
+		</Link>
 	);
 }

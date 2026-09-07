@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 const PILLARS = [
 	{
@@ -93,13 +93,13 @@ export function About() {
 						</div>
 
 						<div className="mt-12">
-							<YnsLink
+							<Link
 								href="/products"
 								className="group inline-flex items-center gap-2 text-sm font-medium text-[var(--olive-deep)]"
 							>
 								<span className="border-b border-[var(--olive-deep)]/40 pb-0.5">Read our impact report</span>
 								<ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-							</YnsLink>
+							</Link>
 						</div>
 					</div>
 				</div>

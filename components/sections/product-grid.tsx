@@ -5,9 +5,9 @@ import type {
 } from "commerce-kit";
 import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
-import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -62,14 +62,13 @@ export async function ProductGrid({
 						<p className="mt-4 text-[var(--stone)] max-w-md">{description}</p>
 					</div>
 					{showViewAll && (
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={viewAllHref}
 							className="group inline-flex items-center gap-2 text-sm font-medium text-[var(--olive-deep)] hover:text-[var(--olive)] transition-colors"
 						>
 							<span className="border-b border-[var(--olive-deep)]/30 pb-0.5">View all products</span>
 							<ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-						</YnsLink>
+						</Link>
 					)}
 				</div>
 
