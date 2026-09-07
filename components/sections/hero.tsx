@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function Hero() {
 	return (
@@ -22,13 +22,12 @@ export function Hero() {
 						<br />
 						want to feel
 					</h1>
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href="#products"
 						className="mt-6 sm:mt-8 inline-flex items-center justify-center h-11 px-8 bg-primary-foreground text-foreground text-xs font-medium tracking-[0.15em] uppercase hover:bg-primary-foreground/90 transition-colors"
 					>
 						Shop Now
-					</YnsLink>
+					</Link>
 				</div>
 			</div>
 		</section>

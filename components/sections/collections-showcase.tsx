@@ -1,7 +1,7 @@
 import { cacheLife } from "next/cache";
 import Image from "next/image";
+import Link from "next/link";
 import { commerce } from "@/lib/commerce";
-import { YnsLink } from "../yns-link";
 
 export async function CollectionsShowcase() {
 	"use cache";
@@ -24,14 +24,13 @@ export async function CollectionsShowcase() {
 			</div>
 			<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 				{collections.data.map((collection, i) => (
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						key={collection.id}
 						href={`/collection/${collection.slug}`}
 						className="group relative aspect-[3/4] rounded-lg overflow-hidden"
 					>
 						<Image
-							src={collectionImages[i % collectionImages.length]}
+							src={collectionImages[i % collectionImages.length] ?? "/scraped-5.jpg"}
 							alt={collection.name}
 							fill
 							className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -44,7 +43,7 @@ export async function CollectionsShowcase() {
 								{collection.productCollections?.length ?? 0} items
 							</p>
 						</div>
-					</YnsLink>
+					</Link>
 				))}
 			</div>
 		</section>

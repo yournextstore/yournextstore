@@ -1,11 +1,10 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function ImageCardBanner() {
 	return (
 		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<YnsLink
-				prefetch={"eager"}
+			<Link
 				href="#products"
 				className="group relative block aspect-[2/1] sm:aspect-[3/1] rounded-lg overflow-hidden"
 			>
@@ -26,7 +25,7 @@ export function ImageCardBanner() {
 						Shop All Products
 					</span>
 				</div>
-			</YnsLink>
+			</Link>
 		</section>
 	);
 }

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function TextWithImages() {
 	return (
@@ -8,34 +8,31 @@ export function TextWithImages() {
 				<span className="font-heading text-3xl sm:text-4xl lg:text-6xl font-light tracking-wide">
 					Make you look
 				</span>
-				<YnsLink
-					prefetch={"eager"}
+				<Link
 					href="#products"
 					className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden inline-block shrink-0"
 				>
 					<Image src="/scraped-5.jpg" alt="Beauty texture" fill className="object-cover" sizes="80px" />
-				</YnsLink>
+				</Link>
 				<span className="font-heading text-3xl sm:text-4xl lg:text-6xl font-light tracking-wide">and</span>
 				<span className="font-heading text-3xl sm:text-4xl lg:text-6xl font-light italic tracking-wide text-primary">
 					feel glowy
 				</span>
-				<YnsLink
-					prefetch={"eager"}
+				<Link
 					href="#products"
 					className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden inline-block shrink-0"
 				>
 					<Image src="/scraped-11.jpg" alt="Lipstick product" fill className="object-cover" sizes="80px" />
-				</YnsLink>
+				</Link>
 				<span className="font-heading text-3xl sm:text-4xl lg:text-6xl font-light tracking-wide">
 					and healthy
 				</span>
-				<YnsLink
-					prefetch={"eager"}
+				<Link
 					href="#products"
 					className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden inline-block shrink-0"
 				>
 					<Image src="/scraped-0.jpg" alt="Skincare product" fill className="object-cover" sizes="80px" />
-				</YnsLink>
+				</Link>
 			</div>
 		</section>
 	);

@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -13,13 +13,9 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/blog"
-				className="text-sm text-muted-foreground hover:text-primary transition-colors"
-			>
+			<Link href="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
 				Blog
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -35,13 +31,9 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/contact"
-				className="text-sm text-muted-foreground hover:text-primary transition-colors"
-			>
+			<Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
 				Contact Us
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -62,13 +54,12 @@ async function FooterCollections() {
 			<ul className="space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-muted-foreground hover:text-primary transition-colors"
 						>
 							{collection.name}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -92,13 +83,12 @@ async function FooterLegalPages() {
 			<ul className="space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/legal${page.href}`}
 							className="text-sm text-muted-foreground hover:text-primary transition-colors"
 						>
 							{page.label}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -106,20 +96,30 @@ async function FooterLegalPages() {
 	);
 }
 
-export function Footer() {
+// `new Date()` is an unstable value: now that the footer is part of the prerendered
+// shell, reading it during the prerender is an error. Caching pins it to the entry.
+async function getCopyrightYear() {
+	"use cache";
+	cacheLife("days");
+
+	return new Date().getFullYear();
+}
+
+export async function Footer() {
+	const year = await getCopyrightYear();
+
 	return (
 		<footer className="border-t border-border bg-secondary/30">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="py-14 sm:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
 					{/* Brand */}
 					<div className="sm:col-span-2 lg:col-span-1">
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href="/"
 							className="font-heading text-xl font-semibold tracking-wide uppercase text-foreground"
 						>
 							Your Next Store
-						</YnsLink>
+						</Link>
 						<p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xs">
 							We create safe, clean beauty products that really work and are designed to make you feel good.
 						</p>
@@ -135,23 +135,21 @@ export function Footer() {
 						</h3>
 						<ul className="space-y-3">
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/about"
 									className="text-sm text-muted-foreground hover:text-primary transition-colors"
 								>
 									About Us
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/faq"
 									className="text-sm text-muted-foreground hover:text-primary transition-colors"
 								>
 									FAQ
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>
@@ -164,7 +162,7 @@ export function Footer() {
 				{/* Bottom bar */}
 				<div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
 					<p className="text-xs text-muted-foreground tracking-wide">
-						&copy; {new Date().getFullYear()} Your Next Store. All rights reserved.
+						&copy; {year} Your Next Store. All rights reserved.
 					</p>
 					<div className="flex items-center gap-6">
 						<span className="text-xs text-muted-foreground">Follow us</span>

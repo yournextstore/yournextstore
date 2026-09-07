@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function CtaBanner() {
 	return (
@@ -12,13 +12,12 @@ export function CtaBanner() {
 						<h2 className="font-heading text-2xl sm:text-3xl lg:text-5xl font-light text-white tracking-wide max-w-2xl leading-snug">
 							Because you need time for yourself. Blend beauty in you
 						</h2>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href="#products"
 							className="mt-6 inline-flex items-center justify-center h-11 px-8 bg-white text-foreground text-xs font-medium tracking-[0.15em] uppercase hover:bg-white/90 transition-colors"
 						>
 							Shop All Products
-						</YnsLink>
+						</Link>
 					</div>
 				</div>
 			</div>
