@@ -35,7 +35,7 @@ export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesP
 			</h2>
 			<div className="grid gap-8 md:grid-cols-3">
 				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length] ?? Leaf;
+					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length] ?? Settings;
 					return (
 						<div key={feature.title} className="group flex flex-col items-center text-center">
 							<div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary">

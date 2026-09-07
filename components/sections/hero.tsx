@@ -2,8 +2,8 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { YnsLink } from "../yns-link";
 
 const slides = [
 	{
@@ -80,13 +80,12 @@ export function Hero() {
 								{slide.price}
 							</p>
 						)}
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={slide.href}
 							className="mt-6 inline-block bg-primary hover:bg-primary/90 text-white font-bold uppercase text-sm tracking-wider px-8 py-3 transition-colors"
 						>
 							{slide.cta}
-						</YnsLink>
+						</Link>
 					</div>
 				</div>
 

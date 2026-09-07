@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 const categories = [
 	{ image: "/scraped-4.jpg", name: "Engine Parts", href: "#products" },
@@ -18,12 +18,7 @@ export function CategoryShowcase() {
 			</h2>
 			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
 				{categories.map((cat) => (
-					<YnsLink
-						prefetch={"eager"}
-						key={cat.name}
-						href={cat.href}
-						className="group flex flex-col items-center text-center"
-					>
+					<Link key={cat.name} href={cat.href} className="group flex flex-col items-center text-center">
 						<div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-secondary border-2 border-transparent group-hover:border-primary transition-colors mb-3">
 							<Image
 								src={cat.image}
@@ -35,7 +30,7 @@ export function CategoryShowcase() {
 						<span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
 							{cat.name}
 						</span>
-					</YnsLink>
+					</Link>
 				))}
 			</div>
 		</section>

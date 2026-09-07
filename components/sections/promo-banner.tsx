@@ -1,12 +1,11 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function PromoBanner() {
 	return (
 		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				<YnsLink
-					prefetch={"eager"}
+				<Link
 					href="#products"
 					className="group relative overflow-hidden h-52 sm:h-64 flex items-center bg-gold"
 				>
@@ -30,10 +29,9 @@ export function PromoBanner() {
 							Shop Now
 						</span>
 					</div>
-				</YnsLink>
+				</Link>
 
-				<YnsLink
-					prefetch={"eager"}
+				<Link
 					href="#products"
 					className="group relative overflow-hidden h-52 sm:h-64 flex items-center bg-gold"
 				>
@@ -57,7 +55,7 @@ export function PromoBanner() {
 							Shop Now
 						</span>
 					</div>
-				</YnsLink>
+				</Link>
 			</div>
 		</section>
 	);

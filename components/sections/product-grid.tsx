@@ -6,10 +6,10 @@ import type {
 import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
+import Link from "next/link";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
-import { YnsLink } from "../yns-link";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -49,14 +49,13 @@ export async function ProductGrid({
 					<p className="mt-1 text-sm text-muted-foreground">{description}</p>
 				</div>
 				{showViewAll && (
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href={viewAllHref}
 						className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors uppercase tracking-wide"
 					>
 						View all
 						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+					</Link>
 				)}
 			</div>
 
@@ -95,8 +94,7 @@ export async function ProductGrid({
 					const secondaryImage = allImages[1];
 
 					return (
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							key={product.id}
 							href={`/product/${product.slug}`}
 							className="group border border-border hover:border-primary/30 bg-background transition-all duration-300 hover:shadow-md"
@@ -127,21 +125,20 @@ export async function ProductGrid({
 								</h3>
 								<p className="mt-1 text-sm font-bold text-primary">{priceDisplay}</p>
 							</div>
-						</YnsLink>
+						</Link>
 					);
 				})}
 			</div>
 
 			{showViewAll && (
 				<div className="mt-8 text-center sm:hidden">
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href={viewAllHref}
 						className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors uppercase"
 					>
 						View all products
 						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+					</Link>
 				</div>
 			)}
 		</section>

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 const banners = [
 	{
@@ -30,8 +30,7 @@ export function BannerGrid() {
 		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				{banners.map((banner) => (
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						key={banner.title}
 						href={banner.href}
 						className="group relative overflow-hidden bg-[#1a1a1a] h-48 sm:h-56 flex items-center"
@@ -54,7 +53,7 @@ export function BannerGrid() {
 								View Details
 							</span>
 						</div>
-					</YnsLink>
+					</Link>
 				))}
 			</div>
 		</section>
