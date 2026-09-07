@@ -1,7 +1,7 @@
 import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { Newsletter } from "@/components/sections/newsletter";
-import { YnsLink } from "@/components/yns-link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -15,13 +15,9 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/blog"
-				className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
-			>
+			<Link href="/blog" className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors">
 				Blog
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -37,13 +33,9 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/contact"
-				className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
-			>
+			<Link href="/contact" className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors">
 				Contact Us
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -64,13 +56,12 @@ async function FooterCollections() {
 			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 						>
 							{collection.name}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -94,13 +85,12 @@ async function FooterLegalPages() {
 			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/legal${page.href}`}
 							className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 						>
 							{page.label}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -108,8 +98,17 @@ async function FooterLegalPages() {
 	);
 }
 
-export function Footer() {
-	const year = new Date().getFullYear();
+// `new Date()` is an unstable value: now that the footer is part of the prerendered
+// shell, reading it during the prerender is an error. Caching pins it to the entry.
+async function getCopyrightYear() {
+	"use cache";
+	cacheLife("days");
+
+	return new Date().getFullYear();
+}
+
+export async function Footer() {
+	const year = await getCopyrightYear();
 
 	return (
 		<footer className="bg-[var(--forest-deep)] text-white">
@@ -120,7 +119,7 @@ export function Footer() {
 				<div className="grid grid-cols-2 md:grid-cols-12 gap-10 py-14 sm:py-16">
 					{/* Brand */}
 					<div className="col-span-2 md:col-span-4">
-						<YnsLink prefetch={"eager"} href="/" className="inline-flex items-center gap-2">
+						<Link href="/" className="inline-flex items-center gap-2">
 							<span className="flex size-8 items-center justify-center rounded-full bg-[var(--lime)] text-[var(--forest-deep)]">
 								<svg
 									viewBox="0 0 24 24"
@@ -139,7 +138,7 @@ export function Footer() {
 							<span className="text-[15px] font-semibold tracking-[0.18em] uppercase text-white">
 								Your Next Store
 							</span>
-						</YnsLink>
+						</Link>
 						<p className="mt-5 text-sm text-white/70 leading-relaxed max-w-xs">
 							Premium solar panels, inverters and storage — designed in California, delivered to your roof.
 						</p>
@@ -177,50 +176,45 @@ export function Footer() {
 						</h3>
 						<ul className="mt-5 space-y-3">
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/about"
 									className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 								>
 									About Us
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/faq"
 									className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 								>
 									FAQ
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/products"
 									className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 								>
 									Installation guides
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/products"
 									className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 								>
 									Warranty claims
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="/products"
 									className="text-sm text-white/70 hover:text-[var(--lime)] transition-colors"
 								>
 									Financing
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterBlogLink />
 						</ul>

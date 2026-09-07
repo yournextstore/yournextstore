@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from "lucide-react";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function CtaBanner() {
 	return (
@@ -48,14 +48,13 @@ export function CtaBanner() {
 							</p>
 						</div>
 						<div className="flex flex-col sm:flex-row gap-3">
-							<YnsLink
-								prefetch={"eager"}
+							<Link
 								href="/products"
 								className="inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-[var(--lime)] text-[var(--forest-deep)] font-semibold hover:brightness-95 transition shadow-lg shadow-black/20"
 							>
 								Get a free quote
 								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
+							</Link>
 							<a
 								href="tel:+18005551234"
 								className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-white/10 backdrop-blur border border-white/25 text-white hover:bg-white/20 transition"

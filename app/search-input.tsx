@@ -1,9 +1,9 @@
 "use client";
 
 import { Search } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { YnsLink } from "@/components/yns-link";
 import { YNSMedia } from "@/lib/yns-media";
 import { type SearchSuggestion, searchSuggest } from "./search-suggest";
 
@@ -277,13 +277,13 @@ export function SearchInput() {
 					/>
 				</div>
 			</form>
-			<YnsLink
+			<Link
 				href="/search"
 				className="p-2 text-white/85 hover:text-white hover:bg-white/10 rounded-full transition-colors sm:hidden"
 				aria-label="Search"
 			>
 				<Search className="w-5 h-5" />
-			</YnsLink>
+			</Link>
 		</>
 	);
 }

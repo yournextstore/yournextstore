@@ -1,5 +1,5 @@
 import { ArrowRightIcon, LeafIcon, ZapIcon } from "lucide-react";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function Hero() {
 	return (
@@ -135,21 +135,19 @@ export function Hero() {
 								energy without the guesswork.
 							</p>
 							<div className="mt-8 flex flex-wrap items-center gap-3">
-								<YnsLink
-									prefetch={"eager"}
+								<Link
 									href="#products"
 									className="inline-flex items-center gap-2 h-12 px-7 bg-[var(--lime)] text-[var(--forest-deep)] rounded-full text-sm font-semibold hover:brightness-95 transition shadow-lg shadow-black/10"
 								>
 									Shop Solar Kits
 									<ArrowRightIcon className="h-4 w-4" />
-								</YnsLink>
-								<YnsLink
-									prefetch={"eager"}
+								</Link>
+								<Link
 									href="#about"
 									className="inline-flex items-center gap-2 h-12 px-6 bg-white/15 backdrop-blur border border-white/30 text-white rounded-full text-sm font-medium hover:bg-white/25 transition"
 								>
 									How It Works
-								</YnsLink>
+								</Link>
 							</div>
 
 							{/* Trust strip */}

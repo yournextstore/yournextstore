@@ -4,12 +4,12 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
-import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -56,8 +56,7 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink
-			prefetch={"eager"}
+		<Link
 			href={`/product/${product.slug}`}
 			className="group rounded-2xl border border-border bg-card p-3 transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-[var(--forest)]/20"
 		>
@@ -130,6 +129,6 @@ export function ProductCard({
 					<ArrowUpRight className="size-4" />
 				</span>
 			</div>
-		</YnsLink>
+		</Link>
 	);
 }

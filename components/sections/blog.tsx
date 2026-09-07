@@ -1,6 +1,6 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 
 const posts = [
 	{
@@ -39,14 +39,13 @@ export function Blog() {
 							Latest Blog
 						</h2>
 					</div>
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href="/products"
 						className="inline-flex items-center gap-2 self-start sm:self-end h-10 px-5 rounded-full bg-[var(--lime)] text-[var(--forest-deep)] text-sm font-semibold hover:brightness-95 transition"
 					>
 						All articles
 						<ArrowRight className="h-4 w-4" />
-					</YnsLink>
+					</Link>
 				</div>
 
 				<div className="grid md:grid-cols-3 gap-6">

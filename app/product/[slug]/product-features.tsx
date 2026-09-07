@@ -42,7 +42,7 @@ export function ProductFeatures({ features = defaultFeatures }: ProductFeaturesP
 			</div>
 			<div className="grid gap-6 md:grid-cols-3">
 				{features.map((feature, index) => {
-					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length] ?? Leaf;
+					const Icon = feature.icon ?? defaultIcons[index % defaultIcons.length] ?? SunIcon;
 					return (
 						<div
 							key={feature.title}
