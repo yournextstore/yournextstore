@@ -1,10 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense } from "react";
 import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
 import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
-import { YnsLink } from "@/components/yns-link";
 
 function ProductGridSkeleton() {
 	return (
@@ -106,7 +106,7 @@ function CollectionPromo() {
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
 					{collections.map((c) => (
-						<YnsLink
+						<Link
 							key={c.title}
 							href={c.href}
 							className={`group relative overflow-hidden rounded-[2rem] ${c.bg} aspect-[3/4] flex flex-col`}
@@ -129,7 +129,7 @@ function CollectionPromo() {
 									→
 								</span>
 							</div>
-						</YnsLink>
+						</Link>
 					))}
 				</div>
 			</div>

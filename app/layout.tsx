@@ -1,26 +1,27 @@
 import "@/app/globals.css";
 
+import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { DM_Sans, Geist_Mono, Playfair_Display } from "next/font/google";
+import Link from "next/link";
 import { Suspense } from "react";
-import { CartProvider } from "@/app/cart/cart-context";
+import { CartBootstrap, CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
-import { SearchInput } from "@/app/search-input";
-import { AuthButton } from "@/components/auth-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { ReferralBadge } from "@/components/referral-badge";
+import { SearchInput } from "@/components/search/search-input";
+import { StoreChatSection } from "@/components/store-chat/store-chat-section";
+import { StoreConfigProvider } from "@/components/store-config-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { YnsLink } from "@/components/yns-link";
-import { AUTH_ENABLED } from "@/lib/auth-config";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { getCartCookieJson } from "@/lib/cookies";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { getStoreConfig } from "@/lib/store-config";
 
 const playfair = Playfair_Display({
 	variable: "--font-playfair",
@@ -156,51 +157,69 @@ function AnnouncementBar() {
 	);
 }
 
+async function CartBootstrapper() {
+	const { cart, cartId } = await getInitialCart();
+
+	return <CartBootstrap cart={cart} cartId={cartId} />;
+}
+
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
-	const [{ cart, cartId }, links] = await Promise.all([getInitialCart(), getNavLinks()]);
+	const [links] = await Promise.all([getNavLinks()]);
+	const storeConfig = await getStoreConfig();
 
 	return (
-		<CartProvider initialCart={cart} initialCartId={cartId}>
-			<div className="flex min-h-screen flex-col bg-background">
-				<AnnouncementBar />
-				<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
-					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-						<div className="grid grid-cols-3 items-center h-16">
-							<div className="flex items-center gap-6">
-								<Navbar links={links} />
-							</div>
-							<div className="flex justify-center">
-								<YnsLink
-									prefetch={"eager"}
-									href="/"
-									className="font-serif italic text-2xl sm:text-3xl tracking-tight text-foreground"
-								>
-									Your Next Store
-								</YnsLink>
-							</div>
-							<div className="flex items-center justify-end gap-2">
-								<Suspense>
-									<SearchInput />
-								</Suspense>
-								{AUTH_ENABLED && <AuthButton />}
-								<YnsLink
-									prefetch={"eager"}
-									href="/products"
-									className="hidden md:inline-flex text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors px-2"
-								>
-									Shop
-								</YnsLink>
-								<CartButton />
+		<StoreConfigProvider value={storeConfig}>
+			<CartProvider>
+				<div className="flex min-h-screen flex-col bg-background">
+					<AnnouncementBar />
+					<header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
+						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+							<div className="grid grid-cols-3 items-center h-16">
+								<div className="flex items-center gap-6">
+									<Navbar links={links} />
+								</div>
+								<div className="flex justify-center">
+									<Link
+										href="/"
+										className="font-serif italic text-2xl sm:text-3xl tracking-tight text-foreground"
+									>
+										Your Next Store
+									</Link>
+								</div>
+								<div className="flex items-center justify-end gap-2">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+Static on purpose: reading the session here would pull the header out of the
+prerendered shell. */}
+									<a href="/account" className="p-2 transition-opacity hover:opacity-80" aria-label="Account">
+										<UserRound className="w-5 h-5" />
+									</a>
+									<Link
+										href="/products"
+										className="hidden md:inline-flex text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors px-2"
+									>
+										Shop
+									</Link>
+									<CartButton />
+								</div>
 							</div>
 						</div>
-					</div>
-				</header>
-				<main className="flex-1">{children}</main>
-				<Footer />
-				<ReferralBadge />
-			</div>
-			<CartSidebar />
-		</CartProvider>
+					</header>
+					<main className="flex-1">{children}</main>
+					<Footer />
+				</div>
+				<CartSidebar />
+				<Suspense>
+					<CartBootstrapper />
+				</Suspense>
+				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context. */}
+				<Suspense>
+					<StoreChatSection />
+				</Suspense>
+			</CartProvider>
+		</StoreConfigProvider>
 	);
 }
 

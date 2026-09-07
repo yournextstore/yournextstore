@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { YnsLink } from "@/components/yns-link";
+import Link from "next/link";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -13,13 +13,9 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/blog"
-				className="text-sm text-cream/85 hover:text-white transition-colors"
-			>
+			<Link href="/blog" className="text-sm text-cream/85 hover:text-white transition-colors">
 				Blog
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -35,13 +31,9 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<YnsLink
-				prefetch={"eager"}
-				href="/contact"
-				className="text-sm text-cream/85 hover:text-white transition-colors"
-			>
+			<Link href="/contact" className="text-sm text-cream/85 hover:text-white transition-colors">
 				Contact Us
-			</YnsLink>
+			</Link>
 		</li>
 	);
 }
@@ -62,13 +54,12 @@ async function FooterCollections() {
 			<ul className="mt-5 space-y-3">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/collection/${collection.slug}`}
 							className="text-sm text-cream/85 hover:text-white transition-colors"
 						>
 							{collection.name}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -92,13 +83,12 @@ async function FooterLegalPages() {
 			<ul className="mt-5 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href={`/legal${page.href}`}
 							className="text-sm text-cream/85 hover:text-white transition-colors"
 						>
 							{page.label}
-						</YnsLink>
+						</Link>
 					</li>
 				))}
 			</ul>
@@ -106,7 +96,18 @@ async function FooterLegalPages() {
 	);
 }
 
-export function Footer() {
+// `new Date()` is an unstable value: now that the footer is part of the prerendered
+// shell, reading it during the prerender is an error. Caching pins it to the entry.
+async function getCopyrightYear() {
+	"use cache";
+	cacheLife("days");
+
+	return new Date().getFullYear();
+}
+
+export async function Footer() {
+	const year = await getCopyrightYear();
+
 	return (
 		<footer className="bg-ink text-cream relative overflow-hidden">
 			<div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-coral-gradient" />
@@ -117,13 +118,9 @@ export function Footer() {
 				<div className="py-16 sm:py-20 grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-8">
 					{/* Brand */}
 					<div className="col-span-2 sm:max-w-sm">
-						<YnsLink
-							prefetch={"eager"}
-							href="/"
-							className="font-serif italic text-3xl tracking-tight text-cream"
-						>
+						<Link href="/" className="font-serif italic text-3xl tracking-tight text-cream">
 							Your Next Store
-						</YnsLink>
+						</Link>
 						<p className="mt-5 text-sm text-cream/75 leading-relaxed">
 							Slow goods, quietly considered. A small pantry of botanicals, beans, and preserves — hand-packed
 							in Brooklyn since 2019.
@@ -148,32 +145,20 @@ export function Footer() {
 						<h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-cream/70">Hello</h3>
 						<ul className="mt-5 space-y-3">
 							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/about"
-									className="text-sm text-cream/85 hover:text-white transition-colors"
-								>
+								<Link href="/about" className="text-sm text-cream/85 hover:text-white transition-colors">
 									About Us
-								</YnsLink>
+								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/faq"
-									className="text-sm text-cream/85 hover:text-white transition-colors"
-								>
+								<Link href="/faq" className="text-sm text-cream/85 hover:text-white transition-colors">
 									FAQ
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
-								<YnsLink
-									prefetch={"eager"}
-									href="/products"
-									className="text-sm text-cream/85 hover:text-white transition-colors"
-								>
+								<Link href="/products" className="text-sm text-cream/85 hover:text-white transition-colors">
 									Shop all
-								</YnsLink>
+								</Link>
 							</li>
 							<li>
 								<a
@@ -191,9 +176,7 @@ export function Footer() {
 				</div>
 
 				<div className="py-6 border-t border-cream/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-					<p className="text-xs text-cream/60">
-						&copy; {new Date().getFullYear()} Your Next Store. Brewed slowly in Brooklyn.
-					</p>
+					<p className="text-xs text-cream/60">&copy; {year} Your Next Store. Brewed slowly in Brooklyn.</p>
 					<p className="text-xs text-cream/60 font-serif italic">
 						"The box of forgotten joys" — a YNS original.
 					</p>

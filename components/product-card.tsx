@@ -3,12 +3,12 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import Link from "next/link";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import { formatMoney } from "@/lib/money";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
-import { YnsLink } from "./yns-link";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -55,7 +55,7 @@ export function ProductCard({
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	return (
-		<YnsLink prefetch={"eager"} href={`/product/${product.slug}`} className="group block">
+		<Link href={`/product/${product.slug}`} className="group block">
 			<div className="relative aspect-square bg-cream rounded-[1.5rem] overflow-hidden mb-4 ring-1 ring-border/60">
 				{singleVariant && (
 					<QuickAddButton
@@ -116,6 +116,6 @@ export function ProductCard({
 				</h3>
 				<p className="text-sm font-medium text-muted-foreground tabular-nums">{priceDisplay}</p>
 			</div>
-		</YnsLink>
+		</Link>
 	);
 }

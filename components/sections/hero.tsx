@@ -1,6 +1,6 @@
 import { ArrowRightIcon, Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function Hero() {
 	return (
@@ -51,14 +51,13 @@ export function Hero() {
 									<Plus className="h-4 w-4" />
 								</button>
 							</div>
-							<YnsLink
-								prefetch={"eager"}
+							<Link
 								href="/products"
 								className="inline-flex items-center justify-center gap-2 h-12 px-7 bg-ink text-cream rounded-full text-sm font-semibold uppercase tracking-[0.18em] hover:bg-ink/90 transition-colors"
 							>
 								Add to cart
 								<ArrowRightIcon className="h-4 w-4" />
-							</YnsLink>
+							</Link>
 						</div>
 
 						{/* Trust mini-row */}
@@ -115,15 +114,15 @@ export function Hero() {
 			<div className="bg-sage text-cream">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
 					<nav className="flex items-center gap-2 text-cream/90">
-						<YnsLink href="/" className="hover:text-white transition-colors">
+						<Link href="/" className="hover:text-white transition-colors">
 							Home
-						</YnsLink>
+						</Link>
 						<span aria-hidden className="opacity-50">
 							/
 						</span>
-						<YnsLink href="/products" className="hover:text-white transition-colors">
+						<Link href="/products" className="hover:text-white transition-colors">
 							Pantry
-						</YnsLink>
+						</Link>
 						<span aria-hidden className="opacity-50">
 							/
 						</span>
