@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 const cards = [
 	{
@@ -38,9 +38,8 @@ export function HotThisWeek() {
 
 				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 					{cards.map((card) => (
-						<YnsLink
+						<Link
 							key={card.title + card.cta}
-							prefetch={"eager"}
 							href={card.href}
 							className="group relative rounded-xl overflow-hidden"
 						>
@@ -63,7 +62,7 @@ export function HotThisWeek() {
 									{card.cta}
 								</span>
 							</div>
-						</YnsLink>
+						</Link>
 					))}
 				</div>
 			</div>

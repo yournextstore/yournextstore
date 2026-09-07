@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { YnsLink } from "../yns-link";
 
 const slides = [
 	{ image: "/scraped-5.jpg", alt: "Beauty swatch" },
@@ -46,13 +46,12 @@ export function Hero() {
 				<h1 className="font-heading text-4xl sm:text-5xl lg:text-7xl font-light leading-tight mb-8 max-w-3xl">
 					Get the skin you want to feel
 				</h1>
-				<YnsLink
-					prefetch={"eager"}
+				<Link
 					href="/products"
 					className="inline-flex items-center justify-center h-12 px-10 border border-white text-white text-sm tracking-widest uppercase hover:bg-white hover:text-foreground transition-all duration-300"
 				>
 					Shop Now
-				</YnsLink>
+				</Link>
 			</div>
 
 			<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">

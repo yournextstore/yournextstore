@@ -1,7 +1,7 @@
 import { cacheLife } from "next/cache";
 import Image from "next/image";
+import Link from "next/link";
 import { commerce } from "@/lib/commerce";
-import { YnsLink } from "../yns-link";
 
 const collectionImages = ["/scraped-3.jpg", "/scraped-0.jpg", "/scraped-7.jpg", "/scraped-2.jpg"];
 
@@ -31,15 +31,10 @@ export async function CollectionsCarousel() {
 
 				<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 					{items.map((collection, idx) => (
-						<YnsLink
-							key={collection.id}
-							prefetch={"eager"}
-							href={`/collection/${collection.slug}`}
-							className="group"
-						>
+						<Link key={collection.id} href={`/collection/${collection.slug}`} className="group">
 							<div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-3">
 								<Image
-									src={collectionImages[idx % collectionImages.length] ?? collectionImages[0]}
+									src={collectionImages[idx % collectionImages.length] ?? "/scraped-3.jpg"}
 									alt={collection.name}
 									fill
 									className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -48,7 +43,7 @@ export async function CollectionsCarousel() {
 								<div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
 							</div>
 							<h3 className="text-sm font-semibold text-foreground">{collection.name}</h3>
-						</YnsLink>
+						</Link>
 					))}
 				</div>
 			</div>

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function TextWithImages() {
 	return (
@@ -10,34 +10,34 @@ export function TextWithImages() {
 						Make you look
 					</span>
 
-					<YnsLink
+					<Link
 						href="/products"
 						className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden inline-block shrink-0"
 					>
 						<Image src="/scraped-5.jpg" alt="Glow" fill className="object-cover" sizes="112px" />
-					</YnsLink>
+					</Link>
 
 					<span className="font-heading text-4xl sm:text-5xl lg:text-6xl font-light text-foreground">
 						and feel glowy
 					</span>
 
-					<YnsLink
+					<Link
 						href="/products"
 						className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden inline-block shrink-0"
 					>
 						<Image src="/scraped-6.jpg" alt="Healthy" fill className="object-cover" sizes="112px" />
-					</YnsLink>
+					</Link>
 
 					<span className="font-heading text-4xl sm:text-5xl lg:text-6xl font-light text-foreground">
 						and healthy
 					</span>
 
-					<YnsLink
+					<Link
 						href="/products"
 						className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden inline-block shrink-0"
 					>
 						<Image src="/scraped-9.jpg" alt="Fresh" fill className="object-cover" sizes="112px" />
-					</YnsLink>
+					</Link>
 				</div>
 			</div>
 		</section>

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function BundleSection() {
 	return (
@@ -47,13 +47,12 @@ export function BundleSection() {
 							))}
 						</div>
 
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href="/products"
 							className="inline-flex items-center justify-center h-12 px-8 bg-foreground text-primary-foreground text-sm tracking-widest uppercase hover:bg-foreground/90 transition-colors"
 						>
 							Shop Bundle
-						</YnsLink>
+						</Link>
 					</div>
 				</div>
 			</div>

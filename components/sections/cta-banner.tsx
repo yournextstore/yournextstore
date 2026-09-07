@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { YnsLink } from "../yns-link";
+import Link from "next/link";
 
 export function CtaBanner() {
 	return (
@@ -9,13 +9,12 @@ export function CtaBanner() {
 					<h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-light text-foreground max-w-2xl mx-auto">
 						Because you need time for yourself. Blend beauty in you
 					</h2>
-					<YnsLink
-						prefetch={"eager"}
+					<Link
 						href="/products"
 						className="inline-flex items-center justify-center h-12 px-8 mt-6 bg-foreground text-primary-foreground text-sm tracking-widest uppercase hover:bg-foreground/90 transition-colors"
 					>
 						Shop All Products
-					</YnsLink>
+					</Link>
 				</div>
 
 				<div className="relative aspect-[21/9] rounded-xl overflow-hidden">
@@ -24,13 +23,12 @@ export function CtaBanner() {
 					<div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
 						<p className="text-sm tracking-widest uppercase mb-2 opacity-80">Care for Your Skin</p>
 						<h3 className="font-heading text-3xl sm:text-4xl font-light mb-4">Made for sensitive skin</h3>
-						<YnsLink
-							prefetch={"eager"}
+						<Link
 							href="/products"
 							className="text-sm font-medium tracking-wide uppercase underline underline-offset-4"
 						>
 							Shop All Products
-						</YnsLink>
+						</Link>
 					</div>
 				</div>
 			</div>
