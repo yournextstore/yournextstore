@@ -47,6 +47,11 @@ function makeDemoProduct({
 		images: [image],
 		badge: null,
 		bundleDiscountPercentage: null,
+		// Demo products are plain products, never bundles.
+		bundlePriceMode: "fixed" as const,
+		bundleFixedPriceAmount: null,
+		bundleAmountOffAmount: null,
+		bundleGroups: [],
 		seo: null,
 		stripeTaxCode: null,
 		categoryId,
