@@ -18,6 +18,13 @@ export async function proxy(request: NextRequest) {
 		return NextResponse.rewrite(destination);
 	}
 
+	// GetResponse's dashboard checks for its web-push worker at the site root. The storefront kit
+	// registers the platform copy under /_public/scripts/, so the root path serves that same file.
+	if (request.nextUrl.pathname === "/gr_sw_main.js") {
+		const { publicUrl } = await getSubdomainPublicUrl();
+		return NextResponse.rewrite(new URL("/_public/scripts/gr_sw_main.js", publicUrl));
+	}
+
 	// Checkout & feed proxy: rewrite to the backend
 	if (proxiedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
 		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
@@ -60,5 +67,6 @@ export const config = {
 		"/account",
 		"/account/:path*",
 		"/_public/:path*",
+		"/gr_sw_main.js",
 	],
 };
