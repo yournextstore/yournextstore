@@ -13,17 +13,8 @@ export type CartLineItem = {
 			name: string;
 			slug: string;
 			images: string[];
-			type?: string;
-			bundleDiscountPercentage?: string | null;
-			bundleProducts?: Array<{
-				quantity: number;
-				variant: { price: string; priceGross?: string | null };
-			}>;
 		};
 	};
-	// Present (non-empty) on configurable-bundle lines: the customer's chosen components.
-	// Its presence is how we tell a configurable bundle from a legacy fixed one.
-	setSelections?: Array<{ quantity: number }>;
 };
 
 export type Cart = {
@@ -37,30 +28,8 @@ export type Cart = {
 	subtotalGross?: number | null;
 };
 
-/**
- * The effective unit price for a line item, in the basis the shopper should see,
- * computing the bundle price from its constituents if needed.
- */
+/** Unit price in the shopper's basis. The API already prices bundle lines. */
 export function getLineItemUnitPrice(item: CartLineItem, taxBehavior: TaxBehavior): bigint {
-	const { product } = item.productVariant;
-	// Configurable bundles are priced server-side from the customer's selections; the per-unit price
-	// is already on productVariant.price. Only the legacy fixed-bundle shape (no selections) needs
-	// client-side reconstruction from its constituents.
-	const isConfigurable = (item.setSelections?.length ?? 0) > 0;
-	if (
-		!isConfigurable &&
-		product.type === "bundle" &&
-		product.bundleProducts &&
-		product.bundleProducts.length > 0
-	) {
-		return product.bundleProducts.reduce((total, bp) => {
-			const unit = BigInt(displayPrice(bp.variant, taxBehavior));
-			const discount = product.bundleDiscountPercentage
-				? (unit * BigInt(product.bundleDiscountPercentage)) / 100_000n
-				: 0n;
-			return total + (unit - discount) * BigInt(bp.quantity);
-		}, 0n);
-	}
 	return BigInt(displayPrice(item.productVariant, taxBehavior));
 }
 

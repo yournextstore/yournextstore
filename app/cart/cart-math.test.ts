@@ -31,42 +31,6 @@ test("getLineItemUnitPrice returns the variant price for regular products", () =
 	expect(getLineItemUnitPrice(lineItem(), "exclusive")).toBe(1000n);
 });
 
-test("getLineItemUnitPrice reconstructs legacy fixed-bundle prices from constituents", () => {
-	// 25% discount is encoded as "25000" (per-hundred-thousand scaling).
-	const item = lineItem({
-		type: "bundle",
-		bundleDiscountPercentage: "25000",
-		bundleProducts: [
-			{ quantity: 2, variant: { price: "10000" } }, // 2 × (10000 - 2500) = 15000
-			{ quantity: 1, variant: { price: "4000" } }, //  1 × (4000 - 1000)  =  3000
-		],
-	});
-	expect(getLineItemUnitPrice(item, "exclusive")).toBe(18000n);
-});
-
-test("getLineItemUnitPrice truncates (never rounds up) BigInt discount math", () => {
-	// 999 × 33333 / 100000 = 332.99667 → BigInt division truncates to 332.
-	const item = lineItem({
-		type: "bundle",
-		bundleDiscountPercentage: "33333",
-		bundleProducts: [{ quantity: 1, variant: { price: "999" } }],
-	});
-	expect(getLineItemUnitPrice(item, "exclusive")).toBe(999n - 332n);
-});
-
-test("getLineItemUnitPrice uses the server-computed price for configurable bundles", () => {
-	// setSelections marks a configurable bundle — constituents must NOT be re-priced client-side.
-	const item = lineItem(
-		{
-			type: "bundle",
-			bundleDiscountPercentage: "25000",
-			bundleProducts: [{ quantity: 5, variant: { price: "99999" } }],
-		},
-		{ setSelections: [{ quantity: 1 }] },
-	);
-	expect(getLineItemUnitPrice(item, "exclusive")).toBe(1000n);
-});
-
 test("getLineItemUnitPrice returns the gross price for an inclusive store", () => {
 	const item = lineItem();
 	item.productVariant.priceGross = "1230";
@@ -78,13 +42,47 @@ test("getLineItemUnitPrice falls back to net when a line carries no gross twin",
 	expect(getLineItemUnitPrice(lineItem(), "inclusive")).toBe(1000n);
 });
 
-test("getLineItemUnitPrice discounts legacy bundle constituents in the displayed basis", () => {
-	const item = lineItem({
-		type: "bundle",
-		bundleDiscountPercentage: "25000",
-		bundleProducts: [{ quantity: 2, variant: { price: "10000", priceGross: "12300" } }],
-	});
-	expect(getLineItemUnitPrice(item, "inclusive")).toBe(2n * (12300n - 3075n));
+// A fixed-price bundle (168.30 gross) with two pick-one groups; `bundleProducts` lists every option.
+const fixedChoiceBundle = () => ({
+	quantity: 1,
+	productVariant: {
+		id: "bundle-variant",
+		price: "13683",
+		priceGross: "16830",
+		images: [],
+		product: {
+			id: "bundle",
+			name: "Classic set",
+			slug: "classic-set",
+			images: [],
+			type: "bundle",
+			bundlePriceMode: "fixed",
+			bundleFixedPriceAmount: "13683",
+			bundleDiscountPercentage: null,
+			bundleProducts: [
+				...Array.from({ length: 5 }, () => ({ quantity: 1, variant: { price: "12114" } })),
+				...Array.from({ length: 2 }, () => ({ quantity: 1, variant: { price: "3984" } })),
+			],
+		},
+	},
+	setSelections: [{ quantity: 1 }, { quantity: 1 }],
+});
+
+test("getLineItemUnitPrice shows a fixed-price bundle at its own price, not the sum of every option", () => {
+	expect(getLineItemUnitPrice(fixedChoiceBundle(), "inclusive")).toBe(16830n);
+	expect(getLineItemUnitPrice(fixedChoiceBundle(), "exclusive")).toBe(13683n);
+});
+
+test("getLineItemUnitPrice takes a bundle without selections from the API line price too", () => {
+	// A whole bundle added by its own variant carries no selections; the API has still priced it.
+	const item = { ...fixedChoiceBundle(), setSelections: [] };
+	expect(getLineItemUnitPrice(item, "inclusive")).toBe(16830n);
+});
+
+test("getCartDisplaySubtotal sums bundle lines at their own price while a mutation is in flight", () => {
+	const cart: Cart = { id: "c-1", lineItems: [fixedChoiceBundle()], subtotal: 16830, subtotalGross: 16830 };
+	const next = cartReducer(cart, { type: "INCREASE", variantId: "bundle-variant" });
+	expect(getCartDisplaySubtotal(next, "inclusive")).toBe(33660n);
 });
 
 test("getCartDisplaySubtotal prefers the API totals over a local sum", () => {
