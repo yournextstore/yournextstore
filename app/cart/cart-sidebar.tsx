@@ -3,6 +3,8 @@
 import { Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
+import { cartDiscountOf } from "@/app/cart/discount-code";
+import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,7 +21,8 @@ import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
 	const { currency, locale, taxBehavior } = useStoreConfig();
-	const { isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
+	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
+	const discount = cartDiscountOf(cart, taxBehavior);
 
 	const checkoutUrl = `/checkout`;
 
@@ -63,9 +66,26 @@ export function CartSidebar() {
 
 						<SheetFooter className="border-t border-border pt-4 mt-auto">
 							<div className="w-full space-y-4">
+								<DiscountCodeField />
+								{discount ? (
+									<div className="space-y-1">
+										<div className="flex items-center justify-between text-sm text-muted-foreground">
+											<span>Subtotal</span>
+											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
+										</div>
+										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+											<span>Discount</span>
+											<span className="tabular-nums">
+												−{formatMoney({ amount: discount, currency, locale })}
+											</span>
+										</div>
+									</div>
+								) : null}
 								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">Subtotal</span>
-									<span className="font-semibold">{formatMoney({ amount: subtotal, currency, locale })}</span>
+									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
+									<span className="font-semibold">
+										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
+									</span>
 								</div>
 								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
 								    "calculate taxes at checkout" there would read as an extra charge to come. */}

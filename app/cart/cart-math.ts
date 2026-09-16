@@ -26,6 +26,7 @@ export type Cart = {
 	subtotal?: number | null;
 	subtotalNet?: number | null;
 	subtotalGross?: number | null;
+	coupon?: { code: string; type: string; value: string } | null;
 };
 
 /** Unit price in the shopper's basis. The API already prices bundle lines. */

@@ -1,6 +1,7 @@
 "use server";
 
 import { try_ } from "safe-try";
+import { refusedCodeMessage } from "@/app/cart/discount-code";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
 import { getStoreConfig } from "@/lib/store-config";
@@ -126,4 +127,43 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 		return { success: false, cart: null };
 	}
 	return { success: true, cart };
+}
+
+const REMOVE_CODE_FAILED = "Couldn't remove the code. Try again.";
+
+export async function applyDiscountCode(rawCode: string, itemCount: number) {
+	const code = rawCode.trim();
+	const cartCookie = await getCartCookieJson();
+	if (!code || !cartCookie?.id) {
+		return { success: false as const, error: "Add something to your cart first" };
+	}
+
+	const [error, cart] = await try_(commerce.cartCouponApply({ cartId: cartCookie.id, code }));
+	if (!error) {
+		return { success: true as const, cart };
+	}
+
+	// The SDK only passes on "Coupon cannot be applied", so read the coupon to say why.
+	const [couponError, coupon] = await try_(commerce.couponGet({ idOrCode: code }));
+	if (couponError) {
+		console.error("cart: applyDiscountCode failed", { cartId: cartCookie.id, error, couponError });
+		return { success: false as const, error: "Couldn't apply the code. Try again." };
+	}
+	return { success: false as const, error: refusedCodeMessage(coupon, itemCount, new Date()) };
+}
+
+export async function removeDiscountCode() {
+	const cartCookie = await getCartCookieJson();
+	if (!cartCookie?.id) {
+		return { success: false as const, error: REMOVE_CODE_FAILED };
+	}
+
+	const [error] = await try_(commerce.cartCouponRemove({ cartId: cartCookie.id }));
+	if (error) {
+		console.error("cart: removeDiscountCode failed", { cartId: cartCookie.id, error });
+		return { success: false as const, error: REMOVE_CODE_FAILED };
+	}
+	// The remove endpoint answers `{ ok }`; the drawer needs the re-priced cart.
+	const [, cart] = await try_(commerce.cartGet({ cartId: cartCookie.id }));
+	return { success: true as const, cart };
 }
