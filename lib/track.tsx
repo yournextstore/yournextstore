@@ -26,7 +26,10 @@ type TrackedItem = {
 	currency: string;
 };
 
-type QueueItem = ({ event: "ViewContent" | "AddToCart" } & TrackedItem) | { event: "ConsentChanged" };
+type QueueItem =
+	| ({ event: "ViewContent" | "AddToCart" } & TrackedItem)
+	| { event: "ConsentChanged" }
+	| { event: "Identify"; email: string };
 
 declare global {
 	interface Window {
@@ -57,6 +60,9 @@ export const trackAddToCart = (variant: TrackedVariant, name: string, quantity: 
 
 /** Tell the kit the consent cookie changed so it can re-read it (no reload needed). */
 export const notifyConsentChanged = () => publish({ event: "ConsentChanged" });
+
+/** The visitor gave their email (newsletter sign-up), so trackers can match them to a contact. */
+export const trackIdentify = (email: string) => publish({ event: "Identify", email });
 
 /** Fire-once product view — mount on the product page. */
 export function TrackProductView({ variant, name }: { variant: TrackedVariant; name: string }) {

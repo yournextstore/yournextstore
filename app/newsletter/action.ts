@@ -6,6 +6,8 @@ import { commerce } from "@/lib/commerce";
 type NewsletterState = {
 	success: boolean;
 	message: string;
+	/** Echoed on success for lib/track.tsx. */
+	email?: string;
 	error?: string;
 } | null;
 
@@ -37,8 +39,8 @@ export async function subscribeToNewsletter(
 
 	// Double opt-in: the address is not on the list until the shopper clicks the emailed link.
 	if (subscriber.pending) {
-		return { success: true, message: "Almost done! Check your inbox to confirm your subscription." };
+		return { success: true, message: "Almost done! Check your inbox to confirm your subscription.", email };
 	}
 
-	return { success: true, message: "Thanks for subscribing!" };
+	return { success: true, message: "Thanks for subscribing!", email };
 }
