@@ -41,3 +41,42 @@ test("still rewrites to the subdomain path with auth=0", async () => {
 
 	expect(response.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/checkout/payment?auth=0");
 });
+
+const get = (path: string) => proxy(new NextRequest(`https://acme.example${path}`));
+
+test("sends old unsubscribe and confirmation links to the platform pages", async () => {
+	const unsubscribe = await get("/unsubscribe?token=abc");
+	expect(unsubscribe.status).toBe(308);
+	expect(unsubscribe.headers.get("location")).toBe("https://yns.cx/n/unsubscribe?token=abc");
+
+	const confirm = await get("/confirm-subscription?token=abc");
+	expect(confirm.headers.get("location")).toBe("https://yns.cx/n/confirm?token=abc");
+});
+
+test("serves the one-click unsubscribe in place — mailbox providers do not follow redirects", async () => {
+	const response = await proxy(
+		new NextRequest("https://acme.example/unsubscribe/post?token=abc", { method: "POST" }),
+	);
+
+	expect(response.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/n/unsubscribe/post?token=abc");
+});
+
+test("redirects an old download link without touching the case-sensitive id", async () => {
+	const response = await get("/digital-assets/AbC-dEf_123");
+
+	expect(response.headers.get("location")).toBe("https://yns.cx/api/digital-assets/AbC-dEf_123");
+});
+
+test("forwards webhooks registered on this domain to the platform", async () => {
+	const frame = await proxy(new NextRequest("https://acme.example/api/frame-webhook", { method: "POST" }));
+	expect(frame.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/api/frame-webhook?auth=0");
+
+	const inpost = await proxy(new NextRequest("https://acme.example/api/inpost-webhook", { method: "POST" }));
+	expect(inpost.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/api/inpost-webhook");
+});
+
+test("serves the IndexNow key from the platform, which holds it", async () => {
+	const response = await get("/api/indexnow");
+
+	expect(response.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/api/indexnow");
+});

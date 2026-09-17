@@ -4,7 +4,34 @@ import { getSubdomainPublicUrl } from "./lib/commerce";
 
 // /account is the platform-rendered shopper account area (unified sign-in); the platform
 // handles unauthenticated access itself, so it is proxied like /checkout, never guarded here.
-const proxiedRoutes = ["/checkout", "/api/feed/", "/api/chat", "/account"];
+//
+// The webhook paths are here for addresses merchants already registered on this domain; the
+// platform resolves the store from the `/<subdomain>` prefix like it does for checkout.
+const proxiedRoutes = [
+	"/checkout",
+	"/api/feed/",
+	"/api/chat",
+	"/api/frame-webhook",
+	"/api/montonio-webhook",
+	"/account",
+];
+
+// Links the platform used to email on this domain. They now live on the platform domain, where
+// the token or id alone identifies the target, so old emails are redirected there.
+const movedLinks: Record<string, string> = {
+	"/unsubscribe": "/n/unsubscribe",
+	"/confirm-subscription": "/n/confirm",
+};
+
+// Endpoints another server calls on this domain, served by the platform at a store-less path:
+// rewritten rather than redirected, since a mailbox provider's one-click unsubscribe, a carrier's
+// webhook and a search engine fetching the IndexNow key do not reliably follow redirects.
+const platformEndpoints: Record<string, string> = {
+	"/unsubscribe/post": "/n/unsubscribe/post",
+	"/api/inpost-webhook": "/api/inpost-webhook",
+	"/api/indexnow": "/api/indexnow",
+};
+const DIGITAL_ASSETS_PREFIX = "/digital-assets/";
 
 export async function proxy(request: NextRequest) {
 	// Platform-owned scripts under /_public/ — forwarded verbatim (plus the store, so the
@@ -23,6 +50,23 @@ export async function proxy(request: NextRequest) {
 	if (request.nextUrl.pathname === "/gr_sw_main.js") {
 		const { publicUrl } = await getSubdomainPublicUrl();
 		return NextResponse.rewrite(new URL("/_public/scripts/gr_sw_main.js", publicUrl));
+	}
+
+	const { pathname, search } = request.nextUrl;
+	const movedLink = movedLinks[pathname];
+	if (movedLink) {
+		const { publicUrl } = await getSubdomainPublicUrl();
+		return NextResponse.redirect(new URL(`${movedLink}${search}`, publicUrl), 308);
+	}
+	const platformEndpoint = platformEndpoints[pathname];
+	if (platformEndpoint) {
+		const { publicUrl } = await getSubdomainPublicUrl();
+		return NextResponse.rewrite(new URL(`${platformEndpoint}${search}`, publicUrl));
+	}
+	if (pathname.startsWith(DIGITAL_ASSETS_PREFIX)) {
+		const { publicUrl } = await getSubdomainPublicUrl();
+		const downloadId = pathname.slice(DIGITAL_ASSETS_PREFIX.length);
+		return NextResponse.redirect(new URL(`/api/digital-assets/${downloadId}`, publicUrl), 308);
 	}
 
 	// Checkout & feed proxy: rewrite to the backend
@@ -58,12 +102,19 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
 	matcher: [
+		"/checkout",
 		"/checkout/:path*",
-		"/api/feed/gmc",
-		"/api/feed/meta",
-		"/api/feed/openai",
+		"/api/feed/:path*",
 		"/api/chat",
 		"/api/chat/:path*",
+		"/api/indexnow",
+		"/api/frame-webhook",
+		"/api/montonio-webhook",
+		"/api/inpost-webhook",
+		"/unsubscribe",
+		"/unsubscribe/post",
+		"/confirm-subscription",
+		"/digital-assets/:path*",
 		"/account",
 		"/account/:path*",
 		"/_public/:path*",

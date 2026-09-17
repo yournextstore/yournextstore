@@ -42,6 +42,11 @@ a platform-served script (`/_public/kit.js`, generated per store), so **never** 
 snippets (fbq, gtag, GTM, pixels) to template code. To track a commerce event from new UI,
 call `track()` from `lib/track.tsx`.
 
+Newsletter unsubscribe and confirmation pages, digital downloads, and payment/carrier webhooks
+live on the platform domain, not here — never add `/unsubscribe`, `/confirm-subscription`,
+`/digital-assets` or `*-webhook` routes. `proxy.ts` only forwards the old addresses that were
+already emailed or registered on this domain.
+
 ## Project Patterns
 
 - Use `safe-try` for error handling: `const [error, result] = await safe(...)`

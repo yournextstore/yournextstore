@@ -29,10 +29,15 @@ export async function subscribeToNewsletter(
 		};
 	}
 
-	const [error] = await try_(commerce.subscriberCreate({ email, marketingConsent: true }));
+	const [error, subscriber] = await try_(commerce.subscriberCreate({ email, marketingConsent: true }));
 	if (error) {
 		console.error("newsletter: subscriberCreate failed", { error });
 		return { success: false, message: "", error: "Something went wrong. Please try again." };
+	}
+
+	// Double opt-in: the address is not on the list until the shopper clicks the emailed link.
+	if (subscriber.pending) {
+		return { success: true, message: "Almost done! Check your inbox to confirm your subscription." };
 	}
 
 	return { success: true, message: "Thanks for subscribing!" };
