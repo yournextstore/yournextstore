@@ -32,6 +32,9 @@ const platformEndpoints: Record<string, string> = {
 	"/api/indexnow": "/api/indexnow",
 };
 const DIGITAL_ASSETS_PREFIX = "/digital-assets/";
+// PayNow only accepts a notification address under the shop's registered domain, so the platform
+// registers `/api/paynow/<storeId>/webhooks` here and this forwards it to the same platform path.
+const PAYNOW_WEBHOOK_PREFIX = "/api/paynow/";
 
 export async function proxy(request: NextRequest) {
 	// Platform-owned scripts under /_public/ — forwarded verbatim (plus the store, so the
@@ -62,6 +65,10 @@ export async function proxy(request: NextRequest) {
 	if (platformEndpoint) {
 		const { publicUrl } = await getSubdomainPublicUrl();
 		return NextResponse.rewrite(new URL(`${platformEndpoint}${search}`, publicUrl));
+	}
+	if (pathname.startsWith(PAYNOW_WEBHOOK_PREFIX)) {
+		const { publicUrl } = await getSubdomainPublicUrl();
+		return NextResponse.rewrite(new URL(`${pathname}${search}`, publicUrl));
 	}
 	if (pathname.startsWith(DIGITAL_ASSETS_PREFIX)) {
 		const { publicUrl } = await getSubdomainPublicUrl();
@@ -111,6 +118,7 @@ export const config = {
 		"/api/frame-webhook",
 		"/api/montonio-webhook",
 		"/api/inpost-webhook",
+		"/api/paynow/:path*",
 		"/unsubscribe",
 		"/unsubscribe/post",
 		"/confirm-subscription",

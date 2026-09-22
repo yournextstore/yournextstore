@@ -73,6 +73,13 @@ test("forwards webhooks registered on this domain to the platform", async () => 
 
 	const inpost = await proxy(new NextRequest("https://acme.example/api/inpost-webhook", { method: "POST" }));
 	expect(inpost.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/api/inpost-webhook");
+
+	// PayNow insists on the shop's own domain, so this address is registered here and
+	// forwarded store-less: the store id is in the path.
+	const paynow = await proxy(
+		new NextRequest("https://acme.example/api/paynow/0199-store/webhooks", { method: "POST" }),
+	);
+	expect(paynow.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/api/paynow/0199-store/webhooks");
 });
 
 test("serves the IndexNow key from the platform, which holds it", async () => {
