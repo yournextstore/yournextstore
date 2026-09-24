@@ -71,6 +71,12 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 		? BigInt(displayAmount(shipping.price, shipping.priceGross, taxBehavior) ?? shipping.price)
 		: BigInt(0);
 
+	// An inclusive store's prices already hold the tax, so it is stated rather than added.
+	const includedTax =
+		taxBehavior === "inclusive" && order.orderData.totalTax
+			? BigInt(Math.round(order.orderData.totalTax))
+			: null;
+
 	// Only an exclusive store adds tax on top of what it displayed; an inclusive one has
 	// it inside the subtotal already.
 	const taxAmount =
@@ -129,6 +135,12 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 						<div className="flex items-center justify-between text-sm">
 							<span className="text-muted-foreground">Tax</span>
 							<span>{formatMoney({ amount: taxAmount, currency, locale })}</span>
+						</div>
+					)}
+					{includedTax !== null && (
+						<div className="flex items-center justify-between text-sm">
+							<span className="text-muted-foreground">Includes tax</span>
+							<span>{formatMoney({ amount: includedTax, currency, locale })}</span>
 						</div>
 					)}
 					<div className="flex items-center justify-between font-semibold pt-2 border-t border-border">
