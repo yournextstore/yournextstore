@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publish this store — the CLI twin of the admin "Publish" button.
 # Triggers a production build of the tenant repo's remote `main` (push first!)
-# via POST /api/v1/publish, then polls until the build finishes.
+# via POST /api/v1/publish, then polls until the publish is live or has failed.
 #
 # Usage: scripts/publish.sh [--no-wait]
 
@@ -31,17 +31,20 @@ if ! RESPONSE="$("$API" POST /publish 2>&1)"; then
 	fail "$(concise_error "$RESPONSE")"
 fi
 
-DEPLOYMENT_ID="$(jq -r '.deploymentId // empty' <<<"$RESPONSE" 2>/dev/null || true)"
+# `publishId` follows the publish whichever machine builds it; the deployment
+# fields are informational and may be null until the build uploads. A platform
+# that predates publish ids answers with a pollable `deploymentId` instead.
+PUBLISH_ID="$(jq -r '.publishId // .deploymentId // empty' <<<"$RESPONSE" 2>/dev/null || true)"
 DEPLOYMENT_URL="$(jq -r '.deploymentUrl // empty' <<<"$RESPONSE" 2>/dev/null || true)"
 INSPECTOR_URL="$(jq -r '.inspectorUrl // empty' <<<"$RESPONSE" 2>/dev/null || true)"
 
-[ -n "$DEPLOYMENT_ID" ] || fail "unexpected response: $(concise_error "$RESPONSE")"
+[ -n "$PUBLISH_ID" ] || fail "unexpected response: $(concise_error "$RESPONSE")"
 
-echo "Deployment created: $DEPLOYMENT_ID"
+echo "Publish started: $PUBLISH_ID"
 [ -n "$INSPECTOR_URL" ] && echo "Inspect: $INSPECTOR_URL"
 
 if [ "${1:-}" = "--no-wait" ]; then
-	echo "Build running — not waiting."
+	echo "Publish running — not waiting. Check it with: bun run api GET /publish/$PUBLISH_ID"
 	exit 0
 fi
 
@@ -55,7 +58,7 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 	sleep "$POLL_INTERVAL"
 	ELAPSED=$((ELAPSED + POLL_INTERVAL))
 
-	if ! POLL="$("$API" GET "/publish/$DEPLOYMENT_ID" 2>&1)"; then
+	if ! POLL="$("$API" GET "/publish/$PUBLISH_ID" 2>&1)"; then
 		# A single hiccup mid-build shouldn't kill the run; a run of them should.
 		STALE_POLLS=$((STALE_POLLS + 1))
 		[ "$STALE_POLLS" -ge 3 ] && fail "lost contact with the API: $(concise_error "$POLL")" "$INSPECTOR_URL"
@@ -63,11 +66,14 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 	fi
 	STALE_POLLS=0
 
-	STATE="$(jq -r '.readyState // "UNKNOWN"' <<<"$POLL" 2>/dev/null || echo UNKNOWN)"
-	[ -z "$DEPLOYMENT_URL" ] && DEPLOYMENT_URL="$(jq -r '.deploymentUrl // empty' <<<"$POLL" 2>/dev/null || true)"
+	# `status` is the publish; `readyState` is only the build, and is what a
+	# deployment-id poll answers on a platform that predates publish ids.
+	STATE="$(jq -r '.status // .readyState // "UNKNOWN"' <<<"$POLL" 2>/dev/null || echo UNKNOWN)"
+	[ -z "$DEPLOYMENT_URL" ] && DEPLOYMENT_URL="$(jq -r '.url // .deploymentUrl // empty' <<<"$POLL" 2>/dev/null || true)"
+	REASON="$(jq -r '.reason // .errorMessage // .error // empty' <<<"$POLL" 2>/dev/null || true)"
 
 	case "$STATE" in
-		READY)
+		live | READY)
 			printf '  %-12s (%ds)\n' "published" "$ELAPSED"
 			printf '  → https://%s\n' "$DEPLOYMENT_URL"
 			# Informational only — the deploy already happened, so a regressed shell
@@ -78,8 +84,11 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 			fi
 			exit 0
 			;;
-		ERROR | CANCELED)
-			REASON="$(jq -r '.errorMessage // .error // empty' <<<"$POLL" 2>/dev/null || true)"
+		domain_pending)
+			# Built and deployed, but a domain didn't attach — not live, so not a success.
+			fail "built, but not live yet (${ELAPSED}s)${REASON:+: $REASON}" "$INSPECTOR_URL"
+			;;
+		failed | ERROR | CANCELED)
 			fail "${STATE} (${ELAPSED}s)${REASON:+: $REASON}" "$INSPECTOR_URL"
 			;;
 	esac
@@ -91,4 +100,4 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 	fi
 done
 
-fail "timed out after $((ELAPSED / 60))m — the build is still running on Vercel" "$INSPECTOR_URL"
+fail "timed out after $((ELAPSED / 60))m — the publish is still running (bun run api GET /publish/$PUBLISH_ID)" "$INSPECTOR_URL"
