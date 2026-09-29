@@ -78,8 +78,8 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 			printf '  → https://%s\n' "$DEPLOYMENT_URL"
 			# Informational only — the deploy already happened, so a regressed shell
 			# is reported, not fatal. The live first flush is the same shell the
-			# build gate measures.
-			if [ -n "$DEPLOYMENT_URL" ]; then
+			# build gate measures. A store that predates the gate has no check to run.
+			if [ -n "$DEPLOYMENT_URL" ] && [ -f "$SHELL_CHECK" ]; then
 				YNS_SHELL_CHECK=warn bash "$SHELL_CHECK" "https://$DEPLOYMENT_URL/" || true
 			fi
 			exit 0
