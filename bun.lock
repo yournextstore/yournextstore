@@ -27,7 +27,7 @@
         "ai": "7.0.93",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
-        "commerce-kit": "0.61.0",
+        "commerce-kit": "0.65.0",
         "lucide-react": "1.42.0",
         "next": "16.3.4",
         "next-themes": "0.4.6",
@@ -457,7 +457,7 @@
 
     "comma-separated-tokens": ["comma-separated-tokens@2.0.3", "", {}, "sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg=="],
 
-    "commerce-kit": ["commerce-kit@0.61.0", "", { "peerDependencies": { "@types/node": "^26.4.0", "react": "^19", "react-dom": "^19", "typescript": "^6.0.3 || ^7.0.0", "zod": "^4.5.4" }, "optionalPeers": ["react", "react-dom", "typescript"] }, "sha512-ra8OGoBYaJs4gVaKGRqaGHKPdH9+UQJlhiFQLGY1/QSTLNWVKE25qQRXDqJYqczk+RCk8jHb7iL8TcJapoSCLQ=="],
+    "commerce-kit": ["commerce-kit@0.65.0", "", { "peerDependencies": { "@types/node": "^26.4.1", "react": "^19", "react-dom": "^19", "typescript": "^6.0.3 || ^7.0.0", "zod": "^4.5.4" }, "optionalPeers": ["react", "react-dom", "typescript"] }, "sha512-W7UEMqiqXH7mkJYMeqm6WYdcm1+5GEwdAhyZRvZm2QAmvNQZ9c15RAQZvMzEIcBjfpn31wyLTpmub+cSvJW91g=="],
 
     "cross-spawn": ["cross-spawn@7.0.6", "", { "dependencies": { "path-key": "^3.1.0", "shebang-command": "^2.0.0", "which": "^2.0.1" } }, "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA=="],
 

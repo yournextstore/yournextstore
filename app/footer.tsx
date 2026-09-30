@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -155,8 +156,9 @@ export async function Footer() {
 				</div>
 
 				{/* Bottom bar */}
-				<div className="py-6 border-t border-border">
+				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+					<PaymentMethods />
 				</div>
 			</div>
 		</footer>

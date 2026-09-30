@@ -51,6 +51,7 @@ already emailed or registered on this domain.
 
 - Use `safe-try` for error handling: `const [error, result] = await safe(...)`
 - Format prices with `formatMoney` from `lib/money.ts`
+- Show accepted payment methods with `PaymentMethods` from `components/payment-methods.tsx` (official marks from `commerce-kit/payment-icons`, keyed by Stripe payment method type, e.g. `blik`, `p24`, `apple_pay`). Never draw, type out or copy payment brand logos; render it from a Server Component
 - Use functional array methods (`map`, `filter`, `reduce`), not loops
 - No `any` types; rely on type inference; minimal return type annotations
 - **Always quote paths** with special characters in shell commands: `rg "term" "app/(auth)/login"`
