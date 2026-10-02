@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
-# Publish this store — the CLI twin of the admin "Publish" button.
-# Triggers a production build of the tenant repo's remote `main` (push first!)
-# via POST /api/v1/publish, then polls until the publish is live or has failed.
+# Publish this store: deploy the commit at the tenant repo's remote `main`.
+# Sends that commit to POST /api/v1/publish, which builds it without touching
+# the design workspace, then polls until the publish is live or has failed.
+#
+# Only what is pushed gets published, so the script refuses to run from a
+# checkout that holds anything else: uncommitted changes, or a HEAD that is not
+# `origin/main`. Unpublished edits made on the admin Design page are not
+# included either; they go out with the next publish from there.
 #
 # Usage: scripts/publish.sh [--no-wait]
 
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 API="$(dirname "${BASH_SOURCE[0]}")/api.sh"
 SHELL_CHECK="$(dirname "${BASH_SOURCE[0]}")/check-shell.sh"
 
@@ -27,7 +33,30 @@ fail() {
 	exit 1
 }
 
-if ! RESPONSE="$("$API" POST /publish 2>&1)"; then
+refuse() {
+	printf 'Not publishing: %s\n' "$1" >&2
+	exit 1
+}
+
+DIRTY="$(git -C "$ROOT" status --porcelain)"
+if [ -n "$DIRTY" ]; then
+	printf '%s\n' "$DIRTY" | head -n 10 >&2
+	refuse "this checkout has uncommitted changes. Commit and push them, or stash them."
+fi
+
+git -C "$ROOT" fetch --quiet origin main || refuse "could not fetch origin/main."
+HEAD_SHA="$(git -C "$ROOT" rev-parse HEAD)"
+REMOTE_SHA="$(git -C "$ROOT" rev-parse FETCH_HEAD)"
+if [ "$HEAD_SHA" != "$REMOTE_SHA" ]; then
+	AHEAD="$(git -C "$ROOT" rev-list --count "$REMOTE_SHA..$HEAD_SHA")"
+	BEHIND="$(git -C "$ROOT" rev-list --count "$HEAD_SHA..$REMOTE_SHA")"
+	refuse "HEAD (${HEAD_SHA:0:7}) is not origin/main (${REMOTE_SHA:0:7}): $AHEAD commit(s) not pushed, $BEHIND not pulled. Push or pull first."
+fi
+
+echo "Publishing $(git -C "$ROOT" log -1 --format='%h %s' "$HEAD_SHA")"
+
+BODY="$(jq -nc --arg sha "$HEAD_SHA" '{source: "remote", expectedSha: $sha}')"
+if ! RESPONSE="$("$API" POST /publish "$BODY" 2>&1)"; then
 	fail "$(concise_error "$RESPONSE")"
 fi
 
