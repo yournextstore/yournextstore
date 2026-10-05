@@ -1,11 +1,14 @@
 # New stores are seeded from a theme-* branch and get the newest commerce-kit on their first
 # workspace setup (yns-app, builder-drive-sandbox.ts). A theme that stops building against it
-# breaks every store made from it, so check each one the same way, every night.
+# breaks every store made from it, so check each one the same way: every night, and within the
+# hour after a commerce-kit release.
 name: Theme build check
 
 on:
   schedule:
     - cron: "0 5 * * *"
+    # Hourly, but only does anything when commerce-kit was published since the last hour.
+    - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       themes:
@@ -25,7 +28,16 @@ jobs:
         env:
           THEMES: ${{ inputs.themes }}
           REPO: ${{ github.repository }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
+          if [ "$SCHEDULE" = "17 * * * *" ]; then
+            published=$(npm view commerce-kit time --json | jq -r --arg v "$(npm view commerce-kit version)" '.[$v]')
+            if [ $(( $(date +%s) - $(date -d "$published" +%s) )) -gt 3900 ]; then
+              echo "No commerce-kit release in the last hour (latest: $published)"
+              echo "themes=[]" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
           names="$THEMES"
           if [ -z "$names" ]; then
             names=$(git ls-remote --heads "https://github.com/$REPO" 'theme-*' | sed 's#.*refs/heads/##')
@@ -34,6 +46,7 @@ jobs:
 
   check:
     needs: list
+    if: needs.list.outputs.themes != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
