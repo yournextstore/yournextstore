@@ -18,10 +18,12 @@ const makeVariant = (id: string, price: string, images: string[], color: ColorOp
 	storeId: STORE_ID,
 	description: null,
 	price,
+	priceGross: price,
 	images,
 	sku: id.toUpperCase(),
 	barcode: null,
 	calculatedPrice: price,
+	calculatedPriceGross: price,
 	stock: 12,
 	depth: null,
 	width: null,
@@ -33,7 +35,10 @@ const makeVariant = (id: string, price: string, images: string[], color: ColorOp
 	productId: id.split("-v-")[0] ?? id,
 	attributes: null,
 	originalPrice: price,
+	originalPriceGross: price,
 	prePromotionPrice: null,
+	prePromotionPriceGross: null,
+	nextStockPriceGross: null,
 	combinations: [
 		{
 			createdAt: NOW,
@@ -122,9 +127,10 @@ const makeProduct = (args: {
 			parentId: null,
 		},
 		productTaxRate: null,
+		taxRate: null,
 		productCollections: [],
 		bundleProducts: [],
-		tr: [],
+		translations: [],
 		variants: [
 			makeVariant(
 				variantId,
@@ -149,6 +155,7 @@ const makeProduct = (args: {
 			),
 		],
 		subscriptionPlanProducts: [],
+		subscriptionMode: "optional",
 	} satisfies BrowseProduct;
 };
 
