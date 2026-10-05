@@ -34,11 +34,14 @@ export async function generateMetadata({
 	params: Promise<{ slug: string }>;
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
+	const [sp, { slug }] = await Promise.all([searchParams, params]);
+	const preview = await isPreview(sp);
+	return productMetadata({ slug, preview });
+}
+
+async function productMetadata({ slug, preview }: { slug: string; preview: boolean }): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
-	const { slug } = await params;
-	const sp = await searchParams;
-	const preview = await isPreview(sp);
 
 	if (preview) {
 		const demo = findDemoProductBySlug(slug);
