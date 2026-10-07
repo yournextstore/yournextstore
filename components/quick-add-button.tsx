@@ -31,7 +31,7 @@ export function QuickAddButton({
 	variantImages,
 	product,
 }: QuickAddButtonProps) {
-	const { openCart, dispatch, syncCart, reconcile } = useCart();
+	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -41,9 +41,9 @@ export function QuickAddButton({
 
 		openCart();
 
-		// Instant local feedback, then REPLACE with the server-returned cart. No
-		// startTransition (it would defer the instant feedback) and no refetch
-		// (the layout cartGet hits a stale read replica). See patterns/cart-sync.md.
+		// Instant local feedback OUTSIDE the transition, then REPLACE with the
+		// server-returned cart (never refetch — cartGet reads a replica that can lag the
+		// write). The transition keeps Checkout disabled until the write lands.
 		dispatch({
 			type: "ADD_ITEM",
 			item: {
@@ -58,7 +58,7 @@ export function QuickAddButton({
 			},
 		});
 
-		void (async () => {
+		startMutation(async () => {
 			// The server clamps to available stock and still returns the cart — surface
 			// the failure instead of letting the optimistic item silently vanish.
 			const result = await addToCart(variantId, 1);
@@ -69,7 +69,7 @@ export function QuickAddButton({
 				await reconcile();
 				toast.error("This item is out of stock");
 			}
-		})();
+		});
 	};
 
 	return (

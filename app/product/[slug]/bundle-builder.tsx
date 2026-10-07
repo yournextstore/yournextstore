@@ -86,7 +86,7 @@ export function BundleBuilder({
 }) {
 	const { groups, discountPercentage } = bundle;
 	const { currency, locale, taxBehavior } = useStoreConfig();
-	const { openCart } = useCart();
+	const { openCart, syncCart } = useCart();
 
 	const [selections, setSelections] = useState<GroupSelections>(() => initialSelections(groups));
 	const [isAdding, setIsAdding] = useState(false);
@@ -151,6 +151,7 @@ export function BundleBuilder({
 				toast.error(result.error ?? "Could not add to cart");
 				return;
 			}
+			syncCart(result.cart);
 			openCart();
 			toast.success("Bundle added to cart");
 		} catch (error) {

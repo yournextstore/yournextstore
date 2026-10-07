@@ -57,7 +57,7 @@ export function ChatProductCard({
 	locale: string;
 }) {
 	const { taxBehavior } = useStoreConfig();
-	const { openCart, dispatch, syncCart, reconcile } = useCart();
+	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 	const [selectedVariantId, setSelectedVariantId] = useState(
 		product.variants.find((variant) => variant.inStock)?.id ?? product.variants[0]?.id,
 	);
@@ -88,8 +88,8 @@ export function ChatProductCard({
 		);
 
 		openCart();
-		// Same optimistic flow as QuickAddButton: instant local item, then replace
-		// with the server cart (no refetch — the layout cartGet reads a stale replica).
+		// Same optimistic flow as QuickAddButton: instant local item, then replace with
+		// the server cart inside the transition that keeps Checkout disabled meanwhile.
 		dispatch({
 			type: "ADD_ITEM",
 			item: {
@@ -109,7 +109,7 @@ export function ChatProductCard({
 			},
 		});
 
-		void (async () => {
+		startMutation(async () => {
 			const result = await addToCart(selectedVariant.id, 1);
 			const line = result.cart?.lineItems.find((item) => item.productVariant.id === selectedVariant.id);
 			if (result.success && result.cart && line) {
@@ -118,7 +118,7 @@ export function ChatProductCard({
 				await reconcile();
 				toast.error("This item is out of stock");
 			}
-		})();
+		});
 	};
 
 	return (
