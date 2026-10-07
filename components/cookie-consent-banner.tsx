@@ -4,7 +4,8 @@
 "use client";
 
 import { XIcon } from "lucide-react";
-import { useState } from "react";
+import { use, useState } from "react";
+import { browser } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { notifyConsentChanged } from "@/lib/track";
 
@@ -34,7 +35,12 @@ declare global {
 }
 
 export const CookieConsentBanner = () => {
-	const [hidden, setHidden] = useState(false);
+	// Renders only in the browser (the prerender keeps the Suspense fallback), so the
+	// visitor's choice is read here and the page stays static.
+	use(browser("The consent choice is a browser cookie."));
+	const [hidden, setHidden] = useState(() =>
+		document.cookie.split("; ").some((cookie) => cookie.startsWith(`${CONSENT_COOKIE}=`)),
+	);
 	if (hidden) return null;
 
 	const onAccept = () => {

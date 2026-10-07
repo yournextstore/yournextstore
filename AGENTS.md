@@ -63,7 +63,7 @@ There is **no auth in this app**. Shopper sign-in happens exclusively through th
 
 ## The prerendered shell
 
-`cacheComponents` is on. Everything the root layout awaits before rendering the chrome ends up in the prerendered shell; anything request-time (`cookies()`, `headers()`, `searchParams`) takes it back out. So `app/layout.tsx` awaits **only cached reads**, and the per-customer cart is not read on the server at all: `CartProvider` loads it in the browser through the `getCart` action after hydration, once per full page load.
+`cacheComponents` is on. Everything the root layout awaits before rendering the chrome ends up in the prerendered shell; anything request-time (`cookies()`, `headers()`, `searchParams`) takes it back out. So `app/layout.tsx` awaits **only cached reads**, and nothing per visitor is read on the server at all: `CartProvider` loads the cart in the browser through the `getCart` action after hydration, once per full page load, and the consent script and banner read their cookie in the browser (`use(browser())` inside the banner's own Suspense boundary).
 
 Do not hoist a request-time read above the chrome. The layout's Suspense boundaries have no fallback, so the cost is not a spinner: the shell prerenders empty and the page paints blank white until the server responds. That stays invisible during soft navigation (the old UI remains on screen) and is glaring on any full document load.
 
