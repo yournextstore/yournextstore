@@ -13,24 +13,8 @@ const nextConfig: NextConfig = {
 	experimental: {
 		// Run the React Compiler natively in Turbopack instead of through Babel (16.3 experimental).
 		turbopackRustReactCompiler: true,
-		useTypeScriptCli: true,
 		typedEnv: true,
 		serverComponentsHmrCache: false,
-		optimizePackageImports: [
-			"lucide-react",
-			"@radix-ui/react-accordion",
-			"@radix-ui/react-checkbox",
-			"@radix-ui/react-dialog",
-			"@radix-ui/react-dropdown-menu",
-			"@radix-ui/react-label",
-			"@radix-ui/react-popover",
-			"@radix-ui/react-scroll-area",
-			"@radix-ui/react-select",
-			"@radix-ui/react-slider",
-			"@radix-ui/react-slot",
-			"@radix-ui/react-tooltip",
-			"class-variance-authority",
-		],
 	},
 	images: {
 		// Store media lives on Vercel Blob (per-store subdomain) and the YNS platform hosts.

@@ -56,7 +56,6 @@
     "@types/node": "26.6.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "babel-plugin-react-compiler": "1.0.0",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "tailwindcss": "4.3.3",
