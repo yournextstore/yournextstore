@@ -106,7 +106,7 @@ marked FAIL above. The usual causes:
      boundary alone streams the chrome out of the shell, even when everything
      inside it is a cached read;
   2. a request-time read — cookies(), headers(), searchParams, params — awaited
-     above the chrome instead of below it (see CartBootstrapper);
+     above the chrome; per-visitor data loads in the browser (see CartProvider);
   3. a client component in the chrome reading usePathname() or useSearchParams()
      without its own <Suspense> around it (see SearchInput); on a listing page,
      controls that read the URL belong inside the grid's boundary.

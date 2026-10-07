@@ -27,8 +27,8 @@ export async function addToCart(variantId: string, quantity = 1) {
 	// The yns_cart cookie can point at a cartId that no longer exists server-side
 	// (expired, store re-seeded, old session). cartUpsert then throws "Cart not found";
 	// retry once with a FRESH cart so the add always lands. No revalidatePath — the
-	// client syncs from this action's returned cart (the layout cartGet hits a
-	// read-replica and can return the pre-write cart, dropping the just-added line).
+	// client syncs from this action's returned cart (cartGet hits a read replica and
+	// can return the pre-write cart, dropping the just-added line).
 	let [error, cart] = await try_(commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity }));
 	if (error) {
 		[error, cart] = await try_(commerce.cartUpsert({ variantId, quantity }));

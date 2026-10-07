@@ -54,7 +54,7 @@ export function CartItem({ item }: CartItemProps) {
 					targetQuantityRef.current = null;
 					const res = await setCartQuantity(productVariant.id, latest);
 					// Remember the newest server-returned cart so we can sync from it (never
-					// refetch — the layout cartGet hits a read-replica and can rebase stale).
+					// refetch — cartGet hits a read replica and can rebase stale).
 					if (res.success && res.cart) {
 						latestCartRef.current = res.cart;
 					} else {

@@ -159,8 +159,8 @@ export function AddToCartButton({
 		setQuantity(1);
 
 		// Instant local feedback OUTSIDE the transition, then REPLACE with the
-		// server-returned cart (never refetch — the layout cartGet hits a stale
-		// read replica). See patterns/cart-sync.md.
+		// server-returned cart (never refetch — cartGet reads a replica that can lag
+		// the write).
 		dispatch({
 			type: "ADD_ITEM",
 			item: {
