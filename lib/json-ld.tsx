@@ -4,12 +4,9 @@ import type {
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
 import { getCanonicalUrl, meGetCached } from "@/lib/commerce";
+import { minorUnitsToMajor } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-
-function getDecimalPrice(minorAmount: string): string {
-	return (Number(minorAmount) / 100).toFixed(2);
-}
 
 function getBaseUrl(): string {
 	return getCanonicalUrl();
@@ -32,10 +29,15 @@ export async function buildProductJsonLd(
 	// schema.org `price` must be the price the shopper sees on the page — gross on an
 	// inclusive store, net on an exclusive one. Same rule the platform storefront emits.
 	const { min, max } = priceRange(product.variants, taxBehavior);
-	const lowPrice = getDecimalPrice(String(min));
-	const highPrice = getDecimalPrice(String(max));
-	const baseUrl = getBaseUrl();
 	const currency = storeCurrency.toUpperCase();
+	// Minor units per the currency's decimals: 1999 is ¥1999, not ¥19.99.
+	const lowPrice = minorUnitsToMajor({ amount: min, currency });
+	const highPrice = minorUnitsToMajor({ amount: max, currency });
+	const baseUrl = getBaseUrl();
+	// `stock: null` means the variant doesn't track inventory.
+	const availability = product.variants.some((variant) => variant.stock === null || (variant.stock ?? 0) > 0)
+		? "https://schema.org/InStock"
+		: "https://schema.org/OutOfStock";
 
 	const jsonLd: Record<string, unknown> = {
 		"@context": "https://schema.org",
@@ -44,7 +46,6 @@ export async function buildProductJsonLd(
 		description: product.summary,
 		image: product.images,
 		sku: product.variants[0]?.sku ?? product.id,
-		brand: product.category ? { "@type": "Brand", name: product.category.name } : undefined,
 		offers:
 			product.variants.length === 1
 				? {
@@ -52,10 +53,7 @@ export async function buildProductJsonLd(
 						url: `${baseUrl}/product/${product.slug}`,
 						priceCurrency: currency,
 						price: lowPrice,
-						availability:
-							product.variants[0]?.stock === null || (product.variants[0]?.stock ?? 0) > 0
-								? "https://schema.org/InStock"
-								: "https://schema.org/OutOfStock",
+						availability,
 					}
 				: {
 						"@type": "AggregateOffer",
@@ -63,7 +61,7 @@ export async function buildProductJsonLd(
 						highPrice,
 						priceCurrency: currency,
 						offerCount: product.variants.length,
-						availability: "https://schema.org/InStock",
+						availability,
 					},
 	};
 
@@ -102,7 +100,7 @@ export function buildProductBreadcrumbJsonLd(product: APIProductGetByIdResult): 
 					"@type": "ListItem",
 					position: 2,
 					name: product.category.name,
-					item: `${baseUrl}/collection/${product.category.slug}`,
+					item: `${baseUrl}/category/${product.category.slug}`,
 				}
 			: null,
 		{
