@@ -35,12 +35,12 @@ next.config.ts        # Next.js config
 ## Platform-managed files — DO NOT MODIFY
 
 `instrumentation-client.ts`, `lib/track.tsx`, and `proxy.ts` carry the platform integration
-(analytics kit injection, the `track()` event contract, the `/_public` + `/checkout` proxies).
+(analytics kit injection, the commerce event contract, the `/_public` + `/checkout` proxies).
 They are updated by platform releases only — the platform's tooling **rejects edits to
 them, and any out-of-band change is restored to the platform version on every save**. Trackers, consent handling, and event forwarding live in
 a platform-served script (`/_public/kit.js`, generated per store), so **never** add tracker
 snippets (fbq, gtag, GTM, pixels) to template code. To track a commerce event from new UI,
-call `track()` from `lib/track.tsx`.
+use the exports of `lib/track.tsx` (`trackAddToCart`, `TrackProductView`).
 
 Newsletter unsubscribe and confirmation pages, digital downloads, and payment/carrier webhooks
 live on the platform domain, not here — never add `/unsubscribe`, `/confirm-subscription`,
@@ -49,8 +49,9 @@ already emailed or registered on this domain.
 
 ## Project Patterns
 
-- Use `safe-try` for error handling: `const [error, result] = await safe(...)`
+- Use `safe-try` for error handling: `const [error, result] = await try_(...)`
 - Format prices with `formatMoney` from `lib/money.ts`
+- No manual `useMemo`/`useCallback`: the React Compiler memoizes components (`reactCompiler` in `next.config.ts`)
 - Show accepted payment methods with `PaymentMethods` from `components/payment-methods.tsx` (official marks from `commerce-kit/payment-icons`, keyed by Stripe payment method type, e.g. `blik`, `p24`, `apple_pay`). Never draw, type out or copy payment brand logos; render it from a Server Component
 - Use functional array methods (`map`, `filter`, `reduce`), not loops
 - No `any` types; rely on type inference; minimal return type annotations
@@ -172,7 +173,7 @@ Prefer: named exports, `map`/`filter`/`reduce`, type inference, `as const`, temp
 // Product browsing
 const products = await commerce.productBrowse({
   active: true, limit: 12, offset: 0,
-  // search: "query", category: "id", tags: ["tag"]
+  // query: "search text", category: "id", tags: ["tag"]
 });
 
 // Product details (accepts ID or slug)
@@ -189,20 +190,31 @@ const cart = await commerce.cartGet({ cartId });
 ### Page with caching
 ```tsx
 // app/search/page.tsx
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 import { commerce } from "@/lib/commerce";
 import { SearchResults } from "./search-results";
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
+// The data read is cached; the request-time searchParams never enter the cache scope.
+async function searchProducts(q: string) {
   "use cache";
+  cacheLife("minutes");
+  return commerce.productBrowse({ query: q, active: true });
+}
+
+async function Results({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
-  const products = q
-    ? await commerce.productBrowse({ search: q, active: true })
-    : { data: [] };
+  const products = q ? await searchProducts(q) : { data: [] };
   return <SearchResults products={products.data} query={q} />;
+}
+
+// The page stays sync so its shell prerenders; the searchParams part streams in Suspense.
+export default function SearchPage(props: { searchParams: Promise<{ q?: string }> }) {
+  return (
+    <Suspense>
+      <Results searchParams={props.searchParams} />
+    </Suspense>
+  );
 }
 ```
 
@@ -210,18 +222,21 @@ export default async function SearchPage({
 ```tsx
 import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
-import { safe } from "safe-try";
+import { getStoreConfig } from "@/lib/store-config";
+import { try_ } from "safe-try";
 
-const [error, result] = await safe(
+// The SDK throws on any non-2xx response, a 404 included.
+const [error, result] = await try_(
   commerce.productGet({ idOrSlug: productId })
 );
 if (error || !result) {
   return <div>Product not found</div>;
 }
+const { currency, locale } = await getStoreConfig();
 const price = formatMoney({
   amount: result.variants[0].price,
-  currency: "USD",
-  locale: "en-US",
+  currency,
+  locale,
 });
 ```
 

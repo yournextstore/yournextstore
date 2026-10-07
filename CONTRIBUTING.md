@@ -21,7 +21,7 @@ What's YNS-specific:
 - **`lib/commerce.ts`** — Commerce Kit SDK client. All product/cart/checkout data goes through `commerce.productBrowse()`, `commerce.cartUpsert()`, etc.
 - **`lib/money.ts`** — `formatMoney()` for all price formatting
 - **`components/ui/`** — Shadcn UI primitives (Radix-based). Don't edit these directly — regenerate with `bunx shadcn@latest`
-- **Error handling** — use `safe-try`: `const [error, result] = await safe(...)`
+- **Error handling** — use `safe-try`: `const [error, result] = await try_(...)`
 - **No `/api` routes** — mutations use Server Actions
 
 ## Coding Conventions
