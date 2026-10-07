@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 type VariantValue = {
@@ -87,27 +87,18 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
-	// Build Maps for O(1) lookups
-	const { optionsByValue, optionsById } = useMemo(() => {
-		const optionsByValue = new Map(
-			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.value, o]))]),
-		);
-		const optionsById = new Map(
-			variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.id, o]))]),
-		);
-		return { optionsByValue, optionsById };
-	}, [variantGroups]);
+	// Maps for O(1) lookups; the React Compiler memoizes them on `variants`.
+	const optionsByValue = new Map(
+		variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.value, o]))]),
+	);
+	const optionsById = new Map(variantGroups.map((g) => [g.label, new Map(g.options.map((o) => [o.id, o]))]));
 
-	const selectedOptions = useMemo(() => {
-		const paramsOptions: Record<string, string> = {};
-		searchParams.forEach((valueName, key) => {
+	const selectedOptions = Object.fromEntries(
+		[...searchParams].flatMap(([key, valueName]) => {
 			const option = optionsByValue.get(key)?.get(valueName);
-			if (option) {
-				paramsOptions[key] = option.id;
-			}
-		});
-		return paramsOptions;
-	}, [searchParams, optionsByValue]);
+			return option ? [[key, option.id]] : [];
+		}),
+	);
 
 	const handleOptionSelect = (label: string, optionId: string) => {
 		const newSelectedOptions = { ...selectedOptions, [label]: optionId };

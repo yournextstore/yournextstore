@@ -1,16 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-	useTransition,
-} from "react";
+import { createContext, useContext, useEffect, useRef, useState, useTransition } from "react";
 import { getCart } from "@/app/cart/actions";
 import {
 	type Cart,
@@ -67,20 +58,23 @@ export function CartProvider({ children }: CartProviderProps) {
 	// mutation the customer made before it arrived.
 	const written = useRef(false);
 
-	const dispatch = useCallback((action: CartAction) => {
+	// No useCallback/useMemo in this provider: the React Compiler memoizes the callbacks,
+	// the derived values and the context value.
+	const dispatch = (action: CartAction) => {
 		written.current = true;
 		setCart((prev) => cartReducer(prev, action));
-	}, []);
-	const syncCart = useCallback((next: Cart | null) => {
+	};
+	const syncCart = (next: Cart | null) => {
 		if (next) {
 			written.current = true;
 			setCart(next);
 		}
-	}, []);
-	const reconcile = useCallback(async () => {
+	};
+	const reconcile = async () => {
 		written.current = true;
 		setCart((await getCart()) as Cart | null);
-	}, []);
+	};
+
 	useEffect(() => {
 		// One read per full page load; soft navigations keep this provider mounted. A write
 		// that lands first wins, and a failed load leaves the cart empty, never an unhandled
@@ -97,62 +91,46 @@ export function CartProvider({ children }: CartProviderProps) {
 	useEffect(() => {
 		// Re-fetch the cart when restored from bfcache — it can change on the hosted
 		// checkout (different origin) and would otherwise show stale items.
+		// The refetch lives in here, not in `reconcile`, so the effect depends on nothing.
 		const onPageShow = (event: PageTransitionEvent) => {
 			if (event.persisted) {
+				written.current = true;
 				// Keep showing the current cart if the refetch fails — never an unhandled rejection.
-				void reconcile().catch(() => undefined);
+				void getCart()
+					.then((next) => setCart(next as Cart | null))
+					.catch(() => undefined);
 			}
 		};
 		window.addEventListener("pageshow", onPageShow);
 		return () => window.removeEventListener("pageshow", onPageShow);
-	}, [reconcile]);
+	}, []);
 
-	const items = useMemo(() => cart?.lineItems ?? [], [cart]);
-
-	const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
+	const items = cart?.lineItems ?? [];
+	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
 	// The API's own subtotal when the cart is the server's (already net or gross per the
 	// store's tax behaviour, discounts applied); a local sum of display prices while a
 	// mutation is in flight, because `cartReducer` clears the totals it just invalidated.
-	const subtotal = useMemo(() => getCartDisplaySubtotal(cart, taxBehavior), [cart, taxBehavior]);
-
-	const openCart = useCallback(() => setIsOpen(true), []);
-	const closeCart = useCallback(() => setIsOpen(false), []);
+	const subtotal = getCartDisplaySubtotal(cart, taxBehavior);
 
 	// The sentinel "local" id marks a null-base ADD the server hasn't answered yet.
-	const currentCartId = cart?.id && cart.id !== "local" ? cart.id : null;
+	const cartId = cart?.id && cart.id !== "local" ? cart.id : null;
 
-	const value = useMemo(
-		() => ({
-			cart,
-			items,
-			itemCount,
-			subtotal,
-			isOpen,
-			isMutating,
-			cartId: currentCartId,
-			openCart,
-			closeCart,
-			dispatch,
-			syncCart,
-			reconcile,
-			startMutation,
-		}),
-		[
-			cart,
-			items,
-			itemCount,
-			subtotal,
-			isOpen,
-			isMutating,
-			currentCartId,
-			openCart,
-			closeCart,
-			dispatch,
-			syncCart,
-			reconcile,
-		],
-	);
+	const value = {
+		cart,
+		items,
+		itemCount,
+		subtotal,
+		isOpen,
+		isMutating,
+		cartId,
+		openCart: () => setIsOpen(true),
+		closeCart: () => setIsOpen(false),
+		dispatch,
+		syncCart,
+		reconcile,
+		startMutation,
+	};
 
 	return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
