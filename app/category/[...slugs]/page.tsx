@@ -3,6 +3,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
+import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
@@ -53,7 +54,7 @@ export async function generateMetadata({
 		return { title: "Category Not Found", robots: { index: false, follow: true } };
 	}
 
-	const category = await commerce.categoryGet({ idOrSlug: slug });
+	const category = await getCategoryData(slug);
 	if (!category?.active) {
 		return { title: "Category Not Found", robots: { index: false, follow: true } };
 	}
@@ -162,10 +163,13 @@ export default function CategoryPage(props: {
 	);
 }
 
+// The SDK throws on a 404 despite its `| null` type. Without the null, the `!category`
+// branches never run and an unknown slug answers 200 with the error page.
 const getCategoryData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
-	return commerce.categoryGet({ idOrSlug: slug });
+	const [error, category] = await try_(commerce.categoryGet({ idOrSlug: slug }));
+	return error ? null : category;
 };
 
 const CategoryContent = async ({

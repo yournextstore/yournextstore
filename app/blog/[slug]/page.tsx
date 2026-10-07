@@ -3,6 +3,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { try_ } from "safe-try";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
@@ -23,9 +24,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	"use cache";
 	cacheLife("minutes");
 	const { slug } = await params;
-	const post = await commerce.postGet({ idOrSlug: slug });
+	const post = await getBlogPostData(slug);
 
-	if (!post) {
+	if (!post?.active) {
 		return { title: "Post Not Found", robots: { index: false, follow: true } };
 	}
 
@@ -75,6 +76,8 @@ export default function BlogPostPage(props: { params: Promise<{ slug: string }> 
 	);
 }
 
+// The SDK throws on a 404 despite its `| null` type. Without the null, the `!post`
+// branches never run and an unknown slug answers 200 with the error page.
 const getBlogPostData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
@@ -82,7 +85,8 @@ const getBlogPostData = async (slug: string) => {
 	if (!(await isStoreToolEnabled("blog"))) {
 		return null;
 	}
-	return commerce.postGet({ idOrSlug: slug });
+	const [error, post] = await try_(commerce.postGet({ idOrSlug: slug }));
+	return error ? null : post;
 };
 
 const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }) => {

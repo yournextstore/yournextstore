@@ -4,6 +4,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { try_ } from "safe-try";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
 import {
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	"use cache";
 	cacheLife("minutes");
 	const { slug } = await params;
-	const collection = await commerce.collectionGet({ idOrSlug: slug });
+	const collection = await getCollectionData(slug);
 
 	if (!collection) {
 		return { title: "Collection Not Found", robots: { index: false, follow: true } };
@@ -193,10 +194,13 @@ export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	);
 }
 
+// The SDK throws on a 404 despite its `| null` type. Without the null, the `!collection`
+// branches never run and an unknown slug answers 200 with the error page.
 const getCollectionData = async (slug: string) => {
 	"use cache";
 	cacheLife("minutes");
-	return commerce.collectionGet({ idOrSlug: slug });
+	const [error, collection] = await try_(commerce.collectionGet({ idOrSlug: slug }));
+	return error ? null : collection;
 };
 
 const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {

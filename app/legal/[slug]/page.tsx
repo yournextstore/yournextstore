@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { try_ } from "safe-try";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	"use cache";
 	cacheLife("hours");
 	const { slug } = await params;
-	const page = await commerce.legalPageGet(slug);
+	const page = await getLegalPage(slug);
 
 	if (!page) {
 		return { title: "Page Not Found", robots: { index: false, follow: true } };
@@ -53,10 +54,13 @@ export default function LegalPage(props: { params: Promise<{ slug: string }> }) 
 	);
 }
 
+// The SDK throws on a 404. Without the null, the `!page` branches never run and an
+// unknown slug answers 200 with the error page.
 const getLegalPage = async (slug: string) => {
 	"use cache";
 	cacheLife("hours");
-	return commerce.legalPageGet(slug);
+	const [error, page] = await try_(commerce.legalPageGet(slug));
+	return error ? null : page;
 };
 
 const LegalPageContent = async ({ params }: { params: Promise<{ slug: string }> }) => {
