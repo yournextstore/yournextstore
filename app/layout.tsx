@@ -229,7 +229,9 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const env = process.env.VERCEL_ENV || "development";
+	// VERCEL_ENV is unset off Vercel, so fall back to NODE_ENV: a self-hosted production
+	// build must not ship the builder devtools.
+	const env = process.env.VERCEL_ENV || process.env.NODE_ENV;
 	const lang = await getHtmlLang();
 
 	return (
