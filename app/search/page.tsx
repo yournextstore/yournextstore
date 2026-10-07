@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { SearchPageInput } from "@/components/search/search-page-input";
@@ -31,16 +32,30 @@ async function getActiveCategories() {
 	return data.filter((c) => !c.parentId).map((c) => ({ id: c.id, slug: c.slug, name: c.name }));
 }
 
-async function getTotalCount({ q, category }: { q: string; category?: string }) {
+// One browse serves both the header count and the results grid: the second call with the
+// same arguments is a cache hit, not another API request.
+async function searchProducts({
+	q,
+	page,
+	sort,
+	category,
+}: {
+	q: string;
+	page?: string;
+	sort: ReturnType<typeof getSortFromParams>;
+	category?: string;
+}) {
 	"use cache";
 	cacheLife("minutes");
-	const { meta } = await commerce.productBrowse({
+	const currentPage = Math.max(1, Number(page) || 1);
+	return commerce.productBrowse({
 		query: q.trim(),
 		active: true,
-		limit: 1,
+		limit: PRODUCTS_PER_PAGE,
+		offset: (currentPage - 1) * PRODUCTS_PER_PAGE,
+		...sortToBrowseParams(sort),
 		...(category ? { category } : {}),
 	});
-	return meta.count;
 }
 
 function SearchResultsSkeleton() {
@@ -72,17 +87,7 @@ async function SearchResults({
 	cacheLife("minutes");
 
 	const currentPage = Math.max(1, Number(page) || 1);
-	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-	const sortParams = sortToBrowseParams(sort);
-
-	const result = await commerce.productBrowse({
-		query: q.trim(),
-		active: true,
-		limit: PRODUCTS_PER_PAGE,
-		offset,
-		...sortParams,
-		...(category ? { category } : {}),
-	});
+	const result = await searchProducts({ q, page, sort, category });
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
@@ -131,12 +136,13 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 					<ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-lg">
 						{categories.slice(0, 8).map((c) => (
 							<li key={c.id}>
-								<a
-									href={`/search?category=${encodeURIComponent(c.slug)}`}
+								{/* A category alone shows nothing here (results need a query): browse its page. */}
+								<Link
+									href={`/category/${c.slug}`}
 									className="border-b border-foreground/30 pb-0.5 text-foreground transition-colors hover:border-foreground"
 								>
 									{c.name}
-								</a>
+								</Link>
 							</li>
 						))}
 					</ul>
@@ -183,7 +189,9 @@ const SearchContent = async ({
 	const sort = getSortFromParams(sortParam);
 	const [categories, totalCount] = await Promise.all([
 		getActiveCategories(),
-		query ? getTotalCount({ q: query, category }) : Promise.resolve(0),
+		query
+			? searchProducts({ q: query, page, sort, category }).then(({ meta }) => meta.count)
+			: Promise.resolve(0),
 	]);
 
 	return (
