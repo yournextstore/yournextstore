@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
 
 const FEATURED_PRODUCTS = 30;
@@ -5,6 +6,20 @@ const FEATURED_COLLECTIONS = 15;
 const FEATURED_POSTS = 20;
 
 export async function GET() {
+	return new Response(await getLlmsTxt(), {
+		headers: {
+			"Content-Type": "text/plain; charset=utf-8",
+			"Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+		},
+	});
+}
+
+// Cached, so llms.txt is prerendered instead of browsing the catalog on every hit. A cache
+// entry can't hold a Response, so this returns the text and GET wraps it.
+async function getLlmsTxt() {
+	"use cache";
+	cacheLife("hours");
+
 	const baseUrl = getCanonicalUrl();
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
@@ -85,12 +100,5 @@ export async function GET() {
 		sections.push("");
 	}
 
-	const body = sections.join("\n");
-
-	return new Response(body, {
-		headers: {
-			"Content-Type": "text/plain; charset=utf-8",
-			"Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
-		},
-	});
+	return sections.join("\n");
 }

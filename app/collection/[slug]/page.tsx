@@ -108,15 +108,19 @@ function CollectionProductsSkeleton() {
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
 // the smart filters are evaluated against the whole catalog when the storefront asks for them.
 // Re-expressing each one as the equivalent product browse is what keeps those collections from
-// rendering as an empty grid.
+// rendering as an empty grid. Cached like the collection itself, which also pins the
+// `Date.now()` below to the cache entry.
 async function getCollectionProducts(collection: APICollectionGetByIdResult) {
+	"use cache";
+	cacheLife("minutes");
 	const { filter } = collection;
 
 	if (filter.type === "manual") {
 		const ids = collection.productCollections.map((pc) => pc.product.id);
-		return (await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id })))).filter(
-			(product) => product !== null,
-		);
+		// The SDK throws on a 404: one product deleted since it joined must not fail the page.
+		return (
+			await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id }).catch(() => null)))
+		).filter((product) => product !== null);
 	}
 
 	if (filter.type === "variantValues") {

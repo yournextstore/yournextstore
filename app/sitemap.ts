@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { cacheLife } from "next/cache";
 import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
 
 const PAGE_SIZE = 100;
@@ -45,7 +46,13 @@ async function getBlogState() {
 	};
 }
 
+// Cached, so the sitemap is prerendered and refreshed hourly instead of walking the whole
+// catalog (up to 50 sequential product pages) on every crawl. `now` is read inside the
+// cache scope, which is what lets it prerender.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	"use cache";
+	cacheLife("hours");
+
 	const baseUrl = getCanonicalUrl();
 	const now = new Date();
 
