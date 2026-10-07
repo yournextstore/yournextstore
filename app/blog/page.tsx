@@ -18,6 +18,9 @@ import { YNSMedia } from "@/lib/yns-media";
 
 const POSTS_LIMIT = 24;
 
+// `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
+export const ensureStatic = "navigation";
+
 export async function generateMetadata(): Promise<Metadata> {
 	const { storeName } = await getStoreSeo();
 	const description = `News, guides, and stories from ${storeName}.`;

@@ -98,6 +98,19 @@ Two corollaries, one for the chrome and one for listings:
   it (`app/products/page.tsx`, `CategoryContent`): one skeleton for filters, sort and grid together,
   with the heading outside so it prerenders. Controls outside any boundary fail the build.
 
+### Fully static routes
+
+`/about`, `/faq`, `/contact` and `/blog` export `ensureStatic = "navigation"`, so `next dev` and
+`next build` fail if anything on them renders per request, the root layout included. That covers:
+
+- uncached data;
+- `cookies()`, `headers()` and server-side `searchParams`;
+- a `cacheLife` whose expire is under 5 minutes, stale under 30 seconds, or revalidate 0.
+
+Per-visitor data loads in the browser inside `<Suspense>` instead, the way the cart and the consent
+banner do. `next build --debug-prerender` prints full stack traces. A page that must render per
+request drops the export line rather than working around the check.
+
 ## Performance & accessibility baseline
 
 The defaults below are load-bearing — every one of them came back as a Lighthouse finding on a live

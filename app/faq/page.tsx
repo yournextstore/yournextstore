@@ -6,6 +6,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
+// `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
+export const ensureStatic = "navigation";
+
 export async function generateMetadata(): Promise<Metadata> {
 	const { storeName } = await getStoreSeo();
 	const description = `Frequently asked questions about orders, payments, shipping, and returns at ${storeName}.`;

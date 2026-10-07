@@ -4,6 +4,9 @@ import Link from "next/link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
+// `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
+export const ensureStatic = "navigation";
+
 export async function generateMetadata(): Promise<Metadata> {
 	const { storeName, storeDescription } = await getStoreSeo();
 	const description = storeDescription

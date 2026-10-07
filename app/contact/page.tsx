@@ -7,6 +7,9 @@ import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
 
+// `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
+export const ensureStatic = "navigation";
+
 export async function generateMetadata(): Promise<Metadata> {
 	const { storeName } = await getStoreSeo();
 	const description = `Get in touch with the ${storeName} team. Questions about orders, products, or anything else — we're here to help.`;
