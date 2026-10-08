@@ -21,7 +21,7 @@ Nothing leaves the machine until `push`.
 S=.agents/skills/theme-rebase/theme-rebase.sh
 bash $S run theme-002 theme-003   # or --all
 bash $S push                      # the last run's ok themes, one at a time
-bash $S clean                     # drop leftover worktrees and theme-rebase/* branches
+bash $S clean [theme…]            # drop leftover worktrees and theme-rebase/* branches
 ```
 
 | Setting | Default | |

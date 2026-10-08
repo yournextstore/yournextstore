@@ -7,7 +7,7 @@
 #
 # Usage: theme-rebase.sh run [theme… | --all]   rebase locally; never touches the remote
 #        theme-rebase.sh push [theme…]          push the last run's ok themes, one at a time
-#        theme-rebase.sh clean                  remove leftover worktrees and theme-rebase/* branches
+#        theme-rebase.sh clean [theme…]         remove leftover worktrees and theme-rebase/* branches
 #
 #        JOBS=3                         themes processed in parallel
 #        AGENT=claude | none            none: a theme that needs the agent stops at needs-agent
@@ -81,7 +81,7 @@ cmd_run() {
 	printf 'Rebasing %d theme(s) onto main %s, %s at a time. Logs: %s/logs\n\n' \
 		"${#themes[@]}" "${MAIN:0:7}" "$JOBS" "$RUN"
 	printf '%s\n' "${themes[@]}" | xargs -n 1 -P "$JOBS" "$BASH" "$SELF" one || true
-	table "$RUN"
+	table "$RUN/results.jsonl"
 }
 
 # One theme, in a child process started by xargs. Every path ends in `finish`.
@@ -412,6 +412,10 @@ cmd_push() {
 	RUN="$STATE/latest"
 	[ -s "$RUN/results.jsonl" ] || die "no run to push: use run first."
 	RUN="$(cd "$RUN" && pwd -P)"
+	local runs=()
+	while IFS= read -r t; do
+		runs+=("$t")
+	done < <(all_results)
 
 	local themes=() t
 	if [ "$#" -gt 0 ]; then
@@ -428,17 +432,27 @@ cmd_push() {
 	for t in "${themes[@]}"; do
 		push_one "$t"
 	done
-	table "$RUN"
+	table "${runs[@]}"
 }
 
-latest_rows() { jq -cs 'group_by(.theme) | map(last) | .[]' "$RUN/results.jsonl"; }
+# Every run's rows, oldest run first (run directories are named by start time), so a
+# theme's newest row comes last whichever run produced it.
+all_results() { ls "$STATE"/2*/results.jsonl 2>/dev/null || true; }
+
+latest_rows() {
+	local files=()
+	while IFS= read -r f; do
+		files+=("$f")
+	done < <(all_results)
+	jq -cs 'group_by(.theme) | map(last) | .[]' "${files[@]}"
+}
 
 # Push the branch and a backup tag at the old tip in one atomic push, leased on the
 # tip the run started from: if someone pushed to the theme since, nothing lands.
 push_one() {
 	local t="$1" row status old main br new tag out
 	row="$(latest_rows | jq -c --arg t "$t" 'select(.theme == $t)')"
-	[ -n "$row" ] || { printf '%-10s skipped: not in the last run\n' "$t"; return 0; }
+	[ -n "$row" ] || { printf '%-10s skipped: no run has it\n' "$t"; return 0; }
 	status="$(jq -r .status <<<"$row")"
 	old="$(jq -r .oldTip <<<"$row")"
 	main="$(jq -r .main <<<"$row")"
@@ -480,25 +494,41 @@ push_one() {
 
 # --- clean -------------------------------------------------------------------
 
+# Every leftover worktree and theme-rebase/* branch, or only those of the named themes.
 cmd_clean() {
 	local wt br
 	while IFS= read -r wt; do
 		case "$wt" in
-			"$STATE"/*) g -C "$ROOT" worktree remove --force "$wt" && printf 'removed %s\n' "$wt" ;;
+			"$STATE"/*) if wanted "$(basename "$wt")" "$@"; then
+				g -C "$ROOT" worktree remove --force "$wt" && printf 'removed %s\n' "$wt"
+			fi ;;
 		esac
 	done < <(git -C "$ROOT" worktree list --porcelain | sed -n 's/^worktree //p')
 	git -C "$ROOT" worktree prune
 	while IFS= read -r br; do
-		g -C "$ROOT" branch -q -D "$br" && printf 'deleted %s\n' "$br"
+		if wanted "${br#theme-rebase/}" "$@"; then
+			g -C "$ROOT" branch -q -D "$br" && printf 'deleted %s\n' "$br"
+		fi
 	done < <(git -C "$ROOT" for-each-ref --format='%(refname:short)' 'refs/heads/theme-rebase/')
+}
+
+# Whether theme $1 is among the rest of the arguments; no arguments means every theme.
+wanted() {
+	local t="$1" name
+	shift
+	[ "$#" -eq 0 ] && return 0
+	for name in "$@"; do
+		[ "$name" = "$t" ] && return 0
+	done
+	return 1
 }
 
 # --- report ------------------------------------------------------------------
 
-# The latest row per theme as a table; exits non-zero unless every theme is done.
+# The newest row per theme across the given results files, as a table; exits
+# non-zero unless every theme is done.
 table() {
-	local results="$1/results.jsonl"
-	[ -s "$results" ] || die "no results in $1"
+	[ -s "$1" ] || die "no results in $1"
 	printf '\n'
 	jq -rs '
 		group_by(.theme) | map(last) | sort_by(.theme)
@@ -509,16 +539,16 @@ table() {
 			([.note] + .review + (if .worktree != "" then ["worktree " + .worktree] else [] end)
 				| map(select(. != "")) | join("; "))]
 			| @tsv)
-	' "$results" | column -t -s "$(printf '\t')"
-	printf '\nRows: %s\n' "$results"
+	' "$@" | column -t -s "$(printf '\t')"
+	printf '\nRows: %s\n' "${@: -1}"
 	jq -es 'group_by(.theme) | map(last) | all(.status == "up-to-date" or .status == "ok" or .status == "pushed")' \
-		"$results" >/dev/null
+		"$@" >/dev/null
 }
 
 case "${1:-}" in
 	run) shift && cmd_run "$@" ;;
 	push) shift && cmd_push "$@" ;;
-	clean) cmd_clean ;;
+	clean) shift && cmd_clean "$@" ;;
 	one) shift && cmd_one "$@" ;;
 	*) usage ;;
 esac
