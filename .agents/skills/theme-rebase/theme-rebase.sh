@@ -380,6 +380,13 @@ review_reasons() {
 	fi
 }
 
+# `git worktree remove` walks node_modules and .next file by file, minutes per
+# worktree with a few in parallel; rm takes seconds. Git removes what is left.
+drop_worktree() {
+	rm -rf "$1/node_modules" "$1/.next"
+	g -C "$ROOT" worktree remove --force "$1"
+}
+
 # Record the theme's row and print its line. The worktree stays only where someone
 # still has work to do in it; a needs-agent theme is cheap to re-run.
 finish() {
@@ -391,7 +398,7 @@ finish() {
 		failed | review) ;;
 		*)
 			if [ -n "$KEPT" ]; then
-				g worktree remove --force "$KEPT" || true
+				drop_worktree "$KEPT" || true
 				KEPT=''
 			fi
 			if [ "$status" = needs-agent ]; then g branch -q -D "$BR" || true; fi
@@ -481,7 +488,7 @@ push_one() {
 		jq -c --arg new "$new" '.status = "pushed" | .newTip = $new | .note = "" | .worktree = ""' <<<"$row" >>"$RUN/results.jsonl"
 		local wt
 		wt="$(jq -r .worktree <<<"$row")"
-		if [ -n "$wt" ]; then g -C "$ROOT" worktree remove --force "$wt" || true; fi
+		if [ -n "$wt" ]; then drop_worktree "$wt" || true; fi
 		g -C "$ROOT" branch -q -D "$br" || true
 		printf '%-10s pushed     %s, backup %s\n' "$t" "${new:0:7}" "$tag"
 	else
@@ -509,7 +516,7 @@ cmd_clean() {
 	while IFS= read -r wt; do
 		case "$wt" in
 			"$STATE"/*) if wanted "$(basename "$wt")" "$@"; then
-				g -C "$ROOT" worktree remove --force "$wt" && printf 'removed %s\n' "$wt"
+				drop_worktree "$wt" && printf 'removed %s\n' "$wt"
 			fi ;;
 		esac
 	done < <(git -C "$ROOT" worktree list --porcelain | sed -n 's/^worktree //p')
