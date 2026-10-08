@@ -78,7 +78,7 @@ Then, per path:
 ## Targeted edits for the shell rollout
 
 The performance/accessibility pass on template main (prerendered chrome, optimizer-served favicon,
-AA colour tokens) is mostly self-propagating, but two paths need help:
+AA colour tokens) is mostly self-propagating, but three paths need help:
 
 - **New files land on their own** under rule 4 — `scripts/check-shell.sh`, `scripts/audit.sh`,
   `lib/contrast.ts`, `lib/contrast.test.ts`, `app/palette.test.ts`, `lint-staged.config.mjs`.
@@ -91,17 +91,26 @@ AA colour tokens) is mostly self-propagating, but two paths need help:
   Add `.scripts.audit = "bash scripts/audit.sh"` the same way. Everything else in `scripts` stays as
   the store has it.
 - **`app/layout.tsx`** is ~52 commits of churn on main and will almost always come back as
-  `skipped (customized)`. Do not merge it. Put it in the "needs manual follow-up" list with these
-  three targeted edits spelled out, so a follow-up run (or a human) can apply them:
+  `skipped (customized)`. Do not merge it, with one exception: when `app/cart/cart-context.tsx`
+  was updated to main's version, `CartProvider` takes only `children` (it loads the cart in the
+  browser) and `tsc` fails until the layout stops passing it a cart. Then delete the server-side
+  cart read in this run: `getInitialCart` and its `await`, or the `CartBootstrapper` block with its
+  `<Suspense>`, plus the `initialCart`/`initialCartId`/`bootstrap` props and the imports left
+  unused. Put the rest in the "needs manual follow-up" list with these three targeted edits spelled
+  out, so a follow-up run (or a human) can apply them:
   1. remove the `<Suspense>` around the children/chrome wrapper **if** everything it awaits is a
-     cached read — the boundary alone streams the chrome out of the prerendered shell; a store that
-     still awaits its cart cookie there must move that read into a `CartBootstrapper` below the
-     chrome first;
+     cached read — the boundary alone streams the chrome out of the prerendered shell;
   2. replace the `icons` block in the metadata with the optimizer version — one `icon` entry built
      with `getImageProps` and **no** `type`, `apple` left on the original URL, no `shortcut`;
   3. `Geist_Mono({ …, preload: false })`.
 
   After such a follow-up, `bun run build` in the store repo is the check that says it worked.
+- **`components/cookie-consent.tsx` and `components/cookie-consent-banner.tsx`** change as a
+  pair. The server file now always renders the banner, and the banner hides itself by reading the
+  consent cookie in the browser (`use(browser())` inside its own `<Suspense>`). One old file next
+  to one new file still type-checks but breaks consent: either the banner shows to every visitor,
+  or the consent script lands in a client-rendered boundary and never runs. If either file is
+  customized, leave both and list them for follow-up.
 
 ## Verify, commit, push
 

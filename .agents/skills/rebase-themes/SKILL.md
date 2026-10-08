@@ -91,7 +91,7 @@ START from the theme branch (theirs) code — copy it as-is. Then carefully port
 **`app/layout.tsx`**
 Keep the theme's chrome — its header markup, nav, footer, classNames, fonts — but the resolved file MUST match main's data flow, because main now gates the build on it (`scripts/check-shell.sh`, see AGENTS.md "The prerendered shell"). Three things are non-negotiable, and every theme today violates the first:
 
-- The cart cookie is awaited **only** inside `CartBootstrapper`, which renders in its own `<Suspense>` below the header and footer. Themes still `await getInitialCart()` inside `CartProviderWrapper`; move that await into `CartBootstrapper` and pass `cart`/`cartId` down exactly as main does.
+- **The layout reads no cookie.** Main's `CartProvider` takes only `children` and loads the cart in the browser through the `getCart` action. Themes still read it on the server, either `await getInitialCart()` inside `CartProviderWrapper` or a `CartBootstrapper` block. Delete that read: `getInitialCart`, `CartBootstrapper` with its `<Suspense>`, the `initialCart`/`initialCartId`/`bootstrap` props, and the imports left unused (`getCartCookieJson` stays in `lib/cookies.ts` for the cart actions).
 - **No `<Suspense>` around `CartProviderWrapper` or around the layout's `children`.** The boundary alone streams the chrome out of the prerendered shell, even when everything inside it is cached. Delete it if the theme side has one.
 - `getNavLinks` (and any other read the wrapper awaits) stays `"use cache"`.
 
@@ -171,6 +171,8 @@ bun run build
 ```
 
 This is `next build` plus `scripts/check-shell.sh`, which fails if the theme's chrome is not in the prerendered shell — the check that catches a half-ported `app/layout.tsx` or a surviving `usePathname()` in the nav. Its failure message names the three usual causes; fix and re-run (max 2 attempts). Without an API key the build cannot run at all: record "shell check not run" for that theme in the summary rather than pushing a silent regression as verified.
+
+The build also fails when anything on `/about`, `/faq`, `/contact` or `/blog` renders per request, the theme's root layout included: those pages export `ensureStatic = "navigation"` (AGENTS.md, "Fully static routes"). A `<Suspense>` does not satisfy it. Move a theme's own cookie or header read into the browser the way main reads the cart; a page that genuinely needs per-request data drops its `ensureStatic` line instead, and the summary says so.
 
 ### 2g: Push directly to theme branch
 
