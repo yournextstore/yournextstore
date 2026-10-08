@@ -1,12 +1,36 @@
 # Theme conflict rules
 
-How to resolve a conflict between `main` and a theme branch. [SKILL.md](SKILL.md) says when to apply them.
+How to resolve a conflict between `main` and a theme. `theme-rebase.sh` gives these rules to the agent it starts for a theme, and anyone finishing a theme by hand follows them too ([SKILL.md](SKILL.md)).
 
-**CRITICAL — during `git rebase main`, conflict marker sides are SWAPPED vs a normal merge:**
-- `<<<<<<< HEAD` / "ours" = **MAIN** (logic updates, SDK changes, bug fixes, deps)
-- `>>>>>>> ...` / "theirs" = **THEME** (visual design, JSX, components, classNames, styling)
+## The setup
 
-**Resolve conflicted files in this order:** `package.json` first (so bun.lock can regenerate), then `bun.lock` (just regenerate, never manually resolve), then everything else.
+The working tree is `main` with the theme squash-merged on top (`git merge --squash`), so a theme ends up as one commit on `main`. Conflict markers are zdiff3:
+- `<<<<<<< ours` = **MAIN** (logic updates, SDK changes, bug fixes, deps)
+- `|||||||` = the merge base
+- `>>>>>>> theirs` = **THEME** (visual design, JSX, components, classNames, styling)
+
+The script settles `bun.lock`, `package.json` and every path only copied commits touched before you start; those take main's side. The rest is yours.
+
+## Guardrails
+
+- Fix the theme's code, never the checks: don't edit tests, `scripts/`, `tsconfig.json`, `biome.json`, `lint-staged.config.mjs`, or the `check`, `build`, `lint` and `test` scripts in `package.json`. The script sends any such change to review.
+- `/about`, `/faq`, `/contact` and `/blog` export `ensureStatic = "navigation"` (AGENTS.md, "Fully static routes"), so the build fails if anything on them renders per request, the theme's root layout included. A `<Suspense>` does not satisfy it. Move a theme's own cookie or header read into the browser the way main reads the cart. Drop the `ensureStatic` line only for a page that truly renders per request; that sends the theme to review.
+- Don't commit, switch branches or rewrite history. The script commits once the checks and the build pass.
+
+## When a file merged cleanly but fails
+
+Theme-owned files still import modules main deleted or moved. To find what replaced a path: `git log --diff-filter=D --format='%h %s' <base>..<main> -- '<path>'`, then `git show --stat <sha>`. Known as of October 2026:
+
+- `components/yns-link.tsx` is gone; use `next/link` (see `components/yns-link.tsx` below).
+- `app/search-input.tsx` was split into `components/search/` (`search-input.tsx`, `mobile-search-input.tsx`, `suggestions.tsx`, …). Port the theme's search styling there.
+- The auth tree (`app/(auth)/`, `components/auth-button.tsx`, `lib/auth*.ts`) is gone: shopper sign-in lives on the platform. A sign-in button becomes a plain `<a href="/account">`, never a `<Link>` (AGENTS.md).
+- `CartProvider` takes only `children` (see `app/layout.tsx` below).
+- Prices read the store's currency and locale from `useStoreConfig()` (`components/store-config-provider.tsx`) in client components and `getStoreConfig()` on the server.
+- The footer's copyright year comes from a cached `getCopyrightYear()`, because the footer is prerendered.
+
+## Contrast
+
+`app/palette.test.ts` asserts the theme's own `app/globals.css` clears WCAG AA (4.5:1) for each text/surface token pair, and reports the failing pair and the ratio. Fix it in the theme's CSS by moving the **text** token's lightness away from its surface's in steps of 0.02 — darker on a light surface, lighter on a dark one such as `.dark` — keeping chroma and hue untouched (on a light surface: `oklch(0.556 0.02 250)` → `oklch(0.536 0.02 250)` → …), re-running `bun test app/palette.test.ts` after each step. Never move the surface/tint token: the tint is the theme's identity.
 
 ## Conflict resolution strategies by file type
 
@@ -50,7 +74,7 @@ Start from the theme branch (theirs) code. Port logic fixes, type fixes, SDK cha
 3. If main rewrote a component's logic but not its look, use the theme's JSX/styling with main's updated logic.
 4. If main added a completely new file that doesn't exist in the theme, take main's version — then **restyle it to match the theme's visual language** (colors, typography, spacing, component style, Tailwind classes). A new feature that looks like `main` in a themed store breaks the illusion. Check the theme's existing components for reference.
 5. If main added a new UI component or section inside an existing file, port it in — but **adapt its styling to the theme**. Use the theme's color palette, font choices, border radii, spacing scale, and component patterns. Never drop in `main`'s default styling verbatim.
-6. If main deleted something the theme still references, keep the theme's version.
+6. If main deleted something the theme still references, port the theme to whatever replaced it (see "When a file merged cleanly but fails"). Keep the theme's version only when main replaced it with nothing.
 7. **Visual consistency is mandatory.** Every new feature, component, or UI element introduced by main MUST be adapted to the theme's design language before committing. This means matching the theme's color variables/palette, typography (font family, sizes, weights), spacing/padding scale, border radii, shadow styles, button styles, and Tailwind class patterns. Look at 2-3 existing theme components as reference. A feature that "looks like main" in a themed store is a bug.
 8. After editing, verify NO conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) remain.
 9. After editing, `git add` the file.
