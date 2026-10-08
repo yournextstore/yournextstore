@@ -145,16 +145,21 @@ cmd_one() {
 		fi
 	done < <(unmerged)
 
+	# Biome for the codemods; a package.json still in conflict leaves them unformatted.
+	bun install || true
+	codemod_conflicts
+	codemod_tree
+
 	BY_AGENT="$(unmerged)"
 	if [ -n "$BY_AGENT" ]; then
 		[ "$AGENT" != none ] || finish needs-agent
 		agent "$(brief)"
 		stage_resolved
 		[ -z "$(unmerged)" ] || finish failed "the agent left unmerged paths"
-		case "$(g diff --cached --check 2>&1 || true)" in
-			*"leftover conflict marker"*) finish failed "conflict markers left in staged files" ;;
-		esac
 	fi
+	case "$(g diff --cached --check 2>&1 || true)" in
+		*"leftover conflict marker"*) finish failed "conflict markers left in staged files" ;;
+	esac
 
 	bun install || finish failed "bun install failed"
 	normalize
@@ -227,6 +232,77 @@ merge_package_json() {
 				end)
 	' "$f.base" "$f.main" "$f.theme" >package.json || return 1
 	g add package.json
+}
+
+# Every rewrite in codemods/, over the given files. Each is a change main made to
+# code the themes still carry, applied the way main applied it.
+codemod() {
+	local m
+	for m in "$SKILL_DIR"/codemods/*.sh; do
+		bash "$m" "$@"
+	done
+}
+
+# Biome over file $1 as if it lived at path $2, so imports sort and lines wrap the
+# way main's own files do. Biome prints its input unchanged when it can't parse it.
+biome_as() {
+	if bun biome check --write --unsafe --stdin-file-path="$2" <"$1" >"$1.fmt" 2>/dev/null && [ -s "$1.fmt" ]; then
+		mv "$1.fmt" "$1"
+	else
+		rm -f "$1.fmt"
+	fi
+}
+
+# A conflict between a codemod on main's side and the theme's edits around it
+# disappears once the same codemod runs on the merge base and on the theme: merge
+# those again. What still conflicts keeps the smaller markers for the agent.
+codemod_conflicts() {
+	local p d="$RUN/logs/$T.codemod" side rc
+	mkdir -p "$d"
+	while IFS= read -r p; do
+		case "$p" in *.ts | *.tsx) ;; *) continue ;; esac
+		[ "$(git ls-files -u -- "$p" | awk '{ printf "%s", $3 }')" = 123 ] || continue
+		if ! { g show ":1:$p" >"$d/base" && g show ":2:$p" >"$d/main" && g show ":3:$p" >"$d/theme"; }; then
+			continue
+		fi
+		cp "$d/base" "$d/base.orig" && cp "$d/theme" "$d/theme.orig"
+		codemod "$d/base" "$d/theme"
+		if cmp -s "$d/base" "$d/base.orig" && cmp -s "$d/theme" "$d/theme.orig"; then
+			continue
+		fi
+		for side in base theme; do
+			biome_as "$d/$side" "$p"
+		done
+		rc=0
+		git merge-file -p --zdiff3 -L HEAD -L "merge base, codemods applied" -L "theme, codemods applied" \
+			"$d/main" "$d/base" "$d/theme" >"$d/merged" || rc=$?
+		[ "$rc" -lt 128 ] || continue
+		cp "$d/merged" "$p"
+		if [ "$rc" = 0 ]; then
+			g add -- "$p"
+			BY_RULE="$BY_RULE$p"$'\n'
+		fi
+		printf 'codemods: %s, %s conflict(s) left\n' "$p" "$rc"
+	done < <(unmerged)
+}
+
+# Theme files that merged cleanly but still use what main retired.
+codemod_tree() {
+	local files=() p
+	while IFS= read -r p; do
+		files+=("$p")
+	done < <(git ls-files | grep -E '\.(ts|tsx)$' | grep -vxF -f <(unmerged) || true)
+	[ "${#files[@]}" -gt 0 ] || return 0
+	codemod "${files[@]}"
+	# Only files the codemods changed: git diff also lists every unmerged path.
+	local changed=()
+	while IFS= read -r p; do
+		changed+=("$p")
+	done < <(git diff --name-only -- "${files[@]}")
+	[ "${#changed[@]}" -gt 0 ] || return 0
+	bun biome check --write --unsafe "${changed[@]}" >/dev/null 2>&1 || true
+	g add -- "${changed[@]}"
+	printf 'codemods: %s\n' "${changed[@]}"
 }
 
 # Stage what the agent resolved but left unstaged: a file without markers is added,
@@ -327,6 +403,8 @@ $list
 For each path, read what each side changed since the merge base, then resolve it by the rules in your instructions:
   git diff $BASE $MAIN -- '<path>'   (main)
   git diff $BASE $OLD -- '<path>'   (the theme)
+
+The script has already run the codemods in $SKILL_DIR/codemods (each file's header says what it rewrites) over every file, and over the merge base and the theme before re-merging a conflict; markers labeled "codemods applied" are that re-merge. So a rewrite those diffs show on main's side is already done on the theme's.
 
 Stage every resolved path with \`git add '<path>'\`, or \`git rm '<path>'\` where the file should stay deleted.
 

@@ -8,7 +8,7 @@ description: Rebase all theme-* branches onto main, one commit per theme, preser
 Each `theme-*` branch is one commit on top of `main`: the theme's own `theme NNN: …` commit (README, "Themes"). [`theme-rebase.sh`](theme-rebase.sh) rebuilds every theme that way on the current `main`. For each theme, in its own worktree, it:
 
 1. squash-merges the theme onto `main`: one 3-way merge, however many commits the branch has;
-2. settles what needs no judgment: `bun.lock`, `package.json`, and every path only copied commits touched, which take main's side;
+2. settles what needs no judgment: `bun.lock`, `package.json`, and every path only copied commits touched, which take main's side; then runs the [codemods](codemods/) over the merged files and over both sides of each remaining conflict, so a rewrite main made everywhere stops conflicting with the theme's edits around it;
 3. starts one headless Claude session for what is left, with [rules.md](rules.md) as its instructions;
 4. runs `bun run check` and `bun run build`, resuming the session once on a failure;
 5. commits with the theme commit's message and author, and sends anything doubtful to review.
@@ -54,6 +54,7 @@ Roll a large run out in batches of about 20: run, read the table, push, then the
 ## Policy
 
 - A theme's own commits have a `theme NNN: …` subject. Every other commit on a theme branch counts as a copy of a `main` change, and wherever it conflicts, main's side wins. Make cross-cutting fixes on `main`, never on theme branches.
+- A change on `main` that renames or retires something themes use ships with a codemod: an executable `codemods/<name>.sh` that rewrites the files it is given in place, the way the `main` commit did, and leaves every other file byte-identical. Check it the way `yns-link.sh` was checked: run it, plus `bun biome check --write --unsafe`, over the parent of that commit's files, and it must reproduce the commit's versions.
 - `run` never overwrites an earlier result: a theme with a `theme-rebase/<theme>` branch is skipped until it is pushed or cleaned.
 - Never modify `main` from this skill. `push` writes only `theme-*` branches and `backup/*` tags, atomically, leased on the tip the run started from.
 - Each theme push starts a Vercel preview build, which is why `push` goes one theme at a time.

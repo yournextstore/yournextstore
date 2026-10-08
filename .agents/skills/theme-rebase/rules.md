@@ -9,7 +9,7 @@ The working tree is `main` with the theme squash-merged on top (`git merge --squ
 - `|||||||` = the merge base
 - `>>>>>>> theirs` = **THEME** (visual design, JSX, components, classNames, styling)
 
-The script settles `bun.lock`, `package.json` and every path only copied commits touched before you start; those take main's side. The rest is yours.
+The script settles `bun.lock`, `package.json` and every path only copied commits touched before you start; those take main's side. It also runs the rewrites in [codemods/](codemods/) over every file, and over the merge base and the theme of each conflicted file before merging it again; a conflict that remains carries the labels "merge base, codemods applied" and "theme, codemods applied". The rest is yours.
 
 ## Guardrails
 
@@ -21,7 +21,7 @@ The script settles `bun.lock`, `package.json` and every path only copied commits
 
 Theme-owned files still import modules main deleted or moved. To find what replaced a path: `git log --diff-filter=D --format='%h %s' <base>..<main> -- '<path>'`, then `git show --stat <sha>`. Known as of October 2026:
 
-- `components/yns-link.tsx` is gone; use `next/link` (see `components/yns-link.tsx` below).
+- `components/yns-link.tsx` is gone; use `next/link`. `codemods/yns-link.sh` has already rewritten every file except those setting `activeClassName` or `exactHrefMatch` (see `components/yns-link.tsx` below).
 - `app/search-input.tsx` was split into `components/search/` (`search-input.tsx`, `mobile-search-input.tsx`, `suggestions.tsx`, …). Port the theme's search styling there.
 - The auth tree (`app/(auth)/`, `components/auth-button.tsx`, `lib/auth*.ts`) is gone: shopper sign-in lives on the platform. A sign-in button becomes a plain `<a href="/account">`, never a `<Link>` (AGENTS.md).
 - `CartProvider` takes only `children` (see `app/layout.tsx` below).
