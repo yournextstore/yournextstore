@@ -1,5 +1,5 @@
 ---
-name: propagate-template
+name: store-propagate
 description: Propagate the template's current main into forked AI-store repos (yns-store-* in the tenants org), updating every file the store never customized and reporting the rest. Content-level reconcile — store repos share NO git history with the template. Use for "template rebase", "propagate template", "sync store repos", after landing template changes that existing stores must pick up. Takes an optional list of store subdomains; defaults to every builder store.
 ---
 

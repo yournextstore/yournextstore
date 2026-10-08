@@ -1,5 +1,5 @@
 ---
-name: rebase-themes
+name: theme-rebase
 description: Rebase all theme-* branches onto main, resolving conflicts while preserving each theme's visual identity. Force-pushes directly to theme branches with backup tags. Run as a scheduled task or one-off.
 ---
 
