@@ -72,6 +72,18 @@ cmd_run() {
 	fi
 	[ "${#themes[@]}" -gt 0 ] || usage
 
+	# An earlier run's result is never overwritten: it is pushed, or cleaned first.
+	local todo=()
+	for t in "${themes[@]}"; do
+		if git -C "$ROOT" rev-parse -q --verify "refs/heads/theme-rebase/$t" >/dev/null; then
+			printf 'Skipping %s: theme-rebase/%s holds an earlier run'\''s result. Push it, or clean %s.\n' "$t" "$t" "$t"
+		else
+			todo+=("$t")
+		fi
+	done
+	[ "${#todo[@]}" -gt 0 ] || return 0
+	themes=("${todo[@]}")
+
 	MAIN="$(git -C "$ROOT" rev-parse origin/main)"
 	RUN="$STATE/$(date +%Y%m%d-%H%M%S)"
 	mkdir -p "$RUN/logs" "$RUN/wt"
@@ -111,9 +123,6 @@ cmd_one() {
 		git diff-tree --no-commit-id --name-only -r "$c"
 	done | sort -u >"$TPATHS"
 
-	if git worktree list --porcelain | grep -qxF "branch refs/heads/$BR"; then
-		finish failed "$BR is checked out from an earlier run: push it, or run clean"
-	fi
 	g worktree add -q -B "$BR" "$WT" "$MAIN" || finish failed "could not create the worktree"
 	KEPT="$WT"
 	local env

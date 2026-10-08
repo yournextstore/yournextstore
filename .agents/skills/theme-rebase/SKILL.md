@@ -54,6 +54,7 @@ Roll a large run out in batches of about 20: run, read the table, push, then the
 ## Policy
 
 - A theme's own commits have a `theme NNN: …` subject. Every other commit on a theme branch counts as a copy of a `main` change, and wherever it conflicts, main's side wins. Make cross-cutting fixes on `main`, never on theme branches.
+- `run` never overwrites an earlier result: a theme with a `theme-rebase/<theme>` branch is skipped until it is pushed or cleaned.
 - Never modify `main` from this skill. `push` writes only `theme-*` branches and `backup/*` tags, atomically, leased on the tip the run started from.
 - Each theme push starts a Vercel preview build, which is why `push` goes one theme at a time.
 - Local `theme-*` branches go stale after a push: delete them, or reset them to `origin/<theme>`.
