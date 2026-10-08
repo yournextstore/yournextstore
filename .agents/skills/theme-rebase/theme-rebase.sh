@@ -258,6 +258,22 @@ build() {
 	return 1
 }
 
+# The only shell commands the agent may run, one at a time. Nothing here commits,
+# switches branches or reaches outside the worktree; anything else is denied.
+AGENT_BASH=(
+	'Bash(git diff:*)' 'Bash(git show:*)' 'Bash(git log:*)' 'Bash(git status:*)' 'Bash(git ls-files:*)'
+	'Bash(git grep:*)' 'Bash(git add:*)' 'Bash(git rm:*)' 'Bash(git mv:*)'
+	'Bash(git checkout --ours:*)' 'Bash(git checkout --theirs:*)'
+	'Bash(bun install)' 'Bash(bun next typegen)' 'Bash(bun run check)' 'Bash(bun run lint)' 'Bash(bun run build)'
+	'Bash(bun test:*)' 'Bash(bun tsc:*)'
+	'Bash(grep:*)' 'Bash(rg:*)' 'Bash(cat:*)' 'Bash(ls:*)' 'Bash(head:*)' 'Bash(tail:*)' 'Bash(wc:*)'
+)
+
+# AGENT_BASH as prose for the brief: "git diff, git show, …".
+agent_commands() {
+	printf '%s\n' "${AGENT_BASH[@]}" | sed -E 's/^Bash\((.*)\)$/\1/; s/:\*$//' | paste -sd ',' - | sed 's/,/, /g'
+}
+
 # One Claude session per theme; later calls resume it, so the agent keeps what it
 # learned about this theme. Its tools stop at the worktree: no commits, no branches.
 agent() {
@@ -268,10 +284,7 @@ agent() {
 		--append-system-prompt-file "$SKILL_DIR/rules.md"
 		--tools Read Edit Write Glob Grep Bash
 		--allowedTools Read Edit Write Glob Grep
-		'Bash(git diff:*)' 'Bash(git show:*)' 'Bash(git log:*)' 'Bash(git status:*)' 'Bash(git ls-files:*)'
-		'Bash(git add:*)' 'Bash(git rm:*)' 'Bash(git checkout --ours:*)' 'Bash(git checkout --theirs:*)'
-		'Bash(bun install)' 'Bash(bun next typegen)' 'Bash(bun run check)' 'Bash(bun run lint)' 'Bash(bun run build)'
-		'Bash(bun test:*)' 'Bash(bun tsc:*)' 'Bash(head:*)' 'Bash(tail:*)'
+		"${AGENT_BASH[@]}"
 		--permission-mode dontAsk --permission-prompts none
 		--disable-slash-commands --strict-mcp-config --setting-sources project)
 	if [ -n "$SESSION" ]; then
@@ -309,6 +322,8 @@ For each path, read what each side changed since the merge base, then resolve it
 Stage every resolved path with \`git add '<path>'\`, or \`git rm '<path>'\` where the file should stay deleted.
 
 Then run \`bun install\`, \`bun next typegen\` and \`bun run check\`, and fix whatever fails until it passes. Files that merged cleanly can still fail: theme-owned files that import modules main deleted or moved. Stage those fixes too.
+
+Bash works, but only for these commands, one command at a time (piping one listed command into another is fine; loops and \`\$(…)\` are not): $(agent_commands). A denied command means use one of those, or the Read, Grep, Glob and Edit tools; it never means Bash is unavailable, so don't stop.
 
 Don't commit, and don't switch branches or rewrite history: the script commits once the checks and the build pass. Finish with one line per path on how you resolved it, then anything a reviewer should look at.
 EOF
