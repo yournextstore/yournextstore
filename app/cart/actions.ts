@@ -22,16 +22,21 @@ export async function getCart() {
 }
 
 export async function addToCart(variantId: string, quantity = 1) {
-	const cartCookie = await getCartCookieJson();
+	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
+	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
+	// the order and its emails speak it. Omitted when the store never set a default language.
+	const locale = language ?? undefined;
 
 	// The yns_cart cookie can point at a cartId that no longer exists server-side
 	// (expired, store re-seeded, old session). cartUpsert then throws "Cart not found";
 	// retry once with a FRESH cart so the add always lands. No revalidatePath — the
 	// client syncs from this action's returned cart (cartGet hits a read replica and
 	// can return the pre-write cart, dropping the just-added line).
-	let [error, cart] = await try_(commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity }));
+	let [error, cart] = await try_(
+		commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity, locale }),
+	);
 	if (error) {
-		[error, cart] = await try_(commerce.cartUpsert({ variantId, quantity }));
+		[error, cart] = await try_(commerce.cartUpsert({ variantId, quantity, locale }));
 		if (error) {
 			console.error("cart: addToCart failed after fresh-cart retry", { variantId, quantity, error });
 			return { success: false, cart: null };
@@ -53,7 +58,7 @@ export async function addBundleToCart(
 	bundleId: string,
 	selections: Array<{ variantId: string; groupId: string; quantity: number }>,
 ) {
-	const [cartCookie, { currency }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
+	const [cartCookie, { currency, language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 
 	const [error, cart] = await try_(
 		commerce.cartAddBundle({
@@ -61,6 +66,7 @@ export async function addBundleToCart(
 			bundleId,
 			selections,
 			currency,
+			locale: language ?? undefined,
 		}),
 	);
 

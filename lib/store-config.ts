@@ -16,11 +16,16 @@ export async function getStoreConfig() {
 
 	const [error, me] = await try_(commerce.meGet());
 	if (error) {
-		return { currency: CURRENCY, locale: LOCALE, taxBehavior: "inclusive" as TaxBehavior };
+		return { currency: CURRENCY, locale: LOCALE, language: null, taxBehavior: "inclusive" as TaxBehavior };
 	}
+	// The storefront's default language is what shoppers read here: it formats prices and is
+	// reported to the platform on every cart and newsletter signup, so checkout, the account and
+	// every email speak it too. `store.locale` is the merchant's admin language and only a last resort.
+	const language = me.store.settings?.defaultLanguage ?? null;
 	return {
 		currency: me.store.currency || CURRENCY,
-		locale: me.store.locale || LOCALE,
+		locale: language || me.store.locale || LOCALE,
+		language,
 		taxBehavior: (me.store.taxBehavior || "inclusive") as TaxBehavior,
 	};
 }

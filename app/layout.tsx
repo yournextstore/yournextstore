@@ -155,7 +155,11 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
 									<a
-										href="/account"
+										href={
+											storeConfig.language
+												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+												: "/account"
+										}
 										className="p-2 hover:bg-secondary transition-colors"
 										aria-label="Account"
 									>

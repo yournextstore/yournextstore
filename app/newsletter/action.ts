@@ -2,6 +2,7 @@
 
 import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
+import { getStoreConfig } from "@/lib/store-config";
 
 type NewsletterState = {
 	success: boolean;
@@ -31,7 +32,11 @@ export async function subscribeToNewsletter(
 		};
 	}
 
-	const [error, subscriber] = await try_(commerce.subscriberCreate({ email, marketingConsent: true }));
+	// The signup's language: the confirmation and welcome emails are sent in it.
+	const { language } = await getStoreConfig();
+	const [error, subscriber] = await try_(
+		commerce.subscriberCreate({ email, marketingConsent: true, locale: language ?? undefined }),
+	);
 	if (error) {
 		console.error("newsletter: subscriberCreate failed", { error });
 		return { success: false, message: "", error: "Something went wrong. Please try again." };

@@ -20,11 +20,14 @@ import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
-	const { currency, locale, taxBehavior } = useStoreConfig();
+	const { currency, locale, language, taxBehavior } = useStoreConfig();
 	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
 	const discount = cartDiscountOf(cart, taxBehavior);
 
-	const checkoutUrl = `/checkout`;
+	// `?lang=` tells the platform which language version the shopper is leaving from, so the hosted
+	// checkout and everything after it (order, emails) speak it even for a cart made before the
+	// language was recorded.
+	const checkoutUrl = language ? `/checkout?lang=${encodeURIComponent(language)}` : "/checkout";
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
