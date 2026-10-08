@@ -111,7 +111,7 @@ bun tsc --noEmit && bun test
 
 A `tsc` failure is almost always a half-ported resolution (a `YnsLink` import that survived, props passed to a component whose signature main changed) — fix it, `git add -A`, and amend or commit `chore: fix types after rebase`.
 
-`app/palette.test.ts` asserts the theme's own `app/globals.css` clears WCAG AA (4.5:1) for each text/surface token pair. It reports the failing pair and the ratio. Fix it in the theme's CSS — that file is the theme's to change, so this is in bounds — by lowering the **text** token's lightness in steps of 0.02, keeping chroma and hue untouched (`--muted-foreground: oklch(0.556 0.02 250)` → `oklch(0.536 0.02 250)` → …), re-running `bun test app/palette.test.ts` after each step until it passes. Never lighten the surface/tint token: the tint is the theme's identity, the text token is what has to clear AA on it. Record the final value in the summary.
+`app/palette.test.ts` asserts the theme's own `app/globals.css` clears WCAG AA (4.5:1) for each text/surface token pair. It reports the failing pair and the ratio. Fix it in the theme's CSS — that file is the theme's to change, so this is in bounds — by moving the **text** token's lightness away from its surface's in steps of 0.02 — darker on a light surface, lighter on a dark one such as `.dark` — keeping chroma and hue untouched (on a light surface: `--muted-foreground: oklch(0.556 0.02 250)` → `oklch(0.536 0.02 250)` → …), re-running `bun test app/palette.test.ts` after each step until it passes. Never move the surface/tint token: the tint is the theme's identity, the text token is what has to clear AA on it. Record the final value in the summary.
 
 Finally, when `YNS_API_KEY` is available in the environment:
 
@@ -155,7 +155,7 @@ After processing all themes, output a summary table:
 | theme-016 | up to date | — | — |
 | theme-099 | failed | — | bun install failed |
 
-Use the Notes column for what a human has to know afterwards: a `--muted-foreground` the palette test forced you to darken, and "shell check not run" for any theme built without a `YNS_API_KEY`.
+Use the Notes column for what a human has to know afterwards: a text token the palette test forced you to change, and "shell check not run" for any theme built without a `YNS_API_KEY`.
 
 ## Rules
 

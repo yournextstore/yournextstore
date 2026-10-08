@@ -6,12 +6,14 @@ import { contrastRatio, parseCssBlock, resolveColor, SUPPORTED_SYNTAXES } from "
 /**
  * The palette in `app/globals.css` must clear WCAG AA (4.5:1) for body text on
  * every surface it is painted on. Themes fork this file, so the check lives
- * here rather than in a reviewer's eye: darken the *text* token, never lighten
- * the tint the design is built on.
+ * here rather than in a reviewer's eye: move the *text* token away from its
+ * surface (darker on a light one, lighter on a dark one), never the tint the
+ * design is built on.
  */
 
 const AA = 4.5;
-const FIX = "darken `--muted-foreground` until ≥ 4.5; keep the tint";
+const FIX =
+	"move the text token's lightness away from the surface's (darker on light, lighter on dark) until ≥ 4.5; keep the tint";
 
 /** Text token, surface token — every combination the components actually paint. */
 const PAIRS = [

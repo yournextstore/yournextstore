@@ -130,8 +130,9 @@ store. Keep them when you touch the chrome, the tokens or a `<head>` asset.
   Never `unoptimized` on platform media: pass `sizes` matching the box it renders into and let the
   optimizer resize.
 - **Contrast.** `app/palette.test.ts` asserts every text/surface token pair in `:root` and `.dark`
-  clears WCAG AA (4.5:1), and an unparseable value fails rather than skips. When it trips, darken
-  the *text* token — the tint is the design, the token clears AA on it.
+  clears WCAG AA (4.5:1), and an unparseable value fails rather than skips. When it trips, move the
+  *text* token's lightness away from its surface's — darker on a light surface, lighter on a dark one
+  such as `.dark` — and keep the tint: it is the design, the token clears AA on it.
 - **Touch targets.** Interactive elements are ≥ 24×24 CSS px. Use the `Button` sizes (`icon-sm` for
   icon buttons); never shrink one back down with `h-auto p-1`. A decorative dot belongs in an
   `aria-hidden` span inside a 24 px button, not as the button.
