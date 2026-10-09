@@ -18,6 +18,8 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						onMouseEnter={() => setHovered(starValue)}
 						onMouseLeave={() => setHovered(0)}
 						onClick={() => onChange(starValue)}
+						aria-label={`${starValue} ${starValue === 1 ? "star" : "stars"}`}
+						aria-pressed={starValue === value}
 						className="transition-transform hover:scale-110"
 					>
 						<Star

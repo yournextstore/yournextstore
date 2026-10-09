@@ -245,8 +245,8 @@ export function AddToCartButton({
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
+									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
