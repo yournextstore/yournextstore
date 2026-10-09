@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
@@ -29,8 +29,6 @@ type MediaGalleryProps = {
 
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
-	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [isZoomed, setIsZoomed] = useState(false);
 
 	// The gallery always shows the full image set (product + every variant image). When a
 	// variant is selected we don't filter the list — that would hide the other thumbnails —
@@ -49,11 +47,18 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		return index >= 0 ? index : 0;
 	}, [selectedVariant, images]);
 
-	// Jump to the selected variant's image when the variant changes (avoids useEffect)
+	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
+	// the gallery, so a jump on change alone would land back on the first image.
+	const [selectedIndex, setSelectedIndex] = useState(variantImageIndex);
+	const [isZoomed, setIsZoomed] = useState(false);
+
+	// Jump to the selected variant's image when the variant changes (avoids useEffect). The previous
+	// key lives in state, not a ref: a variant change renders inside a transition, and a discarded
+	// render would move a ref while dropping the index update.
 	const searchParamsKey = searchParams.toString();
-	const prevSearchParamsKey = useRef(searchParamsKey);
-	if (prevSearchParamsKey.current !== searchParamsKey) {
-		prevSearchParamsKey.current = searchParamsKey;
+	const [prevSearchParamsKey, setPrevSearchParamsKey] = useState(searchParamsKey);
+	if (prevSearchParamsKey !== searchParamsKey) {
+		setPrevSearchParamsKey(searchParamsKey);
 		setSelectedIndex(variantImageIndex);
 	}
 
