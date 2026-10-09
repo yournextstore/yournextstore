@@ -39,6 +39,7 @@ const makeVariant = (id: string, price: string, images: string[], color: ColorOp
 	prePromotionPrice: null,
 	prePromotionPriceGross: null,
 	nextStockPriceGross: null,
+	subscriptionPromotionPriceGross: null,
 	combinations: [
 		{
 			createdAt: NOW,
