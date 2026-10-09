@@ -10,6 +10,7 @@ import { MediaGallery } from "@/app/product/[slug]/media-gallery";
 import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
+import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
@@ -164,6 +165,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	}
 
 	const reviewSummary = reviews?.summary ?? null;
+	const variants = sortVariantsByOptions(product.variants);
 
 	// The plans a shopper can pick, in the merchant's order. productGet lists inactive plans too, and
 	// the cart refuses those.
@@ -175,7 +177,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const allImages = [
 		...product.images,
-		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
+		...variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
@@ -184,7 +186,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			{product.variants[0] && <TrackProductView variant={product.variants[0]} name={product.name} />}
+			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
 					<BreadcrumbItem>
@@ -217,7 +219,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				{/* Left: Image Gallery (sticky on desktop) */}
 				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
+					<MediaGallery images={allImages} productName={product.name} variants={variants} />
 				</Suspense>
 
 				{/* Right: Product Details */}
@@ -266,7 +268,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 					) : (
 						<Suspense fallback={<PurchasePanelSkeleton />}>
 							<AddToCartButton
-								variants={product.variants}
+								variants={variants}
 								product={{
 									id: product.id,
 									name: product.name,
