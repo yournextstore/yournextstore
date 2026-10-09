@@ -4,6 +4,7 @@ import {
 	displayAmount,
 	displayPrice,
 	displayTierPrice,
+	listingPrice,
 	priceRange,
 } from "@/lib/pricing";
 
@@ -104,4 +105,17 @@ test("cartDisplaySubtotal is null without totals (Stripe Tax, or a local cart)",
 		cartDisplaySubtotal({ subtotal: null, subtotalNet: null, subtotalGross: null }, "exclusive"),
 	).toBeNull();
 	expect(cartDisplaySubtotal({}, "exclusive")).toBeNull();
+});
+
+test("listingPrice marks the lowest price as a starting price only when variants differ", () => {
+	expect(listingPrice([], "exclusive")).toBeNull();
+	expect(listingPrice([{ price: "1400" }, { price: "1400" }], "exclusive")).toEqual({
+		amount: 1400n,
+		from: false,
+	});
+	expect(listingPrice([{ price: "2400" }, { price: "1400" }], "exclusive")).toEqual({
+		amount: 1400n,
+		from: true,
+	});
+	expect(listingPrice([{ price: "0" }], "exclusive")).toEqual({ amount: 0n, from: false });
 });

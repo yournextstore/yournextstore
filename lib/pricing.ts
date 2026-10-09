@@ -106,6 +106,18 @@ export function priceRange(
 }
 
 /**
+ * A listing's price: the lowest variant price, marked `from` when the variants are priced
+ * differently, so a card never shows the cheapest size as the price of all of them.
+ */
+export function listingPrice(variants: readonly PricedVariant[], taxBehavior: TaxBehavior) {
+	if (variants.length === 0) {
+		return null;
+	}
+	const { min, max } = priceRange(variants, taxBehavior);
+	return { amount: min, from: min !== max };
+}
+
+/**
  * The subtotal a shopper should see, taken from the API's own totals (minor units).
  * `null` when the store computes tax at checkout (Stripe Tax) or the cart carries no
  * totals — callers then fall back to summing display prices locally.

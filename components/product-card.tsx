@@ -5,7 +5,7 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
+import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -24,15 +24,10 @@ export async function ProductCard({
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
-	const { min: minPrice, max: maxPrice } =
-		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
-
-	const priceDisplay =
-		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
-			: minPrice
-				? formatMoney({ amount: minPrice, currency, locale })
-				: null;
+	const listing = variants ? listingPrice(variants, taxBehavior) : null;
+	const priceDisplay = listing
+		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
+		: null;
 
 	const allImages = [
 		...(product.images ?? []),
