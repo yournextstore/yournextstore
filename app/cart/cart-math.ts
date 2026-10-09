@@ -2,6 +2,8 @@ import { cartDisplaySubtotal, displayPrice, type TaxBehavior } from "@/lib/prici
 
 export type CartLineItem = {
 	quantity: number;
+	/** The plan this line renews on; absent or null for a one-time purchase. */
+	subscriptionPlanId?: string | null;
 	productVariant: {
 		id: string;
 		price: string;
@@ -61,10 +63,19 @@ const withoutStaleTotals = (cart: Cart): Cart => ({
 	subtotalGross: null,
 });
 
+/**
+ * A cart line is one variant on one plan: the API keeps a one-time line and a subscription
+ * line of the same variant apart, so the variant id alone doesn't identify a line.
+ */
+export const lineKey = (variantId: string, subscriptionPlanId?: string | null) =>
+	`${variantId}:${subscriptionPlanId ?? ""}`;
+
+export const itemKey = (item: CartLineItem) => lineKey(item.productVariant.id, item.subscriptionPlanId);
+
 export type CartAction =
-	| { type: "INCREASE"; variantId: string }
-	| { type: "DECREASE"; variantId: string }
-	| { type: "REMOVE"; variantId: string }
+	| { type: "INCREASE"; key: string }
+	| { type: "DECREASE"; key: string }
+	| { type: "REMOVE"; key: string }
 	| { type: "ADD_ITEM"; item: CartLineItem };
 
 // Pure reducer for INSTANT local feedback only. After every mutation the caller
@@ -88,7 +99,7 @@ function applyCartAction(state: Cart | null, action: CartAction): Cart | null {
 			return {
 				...state,
 				lineItems: state.lineItems.map((item) =>
-					item.productVariant.id === action.variantId ? { ...item, quantity: item.quantity + 1 } : item,
+					itemKey(item) === action.key ? { ...item, quantity: item.quantity + 1 } : item,
 				),
 			};
 
@@ -97,7 +108,7 @@ function applyCartAction(state: Cart | null, action: CartAction): Cart | null {
 				...state,
 				lineItems: state.lineItems
 					.map((item) => {
-						if (item.productVariant.id === action.variantId) {
+						if (itemKey(item) === action.key) {
 							if (item.quantity - 1 <= 0) {
 								return null;
 							}
@@ -111,21 +122,18 @@ function applyCartAction(state: Cart | null, action: CartAction): Cart | null {
 		case "REMOVE":
 			return {
 				...state,
-				lineItems: state.lineItems.filter((item) => item.productVariant.id !== action.variantId),
+				lineItems: state.lineItems.filter((item) => itemKey(item) !== action.key),
 			};
 
 		case "ADD_ITEM": {
-			const existingItem = state.lineItems.find(
-				(item) => item.productVariant.id === action.item.productVariant.id,
-			);
+			const key = itemKey(action.item);
+			const existingItem = state.lineItems.find((item) => itemKey(item) === key);
 
 			if (existingItem) {
 				return {
 					...state,
 					lineItems: state.lineItems.map((item) =>
-						item.productVariant.id === action.item.productVariant.id
-							? { ...item, quantity: item.quantity + action.item.quantity }
-							: item,
+						itemKey(item) === key ? { ...item, quantity: item.quantity + action.item.quantity } : item,
 					),
 				};
 			}

@@ -5,6 +5,7 @@ import {
 	cartReducer,
 	getCartDisplaySubtotal,
 	getLineItemUnitPrice,
+	lineKey,
 } from "@/app/cart/cart-math";
 
 const lineItem = (
@@ -81,7 +82,7 @@ test("getLineItemUnitPrice takes a bundle without selections from the API line p
 
 test("getCartDisplaySubtotal sums bundle lines at their own price while a mutation is in flight", () => {
 	const cart: Cart = { id: "c-1", lineItems: [fixedChoiceBundle()], subtotal: 16830, subtotalGross: 16830 };
-	const next = cartReducer(cart, { type: "INCREASE", variantId: "bundle-variant" });
+	const next = cartReducer(cart, { type: "INCREASE", key: lineKey("bundle-variant") });
 	expect(getCartDisplaySubtotal(next, "inclusive")).toBe(33660n);
 });
 
@@ -105,7 +106,7 @@ test("getCartDisplaySubtotal sums display prices when the cart has no totals", (
 
 test("cartReducer drops the server totals so the subtotal never mixes bases", () => {
 	const cart: Cart = { id: "c-1", lineItems: [lineItem()], subtotal: 1000, subtotalGross: 1230 };
-	const next = cartReducer(cart, { type: "INCREASE", variantId: "v-1" });
+	const next = cartReducer(cart, { type: "INCREASE", key: lineKey("v-1") });
 	expect(next?.subtotal).toBeNull();
 	expect(next?.subtotalGross).toBeNull();
 	// …and the fallback sum is now the one the sidebar shows.
@@ -124,7 +125,7 @@ test("cartReducer ADD_ITEM creates a local cart from null state", () => {
 });
 
 test("cartReducer ignores non-add actions on null state", () => {
-	expect(cartReducer(null, { type: "INCREASE", variantId: "v-1" })).toBeNull();
+	expect(cartReducer(null, { type: "INCREASE", key: lineKey("v-1") })).toBeNull();
 });
 
 test("cartReducer ADD_ITEM merges quantities for an existing variant", () => {
@@ -141,22 +142,39 @@ test("cartReducer INCREASE and DECREASE adjust only the targeted variant", () =>
 	};
 	const state: Cart = { id: "c-1", lineItems: [{ ...lineItem(), quantity: 2 }, other] };
 
-	const increased = cartReducer(state, { type: "INCREASE", variantId: "v-1" });
+	const increased = cartReducer(state, { type: "INCREASE", key: lineKey("v-1") });
 	expect(increased?.lineItems[0]?.quantity).toBe(3);
 	expect(increased?.lineItems[1]?.quantity).toBe(1);
 
-	const decreased = cartReducer(state, { type: "DECREASE", variantId: "v-1" });
+	const decreased = cartReducer(state, { type: "DECREASE", key: lineKey("v-1") });
 	expect(decreased?.lineItems[0]?.quantity).toBe(1);
 });
 
 test("cartReducer DECREASE removes the line when quantity would hit zero", () => {
 	const state: Cart = { id: "c-1", lineItems: [lineItem()] };
-	const next = cartReducer(state, { type: "DECREASE", variantId: "v-1" });
+	const next = cartReducer(state, { type: "DECREASE", key: lineKey("v-1") });
 	expect(next?.lineItems).toHaveLength(0);
 });
 
 test("cartReducer REMOVE drops the line entirely regardless of quantity", () => {
 	const state: Cart = { id: "c-1", lineItems: [{ ...lineItem(), quantity: 5 }] };
-	const next = cartReducer(state, { type: "REMOVE", variantId: "v-1" });
+	const next = cartReducer(state, { type: "REMOVE", key: lineKey("v-1") });
 	expect(next?.lineItems).toHaveLength(0);
+});
+
+test("cartReducer keeps a one-time line and a plan line of the same variant apart", () => {
+	const plan = lineItem({}, { subscriptionPlanId: "plan-1" });
+	const state: Cart = { id: "c-1", lineItems: [lineItem(), plan] };
+
+	const added = cartReducer(state, {
+		type: "ADD_ITEM",
+		item: lineItem({}, { subscriptionPlanId: "plan-1" }),
+	});
+	expect(added?.lineItems.map((item) => item.quantity)).toEqual([1, 2]);
+
+	const increased = cartReducer(state, { type: "INCREASE", key: lineKey("v-1", "plan-1") });
+	expect(increased?.lineItems.map((item) => item.quantity)).toEqual([1, 2]);
+
+	const removed = cartReducer(state, { type: "REMOVE", key: lineKey("v-1") });
+	expect(removed?.lineItems).toEqual([plan]);
 });

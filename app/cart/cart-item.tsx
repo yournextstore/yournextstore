@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
+import { itemKey } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
@@ -52,7 +53,7 @@ export function CartItem({ item }: CartItemProps) {
 						return; // newest value already sent
 					}
 					targetQuantityRef.current = null;
-					const res = await setCartQuantity(productVariant.id, latest);
+					const res = await setCartQuantity(productVariant.id, latest, item.subscriptionPlanId);
 					// Remember the newest server-returned cart so we can sync from it (never
 					// refetch — cartGet hits a read replica and can rebase stale).
 					if (res.success && res.cart) {
@@ -83,11 +84,11 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	const handleRemove = () => {
-		updateQuantity({ type: "REMOVE", variantId: productVariant.id }, 0);
+		updateQuantity({ type: "REMOVE", key: itemKey(item) }, 0);
 	};
 
 	const handleIncrement = () => {
-		updateQuantity({ type: "INCREASE", variantId: productVariant.id }, quantity + 1);
+		updateQuantity({ type: "INCREASE", key: itemKey(item) }, quantity + 1);
 	};
 
 	const handleDecrement = () => {
@@ -95,7 +96,7 @@ export function CartItem({ item }: CartItemProps) {
 			handleRemove();
 			return;
 		}
-		updateQuantity({ type: "DECREASE", variantId: productVariant.id }, quantity - 1);
+		updateQuantity({ type: "DECREASE", key: itemKey(item) }, quantity - 1);
 	};
 
 	return (

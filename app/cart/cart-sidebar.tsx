@@ -3,6 +3,7 @@
 import { Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
+import { itemKey } from "@/app/cart/cart-math";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
@@ -62,7 +63,7 @@ export function CartSidebar() {
 						<ScrollArea className="flex-1 px-4">
 							<div className="divide-y divide-border">
 								{items.map((item) => (
-									<CartItem key={item.productVariant.id} item={item} />
+									<CartItem key={itemKey(item)} item={item} />
 								))}
 							</div>
 						</ScrollArea>

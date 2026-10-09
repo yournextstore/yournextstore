@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
+import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { TrustBadges } from "@/app/product/[slug]/trust-badges";
@@ -151,7 +152,7 @@ export function AddToCartButton({
 
 		const variantId = selectedVariant.id;
 		const addedQuantity = effectiveQuantity;
-		const previousQuantity = items.find((item) => item.productVariant.id === variantId)?.quantity ?? 0;
+		const previousQuantity = items.find((item) => itemKey(item) === lineKey(variantId))?.quantity ?? 0;
 
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
@@ -181,7 +182,7 @@ export function AddToCartButton({
 			// The server clamps line quantities to available stock and still responds
 			// with the updated cart — sync from the RETURNED cart; reconcile only on failure.
 			const result = await addToCart(variantId, addedQuantity);
-			const line = result.cart?.lineItems.find((item) => item.productVariant.id === variantId);
+			const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(variantId));
 			if (result.success && result.cart && line) {
 				syncCart(result.cart);
 				if (line.quantity < previousQuantity + addedQuantity) {

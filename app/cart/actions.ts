@@ -21,7 +21,7 @@ export async function getCart() {
 	return cart;
 }
 
-export async function addToCart(variantId: string, quantity = 1) {
+export async function addToCart(variantId: string, quantity = 1, subscriptionPlanId?: string | null) {
 	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
 	// the order and its emails speak it. Omitted when the store never set a default language.
@@ -33,12 +33,17 @@ export async function addToCart(variantId: string, quantity = 1) {
 	// client syncs from this action's returned cart (cartGet hits a read replica and
 	// can return the pre-write cart, dropping the just-added line).
 	let [error, cart] = await try_(
-		commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity, locale }),
+		commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity, subscriptionPlanId, locale }),
 	);
 	if (error) {
-		[error, cart] = await try_(commerce.cartUpsert({ variantId, quantity, locale }));
+		[error, cart] = await try_(commerce.cartUpsert({ variantId, quantity, subscriptionPlanId, locale }));
 		if (error) {
-			console.error("cart: addToCart failed after fresh-cart retry", { variantId, quantity, error });
+			console.error("cart: addToCart failed after fresh-cart retry", {
+				variantId,
+				quantity,
+				subscriptionPlanId,
+				error,
+			});
 			return { success: false, cart: null };
 		}
 	}
@@ -89,30 +94,12 @@ export async function addBundleToCart(
 	return { success: true as const, cart };
 }
 
-export async function removeFromCart(variantId: string) {
-	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { success: false, cart: null };
-	}
-
-	// Quantity 0 removes the item; the response is the updated cart
-	const [error, cart] = await try_(
-		commerce.cartUpsert({
-			cartId: cartCookie.id,
-			variantId,
-			quantity: 0,
-		}),
-	);
-	if (error) {
-		console.error("cart: removeFromCart failed", { cartId: cartCookie.id, variantId, error });
-		return { success: false, cart: null };
-	}
-	return { success: true, cart };
-}
-
-// Set absolute quantity for a cart item
-export async function setCartQuantity(variantId: string, quantity: number) {
+// Set the absolute quantity of one line: a variant on a plan, or the one-time line when there is no plan.
+export async function setCartQuantity(
+	variantId: string,
+	quantity: number,
+	subscriptionPlanId?: string | null,
+) {
 	const cartCookie = await getCartCookieJson();
 
 	if (!cartCookie?.id) {
@@ -125,11 +112,18 @@ export async function setCartQuantity(variantId: string, quantity: number) {
 			cartId: cartCookie.id,
 			variantId,
 			quantity: Math.max(quantity, 0),
+			subscriptionPlanId,
 			mode: "set",
 		}),
 	);
 	if (error) {
-		console.error("cart: setCartQuantity failed", { cartId: cartCookie.id, variantId, quantity, error });
+		console.error("cart: setCartQuantity failed", {
+			cartId: cartCookie.id,
+			variantId,
+			quantity,
+			subscriptionPlanId,
+			error,
+		});
 		return { success: false, cart: null };
 	}
 	return { success: true, cart };

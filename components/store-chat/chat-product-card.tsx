@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
+import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice } from "@/lib/pricing";
@@ -111,7 +112,7 @@ export function ChatProductCard({
 
 		startMutation(async () => {
 			const result = await addToCart(selectedVariant.id, 1);
-			const line = result.cart?.lineItems.find((item) => item.productVariant.id === selectedVariant.id);
+			const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(selectedVariant.id));
 			if (result.success && result.cart && line) {
 				syncCart(result.cart);
 			} else {

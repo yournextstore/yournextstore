@@ -5,6 +5,7 @@ import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
+import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
 
@@ -62,7 +63,7 @@ export function QuickAddButton({
 			// The server clamps to available stock and still returns the cart — surface
 			// the failure instead of letting the optimistic item silently vanish.
 			const result = await addToCart(variantId, 1);
-			const line = result.cart?.lineItems.find((item) => item.productVariant.id === variantId);
+			const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(variantId));
 			if (result.success && result.cart && line) {
 				syncCart(result.cart);
 			} else {
