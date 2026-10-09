@@ -24,6 +24,7 @@ export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
 export async function buildProductJsonLd(
 	product: APIProductGetByIdResult,
 	reviews: APIProductReviewsBrowseResult | null,
+	brandName: string | null,
 ): Promise<Record<string, unknown>> {
 	const { currency: storeCurrency, taxBehavior } = await getStoreConfig();
 	// schema.org `price` must be the price the shopper sees on the page — gross on an
@@ -46,6 +47,7 @@ export async function buildProductJsonLd(
 		description: product.summary,
 		image: product.images,
 		sku: product.variants[0]?.sku ?? product.id,
+		brand: brandName ? { "@type": "Brand", name: brandName } : undefined,
 		offers:
 			product.variants.length === 1
 				? {

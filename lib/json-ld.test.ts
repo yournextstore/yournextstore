@@ -22,11 +22,11 @@ const product = (variants: Array<{ price: string; stock: number | null }>) =>
 
 test("product offer prices follow the currency's decimals", async () => {
 	storeConfig.currency = "jpy";
-	const jpy = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null);
+	const jpy = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null, null);
 	expect(jpy.offers).toMatchObject({ "@type": "Offer", price: 1999, priceCurrency: "JPY" });
 
 	storeConfig.currency = "usd";
-	const usd = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null);
+	const usd = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null, null);
 	expect(usd.offers).toMatchObject({ price: 19.99, priceCurrency: "USD" });
 });
 
@@ -37,6 +37,7 @@ test("aggregate offer reads availability from the variants", async () => {
 			{ price: "1999", stock: 0 },
 			{ price: "2500", stock: null },
 		]),
+		null,
 		null,
 	);
 	expect(someInStock.offers).toMatchObject({
@@ -52,9 +53,16 @@ test("aggregate offer reads availability from the variants", async () => {
 			{ price: "2500", stock: 0 },
 		]),
 		null,
+		null,
 	);
 	expect(soldOut.offers).toMatchObject({ availability: "https://schema.org/OutOfStock" });
 	expect(soldOut.brand).toBeUndefined();
+});
+
+test("product names its brand, not its category", async () => {
+	storeConfig.currency = "usd";
+	const jsonLd = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null, "Kiln Studio");
+	expect(jsonLd.brand).toEqual({ "@type": "Brand", name: "Kiln Studio" });
 });
 
 test("product breadcrumb links the category page", () => {

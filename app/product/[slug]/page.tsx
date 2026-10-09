@@ -142,13 +142,22 @@ const getProductPageData = async (slug: string) => {
 			? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }).catch(() => null)
 			: Promise.resolve(null),
 	]);
+	// The SDK gives the product a brand id only; an inactive brand isn't shown.
+	const brand = product?.brandId
+		? await commerce.brandGet({ idOrSlug: product.brandId }).catch(() => null)
+		: null;
 
-	return { product, reviews, restockNotificationsEnabled };
+	return {
+		product,
+		reviews,
+		restockNotificationsEnabled,
+		brand: brand?.active ? { name: brand.name, slug: brand.slug } : null,
+	};
 };
 
 const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> }) => {
 	const { slug } = await params;
-	const { product, reviews, restockNotificationsEnabled } = await getProductPageData(slug);
+	const { product, reviews, restockNotificationsEnabled, brand } = await getProductPageData(slug);
 
 	if (!product) {
 		notFound();
@@ -169,7 +178,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
-	const productJsonLd = await buildProductJsonLd(product, reviews);
+	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -215,6 +224,14 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				<div className="mt-8 lg:mt-0 space-y-8">
 					{/* Title & reviews summary */}
 					<div className="space-y-3">
+						{brand && (
+							<Link
+								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
+								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{brand.name}
+							</Link>
+						)}
 						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
 							{product.name}
 						</h1>
