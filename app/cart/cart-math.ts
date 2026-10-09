@@ -11,6 +11,8 @@ export type CartLineItem = {
 		/** Gross twin of `price`; absent on optimistic lines built before the server replies. */
 		priceGross?: string | null;
 		images: string[];
+		/** The option values this variant stands for; empty for a product without options. */
+		combinations?: { variantValue: { value: string } }[];
 		product: {
 			id: string;
 			name: string;
@@ -78,6 +80,10 @@ export const lineKey = (variantId: string, subscriptionPlanId?: string | null) =
 	`${variantId}:${subscriptionPlanId ?? ""}`;
 
 export const itemKey = (item: CartLineItem) => lineKey(item.productVariant.id, item.subscriptionPlanId);
+
+/** "100 ml" or "Oat / Bath": the options that tell two lines of one product apart. */
+export const lineOptions = (item: CartLineItem) =>
+	(item.productVariant.combinations ?? []).map(({ variantValue }) => variantValue.value).join(" / ");
 
 export type CartAction =
 	| { type: "INCREASE"; key: string }

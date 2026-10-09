@@ -6,6 +6,7 @@ import {
 	getCartDisplaySubtotal,
 	getLineItemUnitPrice,
 	lineKey,
+	lineOptions,
 	planLabel,
 } from "@/app/cart/cart-math";
 
@@ -183,4 +184,14 @@ test("cartReducer keeps a one-time line and a plan line of the same variant apar
 test("planLabel names the plan and its saving", () => {
 	expect(planLabel({ name: "Every month", discountPercent: 10 })).toBe("Every month · Save 10%");
 	expect(planLabel({ name: "Every month", discountPercent: 0 })).toBe("Every month");
+});
+
+test("lineOptions names the variant's options in order", () => {
+	const item = lineItem();
+	expect(lineOptions(item)).toBe("");
+	item.productVariant.combinations = [
+		{ variantValue: { value: "Oat" } },
+		{ variantValue: { value: "Bath" } },
+	];
+	expect(lineOptions(item)).toBe("Oat / Bath");
 });

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
-import { itemKey, planLabel } from "@/app/cart/cart-math";
+import { itemKey, lineOptions, planLabel } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
@@ -22,6 +22,7 @@ export function CartItem({ item }: CartItemProps) {
 
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
+	const options = lineOptions(item);
 
 	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
 	const price = getLineItemUnitPrice(item, taxBehavior);
@@ -121,6 +122,7 @@ export function CartItem({ item }: CartItemProps) {
 						>
 							{product.name}
 						</Link>
+						{options && <p className="text-xs text-muted-foreground">{options}</p>}
 						{item.subscriptionPlan && (
 							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
 						)}

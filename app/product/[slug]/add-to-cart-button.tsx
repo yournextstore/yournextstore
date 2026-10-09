@@ -191,6 +191,8 @@ export function AddToCartButton({
 					// server-returned cart will use — no net/gross flip while the write is in flight.
 					priceGross: selectedVariant.priceGross,
 					images: selectedVariant.images,
+					// So the line names its options at once, not only after the server replies.
+					combinations: selectedVariant.combinations,
 					product,
 				},
 			},
