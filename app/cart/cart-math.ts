@@ -4,6 +4,7 @@ export type CartLineItem = {
 	quantity: number;
 	/** The plan this line renews on; absent or null for a one-time purchase. */
 	subscriptionPlanId?: string | null;
+	subscriptionPlan?: SubscriptionPlanLabel | null;
 	productVariant: {
 		id: string;
 		price: string;
@@ -62,6 +63,12 @@ const withoutStaleTotals = (cart: Cart): Cart => ({
 	subtotalNet: null,
 	subtotalGross: null,
 });
+
+type SubscriptionPlanLabel = { name: string; discountPercent: number };
+
+/** "Every month · Save 10%". The merchant names a plan after its cadence, so the name says how often. */
+export const planLabel = (plan: SubscriptionPlanLabel) =>
+	plan.discountPercent > 0 ? `${plan.name} · Save ${plan.discountPercent}%` : plan.name;
 
 /**
  * A cart line is one variant on one plan: the API keeps a one-time line and a subscription

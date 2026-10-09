@@ -156,6 +156,14 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const reviewSummary = reviews?.summary ?? null;
 
+	// The plans a shopper can pick, in the merchant's order. productGet lists inactive plans too, and
+	// the cart refuses those.
+	const plans = product.subscriptionPlanProducts
+		.map(({ subscriptionPlan }) => subscriptionPlan)
+		.filter((plan) => plan.active)
+		.sort((a, b) => a.position - b.position)
+		.map(({ id, name, discountPercent, benefits }) => ({ id, name, discountPercent, benefits }));
+
 	const allImages = [
 		...product.images,
 		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
@@ -251,6 +259,8 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 								summary={product.summary}
 								volumePricingTiers={product.volumePricingTiers}
 								restockNotificationsEnabled={restockNotificationsEnabled}
+								subscriptionMode={product.subscriptionMode}
+								plans={plans}
 							/>
 						</Suspense>
 					)}

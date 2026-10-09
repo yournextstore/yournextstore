@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
-import { itemKey } from "@/app/cart/cart-math";
+import { itemKey, planLabel } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
@@ -113,13 +113,18 @@ export function CartItem({ item }: CartItemProps) {
 			{/* Product Details */}
 			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
 				<div className="flex items-start justify-between gap-2">
-					<Link
-						href={`/product/${product.slug}`}
-						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-					>
-						{product.name}
-					</Link>
+					<div className="min-w-0 space-y-1">
+						<Link
+							href={`/product/${product.slug}`}
+							onClick={closeCart}
+							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						>
+							{product.name}
+						</Link>
+						{item.subscriptionPlan && (
+							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+						)}
+					</div>
 					<button
 						type="button"
 						onClick={handleRemove}

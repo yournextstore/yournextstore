@@ -42,7 +42,10 @@ export async function ProductCard({
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
+	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
+	const singleVariant =
+		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;

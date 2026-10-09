@@ -6,6 +6,7 @@ import {
 	getCartDisplaySubtotal,
 	getLineItemUnitPrice,
 	lineKey,
+	planLabel,
 } from "@/app/cart/cart-math";
 
 const lineItem = (
@@ -177,4 +178,9 @@ test("cartReducer keeps a one-time line and a plan line of the same variant apar
 
 	const removed = cartReducer(state, { type: "REMOVE", key: lineKey("v-1") });
 	expect(removed?.lineItems).toEqual([plan]);
+});
+
+test("planLabel names the plan and its saving", () => {
+	expect(planLabel({ name: "Every month", discountPercent: 10 })).toBe("Every month · Save 10%");
+	expect(planLabel({ name: "Every month", discountPercent: 0 })).toBe("Every month");
 });
