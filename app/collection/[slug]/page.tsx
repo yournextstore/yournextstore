@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -70,13 +71,14 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
 							{collection.name}
 						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
+						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
+						{typeof collection.description === "string" ? (
+							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
+						) : collection.description ? (
+							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed">
+								<TiptapRenderer content={collection.description} />
+							</div>
+						) : null}
 					</div>
 				</div>
 			</div>
