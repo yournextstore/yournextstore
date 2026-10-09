@@ -108,6 +108,7 @@ function makeDemoProduct({
 				prePromotionPrice: null,
 				prePromotionPriceGross: null,
 				nextStockPriceGross: null,
+				subscriptionPromotionPriceGross: null,
 			},
 		],
 	} satisfies Product;
