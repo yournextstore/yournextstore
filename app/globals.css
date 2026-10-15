@@ -96,6 +96,23 @@
 	--tw-prose-counters: var(--muted-foreground);
 }
 
+/* Rendered Tiptap content, matching the editor (the platform's `.tiptap-result`). Merchants float
+   an image left/right and use empty lines as spacers under it: the editor shows an empty paragraph
+   as one line (ProseMirror's trailing <br>), the static renderer emits a bare <p></p>. Headings drop
+   below the float, and the wrapper contains a float that ends the content. */
+.tiptap-content {
+	display: flow-root;
+}
+
+.tiptap-content :where(h1, h2, h3, h4, h5, h6) {
+	clear: both;
+}
+
+.tiptap-content p:empty {
+	min-height: 1em;
+	overflow: hidden;
+}
+
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,

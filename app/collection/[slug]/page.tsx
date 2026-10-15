@@ -75,7 +75,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						{typeof collection.description === "string" ? (
 							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
 						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed">
+							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
 								<TiptapRenderer content={collection.description} />
 							</div>
 						) : null}

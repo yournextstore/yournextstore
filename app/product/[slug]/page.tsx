@@ -290,7 +290,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			{product.content && (
 				<section className="mt-16 border-t border-border pt-12">
 					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
 						<TiptapRenderer content={product.content} />
 					</div>
 				</section>

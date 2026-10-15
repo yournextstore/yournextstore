@@ -173,7 +173,7 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 			)}
 
 			{/* Content */}
-			<div className="prose prose-sm dark:prose-invert max-w-none">
+			<div className="prose prose-sm dark:prose-invert max-w-none tiptap-content">
 				<TiptapRenderer content={post.content} />
 			</div>
 
