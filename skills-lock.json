@@ -61,6 +61,12 @@
 			"sourceType": "github",
 			"computedHash": "69cecc4f28fb2f140652669bd45cc492744ad5c3c45083f5e0be5b0a5ef8acd0"
 		},
+		"migrate-radix-to-base": {
+			"source": "shadcn/ui",
+			"sourceType": "github",
+			"skillPath": "skills/migrate-radix-to-base/SKILL.md",
+			"computedHash": "e1f2030ee5059be3dff0812ca0e4b995ee9fa3132176f049ebe6c90346a6755e"
+		},
 		"normalize": {
 			"source": "pbakaus/impeccable",
 			"sourceType": "github",
@@ -85,6 +91,12 @@
 			"source": "pbakaus/impeccable",
 			"sourceType": "github",
 			"computedHash": "139b3e3c9d43b79b4e6ccffaeb874265bc916d7d90662950e9f05581d6e0c06a"
+		},
+		"shadcn": {
+			"source": "shadcn/ui",
+			"sourceType": "github",
+			"skillPath": "skills/shadcn/SKILL.md",
+			"computedHash": "b864a958765563321f485a96f4d59c0bb6539f4286ab6d8b8b66895b7ebd302d"
 		},
 		"teach-impeccable": {
 			"source": "pbakaus/impeccable",
