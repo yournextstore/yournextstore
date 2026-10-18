@@ -29,15 +29,16 @@ export function RestockNotify({
 
 	return (
 		<Dialog>
-			<DialogTrigger asChild>
-				<Button
-					type="button"
-					variant="outline"
-					className="h-14 w-full rounded-full text-base font-medium tracking-wide"
-				>
-					<BellRing className="h-5 w-5" />
-					Remind me when back in stock
-				</Button>
+			<DialogTrigger
+				render={
+					<Button
+						variant="outline"
+						className="h-14 w-full rounded-full text-base font-medium tracking-wide"
+					/>
+				}
+			>
+				<BellRing className="h-5 w-5" />
+				Remind me when back in stock
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
