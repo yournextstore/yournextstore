@@ -1,23 +1,21 @@
 # dropdown-menu
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated to Base UI `Menu`; call site updated.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/dropdown-menu.tsx`: Content → `Portal > Positioner > Popup` (Positioner `isolate z-50 outline-none`, Popup keeps `z-50` and gains `outline-none`); align/alignOffset/side/sideOffset forwarded, `align` keeps Radix's `"center"` default (the base registry uses `"start"`). Label → `GroupLabel`; ItemIndicator → `CheckboxItemIndicator` / `RadioItemIndicator`; Sub/SubTrigger → `SubmenuRoot`/`SubmenuTrigger` with `data-popup-open:*` open styling; SubContent composes `DropdownMenuContent` with `align="start" alignOffset={-3} side="right" sideOffset={0}`. Vars → `--available-height`, `--transform-origin`.
-- `components/theme-toggle.tsx`: `<DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Change theme" />}>`.
+- `components/ui/dropdown-menu.tsx`: registry file: `rounded-2xl` popups, `align="start"` default for Content.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-None.
+- `components/theme-toggle.tsx`: passes `align="end"`, unchanged.
 
 ## Behavior changes
 
-- `CheckboxItem`/`RadioItem` no longer close the menu on click (`closeOnClick` defaults to false). No consumer uses them today.
-- `DropdownMenuLabel` (GroupLabel) must sit inside a `DropdownMenuGroup` in Base UI. No consumer uses it today.
+- Checkbox/radio items do not close the menu on click (Base UI default); no consumer uses them.
 
 ## Verify by hand
 
-- Theme toggle: opens aligned to the button's right edge, 4 px below; arrow keys move between items; picking "Dark" applies it, closes the menu, focus returns to the button (verified).
+- Theme toggle opens aligned to the button's right edge and closes on Escape (verified).

@@ -1,22 +1,21 @@
 # label
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: replaced with a native `<label>` (Base UI has no Label primitive).
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/label.tsx`: renders `<label data-slot="label">` typed `React.ComponentProps<"label">`; `"use client"` dropped. Added `peer-data-disabled:cursor-not-allowed peer-data-disabled:opacity-50` next to the existing `peer-disabled:*`, because a Base UI checkbox peer is a `<span data-disabled>`, not a `:disabled` control.
+- `components/ui/label.tsx`: registry native `<label>` with `"use client"`; the first pass's extra `peer-data-disabled:*` classes are gone.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-- `components/newsletter-consent.tsx`, `app/product/[slug]/restock-notify.tsx`: consumers, unchanged.
+None.
 
 ## Behavior changes
 
-None (Radix Label only added double-click text-selection prevention, already covered by `select-none`).
+- A label beside a disabled Base UI checkbox no longer dims through `peer-*` (the checkbox is a `<span>`, so `peer-disabled` never matches). Not used that way today.
 
 ## Verify by hand
 
 - Restock dialog: clicking "Email" focuses the input.
-- Newsletter consent: clicking the sentence toggles the checkbox.

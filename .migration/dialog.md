@@ -1,23 +1,22 @@
 # dialog
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated; call site updated.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/dialog.tsx`: Overlay → `Backdrop`, Content → `Popup` (centered, no Positioner), types → `DialogPrimitive.*.Props`. The tw-animate enter/exit keyframes stay, keyed on `data-open:`/`data-closed:`; Base UI keeps the popup mounted until the exit animation finishes (this is also what the base registry does).
-- `app/product/[slug]/restock-notify.tsx`: `<DialogTrigger asChild><Button …>` → `<DialogTrigger render={<Button …/>}>…</DialogTrigger>` (redundant `type="button"` dropped; the trigger sets it).
+- `components/ui/dialog.tsx`: registry file: `rounded-4xl` popup with a soft ring, `bg-black/80` backdrop with blur, icon `Button` close control, `DialogFooter` with an optional close button.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-- `components/newsletter-dialog.tsx`: `open` + `onOpenChange={(open) => !open && handleClose()}` is compatible with the new `(open, eventDetails)` signature.
+- `app/product/[slug]/restock-notify.tsx`, `components/newsletter-dialog.tsx`: compatible as they are.
 
 ## Behavior changes
 
-None observed. The close button's `data-[state=open]:*` classes were renamed to `data-open:*`; they were inert under Radix too.
+None beyond styling.
 
 ## Verify by hand
 
-- Restock dialog (out-of-stock product): opens with fade/zoom, focus moves inside, Escape and backdrop click close it, focus returns to the trigger. Not exercised in the browser run: no out-of-stock product was available.
-- Newsletter popup: opens on its schedule and dismisses.
+- Restock dialog on an out-of-stock product: open, Escape, backdrop click, focus return. Not exercised: no out-of-stock product in the QA data.
+- Newsletter popup open/dismiss.

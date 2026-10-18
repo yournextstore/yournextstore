@@ -1,26 +1,24 @@
 # button
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated to the real `@base-ui/react/button` primitive.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/button.tsx`: `Slot`/`asChild` replaced by `ButtonPrimitive` (`render` supported natively); props typed `ButtonPrimitive.Props & VariantProps<typeof buttonVariants>`. No `"use client"` needed: the primitive module carries its own, so `Button` and `buttonVariants` still work from Server Components.
-- `app/cart/cart-sidebar.tsx`: the checkout link was `<Button asChild><a></Button>`; it is now a plain `<a className={cn(buttonVariants(), ...)}>`. A Base UI button with `nativeButton={false}` adds `role="button"` to the `<a>`, which would announce a link as a button. Still a plain `<a>` into the proxied `/checkout` zone.
-- `app/order/success/[id]/page.tsx`: same treatment for the "Continue Shopping" `<Link>` (`className={buttonVariants()}`), matching `components/ui/pagination.tsx`.
-- `package.json` / `bun.lock`: `@base-ui/react@1.9.0` added.
+- `components/ui/button.tsx`: registry file: `rounded-4xl` pill, `h-9 px-3` default size, softer `outline`/`ghost`, a tinted `destructive`, new `xs`/`icon-xs` sizes, explicit `variant`/`size` defaults.
+- No call-site changes. The cart checkout link and the order-success link already use `buttonVariants()` directly, from the first pass.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-- `components/ui/pagination.tsx`: already styles `<Link>` with `buttonVariants`; only imports `Button` for a type.
+- `components/ui/pagination.tsx` uses `Button` with `render`; see its report in `project.md`.
 
 ## Behavior changes
 
-- Base UI renders native buttons with `type="button"` by default (Radix left the native `submit` default). Every submit button in the app already declares `type="submit"` (newsletter dialog, forms), so nothing changed in practice; a future untyped `<Button>` inside a `<form>` will no longer submit it.
+- Native buttons default to `type="button"` (unchanged from the first pass; every submit button declares `type="submit"`).
+- Visual: pill shape and new padding everywhere `Button` is used.
 
 ## Verify by hand
 
-- Click checkout in the cart sheet: full document load to `/checkout`, disabled look while a cart write is in flight.
-- Order success page: "Continue Shopping" looks like a primary button and soft-navigates home.
-- Newsletter and restock forms still submit on Enter and on the submit button.
+- Product page, cart, newsletter dialog, cookie banner: buttons read as pills, focus ring visible on Tab.
+- Forms still submit on their submit buttons.

@@ -1,21 +1,21 @@
 # badge
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated to `useRender` + `mergeProps`.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/badge.tsx`: `Slot`/`asChild` replaced by `useRender({ defaultTagName: "span", render, state: { slot: "badge" } })` (the `state.slot` emits `data-slot="badge"`, as in the base registry). Added `"use client"`: `useRender` calls `useRef` (via `@base-ui/utils/useRefWithInit`), which cannot run in a Server Component.
+- `components/ui/badge.tsx`: registry file (pill, fixed `h-5`, new `ghost`/`link` variants). The first pass's `"use client"` is gone; the only consumer (`bundle-builder.tsx`) is a client component.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-- `app/product/[slug]/bundle-builder.tsx`: the only consumer; already a client component, no `asChild` usage.
+None.
 
 ## Behavior changes
 
-None.
+None beyond styling.
 
 ## Verify by hand
 
-- Bundle product page: "Included" badges render with the secondary style.
+- Bundle product page: "Included" badges render as secondary pills.

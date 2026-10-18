@@ -1,24 +1,21 @@
 # select
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated; call site updated.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/select.tsx`: `Select` is a bare re-export of the generic `SelectPrimitive.Root`. Content → `Portal > Positioner > Popup` (`isolate z-50` on the Popup); `position="popper"` → `alignItemWithTrigger`, which defaults to **false** here to keep the old popper default (the base registry defaults to true). Viewport → `List`; ScrollUp/DownButton → `ScrollUp/DownArrow` (+ `top-0`/`bottom-0 w-full z-10 bg-popover`); Label → `GroupLabel`; Icon `asChild` → `render`. Item anatomy: `ItemText` first (now a `<div>`, so it gets `flex items-center gap-2` explicitly instead of the old `*:[span]:last:*` selector), then `ItemIndicator render={<span className="absolute right-2 …" />}`.
-- The popper-mode `h-[var(--radix-select-trigger-height)]` on the viewport was dropped instead of renamed: under Radix it was overridden by the viewport's `flex: 1`; on a Base UI List it would clip the list to the trigger's height. `min-w` maps to `--anchor-width`.
-- `app/products/products-sort-select.tsx`: passes `items={options}` so the trigger shows "Newest" rather than the raw value (Base UI's `Value` does not read item text); the handler accepts the `string | null` Base UI emits and ignores `null`.
+- `components/ui/select.tsx`: registry file. `alignItemWithTrigger` defaults to `true`, so the list opens over the trigger with the selected item aligned to it.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-None.
+- `app/products/products-sort-select.tsx`: keeps `items={options}` and the null-ignoring handler from the first pass.
 
 ## Behavior changes
 
-- After closing, Base UI keeps the popup mounted but hidden (`hidden`, opacity 0). Not visible.
+- The sort list now overlays its trigger instead of dropping below it.
 
 ## Verify by hand
 
-- Mobile products page: the sort trigger shows the current label; the list opens under the trigger with a check on the current option; picking one updates the URL and the label (verified).
-- Keyboard: Enter opens, arrows and typeahead move, Enter selects, Escape closes.
+- Mobile products page: the trigger shows the current label; picking an option updates the URL and the label (verified).

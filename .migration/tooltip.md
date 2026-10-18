@@ -1,22 +1,21 @@
 # tooltip
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated; direct radix consumer moved onto the wrappers.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/tooltip.tsx`: Content → `Portal > Positioner > Popup` with side/align offsets forwarded; Provider `delayDuration` → `delay` (default 0 kept); `Tooltip` still wraps its own provider as before. `sideOffset` default 0 → 4: Radix silently added the arrow height to the offset, Base UI does not. The arrow gets per-side placement classes (`data-[side=top]:-bottom-2.5` etc.) because Base UI only positions it on the cross axis.
-- `components/quick-add-button.tsx`: dropped its direct `@radix-ui/react-tooltip` import (`Provider delayDuration={1000}` + `Root`) for `<Tooltip>` + `<TooltipTrigger delay={1000}>`. A trigger `delay` takes precedence over the provider's (`delay ?? providerDelay` in TooltipTrigger). The wrapping `<button>` became the trigger's own button.
+- `components/ui/tooltip.tsx`: registry file. `Tooltip` no longer wraps its own provider; the quick-add trigger's `delay={1000}` applies on its own.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-None.
+- `components/quick-add-button.tsx`: unchanged.
 
 ## Behavior changes
 
-None observed: the tooltip opens after ~1 s, centered above the button, arrow pointing at it (verified).
+None observed.
 
 ## Verify by hand
 
-- Hover a product card's bag icon: "Add to cart" appears after about a second; clicking adds to cart and closes it.
+- Hover a product card's bag icon: "Add to cart" appears after about a second, 4px above, centered (verified).

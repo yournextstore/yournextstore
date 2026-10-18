@@ -1,23 +1,21 @@
 # checkbox
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated 1:1.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file, no local diff.
 
 ## Changed
 
-- `components/ui/checkbox.tsx`: `@base-ui/react/checkbox` Root/Indicator, typed `CheckboxPrimitive.Root.Props`. `data-[state=checked]:` → `data-checked:`; `disabled:cursor-not-allowed disabled:opacity-50` → `data-disabled:*` because the root now renders a `<span>` plus a hidden `<input>` (pseudo-class `:disabled` never matches a span).
+- `components/ui/checkbox.tsx`: registry file: 6px radius, enlarged hit area (`after:-inset-x-3 after:-inset-y-2`), field-group hooks.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
-- `components/sections/product-filters.tsx`, `components/newsletter-consent.tsx`: `onCheckedChange={(v) => …(v === true)}` still type-checks (value is now always boolean) and nobody uses `checked="indeterminate"`.
+None.
 
 ## Behavior changes
 
-- `id` now lands on the hidden `<input>`, not the visible box. `<label htmlFor>` still toggles it (verified on the product filters).
+- The stock file styles disabled state with `disabled:*`, which never matches the Base UI `<span>` root (an upstream registry quirk), so a disabled checkbox is not dimmed. No consumer disables one except the newsletter consent while submitting.
 
 ## Verify by hand
 
-- Product filters: clicking a colour checkbox or its label toggles it and updates the URL.
-- Keyboard: Tab to a checkbox, Space toggles it, focus ring visible.
-- Newsletter consent in a disabled state looks dimmed.
+- Product filters: checkbox and label toggle, URL updates (verified).

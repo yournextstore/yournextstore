@@ -1,13 +1,13 @@
 # slider
 
-2026-10-18. Strategy: transformation engine on the project's own file. components.json style is the legacy `new-york`, which has no base counterpart, so the stock new-york-v4 radix file was used only to classify the wrapper (registry drift only: class order, unified `radix-ui` import, newer features; no user customizations) and the existing classes were kept. Verdict: migrated; call site updated.
+2026-10-18 (second pass). Strategy: golden pair via CLI. components.json moved from the legacy `new-york` style to `base-maia`, and the wrapper was reinstalled with `shadcn add <component> --overwrite` (shadcn 4.22.0). The CLI leaves the registry's bare `import { cn } from "cn"` and installs an unrelated `cn` npm package to satisfy it, so after each add the import was rewritten to `@/lib/utils` and the package removed. The stock base styles also need `@import "shadcn/tailwind.css"` (custom variants such as `data-horizontal`, plus accordion keyframes), now in `app/globals.css` with `shadcn` as a dev dependency. Verdict: stock base-maia file; call site adjusted.
 
 ## Changed
 
-- `components/ui/slider.tsx`: anatomy `Root > Control > Track > Indicator` + Thumbs (Range → Indicator, new Control); the user's layout classes moved Root → Control; `thumbAlignment="edge"` keeps thumbs inside the track; thumbs get `index` (needed for SSR of range sliders); thumb `disabled:*` → `data-[disabled]:*` (the thumb is a div with a nested input). The wrapper is now generic over the value shape (`SliderPrimitive.Root.Props<Value>`), and the manual `useMemo` was dropped (React Compiler).
-- `components/sections/product-filters.tsx`: `minStepsBetweenThumbs` → `minStepsBetweenValues`; `onValueCommit` → `onValueCommitted`; the `value as [number, number]` cast is gone (`onValueChange={setPriceRange}`) because the generic infers the tuple.
+- `components/ui/slider.tsx`: registry file (track `h-3`, pill thumbs, `thumbAlignment="edge"`). It is not generic over the value shape like the first-pass wrapper was.
+- `components/sections/product-filters.tsx`: `onValueChange`/`onValueCommitted` cast the value back to `[number, number]`.
 
-Leftover scan: `grep -n "radix-ui\|@radix-ui"` on the files below is clean.
+Leftover scan: `grep -n "radix-ui\|@radix-ui\|IconPlaceholder\|from \"cn\""` on this file is clean.
 
 ## Left alone
 
@@ -15,9 +15,8 @@ None.
 
 ## Behavior changes
 
-- `onValueCommitted` does not fire when the value did not change (Radix's commit always fired). Harmless here.
+- Thumbs no longer get an explicit `index` (stock omits it).
 
 ## Verify by hand
 
-- Price filter: drag either thumb, release → URL gets `priceMin`/`priceMax`; thumbs cannot cross.
-- Keyboard: arrows step by 1, PageUp/PageDown by 10, each step commits.
+- Price filter: drag or arrow-key a thumb, release, URL gets `priceMin`/`priceMax`.
