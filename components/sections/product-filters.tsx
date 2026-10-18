@@ -229,7 +229,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									items={vt.values}
 									className="space-y-2"
 									renderItem={(value) => {
-										const id = `${vt.label}-${value}`;
+										// No spaces: the checkbox names itself through aria-labelledby, a space-separated
+										// id list, so "Dual Color" would point at two ids and leave it unnamed.
+										const id = `${vt.label}-${value}`.replace(/\s+/g, "-");
 										const checked = selectedValues.includes(value);
 										return (
 											<li key={value} className="flex items-center gap-2">
