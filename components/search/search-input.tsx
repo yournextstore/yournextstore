@@ -47,7 +47,6 @@ export function SearchInput() {
 				<PopoverContent
 					align="end"
 					sideOffset={8}
-					collisionPadding={16}
 					initialFocus={iconInputRef}
 					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
 				>
@@ -131,7 +130,6 @@ export function SearchInput() {
 					<PopoverContent
 						align="end"
 						sideOffset={8}
-						collisionPadding={16}
 						anchor={inlineAnchorRef}
 						initialFocus={false}
 						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
