@@ -65,7 +65,7 @@ function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
 			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion type="single" collapsible className="rounded-lg border border-border px-4">
+			<Accordion className="rounded-lg border border-border px-4">
 				{category.questions.map((item, index) => (
 					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
 						<AccordionTrigger>{item.question}</AccordionTrigger>

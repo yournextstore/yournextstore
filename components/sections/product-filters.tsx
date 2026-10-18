@@ -160,7 +160,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 			</div>
 
-			<Accordion type="multiple" defaultValue={accordionDefault} className="w-full">
+			<Accordion multiple defaultValue={accordionDefault} className="w-full">
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
 						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
