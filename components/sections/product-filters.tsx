@@ -290,8 +290,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									max={priceCeil}
 									step={1}
 									minStepsBetweenValues={1}
-									onValueChange={setPriceRange}
-									onValueCommitted={([min, max]) =>
+									onValueChange={(value) => setPriceRange(value as [number, number])}
+									onValueCommitted={(value) => {
+										const [min, max] = value as [number, number];
 										commit((params) => {
 											if (min <= priceFloor) {
 												params.delete("priceMin");
@@ -303,8 +304,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											} else {
 												params.set("priceMax", String(max));
 											}
-										})
-									}
+										});
+									}}
 								/>
 								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
 									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
