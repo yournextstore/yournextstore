@@ -10,7 +10,7 @@ import {
 	makeNavHandlers,
 	useSearchController,
 } from "@/components/search/use-search-controller";
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export function SearchInput() {
 	const searchParams = useSearchParams();
@@ -20,6 +20,7 @@ export function SearchInput() {
 	const [inlineOpen, setInlineOpen] = useState(false);
 	const iconInputRef = useRef<HTMLInputElement>(null);
 	const inlineInputRef = useRef<HTMLInputElement>(null);
+	const inlineAnchorRef = useRef<HTMLDivElement>(null);
 	const iconListboxId = useId();
 	const inlineListboxId = useId();
 
@@ -47,10 +48,7 @@ export function SearchInput() {
 					align="end"
 					sideOffset={8}
 					collisionPadding={16}
-					onOpenAutoFocus={(e) => {
-						e.preventDefault();
-						iconInputRef.current?.focus();
-					}}
+					initialFocus={iconInputRef}
 					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
 				>
 					<form onSubmit={handleSubmit}>
@@ -99,45 +97,43 @@ export function SearchInput() {
 			{/* xl+ — inline input bar */}
 			<form onSubmit={handleSubmit} className="hidden xl:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
-					<PopoverAnchor asChild>
-						<div className="relative">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
-							/>
-							<input
-								ref={inlineInputRef}
-								type="search"
-								name="q"
-								placeholder="Search products"
-								value={c.query}
-								onChange={(e) => {
-									c.setQuery(e.target.value);
-									setInlineOpen(true);
-								}}
-								onFocus={() => setInlineOpen(true)}
-								onKeyDown={makeKeyHandler(
-									c,
-									inlinePanelOpen,
-									() => setInlineOpen(false),
-									() => goToSearch(c.query),
-								)}
-								role="combobox"
-								aria-expanded={inlinePanelOpen}
-								aria-controls={inlineListboxId}
-								aria-autocomplete="list"
-								aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
-								autoComplete="off"
-								className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-							/>
-						</div>
-					</PopoverAnchor>
+					<div ref={inlineAnchorRef} className="relative">
+						<Search
+							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							strokeWidth={1.75}
+						/>
+						<input
+							ref={inlineInputRef}
+							type="search"
+							name="q"
+							placeholder="Search products"
+							value={c.query}
+							onChange={(e) => {
+								c.setQuery(e.target.value);
+								setInlineOpen(true);
+							}}
+							onFocus={() => setInlineOpen(true)}
+							onKeyDown={makeKeyHandler(
+								c,
+								inlinePanelOpen,
+								() => setInlineOpen(false),
+								() => goToSearch(c.query),
+							)}
+							role="combobox"
+							aria-expanded={inlinePanelOpen}
+							aria-controls={inlineListboxId}
+							aria-autocomplete="list"
+							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
+							autoComplete="off"
+							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+						/>
+					</div>
 					<PopoverContent
 						align="end"
 						sideOffset={8}
 						collisionPadding={16}
-						onOpenAutoFocus={(e) => e.preventDefault()}
-						onPointerDownOutside={() => setInlineOpen(false)}
+						anchor={inlineAnchorRef}
+						initialFocus={false}
 						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
 					>
 						<Suggestions
