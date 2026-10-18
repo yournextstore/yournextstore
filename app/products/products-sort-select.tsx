@@ -61,12 +61,15 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	const defaultValue = options[0]?.value;
 	const current = searchParams.get("sort") ?? defaultValue;
 
-	const onChange = (value: string) => {
+	const onChange = (value: string | null) => {
+		if (value === null) {
+			return;
+		}
 		router.push(buildSortHref(searchParams, pathname, value, defaultValue), { scroll: false });
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange}>
+		<Select value={current} onValueChange={onChange} items={options}>
 			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
 				<SelectValue />
 			</SelectTrigger>
