@@ -7,10 +7,13 @@ import { getSubdomainPublicUrl } from "./lib/commerce";
 //
 // The webhook paths are here for addresses merchants already registered on this domain; the
 // platform resolves the store from the `/<subdomain>` prefix like it does for checkout.
+//
+// /api/mcp is the store's MCP server, the address an AI assistant (ChatGPT, Claude) is connected to.
 const proxiedRoutes = [
 	"/checkout",
 	"/api/feed/",
 	"/api/chat",
+	"/api/mcp",
 	"/api/frame-webhook",
 	"/api/montonio-webhook",
 	"/account",
@@ -114,6 +117,7 @@ export const config = {
 		"/api/feed/:path*",
 		"/api/chat",
 		"/api/chat/:path*",
+		"/api/mcp",
 		"/api/indexnow",
 		"/api/frame-webhook",
 		"/api/montonio-webhook",
