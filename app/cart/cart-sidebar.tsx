@@ -7,7 +7,7 @@ import { itemKey } from "@/app/cart/cart-math";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Sheet,
@@ -102,28 +102,30 @@ export function CartSidebar() {
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<a
-										href={checkoutUrl}
-										aria-disabled={isMutating}
-										tabIndex={isMutating ? -1 : undefined}
-										onClick={(e) => {
-											if (isMutating) {
-												e.preventDefault();
-											}
-										}}
-										className={cn(isMutating && "pointer-events-none opacity-60")}
-									>
-										{isMutating ? (
-											<>
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Updating…
-											</>
-										) : (
-											"Checkout"
-										)}
-									</a>
-								</Button>
+								<a
+									href={checkoutUrl}
+									aria-disabled={isMutating}
+									tabIndex={isMutating ? -1 : undefined}
+									onClick={(e) => {
+										if (isMutating) {
+											e.preventDefault();
+										}
+									}}
+									className={cn(
+										buttonVariants(),
+										"w-full h-12 text-base font-medium",
+										isMutating && "pointer-events-none opacity-60",
+									)}
+								>
+									{isMutating ? (
+										<>
+											<Loader2 className="h-4 w-4 animate-spin" />
+											Updating…
+										</>
+									) : (
+										"Checkout"
+									)}
+								</a>
 								<button
 									type="button"
 									onClick={closeCart}

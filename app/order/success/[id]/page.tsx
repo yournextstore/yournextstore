@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
@@ -172,9 +172,9 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 
 			{/* Continue Shopping Button */}
 			<div className="mt-8 text-center">
-				<Button asChild>
-					<Link href="/">Continue Shopping</Link>
-				</Button>
+				<Link href="/" className={buttonVariants()}>
+					Continue Shopping
+				</Link>
 			</div>
 		</div>
 	);
