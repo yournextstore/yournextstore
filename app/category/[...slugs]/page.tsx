@@ -211,9 +211,7 @@ const CategoryContent = async ({
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
 					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
+						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
 					</BreadcrumbItem>
 					{hierarchy.map((crumb, index) => {
 						const path = hierarchy
@@ -228,9 +226,7 @@ const CategoryContent = async ({
 									{isLast ? (
 										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
 									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
+										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
 									)}
 								</BreadcrumbItem>
 							</Fragment>

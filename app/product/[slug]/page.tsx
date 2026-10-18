@@ -190,22 +190,18 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
 					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
+						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
 					</BreadcrumbItem>
 					<BreadcrumbSeparator />
 					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/products">Products</Link>
-						</BreadcrumbLink>
+						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
 					</BreadcrumbItem>
 					{product.category && (
 						<>
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
+								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
+									{product.category.name}
 								</BreadcrumbLink>
 							</BreadcrumbItem>
 						</>
