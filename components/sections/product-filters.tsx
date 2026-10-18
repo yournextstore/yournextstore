@@ -345,7 +345,10 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 					</span>
 				)}
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
+			<SheetContent
+				side="left"
+				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
