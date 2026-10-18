@@ -172,16 +172,11 @@ export function MobileControls({
 	return (
 		<div className="sticky top-16 z-30 -mx-4 flex items-center justify-between border-y border-border bg-background/90 px-4 py-3 text-xs uppercase tracking-[0.18em] backdrop-blur-md sm:hidden">
 			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<button
-						type="button"
-						className="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-70"
-					>
-						<SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
-						<span>
-							Filter{active ? ` · ${active.name}` : ""} / {activeSort?.label}
-						</span>
-					</button>
+				<SheetTrigger className="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-70">
+					<SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
+					<span>
+						Filter{active ? ` · ${active.name}` : ""} / {activeSort?.label}
+					</span>
 				</SheetTrigger>
 				<SheetContent side="bottom" className="rounded-t-2xl p-6">
 					<SheetTitle className="text-2xl font-medium tracking-tight">Refine</SheetTitle>

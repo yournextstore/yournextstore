@@ -17,14 +17,11 @@ export function Navbar({ links }: { links: NavLink[] }) {
 	return (
 		<>
 			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<button
-						type="button"
-						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-					>
-						<Menu className="h-6 w-6" />
-					</button>
+				<SheetTrigger
+					aria-label="Open menu"
+					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+				>
+					<Menu className="h-6 w-6" />
 				</SheetTrigger>
 				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
 					<SheetTitle className="sr-only">Menu</SheetTitle>

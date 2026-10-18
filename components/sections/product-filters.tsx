@@ -335,16 +335,14 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
-					Filters
-					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-							{activeCount}
-						</span>
-					)}
-				</Button>
+			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
+				<SlidersHorizontalIcon className="size-4" />
+				Filters
+				{activeCount > 0 && (
+					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+						{activeCount}
+					</span>
+				)}
 			</SheetTrigger>
 			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
 				<SheetHeader>
