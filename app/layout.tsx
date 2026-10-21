@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { Search, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -19,14 +19,14 @@ import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCategoryTiles, getCollectionTiles, getSocials, getStoreIdentity } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
@@ -41,7 +41,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	"use cache";
 	cacheLife("hours");
 	const me = await meGetCached();
-	const storeName = me.store.name || "Your Next Store";
+	const storeName = me.store.settings?.storeName || me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
@@ -108,20 +108,33 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [categories, collections, me] = await Promise.all([
+		getCategoryTiles(),
+		getCollectionTiles(),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
 	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
+		{ href: "/products", label: "Shop" },
+		...categories.slice(0, 6).map((tile) => ({ href: tile.href, label: tile.label })),
+		...collections.slice(0, 4).map((tile) => ({ href: tile.href, label: tile.label })),
+		{ href: "/about", label: "Our Story" },
 		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
+}
+
+function SearchPillFallback() {
+	return (
+		<div aria-hidden="true" className="relative hidden min-w-0 flex-1 md:block">
+			<Search
+				className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+				strokeWidth={1.75}
+			/>
+			<div className="flex h-9 w-full items-center rounded-full border border-input pl-10 text-sm text-muted-foreground">
+				Find something you love and bring it home
+			</div>
+		</div>
+	);
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,42 +144,58 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, identity, socials] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getStoreIdentity(),
+		getSocials(),
+	]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+						<div className="shell flex h-16 items-center justify-between gap-x-4 md:gap-x-8">
+							<div className="flex shrink-0 items-center gap-x-2 md:gap-x-3">
+								<Navbar
+									links={links}
+									storeName={identity.name}
+									storeLine={identity.description}
+									socials={socials.map((social) => ({ href: social.href, label: social.label }))}
+								/>
+								<Link
+									href="/search"
+									aria-label="Search"
+									className="inline-flex h-9 w-9 items-center justify-center transition-opacity hover:opacity-70 md:hidden"
+								>
+									<Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
+								</Link>
+								<Link href="/" className="hidden text-2xl font-medium uppercase md:block">
+									{identity.name}
+								</Link>
+							</div>
+							<Link href="/" className="min-w-0 truncate text-xl font-medium uppercase md:hidden">
+								{identity.name}
+							</Link>
+							<Suspense fallback={<SearchPillFallback />}>
+								<SearchInput />
+							</Suspense>
+							<div className="flex shrink-0 items-center gap-x-4 md:gap-x-5">
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={accountHref}
+									className="hidden items-center gap-x-2 text-sm transition-opacity hover:opacity-70 md:inline-flex"
+								>
+									<UserRound className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+									Sign in or Sign up
+								</a>
+								<CartButton />
 							</div>
 						</div>
 					</header>
@@ -214,7 +243,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +251,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />

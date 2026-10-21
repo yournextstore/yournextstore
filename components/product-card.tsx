@@ -3,11 +3,12 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { listingPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
@@ -15,12 +16,15 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+/** HiyoRi's product card: square photo, bold name, two-line blurb, price, round basket button. */
 export async function ProductCard({
 	product,
 	priority = false,
+	className,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	className?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -28,6 +32,9 @@ export async function ProductCard({
 	const priceDisplay = listing
 		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
 		: null;
+	const { max: maxOriginal } =
+		variants && variants.length > 0 ? priceRange(variants, taxBehavior, "originalPrice") : { max: null };
+	const onSale = Boolean(listing && maxOriginal && maxOriginal > listing.amount);
 
 	const allImages = [
 		...(product.images ?? []),
@@ -35,7 +42,6 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
@@ -54,11 +60,56 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
+	const summary = "summary" in product ? product.summary : null;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
+		<article className={cn("relative flex w-full flex-col py-3", className)}>
+			<div className="relative mb-5 overflow-hidden">
+				<Link href={href} tabIndex={-1} aria-hidden="true" className="relative block aspect-square bg-card">
+					{primaryImage &&
+						(isVideoUrl(primaryImage) ? (
+							<video
+								className="absolute inset-0 h-full w-full object-cover"
+								src={primaryImage}
+								muted
+								loop
+								autoPlay
+								playsInline
+							/>
+						) : (
+							<YNSMedia
+								src={primaryImage}
+								alt=""
+								fill
+								sizes="(max-width: 1024px) 50vw, 25vw"
+								className="object-cover object-center transition-all duration-500 hover:scale-[1.02] hover:opacity-70"
+								priority={priority}
+								fetchPriority={priority ? "high" : undefined}
+							/>
+						))}
+				</Link>
+				{onSale && (
+					<span className="absolute top-0 left-0 bg-sale px-2.5 py-0.5 text-xs font-semibold text-white">
+						Sale
+					</span>
+				)}
+			</div>
+
+			<div className="mb-3 space-y-1.5 md:mb-5">
+				<h2 className="text-lg leading-tight font-semibold tracking-tight md:text-2xl">
+					<Link href={href} className="block hover:underline">
+						{product.name}
+					</Link>
+				</h2>
+				{summary && (
+					<p className="hidden max-w-[240px] text-sm text-muted-foreground md:line-clamp-2">{summary}</p>
+				)}
+				{priceDisplay && <p className="text-sm md:text-base">{priceDisplay}</p>}
+			</div>
+
+			<div className="mt-auto flex items-center gap-x-2 md:gap-x-5">
+				{singleVariant ? (
 					<QuickAddButton
 						variantId={singleVariant.id}
 						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
@@ -72,52 +123,16 @@ export async function ProductCard({
 							images: product.images ?? [],
 						}}
 					/>
+				) : (
+					<Link
+						href={href}
+						aria-label={`Choose options, ${product.name}`}
+						className="flex h-8 w-8 items-center justify-center rounded-full border border-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+					>
+						<ArrowRight className="h-4 w-4" aria-hidden="true" />
+					</Link>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+		</article>
 	);
 }
