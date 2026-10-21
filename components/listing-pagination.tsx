@@ -1,12 +1,4 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import Link from "next/link";
 
 function getPageNumbers(currentPage: number, totalPages: number) {
 	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -15,10 +7,7 @@ function getPageNumbers(currentPage: number, totalPages: number) {
 			acc.push(page);
 			return acc;
 		}
-		const last = acc[acc.length - 1];
-		if (last !== "ellipsis") {
-			acc.push("ellipsis");
-		}
+		if (acc[acc.length - 1] !== "ellipsis") acc.push("ellipsis");
 		return acc;
 	}, []);
 }
@@ -32,7 +21,7 @@ function buildUrl(basePath: string, page: number, filters: Record<string, string
 	return params.size ? `${basePath}?${params}` : basePath;
 }
 
-/** Numbered pagination for product listing pages. Carries every active filter across page links. */
+/** Mono pagination on a hairline. Carries every active filter across page links. */
 export function ListingPagination({
 	basePath,
 	currentPage,
@@ -46,35 +35,44 @@ export function ListingPagination({
 }) {
 	if (totalPages <= 1) return null;
 
-	const pageNumbers = getPageNumbers(currentPage, totalPages);
-
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
-				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
-				)}
-				{pageNumbers.map((page, index) =>
+		<nav
+			aria-label="Pagination"
+			className="mono mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-[0.6875rem] uppercase tracking-[0.05em]"
+		>
+			{currentPage > 1 ? (
+				<Link href={buildUrl(basePath, currentPage - 1, filters)} className="link text-muted-foreground">
+					Previous
+				</Link>
+			) : (
+				<span />
+			)}
+			<ul className="flex items-center gap-1">
+				{getPageNumbers(currentPage, totalPages).map((page, index) =>
 					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
+						<li key={`ellipsis-${index}`} className="px-2 text-muted-foreground" aria-hidden="true">
+							…
+						</li>
 					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
-								{page}
-							</PaginationLink>
-						</PaginationItem>
+						<li key={page}>
+							<Link
+								href={buildUrl(basePath, page, filters)}
+								aria-current={page === currentPage ? "page" : undefined}
+								className="chip min-w-8 justify-center px-2"
+							>
+								{String(page).padStart(2, "0")}
+							</Link>
+						</li>
 					),
 				)}
-				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
-				)}
-			</PaginationContent>
-		</Pagination>
+			</ul>
+			{currentPage < totalPages ? (
+				<Link href={buildUrl(basePath, currentPage + 1, filters)} className="link text-muted-foreground">
+					Next
+				</Link>
+			) : (
+				<span />
+			)}
+		</nav>
 	);
 }

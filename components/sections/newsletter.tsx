@@ -1,67 +1,62 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useId, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 import { NewsletterConsent } from "@/components/newsletter-consent";
 import { trackIdentify } from "@/lib/track";
 
+/** Centred newsletter band at the top of the footer, so it reaches every page. */
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 	const [marketingConsent, setMarketingConsent] = useState(false);
+	const inputId = useId();
 
 	useEffect(() => {
 		if (state?.success && state.email) trackIdentify(state.email);
 	}, [state]);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
-							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-4">
-								<div className="flex flex-col gap-3 sm:flex-row">
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-									/>
-									<button
-										type="submit"
-										disabled={isPending || !marketingConsent}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-									>
-										{isPending ? "Subscribing\u2026" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-									</button>
-								</div>
-								<NewsletterConsent
-									checked={marketingConsent}
-									onCheckedChange={setMarketingConsent}
-									disabled={isPending}
-								/>
-							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
-					)}
-				</div>
+		<section className="shell border-b border-border py-16 md:py-24" aria-labelledby="newsletter-heading">
+			<div className="mx-auto max-w-[34rem] text-center" data-reveal>
+				<h2 id="newsletter-heading" className="type-h2">
+					New pieces, one email at a time
+				</h2>
+				{state?.success ? (
+					<p className="mono mt-9 text-[0.75rem] text-walnut" role="status">
+						{state.message}
+					</p>
+				) : (
+					<form action={action} className="mx-auto mt-9 max-w-[24rem]">
+						<label className="sr-only" htmlFor={inputId}>
+							Email address
+						</label>
+						<input
+							id={inputId}
+							name="email"
+							type="email"
+							required
+							autoComplete="email"
+							placeholder="email@example.com"
+							className="field mono text-center text-[0.875rem]"
+						/>
+						<NewsletterConsent
+							checked={marketingConsent}
+							onCheckedChange={setMarketingConsent}
+							disabled={isPending}
+							className="mt-5 text-muted-foreground [&_span]:text-[0.8125rem] [&_span]:opacity-100"
+						/>
+						<button
+							type="submit"
+							disabled={isPending || !marketingConsent}
+							className="btn btn-primary mt-5 w-full"
+						>
+							{isPending ? "Saving" : "Notify me"}
+						</button>
+						<p className="mono mt-4 min-h-4 text-[0.6875rem] text-destructive" role="status">
+							{state?.error}
+						</p>
+					</form>
+				)}
 			</div>
 		</section>
 	);

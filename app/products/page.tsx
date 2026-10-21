@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import {
+	CatalogueGrid,
+	CatalogueGridSkeleton,
+	CatalogueHeader,
+	type ChipGroup,
+	FilterBar,
+	hrefWith,
+} from "@/components/catalogue";
 import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { getCatalogProducts, getCategories, getCollections } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 18;
 
 const sortOptions = [
-	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
+	{ value: "featured", label: "Featured", orderBy: "createdAt", orderDirection: "desc" },
+	{ value: "price-asc", label: "Price — low to high", orderBy: "price", orderDirection: "asc" },
+	{ value: "price-desc", label: "Price — high to low", orderBy: "price", orderDirection: "desc" },
+	{ value: "name", label: "Name — A to Z", orderBy: "name", orderDirection: "asc" },
 ] as const;
 
 type ProductFilterParams = {
@@ -37,23 +41,66 @@ export async function generateMetadata({
 	const { page } = await searchParams;
 	const pageNum = Math.max(1, Number(page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+	const title = pageNum > 1 ? `The Catalogue — Page ${pageNum}` : "The Catalogue";
 	const { storeName, storeDescription } = await getStoreSeo();
 	const description = storeDescription
-		? `Browse the complete ${storeName} collection. ${storeDescription}`
-		: `Browse the complete ${storeName} product collection.`;
+		? `Browse every piece in the ${storeName} catalogue. ${storeDescription}`
+		: `Browse every piece in the ${storeName} catalogue. Filter by category and collection.`;
 
 	return {
 		title,
 		description,
 		alternates: { canonical },
-		openGraph: {
-			type: "website",
-			title,
-			description,
-			url: canonical,
-		},
+		openGraph: { type: "website", title, description, url: canonical },
 	};
+}
+
+/** Category and collection chips; "All" clears its own key and keeps the other. */
+async function getChipGroups(filters: ProductFilterParams): Promise<ChipGroup[]> {
+	const [categories, collections] = await Promise.all([getCategories(), getCollections()]);
+	const keep = { sort: filters.sort, category: filters.category, collection: filters.collection };
+	return [
+		{
+			label: "Category",
+			chips: [
+				{
+					label: "All pieces",
+					href: hrefWith("/products", keep, { category: undefined }),
+					current: !filters.category,
+				},
+				...categories
+					.filter((c) => c.count > 0)
+					.map((c) => ({
+						label: c.name,
+						href: hrefWith("/products", keep, { category: c.slug }),
+						current: filters.category === c.slug,
+					})),
+			],
+		},
+		{
+			label: "Collection",
+			chips: [
+				{
+					label: "All collections",
+					href: hrefWith("/products", keep, { collection: undefined }),
+					current: !filters.collection,
+				},
+				...collections.map((c) => ({
+					label: c.name,
+					href: hrefWith("/products", keep, { collection: c.slug }),
+					current: filters.collection === c.slug,
+				})),
+			],
+		},
+	];
+}
+
+function sortChoices(filters: ProductFilterParams) {
+	return sortOptions.map((option) => ({
+		value: option.value,
+		label: option.label,
+		href: hrefWith("/products", filters, { sort: option.value === "featured" ? undefined : option.value }),
+	}));
 }
 
 async function ProductList({ filters }: { filters: ProductFilterParams }) {
@@ -64,96 +111,75 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 
-	const result = await commerce.productBrowse({
-		active: true,
-		limit: PRODUCTS_PER_PAGE,
-		offset,
-		orderBy: sortOption.orderBy,
-		orderDirection: sortOption.orderDirection,
-		category: filters.category,
-		collection: filters.collection,
-		brand: filters.brand,
-		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
-		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
-		vts: filters.vts,
-	});
-
-	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
-
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
+	const [result, groups] = await Promise.all([
+		commerce.productBrowse({
+			active: true,
+			limit: PRODUCTS_PER_PAGE,
+			offset,
+			orderBy: sortOption.orderBy,
+			orderDirection: sortOption.orderDirection,
+			category: filters.category,
+			collection: filters.collection,
+			brand: filters.brand,
+			priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
+			priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
+			vts: filters.vts,
+		}),
+		getChipGroups(filters),
+	]);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
+			<FilterBar
+				groups={groups}
+				sort={{ choices: sortChoices(filters), current: sortOption.value }}
+				count={result.meta.count}
+			/>
+			<CatalogueGrid products={result.data} />
 			<ListingPagination
 				basePath="/products"
 				currentPage={currentPage}
-				totalPages={totalPages}
+				totalPages={Math.ceil(result.meta.count / PRODUCTS_PER_PAGE)}
 				filters={filters}
 			/>
 		</>
 	);
 }
 
-// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
-// stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
+// Awaits `searchParams` (runtime data) inside the Suspense boundary so the heading prerenders.
 async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
 	const filters = await searchParams;
 	return <ProductList filters={filters} />;
 }
 
+/** The same bar, unfiltered and inert, so the toolbar lands without moving the grid. */
+async function ProductListFallback() {
+	const [groups, products] = await Promise.all([getChipGroups({}), getCatalogProducts()]);
+	return (
+		<>
+			<FilterBar
+				groups={groups}
+				sort={{ choices: sortChoices({}), current: "featured" }}
+				count={products.length}
+				pending
+			/>
+			<CatalogueGridSkeleton />
+		</>
+	);
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
-	const filtersAvailable =
-		facets.categories.length > 0 ||
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
+	const [products, categories] = await Promise.all([getCatalogProducts(), getCategories()]);
+	const rooms = categories.filter((c) => c.count > 0).length;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
+		<div className="shell min-h-svh">
+			<CatalogueHeader
+				title="Every piece, in one place"
+				lead={`${products.length} pieces across ${rooms} ${rooms === 1 ? "category" : "categories"}. Filter to find what fits.`}
+			/>
+			<Suspense fallback={<ProductListFallback />}>
+				<ProductSection searchParams={searchParams} />
 			</Suspense>
 		</div>
 	);

@@ -1,7 +1,7 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
+import { pad2 } from "@/lib/pad";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
@@ -10,18 +10,13 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="link-mono -m-2 inline-flex min-h-10 items-center gap-2 p-2 transition-colors hover:text-walnut"
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			<span className="hidden sm:inline">Cart</span>{" "}
+			<span className="mono text-[0.6875rem]" aria-live="polite">
+				{pad2(itemCount)}
+				<span className="sr-only"> items in cart</span>
+			</span>
 		</button>
 	);
 }

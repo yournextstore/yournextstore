@@ -6,8 +6,6 @@ import { applyDiscountCode, removeDiscountCode } from "@/app/cart/actions";
 import { type Cart, useCart } from "@/app/cart/cart-context";
 import { appliedCouponOf } from "@/app/cart/discount-code";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 type DiscountMutationResult =
 	| { success: true; cart: Cart | null | undefined }
@@ -58,7 +56,7 @@ export function DiscountCodeField() {
 	};
 
 	const errorMessage = error ? (
-		<p id={messageId} role="alert" className="text-sm text-destructive">
+		<p id={messageId} role="alert" className="mono text-[0.6875rem] text-destructive">
 			{error}
 		</p>
 	) : null;
@@ -66,18 +64,14 @@ export function DiscountCodeField() {
 	if (applied) {
 		return (
 			<div className="grid gap-2">
-				<div
-					role="status"
-					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900"
-				>
-					<p className="min-w-0 py-2 text-sm">
-						<span className="font-semibold break-all">{applied.code} applied</span>{" "}
+				<div role="status" className="flex items-center justify-between gap-3 border-b border-border pb-3">
+					<p className="mono min-w-0 text-[0.6875rem] uppercase tracking-[0.05em] text-walnut">
+						<span className="break-all">{applied.code} applied</span>{" "}
 						<span className="whitespace-nowrap">{applied.label}</span>
 					</p>
-					<Button
+					<button
 						type="button"
-						variant="ghost"
-						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950"
+						className="link link-mono min-h-6 shrink-0 text-muted-foreground"
 						aria-label={`Remove discount code ${applied.code}`}
 						aria-busy={isMutating || undefined}
 						onClick={() => {
@@ -87,7 +81,7 @@ export function DiscountCodeField() {
 						}}
 					>
 						{isMutating ? <Loader2 className="size-4 animate-spin" /> : "Remove"}
-					</Button>
+					</button>
 				</div>
 				{errorMessage}
 			</div>
@@ -95,12 +89,12 @@ export function DiscountCodeField() {
 	}
 
 	return (
-		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
+		<div className="grid gap-1">
+			<label htmlFor={inputId} className="label">
 				Discount code
 			</label>
-			<div className="flex gap-2">
-				<Input
+			<div className="flex items-center gap-3 border-b border-line-strong transition-colors focus-within:border-walnut">
+				<input
 					id={inputId}
 					name="discountCode"
 					type="text"
@@ -108,7 +102,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="mono min-w-0 flex-1 bg-transparent py-2.5 text-base uppercase tracking-[0.04em] outline-none sm:text-[0.8125rem]"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -124,17 +118,16 @@ export function DiscountCodeField() {
 						}
 					}}
 				/>
-				<Button
+				<button
 					type="button"
-					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="link link-mono inline-flex min-h-10 shrink-0 items-center gap-2 text-foreground"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}
 				>
-					{isMutating ? <Loader2 className="size-4 animate-spin" /> : null}
+					{isMutating ? <Loader2 className="size-3.5 animate-spin" /> : null}
 					Apply
-				</Button>
+				</button>
 			</div>
 			{errorMessage}
 		</div>
