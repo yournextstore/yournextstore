@@ -1,61 +1,49 @@
-"use client";
-
-import { Menu } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import type { ReactNode } from "react";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
-	const [open, setOpen] = useState(false);
+const item = "inline-flex h-6 items-center whitespace-nowrap";
 
+/**
+ * Photon's one-line menu: the same row at every width, items pushed to the edges with
+ * `justify-between`. Search and Account join it from `sm`; phones reach them in the footer.
+ */
+export function Navbar({
+	links,
+	accountHref,
+	children,
+}: {
+	links: NavLink[];
+	accountHref: string;
+	children: ReactNode;
+}) {
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<button
-						type="button"
-						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-					>
-						<Menu className="h-6 w-6" />
-					</button>
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
+		<nav aria-label="Main">
+			<ul className="photon-inset flex items-center justify-between gap-x-3">
 				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
+					<li key={link.href}>
+						<Link href={link.href} className={item}>
+							{link.label}
+						</Link>
+					</li>
 				))}
-			</nav>
-		</>
+				<li className="hidden sm:block">
+					<Link href="/search" className={item}>
+						Search
+					</Link>
+				</li>
+				<li className="hidden sm:block">
+					{/* Plain <a>: /account is a proxied zone, a soft navigation 500s. */}
+					<a href={accountHref} className={item}>
+						Account
+					</a>
+				</li>
+				<li className="min-w-[50px] text-right">{children}</li>
+			</ul>
+		</nav>
 	);
 }

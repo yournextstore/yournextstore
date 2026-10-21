@@ -40,10 +40,8 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 					<Link
 						key={option.value}
 						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
+						aria-current={isActive ? "true" : undefined}
+						className={cn("inline-flex h-6 items-center whitespace-nowrap", isActive && "underline")}
 					>
 						{option.label}
 					</Link>

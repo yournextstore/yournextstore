@@ -1,38 +1,75 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { cacheLife } from "next/cache";
+import Link from "next/link";
+import { AllBlock, CollectionBlock, EditorialBlock } from "@/components/photon";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import {
+	editorialImages,
+	getCollectionTiles,
+	getPicturedFirstProducts,
+	getStoreIdentity,
+} from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+async function HomeContent() {
+	"use cache";
+	cacheLife("minutes");
+	const [identity, tiles, newIn] = await Promise.all([
+		getStoreIdentity(),
+		getCollectionTiles(),
+		getPicturedFirstProducts(6),
+	]);
+	const featured = tiles.filter((tile) => tile.image).slice(0, 2);
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<EditorialBlock
+				className="bg-photon-yellow text-black"
+				image="/images/hero-objects.jpg"
+				tint={false}
+				priority
+			>
+				<h1 className="text-[clamp(2.25rem,7vw,6rem)] leading-none font-bold uppercase">
+					{identity.storeName}
+				</h1>
+				<p className="mt-2 max-w-[34ch]">Design objects in loud solid colour.</p>
+				<p>
+					<Link href="/products" className="inline-flex min-h-6 items-center">
+						Shop all products ↗
+					</Link>
+				</p>
+			</EditorialBlock>
+
+			<ProductGrid title="New in" products={newIn} />
+
+			<EditorialBlock className="bg-black text-white" image={editorialImages.home.src} grayscale>
+				<h2 className="text-photon-title">Made to be used</h2>
+				<p>
+					Every lamp, stool, tray and clock is folded, cast or powder-coated to be used every day, not only
+					looked at.
+				</p>
+				<p>
+					<Link href="/about" className="inline-flex min-h-6 items-center">
+						About {identity.storeName} ↗
+					</Link>
+				</p>
+			</EditorialBlock>
+
+			{featured.length > 0 && (
+				<section aria-label="Collections">
+					{featured.map((tile) => (
+						<CollectionBlock key={tile.id} tile={tile} />
+					))}
+					<AllBlock href="/collections" label="All Collections" className="h-[40vh] max-md:h-[40vh]" />
+				</section>
+			)}
 		</>
 	);
+}
+
+export default function Home() {
+	return <HomeContent />;
 }

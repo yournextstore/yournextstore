@@ -1,5 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's type-scale utilities read as colours to tailwind-merge unless registered as sizes.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["photon", "photon-title"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

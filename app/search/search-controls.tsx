@@ -35,7 +35,7 @@ function FilterRow({
 	size?: "sm" | "md";
 	onClick?: () => void;
 }) {
-	const py = size === "md" ? "py-3 text-base" : "py-2.5 text-sm";
+	const py = size === "md" ? "py-3 text-base" : "py-2.5";
 	const activeClass = isActive
 		? size === "md"
 			? "font-medium text-foreground"
@@ -52,7 +52,7 @@ function FilterRow({
 					{isActive ? "— " : ""}
 					{label}
 				</span>
-				{typeof count === "number" ? <span className="text-xs tabular-nums">{count}</span> : null}
+				{typeof count === "number" ? <span className="tabular-nums">{count}</span> : null}
 			</Link>
 		</li>
 	);
@@ -70,7 +70,7 @@ export function ActiveFilters({
 	if (!active) return null;
 
 	return (
-		<div className="flex items-center gap-2 text-sm">
+		<div className="flex items-center gap-2">
 			<span className="text-muted-foreground">in</span>
 			<Link
 				href={buildUrl(searchParams, { category: null })}
@@ -89,7 +89,7 @@ export function SortSelect({ value }: { value: SortKey }) {
 	const [isPending, startTransition] = useTransition();
 
 	return (
-		<label className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+		<label className="inline-flex items-center gap-3 text-muted-foreground">
 			<span>Sort</span>
 			<div className="relative">
 				<select
@@ -99,7 +99,7 @@ export function SortSelect({ value }: { value: SortKey }) {
 						const url = buildUrl(searchParams, { sort: e.target.value });
 						startTransition(() => router.push(url));
 					}}
-					className="appearance-none border-0 border-b border-foreground/30 bg-transparent pr-5 pb-0.5 text-sm font-medium normal-case tracking-normal text-foreground focus:border-foreground focus:outline-none"
+					className="appearance-none border-0 border-b border-foreground/30 bg-transparent pr-5 pb-0.5 font-medium normal-case tracking-normal text-foreground focus:border-foreground focus:outline-none"
 				>
 					{SORT_OPTIONS.map((opt) => (
 						<option key={opt.value} value={opt.value}>
@@ -131,7 +131,7 @@ export function CategorySidebar({
 
 	return (
 		<nav aria-label="Filter by category">
-			<h2 className="mb-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h2>
+			<h2 className="mb-4 text-muted-foreground">Category</h2>
 			<ul className="flex flex-col">
 				<FilterRow
 					href={buildUrl(searchParams, { category: null })}
@@ -170,7 +170,7 @@ export function MobileControls({
 	const activeSort = SORT_OPTIONS.find((s) => s.value === sort);
 
 	return (
-		<div className="sticky top-16 z-30 -mx-4 flex items-center justify-between border-y border-border bg-background/90 px-4 py-3 text-xs uppercase tracking-[0.18em] backdrop-blur-md sm:hidden">
+		<div className="sticky top-16 z-30 -mx-4 flex items-center justify-between border-y border-border bg-background/90 px-4 py-3 backdrop-blur-md sm:hidden">
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger asChild>
 					<button
@@ -184,9 +184,9 @@ export function MobileControls({
 					</button>
 				</SheetTrigger>
 				<SheetContent side="bottom" className="rounded-t-2xl p-6">
-					<SheetTitle className="text-2xl font-medium tracking-tight">Refine</SheetTitle>
+					<SheetTitle className="text-photon-title">Refine</SheetTitle>
 
-					<h3 className="mt-6 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Sort</h3>
+					<h3 className="mt-6 mb-3 text-muted-foreground">Sort</h3>
 					<ul className="flex flex-col">
 						{SORT_OPTIONS.map((opt) => (
 							<FilterRow
@@ -200,7 +200,7 @@ export function MobileControls({
 						))}
 					</ul>
 
-					<h3 className="mt-8 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h3>
+					<h3 className="mt-8 mb-3 text-muted-foreground">Category</h3>
 					<ul className="flex flex-col">
 						<FilterRow
 							href={buildUrl(searchParams, { category: null })}
