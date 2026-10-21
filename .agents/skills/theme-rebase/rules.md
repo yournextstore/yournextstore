@@ -78,3 +78,9 @@ Start from the theme branch (theirs) code. Port logic fixes, type fixes, SDK cha
 7. **Visual consistency is mandatory.** Every new feature, component, or UI element introduced by main MUST be adapted to the theme's design language before committing. This means matching the theme's color variables/palette, typography (font family, sizes, weights), spacing/padding scale, border radii, shadow styles, button styles, and Tailwind class patterns. Look at 2-3 existing theme components as reference. A feature that "looks like main" in a themed store is a bug.
 8. After editing, verify NO conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) remain.
 9. After editing, `git add` the file.
+
+## Shell commands
+
+Your Bash access is an allowlist of plain commands, and you already start in the worktree. Run exactly one plain command per Bash call: `git diff <base> <main> -- <path>`, `git add <path>`, `bun run check`. A `cd`, `;`, `&&`, pipe, loop, heredoc, `python3` or `sed -i` does not match the allowlist and is denied. Read files with Read and change them with Edit or Write, never through the shell. A denied command is not a reason to stop: rerun it as a plain command.
+
+Never run `bun run lint`: its `--write --unsafe` fixes rewrite files you were not asked to touch. Use `bun run check`; if it reports formatting in a file you edited, fix that file with Edit. Money is `bigint`: compare amounts with `<` and `>`, never with `Math.min`/`Math.max`.
