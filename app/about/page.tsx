@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
+import Image from "next/image";
+import { PillLink } from "@/components/pill-link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -49,87 +50,79 @@ export default async function AboutPage() {
 		"@context": "https://schema.org",
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+		description: storeDescription ?? "Learn about our story, our coffee and the people who roast it.",
 	};
 
+	const places = [
+		{
+			title: "The Roastery",
+			image: "/images/pexels/boutique-room.jpg",
+			alt: "Shelves of coffee bags and a drum roaster in a bright roastery with a wooden floor",
+			lines: [
+				"Where every batch is roasted.",
+				"Browse every coffee by origin, blend and roast, with tasting notes on each page.",
+			],
+		},
+		{
+			title: "The Cupping Table",
+			image: "/images/pexels/sneakers-suitcase.jpg",
+			alt: "Cupping bowls of ground coffee and spoons on a wooden table in warm light",
+			lines: ["Tasted before it is listed.", "Every lot is cupped before it earns a place on the list."],
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="pb-16">
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
+			<div className="mx-auto max-w-[96rem] sm:p-16">
+				<section className="bg-olive p-6 py-16 text-center text-white sm:rounded-3xl sm:p-10 md:p-[5.5rem]">
+					<p className="font-display text-xl uppercase">About us</p>
+					<h1 className="mt-6 font-display text-display-lg md:text-display-xl">Our Story</h1>
+					<p className="mx-auto mt-6 max-w-4xl text-lg md:text-xl">
+						At {storeName}, we&rsquo;re more than a coffee roaster&mdash;we&rsquo;re a neighbourhood. Inspired
+						by the corner café, a place where you are always welcome to stay for another cup, we bring that
+						feeling to every bag we roast. <strong>Building community, one cup at a time.</strong>
+					</p>
+					<div className="mt-8 flex flex-wrap justify-center gap-4 lg:mt-10 lg:gap-6">
+						<PillLink href="/products">Shop Our Coffees</PillLink>
+						{contactFormEnabled ? (
+							<PillLink href="/contact">Get in Touch</PillLink>
+						) : (
+							<PillLink href="#newsletter">Join the Community</PillLink>
+						)}
 					</div>
 				</section>
 			</div>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			<div className="page-container">
+				<h2 className="mt-14 mb-14 font-display text-display-md max-sm:text-center sm:text-display-lg md:mt-6 md:mb-16 lg:text-display-xl">
+					Find your style, find your{" "}
+					<span className="inline-block font-script text-[150%] leading-none whitespace-nowrap">corner</span>
+				</h2>
+
+				<div className="flex flex-col gap-12 md:gap-8">
+					{places.map((place) => (
+						<section key={place.title} className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-16">
+							<div className="relative h-72 overflow-hidden rounded-3xl md:col-span-2">
+								<Image
+									src={place.image}
+									alt={place.alt}
+									fill
+									sizes="(max-width: 768px) 100vw, 66vw"
+									className="object-cover"
+								/>
+							</div>
+							<div className="flex flex-col gap-4 text-lg md:justify-center md:text-xl">
+								<h3 className="text-2xl font-bold">{place.title}</h3>
+								<div>
+									{place.lines.map((line) => (
+										<p key={line}>{line}</p>
+									))}
+								</div>
+							</div>
+						</section>
+					))}
 				</div>
 			</div>
 		</div>

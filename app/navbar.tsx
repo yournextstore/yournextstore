@@ -4,58 +4,77 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
+/** Desktop links: plain text on the moss bar, underlined on hover (from lg; the drawer covers below). */
 export function Navbar({ links }: { links: NavLink[] }) {
+	return (
+		<nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
+			{links.map((link) => (
+				<Link
+					key={link.href}
+					href={link.href}
+					className="whitespace-nowrap py-4 text-base underline-offset-8 decoration-white/70 hover:underline"
+				>
+					{link.label}
+				</Link>
+			))}
+		</nav>
+	);
+}
+
+/** The original's side navigation: a white panel from the left with a bold "Navigation" title. */
+export function MobileNav({ links }: { links: NavLink[] }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<button
-						type="button"
-						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger asChild>
+				<button
+					type="button"
+					aria-label="Open menu"
+					className="rounded-full p-2 transition-colors hover:bg-white/10 lg:hidden"
+				>
+					<Menu className="size-6" strokeWidth={1.5} aria-hidden="true" />
+				</button>
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				closeLabel="Close menu"
+				className="w-[calc(100%-2.5rem)] gap-0 overflow-y-auto bg-white p-0 sm:max-w-sm"
+			>
+				<div className="px-4 pt-6 pb-2 sm:px-6">
+					<SheetTitle className="text-lg font-bold">Navigation</SheetTitle>
+					<SheetDescription className="sr-only">Browse the store</SheetDescription>
+				</div>
+				<div className="px-4 pt-4 sm:px-6">
+					<MobileSearchInput onNavigate={() => setOpen(false)} />
+				</div>
+				<nav aria-label="Mobile" className="flex flex-col px-4 py-4 sm:px-6">
+					{links.map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							onClick={() => setOpen(false)}
+							className="rounded-md px-4 py-3 text-base text-slate-700 transition-colors hover:bg-cream hover:text-ink"
+						>
+							{link.label}
+						</Link>
+					))}
+					{/* Plain <a>: /account is a proxied zone. */}
+					<a
+						href="/account"
+						className="rounded-md px-4 py-3 text-base text-slate-700 transition-colors hover:bg-cream hover:text-ink"
 					>
-						<Menu className="h-6 w-6" />
-					</button>
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						Account
+					</a>
+				</nav>
+			</SheetContent>
+		</Sheet>
 	);
 }

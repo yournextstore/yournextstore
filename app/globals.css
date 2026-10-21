@@ -8,7 +8,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-sen);
+	--font-display: var(--font-italiana);
+	--font-script: var(--font-ballet);
+	--font-wordmark: var(--font-aboreto);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +35,112 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's named palette (Barrio): cream page, moss header, olive footer, sand cards, tan accents. */
+	--color-cream: var(--cream);
+	--color-moss: var(--moss);
+	--color-olive: var(--olive);
+	--color-sand: var(--sand);
+	--color-tan: var(--tan);
+	--color-ink: var(--ink);
+}
+
+@theme {
+	--breakpoint-xs: 25rem;
+	/* Display sizes from the original, under their own names so shadcn's text-sm/base keep theirs. */
+	--text-display-sm: 1.5rem;
+	--text-display-sm--line-height: 1.2;
+	--text-display-md: 2.25rem;
+	--text-display-md--line-height: 1.1;
+	--text-display-lg: 3.75rem;
+	--text-display-lg--line-height: 1;
+	--text-display-xl: 4.5rem;
+	--text-display-xl--line-height: 1;
+	--text-display-2xl: 6rem;
+	--text-display-2xl--line-height: 1;
+	--text-display-3xl: 8rem;
+	--text-display-3xl--line-height: 1;
+}
+
+/* The original's Container: 1536px max, 16 / 24 / 32 / 86px gutters. */
+@utility page-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 96rem;
+	padding-inline: 1rem;
+	@media (width >= 40rem) {
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 48rem) {
+		padding-inline: 2rem;
+	}
+	@media (width >= 80rem) {
+		padding-inline: 5.375rem;
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--header-height: 3.5rem;
+	--radius: 0.5rem;
+	--cream: #fffbf5;
+	--moss: #3f432c;
+	--olive: #5d6a51;
+	--sand: #f3ead1;
+	--tan: #9f7f51;
+	--ink: #0f172a;
+	--card: #ffffff;
+	--card-foreground: #0f172a;
+	--popover: #ffffff;
+	--popover-foreground: #0f172a;
+	--primary: #0f172a;
+	--primary-foreground: #ffffff;
+	--secondary: #f3ead1;
+	--secondary-foreground: #0f172a;
+	--muted: #f6f1e4;
+	/* Slate 600, not the original's slate 500: the lighter grey misses AA on cream and sand. */
+	--muted-foreground: #4f5b6b;
+	--accent: #f3ead1;
+	--accent-foreground: #0f172a;
+	--destructive: #b42318;
+	--border: #e4ddcc;
+	--input: #d9d1bd;
+	--ring: #5d6a51;
+	--background: #fffbf5;
+	--foreground: #0f172a;
 }
 
+@media (width >= 40rem) {
+	:root {
+		--header-height: 4.5rem;
+	}
+}
+
+/* Light-only design: the block stays so the palette test checks both, ThemeProvider forces light. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #1c1e14;
+	--foreground: #fffbf5;
+	--card: #26291c;
+	--card-foreground: #fffbf5;
+	--popover: #26291c;
+	--popover-foreground: #fffbf5;
+	--primary: #f3ead1;
+	--primary-foreground: #0f172a;
+	--secondary: #33372a;
+	--secondary-foreground: #fffbf5;
+	--muted: #33372a;
+	--muted-foreground: #c9c3b2;
+	--accent: #33372a;
+	--accent-foreground: #fffbf5;
+	--destructive: #f97066;
+	--border: #3d4132;
+	--input: #4a4e3d;
+	--ring: #9f7f51;
 }
 
 @layer base {
@@ -83,7 +148,15 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply font-normal;
 	}
 }
 
