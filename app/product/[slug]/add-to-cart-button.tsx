@@ -1,12 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -53,7 +53,7 @@ type AddToCartButtonProps = {
 		slug: string;
 		images: string[];
 	};
-	summary?: string | null;
+	category?: { name: string; slug: string } | null;
 	volumePricingTiers?: VolumeTier[];
 	/** Show a "remind me when back in stock" flow when out of stock (Restock Notifications module). */
 	restockNotificationsEnabled?: boolean;
@@ -64,7 +64,7 @@ const LOW_STOCK_THRESHOLD = 5;
 export function AddToCartButton({
 	variants,
 	product,
-	summary,
+	category,
 	volumePricingTiers = [],
 	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
@@ -87,16 +87,12 @@ export function AddToCartButton({
 	);
 
 	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
 
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -195,78 +191,73 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+		<div className="flex flex-col gap-5">
+			<div className="flex flex-col gap-1">
+				<div className="flex items-center justify-between gap-4">
+					{category ? (
+						<Link href={`/category/${category.slug}`} className="text-base text-taupe-ink hover:underline">
+							{category.name}
+						</Link>
+					) : (
+						<span />
 					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
+					<p className="flex flex-wrap items-baseline justify-end gap-x-2 text-base">
+						{priceInfo.compareAt && (
+							<span className="text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						)}
+						<span className="font-bold">
+							{unitPrice && volumePrice
+								? formatMoney({ amount: BigInt(unitPrice), currency, locale })
+								: priceInfo.display}
 						</span>
-					) : null}
+					</p>
 				</div>
-
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
+					<p className="text-right text-xs text-muted-foreground">
+						Lowest price in the last 30 days: {omnibusPrice}
+					</p>
 				)}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
-
-			<QuantitySelector
-				quantity={effectiveQuantity}
-				onQuantityChange={setQuantity}
-				max={Math.max(1, Math.min(99, maxQuantity))}
-				disabled={isOutOfStock}
-			/>
+			<div className="flex flex-col gap-2">
+				{variants.length > 1 && <VariantSelector variants={variants} />}
+				<QuantitySelector
+					quantity={effectiveQuantity}
+					onQuantityChange={setQuantity}
+					max={Math.max(1, Math.min(99, maxQuantity))}
+					disabled={isOutOfStock}
+				/>
+			</div>
 
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 
-			{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
-				<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
-			) : (
-				<form onSubmit={handleSubmit}>
-					<button
-						type="submit"
-						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+			<div className="flex flex-col gap-3">
+				{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+					<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
+				) : (
+					<form onSubmit={handleSubmit}>
+						<button type="submit" disabled={!selectedVariant || isOutOfStock} className="btn-taupe">
+							{buttonText}
+						</button>
+					</form>
+				)}
+				<p className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm">
+					<span
+						className={cn(
+							stockStatus?.tone === "out" && "text-destructive",
+							stockStatus?.tone === "low" && "text-amber-800",
+							stockStatus?.tone === "in" && "text-taupe-ink",
+						)}
 					>
-						{buttonText}
-					</button>
-				</form>
-			)}
-
-			<TrustBadges />
+						{stockStatus?.label ?? "\u00a0"}
+					</span>
+					<span className="text-taupe-ink">
+						{taxBehavior === "inclusive"
+							? "Taxes included. Shipping at checkout"
+							: "Shipping and taxes at checkout"}
+					</span>
+				</p>
+			</div>
 		</div>
 	);
 }
