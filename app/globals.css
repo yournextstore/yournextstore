@@ -9,10 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
+	--font-serif: var(--font-lora);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: max(0px, calc(var(--radius) - 4px));
+	--radius-md: max(0px, calc(var(--radius) - 2px));
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
 	--color-background: var(--background);
@@ -23,6 +24,7 @@
 	--color-popover-foreground: var(--popover-foreground);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--primary-hover);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
@@ -30,53 +32,90 @@
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
+	--color-success: var(--success);
 	--color-border: var(--border);
+	--color-border-strong: var(--border-strong);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The editorial band tone behind the hero, lookbook, assurance strip and footer. */
+	--color-canvas: var(--canvas);
+	--color-stone: var(--stone);
 }
 
+/* The original's editorial type steps, under their own names (never `text-sm/base/lg`). */
+@theme {
+	--text-eyebrow: 0.75rem;
+	--text-eyebrow--letter-spacing: 0.2em;
+	--text-eyebrow--font-weight: 600;
+	--text-navlink: 0.6875rem;
+	--text-navlink--letter-spacing: 0.2em;
+	--text-navlink--font-weight: 600;
+	--text-display-hero: clamp(1.75rem, 2.4vw, 2.25rem);
+	--text-display-hero--line-height: 1.06;
+	--text-display-section: clamp(1.375rem, 2.4vw, 1.75rem);
+	--text-display-section--line-height: 1.1;
+	--text-display-page: clamp(1.25rem, 1.8vw, 1.5rem);
+	--text-display-page--line-height: 1.15;
+	--text-display-pdp: clamp(1.625rem, 2.4vw, 2rem);
+	--text-display-pdp--line-height: 1.15;
+	--breakpoint-xs: 30rem;
+	--breakpoint-wide: 87.5rem;
+}
+
+/* Default ("editorial") theme of the original, as hex: slate ink on white, a warm cream band. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #0f1729;
+	--card: #ffffff;
+	--card-foreground: #0f1729;
+	--popover: #ffffff;
+	--popover-foreground: #0f1729;
+	--primary: #0f1729;
+	--primary-foreground: #ffffff;
+	--primary-hover: #1b294b;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #0f1729;
+	--muted: #f1f5f9;
+	--muted-foreground: #586679;
+	--accent: #f1f5f9;
+	--accent-foreground: #0f1729;
+	--destructive: #c01e12;
+	--success: #19763b;
+	--border: #ced5de;
+	--border-strong: #718198;
+	--input: #8391a5;
+	--ring: #0860c4;
+	--canvas: #f6f3ee;
+	--stone: #eae5dd;
 }
 
+/* Light-only like the original; the palette test reads both blocks. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #0f1729;
+	--card: #ffffff;
+	--card-foreground: #0f1729;
+	--popover: #ffffff;
+	--popover-foreground: #0f1729;
+	--primary: #0f1729;
+	--primary-foreground: #ffffff;
+	--primary-hover: #1b294b;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #0f1729;
+	--muted: #f1f5f9;
+	--muted-foreground: #586679;
+	--accent: #f1f5f9;
+	--accent-foreground: #0f1729;
+	--destructive: #c01e12;
+	--success: #19763b;
+	--border: #ced5de;
+	--border-strong: #718198;
+	--input: #8391a5;
+	--ring: #0860c4;
+	--canvas: #f6f3ee;
+	--stone: #eae5dd;
 }
 
 @layer base {
@@ -85,6 +124,150 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+		line-height: 1.65;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		line-height: 1.15;
+	}
+	:focus-visible {
+		outline: 2px solid var(--ring);
+		outline-offset: 2px;
+	}
+}
+
+@layer components {
+	/* Display headings: Lora at 500, a hair of negative tracking. */
+	.ed-display {
+		font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+		font-weight: 500;
+		letter-spacing: -0.01em;
+	}
+
+	.ed-eyebrow {
+		display: inline-block;
+		color: var(--muted-foreground);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		line-height: 1.4;
+	}
+
+	/* The single content rail: min(1240px, 100% − 2 × gutter). */
+	.page-width {
+		width: min(1240px, 100% - 2 * clamp(20px, 5vw, 48px));
+		margin-inline: auto;
+	}
+
+	.ed-band {
+		padding-block: clamp(40px, 5vw, 64px);
+	}
+
+	/* Filled editorial button: uppercase, tracked, 44px (40px on desktop), lifts on hover. */
+	.ed-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		min-height: 44px;
+		padding: 0 22px;
+		border: 1px solid var(--primary);
+		border-radius: var(--radius);
+		background: var(--primary);
+		color: var(--primary-foreground);
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		line-height: 1.2;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			transform 150ms cubic-bezier(0.22, 0.61, 0.36, 1),
+			opacity 150ms cubic-bezier(0.22, 0.61, 0.36, 1),
+			background-color 150ms cubic-bezier(0.22, 0.61, 0.36, 1),
+			color 150ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	}
+
+	.ed-btn:hover {
+		opacity: 0.94;
+	}
+
+	.ed-btn:disabled,
+	.ed-btn[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.ed-btn--ghost {
+		background: transparent;
+		border-color: var(--foreground);
+		color: var(--foreground);
+	}
+
+	.ed-btn--ghost:hover {
+		background: var(--foreground);
+		color: var(--canvas);
+		opacity: 1;
+	}
+
+	@media (min-width: 768px) {
+		.ed-btn {
+			min-height: 40px;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.ed-btn:not(:disabled):hover {
+			transform: translateY(-2px);
+		}
+		.ed-btn:not(:disabled):active {
+			transform: scale(0.97);
+		}
+	}
+
+	/* Text link with a trailing arrow that nudges right on hover. */
+	.ed-link {
+		display: inline-flex;
+		min-height: 44px;
+		align-items: center;
+		gap: 8px;
+		color: var(--foreground);
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.ed-link {
+			min-height: 32px;
+		}
+	}
+
+	.ed-link svg {
+		width: 16px;
+		height: 16px;
+		transition: transform 150ms cubic-bezier(0.22, 0.61, 0.36, 1);
+	}
+
+	.ed-link:hover svg {
+		transform: translateX(4px);
+	}
+
+	/* Uppercase tracked label used by section heads, accordions, the sort and filter rails. */
+	.ed-label {
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
 	}
 }
 
@@ -168,4 +351,12 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Phones and tablets: the listing's fixed Sort / Filter bar sits where the badge and chat
+   launcher dock, so lift them above it while a listing is on screen. */
+@media (max-width: 1023px) {
+	:root:has([data-listing-bar]) .yns-dock {
+		bottom: 4.5rem;
+	}
 }

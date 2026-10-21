@@ -1,7 +1,7 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { FunnelIcon, SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
@@ -17,6 +17,7 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { sentenceCase } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
@@ -147,8 +148,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+			<div className="flex items-center justify-between border-b border-border pb-3">
+				<h2 className="ed-label m-0 text-foreground">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -163,7 +164,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 			<Accordion multiple defaultValue={accordionDefault} className="w-full">
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="ed-label py-3 text-muted-foreground hover:no-underline">
+							Categories
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -180,7 +183,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
-												{category.name}
+												{sentenceCase(category.name)}
 											</button>
 										</li>
 									);
@@ -192,7 +195,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="ed-label py-3 text-muted-foreground hover:no-underline">
+							Collections
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -223,7 +228,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="ed-label py-3 text-muted-foreground hover:no-underline">
+								{vt.label}
+							</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -254,7 +261,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="ed-label py-3 text-muted-foreground hover:no-underline">
+							Brands
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -283,7 +292,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger className="ed-label py-3 text-muted-foreground hover:no-underline">
+							Price
+						</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider
@@ -332,27 +343,42 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 }
 
 /** Mobile filters trigger + slide-over sheet (hidden on large screens). */
-export function ProductFiltersMobile(props: FilterControlsProps) {
+export function ProductFiltersMobile({
+	variant = "button",
+	...props
+}: FilterControlsProps & { variant?: "button" | "bar" }) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
-				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
-				)}
-			</SheetTrigger>
+			{variant === "bar" ? (
+				<SheetTrigger className="flex h-14 w-full items-center justify-center gap-2.5 text-sm font-semibold text-foreground">
+					<FunnelIcon className="size-4" aria-hidden />
+					Filter
+					{activeCount > 0 && (
+						<span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+							{activeCount}
+						</span>
+					)}
+				</SheetTrigger>
+			) : (
+				<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
+					<SlidersHorizontalIcon className="size-4" />
+					Filters
+					{activeCount > 0 && (
+						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+							{activeCount}
+						</span>
+					)}
+				</SheetTrigger>
+			)}
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
 			>
 				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+					<SheetTitle className="ed-display text-xl font-medium">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">
@@ -360,5 +386,21 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 				</div>
 			</SheetContent>
 		</Sheet>
+	);
+}
+
+/** Server-safe stand-in for the rail while it waits on the URL (no search-param hooks in it). */
+export function FiltersSkeleton() {
+	return (
+		<div className="space-y-4">
+			<div className="border-b border-border pb-3">
+				<p className="ed-label m-0 text-foreground">Filters</p>
+			</div>
+			<div className="space-y-3">
+				<div className="h-4 w-24 animate-pulse rounded bg-muted" />
+				<div className="h-4 w-32 animate-pulse rounded bg-muted" />
+				<div className="h-4 w-28 animate-pulse rounded bg-muted" />
+			</div>
+		</div>
 	);
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowDownWideNarrow } from "lucide-react";
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -53,8 +54,19 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	);
 }
 
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
-export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
+/**
+ * Sort dropdown. `inline` is the desktop toolbar control ("SORT BY" + select); `bar` fills one
+ * half of the phone's fixed Sort / Filter bar, as in the original.
+ */
+export function SortSelect({
+	options,
+	className,
+	variant = "inline",
+}: {
+	options: readonly SortOption[];
+	className?: string;
+	variant?: "inline" | "bar";
+}) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -68,18 +80,50 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 		router.push(buildSortHref(searchParams, pathname, value, defaultValue), { scroll: false });
 	};
 
+	if (variant === "bar") {
+		return (
+			<Select value={current} onValueChange={onChange} items={options}>
+				<SelectTrigger
+					aria-label="Sort products"
+					className={cn(
+						"h-14 w-full justify-center gap-2.5 rounded-none border-0 bg-transparent shadow-none [&>svg:last-child]:hidden",
+						className,
+					)}
+				>
+					<ArrowDownWideNarrow className="size-4 text-foreground" aria-hidden />
+					<span className="flex flex-col items-start leading-tight">
+						<span className="text-sm font-semibold text-foreground">Sort by</span>
+						<span className="text-xs text-muted-foreground">
+							<SelectValue />
+						</span>
+					</span>
+				</SelectTrigger>
+				<SelectContent align="center">
+					{options.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		);
+	}
+
 	return (
-		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<div className={cn("flex items-center gap-3", className)}>
+			<span className="ed-label hidden text-muted-foreground sm:inline">Sort by</span>
+			<Select value={current} onValueChange={onChange} items={options}>
+				<SelectTrigger className="h-9 min-w-[10rem] bg-background" aria-label="Sort products">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent align="end">
+					{options.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
 	);
 }

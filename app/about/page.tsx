@@ -1,8 +1,13 @@
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { Crumbs } from "@/components/crumbs";
+import { getStoreIdentity } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
+import { EDITORIAL } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -26,24 +31,17 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
+const VALUES = [
+	{ title: "Recycled metals", text: "Gold vermeil and sterling silver, made from recycled metal." },
+	{ title: "Made to layer", text: "Simple shapes that work alone or together." },
+	{ title: "Honest pricing", text: "Clear prices, shown up front." },
+];
 
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const { storeName, storeDescription, contactFormEnabled } = await getStoreIdentity();
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -54,84 +52,86 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			<section className="bg-canvas">
+				<div className="page-width">
+					<Crumbs items={[{ label: "About us" }]} />
 				</div>
-			</div>
-		</div>
+				<div className="page-width grid items-center gap-8 pb-[clamp(40px,5vw,64px)] pt-2 min-[901px]:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] min-[901px]:gap-12">
+					<div className="grid max-w-[34rem] gap-3.5">
+						<span className="ed-eyebrow">Our story</span>
+						<h1 className="ed-display m-0 text-display-hero">
+							About
+							<em className="block italic">{storeName}</em>
+						</h1>
+						<p className="m-0 text-base leading-[1.55] text-muted-foreground">
+							{storeDescription ??
+								"We are a small jewellery studio making fine everyday pieces in gold vermeil and sterling silver."}
+						</p>
+						<div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+							<Link href="/products" className="ed-btn">
+								Shop the collection
+							</Link>
+							{contactFormEnabled && (
+								<Link href="/contact" className="ed-link">
+									Contact us
+									<ArrowRight aria-hidden />
+								</Link>
+							)}
+						</div>
+					</div>
+					<div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-stone">
+						<YNSMedia
+							src={EDITORIAL.about}
+							alt=""
+							fill
+							sizes="(min-width: 901px) 56vw, 100vw"
+							priority
+							className="object-cover"
+						/>
+					</div>
+				</div>
+			</section>
+
+			<section className="bg-card">
+				<div className="page-width ed-band grid gap-10 min-[901px]:grid-cols-2 min-[901px]:gap-16">
+					<div>
+						<span className="ed-eyebrow mb-2.5">How we work</span>
+						<h2 className="ed-display m-0 text-display-section">Chosen to be kept</h2>
+					</div>
+					<div className="space-y-4 text-base leading-[1.65] text-muted-foreground">
+						<p className="m-0">
+							Each product is chosen for the way it works as much as for the way it looks, so the range stays
+							small, considered and easy to live with.
+						</p>
+						<p className="m-0">Browse the full catalogue, or start with a category that suits the moment.</p>
+					</div>
+				</div>
+			</section>
+
+			<section className="bg-canvas pb-[clamp(40px,5vw,64px)]" aria-labelledby="values">
+				<div className="page-width pt-[clamp(40px,5vw,64px)]">
+					<h2 id="values" className="ed-display m-0 mb-6 text-display-section">
+						What we stand for
+					</h2>
+					<ul className="m-0 grid list-none border-y border-border p-0 min-[901px]:grid-cols-3">
+						{VALUES.map((value, index) => (
+							<li
+								key={value.title}
+								className={
+									index > 0
+										? "border-t border-border px-0 py-6 min-[901px]:border-t-0 min-[901px]:border-l min-[901px]:px-7"
+										: "py-6 min-[901px]:pr-7"
+								}
+							>
+								<p className="m-0 text-sm font-semibold">{value.title}</p>
+								<p className="m-0 mt-1 text-sm text-muted-foreground">{value.text}</p>
+							</li>
+						))}
+					</ul>
+				</div>
+			</section>
+		</>
 	);
 }

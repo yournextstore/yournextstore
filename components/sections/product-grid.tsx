@@ -3,75 +3,65 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
-import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
-import { commerce } from "@/lib/commerce";
+import { cn } from "@/lib/utils";
 
-export type Product = APIProductsBrowseResult["data"][number];
+type GridProduct =
+	| APIProductsBrowseResult["data"][number]
+	| APICollectionGetByIdResult["productCollections"][number]["product"]
+	| NonNullable<APIProductGetByIdResult>;
 
-type ProductGridProps = {
-	title?: string;
-	description?: string;
-	products?: (
-		| Product
-		| APICollectionGetByIdResult["productCollections"][number]["product"]
-		| NonNullable<APIProductGetByIdResult>
-	)[];
-	limit?: number;
-	showViewAll?: boolean;
-	viewAllHref?: string;
-};
-
-export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+/** The listing grid: two columns on phones, five on a wide desktop next to the filter rail. */
+export function ProductCardGrid({
 	products,
-	limit = 6,
-	showViewAll = true,
-	viewAllHref = "/products",
-}: ProductGridProps) {
-	"use cache";
-	cacheLife("minutes");
-
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
-
+	className,
+	priorityCount = 2,
+}: {
+	products: GridProduct[];
+	className?: string;
+	priorityCount?: number;
+}) {
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				)}
-			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
+		<ul
+			className={cn(
+				"m-0 grid list-none grid-cols-2 gap-x-4 gap-y-6 p-0 md:grid-cols-3 xl:grid-cols-4 wide:grid-cols-5",
+				className,
 			)}
+		>
+			{products.map((product, index) => (
+				<li key={product.id} className="min-w-0">
+					<ProductCard
+						product={product}
+						priority={index < priorityCount}
+						sizes="(min-width: 1400px) 16vw, (min-width: 1280px) 19vw, (min-width: 768px) 28vw, 46vw"
+					/>
+				</li>
+			))}
+		</ul>
+	);
+}
+
+/** A titled row of products (related products, collection pages). */
+export function ProductGrid({
+	eyebrow,
+	title,
+	products,
+}: {
+	eyebrow?: string;
+	title: string;
+	products: GridProduct[];
+}) {
+	return (
+		<section className="ed-band">
+			<header className="mb-[clamp(20px,2.4vw,32px)]">
+				{eyebrow && <span className="ed-eyebrow mb-2.5">{eyebrow}</span>}
+				<h2 className="ed-display m-0 text-display-section">{title}</h2>
+			</header>
+			<ProductCardGrid
+				products={products}
+				priorityCount={0}
+				className="md:grid-cols-4 xl:grid-cols-4 wide:grid-cols-4"
+			/>
 		</section>
 	);
 }
