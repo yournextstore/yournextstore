@@ -1,8 +1,5 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
 type QuantitySelectorProps = {
 	quantity: number;
 	onQuantityChange: (quantity: number) => void;
@@ -11,6 +8,23 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+function Glyph({ plus }: { plus?: boolean }) {
+	return (
+		<svg
+			aria-hidden
+			viewBox="0 0 16 16"
+			className="size-4"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+		>
+			<path d="M2 8h12" />
+			{plus && <path d="M8 2v12" />}
+		</svg>
+	);
+}
+
+/** The original's .counter: a ruled pill with round − and + buttons around a tabular number. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -18,32 +32,31 @@ export function QuantitySelector({
 	max = 99,
 	disabled = false,
 }: QuantitySelectorProps) {
+	const step =
+		"flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors duration-300 hover:bg-foreground/20 disabled:cursor-not-allowed disabled:opacity-40";
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
+		<div className="hidden items-center rounded-full border border-border bg-background p-2 sm:inline-flex">
+			<button
+				type="button"
+				className={step}
+				onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
+				disabled={disabled || quantity <= min}
+				aria-label="Decrease quantity"
+			>
+				<Glyph />
+			</button>
+			<output aria-label="Quantity" aria-live="polite" className="w-12 text-center text-body tabular-nums">
+				{quantity}
+			</output>
+			<button
+				type="button"
+				className={step}
+				onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
+				disabled={disabled || quantity >= max}
+				aria-label="Increase quantity"
+			>
+				<Glyph plus />
+			</button>
 		</div>
 	);
 }

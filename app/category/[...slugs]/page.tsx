@@ -2,20 +2,18 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+	ListingCount,
+	ListingEmpty,
+	ListingGrid,
+	ListingIntro,
+	ListingSkeleton,
+	ListingToolbar,
+} from "@/components/hull-listing";
+import { ListingPagination } from "@/components/listing-pagination";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -114,38 +112,32 @@ async function CategoryProducts({
 	});
 
 	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
+		return <ListingEmpty>No products match these filters.</ListingEmpty>;
 	}
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<ListingGrid products={result.data} />
 			<ListingPagination
 				basePath={`/category/${canonicalPath}`}
 				currentPage={currentPage}
 				totalPages={totalPages}
 				filters={filters}
 			/>
+			<ListingCount shown={offset + result.data.length} total={result.meta.count} />
 		</>
 	);
 }
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="min-h-svh">
+			<section className="border-b border-border px-4 py-12 md:p-8 md:py-16 lg:py-20">
+				<div className="h-[60px] w-64 animate-pulse bg-muted" />
+			</section>
+			<ListingSkeleton />
 		</div>
 	);
 }
@@ -205,59 +197,33 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const parents = hierarchy.slice(0, -1);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<ListingIntro
+				title={category.name}
+				description={parents.length > 0 ? `Part of ${parents.map((p) => p.name).join(" / ")}.` : null}
+			/>
+			<ListingToolbar>
+				{filtersAvailable ? <ProductFiltersMobile facets={facets} showCategories={false} /> : <span />}
+				{parents.length > 0 ? (
+					<Link
+						href={`/category/${parents.map((c) => c.slug).join("/")}`}
+						className="hull-indicator p-4 text-nav font-semibold uppercase"
+					>
+						{parents.at(-1)?.name}
+					</Link>
+				) : (
+					<Link href="/products" className="hull-indicator p-4 text-nav font-semibold uppercase">
+						Shop everything
+					</Link>
+				)}
+			</ListingToolbar>
+			<Suspense fallback={<ListingSkeleton withToolbar={false} />}>
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+			</Suspense>
 		</div>
 	);
 };

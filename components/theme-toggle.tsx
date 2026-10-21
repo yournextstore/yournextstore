@@ -1,32 +1,21 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
+/** The original's footer theme switch: a pill with a swatch that flips paper and ink. */
 export function ThemeToggle() {
-	const { setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="icon-sm" aria-label="Change theme">
-					{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
-					<Sun className="size-5 dark:hidden" />
-					<Moon className="hidden size-5 dark:block" />
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+		<button
+			type="button"
+			onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+			className="inline-flex cursor-pointer items-center rounded-full border border-border p-2 transition-colors hover:bg-muted"
+		>
+			<span aria-hidden className="size-5 rounded-full border border-border bg-background" />
+			{/* CSS-driven label keeps server and client markup identical (no hydration flash). */}
+			<span className="mx-2 text-nav font-semibold dark:hidden">Light Mode</span>
+			<span className="mx-2 hidden text-nav font-semibold dark:inline">Dark Mode</span>
+		</button>
 	);
 }

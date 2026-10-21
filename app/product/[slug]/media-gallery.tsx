@@ -1,11 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
-import { cn, isVideoUrl } from "@/lib/utils";
+import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
 type Variant = {
@@ -30,7 +28,6 @@ type MediaGalleryProps = {
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
 	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [isZoomed, setIsZoomed] = useState(false);
 
 	// The gallery always shows the full image set (product + every variant image). When a
 	// variant is selected we don't filter the list — that would hide the other thumbnails —
@@ -82,29 +79,23 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	);
 
 	if (displayImages.length === 0) {
-		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
-				</div>
-			</div>
-		);
+		return <div className="mx-auto aspect-square w-full max-w-xl bg-muted" />;
 	}
+
+	const current = displayImages[selectedIndex] ?? "";
 
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
 		<section
-			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="relative mx-auto w-full max-w-xl"
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+			<div className="relative aspect-square overflow-hidden bg-muted">
+				{isVideoUrl(current) ? (
 					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
+						className="absolute inset-0 h-full w-full object-cover"
+						src={current}
 						muted
 						loop
 						autoPlay
@@ -113,100 +104,62 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					/>
 				) : (
 					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
+						src={current}
+						alt={`${productName}, image ${selectedIndex + 1} of ${displayImages.length}`}
 						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
+						sizes="(max-width: 768px) 100vw, 576px"
+						className="object-cover"
 						priority
 					/>
 				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
 			</div>
 
-			{/* Thumbnails */}
+			{/* The original's carousel HUD: a ruled pill hanging off the bottom edge. */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{displayImages.map((image, index) => (
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-1/2 justify-center">
+					<div className="pointer-events-auto flex items-center rounded-full border border-border bg-background p-1">
 						<button
-							key={`${image}-${index}`}
 							type="button"
-							onClick={() => setSelectedIndex(index)}
-							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
-							)}
+							onClick={handlePrevious}
+							aria-label="Previous image"
+							className="flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors duration-300 hover:bg-foreground/20"
 						>
-							{isVideoUrl(image) ? (
-								<video
-									className="absolute inset-0 w-full h-full object-cover"
-									src={image}
-									muted
-									playsInline
-								/>
-							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
-							)}
+							<svg
+								aria-hidden
+								viewBox="0 0 16 16"
+								className="size-4 -scale-x-100"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="1.5"
+							>
+								<path d="M1 8h13M9 3l5 5-5 5" />
+							</svg>
 						</button>
-					))}
+						<p className="relative mx-2 grid h-8 grid-cols-2 gap-px rounded-full bg-foreground text-micro font-semibold text-background tabular-nums after:absolute after:inset-y-3 after:left-1/2 after:w-px after:bg-background/30">
+							<span className="flex items-center py-2 pr-2 pl-3">{selectedIndex + 1}</span>
+							<span className="flex items-center py-2 pr-3 pl-2">{displayImages.length}</span>
+							<span className="sr-only">
+								Image {selectedIndex + 1} of {displayImages.length}
+							</span>
+						</p>
+						<button
+							type="button"
+							onClick={handleNext}
+							aria-label="Next image"
+							className="flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors duration-300 hover:bg-foreground/20"
+						>
+							<svg
+								aria-hidden
+								viewBox="0 0 16 16"
+								className="size-4"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="1.5"
+							>
+								<path d="M1 8h13M9 3l5 5-5 5" />
+							</svg>
+						</button>
+					</div>
 				</div>
 			)}
 		</section>

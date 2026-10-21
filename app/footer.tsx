@@ -1,164 +1,125 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { FooterNewsletter } from "@/components/footer-newsletter";
 import { PaymentMethods } from "@/components/payment-methods";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { commerce, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+const SOCIAL_LABELS = {
+	instagram: "Instagram",
+	facebook: "Facebook",
+	x: "X",
+	youtube: "YouTube",
+	tiktok: "TikTok",
+	linkedin: "LinkedIn",
+	email: "Email",
+} as const;
+
+// `new Date()` is an unstable value; caching pins it to the entry so the footer stays in the shell.
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
+	const [me, collections, legal, socials] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.collectionBrowse({ limit: 6 }).catch(() => ({ data: [] })),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+		commerce.socialsGet().catch(() => null),
+	]);
+	const tools = me?.store.settings?.enabledTools;
+	const socialLinks = Object.entries(socials?.socials ?? {})
+		.filter((entry): entry is [keyof typeof SOCIAL_LABELS, string] => Boolean(entry[1]))
+		.map(([key, value]) => ({
+			label: SOCIAL_LABELS[key],
+			href: key === "email" ? `mailto:${value}` : value,
+		}));
 
+	return {
+		year: new Date().getFullYear(),
+		storeName: me?.store.name || "Your Next Store",
+		shop: [
+			{ href: "/products", label: "Everything" },
+			...collections.data
+				.filter((c) => c.productCollections.length > 0)
+				.map((c) => ({ href: `/collection/${c.slug}`, label: c.name })),
+		],
+		info: [
+			{ href: "/about", label: "Our Story" },
+			{ href: "/faq", label: "FAQ" },
+			...(tools?.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+			...(tools?.blog ? [{ href: "/blog", label: "Journal" }] : []),
+			...legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+		],
+		socialLinks,
+	};
+}
+
+function FooterMenu({ links }: { links: { href: string; label: string }[] }) {
 	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
+		<ul className="flex flex-col xl:mb-8">
+			{links.map((link) => (
+				<li key={link.href}>
+					<Link href={link.href} className="inline-block py-2 text-body transition-opacity hover:opacity-40">
+						{link.label}
+					</Link>
+				</li>
+			))}
+		</ul>
 	);
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
+/** Four ruled blocks: newsletter, shop, info, social + theme switch. */
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { year, storeName, shop, info, socialLinks } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="relative overflow-hidden border-t border-border">
+			<div className="grid gap-px bg-foreground md:grid-cols-2 xl:grid-cols-4">
+				<div className="flex flex-col bg-background p-8 text-center xl:text-left">
+					<h2 className="mb-4 text-h3">Newsletter</h2>
+					<FooterNewsletter />
+				</div>
+				<div className="flex flex-col bg-background p-8 text-center xl:text-left">
+					<h2 className="mb-4 text-h3">Shop</h2>
+					<FooterMenu links={shop} />
+				</div>
+				<div className="flex flex-col bg-background p-8 text-center xl:text-left">
+					<h2 className="mb-4 text-h3">Info</h2>
+					<FooterMenu links={info} />
+				</div>
+				<div className="flex flex-col bg-background p-8 text-center xl:text-left">
+					<h2 className="mb-4 text-h3">{socialLinks.length > 0 ? "Get Social" : "Account"}</h2>
+					{socialLinks.length > 0 ? (
+						<ul className="mx-auto mb-6 flex flex-wrap justify-center gap-x-4 xl:mx-0 xl:justify-start">
+							{socialLinks.map((link) => (
+								<li key={link.label}>
+									<a
+										href={link.href}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-block py-2 text-body transition-opacity hover:opacity-40"
+									>
+										{link.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					) : (
+						// Plain <a>: /account is a proxied zone (see AGENTS.md).
+						<a
+							href="/account"
+							className="mb-6 inline-block py-2 text-body transition-opacity hover:opacity-40"
+						>
+							Orders &amp; sign in
+						</a>
+					)}
+					<div className="mt-auto flex flex-col items-center gap-4 xl:items-start">
+						<ThemeToggle />
+						<PaymentMethods />
+						<p className="text-nav">
+							&copy; {year} {storeName}. All Rights Reserved.
 						</p>
 					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
-				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
 				</div>
 			</div>
 		</footer>

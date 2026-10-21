@@ -7,9 +7,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* HULL: one paper tone, one ink, 1px ink rules everywhere, pills for every control.
+   Type scale from the original's 10px-rem tokens, under new names so shadcn keeps text-sm/base. */
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	/* The original sets no face: system-ui everywhere (SF on Apple, Segoe on Windows). */
+	--font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	--font-mono: var(--font-geist-mono);
+	--font-logo: var(--font-six-caps);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -32,58 +36,287 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-page: var(--page);
+	--color-ink: var(--ink);
+}
+
+@theme {
+	--text-display: clamp(2.5rem, 0.9375rem + 3.5vw, 9.375rem);
+	--text-display--line-height: 1.25;
+	--text-h1: 3rem;
+	--text-h1--line-height: 1.25;
+	--text-h2: 2.25rem;
+	--text-h2--line-height: 1.25;
+	--text-h3: 1.875rem;
+	--text-h3--line-height: 1.25;
+	--text-h4: 1.5rem;
+	--text-h4--line-height: 1.35;
+	--text-h5: 1.25rem;
+	--text-h5--line-height: 1.25;
+	--text-body: 1rem;
+	--text-body--line-height: 1.5;
+	--text-nav: 0.875rem;
+	--text-nav--line-height: 1.5;
+	--text-micro: 0.75rem;
+	--text-micro--line-height: 1.25;
+	--text-tag: 0.625rem;
+	--text-tag--line-height: 1.25;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--page: #f4f4f0;
+	--ink: #000000;
+	--radius: 0rem;
+	--background: #f4f4f0;
+	--foreground: #000000;
+	--card: #f4f4f0;
+	--card-foreground: #000000;
+	--popover: #f4f4f0;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #f4f4f0;
+	--secondary: #e7e7e1;
+	--secondary-foreground: #000000;
+	--muted: #e7e7e1;
+	--muted-foreground: #4d4d49;
+	--accent: #e7e7e1;
+	--accent-foreground: #000000;
+	--destructive: #b3261e;
+	--border: #000000;
+	--input: #000000;
+	--ring: #000000;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--page: #000000;
+	--ink: #f4f4f0;
+	--background: #000000;
+	--foreground: #f4f4f0;
+	--card: #000000;
+	--card-foreground: #f4f4f0;
+	--popover: #000000;
+	--popover-foreground: #f4f4f0;
+	--primary: #f4f4f0;
+	--primary-foreground: #000000;
+	--secondary: #1c1c1a;
+	--secondary-foreground: #f4f4f0;
+	--muted: #1c1c1a;
+	--muted-foreground: #b4b4ad;
+	--accent: #1c1c1a;
+	--accent-foreground: #f4f4f0;
+	--destructive: #ff8a80;
+	--border: #f4f4f0;
+	--input: #f4f4f0;
+	--ring: #f4f4f0;
+}
+
+/* .is-inverted from the original: the cart and filter drawers are ink panels with paper type,
+   in either theme. */
+.hull-inverted {
+	--page: #000000;
+	--ink: #f4f4f0;
+	--background: #000000;
+	--foreground: #f4f4f0;
+	--card: #000000;
+	--card-foreground: #f4f4f0;
+	--popover: #000000;
+	--popover-foreground: #f4f4f0;
+	--primary: #f4f4f0;
+	--primary-foreground: #000000;
+	--secondary: #1c1c1a;
+	--secondary-foreground: #f4f4f0;
+	--muted: #1c1c1a;
+	--muted-foreground: #b4b4ad;
+	--accent: #1c1c1a;
+	--accent-foreground: #f4f4f0;
+	--destructive: #ff8a80;
+	--border: #f4f4f0;
+	--input: #f4f4f0;
+	--ring: #f4f4f0;
+}
+
+.dark .hull-inverted {
+	--page: #f4f4f0;
+	--ink: #000000;
+	--background: #f4f4f0;
+	--foreground: #000000;
+	--card: #f4f4f0;
+	--card-foreground: #000000;
+	--popover: #f4f4f0;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #f4f4f0;
+	--secondary: #e7e7e1;
+	--secondary-foreground: #000000;
+	--muted: #e7e7e1;
+	--muted-foreground: #4d4d49;
+	--accent: #e7e7e1;
+	--accent-foreground: #000000;
+	--destructive: #b3261e;
+	--border: #000000;
+	--input: #000000;
+	--ring: #000000;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		background: var(--ink);
+		/* Literal: @theme inline tokens are never emitted as CSS variables. */
+		font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	}
 	body {
 		@apply bg-background text-foreground;
+		text-rendering: optimizeLegibility;
+	}
+	::selection {
+		background: var(--ink);
+		color: var(--page);
+	}
+	a,
+	button,
+	input,
+	textarea,
+	select,
+	summary {
+		&:focus-visible {
+			outline: 1px dashed var(--ink);
+			outline-offset: 2px;
+		}
+	}
+}
+
+/* .btn from the original: a pill with an ink rule that fills with ink on hover. */
+@utility hull-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	border-radius: 9999px;
+	border: 1px solid var(--btn-ink, var(--ink));
+	background: var(--btn-bg, var(--page));
+	color: var(--btn-fg, var(--ink));
+	padding: var(--btn-py, 0.5625rem) var(--btn-px, 1.25rem);
+	font-size: var(--btn-size, 0.75rem);
+	font-weight: var(--btn-weight, 600);
+	line-height: 1.25;
+	text-align: center;
+	white-space: nowrap;
+	cursor: pointer;
+	transition:
+		background-color 150ms,
+		color 150ms,
+		border-color 150ms;
+	&:hover:not(:disabled, [aria-disabled="true"]) {
+		background: var(--btn-hover-bg, var(--ink));
+		color: var(--btn-hover-fg, var(--page));
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+}
+
+/* is-primary: solid ink. */
+@utility hull-btn-primary {
+	--btn-bg: var(--ink);
+	--btn-fg: var(--page);
+	--btn-hover-bg: var(--ink);
+	--btn-hover-fg: var(--page);
+}
+
+/* is-large: 24px regular. */
+@utility hull-btn-large {
+	--btn-size: 1.5rem;
+	--btn-weight: 400;
+	--btn-px: 1.75rem;
+	--btn-py: 0.5625rem;
+}
+
+/* .has-indicator: the small ring before a nav label, filled and pulsing while active. */
+@utility hull-indicator {
+	&::before {
+		content: "";
+		display: inline-block;
+		width: 0.625rem;
+		height: 0.625rem;
+		margin-right: 0.5rem;
+		border: 1px solid currentColor;
+		border-radius: 9999px;
+		vertical-align: -0.05em;
+	}
+	&[data-state="open"]::before,
+	&[aria-expanded="true"]::before,
+	&[aria-current="page"]::before {
+		background: currentColor;
+		animation: hull-pulse 2s infinite;
+	}
+}
+
+/* .is-textured: the dotted band behind pagination and the add-to-cart bar. */
+@utility hull-dots {
+	background-color: var(--page);
+	background-image:
+		radial-gradient(var(--ink) 9%, transparent 9%), radial-gradient(var(--ink) 9%, transparent 9%);
+	background-position:
+		0 0,
+		8px 8px;
+	background-size: 16px 16px;
+}
+
+@keyframes hull-pulse {
+	0% {
+		box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 30%, transparent);
+	}
+	70% {
+		box-shadow: 0 0 0 8px transparent;
+	}
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
+/* marqy: an infinite track of two identical runs. */
+.hull-marquee {
+	position: relative;
+	overflow: hidden;
+}
+.hull-marquee-track {
+	display: flex;
+	width: max-content;
+	animation: hull-marquee var(--marquee-duration, 60s) linear infinite;
+}
+.hull-marquee:hover .hull-marquee-track {
+	animation-play-state: paused;
+}
+@keyframes hull-marquee {
+	to {
+		transform: translate3d(-50%, 0, 0);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.hull-marquee {
+		overflow-x: auto;
+	}
+	.hull-marquee-track {
+		animation: none;
+	}
+}
+
+/* The fixed "Made with YNS" badge would sit on the sticky add-to-cart bar on phones: lift it. */
+@media (width < 48rem) {
+	:root:has([data-buy-bar]) a[href*="utm_source=yns-store"].fixed {
+		bottom: 6.5rem;
+	}
+}
+
+.hide-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
 	}
 }
 
@@ -99,11 +332,9 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--muted) 0%,
+		var(--page) 50%,
+		var(--muted) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
