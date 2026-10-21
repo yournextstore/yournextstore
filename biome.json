@@ -48,6 +48,7 @@
 			"preset": "recommended",
 			"complexity": {
 				"noForEach": "off",
+				"useMathMinMax": "off",
 				"noImportantStyles": "off"
 			},
 			"correctness": {
