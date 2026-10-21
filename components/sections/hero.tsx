@@ -1,42 +1,59 @@
 import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import heroImage from "@/public/images/hero.jpg";
 
-export function Hero() {
+const buttons = [
+	{ label: "Shop now", href: "/products" },
+	{ label: "Our story", href: "/about" },
+];
+
+/**
+ * The original's split hero: photograph on the left, a bordered panel on the right with the
+ * uppercase headline sitting at its foot, and two tall bordered buttons below it that fill
+ * black on hover. On mobile the panel and buttons come first and the photo follows.
+ */
+export function Hero({ storeName }: { storeName: string }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
+		<section className="page-x mt-5 flex w-full flex-col py-4 lg:flex-row lg:py-8">
+			<Image
+				src={heroImage}
+				alt=""
+				priority
+				sizes="(min-width: 1024px) 50vw, 100vw"
+				className="order-2 h-auto w-full rounded-sm object-cover lg:order-1 lg:w-1/2"
+			/>
+			<div className="flex w-full flex-col lg:order-2 lg:w-1/2">
+				<div className="flex flex-1 items-end rounded-sm border border-border px-6 pt-6">
+					<div>
+						<h1 className="mb-6 max-w-[652px] text-[2.5rem] font-medium uppercase leading-tight md:text-5xl">
+							Worn in. Picked out. Ready again.
 						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
+						<p className="mb-8 text-label-lg font-light">
+							Secondhand denim, workwear and plain basics, picked one piece at a time by {storeName}.
 						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
 					</div>
 				</div>
+				<div className="flex h-[72px] font-bold uppercase lg:h-[144px]">
+					{buttons.map(({ label, href }) => (
+						<Link
+							key={href}
+							href={href}
+							className="group flex h-full w-1/2 items-end justify-between rounded-sm border border-border p-6 transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
+						>
+							<span>
+								<span className="hidden group-hover:inline">#</span>
+								{label}
+							</span>
+							<ArrowRightIcon
+								aria-hidden
+								className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+								strokeWidth={1.5}
+							/>
+						</Link>
+					))}
+				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
 		</section>
 	);
 }

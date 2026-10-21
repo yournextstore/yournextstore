@@ -1,58 +1,78 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { ChevronRightIcon, MenuIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+	Sheet,
+	SheetClose,
+	SheetContent,
+	SheetDescription,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
+import type { CatalogLink } from "@/lib/catalog";
 
-export type NavLink = {
-	href: string;
-	label: string;
-};
-
-export function Navbar({ links }: { links: NavLink[] }) {
+/** The original's full-screen mobile menu: "MENU" bar, then every category as an uppercase row. */
+export function MobileMenu({
+	categories,
+	collections,
+	pages,
+}: {
+	categories: CatalogLink[];
+	collections: CatalogLink[];
+	pages: CatalogLink[];
+}) {
 	const [open, setOpen] = useState(false);
+	const close = () => setOpen(false);
+
+	const row = (link: CatalogLink, chevron = true) => (
+		<li key={link.href}>
+			<Link
+				href={link.href}
+				onClick={close}
+				className="flex items-center justify-between px-4 py-3 text-label uppercase transition-colors hover:bg-tonal"
+			>
+				{link.label}
+				{chevron && <ChevronRightIcon aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.5} />}
+			</Link>
+		</li>
+	);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="-ml-2 inline-flex size-10 items-center justify-center rounded-sm transition-colors hover:bg-tonal lg:hidden"
+			>
+				<MenuIcon aria-hidden className="h-6 w-6" strokeWidth={1.5} />
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				showCloseButton={false}
+				className="block overflow-y-auto border-none p-0 shadow-none data-[side=left]:w-full data-[side=left]:sm:max-w-full"
+			>
+				<div className="flex items-center justify-between border-b border-border p-4">
+					<SheetTitle className="text-heading font-medium uppercase">Menu</SheetTitle>
+					<SheetDescription className="sr-only">Site navigation</SheetDescription>
+					<SheetClose
+						aria-label="Close menu"
+						className="inline-flex size-10 items-center justify-center rounded-sm transition-colors hover:bg-tonal"
 					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						<XIcon aria-hidden className="h-5 w-5" strokeWidth={1.5} />
+					</SheetClose>
+				</div>
+				<nav aria-label="Menu" className="p-4">
+					<ul className="flex flex-col gap-2">
+						{row({ href: "/products", label: "All products" }, false)}
+						{categories.map((link) => row(link))}
+						{collections.map((link) => row(link))}
+					</ul>
+					<ul className="mt-6 flex flex-col gap-2 border-t border-border pt-6">
+						{pages.map((link) => row(link, false))}
+					</ul>
+				</nav>
+			</SheetContent>
+		</Sheet>
 	);
 }
