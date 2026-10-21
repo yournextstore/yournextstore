@@ -223,7 +223,7 @@ export function BundleBuilder({
 										)}
 									>
 										{selected && (
-											<span className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+											<span className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-none bg-primary text-primary-foreground">
 												<CheckIcon className="size-4" />
 											</span>
 										)}
@@ -253,7 +253,7 @@ export function BundleBuilder({
 												{swatchColor && (
 													<span
 														aria-hidden
-														className="inline-block size-3 shrink-0 rounded-full border border-border"
+														className="inline-block size-3 shrink-0 rounded-none border border-border"
 														style={{ backgroundColor: swatchColor }}
 													/>
 												)}

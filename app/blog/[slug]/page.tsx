@@ -145,7 +145,7 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 				</Breadcrumb>
 				<div className="mt-6 flex items-center gap-3 text-sm text-muted-foreground">
 					{post.tag && (
-						<span className="rounded-full bg-secondary px-3 py-1 font-medium text-foreground">
+						<span className="rounded-none bg-secondary px-3 py-1 font-medium text-foreground">
 							{post.tag}
 						</span>
 					)}

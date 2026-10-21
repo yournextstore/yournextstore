@@ -5,21 +5,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { CollectionPills, ListingBanner, ListingToolbar } from "@/components/listing";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { flattenDescription } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { editorialFor } from "@/lib/editorial";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { displayPrice } from "@/lib/pricing";
+import { getStoreConfig } from "@/lib/store-config";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
+import { SortSelect } from "../../products/products-sort-select";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -60,52 +56,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 			images: collection.image ? [collection.image] : undefined,
 		},
 	};
-}
-
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -160,33 +110,42 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
+const sortOptions = [
+	{ value: "featured", label: "Featured" },
+	{ value: "price-asc", label: "Price: low to high" },
+	{ value: "price-desc", label: "Price: high to low" },
+	{ value: "name", label: "Name A–Z" },
+] as const;
 
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
+type CollectionProduct = Awaited<ReturnType<typeof getCollectionProducts>>[number];
+
+async function sortProducts(products: CollectionProduct[], sort: string | undefined) {
+	if (sort === "name") {
+		return products.toSorted((a, b) => a.name.localeCompare(b.name));
+	}
+	if (sort !== "price-asc" && sort !== "price-desc") {
+		return products;
+	}
+	const { taxBehavior } = await getStoreConfig();
+	const priceOf = (p: CollectionProduct) => {
+		const v = p.variants[0];
+		return v ? Number(displayPrice(v, taxBehavior)) : 0;
+	};
+	const sign = sort === "price-asc" ? 1 : -1;
+	return products.toSorted((a, b) => sign * (priceOf(a) - priceOf(b)));
 }
 
 function CollectionPageSkeleton() {
 	return (
 		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+			<section data-hero className="h-[42vh] min-h-[300px] animate-pulse bg-card" />
+			<div className="shell pt-8 pb-6">
+				<div className="h-[46px]" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
+			<div className="shell min-h-svh">
+				<div className="mb-6 h-[58px] rounded-2xl border border-border" />
+				<ProductGridSkeleton />
+			</div>
 		</>
 	);
 }
@@ -196,7 +155,7 @@ function CollectionPageSkeleton() {
 export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	return (
 		<Suspense fallback={<CollectionPageSkeleton />}>
-			<CollectionContent params={props.params} />
+			<CollectionContent params={props.params} searchParams={props.searchParams} />
 		</Suspense>
 	);
 }
@@ -210,35 +169,65 @@ const getCollectionData = async (slug: string) => {
 	return error ? null : collection;
 };
 
-const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
-	const { slug } = await params;
+const CollectionContent = async ({
+	params,
+	searchParams,
+}: {
+	params: PageProps<"/collection/[slug]">["params"];
+	searchParams: PageProps<"/collection/[slug]">["searchParams"];
+}) => {
+	const [{ slug }, query] = await Promise.all([params, searchParams]);
 	const collection = await getCollectionData(slug);
 
 	if (!collection) {
 		notFound();
 	}
 
+	const products = await sortProducts(
+		await getCollectionProducts(collection),
+		typeof query.sort === "string" ? query.sort : undefined,
+	);
+	const image = editorialFor(collection.name);
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
+			<ListingBanner
+				title={collection.name}
+				description={flattenDescription(collection.description)}
+				image={image}
+			/>
+			<CollectionPills active={collection.slug} />
+			<section aria-labelledby="collection-products" className="shell min-h-svh pb-4 sm:pb-8">
+				<h2 id="collection-products" className="sr-only">
+					{collection.name} products
+				</h2>
+				{products.length === 0 ? (
+					<div className="py-10 text-center sm:py-16">
+						<p className="text-muted-foreground">Nothing here yet — the other shelves are fuller.</p>
+						<Link
+							href="/products"
+							className="mt-6 inline-block rounded-md border border-border px-7 py-3 text-[14px] font-semibold transition hover:border-brand hover:text-brand"
+						>
+							Shop all products
+						</Link>
+					</div>
+				) : (
+					<>
+						<ListingToolbar>
+							<p className="px-1 text-[13px] text-muted-foreground">
+								{products.length} {products.length === 1 ? "product" : "products"}
+							</p>
+							<span className="flex items-center gap-2 text-[13px] text-muted-foreground">
+								Sort
+								<SortSelect options={sortOptions} />
+							</span>
+						</ListingToolbar>
+						<ProductGrid products={products} kicker={collection.name} />
+					</>
+				)}
+			</section>
 		</>
 	);
 };

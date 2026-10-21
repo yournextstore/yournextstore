@@ -108,7 +108,7 @@ export default async function BlogPage() {
 							<div className="space-y-2">
 								<div className="flex items-center gap-3 text-xs text-muted-foreground">
 									{post.tag && (
-										<span className="rounded-full bg-secondary px-3 py-1 font-medium text-foreground">
+										<span className="rounded-none bg-secondary px-3 py-1 font-medium text-foreground">
 											{post.tag}
 										</span>
 									)}

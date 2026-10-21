@@ -10,7 +10,7 @@ export function ContactForm() {
 	if (state?.success) {
 		return (
 			<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-				<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-foreground/5">
+				<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-none bg-foreground/5">
 					<CheckIcon className="h-6 w-6" />
 				</div>
 				<h2 className="text-2xl font-medium tracking-tight">Message sent</h2>
@@ -50,7 +50,7 @@ export function ContactForm() {
 			<button
 				type="submit"
 				disabled={isPending}
-				className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90 disabled:opacity-50"
+				className="inline-flex h-12 items-center justify-center gap-2 rounded-none bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90 disabled:opacity-50"
 			>
 				{isPending ? "Sending…" : "Send message"}
 				{!isPending && <ArrowRightIcon className="h-4 w-4" />}

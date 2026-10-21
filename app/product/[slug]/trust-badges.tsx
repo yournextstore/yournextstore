@@ -1,28 +1,45 @@
-import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
-
-type TrustBadge = {
-	icon: LucideIcon;
-	title: string;
-	description: string;
-};
-
-const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
-];
-
-export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
+/** Two quiet trust lines under the buy row, brand icons as in the original. */
+export function TrustBadges() {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
-			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
-			))}
+		<div className="flex flex-col gap-1.5 text-[13px] text-muted-foreground">
+			<p className="flex items-center gap-2">
+				<svg
+					aria-hidden
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="1.8"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					className="shrink-0 text-brand"
+				>
+					<rect x="1" y="5" width="14" height="12" rx="1" />
+					<path d="M15 9h4l3 3v5h-7z" />
+					<circle cx="6" cy="19" r="1.6" />
+					<circle cx="18" cy="19" r="1.6" />
+				</svg>
+				Delivery options shown at checkout
+			</p>
+			<p className="flex items-center gap-2">
+				<svg
+					aria-hidden
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="1.8"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					className="shrink-0 text-brand"
+				>
+					<path d="M9 14 4 9l5-5" />
+					<path d="M4 9h10a6 6 0 0 1 0 12h-3" />
+				</svg>
+				Return terms in our store policies
+			</p>
 		</div>
 	);
 }

@@ -331,25 +331,31 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** Filters trigger + slide-over sheet, at every width (the toolbar has no sidebar). */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
+			<SheetTrigger
+				render={
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-9 shrink-0 rounded-none border-border bg-transparent px-3.5 text-[13px] font-normal hover:border-foreground hover:bg-transparent"
+					/>
+				}
+			>
 				<SlidersHorizontalIcon className="size-4" />
 				Filters
 				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
+					<span className="ml-1 rounded-none bg-brand px-1.5 text-xs text-on-brand">{activeCount}</span>
 				)}
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
 			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>
