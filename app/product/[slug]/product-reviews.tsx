@@ -1,76 +1,74 @@
 import type { APIProductReviewsBrowseResult } from "commerce-kit";
-import { Star } from "lucide-react";
+import { CircleCheck, Star } from "lucide-react";
 import { ReviewForm } from "@/app/product/[slug]/review-form";
 
-function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) {
-	const sizeClass = size === "lg" ? "h-5 w-5" : "h-4 w-4";
-
+function StarRating({ rating }: { rating: number }) {
 	return (
-		<div className="flex gap-0.5">
+		<span className="flex gap-1" role="img" aria-label={`${rating} out of 5 stars`}>
 			{Array.from({ length: 5 }, (_, i) => (
 				<Star
 					key={i}
-					className={`${sizeClass} ${
-						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
-					}`}
+					aria-hidden
+					className={i < rating ? "size-5 fill-star text-star" : "size-5 fill-pill text-pill"}
 				/>
 			))}
-		</div>
+		</span>
 	);
 }
 
-function ReviewSummary({ summary }: { summary: APIProductReviewsBrowseResult["summary"] }) {
-	if (summary.reviewCount === 0) return null;
-
-	return (
-		<div className="flex items-center gap-3">
-			<StarRating rating={Math.round(summary.averageRating)} size="lg" />
-			<span className="text-lg font-medium">{summary.averageRating.toFixed(1)}</span>
-			<span className="text-muted-foreground">
-				({summary.reviewCount} {summary.reviewCount === 1 ? "review" : "reviews"})
-			</span>
-		</div>
-	);
-}
-
+/** The original's review card: stars, name with a green tick, the review, "Posted on". */
 function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][number] }) {
 	return (
-		<div className="space-y-2 border-b border-border pb-6 last:border-0">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-3">
-					<StarRating rating={review.rating} />
-					<span className="font-medium">{review.author}</span>
-				</div>
-				<time className="text-sm text-muted-foreground" dateTime={review.createdAt}>
-					{new Date(review.createdAt).toLocaleDateString(undefined, {
+		<li className="flex flex-col items-start rounded-[20px] border border-black/10 p-6 sm:px-8 sm:py-7">
+			<StarRating rating={review.rating} />
+			<p className="mt-3 mb-2 flex items-center gap-1 sm:mt-4 sm:mb-3">
+				<strong className="sm:text-xl">{review.author}</strong>
+				<CircleCheck className="size-5 fill-verified text-white sm:size-6" aria-hidden />
+			</p>
+			<p className="text-sm text-muted-foreground sm:text-base">{review.content}</p>
+			<p className="mt-4 text-sm font-medium text-muted-foreground sm:mt-6">
+				Posted on{" "}
+				<time dateTime={review.createdAt}>
+					{new Date(review.createdAt).toLocaleDateString("en-US", {
 						year: "numeric",
-						month: "short",
+						month: "long",
 						day: "numeric",
 					})}
 				</time>
-			</div>
-			<p className="text-muted-foreground leading-relaxed">{review.content}</p>
-		</div>
+			</p>
+		</li>
 	);
 }
 
 export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBrowseResult; slug: string }) {
+	const { summary } = reviews;
 	return (
-		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
-			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
-				<ReviewSummary summary={reviews.summary} />
+		<section id="reviews" className="scroll-mt-24">
+			<div className="mb-5 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
+				<h2 className="text-xl font-bold sm:text-2xl">
+					All Reviews{" "}
+					<span className="text-sm font-normal text-muted-foreground sm:text-base">
+						({summary.reviewCount})
+					</span>
+				</h2>
+				{summary.reviewCount > 0 && (
+					<span className="flex items-center gap-2 text-sm">
+						<StarRating rating={Math.round(summary.averageRating)} />
+						{summary.averageRating.toFixed(1)}
+						<span className="text-muted-foreground">/5</span>
+					</span>
+				)}
 			</div>
 			{reviews.data.length > 0 ? (
-				<div className="space-y-6">
+				<ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
 					{reviews.data.map((review) => (
 						<ReviewCard key={review.id} review={review} />
 					))}
-				</div>
+				</ul>
 			) : (
 				<p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
 			)}
-			<div className="mt-10">
+			<div className="mt-10 max-w-2xl">
 				<ReviewForm slug={slug} />
 			</div>
 		</section>

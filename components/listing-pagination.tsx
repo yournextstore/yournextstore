@@ -1,12 +1,6 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 function getPageNumbers(currentPage: number, totalPages: number) {
 	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -47,34 +41,63 @@ export function ListingPagination({
 	if (totalPages <= 1) return null;
 
 	const pageNumbers = getPageNumbers(currentPage, totalPages);
+	const edge =
+		"inline-flex h-9 items-center gap-2 rounded-lg border border-black/10 px-3 text-sm font-medium transition-colors hover:bg-pill";
 
+	// The original's row: bordered Previous at the start, page numbers centred, bordered Next at the end.
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
-				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
-				)}
+		<nav
+			aria-label="Pagination"
+			className="flex items-center justify-between gap-2 border-t border-black/10 pt-5"
+		>
+			{currentPage > 1 ? (
+				<Link href={buildUrl(basePath, currentPage - 1, filters)} className={edge} aria-label="Previous page">
+					<ArrowLeft className="size-4" aria-hidden />
+					<span className="hidden sm:inline">Previous</span>
+				</Link>
+			) : (
+				<span className={cn(edge, "pointer-events-none opacity-40")} aria-hidden>
+					<ArrowLeft className="size-4" />
+					<span className="hidden sm:inline">Previous</span>
+				</span>
+			)}
+			<ul className="flex items-center gap-0.5">
 				{pageNumbers.map((page, index) =>
 					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
+						<li
+							key={`ellipsis-${index}`}
+							className="px-2 text-sm font-medium text-muted-foreground"
+							aria-hidden
+						>
+							…
+						</li>
 					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
+						<li key={page}>
+							<Link
+								href={buildUrl(basePath, page, filters)}
+								aria-current={page === currentPage ? "page" : undefined}
+								className={cn(
+									"flex size-9 items-center justify-center rounded-lg text-sm font-medium transition-colors",
+									page === currentPage ? "bg-pill text-black" : "text-muted-foreground hover:text-black",
+								)}
+							>
 								{page}
-							</PaginationLink>
-						</PaginationItem>
+							</Link>
+						</li>
 					),
 				)}
-				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
-				)}
-			</PaginationContent>
-		</Pagination>
+			</ul>
+			{currentPage < totalPages ? (
+				<Link href={buildUrl(basePath, currentPage + 1, filters)} className={edge} aria-label="Next page">
+					<span className="hidden sm:inline">Next</span>
+					<ArrowRight className="size-4" aria-hidden />
+				</Link>
+			) : (
+				<span className={cn(edge, "pointer-events-none opacity-40")} aria-hidden>
+					<span className="hidden sm:inline">Next</span>
+					<ArrowRight className="size-4" />
+				</span>
+			)}
+		</nav>
 	);
 }

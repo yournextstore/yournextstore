@@ -1,8 +1,14 @@
+import { CircleCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { PageTrail } from "@/components/listing-shell";
+import { getCatalogStats, getStoreIdentity } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
+import aboutHoodie from "@/public/images/pexels/about-hoodie.jpg";
+import aboutStudio from "@/public/images/pexels/about-studio.jpg";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -26,24 +32,27 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
+const values = [
+	{
+		title: "Quality first",
+		body: "Durable, well-made pieces we are proud to stand behind, photographed honestly so you know what arrives.",
+	},
+	{
+		title: "Made for every day",
+		body: "Considered details and good materials that hold up to everyday life, season after season.",
+	},
+	{
+		title: "Honest service",
+		body: "Real people behind the shop, happy to answer your questions about any piece.",
+	},
+];
 
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [identity, stats] = await Promise.all([getStoreIdentity(), getCatalogStats()]);
+	const { storeName, storeDescription, contactFormEnabled } = identity;
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -54,83 +63,82 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="frame pb-10">
 			<JsonLdScript data={aboutJsonLd} />
+			<PageTrail crumbs={[{ label: "About" }]} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			<section className="grid grid-cols-1 gap-8 overflow-hidden rounded-[40px] bg-band px-6 pt-10 pb-6 md:grid-cols-2 md:p-[70px]">
+				<div>
+					<h1 className="font-display mb-5 text-[2.25rem] leading-[1.05] wrap-break-word lg:mb-8 lg:text-[3rem] xl:text-display-xl">
+						About {storeName}
+					</h1>
+					<p className="mb-6 max-w-[545px] text-sm text-muted-foreground lg:mb-8 lg:text-base">
+						{storeDescription ??
+							"We believe in pieces you reach for every day. Everything in our shop is chosen for the quality of its making, the way it wears and the way it makes you feel."}
+					</p>
+					<dl className="flex flex-wrap gap-x-8 gap-y-4">
+						{[
+							{ value: stats.products, label: "Products" },
+							{ value: stats.categories, label: "Categories" },
+						].map((item) => (
+							<div key={item.label} className="flex flex-col-reverse">
+								<dt className="text-xs text-muted-foreground xl:text-base">{item.label}</dt>
+								<dd className="text-2xl font-bold lg:text-[40px] lg:leading-tight">{item.value}</dd>
+							</div>
+						))}
+					</dl>
 				</div>
+				<div className="grid min-h-[280px] grid-cols-2 gap-4">
+					{[aboutHoodie, aboutStudio].map((photo, index) => (
+						<div
+							key={photo.src}
+							className={`relative overflow-hidden rounded-[20px] bg-white ${index === 1 ? "mt-10" : "mb-10"}`}
+						>
+							<Image
+								src={photo}
+								alt=""
+								fill
+								placeholder="blur"
+								sizes="(max-width: 768px) 50vw, 300px"
+								className="object-cover"
+							/>
+						</div>
+					))}
+				</div>
+			</section>
+
+			<section className="my-[50px] sm:my-20">
+				<h2 className="font-display mb-8 text-center text-display-sm md:mb-14 md:text-display-lg">
+					What we stand for
+				</h2>
+				<ul className="grid grid-cols-1 gap-5 md:grid-cols-3">
+					{values.map((value) => (
+						<li key={value.title} className="rounded-[20px] border border-black/10 p-6 sm:px-8 sm:py-7">
+							<p className="mb-2 flex items-center gap-1 sm:mb-3">
+								<strong className="sm:text-xl">{value.title}</strong>
+								<CircleCheck className="size-5 fill-verified text-white sm:size-6" aria-hidden />
+							</p>
+							<p className="text-sm text-muted-foreground sm:text-base">{value.body}</p>
+						</li>
+					))}
+				</ul>
+			</section>
+
+			<div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+				<Link
+					href="/products"
+					className="inline-block w-full rounded-full bg-black px-14 py-4 text-center text-white transition-colors hover:bg-black/80 sm:w-auto"
+				>
+					Shop Now
+				</Link>
+				{contactFormEnabled && (
+					<Link
+						href="/contact"
+						className="inline-block w-full rounded-full border border-black/10 px-14 py-4 text-center font-medium transition-colors hover:bg-black hover:text-white sm:w-auto"
+					>
+						Contact us
+					</Link>
+				)}
 			</div>
 		</div>
 	);

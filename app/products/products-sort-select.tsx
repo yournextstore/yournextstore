@@ -66,17 +66,24 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<div className={cn("flex items-center text-sm sm:text-base", className)}>
+			<span className="text-muted-foreground">Sort by:</span>
+			<Select value={current} onValueChange={onChange}>
+				<SelectTrigger
+					size="sm"
+					aria-label="Sort products"
+					className="h-8 w-auto gap-1 border-none bg-transparent px-1.5 text-sm font-medium text-black shadow-none sm:text-base [&_svg:not([class*='text-'])]:text-black"
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent align="end">
+					{options.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
 	);
 }
