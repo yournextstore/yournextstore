@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -63,6 +62,8 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
+	/** The info panels (Description, Details, Shipping) that share the fixed bar with the button. */
+	panels?: ReactNode;
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -75,6 +76,7 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 	subscriptionMode = "optional",
 	plans = [],
+	panels,
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
@@ -107,12 +109,15 @@ export function AddToCartButton({
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
+		if (!purchasable) return "Unavailable";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return effectiveQuantity > 1
+				? `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`
+				: "Add to cart";
 		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock, purchasable, plan, totalPrice, effectiveQuantity, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -163,7 +168,7 @@ export function AddToCartButton({
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!selectedVariant || isOutOfStock) return;
+		if (!selectedVariant || isOutOfStock || !purchasable) return;
 
 		const variantId = selectedVariant.id;
 		const addedQuantity = effectiveQuantity;
@@ -216,50 +221,27 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+		<div className="flex flex-col gap-8">
+			{/* The facts, set as plain lines like the original's materials, size and price. */}
+			<div className="flex flex-col gap-1">
+				{summary && <p className="mb-3 max-w-[32rem] text-copy font-normal whitespace-pre-line">{summary}</p>}
+				<p className="flex flex-wrap items-baseline gap-x-2">
+					<span>{priceInfo.display}</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<span className="font-normal line-through">
+							<span className="sr-only">Was </span>
+							{priceInfo.compareAt}
+						</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
+						<span className="text-brand">−{priceInfo.discountPercent}%</span>
 					) : null}
-				</div>
-
+				</p>
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					<p className="text-copy font-normal">Lowest price in the last 30 days: {omnibusPrice}</p>
 				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
+				{stockStatus && <p className={cn(stockStatus.tone === "out" && "text-brand")}>{stockStatus.label}</p>}
+				{selectedVariant?.sku && <p className="font-normal">SKU {selectedVariant.sku}</p>}
 			</div>
 
 			{variants.length > 1 && <VariantSelector variants={variants} />}
@@ -275,12 +257,13 @@ export function AddToCartButton({
 						/>
 					)}
 
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
+					{!isOutOfStock && (
+						<QuantitySelector
+							quantity={effectiveQuantity}
+							onQuantityChange={setQuantity}
+							max={Math.max(1, Math.min(99, maxQuantity))}
+						/>
+					)}
 
 					<VolumePricingDisplay
 						tiers={resolvedTiers}
@@ -288,25 +271,29 @@ export function AddToCartButton({
 						volumePrice={volumePrice}
 					/>
 
-					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+					{isOutOfStock && restockNotificationsEnabled && selectedVariant && (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
-					) : (
-						<form onSubmit={handleSubmit}>
-							<button
-								type="submit"
-								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								{buttonText}
-							</button>
-						</form>
 					)}
 				</>
 			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				<p className="text-copy font-normal">This subscription isn't available right now.</p>
 			)}
 
-			<TrustBadges />
+			{/* The bar at the bottom of the screen: each panel opens above it, the button last. */}
+			<form
+				onSubmit={handleSubmit}
+				className="fixed inset-x-1 bottom-1 z-20 grid grid-cols-2 gap-1 lg:flex [&:has(>details:nth-last-child(2):nth-child(odd))>button]:col-span-1"
+				data-bottom-bar
+			>
+				{panels}
+				<button
+					type="submit"
+					disabled={!selectedVariant || isOutOfStock || !purchasable}
+					className="col-span-2 h-8 rounded-sm bg-brand px-3 text-white hover:underline disabled:cursor-not-allowed disabled:bg-black/60 lg:w-1/3"
+				>
+					{buttonText}
+				</button>
+			</form>
 		</div>
 	);
 }

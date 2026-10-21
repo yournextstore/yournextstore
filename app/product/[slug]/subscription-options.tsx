@@ -27,30 +27,31 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 		...plans.map((plan) => ({ id: plan.id, label: planLabel(plan), detail: plan.benefits })),
 	];
 
+	// Set like the variant chips: white rows, the chosen one black.
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
-			{options.map((option) => (
-				<label
-					key={option.id ?? "one-time"}
-					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
-					)}
-				>
-					<input
-						type="radio"
-						name="purchase"
-						checked={value === option.id}
-						onChange={() => onChange(option.id)}
-						className="mt-0.5 size-4 shrink-0 accent-foreground"
-					/>
-					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
-						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
-					</span>
-				</label>
-			))}
+		<fieldset className="m-0 border-0 p-0">
+			<legend className="mb-2">Purchase</legend>
+			<div className="flex flex-col gap-1">
+				{options.map((option) => (
+					<label
+						key={option.id ?? "one-time"}
+						className={cn(
+							"flex min-h-8 cursor-pointer flex-col justify-center rounded-sm px-3 py-1.5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2",
+							value === option.id ? "bg-black text-white" : "bg-white hover:bg-black/5",
+						)}
+					>
+						<input
+							type="radio"
+							name="purchase"
+							checked={value === option.id}
+							onChange={() => onChange(option.id)}
+							className="sr-only"
+						/>
+						<span>{option.label}</span>
+						{option.detail && <span className="text-copy font-normal">{option.detail}</span>}
+					</label>
+				))}
+			</div>
 		</fieldset>
 	);
 }

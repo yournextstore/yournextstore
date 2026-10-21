@@ -1,58 +1,114 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Dialog } from "@base-ui/react/dialog";
 import Link from "next/link";
-import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { usePathname } from "next/navigation";
+import { Fragment, Suspense, useState } from "react";
+import { useCart } from "@/app/cart/cart-context";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/** "page" on the link's own page, "true" on the pages below it. */
+const currentFor = (pathname: string, href: string) =>
+	pathname === href ? ("page" as const) : pathname.startsWith(`${href}/`) ? ("true" as const) : undefined;
+
+function NavList({
+	links,
+	pathname,
+	onNavigate,
+}: {
+	links: NavLink[];
+	pathname?: string;
+	onNavigate?: () => void;
+}) {
+	return links.map((link, index) => (
+		<Fragment key={link.href}>
+			<Link
+				href={link.href}
+				onClick={onNavigate}
+				aria-current={pathname ? currentFor(pathname, link.href) : undefined}
+				className="tap hover:underline aria-[current]:italic"
+			>
+				{link.label}
+			</Link>
+			{index < links.length - 1 && ", "}
+		</Fragment>
+	));
+}
+
+// Reads the pathname, so it sits in its own Suspense with an identical, unmarked fallback:
+// the header stays in the prerendered shell and nothing shifts when the italics arrive.
+function ActiveNavList({ links, onNavigate }: { links: NavLink[]; onNavigate?: () => void }) {
+	const pathname = usePathname();
+	return <NavList links={links} pathname={pathname} onNavigate={onNavigate} />;
+}
+
+/** The comma-separated links on the site grid, column 4 onwards, from 1024px. */
+export function DesktopNav({ links }: { links: NavLink[] }) {
+	return (
+		<nav aria-label="Main" className="max-lg:hidden lg:col-span-6 lg:col-start-4">
+			<Suspense fallback={<NavList links={links} />}>
+				<ActiveNavList links={links} />
+			</Suspense>
+		</nav>
+	);
+}
+
+/** Below 1024px: a black screen with the navigation, opened by the header's "Menu". */
+export function MobileMenu({
+	storeName,
+	links,
+	accountHref,
+}: {
+	storeName: string;
+	links: NavLink[];
+	accountHref: string;
+}) {
 	const [open, setOpen] = useState(false);
+	const { itemCount, openCart } = useCart();
+	const close = () => setOpen(false);
+	const allLinks = [...links, { href: "/search", label: "Search" }];
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+		<Dialog.Root open={open} onOpenChange={setOpen}>
+			<Dialog.Trigger className="tap lg:hidden">Menu</Dialog.Trigger>
+			<Dialog.Portal>
+				<Dialog.Popup className="fixed inset-0 z-50 flex flex-col bg-black p-3 text-white focus:outline-none lg:hidden">
+					<Dialog.Title className="sr-only">Menu</Dialog.Title>
+					<div className="grid-site items-center">
+						<Link href="/" onClick={close} className="tap truncate">
+							{storeName}
+						</Link>
+						<div className="flex justify-between">
+							<Dialog.Close className="tap italic" aria-label="Close menu">
+								Menu
+							</Dialog.Close>
+							<button
+								type="button"
+								className="tap"
+								onClick={() => {
+									close();
+									openCart();
+								}}
 							>
-								{link.label}
-							</Link>
-						))}
+								Cart ({itemCount})
+							</button>
+						</div>
+					</div>
+					<nav aria-label="Menu" className="my-auto text-title">
+						<Suspense fallback={<NavList links={allLinks} onNavigate={close} />}>
+							<ActiveNavList links={allLinks} onNavigate={close} />
+						</Suspense>
 					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+					{/* Plain <a>: /account is a proxied zone (see AGENTS.md). */}
+					<a href={accountHref} className="tap self-start">
+						Account
+					</a>
+				</Dialog.Popup>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 }

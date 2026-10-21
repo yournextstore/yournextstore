@@ -3,11 +3,11 @@ import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { PRODUCT_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { SortLinks, SortLinksFallback } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -81,20 +81,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
+		return <p className="py-24 text-center">No products match these filters.</p>;
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<ul className={PRODUCT_GRID}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<li key={product.id}>
+						<ProductCard product={product} priority={index === 0} sizes="(width >= 64rem) 25vw, 50vw" />
+					</li>
 				))}
-			</div>
+			</ul>
 
 			<ListingPagination
 				basePath="/products"
@@ -125,36 +123,45 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.variantTypes.length > 0 ||
 		facets.priceBounds.max > 0;
 
+	const toolbar = (sort: React.ReactNode, filters: React.ReactNode) => (
+		<div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 lg:grid-site">
+			<div className="lg:col-span-3">{filters}</div>
+			<div className="lg:col-span-9 lg:col-start-4">{sort}</div>
+		</div>
+	);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div data-flush>
+			<h1 className="px-3 pt-16 text-heading lg:pt-20">Shop, Index</h1>
 
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
+			<section className="card mx-1 mt-3 bg-paper" aria-label="Products">
+				{/* The filter and sort controls read useSearchParams(), so they stream in behind one
+				    boundary with the grid; the fallback sets the same toolbar text, so nothing shifts. */}
+				<Suspense
+					fallback={
+						<>
+							{toolbar(
+								<SortLinksFallback options={sortOptions} />,
+								filtersAvailable ? <span className="tap lg:hidden">Filters</span> : null,
+							)}
+							<div className="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-3 lg:mt-16">
+								<ProductGridSkeleton className="lg:col-span-9 lg:col-start-4" />
+							</div>
+						</>
+					}
+				>
+					{toolbar(
+						<SortLinks options={sortOptions} />,
+						filtersAvailable ? <ProductFiltersMobile facets={facets} /> : null,
+					)}
+					<div className="mt-12 lg:mt-16 lg:grid lg:grid-cols-12 lg:gap-x-3">
+						{filtersAvailable && <ProductFilters facets={facets} className="lg:col-span-3 lg:pr-6" />}
+						<div className="lg:col-span-9 lg:col-start-4">
+							<ProductSection searchParams={searchParams} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
 					</div>
-				</div>
-			</Suspense>
+				</Suspense>
+			</section>
 		</div>
 	);
 }

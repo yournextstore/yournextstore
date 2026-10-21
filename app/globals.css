@@ -9,11 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-instrument-sans);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
+	--radius-sm: var(--radius);
+	--radius-md: var(--radius);
+	--radius-lg: calc(var(--radius) + 2px);
 	--radius-xl: calc(var(--radius) + 4px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -33,31 +33,58 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-paper: var(--paper);
+	--color-brand: var(--brand);
+	--color-brand-deep: var(--brand-deep);
 }
 
+/* Isle Thorne scale: one family, five sizes, each a complete style (size, leading, tracking).
+   New names on purpose: overriding text-sm/base/lg would resize every shadcn component. */
+@theme {
+	--text-label: 0.875rem;
+	--text-label--line-height: 1;
+	--text-copy: 0.875rem;
+	--text-copy--line-height: 1.2;
+	--text-copy--letter-spacing: -0.01em;
+	--text-body: 1rem;
+	--text-body--line-height: 1.4;
+	--text-body--letter-spacing: 0.01em;
+	--text-title: 1.25rem;
+	--text-title--line-height: 1.2;
+	--text-title--letter-spacing: -0.01em;
+	--text-heading: 1.5rem;
+	--text-heading--line-height: 1.2;
+}
+
+/* Gallery white and black ink, a warm paper for cards, and one oxblood red for the footer,
+   the buttons and the about page. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.25rem;
+	--paper: #f8f7f3;
+	--brand: #790700;
+	--brand-deep: #6b0200;
+	--background: #ffffff;
+	--foreground: #000000;
+	--card: #f8f7f3;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f7f3;
+	--secondary-foreground: #000000;
+	--muted: #f8f7f3;
+	--muted-foreground: #5c5b57;
+	--accent: #f8f7f3;
+	--accent-foreground: #000000;
+	--destructive: #790700;
+	--border: #e4e2dc;
+	--input: #d6d4cd;
+	--ring: #000000;
 }
 
+/* Light only, like the original (the theme is forced to light); kept so the palette test
+   still checks both blocks. */
 .dark {
 	--background: oklch(0.145 0 0);
 	--foreground: oklch(0.985 0 0);
@@ -79,13 +106,104 @@
 	--ring: oklch(0.556 0 0);
 }
 
+/* The site grid: 2 columns on phones, 12 from 1024px, 12px apart, so labels line up across
+   the page (nav links, piece counts and text columns all start on column 4). */
+@utility grid-site {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: --spacing(3);
+
+	@media (width >= 64rem) {
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+	}
+}
+
+/* Small text links and buttons: at least 24px to the touch without moving anything. */
+@utility tap {
+	display: inline-block;
+	padding-block: 5px;
+	margin-block: -5px;
+}
+
+/* The design's sections are rounded panels, 4px from the screen's edges and each other. */
+@utility card {
+	border-radius: var(--radius);
+	padding: --spacing(2);
+}
+
+/* Rows of photos that scroll sideways: thin, quiet scrollbars and snap points. */
+@utility scroll-row {
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: thin;
+	scrollbar-color: rgb(0 0 0 / 0.2) transparent;
+
+	& > * {
+		scroll-snap-align: start;
+	}
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-label font-semibold text-foreground;
+		font-synthesis: none;
+		overflow-x: clip;
 	}
+	:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 2px;
+	}
+	summary {
+		list-style: none;
+		cursor: pointer;
+	}
+	summary::-webkit-details-marker {
+		display: none;
+	}
+}
+
+/* The header sits over the top of every page. Pages that open on a photograph (home) or a red
+   ground (about) mark it with data-hero / data-ground, and the header turns white over them. */
+:root:has([data-hero]) .site-header,
+:root:has([data-ground="deep"]) .site-header {
+	color: #fff;
+}
+/* Pages that place their own content under the header (data-flush) or open on a photograph
+   start at the very top; every other page clears the header. */
+.site-main {
+	padding-top: 3rem;
+}
+:root:has([data-hero]) .site-main,
+:root:has([data-flush]) .site-main {
+	padding-top: 0;
+}
+:root:has([data-bottom-bar]) body {
+	padding-bottom: 4.5rem;
+
+	@media (width >= 64rem) {
+		padding-bottom: 2.25rem;
+	}
+}
+/* The "Made with YNS" badge and the chat launcher sit above the product page's bar. */
+:root:has([data-bottom-bar]) .yns-dock {
+	bottom: 5rem;
+
+	@media (width >= 64rem) {
+		bottom: 2.75rem;
+	}
+}
+:root:has([data-ground="paper"]) body {
+	background-color: var(--paper);
+}
+:root:has([data-ground="deep"]) body {
+	background-color: var(--brand-deep);
+}
+:root:has([data-ground="deep"]) .site-footer {
+	background-color: #000;
 }
 
 .prose {

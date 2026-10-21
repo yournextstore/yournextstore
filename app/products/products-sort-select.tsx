@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Fragment } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
+/** Comma-separated sort links, the current one in italics like the header's current page. */
 export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -33,23 +34,24 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	const current = searchParams.get("sort") ?? defaultValue;
 
 	return (
-		<>
-			{options.map((option) => {
+		<p>
+			{options.map((option, index) => {
 				const isActive = option.value === current;
 				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
+					<Fragment key={option.value}>
+						<Link
+							href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
+							scroll={false}
+							aria-current={isActive ? "true" : undefined}
+							className={cn("tap hover:underline", isActive && "italic")}
+						>
+							{option.label}
+						</Link>
+						{index < options.length - 1 && ", "}
+					</Fragment>
 				);
 			})}
-		</>
+		</p>
 	);
 }
 
@@ -81,5 +83,19 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 				))}
 			</SelectContent>
 		</Select>
+	);
+}
+
+/** The same line before the URL is known (Suspense fallback): identical text, nothing marked. */
+export function SortLinksFallback({ options }: { options: readonly SortOption[] }) {
+	return (
+		<p>
+			{options.map((option, index) => (
+				<Fragment key={option.value}>
+					<span className="tap">{option.label}</span>
+					{index < options.length - 1 && ", "}
+				</Fragment>
+			))}
+		</p>
 	);
 }

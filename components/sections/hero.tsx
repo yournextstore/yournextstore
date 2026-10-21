@@ -1,42 +1,18 @@
-import { ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import { ArtPhoto } from "@/components/art-photo";
 
-export function Hero() {
+const hero = { src: "/images/pexels/hero.jpg", width: 2000, height: 1335 };
+const heroMobile = { src: "/images/pexels/hero-mobile.jpg", width: 900, height: 1600 };
+
+/**
+ * The first screen: the photograph across the whole screen, darkened on the left behind the
+ * headline. `data-hero` turns the header white over it (see globals.css).
+ */
+export function Hero({ headline }: { headline: string }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
-				</div>
-			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
+		<section data-hero className="relative h-svh min-h-[30rem] overflow-hidden text-white">
+			<ArtPhoto wide={hero} tall={heroMobile} alt="" priority />
+			<div className="absolute inset-0 bg-linear-to-l from-transparent from-[34.5%] to-black/30 to-[62.7%] lg:from-[70.5%] lg:to-[83%]" />
+			<h1 className="absolute inset-x-3 top-1/2 -translate-y-1/2 text-title lg:max-w-[50%]">{headline}</h1>
 		</section>
 	);
 }

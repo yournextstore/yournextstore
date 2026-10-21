@@ -6,16 +6,9 @@ import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { PRODUCT_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { pieces } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -114,22 +107,21 @@ async function CategoryProducts({
 	});
 
 	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
+		return <p className="py-24 text-center">No products match these filters.</p>;
 	}
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<p className="mb-6 lg:-mt-10 lg:mb-4">{pieces(result.meta.count)}</p>
+			<ul className={PRODUCT_GRID}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<li key={product.id}>
+						<ProductCard product={product} priority={index === 0} />
+					</li>
 				))}
-			</div>
+			</ul>
 			<ListingPagination
 				basePath={`/category/${canonicalPath}`}
 				currentPage={currentPage}
@@ -142,10 +134,13 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div data-flush className="min-h-svh">
+			<div className="px-3 pt-16 lg:pt-20">
+				<div className="h-[29px] w-48 animate-pulse rounded-sm bg-black/5" />
+			</div>
+			<section className="card mx-1 mt-3 bg-paper">
+				<ProductGridSkeleton className="lg:grid-cols-4" />
+			</section>
 		</div>
 	);
 }
@@ -205,55 +200,50 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const parents = hierarchy.slice(0, -1);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div data-flush>
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
+			<div className="px-3 pt-16 lg:pt-20">
+				{parents.length > 0 && (
+					<nav aria-label="Breadcrumb" className="mb-2">
+						{parents.map((crumb, index) => (
 							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
+								<Link
+									href={`/category/${hierarchy
+										.slice(0, index + 1)
+										.map((c) => c.slug)
+										.join("/")}`}
+									className="tap hover:underline"
+								>
+									{crumb.name}
+								</Link>
+								{", "}
 							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+						))}
+					</nav>
+				)}
+				<h1 className="text-heading">{category.name}</h1>
 			</div>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
+			<section className="card mx-1 mt-3 bg-paper" aria-label="Products">
+				{filtersAvailable && (
+					<div className="mb-6 lg:hidden">
+						<ProductFiltersMobile facets={facets} showCategories={false} />
+					</div>
+				)}
+				<div className="lg:grid lg:grid-cols-12 lg:gap-x-3 lg:pt-10">
 					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
+						<ProductFilters facets={facets} showCategories={false} className="lg:col-span-3 lg:pr-6" />
 					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
+					<div className="lg:col-span-9 lg:col-start-4">
+						<Suspense fallback={<ProductGridSkeleton />}>
+							<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+						</Suspense>
+					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 };
