@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { BANNER_TITLE, Banner } from "@/components/sections/hero";
+import { BANNER_IMAGES } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -8,10 +10,8 @@ import { JsonLdScript } from "@/lib/json-ld";
 export const ensureStatic = "navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
-	const { storeName, storeDescription } = await getStoreSeo();
-	const description = storeDescription
-		? `Learn more about ${storeName}. ${storeDescription}`
-		: `Learn about ${storeName} — our story, our values, and the people behind the products.`;
+	const { storeName } = await getStoreSeo();
+	const description = `Learn about ${storeName}: what we sell and how we choose it.`;
 
 	return {
 		title: "About Us",
@@ -39,99 +39,88 @@ async function getStoreInfo() {
 	}
 }
 
+const POINTS = [
+	{
+		title: "Frames we would wear",
+		body: "Every frame earns its place: good acetate or titanium, solid hinges and a fair price. If we would not wear it ourselves, it is not in the shop.",
+	},
+	{
+		title: "Clear details",
+		body: "Every frame lists its shape, material and measurements, so you can compare it with the pair you already own before you add it to your basket.",
+	},
+	{
+		title: "Terms in writing",
+		body: "Delivery options and costs are shown at checkout, and our shipping and return terms are on our policy pages.",
+	},
+];
+
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const { storeName, contactFormEnabled } = await getStoreInfo();
+	const contactLink = contactFormEnabled ? (
+		<Link href="/contact" className="sal-btn sal-btn-muted">
+			Contact us
+		</Link>
+	) : null;
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+		description: `${storeName} sells well-made glasses, sunglasses and readers at honest prices.`,
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh px-4 pt-4 pb-12 md:px-8 lg:px-[100px] lg:pt-5 lg:pb-[100px]">
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
+			<Banner image={BANNER_IMAGES.about}>
+				<h1 className={BANNER_TITLE.replace("font-medium", "font-normal")}>
+					<strong className="font-bold">About</strong> {storeName}
+				</h1>
+				<p className="mt-6 max-w-[27rem] text-sal-nav font-bold leading-6 text-paragraph">
+					We started with one idea: buying glasses should be simple. Good frames, honest prices, clear
+					measurements, and a checkout that shows every option before you pay.
 				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			</Banner>
+
+			<section className="mt-14 md:mt-24 lg:mx-[50px]">
+				<h2 className="mb-5 text-[1.625rem] font-medium leading-tight sm:text-sal-xl">What we do</h2>
+				<div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+					{POINTS.map((point, index) => (
+						<div key={point.title} className="border border-border">
+							<div className="flex h-[120px] items-center justify-center bg-tile">
+								<span aria-hidden="true" className="text-[3rem] font-bold leading-none text-[#c9c9c9]">
+									0{index + 1}
+								</span>
+							</div>
+							<div className="p-5">
+								<h3 className="text-[1.5rem] font-medium leading-tight">{point.title}</h3>
+								<p className="mt-2 text-sal-nav font-bold leading-6 text-paragraph">{point.body}</p>
+							</div>
+						</div>
+					))}
 				</div>
-			</div>
+			</section>
+
+			<section className="mt-14 flex flex-col items-start justify-between gap-5 border border-border bg-white p-8 md:mt-24 md:flex-row md:items-center lg:mx-[50px]">
+				<div>
+					<h2 className="text-sal-lg font-bold">Not sure where to start?</h2>
+					<p className="mt-2 text-sal-nav font-bold text-paragraph">
+						Browse the full shop, or read our answers to the questions we hear most.
+					</p>
+				</div>
+				<div className="flex gap-2.5">
+					<Link href="/products" className="sal-btn">
+						Shop Now
+					</Link>
+					<Link href="/faq" className="sal-btn sal-btn-muted">
+						Read the FAQ
+					</Link>
+					{contactLink}
+				</div>
+			</section>
 		</div>
 	);
 }

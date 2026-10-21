@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-tajawal);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +33,74 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-paragraph: var(--paragraph);
+	--color-tile: var(--tile);
+	--color-badge: var(--badge);
+	--color-footer: var(--footer);
+	/* Salinaka type scale (html at 62.5% in the original: 1rem there = 10px here). */
+	--text-sal-xs: 0.6875rem;
+	--text-sal-sm: 0.75rem;
+	--text-sal-nav: 0.875rem;
+	--text-sal-md: 0.9375rem;
+	--text-sal-base: 1rem;
+	--text-sal-lg: 1.25rem;
+	--text-sal-xl: 2rem;
+	--text-sal-hero: 3rem;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	/* Salinaka palette: #f9f9f9 page, white panels, #f2f2f2 muted fills, #e1e1e1 hairlines, #101010 buttons. */
+	--background: #f9f9f9;
+	--foreground: #1a1a1a;
+	--card: #ffffff;
+	--card-foreground: #1a1a1a;
+	--popover: #ffffff;
+	--popover-foreground: #1a1a1a;
+	--primary: #101010;
+	--primary-foreground: #ffffff;
+	--secondary: #f2f2f2;
+	--secondary-foreground: #303030;
+	--muted: #f2f2f2;
+	/* The original's #818181 subtle text fails AA on #f2f2f2; same grey, one step darker. */
+	--muted-foreground: #696969;
+	--accent: #f2f2f2;
+	--accent-foreground: #1a1a1a;
+	--destructive: #d42020;
+	--border: #e1e1e1;
+	--input: #e1e1e1;
+	--ring: #c5c5c5;
+	--paragraph: #4a4a4a;
+	--tile: #f1f1f1;
+	--badge: #dc2626;
+	--footer: #f0f0f0;
 }
 
+/* Light-only design: the .dark block repeats the light palette so the palette test has both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0rem;
+	--background: #f9f9f9;
+	--foreground: #1a1a1a;
+	--card: #ffffff;
+	--card-foreground: #1a1a1a;
+	--popover: #ffffff;
+	--popover-foreground: #1a1a1a;
+	--primary: #101010;
+	--primary-foreground: #ffffff;
+	--secondary: #f2f2f2;
+	--secondary-foreground: #303030;
+	--muted: #f2f2f2;
+	--muted-foreground: #696969;
+	--accent: #f2f2f2;
+	--accent-foreground: #1a1a1a;
+	--destructive: #d42020;
+	--border: #e1e1e1;
+	--input: #e1e1e1;
+	--ring: #c5c5c5;
+	--paragraph: #4a4a4a;
+	--tile: #f1f1f1;
+	--badge: #dc2626;
+	--footer: #f0f0f0;
 }
 
 @layer base {
@@ -85,11 +109,86 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variable on <body>, so the face is declared here, not on html. */
+		font-family: var(--font-tajawal), Helvetica, Arial, sans-serif;
+		font-weight: 700;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: var(--foreground);
+	}
+}
+
+@layer components {
+	/* Salinaka buttons: square, bold, 12px small size; black, muted grey and outlined. */
+	.sal-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		border: 1px solid var(--primary);
+		background: var(--primary);
+		color: var(--primary-foreground);
+		font-weight: 700;
+		font-size: 0.75rem;
+		line-height: 1.2;
+		padding: 0.75rem 1rem;
+		white-space: nowrap;
+		cursor: pointer;
+		transition: background-color 0.3s cubic-bezier(0.77, 0, 0.175, 1), border-color 0.3s ease;
+	}
+	.sal-btn:hover {
+		background: #2a2a2a;
+		border-color: #2a2a2a;
+	}
+	.sal-btn:disabled,
+	.sal-btn[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	.sal-btn-lg {
+		font-size: 0.9375rem;
+		padding: 1rem;
+	}
+	.sal-btn-muted {
+		background: var(--secondary);
+		border-color: var(--border);
+		color: var(--muted-foreground);
+	}
+	.sal-btn-muted:hover {
+		background: var(--background);
+		border-color: var(--ring);
+	}
+	.sal-btn-border {
+		background: transparent;
+		border-color: var(--border);
+		color: var(--paragraph);
+	}
+	.sal-btn-border:hover {
+		background: var(--border);
+		border-color: var(--border);
+	}
+	.sal-divider {
+		height: 1px;
+		width: 100%;
+		background: #f1f1f1;
+	}
+	/* Header: #f9f9f9 bar that turns white with a soft shadow once the page scrolls. */
+	.site-header {
+		transition: background-color 0.3s ease, box-shadow 0.3s ease;
+	}
+	.site-header[data-scrolled="true"] {
+		background: #fff;
+		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.02);
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: var(--paragraph);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);

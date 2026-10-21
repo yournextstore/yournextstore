@@ -1,22 +1,18 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductGridSkeleton, SHOP_GRID_CLASSES } from "@/components/product-grid-skeleton";
+import { BANNER_TITLE, Banner } from "@/components/sections/hero";
+import { ProductFiltersDialog } from "@/components/sections/product-filters";
+import { BANNER_IMAGES } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
+import { richToText } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
@@ -116,7 +112,7 @@ async function CategoryProducts({
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="text-sal-base text-muted-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
@@ -125,9 +121,9 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className={SHOP_GRID_CLASSES}>
+				{result.data.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 			<ListingPagination
@@ -140,11 +136,13 @@ async function CategoryProducts({
 	);
 }
 
+const PAGE = "min-h-svh px-4 pt-4 pb-12 md:px-8 lg:px-[100px] lg:pt-5 lg:pb-[100px]";
+
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className={PAGE}>
+			<div className="h-[260px] bg-[#ebe8e3] md:h-[400px]" />
+			<div className="mt-14 mb-3 h-9 md:mt-24" />
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -205,55 +203,39 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richToText(category.description);
+	const image = category.image ? { src: category.image, alt: category.name } : BANNER_IMAGES.listing;
+	const parent = hierarchy.length > 1 ? hierarchy[hierarchy.length - 2] : null;
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className={PAGE}>
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
+			<Banner image={image}>
+				{parent && (
+					<Link
+						href={`/category/${hierarchy
+							.slice(0, -1)
 							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
+							.join("/")}`}
+						className="mb-3 inline-flex items-center gap-1.5 text-sal-nav font-bold text-foreground hover:underline"
+					>
+						<ArrowLeft aria-hidden="true" className="h-4 w-4" />
+						{parent.name}
+					</Link>
+				)}
+				<h1 className={BANNER_TITLE}>{category.name}</h1>
+				{description && (
+					<p className="mt-5 max-w-[27rem] text-sal-nav font-bold leading-6 text-paragraph">{description}</p>
+				)}
+			</Banner>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+			<div className="mt-14 mb-3 flex h-9 items-center justify-end gap-2 md:mt-24">
+				{filtersAvailable && <ProductFiltersDialog facets={facets} showCategories={false} />}
 			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<h2 className="sr-only">Products</h2>
+			<Suspense fallback={<ProductGridSkeleton />}>
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+			</Suspense>
 		</div>
 	);
 };
