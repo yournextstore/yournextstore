@@ -1,99 +1,43 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+const linkClass = "text-white underline-offset-4 hover:underline";
+
+async function FooterLinks({ accountHref }: { accountHref: string }) {
 	"use cache";
 	cacheLife("hours");
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
+	const [me, pages] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+	]);
+	const tools = me?.store.settings?.enabledTools;
+	const links = [
+		{ href: "/products", label: "Products" },
+		{ href: "/about", label: "About" },
+		{ href: "/faq", label: "Help Centre" },
+		...(tools?.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+		...(tools?.blog ? [{ href: "/blog", label: "Blog" }] : []),
+		...pages.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+	];
 
 	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
+		<ul className="flex flex-wrap gap-x-4 gap-y-1 md:justify-end">
+			{links.map((link) => (
+				<li key={link.href}>
+					<Link href={link.href} className={linkClass}>
+						{link.label}
+					</Link>
+				</li>
+			))}
+			<li>
+				{/* Plain <a>: /account is a proxied zone. */}
+				<a href={accountHref} className={linkClass}>
+					Account
+				</a>
+			</li>
+		</ul>
 	);
 }
 
@@ -106,59 +50,23 @@ async function getCopyrightYear() {
 	return new Date().getFullYear();
 }
 
-export async function Footer() {
+export async function Footer({ shopName, accountHref }: { shopName: string; accountHref: string }) {
 	const year = await getCopyrightYear();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+		<footer className="bg-primary p-6 pb-12 text-primary-foreground">
+			<div className="mx-auto flex max-w-[1400px] flex-col items-start justify-start gap-6 p-6 md:flex-row md:items-end md:justify-between">
+				<div>
+					<Link href="/" className="text-2xl font-semibold tracking-tight md:text-3xl">
+						{shopName}
+					</Link>
+					<p>Online shopping made easy</p>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="flex flex-col items-start gap-1 text-sm text-secondary md:items-end">
+					<FooterLinks accountHref={accountHref} />
+					<p>
+						&copy; {year} {shopName}. All rights reserved.
+					</p>
 				</div>
 			</div>
 		</footer>

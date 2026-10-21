@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { cartDiscountOf } from "@/app/cart/discount-code";
@@ -19,7 +20,7 @@ import {
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
-export function CartSidebar() {
+export function CartSidebar({ freeShipping }: { freeShipping: string | null }) {
 	const { currency, locale, language, taxBehavior } = useStoreConfig();
 	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
 	const discount = cartDiscountOf(cart, taxBehavior);
@@ -31,35 +32,30 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
-					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
+			<SheetContent className="flex w-full flex-col gap-0 p-6 sm:max-w-[400px] lg:max-w-[600px]">
+				<SheetHeader className="gap-4 p-0">
+					<SheetTitle className="text-lg">Cart {itemCount > 0 ? `(${itemCount})` : ""}</SheetTitle>
+					<SheetDescription className="flex items-center justify-center rounded-md border border-border bg-secondary p-2 py-3 text-center text-muted-foreground">
+						{freeShipping
+							? `Free shipping on all orders over ${freeShipping}`
+							: "Shipping and taxes are calculated at checkout"}
 					</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+					<div>
+						<div className="mt-4 flex h-[150px] flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border p-6 text-center">
+							<p className="text-xl font-semibold tracking-tight">Your cart is empty</p>
 						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
+						<Button asChild className="mt-8 w-full">
+							<Link href="/products" onClick={closeCart}>
+								Start shopping
+							</Link>
 						</Button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
+						<ScrollArea className="mt-6 min-h-0 flex-1">
 							<div className="divide-y divide-border">
 								{items.map((item) => (
 									<CartItem key={item.productVariant.id} item={item} />
@@ -67,7 +63,7 @@ export function CartSidebar() {
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
+						<SheetFooter className="mt-auto border-t border-border px-0 pt-4 pb-0">
 							<div className="w-full space-y-4">
 								<DiscountCodeField />
 								{discount ? (
@@ -76,7 +72,7 @@ export function CartSidebar() {
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-800">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -101,7 +97,7 @@ export function CartSidebar() {
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
+								<Button asChild className="w-full">
 									<a
 										href={checkoutUrl}
 										aria-disabled={isMutating}

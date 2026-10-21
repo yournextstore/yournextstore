@@ -1,6 +1,9 @@
+import { Phone, RotateCcw, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { FeatureBanner } from "@/components/home/feature-banner";
+import { Button } from "@/components/ui/button";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -30,7 +33,7 @@ async function getStoreInfo() {
 	try {
 		const me = await meGetCached();
 		return {
-			storeName: me.store.name || "our store",
+			storeName: me.store.settings?.storeName || me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
 			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
@@ -54,82 +57,59 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto max-w-[1400px] p-6">
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
+			<div className="mb-12 flex flex-col items-center justify-center gap-2 pt-8 text-center">
+				<p className="text-sm font-medium uppercase tracking-wide">About us</p>
+				<h1 className="text-4xl font-extrabold tracking-tight text-balance lg:text-5xl">{storeName}</h1>
+				<p className="text-3xl font-semibold tracking-tight text-balance text-muted-foreground">
+					{storeDescription ?? "Everyday essentials, from one place."}
 				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
+			</div>
+
+			<div className="mx-auto max-w-3xl space-y-4 text-center leading-7">
+				<p>
+					We started {storeName} to make everyday shopping simple: a well-chosen range, honest prices and a
+					checkout that shows every delivery option before you pay.
+				</p>
+				<p>
+					Every product is picked by our team, and our shipping and return terms are written down on our
+					policy pages, so you know where you stand before you order.
+				</p>
+			</div>
+
+			<div className="mt-12 flex flex-col gap-4 md:grid md:grid-cols-3">
+				<FeatureBanner
+					heading="Clear delivery"
+					text="Delivery options and costs are shown at checkout."
+					icon={<Truck aria-hidden size={32} />}
+				/>
+				<FeatureBanner
+					heading="Written policies"
+					text="Shipping and return terms are on our policy pages."
+					icon={<RotateCcw aria-hidden size={32} />}
+				/>
+				<FeatureBanner
+					heading="Here to help"
+					text="Questions about an order? Start with our FAQ."
+					icon={<Phone aria-hidden size={32} />}
+				/>
+			</div>
+
+			<div className="mt-12 flex w-full flex-col items-center justify-center gap-2 rounded-md bg-banner p-12 text-center text-banner-foreground">
+				<p className="text-sm font-medium uppercase tracking-wide">Start shopping</p>
+				<h2 className="text-3xl font-bold">See what is in the store</h2>
+				<p>Browse the full catalogue, or ask us anything.</p>
+				<div className="mt-6 flex flex-col gap-3 sm:flex-row">
+					<Button asChild variant="secondary">
+						<Link href="/products">Shop products</Link>
+					</Button>
+					<Button asChild variant="secondary">
+						<Link href={contactFormEnabled ? "/contact" : "/faq"}>
+							{contactFormEnabled ? "Contact us" : "Help Centre"}
 						</Link>
-					)}
+					</Button>
 				</div>
 			</div>
 		</div>
