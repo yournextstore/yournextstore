@@ -1,25 +1,17 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { ListingHeader } from "@/components/listing-header";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { autoGrid } from "@/lib/grid";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -62,49 +54,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
+		<div className="pt-8">
+			<ProductGridSkeleton />
+		</div>
 	);
 }
 
@@ -163,31 +117,48 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
+	if (products.length === 0) {
+		const { data: browse } = await commerce
+			.productBrowse({ active: true, limit: 12 })
+			.catch(() => ({ data: [] as Awaited<ReturnType<typeof commerce.productBrowse>>["data"] }));
+		const others = browse.filter((product) => (product.images ?? []).length > 0).slice(0, 4);
+		return (
+			<div className="pt-8">
+				<p className="py-12 text-center text-lg text-muted-foreground">This collection is empty for now.</p>
+				{others.length > 0 && (
+					<section aria-labelledby="collection-others">
+						<h2 id="collection-others" className="pb-6 text-2xl">
+							Browse the shop
+						</h2>
+						<div className={`${autoGrid} gap-y-8`}>
+							{others.map((product) => (
+								<ProductCard key={product.id} product={product} />
+							))}
+						</div>
+					</section>
+				)}
+			</div>
+		);
+	}
+
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<div className={`${autoGrid} gap-y-8 pt-8`}>
+			{products.map((product, index) => (
+				<ProductCard key={product.id} product={product} priority={index < 4} />
+			))}
+		</div>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="shell min-h-svh">
+			<div className="border-b border-border pb-8">
+				<div className="mt-2 h-5 w-48 animate-pulse rounded bg-secondary" />
+				<div className="mx-auto mt-10 h-9 w-56 animate-pulse rounded bg-secondary" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
 			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -219,26 +190,26 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 	}
 
 	return (
-		<>
+		<div className="shell min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
+			<ListingHeader
+				crumbs={[{ href: `/collection/${collection.slug}`, label: collection.name }]}
+				title={collection.name}
+				description={
+					// The API sends rich text (TipTap); older payloads sent a plain string.
+					typeof collection.description === "string" ? (
+						collection.description
+					) : collection.description ? (
+						<div className="prose max-w-none text-muted-foreground tiptap-content">
+							<TiptapRenderer content={collection.description} />
+						</div>
+					) : undefined
+				}
+			/>
 			<Suspense fallback={<CollectionProductsSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
-		</>
+		</div>
 	);
 };

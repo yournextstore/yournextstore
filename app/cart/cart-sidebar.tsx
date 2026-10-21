@@ -32,12 +32,14 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+			<SheetContent className="flex flex-col gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+				<SheetHeader className="px-6 pt-6 pb-2">
+					<SheetTitle className="flex flex-wrap items-baseline gap-x-2 text-2xl font-normal">
+						Your bag
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="text-base text-muted-foreground">
+								• {itemCount} {itemCount === 1 ? "item" : "items"}
+							</span>
 						)}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -46,21 +48,19 @@ export function CartSidebar() {
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+					<div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+						<ShoppingBag aria-hidden className="size-12 text-muted-foreground" strokeWidth={1.5} />
+						<div>
+							<p className="text-xl">Your bag is empty</p>
+							<p className="mt-1 text-sm text-muted-foreground">Pieces you add will wait for you here.</p>
 						</div>
 						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
+							Continue shopping
 						</Button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
+						<ScrollArea className="min-h-0 flex-1 px-6">
 							<div className="divide-y divide-border">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
@@ -68,7 +68,7 @@ export function CartSidebar() {
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
+						<SheetFooter className="mt-auto border-t border-border px-6 pt-4 pb-6">
 							<div className="w-full space-y-4">
 								<DiscountCodeField />
 								{discount ? (
@@ -85,9 +85,9 @@ export function CartSidebar() {
 										</div>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+								<div className="flex items-center justify-between border-t border-border pt-4 text-base">
+									<span>{discount ? "Total" : "Subtotal"}</span>
+									<span className="font-medium">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
@@ -111,11 +111,7 @@ export function CartSidebar() {
 											e.preventDefault();
 										}
 									}}
-									className={cn(
-										buttonVariants(),
-										"w-full h-12 text-base font-medium",
-										isMutating && "pointer-events-none opacity-60",
-									)}
+									className={cn(buttonVariants(), "w-full", isMutating && "pointer-events-none opacity-60")}
 								>
 									{isMutating ? (
 										<>
@@ -123,15 +119,15 @@ export function CartSidebar() {
 											Updating…
 										</>
 									) : (
-										"Checkout"
+										"Go to checkout"
 									)}
 								</a>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="h-10 w-full rounded-md text-sm font-medium transition-colors hover:bg-accent"
 								>
-									Continue Shopping
+									Continue shopping
 								</button>
 							</div>
 						</SheetFooter>
