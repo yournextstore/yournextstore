@@ -1,27 +1,4 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
-
-function getPageNumbers(currentPage: number, totalPages: number) {
-	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-	return pages.reduce<(number | "ellipsis")[]>((acc, page) => {
-		if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
-			acc.push(page);
-			return acc;
-		}
-		const last = acc[acc.length - 1];
-		if (last !== "ellipsis") {
-			acc.push("ellipsis");
-		}
-		return acc;
-	}, []);
-}
+import Link from "next/link";
 
 function buildUrl(basePath: string, page: number, filters: Record<string, string | undefined> = {}) {
 	const params = new URLSearchParams();
@@ -32,7 +9,10 @@ function buildUrl(basePath: string, page: number, filters: Record<string, string
 	return params.size ? `${basePath}?${params}` : basePath;
 }
 
-/** Numbered pagination for product listing pages. Carries every active filter across page links. */
+const buttonClass =
+	"inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:outline-none";
+
+/** Penny's pagination: Previous at the left, Next at the right. Carries every active filter. */
 export function ListingPagination({
 	basePath,
 	currentPage,
@@ -46,35 +26,28 @@ export function ListingPagination({
 }) {
 	if (totalPages <= 1) return null;
 
-	const pageNumbers = getPageNumbers(currentPage, totalPages);
-
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
+		<nav
+			aria-label="Pagination"
+			className="mx-auto mt-6 flex max-w-7xl items-center justify-between gap-2 px-4 text-sm font-medium text-gray-700 sm:px-6 lg:px-8"
+		>
+			<div className="flex-1">
 				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
+					<Link href={buildUrl(basePath, currentPage - 1, filters)} className={buttonClass}>
+						Previous
+					</Link>
 				)}
-				{pageNumbers.map((page, index) =>
-					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
-					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
-								{page}
-							</PaginationLink>
-						</PaginationItem>
-					),
-				)}
+			</div>
+			<p className="text-gray-500">
+				Page {currentPage} of {totalPages}
+			</p>
+			<div className="flex flex-1 justify-end">
 				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
+					<Link href={buildUrl(basePath, currentPage + 1, filters)} className={buttonClass}>
+						Next
+					</Link>
 				)}
-			</PaginationContent>
-		</Pagination>
+			</div>
+		</nav>
 	);
 }

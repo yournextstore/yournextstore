@@ -1,38 +1,47 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { CategoryTiles } from "@/components/sections/categories";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { Offers } from "@/components/sections/offers";
+import { ProductShelf } from "@/components/sections/product-shelf";
+import { Promo } from "@/components/sections/promo";
+import { capitalize, getCatalogCategories, getProductCount, getStoreIdentity } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// Every section reads cached data only, so the whole page lands in the prerendered shell
+// without Suspense boundaries (a boundary around a cached section still streams and shifts).
+export default async function Home() {
+	const [identity, categories, count] = await Promise.all([
+		getStoreIdentity(),
+		getCatalogCategories(),
+		getProductCount(),
+	]);
+	const top = categories[0];
+	const offers = [
+		{ name: "The shop", description: `${count} products to explore`, href: "/products" },
+		{
+			name: "Shop by category",
+			description: `${categories.length} ${categories.length === 1 ? "category" : "categories"} to browse`,
+			href: "#collections",
+		},
+		{ name: "Sign up for our newsletter", description: "Hear about new arrivals first", href: "#newsletter" },
+	];
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<div className="flex flex-col border-b border-gray-200 lg:border-b-0">
+				<Offers offers={offers} />
+				<Hero description={identity.storeDescription} />
+			</div>
+			<ProductShelf
+				title={top ? capitalize(top.name) : "New arrivals"}
+				href={top ? `/category/${top.slug}` : "/products"}
+				categorySlug={top?.slug ?? null}
+			/>
+			<Promo storeName={identity.storeName} />
+			<CategoryTiles />
 		</>
 	);
 }

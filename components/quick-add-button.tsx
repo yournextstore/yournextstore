@@ -21,6 +21,8 @@ type QuickAddButtonProps = {
 		slug: string;
 		images: string[];
 	};
+	/** A full-width text button (Penny's related-products "Add to cart") instead of the icon. */
+	className?: string;
 };
 
 export function QuickAddButton({
@@ -30,6 +32,7 @@ export function QuickAddButton({
 	variantPriceGross,
 	variantImages,
 	product,
+	className,
 }: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -71,6 +74,14 @@ export function QuickAddButton({
 			}
 		});
 	};
+
+	if (className) {
+		return (
+			<button type="button" onClick={handleClick} className={className}>
+				Add to cart<span className="sr-only">, {product.name}</span>
+			</button>
+		);
+	}
 
 	return (
 		<TooltipPrimitive.Provider delayDuration={1000}>

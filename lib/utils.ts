@@ -18,3 +18,9 @@ export function isVideoUrl(url: string): boolean {
 export const getProductThumbnail = (urls: string[]): string | undefined => {
 	return urls.find((url) => !isVideoUrl(url));
 };
+
+/** Category and option names arrive lower-case on some stores ; labels want a capital. */
+export function capitalize(text: string) {
+	const trimmed = text.trim();
+	return trimmed.charAt(0).toLocaleUpperCase() + trimmed.slice(1);
+}
