@@ -4,46 +4,60 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { chipToneClass, productChips } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { displayPrice, listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+export type CardProduct = BrowseProduct | CollectionProduct | FullProduct;
+
+/**
+ * FRNTR product tile: a bordered photo with attribute chips along its bottom edge and a red
+ * discount tag in the corner, then the name and price in bold beneath.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	className,
+	imageClassName = "aspect-[4/5]",
+	sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw",
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	className?: string;
+	imageClassName?: string;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
-	const variants = "variants" in product ? product.variants : null;
-	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const variants = "variants" in product ? product.variants : [];
+	const listing = listingPrice(variants, taxBehavior);
+	const min = listing?.amount ?? null;
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 
-	const allImages = [
-		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+	const cheapest = variants.find(
+		(variant) => min !== null && BigInt(displayPrice(variant, taxBehavior)) === min,
+	);
+	const listRaw = cheapest ? displayPrice(cheapest, taxBehavior, "originalPrice") : null;
+	const list = listRaw ? BigInt(listRaw) : null;
+	const onSale = min !== null && list !== null && list > min;
+	const discount = onSale && list ? Math.round((Number(list - min) / Number(list)) * 100) : 0;
 
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	// Variants priced differently read "From" the cheapest, never as a range or the cheapest alone.
+	const priceLabel = listing ? `${listing.from ? "From " : ""}${fmt(listing.amount)}` : null;
+
+	const image =
+		getProductThumbnail(product.images ?? []) ??
+		getProductThumbnail(variants.flatMap((variant) => variant.images ?? []));
+	const chips = productChips(product as Parameters<typeof productChips>[0]);
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const onlyVariant = variants.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
@@ -56,68 +70,49 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
+		<Link href={`/product/${product.slug}${variantSearch}`} className={cn("group relative block", className)}>
+			<div className={cn("relative overflow-hidden border border-border bg-white", imageClassName)}>
+				{image && (
+					<YNSMedia
+						src={image}
+						alt=""
+						fill
+						sizes={sizes}
+						priority={priority}
+						fetchPriority={priority ? "high" : undefined}
+						className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{discount > 0 && (
+					<span className="absolute top-2 right-2 rounded-xs bg-sale px-2.5 py-1 text-sm font-bold text-white">
+						-{discount}%
+					</span>
+				)}
+				{chips.length > 0 && (
+					<span className="absolute inset-x-1 bottom-1 flex gap-1 overflow-hidden">
+						{chips.map((chip) => (
+							<span
+								key={`${chip.tone}-${chip.label}`}
+								className={cn(
+									"shrink-0 rounded-xs px-2 py-1 text-xs whitespace-nowrap sm:text-sm",
+									chipToneClass[chip.tone],
+								)}
+							>
+								{chip.label}
+							</span>
+						))}
+					</span>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
+			<h2 className="mt-1.5 block text-base leading-tight font-bold text-foreground group-hover:underline">
+				{product.name}
+			</h2>
+			{priceLabel && (
+				<span className="mt-1 flex items-baseline gap-1.5 text-base font-bold">
+					<span className={onSale ? "text-sale" : "text-foreground"}>{priceLabel}</span>
+					{onSale && list && <s className="text-[0.8rem] font-medium text-muted-foreground">{fmt(list)}</s>}
+				</span>
+			)}
 		</Link>
 	);
 }

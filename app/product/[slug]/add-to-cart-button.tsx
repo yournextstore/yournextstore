@@ -5,14 +5,13 @@ import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { useStoreConfig } from "@/components/store-config-provider";
+import { chipToneClass, productChips } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
@@ -63,9 +62,9 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
+	/** The product's room, printed as the lavender chip. */
+	category?: { name: string } | null;
 };
-
-const LOW_STOCK_THRESHOLD = 5;
 
 export function AddToCartButton({
 	variants,
@@ -75,9 +74,10 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 	subscriptionMode = "optional",
 	plans = [],
+	category = null,
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
-	const [quantity, setQuantity] = useState(1);
+	const quantity = 1;
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
 	const selectedVariant = useSelectedVariant(variants);
@@ -101,18 +101,12 @@ export function AddToCartButton({
 		taxBehavior,
 	);
 
-	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
-
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+		return "Add to Basket";
+	}, [selectedVariant, isOutOfStock, plan]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -149,17 +143,6 @@ export function AddToCartButton({
 		return formatMoney({ amount: BigInt(lowest), currency, locale });
 	}, [selectedVariant, priceInfo.compareAt, locale, currency, taxBehavior]);
 
-	// Stock availability. null stock means it isn't tracked (treated as in stock).
-	const stockStatus = useMemo(() => {
-		if (!selectedVariant) return null;
-		const { stock } = selectedVariant;
-		if (stock === 0) return { label: "Out of stock", tone: "out" as const };
-		if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
-			return { label: `Only ${stock} left in stock`, tone: "low" as const };
-		}
-		return { label: "In stock", tone: "in" as const };
-	}, [selectedVariant]);
-
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -173,7 +156,6 @@ export function AddToCartButton({
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
 		openCart();
-		setQuantity(1);
 
 		// Instant local feedback OUTSIDE the transition, then REPLACE with the
 		// server-returned cart (never refetch — cartGet reads a replica that can lag
@@ -215,98 +197,115 @@ export function AddToCartButton({
 		});
 	};
 
-	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+	const chips = productChips({
+		category,
+		variants: selectedVariant ? [selectedVariant] : variants.slice(0, 1),
+	});
+	const stockLabel =
+		selectedVariant?.stock === null || selectedVariant?.stock === undefined
+			? "in stock"
+			: selectedVariant.stock > 20
+				? "in stock: 20+"
+				: `in stock: ${selectedVariant.stock}`;
 
-			{/* Price & sale */}
-			<div className="space-y-2">
+	return (
+		<div>
+			{chips.length > 0 && (
+				<ul className="mt-3 flex flex-wrap gap-1">
+					{chips.map((chip) => (
+						<li key={chip.label} className={cn("rounded-xs px-2 py-1 text-sm", chipToneClass[chip.tone])}>
+							{chip.label}
+						</li>
+					))}
+				</ul>
+			)}
+			{summary && <p className="mt-4 leading-relaxed whitespace-pre-line text-muted-foreground">{summary}</p>}
+
+			<div className="mt-5 border-t border-border pt-6">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span
+						className={cn(
+							"text-[32px] leading-tight font-bold",
+							priceInfo.compareAt ? "text-sale" : "text-muted-foreground",
+						)}
+					>
+						{priceInfo.display}
+					</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<s className="text-base font-medium text-muted-foreground">{priceInfo.compareAt}</s>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
+						<span className="rounded-xs bg-sale px-2.5 py-1 text-sm font-bold text-white">
+							-{priceInfo.discountPercent}%
 						</span>
 					) : null}
 				</div>
-
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					<p className="mt-1 text-xs text-muted-foreground">
+						Lowest price in the last 30 days: {omnibusPrice}
+					</p>
 				)}
 
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
+				{variants.length > 1 && (
+					<div className="mt-6">
+						<VariantSelector variants={variants} />
 					</div>
+				)}
+
+				{purchasable ? (
+					<>
+						{plans.length > 0 && (
+							<div className="mt-6">
+								<SubscriptionOptions
+									plans={plans}
+									value={planId}
+									onChange={setPlanId}
+									allowOneTime={allowOneTime}
+								/>
+							</div>
+						)}
+
+						<VolumePricingDisplay
+							tiers={resolvedTiers}
+							quantity={effectiveQuantity}
+							volumePrice={volumePrice}
+						/>
+
+						{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+							<div className="mt-5">
+								<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
+							</div>
+						) : (
+							<form onSubmit={handleSubmit} className="mt-5">
+								<button
+									type="submit"
+									disabled={!selectedVariant || isOutOfStock}
+									className="h-12 w-full rounded-xs bg-peach px-8 text-base font-bold text-foreground transition-colors hover:bg-pink disabled:cursor-not-allowed disabled:opacity-60 sm:w-[250px]"
+								>
+									{buttonText}
+								</button>
+							</form>
+						)}
+					</>
+				) : (
+					<p className="mt-5 text-sm text-muted-foreground">This subscription isn't available right now.</p>
 				)}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
-
-			{purchasable ? (
-				<>
-					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
+			<div className="mt-4 border-t border-border pt-4 text-base text-muted-foreground">
+				<p className="font-bold">Online</p>
+				{selectedVariant ? (
+					<p className="mt-0.5 flex items-center gap-2">
+						<span
+							aria-hidden="true"
+							className={cn("size-2.5 rounded-full", isOutOfStock ? "bg-sale" : "bg-stock")}
 						/>
-					)}
-
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
-
-					<VolumePricingDisplay
-						tiers={resolvedTiers}
-						quantity={effectiveQuantity}
-						volumePrice={volumePrice}
-					/>
-
-					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
-						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
-					) : (
-						<form onSubmit={handleSubmit}>
-							<button
-								type="submit"
-								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								{buttonText}
-							</button>
-						</form>
-					)}
-				</>
-			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
-			)}
-
-			<TrustBadges />
+						{isOutOfStock ? "out of stock" : stockLabel}
+					</p>
+				) : (
+					<p className="mt-0.5">Choose an option to see availability</p>
+				)}
+			</div>
 		</div>
 	);
 }

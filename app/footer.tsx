@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
+import { getCategories, getCollections, getStoreName } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -14,8 +15,8 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
+			<Link href="/blog" className="text-base text-foreground hover:underline">
+				Stories
 			</Link>
 		</li>
 	);
@@ -32,10 +33,35 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
+			<Link href="/contact" className="text-base text-foreground hover:underline">
+				Contact
 			</Link>
 		</li>
+	);
+}
+
+async function FooterCategories() {
+	"use cache";
+	cacheLife("hours");
+
+	const categories = await getCategories();
+	if (categories.length === 0) {
+		return null;
+	}
+
+	return (
+		<div>
+			<h2 className="text-xs text-muted-foreground">Categories</h2>
+			<ul className="mt-2 space-y-1">
+				{categories.map((category) => (
+					<li key={category.id}>
+						<Link href={`/category/${category.slug}`} className="text-base text-foreground hover:underline">
+							{category.name}
+						</Link>
+					</li>
+				))}
+			</ul>
+		</div>
 	);
 }
 
@@ -43,21 +69,21 @@ async function FooterCollections() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await commerce.collectionBrowse({ limit: 5 });
+	const collections = (await getCollections()).slice(0, 5);
 
-	if (collections.data.length === 0) {
+	if (collections.length === 0) {
 		return null;
 	}
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
+			<h2 className="text-xs text-muted-foreground">Collections</h2>
+			<ul className="mt-2 space-y-1">
+				{collections.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-base text-foreground hover:underline"
 						>
 							{collection.name}
 						</Link>
@@ -80,14 +106,11 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h2 className="text-xs text-muted-foreground">Legal</h2>
+			<ul className="mt-2 space-y-1">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
+						<Link href={`/legal${page.href}`} className="text-base text-foreground hover:underline">
 							{page.label}
 						</Link>
 					</li>
@@ -107,57 +130,59 @@ async function getCopyrightYear() {
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, storeName, me] = await Promise.all([
+		getCopyrightYear(),
+		getStoreName(),
+		meGetCached().catch(() => null),
+	]);
+	const description = me?.store.settings?.storeDescription;
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="mt-24 border-t border-border bg-background lg:mt-40">
+			<div className="px-6">
+				<div className="flex flex-col gap-10 py-12 lg:flex-row lg:justify-between">
+					<div className="lg:max-w-xs">
+						<Link href="/" className="text-[13px] font-extrabold tracking-[0.3em] text-foreground uppercase">
+							{storeName}
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+						<p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+							{description || "Colourful, everyday pieces that feel like you."}
 						</p>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
+					<div className="grid grid-cols-2 gap-x-10 gap-y-8 sm:grid-cols-4 lg:gap-x-16">
+						<div>
+							<h2 className="text-xs text-muted-foreground">Menu</h2>
+							<ul className="mt-2 space-y-1">
+								<li>
+									<Link href="/products" className="text-base text-foreground hover:underline">
+										Shop
+									</Link>
+								</li>
+								<FooterBlogLink />
+								<li>
+									<Link href="/about" className="text-base text-foreground hover:underline">
+										About
+									</Link>
+								</li>
+								<li>
+									<Link href="/faq" className="text-base text-foreground hover:underline">
+										FAQ
+									</Link>
+								</li>
+								<FooterContactLink />
+							</ul>
+						</div>
+						<FooterCategories />
+						<FooterCollections />
+						<FooterLegalPages />
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="flex flex-col gap-4 border-t border-border py-5 sm:flex-row sm:items-center sm:justify-between">
+					<p className="text-sm text-muted-foreground">
+						&copy; {year} {storeName}
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>
