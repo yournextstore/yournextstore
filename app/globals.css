@@ -8,12 +8,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-archivo);
+	--font-display: var(--font-archivo);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-sm: 3px;
+	--radius-md: 4px;
+	--radius-lg: 6px;
+	--radius-xl: 8px;
+	--radius-2xl: 10px;
+	--radius-3xl: 16px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,59 +35,145 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Verdant names: paper / tile / ink / line / brass, mapped from the shadcn tokens below. */
+	--color-paper: var(--background);
+	--color-tile: var(--card);
+	--color-ink: var(--foreground);
+	--color-line: var(--border);
+	--color-brass: var(--brass);
+	--color-brass-deep: var(--brass-deep);
+	--color-brass-soft: var(--brass-soft);
+	--color-on-brass: #120d0a;
+	--color-espresso: #0a150f;
 }
 
+/* Light sage mode (the toggle). The deep-forest palette in .dark is the default theme. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.375rem;
+	--background: #ffffff;
+	--foreground: #171b15;
+	--card: #f6f7f4;
+	--card-foreground: #171b15;
+	--popover: #ffffff;
+	--popover-foreground: #171b15;
+	--primary: #b4a44a;
+	--primary-foreground: #120d0a;
+	--secondary: #f0eedb;
+	--secondary-foreground: #171b15;
+	--muted: #f6f7f4;
+	/* The original's #68705f, a step darker so it clears AA on the cream tint too. */
+	--muted-foreground: #5c6454;
+	--accent: #f0eedb;
+	--accent-foreground: #171b15;
+	--destructive: #b42318;
+	--border: #e4e6df;
+	--input: #d9dcd2;
+	--ring: #8f822a;
+	--brass: #8f822a;
+	--brass-deep: #6e6420;
+	--brass-soft: #f0eedb;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #0f1d16;
+	--foreground: #f2efe4;
+	--card: #172b20;
+	--card-foreground: #f2efe4;
+	--popover: #172b20;
+	--popover-foreground: #f2efe4;
+	--primary: #b4a44a;
+	--primary-foreground: #120d0a;
+	--secondary: #1d3326;
+	--secondary-foreground: #f2efe4;
+	--muted: #1d3326;
+	--muted-foreground: #a3b3a1;
+	--accent: #1d3326;
+	--accent-foreground: #f2efe4;
+	--destructive: #f2836f;
+	--border: #29402f;
+	--input: #33503b;
+	--ring: #b4a44a;
+	--brass: #b4a44a;
+	--brass-deep: #93842f;
+	--brass-soft: #1d3326;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-archivo), system-ui, sans-serif;
 	}
+	button:not(:disabled),
+	[role="button"]:not(:disabled),
+	select,
+	summary {
+		cursor: pointer;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+/* Container used by every section: the original's max-w-6xl with a 20px gutter. */
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 72rem;
+	padding-inline: 1.25rem;
+}
+
+/* Header states. Solid on ordinary pages; transparent and white over a hero photograph
+   ([data-hero] on the image section), turning into blurred glass once the page scrolls. */
+.site-header {
+	background: color-mix(in srgb, var(--background) 95%, transparent);
+	border-bottom: 1px solid var(--border);
+	backdrop-filter: blur(10px);
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease,
+		border-color 0.3s ease;
+}
+:root:has([data-hero]) .site-header:not([data-scrolled="true"]) {
+	color: #fff;
+	background: transparent;
+	border-bottom-color: transparent;
+	backdrop-filter: none;
+}
+:root:has([data-hero]) .site-header[data-scrolled="true"] {
+	background: color-mix(in srgb, var(--background) 82%, transparent);
+	backdrop-filter: blur(14px);
+}
+/* The hero slides under the transparent header. */
+:root:has([data-hero]) .site-main {
+	margin-top: -4rem;
+}
+
+/* Footer: always espresso-dark, whatever the theme (local token remap). */
+.site-footer {
+	--background: #0a150f;
+	--card: #122419;
+	--foreground: #f2efe4;
+	--muted-foreground: #a3b3a1;
+	--border: #223829;
+	background: #0a150f;
+	color: #f2efe4;
+}
+
+/* Product shelves scroll sideways without a visible scrollbar. */
+.no-scrollbar {
+	scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
 }
 
 .prose {
@@ -99,11 +188,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--card) 0%,
+		var(--secondary) 40%,
+		var(--border) 50%,
+		var(--secondary) 60%,
+		var(--card) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

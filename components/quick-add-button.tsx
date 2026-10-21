@@ -1,7 +1,6 @@
 "use client";
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -79,10 +78,24 @@ export function QuickAddButton({
 					<button
 						type="button"
 						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+						className="absolute right-3 top-3 z-10 flex cursor-pointer items-center justify-center rounded-md bg-white/90 p-2.5 text-on-brass shadow-sm backdrop-blur transition duration-200 hover:bg-brass focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
 						aria-label={`Add ${product.name} to cart`}
 					>
-						<ShoppingBag className="h-3.5 w-3.5" />
+						<svg
+							aria-hidden
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.8"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<circle cx="9" cy="21" r="1.4" />
+							<circle cx="19" cy="21" r="1.4" />
+							<path d="M2.5 3h2l2.6 12.6a2 2 0 0 0 2 1.6h9.2a2 2 0 0 0 2-1.6L22 7H6" />
+						</svg>
 					</button>
 				</TooltipTrigger>
 				<TooltipContent side="top" className="text-xs">
