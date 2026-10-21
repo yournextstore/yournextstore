@@ -1,6 +1,5 @@
 import { Mail } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getStoreSeo } from "@/lib/commerce";
@@ -52,7 +51,7 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 				<a
 					key={category.id}
 					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+					className="font-field rounded-[2px] border border-line px-4 py-2 text-[0.74rem] tracking-[0.06em] text-dim uppercase transition-colors hover:border-signal hover:text-signal"
 				>
 					{category.title}
 				</a>
@@ -64,8 +63,8 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion type="single" collapsible className="rounded-lg border border-border px-4">
+			<h2 className="mb-4 text-[2rem] text-ink">{category.title}</h2>
+			<Accordion type="single" collapsible className="rounded-[2px] border border-line bg-panel px-4">
 				{category.questions.map((item, index) => (
 					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
 						<AccordionTrigger>{item.question}</AccordionTrigger>
@@ -81,8 +80,8 @@ function FAQSection({ category }: { category: FAQCategory }) {
 
 function ContactCard() {
 	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
+		<div className="rounded-[2px] border border-line bg-panel p-8 text-center">
+			<h2 className="text-[2rem] text-ink">Still have questions?</h2>
 			<p className="mt-2 text-muted-foreground">
 				We're here to help. Reach out and we'll get back to you as soon as possible.
 			</p>
@@ -96,17 +95,18 @@ function ContactCard() {
 
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto max-w-3xl px-4 pt-[clamp(48px,8vh,88px)] pb-24 sm:px-6 lg:px-8">
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
 			{/* Header */}
 			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
+				<p className="eyebrow">
+					<span className="grid-ref" aria-hidden="true">
+						[ 78.22°N / 15.65°E ]
+					</span>
+					FIELD NOTES
+				</p>
+				<h1 className="title-section mt-6 text-ink">Questions, answered</h1>
+				<p className="lead mt-5">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>
 			</div>
