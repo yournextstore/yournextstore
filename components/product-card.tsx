@@ -5,11 +5,10 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
+import { displayPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -18,9 +17,13 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	className,
+	sizes = "(max-width: 1024px) 50vw, 400px",
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	className?: string;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -34,15 +37,20 @@ export async function ProductCard({
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
 
+	// Sale: a single-variant (or uniformly priced) card shows the list price struck through.
+	const firstVariant = variants?.[0];
+	const listPrice =
+		firstVariant && variants?.length === 1 ? displayPrice(firstVariant, taxBehavior, "originalPrice") : null;
+	const onSale = Boolean(minPrice && listPrice && BigInt(listPrice) > minPrice);
+	const compareAtDisplay =
+		onSale && listPrice ? formatMoney({ amount: BigInt(listPrice), currency, locale }) : null;
+
 	const allImages = [
 		...(product.images ?? []),
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -58,27 +66,12 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
+		<Link href={`/product/${product.slug}${variantSearch}`} className={cn("group relative block", className)}>
+			<div className="relative aspect-square overflow-hidden rounded-md bg-gray-100">
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className="absolute inset-0 h-full w-full object-cover"
 							src={primaryImage}
 							muted
 							loop
@@ -88,36 +81,29 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes={sizes}
+							className="object-cover transition-transform duration-300 group-hover:scale-105"
 							priority={priority}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{onSale && (
+					<span className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-medium text-white">
+						Sale
+					</span>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="p-4">
+				<span className="line-clamp-2 text-sm font-medium text-ink transition-colors group-hover:text-primary">
+					{product.name}
+				</span>
+				<div className="mt-2 flex flex-wrap items-center gap-x-2">
+					{priceDisplay && <span className="text-lg font-semibold text-ink">{priceDisplay}</span>}
+					{compareAtDisplay && (
+						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+					)}
+				</div>
 			</div>
 		</Link>
 	);

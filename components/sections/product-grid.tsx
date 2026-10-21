@@ -3,10 +3,11 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
+import { ProductCarousel } from "@/components/product-carousel";
+import { Button } from "@/components/ui/button";
 import { commerce } from "@/lib/commerce";
 
 export type Product = APIProductsBrowseResult["data"][number];
@@ -22,54 +23,63 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	layout?: "grid" | "carousel";
+	className?: string;
 };
+
+/** Photographed, priced products first: a zero-priced set or an imageless card should not lead a row. */
+async function getShowcaseProducts(limit: number) {
+	const { data } = await commerce.productBrowse({ active: true, limit: 100 }).catch(() => ({ data: [] }));
+	const leads = (product: Product) =>
+		product.images.length > 0 && product.variants.some((variant) => Number(variant.price) > 0);
+	return [...data.filter(leads), ...data.filter((product) => !leads(product))].slice(0, limit);
+}
 
 export async function ProductGrid({
 	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	layout = "grid",
+	className = "shell py-16",
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	const displayProducts = products ?? (await getShowcaseProducts(limit));
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section className={className}>
+			<div className="mb-8 flex items-center justify-between gap-4">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className="text-2xl font-bold text-ink">{title}</h2>
+					{description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
 				</div>
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+					<Button variant="link" asChild className="px-0 text-ink">
+						<Link href={viewAllHref}>View all &rarr;</Link>
+					</Button>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+			{layout === "carousel" ? (
+				<ProductCarousel label={title}>
+					{displayProducts.map((product, index) => (
+						<ProductCard
+							key={product.id}
+							product={product}
+							priority={index === 0}
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 300px"
+						/>
+					))}
+				</ProductCarousel>
+			) : (
+				<div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:gap-6 lg:grid-cols-4">
+					{displayProducts.map((product) => (
+						<ProductCard key={product.id} product={product} sizes="(max-width: 1024px) 50vw, 300px" />
+					))}
 				</div>
 			)}
 		</section>

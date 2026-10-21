@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { ProductCardSkeleton } from "@/components/product-grid-skeleton";
+import { CollectionsBand } from "@/components/sections/collections-band";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
 
 function FeaturedProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
+		<section className="shell py-16">
+			<div className="mb-8 flex h-11 items-center justify-between">
+				<div className="h-8 w-56 animate-pulse rounded bg-gray-100" />
 			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
+			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+				{[0, 1, 2, 3].map((i) => (
+					<div
+						key={i}
+						className={i === 0 ? "" : i === 1 ? "max-sm:hidden" : i === 2 ? "max-md:hidden" : "max-lg:hidden"}
+					>
+						<ProductCardSkeleton />
+					</div>
+				))}
+			</div>
 		</section>
 	);
 }
@@ -29,10 +34,9 @@ export default function Home() {
 		<>
 			<Hero />
 			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+				<ProductGrid title="Featured Products" limit={8} layout="carousel" />
 			</Suspense>
-			<About />
-			<Newsletter />
+			<CollectionsBand />
 		</>
 	);
 }

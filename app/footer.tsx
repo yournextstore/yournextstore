@@ -1,72 +1,9 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
+import { getNavData } from "@/lib/nav";
 
-async function FooterBlogLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
+const footerLink = "text-sm text-neutral-400 transition-colors hover:text-neutral-200";
 
 async function FooterLegalPages() {
 	"use cache";
@@ -80,14 +17,11 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
+			<h2 className="text-sm font-medium text-neutral-300">Policies</h2>
 			<ul className="mt-4 space-y-3">
 				{pages.data.map((page) => (
 					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
+						<Link href={`/legal${page.href}`} className={footerLink}>
 							{page.label}
 						</Link>
 					</li>
@@ -107,58 +41,70 @@ async function getCopyrightYear() {
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, nav] = await Promise.all([getCopyrightYear(), getNavData()]);
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="bg-night text-neutral-300">
+			<div className="shell py-12">
+				<div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+					<div className="md:col-span-2">
+						<span className="text-xl font-bold text-white">{nav.storeName}</span>
+						<p className="mt-4 max-w-md text-sm text-neutral-400">
+							{nav.storeDescription ??
+								"Plain, hard-wearing bags for the commute and the weekend. Browse the full range, or start with one of our collections."}
 						</p>
+						<Link
+							href="/products"
+							className="mt-4 inline-block text-sm font-medium text-white transition-colors hover:text-neutral-200"
+						>
+							Shop the full range &rarr;
+						</Link>
 					</div>
 
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
+						<h2 className="text-sm font-medium text-neutral-300">Shop</h2>
 						<ul className="mt-4 space-y-3">
 							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
+								<Link href="/products" className={footerLink}>
+									All Products
 								</Link>
 							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+							{nav.shopLinks.map((link) => (
+								<li key={link.href}>
+									<Link href={link.href} className={footerLink}>
+										{link.label}
+									</Link>
+								</li>
+							))}
 						</ul>
 					</div>
 
-					{/* Legal */}
+					<div>
+						<h2 className="text-sm font-medium text-neutral-300">Account</h2>
+						<ul className="mt-4 space-y-3">
+							<li>
+								{/* Plain <a>: /account is a proxied zone (see AGENTS.md). */}
+								<a href="/account" className={footerLink}>
+									My Account
+								</a>
+							</li>
+							{nav.secondary.map((link) => (
+								<li key={link.href}>
+									<Link href={link.href} className={footerLink}>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</div>
+
 					<FooterLegalPages />
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="mt-8 border-t border-neutral-800 pt-8 text-center text-xs text-neutral-400">
+					<p>
+						&copy; {year} {nav.storeName}. All rights reserved.
+					</p>
 				</div>
 			</div>
 		</footer>

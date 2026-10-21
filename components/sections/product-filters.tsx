@@ -1,13 +1,14 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
 	Sheet,
 	SheetContent,
@@ -65,7 +66,7 @@ type FilterControlsProps = {
 	showCollections?: boolean;
 };
 
-function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+function useFilterActions(facets: APIProductFiltersResult) {
 	const { currency, locale } = useStoreConfig();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -134,6 +135,54 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	};
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
+
+	const commitPrice = ([min = priceFloor, max = priceCeil]: number[]) =>
+		commit((params) => {
+			if (min <= priceFloor) {
+				params.delete("priceMin");
+			} else {
+				params.set("priceMin", String(min));
+			}
+			if (max >= priceCeil) {
+				params.delete("priceMax");
+			} else {
+				params.set("priceMax", String(max));
+			}
+		});
+
+	return {
+		currency,
+		locale,
+		searchParams,
+		optimisticVts,
+		priceFloor,
+		priceCeil,
+		priceRange,
+		setPriceRange,
+		commitPrice,
+		setSingle,
+		toggleVariantValue,
+		clearAll,
+		hasActiveFilters,
+	};
+}
+
+function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+	const {
+		currency,
+		locale,
+		searchParams,
+		optimisticVts,
+		priceFloor,
+		priceCeil,
+		priceRange,
+		setPriceRange,
+		commitPrice,
+		setSingle,
+		toggleVariantValue,
+		clearAll,
+		hasActiveFilters,
+	} = useFilterActions(facets);
 	const hasPrice = priceCeil > priceFloor;
 	// All groups that will render, in display order — only the first opens by default.
 	const accordionGroups = [
@@ -291,20 +340,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									step={1}
 									minStepsBetweenThumbs={1}
 									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommit={([min = priceFloor, max = priceCeil]) =>
-										commit((params) => {
-											if (min <= priceFloor) {
-												params.delete("priceMin");
-											} else {
-												params.set("priceMin", String(min));
-											}
-											if (max >= priceCeil) {
-												params.delete("priceMax");
-											} else {
-												params.set("priceMax", String(max));
-											}
-										})
-									}
+									onValueCommit={commitPrice}
 								/>
 								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
 									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
@@ -336,8 +372,8 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
+				<Button variant="outline" className="h-11 px-4 lg:hidden">
+					<SlidersHorizontalIcon className="size-4" aria-hidden />
 					Filters
 					{activeCount > 0 && (
 						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
@@ -356,5 +392,200 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 				</div>
 			</SheetContent>
 		</Sheet>
+	);
+}
+
+function FilterPill({ label, count, children }: { label: string; count?: number; children: ReactNode }) {
+	return (
+		<Popover>
+			<PopoverTrigger asChild>
+				<Button variant="outline" size="sm" className="group/pill text-xs font-medium">
+					<span>{label}</span>
+					{count ? (
+						<span className="flex size-5 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">
+							{count}
+						</span>
+					) : null}
+					<ChevronDownIcon
+						className="size-4 transition-transform group-aria-expanded/pill:rotate-180"
+						aria-hidden
+					/>
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent align="start" className="max-h-80 w-64 overflow-y-auto p-2">
+				{children}
+			</PopoverContent>
+		</Popover>
+	);
+}
+
+const optionRow =
+	"flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm text-ink-soft transition-colors hover:bg-muted hover:text-ink";
+
+function SingleOptions({
+	items,
+	paramKey,
+	activeSlug,
+	onPick,
+}: {
+	items: { slug: string; name: string }[];
+	paramKey: string;
+	activeSlug: string | null;
+	onPick: (key: string, slug: string) => void;
+}) {
+	return (
+		<ul className="space-y-0.5">
+			{items.map((item) => (
+				<li key={item.slug}>
+					<button
+						type="button"
+						aria-pressed={activeSlug === item.slug}
+						onClick={() => onPick(paramKey, item.slug)}
+						className={cn(optionRow, activeSlug === item.slug && "font-medium text-ink")}
+					>
+						{item.name}
+						{activeSlug === item.slug && <CheckIcon className="size-4" aria-hidden />}
+					</button>
+				</li>
+			))}
+		</ul>
+	);
+}
+
+/**
+ * The original's desktop filter row: one outline pill per facet opening a dropdown, the result
+ * count and the sort pill at the inline end. Below lg the toolbar shows the Filters sheet instead.
+ */
+export function ProductFilterBar({
+	facets,
+	showCategories = true,
+	showCollections = true,
+	totalCount,
+	sort,
+}: FilterControlsProps & { totalCount: number; sort?: ReactNode }) {
+	const {
+		currency,
+		locale,
+		searchParams,
+		optimisticVts,
+		priceFloor,
+		priceCeil,
+		priceRange,
+		setPriceRange,
+		commitPrice,
+		setSingle,
+		toggleVariantValue,
+		clearAll,
+		hasActiveFilters,
+	} = useFilterActions(facets);
+	const hasPrice = priceCeil > priceFloor;
+	const priceActive = searchParams.has("priceMin") || searchParams.has("priceMax");
+
+	return (
+		<div className="mb-6 flex items-center justify-between gap-3 border-b border-border pb-4">
+			<div className="flex min-w-0 flex-wrap items-center gap-3">
+				<div className="lg:hidden">
+					<ProductFiltersMobile
+						facets={facets}
+						showCategories={showCategories}
+						showCollections={showCollections}
+					/>
+				</div>
+				<div className="hidden flex-wrap items-center gap-3 lg:flex">
+					{showCategories && facets.categories.length > 0 && (
+						<FilterPill label="Category" count={searchParams.has("category") ? 1 : 0}>
+							<SingleOptions
+								items={facets.categories}
+								paramKey="category"
+								activeSlug={searchParams.get("category")}
+								onPick={setSingle}
+							/>
+						</FilterPill>
+					)}
+					{showCollections && facets.collections.length > 0 && (
+						<FilterPill label="Collection" count={searchParams.has("collection") ? 1 : 0}>
+							<SingleOptions
+								items={facets.collections}
+								paramKey="collection"
+								activeSlug={searchParams.get("collection")}
+								onPick={setSingle}
+							/>
+						</FilterPill>
+					)}
+					{facets.variantTypes.map((vt) => {
+						const selected = optimisticVts[vt.label] ?? [];
+						return (
+							<FilterPill key={vt.label} label={vt.label} count={selected.length}>
+								<ul className="space-y-1">
+									{vt.values.map((value) => {
+										const id = `bar-${vt.label}-${value}`;
+										return (
+											<li
+												key={value}
+												className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted"
+											>
+												<Checkbox
+													id={id}
+													checked={selected.includes(value)}
+													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
+												/>
+												<label htmlFor={id} className="flex-1 cursor-pointer text-sm text-ink-soft">
+													{value}
+												</label>
+											</li>
+										);
+									})}
+								</ul>
+							</FilterPill>
+						);
+					})}
+					{facets.brands.length > 0 && (
+						<FilterPill label="Brand" count={searchParams.has("brand") ? 1 : 0}>
+							<SingleOptions
+								items={facets.brands}
+								paramKey="brand"
+								activeSlug={searchParams.get("brand")}
+								onPick={setSingle}
+							/>
+						</FilterPill>
+					)}
+					{hasPrice && (
+						<FilterPill label="Price" count={priceActive ? 1 : 0}>
+							<div className="px-2 pt-3 pb-1">
+								<Slider
+									value={priceRange}
+									min={priceFloor}
+									max={priceCeil}
+									step={1}
+									minStepsBetweenThumbs={1}
+									onValueChange={(value) => setPriceRange(value as [number, number])}
+									onValueCommit={commitPrice}
+									aria-label="Price range"
+								/>
+								<div className="mt-3 flex justify-between text-xs text-ink-soft">
+									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
+									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
+								</div>
+							</div>
+						</FilterPill>
+					)}
+					{hasActiveFilters && (
+						<button
+							type="button"
+							onClick={clearAll}
+							className="text-sm text-ink-soft underline-offset-4 hover:text-ink hover:underline"
+						>
+							Clear all
+						</button>
+					)}
+				</div>
+			</div>
+			<div className="flex shrink-0 items-center gap-3">
+				<span className="hidden text-sm text-ink-soft sm:inline">
+					{totalCount} {totalCount === 1 ? "product" : "products"}
+				</span>
+				{sort}
+			</div>
+		</div>
 	);
 }
