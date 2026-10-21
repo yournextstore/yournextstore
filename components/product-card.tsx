@@ -91,6 +91,7 @@ export async function ProductCard({
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
+							fetchPriority={priority ? "high" : undefined}
 						/>
 					))}
 				{secondaryImage &&

@@ -128,6 +128,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						)}
 						onClick={() => setIsZoomed(!isZoomed)}
 						priority
+						fetchPriority="high"
 					/>
 				)}
 

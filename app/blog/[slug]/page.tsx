@@ -162,6 +162,7 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 						alt={post.title}
 						fill
 						priority
+						fetchPriority="high"
 						sizes="(max-width: 768px) 100vw, 768px"
 						className="object-cover"
 					/>
