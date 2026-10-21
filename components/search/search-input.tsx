@@ -51,7 +51,7 @@ export function SearchInput() {
 						e.preventDefault();
 						iconInputRef.current?.focus();
 					}}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
+					className="w-[min(24rem,calc(100vw-2rem))] rounded-[4px] border-border bg-popover p-2 shadow-lg"
 				>
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
@@ -78,7 +78,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-full rounded-[4px] border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
 							/>
 						</div>
 					</form>
@@ -128,7 +128,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 								autoComplete="off"
-								className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-56 rounded-[4px] border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
 							/>
 						</div>
 					</PopoverAnchor>
@@ -138,7 +138,7 @@ export function SearchInput() {
 						collisionPadding={16}
 						onOpenAutoFocus={(e) => e.preventDefault()}
 						onPointerDownOutside={() => setInlineOpen(false)}
-						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
+						className="w-[min(22rem,calc(100vw-2rem))] rounded-[4px] border-border bg-popover p-1.5 shadow-lg"
 					>
 						<Suggestions
 							listboxId={inlineListboxId}

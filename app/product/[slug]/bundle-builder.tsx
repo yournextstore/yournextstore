@@ -313,7 +313,7 @@ export function BundleBuilder({
 							{formatMoney({ amount: originalTotal, currency, locale })}
 						</span>
 					)}
-					<span className="font-bold text-2xl">{formatMoney({ amount: total, currency, locale })}</span>
+					<span className="font-medium text-2xl">{formatMoney({ amount: total, currency, locale })}</span>
 				</div>
 				<Button
 					type="button"

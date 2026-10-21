@@ -1,5 +1,4 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 
@@ -16,15 +15,9 @@ async function getCategoryProducts(categorySlug?: string) {
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+// No Suspense of its own: it renders inside the page's boundary so it lands with the details
+// instead of streaming in after the footer has painted (CLS).
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
@@ -38,10 +31,14 @@ async function RelatedProductsContent({
 
 	return (
 		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
+			eyebrow="Pairs well with"
+			title={
+				<>
+					Order it <em>with these.</em>
+				</>
+			}
+			products={related.slice(0, 3)}
+			id="related"
 		/>
 	);
 }

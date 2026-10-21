@@ -115,8 +115,9 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="rounded-[4px] border border-line px-6 py-24 text-center">
+				<p className="eyebrow mb-3 justify-center">No readout</p>
+				<p className="text-lg text-dim">Nothing matches these filters.</p>
 			</div>
 		);
 	}
@@ -125,9 +126,9 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={index === 0} index={offset + index} />
 				))}
 			</div>
 			<ListingPagination
@@ -142,10 +143,12 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="section-x min-h-svh pt-[clamp(48px,8vh,88px)] pb-[clamp(72px,11vh,132px)]">
+			<div className="frame">
+				<div className="mb-6 h-4 w-64 animate-pulse bg-panel-2" />
+				<div className="mb-10 h-16 w-72 animate-pulse bg-panel-2" />
+				<ProductGridSkeleton />
+			</div>
 		</div>
 	);
 }
@@ -206,56 +209,59 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
+		<div className="section-x min-h-svh pt-[clamp(48px,8vh,88px)] pb-[clamp(72px,11vh,132px)]">
+			<div className="frame">
+				<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
+				<Breadcrumb className="font-readout mb-6 text-[0.74rem] tracking-[0.04em]">
+					<BreadcrumbList>
+						<BreadcrumbItem>
+							<BreadcrumbLink asChild>
+								<Link href="/">Home</Link>
+							</BreadcrumbLink>
+						</BreadcrumbItem>
+						{hierarchy.map((crumb, index) => {
+							const path = hierarchy
+								.slice(0, index + 1)
+								.map((c) => c.slug)
+								.join("/");
+							const isLast = index === hierarchy.length - 1;
+							return (
+								<Fragment key={crumb.slug}>
+									<BreadcrumbSeparator />
+									<BreadcrumbItem>
+										{isLast ? (
+											<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
+										) : (
+											<BreadcrumbLink asChild>
+												<Link href={`/category/${path}`}>{crumb.name}</Link>
+											</BreadcrumbLink>
+										)}
+									</BreadcrumbItem>
+								</Fragment>
+							);
+						})}
+					</BreadcrumbList>
+				</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
+				<div className="mb-10">
+					<p className="eyebrow mb-[1.4rem]">Category</p>
+					<h1 className="title-section text-ink [overflow-wrap:anywhere]">{category.name}</h1>
+				</div>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
+				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10" : ""}>
+					{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
 
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
+					<div>
+						{filtersAvailable && (
+							<div className="mb-8 flex justify-end lg:hidden">
+								<ProductFiltersMobile facets={facets} showCategories={false} />
+							</div>
+						)}
 
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
+						<Suspense fallback={<ProductGridSkeleton />}>
+							<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+						</Suspense>
+					</div>
 				</div>
 			</div>
 		</div>
