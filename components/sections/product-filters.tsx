@@ -17,9 +17,13 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { sentenceCase } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
+
+const TRIGGER =
+	"px-2.5 py-2.5 text-sm font-semibold uppercase text-neutral-600 hover:no-underline items-center";
 
 // Search params owned by the filters, cleared by "Clear all".
 const FILTER_KEYS = ["category", "collection", "brand", "priceMin", "priceMax", "vts"] as const;
@@ -143,12 +147,12 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 		...(facets.brands.length > 0 ? ["brands"] : []),
 		...(hasPrice ? ["price"] : []),
 	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	const accordionDefault = accordionGroups;
 
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+		<div className="flex flex-col gap-2 rounded-lg bg-card p-2">
+			<div className="flex min-h-6 items-center justify-between px-2.5">
+				<h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -160,11 +164,11 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 			</div>
 
-			<Accordion multiple defaultValue={accordionDefault} className="w-full">
+			<Accordion multiple defaultValue={accordionDefault} className="flex w-full flex-col gap-2">
 				{showCategories && facets.categories.length > 0 && (
-					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className="rounded-lg border-0 bg-muted" value="categories">
+						<AccordionTrigger className={TRIGGER}>Product category</AccordionTrigger>
+						<AccordionContent className="px-2.5 pb-2.5">
 							<CollapsibleList
 								items={facets.categories}
 								className="space-y-1"
@@ -175,12 +179,20 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											<button
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
+												aria-pressed={isActive}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"flex w-full items-center gap-3 rounded-md py-1 text-left text-sm font-medium text-neutral-800 transition-colors hover:text-violet",
+													isActive && "text-violet",
 												)}
 											>
-												{category.name}
+												<span
+													aria-hidden="true"
+													className={cn(
+														"h-4 w-4 shrink-0 rounded border",
+														isActive ? "border-violet bg-violet" : "border-neutral-300 bg-card",
+													)}
+												/>
+												{sentenceCase(category.name)}
 											</button>
 										</li>
 									);
@@ -191,9 +203,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 
 				{showCollections && facets.collections.length > 0 && (
-					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className="rounded-lg border-0 bg-muted" value="collections">
+						<AccordionTrigger className={TRIGGER}>Product collection</AccordionTrigger>
+						<AccordionContent className="px-2.5 pb-2.5">
 							<CollapsibleList
 								items={facets.collections}
 								className="space-y-1"
@@ -204,12 +216,20 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											<button
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
+												aria-pressed={isActive}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"flex w-full items-center gap-3 rounded-md py-1 text-left text-sm font-medium text-neutral-800 transition-colors hover:text-violet",
+													isActive && "text-violet",
 												)}
 											>
-												{collection.name}
+												<span
+													aria-hidden="true"
+													className={cn(
+														"h-4 w-4 shrink-0 rounded border",
+														isActive ? "border-violet bg-violet" : "border-neutral-300 bg-card",
+													)}
+												/>
+												{sentenceCase(collection.name)}
 											</button>
 										</li>
 									);
@@ -222,26 +242,27 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				{facets.variantTypes.map((vt) => {
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
-						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
-							<AccordionContent>
+						<AccordionItem key={vt.label} className="rounded-lg border-0 bg-muted" value={`vt-${vt.label}`}>
+							<AccordionTrigger className={TRIGGER}>Product {vt.label}</AccordionTrigger>
+							<AccordionContent className="px-2.5 pb-2.5">
 								<CollapsibleList
 									items={vt.values}
-									className="space-y-2"
+									className="space-y-3"
 									renderItem={(value) => {
 										// No spaces: the checkbox names itself through aria-labelledby, a space-separated
 										// id list, so "Dual Color" would point at two ids and leave it unnamed.
 										const id = `${vt.label}-${value}`.replace(/\s+/g, "-");
 										const checked = selectedValues.includes(value);
 										return (
-											<li key={value} className="flex items-center gap-2">
+											<li key={value} className="flex items-center gap-3">
 												<Checkbox
+													className="size-6 rounded-md border-neutral-300 bg-card data-checked:border-violet data-checked:bg-violet"
 													id={id}
 													checked={checked}
 													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
 												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
-													{value}
+												<label htmlFor={id} className="cursor-pointer text-sm font-medium text-neutral-800">
+													{sentenceCase(value)}
 												</label>
 											</li>
 										);
@@ -253,9 +274,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				})}
 
 				{facets.brands.length > 0 && (
-					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className="rounded-lg border-0 bg-muted" value="brands">
+						<AccordionTrigger className={TRIGGER}>Product brand</AccordionTrigger>
+						<AccordionContent className="px-2.5 pb-2.5">
 							<CollapsibleList
 								items={facets.brands}
 								className="space-y-1"
@@ -266,12 +287,20 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 											<button
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
+												aria-pressed={isActive}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"flex w-full items-center gap-3 rounded-md py-1 text-left text-sm font-medium text-neutral-800 transition-colors hover:text-violet",
+													isActive && "text-violet",
 												)}
 											>
-												{brand.name}
+												<span
+													aria-hidden="true"
+													className={cn(
+														"h-4 w-4 shrink-0 rounded border",
+														isActive ? "border-violet bg-violet" : "border-neutral-300 bg-card",
+													)}
+												/>
+												{sentenceCase(brand.name)}
 											</button>
 										</li>
 									);
@@ -282,9 +311,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 
 				{hasPrice && (
-					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className="rounded-lg border-0 bg-muted" value="price">
+						<AccordionTrigger className={TRIGGER}>Product price</AccordionTrigger>
+						<AccordionContent className="px-2.5 pb-2.5">
 							<div className="px-1 pt-2">
 								<Slider
 									value={priceRange}
@@ -338,7 +367,9 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
+			<SheetTrigger
+				render={<Button variant="outline" size="sm" className="h-9 rounded-lg bg-card lg:hidden" />}
+			>
 				<SlidersHorizontalIcon className="size-4" />
 				Filters
 				{activeCount > 0 && (

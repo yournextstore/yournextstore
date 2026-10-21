@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +33,102 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Kara: violet accent, charcoal top bar, warm promo tints. */
+	--color-violet: var(--violet);
+	--color-violet-soft: var(--violet-soft);
+	--color-topbar: var(--topbar);
+	--color-topbar-foreground: var(--topbar-foreground);
+	--color-peach: var(--peach);
+	--color-sand: var(--sand);
+	--color-stone: var(--stone);
+	--color-ink: var(--ink);
+	--color-surface: var(--surface);
+}
+
+/* Type scale of the original (Tailwind v3 sizes, Inter), under names that don't touch shadcn's text-sm/base. */
+@theme {
+	--text-kara-hero: 2.5rem;
+	--text-kara-hero--line-height: 1.15;
+	--text-kara-hero-lg: 3rem;
+	--text-kara-hero-lg--line-height: 1.15;
+	--text-kara-section: 1.875rem;
+	--text-kara-section--line-height: 1.2;
+	--text-kara-section-lg: 2.25rem;
+	--text-kara-section-lg--line-height: 1.15;
+	--text-kara-kicker: 0.875rem;
+	--text-kara-kicker--line-height: 1.25rem;
+	--breakpoint-xs: 26rem;
+}
+
+@utility kara-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 80rem;
+	padding-inline: 1rem;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #f5f5f5;
+	--foreground: #171717;
+	--card: #ffffff;
+	--card-foreground: #171717;
+	--popover: #ffffff;
+	--popover-foreground: #171717;
+	--primary: #18181b;
+	--primary-foreground: #ffffff;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #262626;
+	--muted: #f5f5f5;
+	/* The original's neutral-400/500 greys fail AA on its neutral-100 page; this keeps the tone. */
+	--muted-foreground: #616161;
+	--accent: #ede9fe;
+	--accent-foreground: #5b21b6;
+	--destructive: #dc2626;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #8b5cf6;
+	--violet: #6d28d9;
+	--violet-soft: #ede9fe;
+	--topbar: #232323;
+	--topbar-foreground: #d1d5db;
+	--peach: #ffe4d6;
+	--sand: #efe0c6;
+	--stone: #d6d6d8;
+	--ink: #212121;
+	--surface: #f3f4f6;
 }
 
+/* Light-only design: the dark block repeats the light palette so the palette test checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #f5f5f5;
+	--foreground: #171717;
+	--card: #ffffff;
+	--card-foreground: #171717;
+	--popover: #ffffff;
+	--popover-foreground: #171717;
+	--primary: #18181b;
+	--primary-foreground: #ffffff;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #262626;
+	--muted: #f5f5f5;
+	--muted-foreground: #616161;
+	--accent: #ede9fe;
+	--accent-foreground: #5b21b6;
+	--destructive: #dc2626;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #8b5cf6;
+	--violet: #6d28d9;
+	--violet-soft: #ede9fe;
+	--topbar: #232323;
+	--topbar-foreground: #d1d5db;
+	--peach: #ffe4d6;
+	--sand: #efe0c6;
+	--stone: #d6d6d8;
+	--ink: #212121;
+	--surface: #f3f4f6;
 }
 
 @layer base {
@@ -85,6 +137,34 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	}
+}
+
+/* The original's shimmering skeleton. */
+.kara-shimmer {
+	position: relative;
+	overflow: hidden;
+	background: #e5e5e5;
+}
+.kara-shimmer::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	transform: translateX(-100%);
+	background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7), transparent);
+	animation: kara-shimmer 1.5s infinite;
+}
+@keyframes kara-shimmer {
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+/* Bottom tab bar on phones: keep the page and the chat dock clear of it. */
+@media (max-width: 1023px) {
+	body {
+		padding-bottom: 4rem;
 	}
 }
 

@@ -12,8 +12,8 @@ import { commerce } from "@/lib/commerce";
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
+	kicker?: string;
 	title?: string;
-	description?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -24,11 +24,12 @@ type ProductGridProps = {
 	viewAllHref?: string;
 };
 
+/** A centred kicker + title over a row of the original's white cards on the grey page. */
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	kicker = "New arrivals",
+	title = "Just Landed",
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
@@ -36,39 +37,31 @@ export async function ProductGrid({
 	cacheLife("minutes");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	if (displayProducts.length === 0) return null;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				)}
+		<section id="products" className="kara-container py-12">
+			<div className="mb-8 flex flex-col items-center">
+				<p className="mb-3 text-sm font-bold uppercase text-violet">{kicker}</p>
+				<h2 className="text-center text-kara-section font-bold text-black md:text-kara-section-lg">
+					{title}
+				</h2>
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
 				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<div key={product.id} className={index >= 4 ? "max-lg:hidden" : undefined}>
+						<ProductCard product={product} />
+					</div>
 				))}
 			</div>
-
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-10 flex justify-center">
 					<Link
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="flex items-center gap-2 rounded bg-zinc-900 px-8 py-2.5 text-base text-white shadow-sm shadow-zinc-500 transition hover:bg-zinc-700"
 					>
 						View all products
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-4 w-4" aria-hidden="true" />
 					</Link>
 				</div>
 			)}

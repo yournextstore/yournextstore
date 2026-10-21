@@ -1,58 +1,112 @@
-"use client";
-
-import { Menu } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import type { MenuCategory } from "@/lib/catalog";
 
-export type NavLink = {
-	href: string;
-	label: string;
-};
+const itemClass =
+	"flex h-full items-center px-4 font-medium xl:px-5 text-neutral-700 transition-colors hover:bg-violet-soft hover:text-violet";
 
-export function Navbar({ links }: { links: NavLink[] }) {
-	const [open, setOpen] = useState(false);
+const discover = [
+	{ label: "New arrivals", href: "/products" },
+	{ label: "Price: low to high", href: "/products?sort=price-asc" },
+	{ label: "Price: high to low", href: "/products?sort=price-desc" },
+	{ label: "A–Z", href: "/products?sort=name" },
+];
+
+/**
+ * Desktop navigation: a "Shop" item that opens the original's full-width mega menu (pure CSS:
+ * hover, or keyboard focus inside), then the largest categories as plain links.
+ */
+export function DesktopNav({ categories }: { categories: MenuCategory[] }) {
+	const featured = categories.slice(0, 3);
+	const columns = categories.slice(0, 5);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
+		<nav aria-label="Main" className="mx-auto hidden h-full lg:block">
+			<ul className="flex h-full">
+				<li className="group/shop h-full">
+					<Link href="/products" className={itemClass} aria-haspopup="true">
+						Shop
+						<ChevronDown className="ml-1 h-4 w-4 transition-transform group-hover/shop:rotate-180" />
 					</Link>
+					<div className="invisible absolute inset-x-0 top-full border-t border-neutral-200 bg-card opacity-0 shadow-md shadow-neutral-300 transition-opacity duration-200 group-hover/shop:visible group-hover/shop:opacity-100 group-has-[:focus-visible]/shop:visible group-has-[:focus-visible]/shop:opacity-100">
+						<div className="kara-container flex">
+							<div className="w-1/4 shrink-0 py-8 pr-4">
+								<Link
+									href="/products"
+									className="text-sm font-bold uppercase leading-4 tracking-widest text-neutral-800 hover:underline"
+								>
+									New &amp; trending
+								</Link>
+								<ul className="space-y-1.5 pt-3">
+									{discover.map((item) => (
+										<li key={item.href}>
+											<Link href={item.href} className="text-xs text-neutral-700 hover:underline">
+												{item.label}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="flex flex-1 gap-4 border-l border-neutral-200 pl-4">
+								{columns.map((category) => (
+									<div key={category.slug} className="w-full max-w-[11rem] py-8">
+										<Link
+											href={`/category/${category.slug}`}
+											className="text-sm font-bold uppercase leading-5 tracking-widest text-neutral-800 hover:underline"
+										>
+											{category.name}
+										</Link>
+										<ul className="space-y-1.5 pt-3">
+											{category.products.map((product) => (
+												<li key={product.slug}>
+													<Link
+														href={`/product/${product.slug}`}
+														className="line-clamp-1 text-xs text-neutral-700 hover:underline"
+													>
+														{product.name}
+													</Link>
+												</li>
+											))}
+										</ul>
+									</div>
+								))}
+							</div>
+						</div>
+						<div className="border-t border-neutral-200">
+							<div className="kara-container flex">
+								<div className="w-1/4 shrink-0 py-3 pr-4">
+									<Link href="/products" className="text-xs font-bold text-neutral-800 hover:underline">
+										All products
+									</Link>
+								</div>
+								<div className="flex flex-1 gap-4 pl-4">
+									{columns.map((category) => (
+										<Link
+											key={category.slug}
+											href={`/category/${category.slug}`}
+											className="w-full max-w-[11rem] py-3 text-xs font-bold text-neutral-800 hover:underline"
+										>
+											All {category.name.toLocaleLowerCase()}
+										</Link>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
+				</li>
+				{featured.map((category, index) => (
+					<li key={category.slug} className={index > 0 ? "hidden h-full xl:block" : "h-full"}>
+						<Link href={`/category/${category.slug}`} className={`${itemClass} whitespace-nowrap`}>
+							{category.name}
+						</Link>
+					</li>
 				))}
-			</nav>
-		</>
+				<li className="h-full">
+					<Link href="/about" className={itemClass}>
+						About
+					</Link>
+				</li>
+			</ul>
+		</nav>
 	);
 }

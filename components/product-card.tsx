@@ -4,23 +4,28 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { CardMedia } from "@/components/card-media";
+import { sentenceCase } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { displayPrice, listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
-import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+export const CARD_SIZES = "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw";
+
 export async function ProductCard({
 	product,
 	priority = false,
+	sizes = CARD_SIZES,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -29,21 +34,29 @@ export async function ProductCard({
 		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
 		: null;
 
-	const allImages = [
+	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const listPrice =
+		onlyVariant && "originalPrice" in onlyVariant
+			? displayPrice(onlyVariant, taxBehavior, "originalPrice")
+			: null;
+	const compareAt =
+		listPrice && listing && BigInt(listPrice) > listing.amount
+			? formatMoney({ amount: BigInt(listPrice), currency, locale })
+			: null;
+
+	const images = [
 		...(product.images ?? []),
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
 			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+	]
+		.filter((image) => !isVideoUrl(image))
+		.slice(0, 5);
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const singleVariant = oneTimeAllowed && onlyVariant && onlyVariant.stock !== 0 ? onlyVariant : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
@@ -54,70 +67,43 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
+	const category = "category" in product && product.category ? product.category.name : null;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
+		<article className="group flex h-full flex-col rounded-2xl bg-card p-2">
+			<CardMedia href={href} images={images} name={product.name} priority={priority} sizes={sizes} />
+			<div className="mt-3 flex flex-1 flex-col gap-3 px-1 pb-1">
+				<div>
+					<h2>
+						<Link href={href} className="line-clamp-2 text-base font-medium text-neutral-900 hover:underline">
+							{product.name}
+						</Link>
+					</h2>
+					{category && <p className="mt-0.5 text-xs text-muted-foreground">{sentenceCase(category)}</p>}
+				</div>
+				<div className="mt-auto flex items-center justify-between gap-2">
+					<p className="flex flex-wrap items-baseline gap-x-2 text-lg font-semibold text-black">
+						{priceDisplay}
+						{compareAt && <s className="text-sm font-normal text-muted-foreground">{compareAt}</s>}
+					</p>
+					{singleVariant && (
+						<QuickAddButton
+							variantId={singleVariant.id}
+							variantSku={"sku" in singleVariant ? singleVariant.sku : null}
+							variantPrice={singleVariant.price}
+							variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
+							variantImages={singleVariant.images}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images ?? [],
+							}}
 						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+					)}
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+		</article>
 	);
 }

@@ -30,7 +30,7 @@ async function getStoreInfo() {
 	try {
 		const me = await meGetCached();
 		return {
-			storeName: me.store.name || "our store",
+			storeName: me.store.settings?.storeName || me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
 			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
@@ -53,85 +53,78 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "Chosen with care",
+			body: "Every piece in the shop is picked for how it looks, how it feels and how long it lasts.",
+		},
+		{
+			title: "Made to be used",
+			body: "We look for things you reach for every day, not just for special occasions.",
+		},
+		{
+			title: "Small and independent",
+			body: "We are a small team that cares about every piece we put in the shop.",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			<section className="bg-surface">
+				<div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-14 text-center md:items-start md:px-8 md:py-20 md:text-left">
+					<span className="mb-4 rounded-md bg-violet-soft px-4 py-1 text-sm font-semibold text-violet">
+						About us
+					</span>
+					<h1 className="max-w-3xl text-kara-hero font-bold text-black [overflow-wrap:anywhere] md:text-kara-hero-lg">
+						The Story Behind {storeName}
+					</h1>
+					<p className="mt-5 max-w-2xl text-lg leading-snug text-neutral-700">
+						{storeDescription ??
+							"We started this shop to gather the pieces we love in one place: well made, easy to wear and chosen with care."}
+					</p>
 				</div>
-			</div>
+			</section>
+
+			<section className="bg-card">
+				<div className="mx-auto flex flex-col items-center px-4 py-12 md:container">
+					<p className="mb-4 text-sm font-bold uppercase text-violet">What we stand for</p>
+					<h2 className="mb-8 text-center text-kara-section font-bold text-black md:text-kara-section-lg">
+						Our Values
+					</h2>
+					<div className="grid w-full max-w-[1150px] gap-3 md:grid-cols-3">
+						{values.map((value) => (
+							<div key={value.title} className="rounded-2xl bg-neutral-100 p-6">
+								<h3 className="text-lg font-semibold text-black">{value.title}</h3>
+								<p className="mt-2 text-sm leading-relaxed text-neutral-700">{value.body}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="kara-container py-12">
+				<div className="mx-auto flex max-w-[1150px] flex-col items-center gap-3 bg-ink px-5 py-12 text-center text-white">
+					<h2 className="text-2xl font-extrabold md:text-4xl">Find Something You Will Keep</h2>
+					<p className="text-xs uppercase tracking-wide md:text-sm">The whole shop, in one place</p>
+					<div className="mt-2 flex flex-col gap-3 sm:flex-row">
+						<Link
+							href="/products"
+							className="rounded-lg bg-neutral-700 px-8 py-2 text-sm font-bold uppercase tracking-[0.3em] text-white transition hover:bg-neutral-600"
+						>
+							Shop now
+						</Link>
+						{contactFormEnabled && (
+							<Link
+								href="/contact"
+								className="rounded-lg border border-neutral-500 px-8 py-2 text-sm font-bold uppercase tracking-[0.3em] text-white transition hover:bg-neutral-700"
+							>
+								Contact
+							</Link>
+						)}
+					</div>
+				</div>
+			</section>
 		</div>
 	);
 }

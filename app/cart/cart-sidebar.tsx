@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2, ShoppingBag, ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
@@ -32,12 +32,14 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+			<SheetContent className="flex flex-col bg-card data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+				<SheetHeader className="border-b border-neutral-100 pb-4">
+					<SheetTitle className="flex items-center gap-2 text-xl font-bold">
+						Your cart
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="text-sm font-normal text-muted-foreground">
+								({itemCount} {itemCount === 1 ? "item" : "items"})
+							</span>
 						)}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -47,28 +49,28 @@ export function CartSidebar() {
 
 				{items.length === 0 ? (
 					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-violet-soft">
+							<ShoppingBag className="h-9 w-9 text-violet" />
 						</div>
 						<div className="text-center">
 							<p className="text-lg font-medium">Your cart is empty</p>
 							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
+						<Button variant="outline" className="rounded" onClick={closeCart}>
+							Continue shopping
 						</Button>
 					</div>
 				) : (
 					<>
 						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+							<div className="divide-y divide-neutral-100">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
+						<SheetFooter className="mt-auto border-t border-neutral-100 bg-neutral-50 pt-4">
 							<div className="w-full space-y-4">
 								<DiscountCodeField />
 								{discount ? (
@@ -113,7 +115,7 @@ export function CartSidebar() {
 									}}
 									className={cn(
 										buttonVariants(),
-										"w-full h-12 text-base font-medium",
+										"h-12 w-full rounded bg-zinc-900 text-base font-normal shadow-sm shadow-zinc-500 hover:bg-zinc-700",
 										isMutating && "pointer-events-none opacity-60",
 									)}
 								>
@@ -123,7 +125,10 @@ export function CartSidebar() {
 											Updating…
 										</>
 									) : (
-										"Checkout"
+										<>
+											<ShoppingCart className="h-4 w-4" aria-hidden="true" />
+											Checkout
+										</>
 									)}
 								</a>
 								<button
@@ -131,7 +136,7 @@ export function CartSidebar() {
 									onClick={closeCart}
 									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
 								>
-									Continue Shopping
+									Continue shopping
 								</button>
 							</div>
 						</SheetFooter>
