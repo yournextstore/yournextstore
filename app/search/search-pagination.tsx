@@ -45,7 +45,7 @@ export function SearchPagination({
 			{prevHref ? (
 				<Link
 					href={prevHref}
-					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-foreground"
 					rel="prev"
 				>
 					<ArrowLeft
@@ -55,7 +55,7 @@ export function SearchPagination({
 					Previous
 				</Link>
 			) : (
-				<span className="text-xs uppercase tracking-[0.18em] text-muted-foreground/40">Previous</span>
+				<span className="text-xs uppercase tracking-[0.15em] text-muted-foreground/40">Previous</span>
 			)}
 
 			<span className="text-sm tabular-nums text-muted-foreground">
@@ -65,7 +65,7 @@ export function SearchPagination({
 			{nextHref ? (
 				<Link
 					href={nextHref}
-					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-foreground"
 					rel="next"
 				>
 					Next
@@ -75,7 +75,7 @@ export function SearchPagination({
 					/>
 				</Link>
 			) : (
-				<span className="text-xs uppercase tracking-[0.18em] text-muted-foreground/40">Next</span>
+				<span className="text-xs uppercase tracking-[0.15em] text-muted-foreground/40">Next</span>
 			)}
 		</nav>
 	);

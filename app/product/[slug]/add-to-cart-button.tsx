@@ -14,7 +14,6 @@ import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
-import { cn } from "@/lib/utils";
 
 // Every net price below has a gross twin; which of the pair a shopper sees is the store's
 // `taxBehavior` (see lib/pricing.ts). The twins stay optional so this still renders against
@@ -53,7 +52,6 @@ type AddToCartButtonProps = {
 		slug: string;
 		images: string[];
 	};
-	summary?: string | null;
 	volumePricingTiers?: VolumeTier[];
 	/** Show a "remind me when back in stock" flow when out of stock (Restock Notifications module). */
 	restockNotificationsEnabled?: boolean;
@@ -64,11 +62,10 @@ const LOW_STOCK_THRESHOLD = 5;
 export function AddToCartButton({
 	variants,
 	product,
-	summary,
 	volumePricingTiers = [],
 	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
-	const { currency, locale, taxBehavior } = useStoreConfig();
+	const { currency, locale, taxBehavior, language } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -93,9 +90,9 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart, ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -137,15 +134,21 @@ export function AddToCartButton({
 	const stockStatus = useMemo(() => {
 		if (!selectedVariant) return null;
 		const { stock } = selectedVariant;
-		if (stock === 0) return { label: "Out of stock", tone: "out" as const };
+		if (stock === 0) return { label: "Sold out", tone: "out" as const };
 		if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
-			return { label: `Only ${stock} left in stock`, tone: "low" as const };
+			return { label: `Few left — ${stock} in stock`, tone: "few" as const };
 		}
-		return { label: "In stock", tone: "in" as const };
+		return { label: "Available now", tone: "open" as const };
 	}, [selectedVariant]);
 
-	const handleSubmit = (e: React.FormEvent) => {
+	// "Buy now" adds the line, then leaves for the hosted checkout once the write has landed.
+	// A full navigation on purpose: /checkout is a proxied zone (see AGENTS.md).
+	const checkoutUrl = language ? `/checkout?lang=${encodeURIComponent(language)}` : "/checkout";
+
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		const submitter = (e.nativeEvent as SubmitEvent).submitter;
+		const buyNow = submitter instanceof HTMLButtonElement && submitter.value === "buy-now";
 
 		if (!selectedVariant || isOutOfStock) return;
 
@@ -155,7 +158,7 @@ export function AddToCartButton({
 
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
-		openCart();
+		if (!buyNow) openCart();
 		setQuantity(1);
 
 		// Instant local feedback OUTSIDE the transition, then REPLACE with the
@@ -187,6 +190,7 @@ export function AddToCartButton({
 				if (line.quantity < previousQuantity + addedQuantity) {
 					toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
 				}
+				if (buyNow) window.location.assign(checkoutUrl);
 			} else {
 				await reconcile();
 				toast.error("This item is out of stock");
@@ -195,75 +199,68 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
+		<div className="space-y-6">
+			{/* Price in brass Playfair, then the stock note as a small caps line with a brass dot. */}
+			<div className="space-y-3">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
+					<strong className="serif text-[2rem] font-normal leading-none text-gold">
+						{priceInfo.display}
+					</strong>
+					{priceInfo.compareAt && <del className="text-[0.9375rem] text-dim">{priceInfo.compareAt}</del>}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
+						<span className="badge">Save {priceInfo.discountPercent}%</span>
 					) : null}
 				</div>
 
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
+				{omnibusPrice && <p className="text-xs text-dim">Lowest price in the last 30 days: {omnibusPrice}</p>}
 
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
+				{stockStatus && (
+					<p
+						data-status={stockStatus.tone}
+						className="caps inline-flex items-center gap-2 text-[0.75rem] tracking-[0.15em] text-ink"
+					>
+						<span className="status-dot" aria-hidden="true" />
+						{stockStatus.label}
+					</p>
 				)}
 			</div>
 
 			{variants.length > 1 && <VariantSelector variants={variants} />}
-
-			<QuantitySelector
-				quantity={effectiveQuantity}
-				onQuantityChange={setQuantity}
-				max={Math.max(1, Math.min(99, maxQuantity))}
-				disabled={isOutOfStock}
-			/>
 
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 
 			{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 				<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 			) : (
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-3">
+					<QuantitySelector
+						quantity={effectiveQuantity}
+						onQuantityChange={setQuantity}
+						max={Math.max(1, Math.min(99, maxQuantity))}
+						disabled={isOutOfStock}
+					/>
 					<button
 						type="submit"
+						value="add"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						aria-label={totalPrice && !isOutOfStock ? `${buttonText}` : undefined}
+						className="btn btn-primary min-w-40 flex-1 [--btn-py:0.85rem]"
 					>
-						{buttonText}
+						{selectedVariant && !isOutOfStock ? "Add to cart" : buttonText}
+					</button>
+					<button
+						type="submit"
+						value="buy-now"
+						disabled={!selectedVariant || isOutOfStock}
+						className="btn min-w-40 flex-1 basis-full [--btn-py:0.85rem] sm:basis-0"
+					>
+						Buy now <span aria-hidden="true">→</span>
 					</button>
 				</form>
+			)}
+
+			{selectedVariant?.sku && (
+				<p className="caps text-[0.75rem] font-normal text-dim">SKU {selectedVariant.sku}</p>
 			)}
 
 			<TrustBadges />

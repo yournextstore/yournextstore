@@ -8,10 +8,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--font-sans: var(--font-source-sans), "Source Sans 3", "Segoe UI", Roboto, sans-serif;
+	--font-heading: var(--font-playfair), "Playfair Display", Georgia, serif;
+	--radius-sm: 2px;
+	--radius-md: var(--radius);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
 	--color-background: var(--background);
@@ -32,58 +32,489 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own names: deep charcoal page, mid and light panels, warm cream, off-white text,
+	   muted text, aged brass and terracotta, brass hairlines. */
+	--color-page: var(--page);
+	--color-panel: var(--panel);
+	--color-panel-2: var(--panel-2);
+	--color-raise: var(--raise);
+	--color-cream: var(--cream);
+	--color-ink: var(--ink);
+	--color-dim: var(--dim);
+	--color-faint: var(--faint);
+	--color-gold: var(--gold);
+	--color-gold-2: var(--gold-2);
+	--color-rust: var(--rust);
+	--color-line: var(--line);
+	--color-line-2: var(--line-2);
+	--color-on-gold: #1a1a18;
 }
 
+/*
+ * The original's vintage/industrial palette (global.css :root), unchanged: #1a1a18 page, #2a2a26
+ * sections, #3a3a36 hover, #c9a227 brass, #a85a32 terracotta, #f5f0e6 cream headings, #e8e4dc text,
+ * #9a968e muted (4.9:1 on the mid panel). Dark-only: :root and .dark carry the same palette.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 4px;
+	--background: #1a1a18;
+	--foreground: #e8e4dc;
+	--card: #2a2a26;
+	--card-foreground: #e8e4dc;
+	--popover: #2a2a26;
+	--popover-foreground: #e8e4dc;
+	--primary: #c9a227;
+	--primary-foreground: #1a1a18;
+	--secondary: #2a2a26;
+	--secondary-foreground: #f5f0e6;
+	--muted: #2a2a26;
+	--muted-foreground: #9a968e;
+	--accent: #3a3a36;
+	--accent-foreground: #f5f0e6;
+	--destructive: #e0866a;
+	--border: rgba(201, 162, 39, 0.2);
+	--input: rgba(201, 162, 39, 0.35);
+	--ring: #c9a227;
+	--page: #1a1a18;
+	--panel: #2a2a26;
+	--panel-2: #222220;
+	--raise: #3a3a36;
+	--cream: #f5f0e6;
+	--ink: #e8e4dc;
+	--dim: #9a968e;
+	--faint: #9a968e;
+	--gold: #c9a227;
+	--gold-2: #dcb94a;
+	--rust: #a85a32;
+	--line: rgba(201, 162, 39, 0.2);
+	--line-2: rgba(232, 228, 220, 0.08);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 4px;
+	--background: #1a1a18;
+	--foreground: #e8e4dc;
+	--card: #2a2a26;
+	--card-foreground: #e8e4dc;
+	--popover: #2a2a26;
+	--popover-foreground: #e8e4dc;
+	--primary: #c9a227;
+	--primary-foreground: #1a1a18;
+	--secondary: #2a2a26;
+	--secondary-foreground: #f5f0e6;
+	--muted: #2a2a26;
+	--muted-foreground: #9a968e;
+	--accent: #3a3a36;
+	--accent-foreground: #f5f0e6;
+	--destructive: #e0866a;
+	--border: rgba(201, 162, 39, 0.2);
+	--input: rgba(201, 162, 39, 0.35);
+	--ring: #c9a227;
+	--page: #1a1a18;
+	--panel: #2a2a26;
+	--panel-2: #222220;
+	--raise: #3a3a36;
+	--cream: #f5f0e6;
+	--ink: #e8e4dc;
+	--dim: #9a968e;
+	--faint: #9a968e;
+	--gold: #c9a227;
+	--gold-2: #dcb94a;
+	--rust: #a85a32;
+	--line: rgba(201, 162, 39, 0.2);
+	--line-2: rgba(232, 228, 220, 0.08);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		color-scheme: dark;
+		scroll-padding-top: 80px;
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		html {
+			scroll-behavior: smooth;
+		}
+	}
+	/* next/font puts its variables on <body>, so the faces are set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-source-sans), "Source Sans 3", "Segoe UI", Roboto, sans-serif;
+		line-height: 1.5;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+	/* The original's 3% fractal-noise film over everything. */
+	body::before {
+		content: "";
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0.03;
+		z-index: 9999;
+		background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+		color: var(--cream);
+	}
+	/* Platform pages (FAQ, legal, search, contact) inherit the original's Playfair headings. */
+	h1,
+	h2 {
+		font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+		font-weight: 700;
+		line-height: 1.2;
+	}
+	p {
+		text-wrap: pretty;
+	}
+	::selection {
+		background: var(--gold);
+		color: #1a1a18;
+	}
+	:focus-visible {
+		outline: 2px solid var(--gold);
+		outline-offset: 2px;
+	}
+}
+
+:root {
+	--header-h: 60px;
+}
+
+/* Playfair Display 700 for display type; an <em> inside turns brass italic, as the "Est." line does. */
+@utility display {
+	font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+	font-weight: 700;
+	line-height: 1.2;
+	& em {
+		color: var(--gold);
+		font-style: italic;
+		font-weight: 400;
+	}
+}
+
+@utility serif {
+	font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+@utility mono {
+	font-variant-numeric: tabular-nums;
+}
+
+/* The original's uppercase labels: Source Sans 3 semibold, letter-spaced. */
+@utility caps {
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+/* Brass labels over content ("Address", "Getting here"). */
+@utility kicker {
+	font-weight: 600;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	font-size: 0.875rem;
+	color: var(--gold);
+}
+
+@utility container-x {
+	width: 100%;
+	max-width: 1200px;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (min-width: 641px) {
+		padding-inline: 1.5rem;
+	}
+	@media (min-width: 1025px) {
+		padding-inline: 2rem;
+	}
+}
+
+@utility container-narrow {
+	width: 100%;
+	max-width: 800px;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (min-width: 641px) {
+		padding-inline: 1.5rem;
+	}
+	@media (min-width: 1025px) {
+		padding-inline: 2rem;
+	}
+}
+
+@utility section-y {
+	padding-block: 2.5rem;
+	@media (min-width: 641px) {
+		padding-block: 4rem;
+	}
+}
+
+/* `.section__title`: brass Playfair caps, centred, a 60px brass bar beneath. */
+@utility section-title {
+	font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+	font-weight: 700;
+	font-size: 1.5rem;
+	line-height: 1.2;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	color: var(--gold);
+	text-align: center;
+	margin-bottom: 2.5rem;
+	&::after {
+		content: "";
+		display: block;
+		width: 60px;
+		height: 2px;
+		background: var(--gold);
+		margin: 1rem auto 0;
+	}
+}
+
+/* A hairline brass rule across the top, fading at both ends (the original's dividers). */
+@utility rule-top {
+	position: relative;
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.45), transparent);
+		pointer-events: none;
+	}
+}
+
+/* Menu-card / contact-card panel: charcoal on charcoal with a faint brass edge. */
+@utility panel {
+	background: var(--panel);
+	border: 1px solid rgba(201, 162, 39, 0.15);
+	border-radius: var(--radius);
+}
+
+/* `.btn`: square-ish brass outline caps; `btn-primary` is the filled brass one. Hover swaps fill and
+   type. Knobs are variables (a plain utility beside a custom one has no reliable order). */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: var(--btn-py, 0.75rem) var(--btn-px, 1.5rem);
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	line-height: 1.5;
+	border-radius: 2px;
+	border: 2px solid var(--gold);
+	background: var(--btn-bg, transparent);
+	color: var(--btn-fg, var(--gold));
+	cursor: pointer;
+	transition:
+		background-color 150ms ease,
+		color 150ms ease,
+		border-color 150ms ease;
+	&:hover {
+		background: var(--btn-bg-hover, var(--gold));
+		color: var(--btn-fg-hover, #1a1a18);
+	}
+	&:focus-visible {
+		outline: 2px solid var(--cream);
+		outline-offset: 2px;
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+}
+
+@utility btn-primary {
+	--btn-bg: var(--gold);
+	--btn-fg: #1a1a18;
+	--btn-bg-hover: transparent;
+	--btn-fg-hover: var(--gold);
+	&:disabled:hover {
+		background: var(--gold);
+		color: #1a1a18;
+	}
+}
+
+/* Shelf tabs: hairline brass caps, filled brass when current. */
+@utility chip {
+	display: inline-flex;
+	align-items: center;
+	min-height: 40px;
+	padding: 0.5rem 0.9rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--ink);
+	background: transparent;
+	border: 1px solid rgba(201, 162, 39, 0.25);
+	border-radius: 2px;
+	cursor: pointer;
+	transition:
+		color 150ms ease,
+		border-color 150ms ease,
+		background-color 150ms ease;
+	&:hover {
+		color: var(--gold);
+		border-color: var(--gold);
+	}
+	&[aria-pressed="true"],
+	&[aria-current="page"],
+	&[data-active="true"] {
+		background: var(--gold);
+		border-color: var(--gold);
+		color: #1a1a18;
+	}
+}
+
+/* `.badge`: tiny caps tag; brass for "featured", terracotta for "seasonal". */
+@utility badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1.2;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	border-radius: 2px;
+	background: var(--rust);
+	color: var(--cream);
+	white-space: nowrap;
+}
+
+@utility badge-gold {
+	background: var(--gold);
+	color: #1a1a18;
+}
+
+@utility badge-muted {
+	background: var(--raise);
+	color: var(--ink);
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* The masthead: a brass glow from the top and the original's faint plus-sign tile. */
+.bar-masthead {
+	background:
+		radial-gradient(ellipse at center top, rgba(201, 162, 39, 0.08) 0%, transparent 50%),
+		var(--page);
+}
+.bar-masthead::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Tagline band: page → mid → page. */
+.bar-band {
+	background: linear-gradient(180deg, var(--page) 0%, var(--panel) 50%, var(--page) 100%);
+}
+
+/* The original's gallery treatment: photographs a little aged until hovered. */
+.aged {
+	filter: grayscale(20%) sepia(5%);
+	transition:
+		transform 400ms ease,
+		filter 250ms ease;
+}
+.group:hover .aged,
+.group:focus-visible .aged,
+.group:focus-within .aged {
+	filter: none;
+}
+
+/* Animated nav underline: a brass bar that grows from the left. */
+.nav-underline {
+	position: relative;
+}
+.nav-underline::after {
+	content: "";
+	position: absolute;
+	left: var(--u-inset, 0);
+	right: var(--u-inset, 0);
+	bottom: var(--u-bottom, -4px);
+	height: 2px;
+	background: var(--gold);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 150ms ease;
+}
+.nav-underline:hover::after,
+.nav-underline[aria-current="page"]::after {
+	transform: scaleX(1);
+}
+
+/* Press quote mark. */
+.quote-mark::before {
+	content: "\201C";
+	position: absolute;
+	top: 0.5rem;
+	left: 1rem;
+	font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+	font-size: 4rem;
+	line-height: 1;
+	color: var(--gold);
+	opacity: 0.15;
+	pointer-events: none;
+}
+
+.status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	flex: none;
+	background: var(--gold);
+}
+[data-status="out"] .status-dot {
+	background: var(--dim);
+}
+
+.float-up {
+	animation: float-up 2s ease-in-out infinite;
+}
+@keyframes float-up {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-4px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
@@ -97,14 +528,7 @@
 }
 
 .yns-image-shimmer {
-	background: linear-gradient(
-		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
-	);
+	background: linear-gradient(90deg, #2a2a26 0%, #33332f 40%, #3a3a36 50%, #33332f 60%, #2a2a26 100%);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }
@@ -151,3 +575,4 @@
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
 }
+

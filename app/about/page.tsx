@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { BeforeYouGo, FindYourWay, PageMasthead, Tagline } from "@/components/sections/home";
+import { getStoreBrand } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -39,11 +41,29 @@ async function getStoreInfo() {
 	}
 }
 
+const PRINCIPLES = [
+	{
+		title: "Chosen slowly",
+		copy: "Every bottle on the shelf is tasted before it earns a place, and every bar tool is one we use behind our own counter.",
+	},
+	{
+		title: "A short list",
+		copy: "A short shelf on purpose: the bottles we would pour for ourselves, added as they arrive.",
+	},
+	{
+		title: "Plain prices",
+		copy: "Prices and stock stand on every bottle as they are today, and delivery is set out at checkout before you pay.",
+	},
+] as const;
+
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [{ storeName, storeDescription, contactFormEnabled }, brand] = await Promise.all([
+		getStoreInfo(),
+		getStoreBrand(),
+	]);
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -54,84 +74,54 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
+			<PageMasthead kicker="About" title={storeName} line={brand.tagline} />
+			<Tagline />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			<section aria-labelledby="house-title" className="section-y">
+				<div className="container-narrow text-center">
+					<h2 id="house-title" className="section-title">
+						The House
+					</h2>
+					<p className="mx-auto max-w-[60ch] text-[1.0625rem] leading-[1.75] text-ink">
+						{storeDescription ??
+							`${storeName} keeps a short shelf of everyday things, chosen slowly, by taste, and with everyday use in mind.`}
+					</p>
 				</div>
-			</div>
-		</div>
+			</section>
+
+			<section aria-labelledby="principles-title" className="section-y bg-panel">
+				<div className="container-x">
+					<h2 id="principles-title" className="section-title">
+						How We Choose
+					</h2>
+					<ol className="grid gap-6 md:grid-cols-3">
+						{PRINCIPLES.map((principle, index) => (
+							<li key={principle.title} className="rounded-[4px] border border-gold/15 bg-page p-6">
+								<p className="caps mb-2 text-[0.75rem] tracking-[0.15em] text-dim">
+									No. {String(index + 1).padStart(2, "0")}
+								</p>
+								<h3 className="serif mb-3 text-[1.25rem] font-bold tracking-[0.05em] text-gold">
+									{principle.title}
+								</h3>
+								<p className="text-[0.9375rem] leading-[1.75] text-ink">{principle.copy}</p>
+							</li>
+						))}
+					</ol>
+					<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+						<Link href="/products" className="btn btn-primary">
+							Browse the shelf
+						</Link>
+						<Link href={contactFormEnabled ? "/contact" : "/faq"} className="btn">
+							{contactFormEnabled ? "Write to us" : "Read the FAQ"} <span aria-hidden="true">→</span>
+						</Link>
+					</div>
+				</div>
+			</section>
+
+			<FindYourWay />
+			<BeforeYouGo />
+		</>
 	);
 }
