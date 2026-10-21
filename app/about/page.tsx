@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { BigText, FloatPhoto } from "@/components/sections/home";
+import { getShowcaseProducts, pick } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
+import { cn } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -39,11 +43,47 @@ async function getStoreInfo() {
 	}
 }
 
+// The original's three alternating claims, retold for any small shop. Photos: Pexels (see NOTICE.md).
+const VALUES = [
+	{
+		title: "A short list of flavours",
+		copy: "We keep the range small on purpose: a handful of flavours, each one we would happily drink every day.",
+		ground: "bg-blush",
+		image: {
+			src: "/images/pexels/pastel-bags.jpg",
+			alt: "A row of colourful soda cans on pink and mint backdrops",
+		},
+	},
+	{
+		title: "Real fruit, less sugar",
+		copy: "Fruit juice, a little cane sugar and plant fibre: the sodas you grew up with, made for an ordinary Tuesday.",
+		ground: "bg-lilac",
+		image: {
+			src: "/images/pexels/summer-hat.jpg",
+			alt: "A glass of pink soda and a lime-green can with citrus on a yellow and teal backdrop",
+		},
+	},
+	{
+		title: "Naturally fizzy",
+		copy: "A cold can should make the day a little better. That is the whole idea, and it is why we keep the prices plain.",
+		ground: "bg-lime",
+		image: {
+			src: "/images/pexels/pink-sunglasses.jpg",
+			alt: "A hand holding an orange soda can against pink",
+		},
+	},
+] as const;
+
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [{ storeName, storeDescription, contactFormEnabled }, showcase] = await Promise.all([
+		getStoreInfo(),
+		getShowcaseProducts(),
+	]);
+	const images = showcase.map((p) => p.image);
+	const hero = pick(images, 1);
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -54,84 +94,81 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
+			<section className="-mt-20 overflow-hidden md:-mt-24">
+				<div className="shell grid items-center gap-10 pb-[clamp(56px,9vh,110px)] pt-28 md:grid-cols-[1.1fr_0.9fr] md:pt-36">
+					<div className="min-w-0">
+						<h1 className="display text-[clamp(4rem,11vw,9rem)] text-flame">
+							<span className="block">Our</span>
+							<span className="block">story</span>
+						</h1>
+						<p className="mt-8 text-[clamp(2rem,3.6vw,3rem)] font-semibold leading-none text-ink">
+							Hello from {storeName}
 						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
+						<p className="mt-4 max-w-[48ch] text-lede text-ink">
+							{storeDescription ??
+								`${storeName} is a small shop with a short list of good things, each one chosen to brighten an ordinary day.`}
 						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
+						<div className="mt-8 flex flex-wrap gap-3">
+							<Link href="/products" className="btn">
+								Shop now
+							</Link>
+							<Link href={contactFormEnabled ? "/contact" : "/faq"} className="btn btn-ghost">
+								{contactFormEnabled ? "Say hello" : "Read the FAQ"}
+							</Link>
 						</div>
 					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
+					{hero && (
+						<FloatPhoto
+							src={hero}
+							tilt={-12}
+							priority
+							sizes="(max-width: 768px) 80vw, 40vw"
+							className="mx-auto w-full max-w-[460px]"
+						/>
 					)}
 				</div>
-			</div>
+			</section>
+
+			{VALUES.map((value, i) => {
+				const { image } = value;
+				return (
+					<section key={value.title} className={value.ground}>
+						<div className="shell grid min-h-[min(80svh,40rem)] items-center gap-6 py-16 md:grid-cols-2 md:gap-12">
+							<div className={cn("min-w-0 md:p-4", i % 2 === 1 && "md:col-start-2 md:row-start-1")}>
+								<h2 className="text-[clamp(2.6rem,5vw,3.75rem)] font-bold leading-[1.02] text-ink">
+									{value.title}
+								</h2>
+								<p className="mt-4 max-w-lg text-[1.25rem] text-ink">{value.copy}</p>
+							</div>
+							{/* A photo card tilted and bobbing like the floating products, on the same panel colour. */}
+							<div
+								className={cn(
+									"relative mx-auto aspect-square w-[88%] max-w-[26rem]",
+									i % 2 === 1 && "md:col-start-1 md:row-start-1",
+								)}
+								style={{
+									["--tilt" as never]: `${i % 2 === 0 ? 6 : -6}deg`,
+									["--bob-delay" as never]: `${i * 0.7}s`,
+								}}
+							>
+								<div className="bob absolute inset-0 overflow-hidden rounded-[2rem] shadow-[0_40px_60px_-30px_rgb(0_0_0/0.45)]">
+									<YNSMedia
+										src={image.src}
+										alt={image.alt}
+										fill
+										sizes="(max-width: 768px) 80vw, 26rem"
+										className="object-cover"
+									/>
+								</div>
+							</div>
+						</div>
+					</section>
+				);
+			})}
+
+			<BigText />
 		</div>
 	);
 }

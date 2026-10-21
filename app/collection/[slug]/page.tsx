@@ -5,20 +5,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductCard } from "@/components/product-card";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { FloatPhoto, SectionHead } from "@/components/sections/home";
+import { firstStill, richTextToPlain, sentenceCase } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -36,9 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -61,48 +52,44 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/** The collection as one of the original's text-and-can panels: copy on the left, its photo floating on the right. */
+function CollectionHeader({
+	collection,
+	image,
+	count,
+}: {
+	collection: APICollectionGetByIdResult;
+	image: string | null;
+	count: number;
+}) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
+		<section className="bg-lilac">
+			<div className="shell grid items-center gap-8 py-[clamp(40px,7vh,80px)] md:min-h-[460px] md:grid-cols-2">
+				<div className="min-w-0">
+					<SectionHead
+						as="h1"
+						eyebrow={`Collection · ${count} ${count === 1 ? "find" : "finds"}`}
+						title={sentenceCase(collection.name)}
+						lede={description || "A handful of favourites that go well together. Take one, or take the lot."}
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
 				</div>
-			)}
+				{image && (
+					<FloatPhoto
+						src={image}
+						tilt={8}
+						priority
+						sizes="(max-width: 768px) 80vw, 420px"
+						className="mx-auto w-full max-w-[420px]"
+					/>
+				)}
+			</div>
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+	return <ProductGridSkeleton />;
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,34 +144,14 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh pb-[100px]">
+			<div className="h-[760px] bg-lilac md:h-[460px]" />
+			<div className="shell mt-16">
+				<CollectionProductsSkeleton />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -215,29 +182,38 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+	const image = collection.image ?? firstStill(products[0]?.images);
+
 	return (
-		<>
+		<div className="min-h-svh pb-[100px]">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
+			<CollectionHeader collection={collection} image={image} count={products.length} />
+			<div className="shell">
+				{products.length > 0 ? (
+					<>
+						<div className="mb-10 mt-16 flex flex-wrap items-end justify-between gap-6">
+							<h2 className="display text-section text-ink">In this collection</h2>
+							<Link href="/products" className="btn btn-ghost btn-sm shrink-0">
+								Shop all
+							</Link>
+						</div>
+						<div className={LISTING_GRID}>
+							{products.map((product) => (
+								<ProductCard key={product.id} product={product} className=" " />
+							))}
+						</div>
+					</>
+				) : (
+					<div className="py-24 text-center">
+						<p className="display text-section text-flame">Nothing here yet</p>
+						<Link href="/products" className="btn mt-6">
+							Shop all
+						</Link>
+					</div>
+				)}
 			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+		</div>
 	);
 };
