@@ -84,7 +84,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	if (displayImages.length === 0) {
 		return (
 			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+				<div className="flex h-[22rem] items-center justify-center bg-stage sm:h-[30rem]">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -97,34 +97,36 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex flex-col gap-3 outline-none md:sticky md:top-8 md:self-start"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-					/>
-				)}
+			<div className="group relative flex h-[22rem] items-center justify-center overflow-hidden bg-stage transition-colors hover:bg-stage-hover sm:h-[30rem]">
+				<div className="relative aspect-square h-[78%] max-w-[90%]">
+					{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+						<video
+							className="jam-packshot absolute inset-0 w-full h-full object-cover"
+							src={displayImages[selectedIndex]}
+							muted
+							loop
+							autoPlay
+							playsInline
+							controls
+						/>
+					) : (
+						<YNSMedia
+							src={displayImages[selectedIndex] ?? ""}
+							alt={`${productName} - View ${selectedIndex + 1}`}
+							fill
+							sizes="(max-width: 768px) 80vw, 35vw"
+							className={cn(
+								"jam-packshot object-cover transition-transform duration-500",
+								isZoomed && "scale-150 cursor-zoom-out",
+							)}
+							onClick={() => setIsZoomed(!isZoomed)}
+							priority
+						/>
+					)}
+				</div>
 
 				{/* Navigation Arrows */}
 				{displayImages.length > 1 && (
@@ -132,7 +134,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-10 w-10 rounded-none border-2 border-[#111] bg-white hover:bg-[#111] hover:text-white"
 							onClick={(e) => {
 								e.stopPropagation();
 								handlePrevious();
@@ -144,7 +146,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-10 w-10 rounded-none border-2 border-[#111] bg-white hover:bg-[#111] hover:text-white"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleNext();
@@ -159,7 +161,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 				{/* Zoom Indicator (hidden for videos) */}
 				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
 					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+						<div className="flex items-center gap-2 bg-white px-3 py-1.5 text-xs font-medium">
 							<ZoomIn className="h-3.5 w-3.5" />
 							Click to zoom
 						</div>
@@ -168,7 +170,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 				{/* Image Counter */}
 				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+					<div className="absolute bottom-4 left-4 bg-white px-3 py-1.5 text-xs font-medium">
 						{selectedIndex + 1} / {displayImages.length}
 					</div>
 				)}
@@ -183,10 +185,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+								"relative aspect-square w-20 shrink-0 overflow-hidden bg-stage transition-all duration-200",
+								selectedIndex === index ? "ring-2 ring-foreground" : "opacity-70 hover:opacity-100",
 							)}
 						>
 							{isVideoUrl(image) ? (
@@ -202,7 +202,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 									alt={`${productName} thumbnail ${index + 1}`}
 									fill
 									sizes="80px"
-									className="object-cover"
+									className="jam-packshot object-cover"
 								/>
 							)}
 						</button>

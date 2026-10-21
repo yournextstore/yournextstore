@@ -1,47 +1,65 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { DisplaySmall } from "@/components/jam/display";
 import { commerce } from "@/lib/commerce";
+import { pickVisuallyDistinct } from "@/lib/display";
 
 // Cached per category, not per product: every product page in a category shares one
-// browse, and the current product is filtered out afterwards.
-async function getCategoryProducts(categorySlug?: string) {
+// browse, and the current product is filtered out afterwards. Topped up from the whole
+// catalogue so a small category still fills the row.
+async function getRelatedPool(categorySlug?: string) {
 	"use cache";
 	cacheLife("minutes");
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: 7,
-		...(categorySlug ? { category: categorySlug } : {}),
-	});
-	return data;
+	const [inCategory, everything] = await Promise.all([
+		categorySlug
+			? commerce
+					.productBrowse({ active: true, limit: 12, category: categorySlug })
+					.then((r) => r.data)
+					.catch(() => [])
+			: Promise.resolve([]),
+		commerce
+			.productBrowse({ active: true, limit: 24 })
+			.then((r) => r.data)
+			.catch(() => []),
+	]);
+	return [...inCategory, ...everything.filter((p) => !inCategory.some((c) => c.id === p.id))];
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+/** "You may also like" in the original's Trending Now tiles. No Suspense of its own: it renders
+ *  inside the page's boundary so it cannot push the footer after first paint. */
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
 	productId: string;
 	categorySlug?: string;
 }) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const pool = await getRelatedPool(categorySlug);
+	const related = pickVisuallyDistinct(
+		pool.filter((p) => p.id !== productId),
+		4,
+	);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<section aria-labelledby="related-heading" className="pt-10">
+			<div className="flex flex-col items-center pb-6 text-center">
+				<h2 id="related-heading" className="mb-3 text-4xl text-foreground">
+					You may also like
+				</h2>
+				<p className="text-sm text-muted-foreground">More pieces from the shop.</p>
+			</div>
+			<div className="my-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+				{related.map((product) => (
+					<DisplaySmall
+						key={product.id}
+						href={`/product/${product.slug}`}
+						title={product.name}
+						subtitle={product.category?.name.toLowerCase() ?? ""}
+						image={product.images[0] ?? null}
+					/>
+				))}
+			</div>
+		</section>
 	);
 }
