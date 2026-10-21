@@ -1,101 +1,8 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
-
-async function FooterBlogLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
+import { Separator } from "@/components/separator";
+import { getNavGroups, getStoreInfo } from "@/lib/catalog";
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
 // shell, reading it during the prerender is an error. Caching pins it to the entry.
@@ -106,60 +13,91 @@ async function getCopyrightYear() {
 	return new Date().getFullYear();
 }
 
+type Column = { label: string; links: { label: string; href: string }[] };
+
+async function getColumns(): Promise<Column[]> {
+	"use cache";
+	cacheLife("hours");
+	const [info, groups] = await Promise.all([getStoreInfo(), getNavGroups()]);
+	const columns: Column[] = [
+		{
+			label: "Shop",
+			links: [
+				{ label: "All products", href: "/products" },
+				...groups
+					.flatMap((group) => group.entries.slice(0, 3))
+					.map((e) => ({ label: e.label, href: e.href })),
+			],
+		},
+		{
+			label: "Resources",
+			links: [
+				...(info.blog ? [{ label: "Blog", href: "/blog" }] : []),
+				{ label: "About", href: "/about" },
+				...(info.contact ? [{ label: "Contact", href: "/contact" }] : []),
+				{ label: "FAQ", href: "/faq" },
+			],
+		},
+		{ label: "Legal", links: info.legalPages },
+	];
+	return columns.filter((column) => column.links.length > 0);
+}
+
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, info, columns] = await Promise.all([getCopyrightYear(), getStoreInfo(), getColumns()]);
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+		<footer className="w-full">
+			<Separator className="my-12" />
+			<div className="flex justify-between gap-8 page-x">
+				<div className="mb-6 hidden md:mb-0 md:block">
+					<p className="whitespace-nowrap text-sm font-semibold uppercase">{info.storeName}</p>
+					<p className="mt-2 text-sm text-muted-foreground">
+						© {year} {info.storeName}. All rights reserved.
+					</p>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="grid w-full grid-cols-2 gap-8 text-end sm:w-auto sm:grid-cols-3 sm:gap-x-16 sm:gap-y-6">
+					{columns.map((column) => (
+						<div key={column.label}>
+							<h2 className="mb-3 text-sm uppercase">{column.label}</h2>
+							<ul className="block space-y-1">
+								{column.links.map((link) => (
+									<li key={link.href}>
+										<Link
+											href={link.href}
+											className="text-sm text-muted-foreground transition duration-300 hover:text-foreground"
+										>
+											{link.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+					))}
 				</div>
+			</div>
+			<p className="mt-8 text-center text-sm text-muted-foreground page-x md:hidden">
+				© {year} {info.storeName}. All rights reserved.
+			</p>
+			<Separator className="mt-8 mb-6" />
+			<div className="mb-6 flex flex-col items-center gap-4 page-x">
+				{info.socialLinks.length > 0 && (
+					<ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+						{info.socialLinks.map((social) => (
+							<li key={social.href}>
+								<a
+									href={social.href}
+									target="_blank"
+									rel="noreferrer"
+									className="transition-colors hover:text-foreground"
+								>
+									{social.label}
+								</a>
+							</li>
+						))}
+					</ul>
+				)}
+				<PaymentMethods />
 			</div>
 		</footer>
 	);

@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { Separator } from "@/components/separator";
 import { commerce } from "@/lib/commerce";
 
 // Cached per category, not per product: every product page in a category shares one
@@ -10,21 +10,15 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 5,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+// No Suspense of its own: it renders inside the page's boundary, so it lands with the
+// details instead of streaming in after the footer has painted (layout shift).
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
@@ -32,16 +26,19 @@ async function RelatedProductsContent({
 	categorySlug?: string;
 }) {
 	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const related = products.filter((p) => p.id !== productId).slice(0, 4);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<>
+			<Separator className="my-8" />
+			<ProductGrid
+				title="More products"
+				description="Other things you might like from the shop."
+				products={related}
+				showViewAll
+			/>
+		</>
 	);
 }

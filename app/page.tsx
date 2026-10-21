@@ -1,38 +1,23 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { Banner } from "@/components/sections/banner";
+import { FeatureCards } from "@/components/sections/feature-cards";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { Separator } from "@/components/separator";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
+// Every section is a cached read: rendered without Suspense so the whole page prerenders
+// with no streamed segments (and no layout shift when they land).
 export default function Home() {
 	return (
-		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+		<div className="flex flex-col pt-4 page-x">
+			<Banner />
+			<Separator className="my-8" />
+			<ProductGrid />
+			<Separator className="my-8" />
+			<FeatureCards />
+		</div>
 	);
 }
