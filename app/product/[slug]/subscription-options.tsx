@@ -20,37 +20,39 @@ type SubscriptionOptionsProps = {
 };
 
 // The plan price itself is the platform's: the cart prices a plan line and shows the saving,
-// so this only names each choice.
+// so this only names each choice. Laid out like the variant rows: label left, choices inline,
+// the chosen one inverted.
 export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: SubscriptionOptionsProps) {
 	const options = [
 		...(allowOneTime ? [{ id: null, label: "One-time purchase", detail: null }] : []),
 		...plans.map((plan) => ({ id: plan.id, label: planLabel(plan), detail: plan.benefits })),
 	];
+	const detail = options.find((option) => option.id === value)?.detail;
 
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
-			{options.map((option) => (
-				<label
-					key={option.id ?? "one-time"}
-					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
-					)}
-				>
-					<input
-						type="radio"
-						name="purchase"
-						checked={value === option.id}
-						onChange={() => onChange(option.id)}
-						className="mt-0.5 size-4 shrink-0 accent-foreground"
-					/>
-					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
-						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
-					</span>
-				</label>
-			))}
+		<fieldset className="-mt-px m-0 border-y border-black p-0 py-1.5 text-t14 uppercase">
+			<legend className="float-left mr-6 max-w-[45%] py-1">Purchase</legend>
+			<div className="flex flex-wrap gap-1">
+				{options.map((option) => (
+					<label
+						key={option.id ?? "one-time"}
+						className={cn(
+							"inline-flex min-h-7 cursor-pointer items-center px-1.5 has-[:focus-visible]:outline has-[:focus-visible]:outline-black",
+							value === option.id ? "bg-black text-white" : "hover:bg-black/10",
+						)}
+					>
+						<input
+							type="radio"
+							name="purchase"
+							checked={value === option.id}
+							onChange={() => onChange(option.id)}
+							className="sr-only"
+						/>
+						{option.label}
+					</label>
+				))}
+			</div>
+			{detail && <p className="clear-left pt-1 normal-case">{detail}</p>}
 		</fieldset>
 	);
 }

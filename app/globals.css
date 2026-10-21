@@ -9,8 +9,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-inter-tight);
+	--font-mono: var(--font-plex-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -33,50 +33,114 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+
+	/* The colour-block palette. */
+	--color-swag-yellow: #ffff00;
+	--color-swag-green: #3fea00;
+	--color-swag-blue: #0052ff;
+	--color-swag-sky: #027ffd;
+	--color-swag-orange: #ff5500;
+	--color-swag-red: #ff0000;
+	--color-swag-graphite: #575757;
+	--color-swag-gray: #dddddd;
+	--color-swag-paper: #f3f4f6;
+
+	/* The original's pixel type scale, under names that collide with nothing. */
+	--text-t11: 11px;
+	--text-t14: 14px;
+	--text-t16: 16px;
+	--text-t18: 18px;
+	--text-t24: 24px;
+	--text-t30: 30px;
+	--text-t30--letter-spacing: -1px;
+	--text-t30--line-height: 1.05;
+	--text-t56: 56px;
+	--text-t56--letter-spacing: -1.5px;
+	--text-t56--line-height: 1.02;
+
+	--breakpoint-xs: 25rem;
 }
 
+/* Light-only design: :root and .dark carry the same palette (the palette test reads both). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #000000;
+	--muted: #f3f4f6;
+	--muted-foreground: #555555;
+	--accent: #ffff00;
+	--accent-foreground: #000000;
+	--destructive: #d40000;
+	--border: #000000;
+	--input: #000000;
+	--ring: #0052ff;
+	--background: #ffffff;
+	--foreground: #000000;
+	/* Height of the bottom dock (cart toggle + checkout + header on phones, one 40px bar above lg). */
+	--dock-h: 120px;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #000000;
+	--muted: #f3f4f6;
+	--muted-foreground: #555555;
+	--accent: #ffff00;
+	--accent-foreground: #000000;
+	--destructive: #d40000;
+	--border: #000000;
+	--input: #000000;
+	--ring: #0052ff;
+	--background: #ffffff;
+	--foreground: #000000;
+}
+
+@media (width >= 64rem) {
+	:root {
+		--dock-h: 40px;
+	}
+}
+
+html {
+	font-family: var(--font-plex-mono), ui-monospace, monospace;
+	font-size: 16px;
+}
+
+/* Halftone dots: the original's 5px dot tile, drawn in CSS so it tints with any background. */
+@utility halftone {
+	background-image: radial-gradient(circle at center, var(--dot, rgb(0 0 0 / 0.55)) 0.9px, transparent 1.3px);
+	background-size: 5px 5px;
+}
+
+/* Hatched stripes behind the cart buckets and the about page's information panels. */
+@utility hatched {
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--hatch, rgb(0 0 0 / 0.35)) 0 1px,
+		transparent 1px 4px
+	);
+}
+
+/* Listing pages run full width; everywhere else the cart panel owns the right third. */
+@media (width >= 64rem) {
+	.swag-main {
+		width: 66.6667%;
+	}
+	:root:has([data-wide]) .swag-main {
+		width: 100%;
+	}
 }
 
 @layer base {
@@ -85,6 +149,7 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		-webkit-font-smoothing: antialiased;
 	}
 }
 
@@ -168,4 +233,42 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* The cart panel. Phones: a 40px toggle over the checkout bar that opens upwards. */
+.swag-cart-body {
+	display: none;
+}
+.swag-cart[data-open="true"] .swag-cart-body {
+	display: flex;
+	height: calc(100dvh - var(--dock-h));
+}
+@media (width >= 64rem) {
+	.swag-cart {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		width: 33.3333%;
+		height: 100dvh;
+		transition: height 300ms ease-in-out;
+	}
+	.swag-cart-toggle {
+		display: none;
+	}
+	.swag-cart .swag-cart-body,
+	.swag-cart[data-open="true"] .swag-cart-body {
+		display: flex;
+		flex: 1 1 0%;
+		height: auto;
+	}
+	/* Listing pages: the panel folds to its toggle and opens over the grid. */
+	:root:has([data-wide]) .swag-cart-toggle {
+		display: flex;
+	}
+	:root:has([data-wide]) .swag-cart:not([data-open="true"]) {
+		height: 80px;
+	}
+	:root:has([data-wide]) .swag-cart:not([data-open="true"]) .swag-cart-body {
+		display: none;
+	}
 }

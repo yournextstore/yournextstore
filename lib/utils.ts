@@ -1,5 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's pixel type scale (`text-t14` … `text-t56`) reads as a colour to tailwind-merge
+// unless it is registered as a font size; `cn("text-t56 text-white")` would drop the size.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["t11", "t14", "t16", "t18", "t24", "t30", "t56"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

@@ -1,165 +1,108 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { SwagMark } from "@/components/swag/mark";
+import { SwagNewsletterForm } from "@/components/swag/newsletter-form";
+import { commerce } from "@/lib/commerce";
+import { getStoreIdentity } from "@/lib/swag";
 
-async function FooterBlogLink() {
+const SOCIAL_LABELS = {
+	instagram: "Instagram",
+	facebook: "Facebook",
+	tiktok: "TikTok",
+	youtube: "YouTube",
+	x: "X",
+	linkedin: "LinkedIn",
+} as const;
+
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
+	const [identity, socials, legal] = await Promise.all([
+		getStoreIdentity(),
+		commerce.socialsGet().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+	]);
+	const links = Object.entries(SOCIAL_LABELS).flatMap(([key, label]) => {
+		const href = socials?.socials?.[key as keyof typeof SOCIAL_LABELS];
+		return href ? [{ href, label }] : [];
+	});
+	return {
+		identity,
+		socials: links,
+		legal: legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+		year: new Date().getFullYear(),
+	};
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
+/** The original's sky-blue footer: store pill and socials, the big mark, the newsletter pill, legal row. */
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { identity, socials, legal, year } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+		<footer className="relative z-20 flex min-h-[80svh] flex-col justify-between bg-swag-sky text-black">
+			<div className="grid flex-1 grid-cols-1 items-center gap-12 px-4 py-20 lg:grid-cols-3 lg:px-12">
+				<div className="flex flex-col items-center gap-5 lg:flex-row lg:justify-start">
+					<Link
+						href="/"
+						className="rounded-full border border-black px-4 py-1.5 text-t14 uppercase hover:bg-black hover:text-swag-sky"
+					>
+						{identity.name}
+					</Link>
+					{socials.length > 0 && (
+						<ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-t14 uppercase">
+							{socials.map((social) => (
+								<li key={social.href}>
+									<a href={social.href} target="_blank" rel="noreferrer" className="hover:underline">
+										{social.label}
+									</a>
+								</li>
+							))}
 						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					)}
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="flex justify-center">
+					<SwagMark className="h-40 w-40 rotate-12 lg:h-48 lg:w-48" />
 				</div>
+				<div className="flex justify-center lg:justify-end">
+					<SwagNewsletterForm />
+				</div>
+			</div>
+			<div className="flex flex-col items-center gap-6 px-4 py-5 text-t14 uppercase lg:flex-row lg:justify-between lg:px-5">
+				<ul className="flex flex-col items-center gap-x-8 gap-y-1 lg:flex-row">
+					<li>
+						<Link href="/about" className="hover:underline">
+							About
+						</Link>
+					</li>
+					{identity.contactEnabled && (
+						<li>
+							<Link href="/contact" className="hover:underline">
+								Contact
+							</Link>
+						</li>
+					)}
+					<li>
+						<Link href="/faq" className="hover:underline">
+							FAQ
+						</Link>
+					</li>
+					<li>
+						<a href="/account" className="hover:underline">
+							Account
+						</a>
+					</li>
+					{legal.map((page) => (
+						<li key={page.href}>
+							<Link href={page.href} className="hover:underline">
+								{page.label}
+							</Link>
+						</li>
+					))}
+				</ul>
+				<p>
+					{identity.name} © {year}
+				</p>
 			</div>
 		</footer>
 	);
