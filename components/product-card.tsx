@@ -3,12 +3,13 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { BookCover } from "@/components/book-cover";
 import { formatMoney } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
-import { YNSMedia } from "@/lib/yns-media";
+import { cn } from "@/lib/utils";
 import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
@@ -18,9 +19,11 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	className,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	className?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -29,20 +32,15 @@ export async function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `From ${formatMoney({ amount: minPrice, currency, locale })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
 
-	const allImages = [
-		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+	const primaryImage = product.images?.[0] ?? variants?.flatMap((v) => v.images ?? [])[0];
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const soldOut = variants?.length === 1 && variants[0]?.stock === 0;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -56,69 +54,68 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
+		<article
+			className={cn(
+				"flex flex-col gap-y-2 rounded bg-card shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1)] transition-shadow hover:shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1)]",
+				className,
+			)}
+		>
+			<Link
+				href={href}
+				tabIndex={-1}
+				aria-hidden="true"
+				className="group block rounded border-2 border-shelf bg-shelf p-4 sm:p-8 md:p-4 lg:p-8"
+			>
+				<div className="flex h-44 w-full justify-center transition-transform duration-200 group-hover:scale-105">
+					<BookCover
+						src={primaryImage}
+						alt=""
+						priority={priority}
+						sizes="(min-width: 1024px) 140px, (min-width: 640px) 25vw, 40vw"
 					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
+				</div>
+			</Link>
+			<div className="flex flex-1 flex-col px-4 pb-4">
+				<p className="line-clamp-2 h-10 text-sm leading-5">
+					<Link href={href} className="hover:underline">
+						{product.name}
+					</Link>
+				</p>
+				<p className="mt-auto mb-1 pt-1 font-medium tabular-nums">{priceDisplay}</p>
+				<div className="flex gap-x-2">
+					{singleVariant ? (
+						<QuickAddButton
+							variantId={singleVariant.id}
+							variantSku={"sku" in singleVariant ? singleVariant.sku : null}
+							variantPrice={singleVariant.price}
+							variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
+							variantImages={singleVariant.images}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images ?? [],
+							}}
 						/>
+					) : soldOut ? (
+						<span className="btn-shelf h-9 flex-1 cursor-not-allowed px-1 text-sm opacity-70">Sold Out</span>
 					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+						<Link href={href} className="btn-shelf h-9 flex-1 px-1 text-sm">
+							Choose Options
+						</Link>
+					)}
+					<Link
+						href={href}
+						aria-label={`View ${product.name}`}
+						className="btn-outline-shelf h-9 w-9 shrink-0 lg:w-11"
+					>
+						<ChevronRight aria-hidden="true" className="h-5 w-5" strokeWidth={1.5} />
+					</Link>
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+		</article>
 	);
 }

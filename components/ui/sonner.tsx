@@ -17,6 +17,16 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      toastOptions={{
+        // Original Radix toast: white card, mint rule on the leading edge, coloured title.
+        classNames: {
+          toast: "!rounded-sm !border-l-4 !border-l-mint !bg-white !shadow-lg font-sans",
+          title: "!text-base !font-semibold !text-mint-ink",
+          description: "!text-sm !text-foreground",
+          error: "!border-l-destructive [&_[data-title]]:!text-destructive",
+          actionButton: "!bg-primary !text-primary-foreground !rounded-sm",
+        },
+      }}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
