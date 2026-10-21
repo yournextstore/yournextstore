@@ -18,3 +18,17 @@ export function isVideoUrl(url: string): boolean {
 export const getProductThumbnail = (urls: string[]): string | undefined => {
 	return urls.find((url) => !isVideoUrl(url));
 };
+
+// Mirrors `images.remotePatterns` in next.config.ts. Products imported with images on another
+// host (a merchant's old shop) would 400 through the optimizer; those load directly instead.
+const OPTIMIZED_HOSTS = [/\.public\.blob\.vercel-storage\.com$/, /(^|\.)yns\.store$/, /(^|\.)yns\.cx$/];
+
+export function isOptimizableImage(src: string) {
+	if (!src.startsWith("http")) return true;
+	try {
+		const { hostname } = new URL(src);
+		return OPTIMIZED_HOSTS.some((pattern) => pattern.test(hostname));
+	} catch {
+		return false;
+	}
+}
