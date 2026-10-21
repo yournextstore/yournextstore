@@ -1,21 +1,14 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
+import { BagIcon } from "@/app/cart-button";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
@@ -31,107 +24,101 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
+			<SheetContent hideClose className="flex w-full flex-col gap-0 border-0 p-0 sm:max-w-[23.5rem]">
+				<SheetHeader className="grid h-[4.5rem] shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-0 border-b border-border px-4 py-0">
+					<button
+						type="button"
+						onClick={closeCart}
+						aria-label="Close cart"
+						className="-ml-2 flex size-10 items-center justify-center"
+					>
+						<X className="size-6" strokeWidth={1.5} aria-hidden />
+					</button>
+					<SheetTitle className="text-lg font-bold">My Cart</SheetTitle>
+					<span className="flex items-center justify-end gap-0.5" aria-hidden>
+						<BagIcon className="size-[1.375rem]" />
+						<span className="text-xs font-medium tabular-nums">({itemCount})</span>
+					</span>
 					<SheetDescription className="sr-only">
 						Review items in your cart and proceed to checkout.
 					</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+					<div className="flex flex-1 flex-col items-center justify-center gap-5 px-4 py-12 text-center">
+						<p className="text-lg font-bold">Your cart is empty</p>
+						<button type="button" onClick={closeCart} className="bp-btn bp-btn-inverse-dark">
+							Continue shopping
+						</button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="min-h-0 flex-1">
+							<ul className="flex flex-col">
 								{items.map((item) => (
 									<CartItem key={item.productVariant.id} item={item} />
 								))}
-							</div>
+							</ul>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
+						<div className="shrink-0 border-t border-border">
+							<div className="border-b border-border p-4">
 								<DiscountCodeField />
-								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
+							</div>
+							<div className="flex flex-col gap-4 p-4">
+								<div>
+									{discount ? (
+										<div className="mb-2 flex flex-col gap-1 text-sm">
+											<div className="flex items-center justify-between">
+												<span>Subtotal</span>
+												<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
+											</div>
+											<div className="flex items-center justify-between gap-3 text-brand">
+												<span>Discount</span>
+												<span className="tabular-nums">
+													−{formatMoney({ amount: discount, currency, locale })}
+												</span>
+											</div>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
-												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
+									) : null}
+									<div className="flex items-center justify-between text-base font-bold">
+										<span>Total</span>
+										<span>{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}</span>
 									</div>
-								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
-										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
+									{/* Tax is already inside the shown subtotal on an inclusive store — promising to
+									    "calculate taxes at checkout" there would read as an extra charge to come. */}
+									<p className="mt-1 text-xs">
+										{taxBehavior === "inclusive"
+											? "Shipping calculated at checkout"
+											: "Shipping & taxes calculated at checkout"}
+									</p>
 								</div>
-								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
-								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
-									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
-								</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<a
-										href={checkoutUrl}
-										aria-disabled={isMutating}
-										tabIndex={isMutating ? -1 : undefined}
-										onClick={(e) => {
-											if (isMutating) {
-												e.preventDefault();
-											}
-										}}
-										className={cn(isMutating && "pointer-events-none opacity-60")}
-									>
-										{isMutating ? (
-											<>
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Updating…
-											</>
-										) : (
-											"Checkout"
-										)}
-									</a>
-								</Button>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+								<a
+									href={checkoutUrl}
+									aria-disabled={isMutating}
+									tabIndex={isMutating ? -1 : undefined}
+									onClick={(e) => {
+										if (isMutating) {
+											e.preventDefault();
+										}
+									}}
+									className={cn("bp-btn w-full", isMutating && "pointer-events-none opacity-70")}
 								>
-									Continue Shopping
-								</button>
+									{isMutating ? (
+										<>
+											<Loader2 className="size-4 animate-spin" aria-hidden />
+											Updating…
+										</>
+									) : (
+										"Checkout"
+									)}
+								</a>
 							</div>
-						</SheetFooter>
+						</div>
 					</>
 				)}
 			</SheetContent>

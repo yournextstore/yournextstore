@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -99,70 +99,67 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<li className={cn("flex gap-3 border-b border-border p-4 transition-opacity", isPending && "opacity-70")}>
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative aspect-[3/4] w-[5.5rem] shrink-0 overflow-hidden bg-neutral-lightest"
+				tabIndex={-1}
+				aria-hidden
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="88px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+			<div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
 				<div className="flex items-start justify-between gap-2">
-					<Link
-						href={`/product/${product.slug}`}
-						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-					>
-						{product.name}
-					</Link>
+					<div className="min-w-0">
+						<Link
+							href={`/product/${product.slug}`}
+							onClick={closeCart}
+							className="line-clamp-2 text-sm font-bold leading-snug"
+						>
+							{product.name}
+						</Link>
+						{quantity > 1 && (
+							<p className="mt-0.5 text-sm text-muted-foreground">
+								{formatMoney({ amount: price, currency, locale })} each
+							</p>
+						)}
+					</div>
 					<button
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="-mr-1.5 -mt-1.5 flex size-8 shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<X className="size-4" strokeWidth={1.5} aria-hidden />
 					</button>
 				</div>
 
 				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
+					<div className="flex items-center gap-1">
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex size-8 items-center justify-center rounded-full border border-border transition-colors hover:border-black"
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							<Minus className="size-3.5" aria-hidden />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="w-8 text-center text-sm tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex size-8 items-center justify-center rounded-full border border-border transition-colors hover:border-black"
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							<Plus className="size-3.5" aria-hidden />
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
+					<span className="text-sm">{formatMoney({ amount: lineTotal, currency, locale })}</span>
 				</div>
 			</div>
-		</div>
+		</li>
 	);
 }

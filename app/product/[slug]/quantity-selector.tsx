@@ -1,7 +1,6 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** Bordered stepper the height of Blueprint's 50px buttons, sitting beside Add to cart. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -19,31 +19,29 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
-		</div>
+		<fieldset className="m-0 flex h-[3.125rem] shrink-0 items-center rounded border border-border p-0">
+			<legend className="sr-only">Quantity</legend>
+			<button
+				type="button"
+				className="flex h-full w-10 items-center justify-center disabled:opacity-40"
+				onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
+				disabled={disabled || quantity <= min}
+				aria-label="Decrease quantity"
+			>
+				<Minus className="size-4" aria-hidden />
+			</button>
+			<span className="w-6 text-center text-base tabular-nums" aria-live="polite">
+				{quantity}
+			</span>
+			<button
+				type="button"
+				className="flex h-full w-10 items-center justify-center disabled:opacity-40"
+				onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
+				disabled={disabled || quantity >= max}
+				aria-label="Increase quantity"
+			>
+				<Plus className="size-4" aria-hidden />
+			</button>
+		</fieldset>
 	);
 }
