@@ -135,20 +135,13 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	// All groups that will render, in display order — only the first opens by default.
-	const accordionGroups = [
-		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
-		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
-		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
-		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
-	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	// Horizon shows its filter groups closed, one ruled row each.
+	const accordionDefault: string[] = [];
 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="caps text-fine font-semibold text-ink">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -160,10 +153,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 			</div>
 
-			<Accordion multiple defaultValue={accordionDefault} className="w-full">
+			<Accordion multiple defaultValue={accordionDefault} className="w-full border-t border-rule">
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="text-base font-normal text-ink">Categories</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -192,7 +185,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="text-base font-normal text-ink">Collections</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -223,7 +216,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="text-base font-normal text-ink">{vt.label}</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -254,7 +247,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="text-base font-normal text-ink">Brands</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -283,7 +276,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger className="text-base font-normal text-ink">Price</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider

@@ -1,5 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// Horizon's type scale (text-display, text-copy…) would otherwise be read as colours and
+// silently dropped next to a text colour.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["display", "title", "lede", "label", "copy", "fine"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
