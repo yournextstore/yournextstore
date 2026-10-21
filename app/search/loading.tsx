@@ -1,6 +1,6 @@
 export default function SearchLoading() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+		<section className="max-w-6xl mx-auto px-5 py-16 sm:py-24">
 			<div className="mb-12">
 				<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
 				<div className="mt-2 h-5 w-32 bg-secondary rounded animate-pulse" />

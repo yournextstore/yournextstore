@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { chipClass, sortSelectClass } from "@/components/njx/catalog-styles";
 
 type SortOption = { value: string; label: string };
 
@@ -25,61 +24,69 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
-export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
+/** The original's labelled native sort select. Reads the current sort from the URL. */
+export function SortSelect({ options }: { options: readonly SortOption[] }) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const defaultValue = options[0]?.value;
 	const current = searchParams.get("sort") ?? defaultValue;
 
-	const onChange = (value: string | null) => {
-		if (value === null) {
-			return;
-		}
-		router.push(buildSortHref(searchParams, pathname, value, defaultValue), { scroll: false });
+	return (
+		<label className="flex shrink-0 items-center gap-2 text-[13px] text-muted-foreground">
+			Sort
+			<select
+				value={current}
+				onChange={(e) =>
+					router.push(buildSortHref(searchParams, pathname, e.target.value, defaultValue), { scroll: false })
+				}
+				className={sortSelectClass}
+			>
+				{options.map((option) => (
+					<option key={option.value} value={option.value}>
+						{option.label}
+					</option>
+				))}
+			</select>
+		</label>
+	);
+}
+
+/** Category chips over the full catalogue; "All" clears the category filter. */
+export function CategoryChips({ categories }: { categories: { slug: string; name: string }[] }) {
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const current = searchParams.get("category");
+
+	const hrefFor = (slug: string | null) => {
+		const params = new URLSearchParams(searchParams.toString());
+		params.delete("page");
+		if (slug) params.set("category", slug);
+		else params.delete("category");
+		return params.size ? `${pathname}?${params}` : pathname;
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<>
+			<Link
+				href={hrefFor(null)}
+				aria-current={current ? undefined : "page"}
+				className={chipClass}
+				scroll={false}
+			>
+				All
+			</Link>
+			{categories.map((category) => (
+				<Link
+					key={category.slug}
+					href={hrefFor(category.slug)}
+					aria-current={current === category.slug ? "page" : undefined}
+					className={chipClass}
+					scroll={false}
+				>
+					{category.name}
+				</Link>
+			))}
+		</>
 	);
 }

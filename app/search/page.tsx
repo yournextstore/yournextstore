@@ -154,7 +154,7 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 
 function SearchPageSkeleton() {
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+		<section className="mx-auto max-w-6xl px-5 pb-24">
 			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
 				<div className="mx-auto max-w-3xl">
 					<div className="h-12 w-full animate-pulse bg-secondary motion-reduce:animate-none" />
@@ -195,7 +195,7 @@ const SearchContent = async ({
 	]);
 
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+		<section className="mx-auto max-w-6xl px-5 pb-24">
 			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
 				<div className="mx-auto max-w-3xl">
 					<SearchPageInput initialQuery={query} />
@@ -208,12 +208,12 @@ const SearchContent = async ({
 						<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
 							<div>
 								<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
-								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+								<h1 className="mt-3 max-w-[14ch] text-4xl font-display font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 									{query}
 								</h1>
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
+										{totalCount} {totalCount === 1 ? "product" : "products"}
 									</span>
 									<ActiveFilters categories={categories} activeCategory={category} />
 								</div>

@@ -1,33 +1,37 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
-import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
+import { type NavLink, SiteHeader } from "@/components/njx/site-header";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCollections, getFreeShippingLabel, getStoreInfo, monogram } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+// The original's pairing: Bricolage Grotesque headlines, Inter for UI and body.
+const bricolage = Bricolage_Grotesque({
+	variable: "--font-bricolage",
+	subsets: ["latin", "latin-ext"],
+	axes: ["opsz"],
+});
+
+const inter = Inter({
+	variable: "--font-inter",
+	subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
@@ -41,7 +45,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	"use cache";
 	cacheLife("hours");
 	const me = await meGetCached();
-	const storeName = me.store.name || "Your Next Store";
+	const storeName = me.store.settings?.storeName || me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
@@ -108,20 +112,33 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
+	const collections = await getCollections();
+	return collections.slice(0, 5).map((collection) => ({
+		href: `/collection/${collection.slug}`,
+		label: collection.name,
+	}));
+}
+
+async function AnnouncementBar() {
+	const freeShipping = await getFreeShippingLabel();
+	return (
+		<p className="flex flex-wrap items-center justify-center gap-x-2 bg-pine px-4 py-2 text-center text-[13px] font-medium text-pine-soft dark:text-white">
+			<span>
+				{freeShipping
+					? `Free shipping on orders over ${freeShipping}`
+					: "Delivery options and costs are shown at checkout"}
+			</span>
+			<span aria-hidden className="opacity-50">
+				·
+			</span>
+			<Link
+				href="/products"
+				className="font-semibold text-white underline underline-offset-2 hover:opacity-90"
+			>
+				Shop new arrivals →
+			</Link>
+		</p>
+	);
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,49 +148,48 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, store, freeShipping] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getStoreInfo(),
+		getFreeShippingLabel(),
+	]);
+	// Static on purpose: reading the session here would pull the header out of the
+	// prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard.
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
+	const menu = {
+		collections: links,
+		pages: [
+			{ href: "/products", label: "All products" },
+			{ href: "/about", label: "About" },
+			{ href: "/faq", label: "FAQ" },
+			...(store.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+			...(store.blog ? [{ href: "/blog", label: "Journal" }] : []),
+		],
+		footer: [
+			{ href: "/faq", label: "Shipping & returns" },
+			{ href: "/search", label: "Search" },
+		],
+	};
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
-							</div>
-						</div>
-					</header>
+					<AnnouncementBar />
+					<SiteHeader
+						storeName={store.name}
+						letter={monogram(store.name)}
+						links={links}
+						menu={menu}
+						accountHref={accountHref}
+					/>
 					<main className="flex-1">{children}</main>
 					<Footer />
 				</div>
-				<CartSidebar />
+				<CartSidebar freeShippingNote={freeShipping ? `Everything ships free over ${freeShipping}.` : null} />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
 			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
@@ -214,7 +230,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${bricolage.variable} ${inter.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +238,8 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				{/* Light by default like the original; the header switch flips to its dark palette. */}
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
