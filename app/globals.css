@@ -8,6 +8,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* The reference footer drops its side padding once the 80rem container fits with margin to spare. */
+@theme {
+	--breakpoint-wide: 82.5rem;
+}
+
 @theme inline {
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
@@ -36,47 +41,48 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	/* Neutral grid on neutral-50 with one blue accent: the reference storefront's light palette. */
+	--radius: 0.5rem;
+	--background: #fafafa;
+	--foreground: #000000;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #2563eb;
+	--primary-foreground: #ffffff;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #000000;
+	--muted: #f5f5f5;
+	/* neutral-500 in spirit; this lightness clears AA on --muted (#f5f5f5). */
+	--muted-foreground: #6b6b6b;
+	--accent: #f5f5f5;
+	--accent-foreground: #000000;
+	--destructive: #dc2626;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #a3a3a3;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #171717;
+	--foreground: #ffffff;
+	--card: #000000;
+	--card-foreground: #ffffff;
+	--popover: #000000;
+	--popover-foreground: #ffffff;
+	--primary: #2563eb;
+	--primary-foreground: #ffffff;
+	--secondary: #262626;
+	--secondary-foreground: #ffffff;
+	--muted: #262626;
+	--muted-foreground: #a3a3a3;
+	--accent: #262626;
+	--accent-foreground: #ffffff;
+	--destructive: #f87171;
+	--border: #262626;
+	--input: #404040;
+	--ring: #525252;
 }
 
 @layer base {
@@ -85,7 +91,64 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variable on <body>; preflight never sees @theme inline's --font-sans. */
+		font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 	}
+	::selection {
+		background: #5eead4;
+		color: #000;
+	}
+	.dark ::selection {
+		background: #ec4899;
+		color: #fff;
+	}
+	a:focus-visible,
+	input:focus-visible,
+	button:focus-visible,
+	summary:focus-visible {
+		outline: none;
+		box-shadow:
+			0 0 0 2px var(--background),
+			0 0 0 4px var(--ring);
+	}
+}
+
+/* Home carousel: three copies of the list, translated by one copy so the loop is seamless. */
+@keyframes marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-33.3333%);
+	}
+}
+
+.animate-carousel {
+	animation: marquee 60s linear infinite;
+}
+
+.animate-carousel:hover,
+.animate-carousel:focus-within {
+	animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-carousel {
+		animation: none;
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.animate-fade-in {
+	animation: fade-in 0.4s ease-in-out;
 }
 
 .prose {
@@ -168,4 +231,30 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Content pages: the reference's Prose block (black body copy, 1.75 leading, bulleted lists). */
+.page-prose {
+	@apply prose mx-auto max-w-6xl text-base leading-7 text-black dark:text-white;
+	--tw-prose-body: var(--foreground);
+	--tw-prose-headings: var(--foreground);
+	--tw-prose-links: var(--foreground);
+	--tw-prose-bold: var(--foreground);
+	--tw-prose-bullets: #a3a3a3;
+}
+
+.page-prose :where(h1, h2, h3, h4) {
+	@apply mt-8 font-semibold tracking-wide;
+}
+
+.page-prose :where(ul) {
+	@apply mt-8 list-disc pl-6;
+}
+
+.page-prose :where(ol) {
+	@apply mt-8 list-decimal pl-6;
+}
+
+.page-prose :where(a) {
+	@apply underline;
 }

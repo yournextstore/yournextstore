@@ -1,6 +1,5 @@
 import { Mail } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getStoreSeo } from "@/lib/commerce";
@@ -64,8 +63,8 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion>
+			<h2 className="mb-4 text-2xl font-semibold tracking-wide">{category.title}</h2>
+			<Accordion className="rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-black">
 				{category.questions.map((item, index) => (
 					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
 						<AccordionTrigger>{item.question}</AccordionTrigger>
@@ -81,7 +80,7 @@ function FAQSection({ category }: { category: FAQCategory }) {
 
 function ContactCard() {
 	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
+		<div className="rounded-lg border border-neutral-200 bg-white p-8 text-center dark:border-neutral-800 dark:bg-black">
 			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
 			<p className="mt-2 text-muted-foreground">
 				We're here to help. Reach out and we'll get back to you as soon as possible.
@@ -96,17 +95,11 @@ function ContactCard() {
 
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-8 max-w-2xl py-20 sm:mx-auto">
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
-			{/* Header */}
 			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
+				<h1 className="mb-8 text-5xl font-bold">FAQ</h1>
+				<p className="text-base leading-7">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>
 			</div>

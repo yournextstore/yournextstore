@@ -43,18 +43,12 @@ export default async function ContactPage() {
 	}
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-8 max-w-2xl py-20 sm:mx-auto">
 			<JsonLdScript data={contactJsonLd} />
 
-			{/* Header */}
 			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">Contact Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Contact Us</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
+				<h1 className="mb-8 text-5xl font-bold">Contact</h1>
+				<p className="text-base leading-7">
 					Have a question or just want to say hello? Send us a message and we'll get back to you as soon as we
 					can.
 				</p>
