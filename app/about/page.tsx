@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { PageBar } from "@/components/gf/page-bar";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { gfGreenPill, gfGreyPill } from "@/lib/gf-styles";
 import { JsonLdScript } from "@/lib/json-ld";
+import { cn } from "@/lib/utils";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -53,85 +56,56 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{ title: "Picked with care", text: "A short, considered shelf instead of an endless aisle." },
+		{ title: "Simple to order", text: "Browse, tap the green button, check out. That is the whole flow." },
+		{ title: "Clear details", text: "Options, prices and stock are shown on every product before you buy." },
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
+			<PageBar title="About" />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
+			<section className="relative mt-[22px] overflow-hidden rounded-[30px] bg-green-500 p-5 pb-8 text-white">
+				<div
+					aria-hidden="true"
+					className="absolute -top-[25px] -right-[25px] size-[100px] rounded-full bg-white/15"
+				/>
+				<div
+					aria-hidden="true"
+					className="absolute -top-[45px] right-[25px] size-[100px] rounded-full bg-white/15"
+				/>
+				<h2 className="relative max-w-[80%] text-gf-h3 font-bold">Welcome to {storeName}</h2>
+				{storeDescription && <p className="relative mt-2.5 max-w-[85%] text-gf-h6">{storeDescription}</p>}
+			</section>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
+			<section className="mt-[30px]">
+				<h2 className="text-gf-h4 font-bold">What we stand for</h2>
+				<ul className="mt-[18px] grid gap-3 sm:grid-cols-3">
+					{values.map((value) => (
+						<li key={value.title} className="rounded-[30px] bg-white p-5 gf-shadow">
+							<h3 className="text-gf-h5 font-bold">{value.title}</h3>
+							<p className="mt-2 text-gf-h6 text-muted-foreground">{value.text}</p>
+						</li>
+					))}
+				</ul>
+			</section>
 
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
+			<section className="mt-[30px] rounded-[30px] bg-flash-white p-6 text-center">
+				<h2 className="text-gf-h4 font-bold">Looking for more?</h2>
+				<p className="mt-2 text-gf-h6 text-muted-foreground">The whole catalogue is one tap away.</p>
+				<div className="mt-5 flex flex-col justify-center gap-2.5 sm:flex-row">
+					<Link href="/products" className={cn(gfGreenPill, "h-[50px] sm:w-auto")}>
 						Shop products
 					</Link>
 					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
+						<Link href="/contact" className={cn(gfGreyPill, "h-[50px] bg-white sm:w-auto")}>
 							Contact us
 						</Link>
 					)}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

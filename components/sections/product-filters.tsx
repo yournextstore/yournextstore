@@ -336,22 +336,26 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
+				<Button
+					variant="ghost"
+					className="h-10 rounded-full bg-flash-white px-4 text-gf-h6 font-bold hover:bg-light-silver"
+				>
 					<SlidersHorizontalIcon className="size-4" />
 					Filters
 					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-							{activeCount}
-						</span>
+						<span className="ml-1 rounded-full bg-green-500 px-1.5 text-gf-xs text-white">{activeCount}</span>
 					)}
 				</Button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+			<SheetContent
+				side="bottom"
+				className="mx-auto block max-h-[88svh] w-full max-w-[40rem] overflow-y-auto rounded-t-[30px] border-0"
+			>
+				<SheetHeader className="px-6 pt-6">
+					<SheetTitle className="text-gf-h3 font-bold">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
-				<div className="px-4 pb-8">
+				<div className="px-6 pb-8">
 					<FilterControls {...props} />
 				</div>
 			</SheetContent>

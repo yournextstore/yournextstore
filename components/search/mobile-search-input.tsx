@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useId, useRef } from "react";
+import { type ReactNode, useId, useRef } from "react";
 import { Suggestions } from "@/components/search/suggestions";
 import {
 	getActiveId,
@@ -10,7 +10,16 @@ import {
 	useSearchController,
 } from "@/components/search/use-search-controller";
 
-export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
+export function MobileSearchInput({
+	onNavigate,
+	placeholder = "Search products",
+	trailing,
+}: {
+	onNavigate: () => void;
+	placeholder?: string;
+	/** Extra control drawn inside the field after the search glyph (e.g. a filters link). */
+	trailing?: ReactNode;
+}) {
 	const c = useSearchController("");
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listboxId = useId();
@@ -30,16 +39,12 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 					Search products
 				</label>
 				<div className="relative">
-					<Search
-						className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-						strokeWidth={1.75}
-					/>
 					<input
 						ref={inputRef}
 						id={`${listboxId}-input`}
 						type="search"
 						name="q"
-						placeholder="Search products"
+						placeholder={placeholder}
 						value={c.query}
 						onChange={(e) => c.setQuery(e.target.value)}
 						onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}
@@ -50,11 +55,21 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-12 w-full rounded-full border border-border bg-background pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+						className={`h-16 w-full rounded-xl border-0 bg-flash-white pl-5 text-gf-sm text-foreground placeholder:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 [&::-webkit-search-cancel-button]:hidden ${trailing ? "pr-24" : "pr-14"}`}
 					/>
+					<div className="absolute inset-y-0 right-4 flex items-center gap-2">
+						<button
+							type="submit"
+							aria-label="Search"
+							className="inline-flex size-10 items-center justify-center rounded-full hover:bg-light-silver"
+						>
+							<Search className="size-6" strokeWidth={1.75} />
+						</button>
+						{trailing}
+					</div>
 				</div>
 				{panelOpen ? (
-					<div className="mt-3 border-t border-border pt-1">
+					<div className="mt-3 rounded-xl bg-white p-1 gf-shadow">
 						<Suggestions
 							listboxId={listboxId}
 							open={panelOpen}

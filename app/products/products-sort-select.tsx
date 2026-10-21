@@ -67,7 +67,13 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				className={cn(
+					"h-10! w-auto min-w-[9rem] rounded-full border-0 bg-flash-white px-4 text-gf-h6 font-bold shadow-none hover:bg-light-silver",
+					className,
+				)}
+				aria-label="Sort products"
+			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="end">

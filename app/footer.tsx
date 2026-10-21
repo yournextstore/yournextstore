@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
+import { hasMembers } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
@@ -14,7 +15,7 @@ async function FooterBlogLink() {
 
 	return (
 		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link href="/blog" className="text-gf-h6 text-muted-foreground transition-colors hover:text-foreground">
 				Blog
 			</Link>
 		</li>
@@ -32,7 +33,10 @@ async function FooterContactLink() {
 
 	return (
 		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+			<Link
+				href="/contact"
+				className="text-gf-h6 text-muted-foreground transition-colors hover:text-foreground"
+			>
 				Contact Us
 			</Link>
 		</li>
@@ -43,7 +47,8 @@ async function FooterCollections() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await commerce.collectionBrowse({ limit: 5 });
+	const { data } = await commerce.collectionBrowse({ limit: 5 });
+	const collections = { data: data.filter(hasMembers) };
 
 	if (collections.data.length === 0) {
 		return null;
@@ -51,13 +56,13 @@ async function FooterCollections() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
+			<h2 className="text-gf-h5 font-bold">Collections</h2>
+			<ul className="mt-3 space-y-2.5">
 				{collections.data.map((collection) => (
 					<li key={collection.id}>
 						<Link
 							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-gf-h6 text-muted-foreground transition-colors hover:text-foreground"
 						>
 							{collection.name}
 						</Link>
@@ -80,13 +85,13 @@ async function FooterLegalPages() {
 
 	return (
 		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
+			<h2 className="text-gf-h5 font-bold">Legal</h2>
+			<ul className="mt-3 space-y-2.5">
 				{pages.data.map((page) => (
 					<li key={page.id}>
 						<Link
 							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							className="text-gf-h6 text-muted-foreground transition-colors hover:text-foreground"
 						>
 							{page.label}
 						</Link>
@@ -106,43 +111,44 @@ async function getCopyrightYear() {
 	return new Date().getFullYear();
 }
 
+async function getFooterBrand() {
+	"use cache";
+	cacheLife("hours");
+	const me = await meGetCached().catch(() => null);
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		storeDescription: me?.store.settings?.storeDescription?.trim() || null,
+	};
+}
+
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, { storeName, storeDescription }] = await Promise.all([getCopyrightYear(), getFooterBrand()]);
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
+		<footer className="app pt-10 pb-12">
+			<div className="rounded-[30px] bg-flash-white p-6">
+				<Link href="/" className="text-gf-h4 font-bold">
+					{storeName}
+				</Link>
+				{storeDescription && <p className="mt-2 text-gf-h6 text-muted-foreground">{storeDescription}</p>}
+				<div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
 					<FooterCollections />
-
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						<h2 className="text-gf-h5 font-bold">Store</h2>
+						<ul className="mt-3 space-y-2.5">
 							<li>
 								<Link
 									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-gf-h6 text-muted-foreground transition-colors hover:text-foreground"
 								>
-									About Us
+									About
 								</Link>
 							</li>
 							<FooterContactLink />
 							<li>
 								<Link
 									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="text-gf-h6 text-muted-foreground transition-colors hover:text-foreground"
 								>
 									FAQ
 								</Link>
@@ -150,15 +156,13 @@ export async function Footer() {
 							<FooterBlogLink />
 						</ul>
 					</div>
-
-					{/* Legal */}
 					<FooterLegalPages />
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="mt-8 flex flex-col gap-4 border-t border-light-silver pt-5">
 					<PaymentMethods />
+					<p className="text-gf-sm text-muted-foreground">
+						&copy; {year} {storeName}
+					</p>
 				</div>
 			</div>
 		</footer>
