@@ -3,56 +3,84 @@
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import type { NavCategory, NavCollection } from "@/lib/catalog";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+const rowClass =
+	"flex items-center justify-between rounded-md px-2 py-2.5 text-[15px] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground";
+
+/** The original's "Select a category" drawer: the only navigation, behind the hamburger at every width. */
+export function Navbar({
+	categories,
+	collections,
+	pages,
+}: {
+	categories: NavCategory[];
+	collections: NavCollection[];
+	pages: NavLink[];
+}) {
 	const [open, setOpen] = useState(false);
+	const close = () => setOpen(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border bg-card/60 text-foreground transition-colors hover:bg-secondary"
+			>
+				<Menu className="size-4" />
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				className="gap-0 overflow-y-auto px-6 pt-5 pb-8 data-[side=left]:w-[85vw] data-[side=left]:sm:max-w-xs"
+			>
+				<SheetTitle className="pr-10 text-center font-display text-2xl font-bold">
+					Select a category
+				</SheetTitle>
+				<SheetDescription className="sr-only">Browse the shop by category</SheetDescription>
+				<nav aria-label="Shop" className="mt-6">
+					<ul className="space-y-1">
+						{categories.map((category) => (
+							<li key={category.id}>
+								<Link href={`/category/${category.slug}`} onClick={close} className={rowClass}>
+									{category.name}
+								</Link>
+							</li>
 						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
+						{collections.map((collection) => (
+							<li key={collection.id}>
+								<Link href={`/collection/${collection.slug}`} onClick={close} className={rowClass}>
+									{collection.name}
+								</Link>
+							</li>
+						))}
+					</ul>
+					<div className="my-6 border-t border-border" />
 					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+						href="/products"
+						onClick={close}
+						className="flex h-10 w-full items-center justify-center rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 					>
-						{link.label}
+						View All Products
 					</Link>
-				))}
-			</nav>
-		</>
+					{pages.length > 0 && (
+						<ul className="mt-6 space-y-1">
+							{pages.map((page) => (
+								<li key={page.href}>
+									<Link href={page.href} onClick={close} className={rowClass}>
+										{page.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+					)}
+				</nav>
+			</SheetContent>
+		</Sheet>
 	);
 }

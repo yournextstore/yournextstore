@@ -7,13 +7,14 @@ import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
+import { picturedFirst } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
 	title?: string;
-	description?: string;
+	kicker?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -25,53 +26,42 @@ type ProductGridProps = {
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Newest Arrivals",
+	kicker = "Fresh Picks",
 	products,
-	limit = 6,
+	limit = 4,
 	showViewAll = true,
 	viewAllHref = "/products",
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	const displayProducts =
+		products ??
+		picturedFirst((await commerce.productBrowse({ active: true, limit: 24 })).data).slice(0, limit);
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="wrapper py-20 lg:py-28">
+			<div className="mb-12 flex items-end justify-between gap-4">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					{kicker && <p className="kicker mb-2">{kicker}</p>}
+					<h2 className="font-display text-3xl font-bold text-foreground lg:text-4xl">{title}</h2>
 				</div>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="flex shrink-0 items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gold-ink transition-colors hover:bg-accent/20"
 					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+						View All <ArrowRight aria-hidden="true" className="size-4" />
 					</Link>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

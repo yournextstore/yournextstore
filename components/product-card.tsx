@@ -4,12 +4,14 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { displayName } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
+import { SplitPrice } from "./split-price";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -35,12 +37,12 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
 	const singleVariant =
 		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const outOfStock = variants?.length === 1 && variants[0]?.stock === 0;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -55,10 +57,59 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const href = `/product/${product.slug}${variantSearch}`;
+	const name = displayName(product.name);
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
+		<article className="group relative flex flex-col overflow-hidden rounded-lg border border-border/60 bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+			<Link
+				href={href}
+				tabIndex={-1}
+				aria-hidden="true"
+				className="relative block aspect-square overflow-hidden bg-muted"
+			>
+				{primaryImage &&
+					(isVideoUrl(primaryImage) ? (
+						<video
+							className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+							src={primaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={primaryImage}
+							alt=""
+							fill
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+							className="object-cover transition-transform duration-500 group-hover:scale-105"
+							priority={priority}
+							fetchPriority={priority ? "high" : undefined}
+						/>
+					))}
+				<span className="absolute inset-0 bg-foreground/0 transition-colors duration-300 group-hover:bg-foreground/10" />
+			</Link>
+			<div className="flex flex-1 flex-col p-4">
+				<h2 className="mb-2 line-clamp-1 font-display text-lg font-semibold text-foreground">
+					<Link href={href} className="after:absolute after:inset-0 after:content-['']">
+						{name}
+					</Link>
+				</h2>
+				<div className="mt-auto flex items-center justify-between gap-3">
+					<span className="text-xs tracking-wide text-muted-foreground">
+						{variants && variants.length > 1
+							? `${variants.length} options`
+							: outOfStock
+								? "Sold out"
+								: "In stock"}
+					</span>
+					{priceDisplay && <SplitPrice value={priceDisplay} className="text-lg" />}
+				</div>
+			</div>
+			{singleVariant ? (
+				<div className="relative z-10 px-4 pb-4">
 					<QuickAddButton
 						variantId={singleVariant.id}
 						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
@@ -72,52 +123,17 @@ export async function ProductCard({
 							images: product.images ?? [],
 						}}
 					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
-			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+				</div>
+			) : variants && (variants.length > 1 || (!oneTimeAllowed && !outOfStock)) ? (
+				<div className="relative z-10 px-4 pb-4">
+					<Link
+						href={href}
+						className="flex h-9 w-full items-center justify-center rounded-md border border-accent text-sm font-medium text-foreground transition-colors hover:bg-accent/20"
+					>
+						{oneTimeAllowed ? "Choose options" : "Choose a plan"}
+					</Link>
+				</div>
+			) : null}
+		</article>
 	);
 }

@@ -17,6 +17,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
+import { richTextToPlain } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
@@ -113,19 +114,31 @@ async function CategoryProducts({
 		vts: filters.vts,
 	});
 
+	const count = result.meta.count;
+	const countLine = (
+		<p className="mb-5 flex min-h-8 items-center text-sm text-muted-foreground">
+			{count} {count === 1 ? "product" : "products"}
+		</p>
+	);
+
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
+			<>
+				{countLine}
+				<div className="py-24 text-center">
+					<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				</div>
+			</>
 		);
 	}
 
-	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
+	const totalPages = Math.ceil(count / PRODUCTS_PER_PAGE);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			{countLine}
+			<h2 className="sr-only">Products</h2>
+			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,9 +155,12 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className="wrapper min-h-svh py-10">
+			<div className="mb-4 h-5 w-48 animate-pulse rounded bg-secondary" />
+			<div className="mb-8 h-10 w-72 animate-pulse rounded bg-secondary" />
+			<div className="mb-5 flex min-h-8 items-center">
+				<div className="h-4 w-24 animate-pulse rounded bg-secondary" />
+			</div>
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -199,6 +215,7 @@ const CategoryContent = async ({
 		facets.priceBounds.max > 0;
 
 	const hierarchy = flattenParents(category as CategoryLike);
+	const categoryText = richTextToPlain(category.description);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
 	const currentPath = slugs.join("/");
 	if (currentPath !== canonicalPath) {
@@ -206,9 +223,9 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="wrapper min-h-svh py-10">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
+			<Breadcrumb className="mb-4">
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
@@ -235,21 +252,29 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+			<div className="mb-8">
+				<h1 className="font-display text-3xl font-bold text-foreground lg:text-4xl">{category.name}</h1>
+				{categoryText && <p className="mt-3 max-w-2xl text-muted-foreground">{categoryText}</p>}
 			</div>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12" : ""}>
 				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
 
 				<div>
 					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
+						<div className="mb-4 lg:hidden">
 							<ProductFiltersMobile facets={facets} showCategories={false} />
 						</div>
 					)}
 
-					<Suspense fallback={<ProductGridSkeleton />}>
+					<Suspense
+						fallback={
+							<>
+								<div className="mb-5 min-h-8" />
+								<ProductGridSkeleton />
+							</>
+						}
+					>
 						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 					</Suspense>
 				</div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { ArrowRight, Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
@@ -32,14 +32,9 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
+			<SheetContent className="flex flex-col gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+				<SheetHeader className="border-b border-border px-5 pt-5 pb-4">
+					<SheetTitle className="font-display text-2xl font-bold">Shopping Cart</SheetTitle>
 					<SheetDescription className="sr-only">
 						Review items in your cart and proceed to checkout.
 					</SheetDescription>
@@ -47,20 +42,24 @@ export function CartSidebar() {
 
 				{items.length === 0 ? (
 					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+						<div className="flex size-16 items-center justify-center rounded-full bg-accent/15">
+							<ShoppingBag className="size-7 text-gold-ink" />
 						</div>
 						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+							<p className="font-display text-xl font-bold">Your cart is empty</p>
+							<p className="mt-1 text-sm text-muted-foreground">Find something new: the shelf is full.</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
+						<Button onClick={closeCart} className="bg-accent text-accent-foreground hover:bg-accent/85">
 							Continue Shopping
 						</Button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
+						<div className="grid grid-cols-[1fr_auto] border-b border-border px-5 py-2.5 text-xs font-medium text-gold-ink">
+							<span>Item</span>
+							<span>Price</span>
+						</div>
+						<ScrollArea className="min-h-0 flex-1 px-5">
 							<div className="divide-y divide-border">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
@@ -68,8 +67,9 @@ export function CartSidebar() {
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
+						<SheetFooter className="mt-auto p-4">
+							<div className="w-full space-y-4 rounded-lg border border-border bg-card p-5">
+								<p className="font-display text-xl font-bold">Order Summary</p>
 								<DiscountCodeField />
 								{discount ? (
 									<div className="space-y-1">
@@ -77,7 +77,7 @@ export function CartSidebar() {
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-sm font-medium text-[hsl(150_45%_28%)] dark:text-[hsl(150_45%_65%)]">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -85,8 +85,13 @@ export function CartSidebar() {
 										</div>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
+								<div className="flex items-center justify-between text-lg">
+									<span>
+										{discount ? "Total" : "Subtotal"}{" "}
+										<span className="text-sm text-muted-foreground">
+											({itemCount} {itemCount === 1 ? "item" : "items"})
+										</span>
+									</span>
 									<span className="font-semibold">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
@@ -113,7 +118,7 @@ export function CartSidebar() {
 									}}
 									className={cn(
 										buttonVariants(),
-										"w-full h-12 text-base font-medium",
+										"h-10 w-full bg-[var(--footer)] text-base font-medium text-[var(--footer-foreground)] hover:bg-[var(--footer)]/90",
 										isMutating && "pointer-events-none opacity-60",
 									)}
 								>
@@ -123,7 +128,10 @@ export function CartSidebar() {
 											Updating…
 										</>
 									) : (
-										"Checkout"
+										<>
+											<ArrowRight aria-hidden="true" className="size-4" />
+											Proceed to Checkout
+										</>
 									)}
 								</a>
 								<button
