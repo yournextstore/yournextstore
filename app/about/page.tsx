@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { PhotoTile } from "@/components/photo-tile";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -39,6 +40,22 @@ async function getStoreInfo() {
 	}
 }
 
+const VALUES = [
+	{
+		title: "A short list of scents",
+		body: "A handful of perfumes rather than an endless wall of them, so each one has earned its place.",
+	},
+	{
+		title: "Made to be worn",
+		body: "Perfume for the skin, candles and incense for the room, all built on the same few accords.",
+	},
+	{
+		title: "Quiet bottles",
+		body: "Plain glass, black ceramic and no loud labels, made to sit quietly on a shelf.",
+	},
+];
+
+/** The original has no about page; this one keeps its grammar: full-bleed frames and plain type on black. */
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
@@ -54,84 +71,75 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
+			<PhotoTile
+				image="/images/pexels/about-shelves.jpg"
+				mono
+				sizes="100vw"
+				priority
+				className="h-[70svh] min-h-[24rem]"
+			/>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
+			<section className="lg:grid lg:grid-cols-2">
+				<div className="px-4 py-10 lg:px-[3.5vw] lg:py-[3vw]">
+					<p className="text-foot text-muted-foreground">Stories 01</p>
+					<h1 className="mt-2 text-nav">About {storeName}</h1>
+					<div className="mt-[clamp(2rem,6vw,6rem)] max-w-[38rem] space-y-6 text-copy">
+						{storeDescription && <p>{storeDescription}</p>}
 						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
+							We started with one smoky cedar we wanted to wear ourselves, and grew slowly from there. Every
+							scent in the shop is one we would wear or burn every day: built from a few good materials and
+							meant to become familiar.
 						</p>
 						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
+							We would rather make a few scents well than many quickly, and we add to the range only when a
+							new accord feels finished.
 						</p>
 					</div>
-				</section>
+				</div>
+				<PhotoTile
+					image="/images/pexels/about-shadows.jpg"
+					sizes="(max-width: 1023px) 100vw, 50vw"
+					className="aspect-[4/5] lg:aspect-auto lg:h-svh"
+				/>
+			</section>
 
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
+			<section aria-labelledby="values-heading" className="px-4 py-12 md:px-[2vw] md:py-[4vw]">
+				<h2 id="values-heading" className="text-nav">
+					What we hold to
+				</h2>
+				<div className="mt-8 grid gap-8 md:grid-cols-3 md:gap-[2vw]">
+					{VALUES.map((value) => (
+						<div key={value.title} className="border-t border-snow pt-4">
+							<h3 className="text-copy">{value.title}</h3>
+							<p className="mt-3 text-copy text-muted-foreground">{value.body}</p>
 						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+					))}
+				</div>
+				<div className="mt-12 flex flex-col gap-2 md:max-w-[48%]">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="group flex items-center justify-between border-b border-snow py-3 text-copy"
 					>
-						Shop products
+						Shop all products
+						<span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+							→
+						</span>
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="group flex items-center justify-between border-b border-snow py-3 text-copy"
 						>
-							Contact us
+							Get in touch
+							<span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+								→
+							</span>
 						</Link>
 					)}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

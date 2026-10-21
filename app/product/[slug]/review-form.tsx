@@ -23,8 +23,9 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						className="transition-transform hover:scale-110"
 					>
 						<Star
+							aria-hidden="true"
 							className={`h-6 w-6 ${
-								starValue <= (hovered || value) ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+								starValue <= (hovered || value) ? "fill-snow text-snow" : "text-muted-foreground"
 							}`}
 						/>
 					</button>
@@ -40,14 +41,14 @@ export function ReviewForm({ slug }: { slug: string }) {
 
 	if (state?.success) {
 		return (
-			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
+			<div className="border-t border-snow pt-6 text-center">
 				<p className="font-medium">{state.message}</p>
 			</div>
 		);
 	}
 
 	return (
-		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
+		<form action={action} className="space-y-4 border-t border-snow pt-6">
 			<h3 className="text-lg font-medium">Write a Review</h3>
 
 			<input type="hidden" name="slug" value={slug} />
@@ -68,7 +69,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="author"
 						type="text"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="w-full border-0 border-b border-input bg-transparent px-0 py-2 text-sm focus:border-snow focus:outline-none"
 						placeholder="Your name"
 					/>
 				</div>
@@ -81,7 +82,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="email"
 						type="email"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="w-full border-0 border-b border-input bg-transparent px-0 py-2 text-sm focus:border-snow focus:outline-none"
 						placeholder="your@email.com"
 					/>
 				</div>
@@ -96,7 +97,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 					name="content"
 					required
 					rows={4}
-					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+					className="w-full border-0 border-b border-input bg-transparent px-0 py-2 text-sm focus:border-snow focus:outline-none resize-none"
 					placeholder="Share your experience with this product..."
 				/>
 			</div>
@@ -106,7 +107,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 			<button
 				type="submit"
 				disabled={isPending || rating === 0}
-				className="rounded-md bg-foreground px-6 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+				className="bg-snow px-8 py-3 text-sm text-black transition-opacity hover:opacity-90 disabled:opacity-50"
 			>
 				{isPending ? "Submitting..." : "Submit Review"}
 			</button>

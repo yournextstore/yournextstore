@@ -55,28 +55,18 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	// The original's listing tile: a photograph a full screen tall that crossfades to the second
+	// shot on hover, with name and price set plainly in the bottom-left corner.
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative block overflow-hidden lg:h-svh lg:min-h-[34rem]"
+		>
+			<div className="relative aspect-[4/5] bg-panel lg:absolute lg:inset-0 lg:aspect-auto">
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,10 +76,10 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 1023px) 50vw, 33vw"
+							className={`object-cover transition-opacity duration-300 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -97,7 +87,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -107,17 +97,33 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							sizes="(max-width: 1023px) 50vw, 33vw"
+							className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			{/* Phones: the caption sits under the photograph; desktop: in its bottom-left corner. */}
+			<div className="px-3 pb-6 pt-3 text-tile text-snow lg:absolute lg:inset-x-0 lg:bottom-0 lg:bg-linear-to-t lg:from-[#f4efe8]/70 lg:to-transparent lg:px-[2vw] lg:pb-[2vw] lg:pt-16 lg:text-black">
+				<h2 className="text-tile font-normal lg:pr-14">{product.name}</h2>
+				{priceDisplay && <p>{priceDisplay}</p>}
 			</div>
+			{singleVariant && (
+				<QuickAddButton
+					variantId={singleVariant.id}
+					variantSku={"sku" in singleVariant ? singleVariant.sku : null}
+					variantPrice={singleVariant.price}
+					variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
+					variantImages={singleVariant.images}
+					product={{
+						id: product.id,
+						name: product.name,
+						slug: product.slug,
+						images: product.images ?? [],
+					}}
+				/>
+			)}
 		</Link>
 	);
 }

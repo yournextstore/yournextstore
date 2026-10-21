@@ -27,30 +27,45 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 		...plans.map((plan) => ({ id: plan.id, label: planLabel(plan), detail: plan.benefits })),
 	];
 
+	// Reads like the variant selector: a dot and a word per choice, a filled dot for the chosen one.
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
-			{options.map((option) => (
-				<label
-					key={option.id ?? "one-time"}
-					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
-					)}
-				>
-					<input
-						type="radio"
-						name="purchase"
-						checked={value === option.id}
-						onChange={() => onChange(option.id)}
-						className="mt-0.5 size-4 shrink-0 accent-foreground"
-					/>
-					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
-						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
-					</span>
-				</label>
-			))}
+		<fieldset className="m-0 border-0 p-0">
+			<legend className="mb-2 text-foot text-muted-foreground">Purchase</legend>
+			<div className="flex flex-col gap-2">
+				{options.map((option) => {
+					const isSelected = value === option.id;
+					return (
+						<label
+							key={option.id ?? "one-time"}
+							className={cn(
+								"flex min-h-8 cursor-pointer items-start gap-2 text-copy transition-colors has-focus-visible:underline",
+								isSelected ? "text-snow" : "text-muted-foreground hover:text-snow",
+							)}
+						>
+							<input
+								type="radio"
+								name="purchase"
+								checked={isSelected}
+								onChange={() => onChange(option.id)}
+								className="sr-only"
+							/>
+							<span
+								aria-hidden="true"
+								className={cn(
+									"mt-[0.4em] size-3 shrink-0 rounded-full border border-current",
+									isSelected && "bg-current",
+								)}
+							/>
+							<span>
+								<span className="block">{option.label}</span>
+								{option.detail && (
+									<span className="block text-foot text-muted-foreground">{option.detail}</span>
+								)}
+							</span>
+						</label>
+					);
+				})}
+			</div>
 		</fieldset>
 	);
 }

@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-hanken);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +33,78 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-snow: var(--snow);
+	--color-panel: var(--panel);
+	--color-ash: var(--ash);
 }
 
+/* The original sizes everything in vw (1.5vw nav, 1.2vw tile captions, 1vw footer, 1.3vw
+   product copy). Same steps here, clamped so phones and wide screens stay readable. Names
+   avoid colour tokens: tailwind-merge and Tailwind both read `text-<name>`. */
+@theme {
+	--text-nav: clamp(1rem, 1.5vw, 1.5rem);
+	--text-nav--line-height: 1.25;
+	--text-tile: clamp(0.9375rem, 1.2vw, 1.25rem);
+	--text-tile--line-height: 1.35;
+	--text-copy: clamp(1rem, 1.3vw, 1.3125rem);
+	--text-copy--line-height: 1.45;
+	--text-foot: clamp(0.875rem, 1vw, 1rem);
+	--text-foot--line-height: 2;
+	--text-display: clamp(2.25rem, 6vw, 6.5rem);
+	--text-display--line-height: 1;
+	--breakpoint-xs: 26rem;
+}
+
+/* Light-only original: black page, snow type, #1a1a1a drawer. Both blocks carry the same
+   palette (the theme is forced dark; the palette test reads both). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	--snow: #fffafa;
+	--panel: #1a1a1a;
+	--ash: #a6a6a6;
+	--background: #000000;
+	--foreground: #fffafa;
+	--card: #1a1a1a;
+	--card-foreground: #fffafa;
+	--popover: #1a1a1a;
+	--popover-foreground: #fffafa;
+	--primary: #fffafa;
+	--primary-foreground: #000000;
+	--secondary: #1a1a1a;
+	--secondary-foreground: #fffafa;
+	--muted: #1a1a1a;
+	--muted-foreground: #a6a6a6;
+	--accent: #262626;
+	--accent-foreground: #fffafa;
+	--destructive: #ff6b5e;
+	--border: #3a3a3a;
+	--input: #4a4a4a;
+	--ring: #fffafa;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0rem;
+	--snow: #fffafa;
+	--panel: #1a1a1a;
+	--ash: #a6a6a6;
+	--background: #000000;
+	--foreground: #fffafa;
+	--card: #1a1a1a;
+	--card-foreground: #fffafa;
+	--popover: #1a1a1a;
+	--popover-foreground: #fffafa;
+	--primary: #fffafa;
+	--primary-foreground: #000000;
+	--secondary: #1a1a1a;
+	--secondary-foreground: #fffafa;
+	--muted: #1a1a1a;
+	--muted-foreground: #a6a6a6;
+	--accent: #262626;
+	--accent-foreground: #fffafa;
+	--destructive: #ff6b5e;
+	--border: #3a3a3a;
+	--input: #4a4a4a;
+	--ring: #fffafa;
 }
 
 @layer base {
@@ -85,8 +113,40 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts --font-hanken on <body>, so the stack must be declared here. */
+		font-family: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+		letter-spacing: 0.02em;
+		font-weight: 400;
+	}
+	::selection {
+		background: var(--snow);
+		color: #000;
 	}
 }
+
+/* Announcement marquee: the original slides the strip left forever (GSAP, 20s). */
+@keyframes marquee-x {
+	to {
+		transform: translateX(-50%);
+	}
+}
+.marquee-track {
+	animation: marquee-x 40s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+	.marquee-track {
+		animation: none;
+	}
+}
+
+/* Home: the header lies over the full-bleed hero (the original's nav sits on its video). */
+:root:has([data-hero]) .site-header {
+	position: absolute;
+	inset-inline: 0;
+	top: 0;
+	background: transparent;
+}
+
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
@@ -115,14 +175,7 @@
 }
 
 .yns-image-shimmer {
-	background: linear-gradient(
-		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
-	);
+	background: linear-gradient(90deg, #141414 0%, #1c1c1c 40%, #222 50%, #1c1c1c 60%, #141414 100%);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }
