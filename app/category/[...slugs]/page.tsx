@@ -4,10 +4,11 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
+import { ListingBanner, ListingBannerSkeleton } from "@/components/listing-banner";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -17,6 +18,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
+import { plainText } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
@@ -115,8 +117,8 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="flex min-h-[30vh] items-center justify-center text-center">
+				<p className="text-2xl font-semibold text-slate-400">No products match these filters</p>
 			</div>
 		);
 	}
@@ -125,7 +127,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-12">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,16 +144,19 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="min-h-svh px-6">
+			<div className="mx-auto mt-8 max-w-7xl">
+				<div className="h-5 w-48 animate-pulse rounded bg-slate-100" />
+			</div>
+			<ListingBannerSkeleton />
+			<div className="mx-auto mt-12 mb-40 max-w-7xl">
+				<div className="h-9 w-48 animate-pulse rounded bg-slate-100" />
+				<ProductGridSkeleton className="mt-5" />
+			</div>
 		</div>
 	);
 }
 
-// Awaiting params/searchParams at the top of the page blocks the static shell —
-// the page stays a sync shell and the dynamic content streams inside Suspense.
 export default function CategoryPage(props: {
 	params: Promise<{ slugs: string[] }>;
 	searchParams: Promise<CategoryFilterParams>;
@@ -206,9 +211,9 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh px-6">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
+			<Breadcrumb className="mx-auto mt-8 max-w-7xl">
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink asChild>
@@ -239,23 +244,21 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
+			<ListingBanner
+				name={category.name}
+				description={category.description ? plainText(category.description) : null}
+				image={category.image}
+			/>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
+			<div className="mx-auto mt-12 mb-40 max-w-7xl">
+				<div className="flex items-center justify-between gap-3">
+					<h2 className="text-2xl text-slate-500">
+						Shop <span className="font-medium text-slate-800">Products</span>
+					</h2>
+					{filtersAvailable && <ProductFiltersMobile facets={facets} showCategories={false} />}
+				</div>
+				<div className="mt-5">
+					<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 				</div>
 			</div>
 		</div>
