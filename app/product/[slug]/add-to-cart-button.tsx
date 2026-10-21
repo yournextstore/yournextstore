@@ -1,5 +1,6 @@
 "use client";
 
+import { ShieldCheckIcon, TruckIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
@@ -8,7 +9,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -63,6 +63,8 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
+	/** Formatted free-shipping threshold from the store settings, if any. */
+	freeShipping?: string | null;
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -75,6 +77,7 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 	subscriptionMode = "optional",
 	plans = [],
+	freeShipping = null,
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
@@ -108,11 +111,8 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock, plan]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -216,97 +216,116 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
-			</div>
-
+		<div className="space-y-5">
 			{variants.length > 1 && <VariantSelector variants={variants} />}
 
-			{purchasable ? (
-				<>
-					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
-					)}
+			{purchasable && plans.length > 0 && (
+				<SubscriptionOptions plans={plans} value={planId} onChange={setPlanId} allowOneTime={allowOneTime} />
+			)}
 
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
+			{/* UIkit "tm-product-info" price panel: tinted box, struck list price, price, qty + button. */}
+			<div className="rounded-[4px] bg-tint p-5">
+				{priceInfo.compareAt && (
+					<del className="block text-uk-sm text-muted-foreground">{priceInfo.compareAt}</del>
+				)}
+				<div className="flex flex-wrap items-baseline gap-x-[10px]">
+					<p className="text-[2rem] leading-tight font-medium text-foreground">{priceInfo.display}</p>
+					{priceInfo.discountPercent ? (
+						<span className="uk-label bg-sale">−{priceInfo.discountPercent}%</span>
+					) : null}
+				</div>
+				{omnibusPrice && (
+					<p className="mt-[5px] text-uk-xs text-muted-foreground">
+						Lowest price in the last 30 days: {omnibusPrice}
+					</p>
+				)}
 
-					<VolumePricingDisplay
-						tiers={resolvedTiers}
-						quantity={effectiveQuantity}
-						volumePrice={volumePrice}
-					/>
-
-					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+				<div className="mt-[15px]">
+					{!purchasable ? (
+						<p className="text-uk-sm text-muted-foreground">This subscription isn't available right now.</p>
+					) : isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-[10px]">
+							<QuantitySelector
+								quantity={effectiveQuantity}
+								onQuantityChange={setQuantity}
+								max={Math.max(1, Math.min(99, maxQuantity))}
+								disabled={isOutOfStock}
+							/>
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="uk-btn uk-btn-primary min-w-[150px] flex-1 whitespace-nowrap px-5"
+								aria-label={
+									totalPrice && selectedVariant && !isOutOfStock
+										? `${buttonText}, ${product.name},${formatMoney({ amount: totalPrice, currency, locale })}`
+										: undefined
+								}
 							>
 								{buttonText}
 							</button>
 						</form>
 					)}
-				</>
-			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				</div>
+			</div>
+
+			{purchasable && (
+				<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 			)}
 
-			<TrustBadges />
+			{/* Delivery panel (the template's "Delivery / Pick up from store" box). */}
+			<ul className="space-y-[15px] rounded-[4px] bg-muted p-5">
+				<li className="flex gap-[10px]">
+					<TruckIcon aria-hidden className="mt-[2px] size-5 shrink-0 text-foreground" strokeWidth={1.25} />
+					<div>
+						<p className="text-uk-sm font-medium text-foreground">Delivery</p>
+						<p className="text-uk-xs text-muted-foreground">
+							{stockStatus?.tone === "out"
+								? "Currently out of stock"
+								: freeShipping
+									? `In stock, free over ${freeShipping}`
+									: "In stock, options at checkout"}
+						</p>
+					</div>
+				</li>
+				<li className="flex gap-[10px]">
+					<ShieldCheckIcon
+						aria-hidden
+						className="mt-[2px] size-5 shrink-0 text-foreground"
+						strokeWidth={1.25}
+					/>
+					<div>
+						<p className="text-uk-sm font-medium text-foreground">Secure checkout</p>
+						<p className="text-uk-xs text-muted-foreground">Cards and local payment methods</p>
+					</div>
+				</li>
+			</ul>
+
+			{/* Spec lines: "Label: value", as the template lists its short specs. */}
+			<dl className="space-y-[5px] text-uk-sm">
+				{stockStatus && (
+					<div className="flex gap-[5px]">
+						<dt className="text-muted-foreground">Availability:</dt>
+						<dd
+							className={cn(
+								"text-foreground",
+								stockStatus.tone === "out" && "text-destructive",
+								stockStatus.tone === "low" && "text-[#a35400]",
+							)}
+						>
+							{stockStatus.label}
+						</dd>
+					</div>
+				)}
+				{selectedVariant?.sku && (
+					<div className="flex gap-[5px]">
+						<dt className="text-muted-foreground">SKU:</dt>
+						<dd className="text-foreground">{selectedVariant.sku}</dd>
+					</div>
+				)}
+			</dl>
+			{summary && <p className="text-uk-sm leading-relaxed whitespace-pre-line">{summary}</p>}
 		</div>
 	);
 }

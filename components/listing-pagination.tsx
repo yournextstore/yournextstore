@@ -49,7 +49,7 @@ export function ListingPagination({
 	const pageNumbers = getPageNumbers(currentPage, totalPages);
 
 	return (
-		<Pagination className="mt-12">
+		<Pagination className="border-t border-border py-5">
 			<PaginationContent>
 				{currentPage > 1 && (
 					<PaginationItem>

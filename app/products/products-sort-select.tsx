@@ -33,7 +33,8 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	const current = searchParams.get("sort") ?? defaultValue;
 
 	return (
-		<>
+		<div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-uk-sm">
+			<span className="text-muted-foreground">Sort by:</span>
 			{options.map((option) => {
 				const isActive = option.value === current;
 				return (
@@ -41,15 +42,17 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 						key={option.value}
 						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
 						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
+							"transition-colors",
+							isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
 						)}
+						aria-current={isActive ? "true" : undefined}
+						scroll={false}
 					>
 						{option.label}
 					</Link>
 				);
 			})}
-		</>
+		</div>
 	);
 }
 

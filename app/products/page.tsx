@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import { CatalogNav, EmptyResults, ListingShell, ToolbarFallback } from "@/components/listing";
 import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { PageHeading } from "@/components/page-heading";
+import { LISTING_CELLS, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductCells } from "@/components/sections/product-grid";
+import { getCatalogEntries, getProductCount } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { itemsLabel } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { SortLinks } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
 const sortOptions = [
-	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
+	{ value: "newest", label: "newest", orderBy: "createdAt", orderDirection: "desc" },
+	{ value: "price-asc", label: "price ↑", orderBy: "price", orderDirection: "asc" },
+	{ value: "price-desc", label: "price ↓", orderBy: "price", orderDirection: "desc" },
+	{ value: "name", label: "name", orderBy: "name", orderDirection: "asc" },
 ] as const;
 
 type ProductFilterParams = {
@@ -81,20 +85,12 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
+		return <EmptyResults>No products match these filters.</EmptyResults>;
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<ProductCells headingLevel="h2" products={result.data} className={LISTING_CELLS} />
 
 			<ListingPagination
 				basePath="/products"
@@ -114,47 +110,58 @@ async function ProductSection({ searchParams }: { searchParams: Promise<ProductF
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
+	// `facets`, catalog entries and the count are cached and independent of `searchParams`, so they
+	// drive the shell; runtime `searchParams` is read inside the Suspense boundaries below.
+	const [facets, entries, count] = await Promise.all([
+		getFilterFacets(),
+		getCatalogEntries(),
+		getProductCount(),
+	]);
 	const filtersAvailable =
 		facets.categories.length > 0 ||
 		facets.collections.length > 0 ||
 		facets.brands.length > 0 ||
 		facets.variantTypes.length > 0 ||
 		facets.priceBounds.max > 0;
+	const hasCategories = entries.some((entry) => entry.href.startsWith("/category/"));
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
-			</Suspense>
+		<div className="min-h-svh">
+			<PageHeading
+				crumbs={[{ href: "/", label: "Home" }, { label: "Catalog" }]}
+				title="Catalog"
+				subtitle={itemsLabel(count)}
+			/>
+			<ListingShell
+				sidebar={
+					<>
+						<CatalogNav
+							entries={entries}
+							activeHref="/products"
+							title={hasCategories ? "Categories" : "Collections"}
+						/>
+						{filtersAvailable && (
+							<Suspense>
+								<ProductFilters
+									facets={facets}
+									showCategories={!hasCategories}
+									showCollections={hasCategories}
+								/>
+							</Suspense>
+						)}
+					</>
+				}
+				toolbar={
+					<Suspense fallback={<ToolbarFallback withFilters={filtersAvailable} />}>
+						<SortLinks options={sortOptions} />
+						{filtersAvailable && <ProductFiltersMobile facets={facets} />}
+					</Suspense>
+				}
+			>
+				<Suspense fallback={<ProductGridSkeleton count={PRODUCTS_PER_PAGE} className={LISTING_CELLS} />}>
+					<ProductSection searchParams={searchParams} />
+				</Suspense>
+			</ListingShell>
 		</div>
 	);
 }
