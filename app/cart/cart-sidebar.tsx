@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
 	const { currency, locale, language, taxBehavior } = useStoreConfig();
-	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
+	const { cart, isOpen, closeCart, items, subtotal, isMutating } = useCart();
 	const discount = cartDiscountOf(cart, taxBehavior);
 
 	// `?lang=` tells the platform which language version the shopper is leaving from, so the hosted
@@ -32,52 +32,40 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
+			<SheetContent className="cart flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:border-l-0 data-[side=right]:sm:max-w-lg [&>button:last-child]:top-5 [&>button:last-child]:right-5 [&>button:last-child>svg]:size-6">
+				<SheetHeader className="border-b border-border px-6 py-5">
+					<SheetTitle className="font-heading text-xl font-semibold">Your Cart</SheetTitle>
 					<SheetDescription className="sr-only">
 						Review items in your cart and proceed to checkout.
 					</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
+					<div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-12 text-center">
+						<p className="text-body">Your cart is empty</p>
+						<Button className="h-11 rounded-lg px-5 text-base font-semibold" onClick={closeCart}>
+							Continue shopping
 						</Button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="min-h-0 flex-1">
+							<div className="px-6 py-2">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<DiscountCodeField />
+						<SheetFooter className="mt-auto gap-0 border-t border-foreground/80 px-6 pb-6 pt-6">
+							<div className="w-full space-y-5">
 								{discount ? (
 									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
+										<div className="flex items-center justify-between text-body">
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-base font-medium text-green-800">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -85,19 +73,11 @@ export function CartSidebar() {
 										</div>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
-										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
+								<div className="flex items-center justify-between text-body">
+									<span>{discount ? "Total" : "Subtotal"}</span>
+									<span>{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}</span>
 								</div>
-								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
-								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
-									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
-								</p>
+								<DiscountCodeField />
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
@@ -113,7 +93,7 @@ export function CartSidebar() {
 									}}
 									className={cn(
 										buttonVariants(),
-										"w-full h-12 text-base font-medium",
+										"h-11 w-full rounded-lg text-base font-semibold",
 										isMutating && "pointer-events-none opacity-60",
 									)}
 								>
@@ -123,16 +103,16 @@ export function CartSidebar() {
 											Updating…
 										</>
 									) : (
-										"Checkout"
+										"Continue to checkout"
 									)}
 								</a>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									Continue Shopping
-								</button>
+								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
+								    "calculate taxes at checkout" there would read as an extra charge to come. */}
+								<p className="text-center text-sm text-muted-foreground">
+									{taxBehavior === "inclusive"
+										? "Shipping calculated at checkout"
+										: "Shipping and taxes calculated at checkout"}
+								</p>
 							</div>
 						</SheetFooter>
 					</>

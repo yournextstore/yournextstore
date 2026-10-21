@@ -1,42 +1,46 @@
-import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { EDITORIAL } from "@/lib/editorial";
 
+/**
+ * Fluid's image banner: a full-bleed photograph with a large rounded display headline and one
+ * dark button, left-aligned on the container. The still life sits on a seamless sand wall, so the
+ * picture is anchored right and dissolved into a sand field behind the copy.
+ */
 export function Hero() {
+	const image = EDITORIAL.hero;
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
+		<section className="relative isolate h-[37.5rem] overflow-hidden bg-[#e2d8c9]">
+			{image && (
+				<div className="absolute inset-0 -z-10 md:left-auto md:w-[62%] md:[mask-image:linear-gradient(to_right,transparent,black_28%)]">
+					<Image
+						src={image.src}
+						alt={image.alt}
+						fill
+						priority
+						sizes="(max-width: 768px) 100vw, 62vw"
+						className="object-cover object-[78%_60%]"
+					/>
 				</div>
-			</div>
-			{/* Subtle decorative element */}
+			)}
 			<div
 				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
+				className="absolute inset-x-0 top-0 -z-10 h-3/5 bg-linear-to-b from-[#e2d8c9] via-[#e2d8c9]/80 to-transparent md:hidden"
 			/>
+			<div className="container flex h-full flex-col justify-start pt-12 md:justify-center md:pt-0">
+				<div className="max-w-[34rem] lg:max-w-[42rem]">
+					<h1 className="text-[2.75rem] leading-[1.12] text-balance sm:text-hero lg:text-[3.9rem] lg:leading-[1.15]">
+						Embrace the warmth of slow, simple days
+					</h1>
+					<Link
+						href="/products"
+						className="mt-6 inline-flex h-11 items-center rounded-lg bg-primary px-4 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+					>
+						Shop now
+					</Link>
+				</div>
+			</div>
 		</section>
 	);
 }

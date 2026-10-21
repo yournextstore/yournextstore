@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { ListingBanner } from "@/components/listing-banner";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { EDITORIAL } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
@@ -53,79 +55,66 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "A short list",
+			body: "A handful of scents we know well, each tested for weeks before it joins the shop.",
+		},
+		{
+			title: "Soy wax, cotton wicks",
+			body: "Poured by hand in small batches, so every candle burns slowly, evenly and cleanly.",
+		},
+		{
+			title: "Every evening",
+			body: "Made to be lit on an ordinary Tuesday, not saved for a special occasion.",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="pb-20 sm:pb-28">
 			<JsonLdScript data={aboutJsonLd} />
+			<ListingBanner
+				title={`About ${storeName}`}
+				image={EDITORIAL.about.src}
+				lede={storeDescription ?? undefined}
+			/>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
+			<div className="container grid gap-10 pt-14 sm:pt-20 lg:grid-cols-2 lg:gap-20">
+				<h2 className="text-section sm:text-[2.34rem]">Small comforts for slow, simple days</h2>
+				<div className="space-y-4 text-body">
+					<p>
+						We pour candles for the small moment that changes how an evening feels: a wick lit after work, a
+						green scent in a quiet room. Every jar is meant to be burned down to the last of the wax.
+					</p>
+					<p>
+						We keep our scents calm and close to nature: fern, moss, linen, fig leaf and cedar. When a jar is
+						empty, it is worth keeping for tea lights, pens or a few stems.
+					</p>
+				</div>
 			</div>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
+			<div className="container mt-14 grid gap-5 sm:mt-20 sm:grid-cols-3">
+				{values.map((value) => (
+					<div key={value.title} className="rounded-lg bg-[#efe8de] p-6 sm:p-8">
+						<h3 className="font-heading text-[1.5rem] font-semibold">{value.title}</h3>
+						<p className="mt-2 text-body">{value.body}</p>
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
+				))}
 			</div>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+			<div className="container mt-14 flex flex-col items-start gap-5 sm:mt-20 sm:flex-row sm:items-center sm:justify-between">
+				<h2 className="text-section sm:text-[2.34rem]">Find your favourite</h2>
+				<div className="flex flex-wrap gap-3">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="inline-flex h-11 items-center rounded-lg bg-primary px-5 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
 					>
 						Shop products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex h-11 items-center rounded-lg border border-foreground px-5 text-base font-semibold transition-colors hover:bg-secondary"
 						>
 							Contact us
 						</Link>

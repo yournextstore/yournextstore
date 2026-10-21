@@ -11,7 +11,7 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg
 				<Star
 					key={i}
 					className={`${sizeClass} ${
-						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-accent text-accent"
 					}`}
 				/>
 			))}
@@ -49,7 +49,7 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 					})}
 				</time>
 			</div>
-			<p className="text-muted-foreground leading-relaxed">{review.content}</p>
+			<p className="leading-relaxed">{review.content}</p>
 		</div>
 	);
 }
@@ -58,7 +58,7 @@ export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBr
 	return (
 		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
+				<h2 className="text-section sm:text-[2.34rem]">Customer reviews</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
 			{reviews.data.length > 0 ? (

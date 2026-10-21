@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils";
 export function ProductCardSkeleton() {
 	return (
 		<div>
-			<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-			<div className="space-y-2">
-				<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-				<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+			<div className="aspect-square animate-pulse rounded-lg bg-secondary" />
+			<div className="space-y-2 px-3 pb-2 pt-3 sm:px-6 sm:pt-4">
+				<div className="h-[1.5rem] w-3/4 animate-pulse rounded bg-secondary" />
+				<div className="h-[1.35rem] w-1/4 animate-pulse rounded bg-secondary" />
 			</div>
 		</div>
 	);
@@ -14,7 +14,7 @@ export function ProductCardSkeleton() {
 
 export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
 	return (
-		<div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8", className)}>
+		<div className={cn("grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3", className)}>
 			{Array.from({ length: count }).map((_, i) => (
 				<ProductCardSkeleton key={`skeleton-${i}`} />
 			))}

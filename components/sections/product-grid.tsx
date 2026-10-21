@@ -3,17 +3,17 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
+import { picturedFirst } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
+import { cn } from "@/lib/utils";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
 	title?: string;
-	description?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -22,56 +22,62 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	columns?: 3 | 4;
+	className?: string;
 };
 
+/** Fluid's featured-products section: a heading with "View all" on one line over the card grid. */
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Featured products",
 	products,
 	limit = 6,
 	showViewAll = true,
 	viewAllHref = "/products",
+	columns = 3,
+	className,
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	const displayProducts =
+		products ??
+		picturedFirst(
+			(await commerce.productBrowse({ active: true, limit: Math.max(limit * 2, 12) })).data,
+		).slice(0, limit);
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
+		<section id="products" className={cn("container py-14 sm:py-20", className)}>
+			<div className="mb-5 flex items-baseline justify-between gap-4 sm:mb-4">
+				<h2 className="text-section sm:text-[2.34rem]">{title}</h2>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="shrink-0 rounded-lg px-2 py-2 text-base font-semibold transition-colors hover:bg-secondary"
 					>
 						View all
-						<ArrowRight className="h-4 w-4" />
 					</Link>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div
+				className={cn(
+					"grid grid-cols-1 gap-5 sm:grid-cols-2",
+					columns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3",
+				)}
+			>
 				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard
+						key={product.id}
+						product={product}
+						priority={index === 0}
+						sizes={
+							columns === 4
+								? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+								: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+						}
+					/>
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

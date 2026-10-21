@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { ArrowRight, CircleUserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Hind, Outfit } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,22 +12,30 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { MobileMenu, Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+// Fluid pairs Chillax (display) with Synonym (text), both Fontshare faces whose licence forbids
+// redistribution; Outfit and Hind are the closest open (OFL) Google faces.
+const outfit = Outfit({
+	variable: "--font-outfit",
 	subsets: ["latin"],
+	weight: ["500", "600"],
+});
+
+const hind = Hind({
+	variable: "--font-hind",
+	subsets: ["latin", "latin-ext"],
+	weight: ["400", "500", "600"],
 });
 
 const geistMono = Geist_Mono({
@@ -108,20 +116,35 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
+	const categories = await commerce.categoriesBrowse({ limit: 20 }).catch(() => ({ data: [] }));
+	const topLevel = categories.data.filter((category) => !category.parentId).slice(0, 3);
 	return [
-		{ href: "/", label: "Home" },
+		{ href: "/collections", label: "Collections" },
 		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+		...topLevel.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
 	];
+}
+
+async function getAnnouncement() {
+	"use cache";
+	cacheLife("hours");
+	const collections = await commerce
+		.collectionBrowse({ active: true, limit: 20 })
+		.catch(() => ({ data: [] }));
+	// An empty collection would announce a blank page.
+	const first = collections.data.find(
+		(collection) => collection.productCollections.length > 0 || (collection.metafieldRules?.length ?? 0) > 0,
+	);
+	return first
+		? { href: `/collection/${first.slug}`, label: `Discover ${first.name}` }
+		: { href: "/products", label: "Discover the collection" };
+}
+
+async function getStoreName() {
+	"use cache";
+	cacheLife("hours");
+	const me = await meGetCached().catch(() => null);
+	return me?.store.name || "Your Next Store";
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,47 +154,65 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, announcement, storeName] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getAnnouncement(),
+		getStoreName(),
+	]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<div className="bg-ink text-ink-foreground">
+						<div className="container flex h-11 items-center justify-center">
+							<Link
+								href={announcement.href}
+								className="group inline-flex items-center gap-2 text-sm font-semibold"
+							>
+								{announcement.label}
+								<ArrowRight
+									aria-hidden="true"
+									className="size-4 transition-transform group-hover:translate-x-0.5"
+								/>
+							</Link>
+						</div>
+					</div>
+					<header className="site-header sticky top-0 z-50 border-b border-foreground/10 bg-background/85 backdrop-blur-md">
+						<div className="container flex h-15 items-center justify-between gap-4 lg:h-16">
+							<Link
+								href="/"
+								className="font-heading text-[1.625rem] font-semibold leading-none tracking-tight"
+							>
+								{storeName}
+							</Link>
+							<div className="flex items-center gap-1 lg:gap-2">
+								<Navbar links={links} />
+								<Suspense>
+									<SearchInput />
+								</Suspense>
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={
+										storeConfig.language
+											? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+											: "/account"
+									}
+									className="inline-flex size-10 items-center justify-center rounded-md transition-colors hover:bg-secondary"
+									aria-label="Account"
+								>
+									<CircleUserRound className="size-6" strokeWidth={1.75} />
+								</a>
+								<CartButton />
+								<MobileMenu links={links} />
 							</div>
 						</div>
 					</header>
 					<main className="flex-1">{children}</main>
-					<Footer />
+					<Footer storeName={storeName} />
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
@@ -214,7 +255,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${outfit.variable} ${hind.variable} ${geistMono.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +263,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />

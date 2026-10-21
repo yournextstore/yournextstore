@@ -9,7 +9,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-hind);
+	--font-heading: var(--font-outfit);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +34,90 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-ink: var(--ink);
+	--color-ink-foreground: var(--ink-foreground);
+	--color-cream: var(--cream);
+	--color-badge-sold: var(--badge-sold);
+	--color-badge-sold-foreground: var(--badge-sold-foreground);
 }
 
+/* Fluid's type scale under its own names: overriding text-sm/base/lg would resize every shadcn primitive. */
+@theme {
+	--text-hero: 3.25rem;
+	--text-hero--line-height: 1.15;
+	--text-title: 2.5rem;
+	--text-title--line-height: 1.2;
+	--text-section: 1.875rem;
+	--text-section--line-height: 1.2;
+	--text-body: 1.125rem;
+	--text-body--line-height: 1.35;
+	--text-caption: 1rem;
+	--text-caption--line-height: 1.35;
+}
+
+/* Fluid's container: full width with 16/24/32px gutters, breakpoint max-widths. */
+@utility container {
+	margin-inline: auto;
+	padding-inline: 1rem;
+
+	@variant md {
+		padding-inline: 1.5rem;
+	}
+
+	@variant xl {
+		padding-inline: 2rem;
+	}
+}
+
+/* Warm pastel candle palette from the Fluid demo: espresso ink on a warm white, sand accents. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #fefdfc;
+	--foreground: #3e332e;
+	--card: #fefdfc;
+	--card-foreground: #3e332e;
+	--popover: #fefdfc;
+	--popover-foreground: #3e332e;
+	--primary: #3e332e;
+	--primary-foreground: #f2e1ca;
+	--secondary: #ebe9e7;
+	--secondary-foreground: #3e332e;
+	--muted: #ebe9e7;
+	--muted-foreground: #645c58;
+	--accent: #d8d5d3;
+	--accent-foreground: #3e332e;
+	--destructive: #b91c1c;
+	--border: #d8d5d3;
+	--input: #8b8480;
+	--ring: #5b514d;
+	--ink: #12110f;
+	--ink-foreground: #f2e1ca;
+	--cream: #f2e1ca;
+	--badge-sold: #b0b0b0;
+	--badge-sold-foreground: #262626;
 }
 
+/* Light-only design (forcedTheme="light"); the block stays so the palette test checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #fefdfc;
+	--foreground: #3e332e;
+	--card: #fefdfc;
+	--card-foreground: #3e332e;
+	--popover: #fefdfc;
+	--popover-foreground: #3e332e;
+	--primary: #3e332e;
+	--primary-foreground: #f2e1ca;
+	--secondary: #ebe9e7;
+	--secondary-foreground: #3e332e;
+	--muted: #ebe9e7;
+	--muted-foreground: #645c58;
+	--accent: #d8d5d3;
+	--accent-foreground: #3e332e;
+	--destructive: #b91c1c;
+	--border: #d8d5d3;
+	--input: #8b8480;
+	--ring: #5b514d;
 }
 
 @layer base {
@@ -85,11 +126,24 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-size: 1.125rem;
+		line-height: 1.35;
+	}
+	button,
+	[role="button"] {
+		cursor: pointer;
+	}
+	h1,
+	h2 {
+		/* @theme inline tokens are not emitted as variables: point at the next/font variable. */
+		font-family: var(--font-outfit), ui-sans-serif, sans-serif;
+		font-weight: 600;
+		letter-spacing: -0.005em;
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: var(--foreground);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);
@@ -117,11 +171,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#ebe6e1 0%,
+		#f3efeb 40%,
+		#fbf9f7 50%,
+		#f3efeb 60%,
+		#ebe6e1 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
