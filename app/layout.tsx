@@ -1,9 +1,8 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Belleza, Geist_Mono, Montserrat } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,22 +11,37 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Announcements, HeaderShell, MobileMenu, Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
+import {
+	getCatalogueTiles,
+	getLifestyleShots,
+	getSocialLinks,
+	getStoreIdentity,
+	pick,
+	resellerHref,
+} from "@/lib/theme";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+// The original's pairing: Belleza for headings and the wordmark, Montserrat for text.
+// latin-ext for catalogue names with accented characters.
+const belleza = Belleza({
+	variable: "--font-belleza",
+	subsets: ["latin", "latin-ext"],
+	weight: "400",
+});
+
+const montserrat = Montserrat({
+	variable: "--font-montserrat",
+	subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
@@ -41,7 +55,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	"use cache";
 	cacheLife("hours");
 	const me = await meGetCached();
-	const storeName = me.store.name || "Your Next Store";
+	const storeName = me.store.settings?.storeName || me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
@@ -105,23 +119,52 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+async function getNavLinks() {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
+	const [{ categories, collections }, identity] = await Promise.all([
+		getCatalogueTiles(),
+		getStoreIdentity(),
 	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+	const { packshots } = await getLifestyleShots();
+	const groups = [
+		...(collections.length > 0
+			? [{ title: "Collections", links: collections.map((c) => ({ href: c.href, label: c.title })) }]
+			: []),
+		...(categories.length > 0
+			? [{ title: "Categories", links: categories.map((c) => ({ href: c.href, label: c.title })) }]
+			: []),
 	];
+	const tiles = [...collections, ...categories].slice(0, 5).map((tile, i) => ({
+		href: tile.href,
+		label: tile.title,
+		image: tile.image ?? pick(packshots, i + 1)?.src ?? null,
+	}));
+	const links: NavLink[] = [
+		{ href: "/", label: "Home" },
+		{ href: "/products", label: "Collections", groups, tiles },
+		{ href: "/products", label: "Shop all" },
+		...(identity.blogEnabled ? [{ href: "/blog", label: "Blogs" }] : []),
+		{ href: "/about", label: "About" },
+		{ href: resellerHref(identity.contactEnabled), label: "Become a Reseller" },
+	];
+	return links;
+}
+
+function AccountIcon() {
+	return (
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.25"
+			className="h-5 w-5"
+		>
+			<circle cx="12" cy="8" r="4.25" />
+			<path d="M4.5 20.5c1.3-3.7 4.1-5.6 7.5-5.6s6.2 1.9 7.5 5.6" strokeLinecap="round" />
+		</svg>
+	);
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,49 +174,72 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, identity, socials] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getStoreIdentity(),
+		getSocialLinks(),
+	]);
+	// Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md). Static on
+	// purpose: reading the session here would pull the header out of the prerendered shell.
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
+	const announcement = identity.freeShipping
+		? `Free delivery on orders over ${identity.freeShipping}`
+		: "Get the best deals from us";
+	const iconClass =
+		"inline-flex h-10 w-10 items-center justify-center rounded-xs transition-opacity hover:opacity-70";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
+					<Announcements message={announcement} socials={socials} />
+					<HeaderShell>
+						<div className="shell flex h-16 items-center justify-between lg:h-20">
+							{/* Phones: menu + search left, wordmark centred, account + cart right. */}
+							<div className="flex min-w-0 flex-1 items-center">
+								<MobileMenu links={links} accountHref={accountHref} />
+								<div className="lg:hidden">
 									<Suspense>
 										<SearchInput />
 									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
 								</div>
+								<Link
+									href="/"
+									className="hidden min-w-0 truncate pr-6 font-serif text-[1.625rem] xl:text-[2rem] leading-none tracking-[-0.03em] text-on-header uppercase lg:block"
+								>
+									{identity.name}
+								</Link>
+							</div>
+							<Link
+								href="/"
+								className="absolute left-1/2 max-w-[calc(100%-11rem)] -translate-x-1/2 truncate font-serif text-[1.375rem] leading-none tracking-[-0.03em] text-on-header uppercase sm:text-[2rem] lg:hidden"
+							>
+								{identity.name}
+							</Link>
+							<div className="hidden h-full lg:block">
+								<Navbar links={links} />
+							</div>
+							<div className="flex flex-1 items-center justify-end gap-0.5">
+								<div className="hidden lg:block">
+									<Suspense>
+										<SearchInput />
+									</Suspense>
+								</div>
+								<a href={accountHref} className={iconClass}>
+									<span className="sr-only">Account</span>
+									<AccountIcon />
+								</a>
+								<CartButton />
 							</div>
 						</div>
-					</header>
+					</HeaderShell>
 					<main className="flex-1">{children}</main>
 					<Footer />
 				</div>
-				<CartSidebar />
+				<CartSidebar freeShippingThreshold={identity.freeShippingThreshold} />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
 			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
@@ -214,7 +280,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${belleza.variable} ${montserrat.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +288,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
