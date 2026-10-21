@@ -6,7 +6,6 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -86,17 +85,11 @@ export function AddToCartButton({
 		taxBehavior,
 	);
 
-	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
-
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -195,26 +188,22 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+		<div className="space-y-6">
+			{summary && <p className="line-clamp-6 leading-relaxed">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
+					<span className="text-[1.875rem] font-normal text-slate-ink">{priceInfo.display}</span>
+					{priceInfo.compareAt && <span className="text-lg line-through">{priceInfo.compareAt}</span>}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
 				</div>
 
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
+				{omnibusPrice && <p className="text-xs">Lowest price in the last 30 days: {omnibusPrice}</p>}
 
 				{/* SKU & stock availability */}
 				{(selectedVariant?.sku || stockStatus) && (
@@ -224,8 +213,8 @@ export function AddToCartButton({
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+									stockStatus.tone === "low" && "text-[#a15c07]",
+									stockStatus.tone === "in" && "text-[#0f7a4c]",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -233,7 +222,7 @@ export function AddToCartButton({
 							</span>
 						)}
 						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
+							<span>
 								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
 							</span>
 						)}
@@ -259,14 +248,12 @@ export function AddToCartButton({
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="btn-ae btn-ae-dark btn-ae-lg w-full sm:w-auto"
 					>
 						{buttonText}
 					</button>
 				</form>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }

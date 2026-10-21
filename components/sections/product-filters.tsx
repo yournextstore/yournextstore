@@ -17,6 +17,7 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { sentenceCase } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
@@ -135,20 +136,13 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	// All groups that will render, in display order — only the first opens by default.
-	const accordionGroups = [
-		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
-		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
-		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
-		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
-	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	// The original's filter accordions all start closed.
+	const accordionDefault: string[] = [];
 
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+		<div className="space-y-3">
+			<div className="flex min-h-5 items-center justify-between">
+				<h2 className="text-xs font-semibold uppercase tracking-wider text-slate-body">Filter by</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -160,10 +154,16 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 			</div>
 
-			<Accordion type="multiple" defaultValue={accordionDefault} className="w-full">
+			<Accordion
+				type="multiple"
+				defaultValue={accordionDefault}
+				className="w-full border-t border-slate-line"
+			>
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="py-4 text-sm font-semibold text-slate-ink hover:no-underline">
+							Categories
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -192,7 +192,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="py-4 text-sm font-semibold text-slate-ink hover:no-underline">
+							Collections
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -223,7 +225,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="py-4 text-sm font-semibold text-slate-ink hover:no-underline">
+								{sentenceCase(vt.label)}
+							</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -252,7 +256,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="py-4 text-sm font-semibold text-slate-ink hover:no-underline">
+							Brands
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -281,7 +287,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger className="py-4 text-sm font-semibold text-slate-ink hover:no-underline">
+							Price
+						</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider
@@ -322,7 +330,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 /** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
 export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
 	return (
-		<aside className={cn("hidden lg:block", className)}>
+		<aside className={cn("hidden md:block", className)}>
 			<FilterControls {...props} />
 		</aside>
 	);
@@ -336,7 +344,7 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
+				<Button variant="outline" size="sm" className="h-9 rounded-md md:hidden">
 					<SlidersHorizontalIcon className="size-4" />
 					Filters
 					{activeCount > 0 && (

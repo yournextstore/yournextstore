@@ -15,6 +15,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getHomeProducts, plainText } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -64,7 +65,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
 		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div className="container-ae">
 				<div className="py-12 sm:py-16 lg:py-20">
 					<div className="max-w-2xl">
 						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
@@ -72,9 +73,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 						</h1>
 						{collection.description && (
 							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
+								{plainText(collection.description) || "Explore our curated collection"}
 							</p>
 						)}
 					</div>
@@ -99,7 +98,7 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+		<section className="container-ae py-16 sm:py-24">
 			<ProductGridSkeleton className="lg:grid-cols-3" />
 		</section>
 	);
@@ -160,12 +159,25 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
+	if (products.length === 0) {
+		const latest = await getHomeProducts();
+		return (
+			<ProductGrid
+				title="Meanwhile, in the shop"
+				description="Nothing in this collection yet. Here is what has just arrived."
+				products={latest.slice(0, 4)}
+				viewAllHref="/products"
+				details
+			/>
+		);
+	}
+
 	return (
 		<ProductGrid
 			title={`${collection.name} Collection`}
 			description={`${products.length} products`}
 			products={products}
-			showViewAll={false}
+			details
 		/>
 	);
 }
@@ -173,11 +185,11 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 function CollectionPageSkeleton() {
 	return (
 		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+			<div className="container-ae pt-6">
 				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
 			</div>
 			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="container-ae">
 					<div className="py-12 sm:py-16 lg:py-20">
 						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
 					</div>
@@ -219,7 +231,7 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+			<div className="container-ae pt-6">
 				<Breadcrumb>
 					<BreadcrumbList>
 						<BreadcrumbItem>

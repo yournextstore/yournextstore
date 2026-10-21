@@ -8,7 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-noto-sans);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +32,64 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's slate ramp, under its own names. */
+	--color-slate-ink: var(--slate-ink);
+	--color-slate-body: var(--slate-body);
+	--color-slate-line: var(--slate-line);
+	--color-star: #fbbf24;
+	--shadow-xs-ae: 0 0.125rem 5px -0.0625rem rgb(12 26 36 / 0.1), 0 0.0625rem 0.0625rem 0 rgb(12 26 36 / 0.04);
+	--shadow-header: 0 0.25rem 0.375rem -0.0625rem rgb(20 20 20 / 0.12), 0 0.125rem 0.25rem -0.0625rem rgb(20 20 20 / 0.07);
 }
 
+/* Light-only design (Bootstrap "soft" corporate slate). The .dark block repeats the palette so
+   the palette test and next-themes stay happy; ThemeProvider forces light. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--slate-ink: #1e293b;
+	--slate-body: #64748b;
+	--slate-line: #dde0e5;
+	--background: #ffffff;
+	--foreground: #1e293b;
+	--card: #ffffff;
+	--card-foreground: #1e293b;
+	--popover: #ffffff;
+	--popover-foreground: #1e293b;
+	--primary: #1e293b;
+	--primary-foreground: #ffffff;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #1e293b;
+	--muted: #f9fafb;
+	--muted-foreground: #5b6880;
+	--accent: #f1f5f9;
+	--accent-foreground: #1e293b;
+	--destructive: #dc3545;
+	--border: #dde0e5;
+	--input: #dde0e5;
+	--ring: #94a3b8;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--slate-ink: #1e293b;
+	--slate-body: #64748b;
+	--slate-line: #dde0e5;
+	--background: #ffffff;
+	--foreground: #1e293b;
+	--card: #ffffff;
+	--card-foreground: #1e293b;
+	--popover: #ffffff;
+	--popover-foreground: #1e293b;
+	--primary: #1e293b;
+	--primary-foreground: #ffffff;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #1e293b;
+	--muted: #f9fafb;
+	--muted-foreground: #5b6880;
+	--accent: #f1f5f9;
+	--accent-foreground: #1e293b;
+	--destructive: #dc3545;
+	--border: #dde0e5;
+	--input: #dde0e5;
+	--ring: #94a3b8;
 }
 
 @layer base {
@@ -83,7 +97,111 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background;
+		/* next/font puts the variable on <body>, so the stack is declared here, not on html. */
+		font-family: var(--font-noto-sans), "Open Sans", system-ui, sans-serif;
+		color: var(--slate-body);
+		line-height: 1.6;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: var(--slate-ink);
+		font-weight: 600;
+	}
+}
+
+/* Bootstrap's container: 12px gutters, 540/720/960/1140/1320 caps. */
+@utility container-ae {
+	width: 100%;
+	margin-inline: auto;
+	padding-inline: 0.75rem;
+	@media (width >= 576px) {
+		max-width: 540px;
+	}
+	@media (width >= 768px) {
+		max-width: 720px;
+	}
+	@media (width >= 992px) {
+		max-width: 960px;
+	}
+	@media (width >= 1200px) {
+		max-width: 1140px;
+	}
+	@media (width >= 1400px) {
+		max-width: 1320px;
+	}
+}
+
+@layer components {
+	/* .btn: 11px/24px, 14px semibold, 6px radius, a hairline drop shadow. */
+	.btn-ae {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: var(--btn-py, 0.6875rem) var(--btn-px, 1.5rem);
+		border-radius: var(--btn-radius, 0.375rem);
+		border: 1px solid transparent;
+		font-size: 0.875rem;
+		line-height: 1rem;
+		font-weight: 600;
+		letter-spacing: -0.0125rem;
+		box-shadow: 0 1px 2px 0 rgb(12 26 36 / 0.06);
+		transition:
+			box-shadow 0.15s ease,
+			transform 0.15s ease,
+			background-color 0.15s ease,
+			border-color 0.15s ease;
+		white-space: nowrap;
+		cursor: pointer;
+	}
+	.btn-ae:hover {
+		box-shadow:
+			0 3px 5px -1px rgb(0 0 0 / 0.09),
+			0 2px 3px -1px rgb(0 0 0 / 0.07);
+	}
+	.btn-ae:disabled,
+	.btn-ae[aria-disabled="true"] {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
+	.btn-ae-lg {
+		--btn-py: 0.875rem;
+		--btn-px: 4rem;
+		--btn-radius: 0.5rem;
+	}
+	.btn-ae-dark {
+		background: var(--slate-ink);
+		color: #fff;
+	}
+	.btn-ae-dark:hover {
+		background: #0f172a;
+	}
+	.btn-ae-white {
+		background: #fff;
+		color: var(--slate-ink);
+		border-color: var(--slate-line);
+	}
+	.btn-ae-white:hover {
+		border-color: var(--slate-body);
+	}
+	/* .card.border.shadow-xs */
+	.card-ae {
+		background: var(--card);
+		border: 1px solid var(--slate-line);
+		border-radius: 0.75rem;
+		box-shadow: var(--shadow-xs-ae);
+	}
+	/* .page-header .mask.bg-black.opacity-6 */
+	.mask-ae {
+		position: absolute;
+		inset: 0;
+		background: #000;
+		opacity: 0.6;
 	}
 }
 
