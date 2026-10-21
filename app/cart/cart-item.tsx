@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -99,66 +99,59 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="relative flex gap-4 border-b border-line py-4">
+			<button
+				type="button"
+				onClick={handleRemove}
+				disabled={isPending}
+				className="absolute right-0 top-4 p-1.5 text-muted-foreground transition hover:bg-tile hover:text-ink disabled:pointer-events-none disabled:opacity-50"
+				aria-label={`Remove ${product.name} from bag`}
+			>
+				<XIcon aria-hidden className="size-3.5" strokeWidth={2} />
+			</button>
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative size-20 shrink-0 overflow-hidden bg-tile"
+				tabIndex={-1}
+				aria-hidden
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="80px" />}
 			</Link>
-
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<Link
-						href={`/product/${product.slug}`}
-						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-					>
-						{product.name}
-					</Link>
-					<button
-						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
-					>
-						<Trash2 className="h-4 w-4" />
-					</button>
-				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
+			<div className="min-w-0 flex-1 pr-8">
+				<Link
+					href={`/product/${product.slug}`}
+					onClick={closeCart}
+					className="line-clamp-2 text-body font-medium leading-snug hover:underline"
+				>
+					{product.name}
+				</Link>
+				<div className="mt-2 flex items-center gap-3">
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"flex items-center border border-line transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="px-2.5 py-1 text-muted-foreground hover:text-ink"
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							−
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="px-1 text-[14px] tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="px-2.5 py-1 text-muted-foreground hover:text-ink"
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							+
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="text-[14px] font-medium">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

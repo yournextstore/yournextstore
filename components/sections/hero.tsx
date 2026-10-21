@@ -1,42 +1,45 @@
-import { ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import { getShelf } from "@/lib/catalog";
+import { HeroSlider, type Slide } from "./hero-slider";
 
-export function Hero() {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
-				</div>
-			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
-		</section>
-	);
+/** Full-bleed editorial slider; photographs are the original theme's (Unsplash). */
+export async function Hero() {
+	// The fullest categories make the best calls to action.
+	const shelf = [...(await getShelf())].sort((a, b) => b.count - a.count);
+	const [first, second, third] = shelf;
+	const all = { href: "/products", label: "Shop all" };
+
+	const slides: Slide[] = [
+		{
+			title: "Linen for slow seasons.",
+			text: "Dresses, shirts and trousers in washed linen, cut simply and chosen for how they feel and last. No drops, no noise.",
+			primary: { href: "/products", label: "Shop new in" },
+			secondary: first ?? { href: "/about", label: "Our story" },
+			note: "Considered pieces, slowly chosen.",
+			image: { src: "/images/hero.jpg", alt: "A rail of ivory and sand garments on wooden hangers" },
+		},
+		{
+			title: "The shirt you plan outfits around.",
+			text: "One good piece in a natural fibre, worn often and kept for years. Shown plainly, without the theatre.",
+			primary: second ? { href: second.href, label: `Shop ${second.label.toLowerCase()}` } : all,
+			secondary: { href: "/about", label: "Our story" },
+			note: "Fewer things, chosen better.",
+			image: {
+				src: "/images/hero-2.jpg",
+				alt: "A shop window rail of linen and wool garments in earthy tones",
+			},
+		},
+		{
+			title: "Details that outlive trends.",
+			text: "Linen, wool and cotton in quiet colours and simple shapes that stay right long after the season.",
+			primary: third ? { href: third.href, label: `Shop ${third.label.toLowerCase()}` } : all,
+			secondary: all,
+			note: "Chosen to be kept.",
+			image: {
+				src: "/images/hero-3.jpg",
+				alt: "A wooden rail of linen dresses and shirts in ivory, sand and rust by a curtained window",
+			},
+		},
+	];
+
+	return <HeroSlider slides={slides} />;
 }
