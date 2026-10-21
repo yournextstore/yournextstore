@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { Crumbs } from "@/components/crumbs";
+import { Button } from "@/components/ui/button";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -30,7 +32,7 @@ async function getStoreInfo() {
 	try {
 		const me = await meGetCached();
 		return {
-			storeName: me.store.name || "our store",
+			storeName: me.store.settings?.storeName || me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
 			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
@@ -53,85 +55,94 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "Made to be lived with",
+			body: "Bags built for daily use: dense canvas, recycled nylon and leather that age well.",
+		},
+		{
+			title: "Designed to work together",
+			body: "Bags, pouches and cubes that share colours and sizes, so they pack and carry together.",
+		},
+		{
+			title: "Answers when you need them",
+			body: "Questions about a capacity, a material or an order? Ask us before or after you buy.",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			<section className="border-b border-border">
+				<div className="shell py-12 text-center md:py-24">
+					<Crumbs
+						className="mb-8 flex justify-center"
+						items={[{ label: "Home", href: "/" }, { label: "About" }]}
+					/>
+					<h1 className="text-4xl font-bold tracking-tight text-ink text-balance md:text-5xl">
+						About {storeName}
+					</h1>
+					<p className="mx-auto mt-4 max-w-2xl text-lg text-ink-soft">
+						{storeDescription ??
+							"A small team that believes everyday things should feel calm, practical and entirely yours, without costing a fortune."}
+					</p>
 				</div>
-			</div>
-		</div>
+			</section>
+
+			<section className="shell grid gap-8 py-16 md:grid-cols-5 md:gap-12">
+				<h2 className="text-2xl font-bold text-ink md:col-span-2">Our story</h2>
+				<div className="space-y-4 leading-7 text-ink-soft md:col-span-3">
+					<p>
+						We started with a simple frustration: too often you had to choose between things that looked good
+						and things that lasted. So we began collecting the ones that did both, from backpacks that survive
+						every commute to the pouch you reach for every day.
+					</p>
+					<p>
+						Each product is picked for how it works day to day, and grouped into collections so you can find
+						what fits together with confidence.
+					</p>
+				</div>
+			</section>
+
+			<section className="shell pb-16">
+				<h2 className="mb-8 text-2xl font-bold text-ink">What we stand for</h2>
+				<ul className="grid gap-4 md:grid-cols-3">
+					{values.map((value) => (
+						<li key={value.title} className="rounded-lg border border-border bg-wash px-5 py-4">
+							<h3 className="font-semibold text-ink">{value.title}</h3>
+							<p className="mt-1 text-sm text-ink-soft">{value.body}</p>
+						</li>
+					))}
+				</ul>
+			</section>
+
+			<section className="bg-ink text-white">
+				<div className="shell flex flex-col items-start gap-6 py-16 md:flex-row md:items-center md:justify-between">
+					<div>
+						<h2 className="text-2xl font-bold">Ready to find your next bag?</h2>
+						<p className="mt-2 text-gray-300">Browse the full range, or get in touch with a question.</p>
+					</div>
+					<div className="flex flex-wrap gap-4">
+						<Button
+							size="lg"
+							nativeButton={false}
+							render={<Link href="/products" />}
+							className="bg-white text-ink hover:bg-white/90"
+						>
+							Shop products
+						</Button>
+						<Button
+							size="lg"
+							variant="outline"
+							nativeButton={false}
+							render={<Link href={contactFormEnabled ? "/contact" : "/faq"} />}
+							className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white"
+						>
+							{contactFormEnabled ? "Contact us" : "Read the FAQ"}
+						</Button>
+					</div>
+				</div>
+			</section>
+		</>
 	);
 }

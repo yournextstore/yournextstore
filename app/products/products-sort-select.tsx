@@ -1,8 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import { ChevronDownIcon } from "lucide-react";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 type SortOption = { value: string; label: string };
@@ -25,41 +32,14 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
+/** The original's "Sort ▾" pill: an outline button opening a radio menu. Reads the sort from the URL. */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const defaultValue = options[0]?.value;
 	const current = searchParams.get("sort") ?? defaultValue;
+	const currentLabel = options.find((option) => option.value === current)?.label;
 
 	const onChange = (value: string | null) => {
 		if (value === null) {
@@ -69,17 +49,32 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<DropdownMenu>
+			<DropdownMenuTrigger
+				render={
+					<Button
+						variant="outline"
+						size="sm"
+						className={cn("group/sort text-xs font-medium", className)}
+						aria-label={currentLabel ? `Sort: ${currentLabel}` : "Sort"}
+					/>
+				}
+			>
+				Sort
+				<ChevronDownIcon
+					className="size-4 transition-transform group-aria-expanded/sort:rotate-180"
+					aria-hidden
+				/>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end" className="min-w-48">
+				<DropdownMenuRadioGroup value={current} onValueChange={onChange}>
+					{options.map((option) => (
+						<DropdownMenuRadioItem key={option.value} value={option.value}>
+							{option.label}
+						</DropdownMenuRadioItem>
+					))}
+				</DropdownMenuRadioGroup>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }

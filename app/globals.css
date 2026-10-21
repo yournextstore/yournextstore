@@ -33,50 +33,126 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-ink: var(--ink);
+	--color-ink-soft: var(--ink-soft);
+	--color-wash: var(--wash);
+	--color-success: var(--success);
+	--color-night: var(--night);
+	--animate-burger-top-open: burger-top-open 0.35s ease-in-out forwards;
+	--animate-burger-top-close: burger-top-close 0.35s ease-in-out forwards;
+	--animate-burger-mid-open: burger-mid-open 0.15s ease-in-out forwards;
+	--animate-burger-mid-close: burger-mid-close 0.15s ease-in-out forwards;
+	--animate-burger-bottom-open: burger-bottom-open 0.35s ease-in-out forwards;
+	--animate-burger-bottom-close: burger-bottom-close 0.35s ease-in-out forwards;
+}
+
+/* The storefront's page grid: Tailwind's container with the original's 16/24/32px gutters. */
+@utility shell {
+	width: 100%;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (width >= 40rem) {
+		max-width: 40rem;
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 48rem) {
+		max-width: 48rem;
+	}
+	@media (width >= 64rem) {
+		max-width: 64rem;
+		padding-inline: 2rem;
+	}
+	@media (width >= 80rem) {
+		max-width: 80rem;
+	}
+	@media (width >= 96rem) {
+		max-width: 96rem;
+	}
 }
 
 :root {
 	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--background: #ffffff;
+	--foreground: #0a0a0a;
+	--card: #ffffff;
+	--card-foreground: #0a0a0a;
+	--popover: #ffffff;
+	--popover-foreground: #0a0a0a;
+	/* Near-black primary: the buttons, the cart badge and the footer band. */
+	--primary: #171717;
+	--primary-foreground: #fafafa;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #171717;
+	--muted: #f5f5f5;
+	--muted-foreground: #626875;
+	--accent: #f5f5f5;
+	--accent-foreground: #171717;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #e5e7eb;
+	--ring: #a1a1a1;
+	/* Headings and prices (cool gray-900), body copy (gray-600), banners (gray-50), stock (green-600). */
+	--ink: #111827;
+	--ink-soft: #4b5563;
+	--wash: #f9fafb;
+	--success: #15803d;
+	--night: #171717;
 }
 
+/* Light-only design (forcedTheme="light"); the block stays so the palette test checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #0a0a0a;
+	--card: #ffffff;
+	--card-foreground: #0a0a0a;
+	--popover: #ffffff;
+	--popover-foreground: #0a0a0a;
+	--primary: #171717;
+	--primary-foreground: #fafafa;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #171717;
+	--muted: #f5f5f5;
+	--muted-foreground: #626875;
+	--accent: #f5f5f5;
+	--accent-foreground: #171717;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #e5e7eb;
+	--ring: #a1a1a1;
+	--ink: #111827;
+	--ink-soft: #4b5563;
+	--wash: #f9fafb;
+	--success: #15803d;
+	--night: #171717;
+}
+
+@keyframes burger-top-open {
+	0% { transform: translateY(0) rotate(0); }
+	50% { transform: translateY(7px) rotate(0); }
+	100% { transform: translateY(7px) rotate(45deg); }
+}
+@keyframes burger-top-close {
+	0% { transform: translateY(7px) rotate(45deg); }
+	50% { transform: translateY(7px) rotate(0); }
+	100% { transform: translateY(0) rotate(0); }
+}
+@keyframes burger-mid-open {
+	0% { opacity: 1; }
+	100% { opacity: 0; }
+}
+@keyframes burger-mid-close {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@keyframes burger-bottom-open {
+	0% { transform: translateY(0) rotate(0); }
+	50% { transform: translateY(-7px) rotate(0); }
+	100% { transform: translateY(-7px) rotate(-45deg); }
+}
+@keyframes burger-bottom-close {
+	0% { transform: translateY(-7px) rotate(-45deg); }
+	50% { transform: translateY(-7px) rotate(0); }
+	100% { transform: translateY(0) rotate(0); }
 }
 
 @layer base {
@@ -84,8 +160,36 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
+		/* @theme inline never emits --default-font-family, so name the face here (the next/font
+		   variable lives on <body>, so it cannot go on <html>). */
+		font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 		@apply bg-background text-foreground;
+		font-weight: 400;
 	}
+	:focus-visible {
+		outline: 1px solid #000;
+		border-radius: 2px;
+	}
+}
+
+/* Native search clear button, drawn as a thin grey cross. */
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+	appearance: none;
+	height: 14px;
+	width: 14px;
+	padding: 8px;
+	box-sizing: content-box;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E")
+		center/14px 14px no-repeat;
+	cursor: pointer;
+}
+
+.no-scrollbar {
+	scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
 }
 
 .prose {
