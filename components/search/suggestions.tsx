@@ -56,7 +56,7 @@ export function Suggestions({
 							isActive ? "opacity-100" : "opacity-80 hover:opacity-100"
 						}`}
 					>
-						<span className="relative h-10 w-10 flex-none overflow-hidden bg-secondary">
+						<span className="relative h-[52px] w-[40px] flex-none overflow-hidden bg-secondary">
 							{item.image ? (
 								<YNSMedia src={item.image} alt={item.name} fill sizes="40px" className="object-cover" />
 							) : null}
@@ -65,10 +65,10 @@ export function Suggestions({
 							<HighlightedText
 								text={item.name}
 								query={trimmed}
-								className="truncate text-base font-medium text-foreground"
+								className="truncate text-[13px] tracking-[0.04em] text-foreground"
 							/>
 							{item.summary ? (
-								<span className="truncate text-xs text-muted-foreground">{item.summary}</span>
+								<span className="truncate text-[11px] text-muted-foreground">{item.summary}</span>
 							) : null}
 						</span>
 						<span

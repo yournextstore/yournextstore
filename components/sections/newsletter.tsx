@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import Image from "next/image";
 import { useActionState, useEffect, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 import { NewsletterConsent } from "@/components/newsletter-consent";
 import { trackIdentify } from "@/lib/track";
 
+/** The original's split newsletter band: a photograph on one side, an underlined form on the other. */
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 	const [marketingConsent, setMarketingConsent] = useState(false);
@@ -15,50 +16,63 @@ export function Newsletter() {
 	}, [state]);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
+		<section id="newsletter" aria-labelledby="newsletter-title" className="border-t border-line">
+			<div className="grid grid-cols-[minmax(0,1fr)] items-stretch md:grid-cols-2">
+				<div className="relative min-h-[320px] bg-stage md:min-h-[460px]">
+					<Image
+						src="/images/newsletter.jpg"
+						alt=""
+						fill
+						sizes="(min-width: 768px) 50vw, 100vw"
+						className="object-cover"
+					/>
+				</div>
+				<div className="flex flex-col justify-center gap-5 px-6 py-16 lg:px-[72px] lg:py-24">
+					<p className="text-[11px] tracking-[0.3em]">NEWSLETTER</p>
 					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
-							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
+						<>
+							<h2
+								id="newsletter-title"
+								className="text-[clamp(22px,2.4vw,30px)] font-normal uppercase leading-snug tracking-[0.14em]"
+							>
+								You&apos;re on the list
+							</h2>
+							<p className="max-w-[44ch] text-[12px] leading-loose text-soft">{state.message}</p>
+						</>
 					) : (
 						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
+							<h2
+								id="newsletter-title"
+								className="text-[clamp(22px,2.4vw,30px)] font-normal uppercase leading-snug tracking-[0.14em]"
+							>
+								First to know
 							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
+							<p className="max-w-[44ch] text-[12px] leading-loose text-soft">
+								New arrivals, private sales and lookbooks — a few times a month, never more. Unsubscribe at
+								any time.
 							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-4">
-								<div className="flex flex-col gap-3 sm:flex-row">
+							<form action={action} className="mt-2.5 flex max-w-[480px] flex-col gap-4">
+								<div className="flex border-b border-foreground">
 									<input
 										type="email"
 										name="email"
-										placeholder="your@email.com"
 										required
-										className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
+										placeholder="Email address"
+										aria-label="Email address"
+										className="min-w-0 flex-1 bg-transparent py-3.5 text-[12px] tracking-[0.08em] outline-none placeholder:text-faint"
 									/>
-									<button
-										type="submit"
-										disabled={isPending || !marketingConsent}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-									>
-										{isPending ? "Subscribing\u2026" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
+									<button type="submit" disabled={isPending || !marketingConsent} className="btn-ink px-7">
+										{isPending ? "Sending…" : "Subscribe"}
 									</button>
 								</div>
 								<NewsletterConsent
 									checked={marketingConsent}
 									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
+									className="[&_span]:text-[11px] [&_span]:text-soft [&_span]:opacity-100"
 								/>
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
+							{state?.error && <p className="text-[11px] text-destructive">{state.error}</p>}
 						</>
 					)}
 				</div>

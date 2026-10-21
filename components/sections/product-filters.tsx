@@ -1,12 +1,10 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -322,40 +320,25 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	);
 }
 
-/** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
-export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
-	return (
-		<aside className={cn("hidden lg:block", className)}>
-			<FilterControls {...props} />
-		</aside>
-	);
-}
-
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
-export function ProductFiltersMobile(props: FilterControlsProps) {
+/** The slim toolbar's "Filters" control: a tracked-caps trigger and a right-hand sheet. */
+export function FiltersSheet(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
-				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
-				)}
+			<SheetTrigger className="cap flex h-9 cursor-pointer items-center">
+				Filters{activeCount > 0 ? ` (${activeCount})` : ""}
 			</SheetTrigger>
 			<SheetContent
-				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				side="right"
+				className="block overflow-y-auto data-[side=right]:w-[min(440px,92vw)] data-[side=right]:sm:max-w-none"
 			>
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+				<SheetHeader className="border-b border-line px-7 pt-7 pb-5">
+					<SheetTitle className="text-[11px] font-normal uppercase tracking-[0.24em]">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
-				<div className="px-4 pb-8">
+				<div className="px-7 pt-4 pb-10">
 					<FilterControls {...props} />
 				</div>
 			</SheetContent>

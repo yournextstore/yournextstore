@@ -58,7 +58,7 @@ export function DiscountCodeField() {
 	};
 
 	const errorMessage = error ? (
-		<p id={messageId} role="alert" className="text-sm text-destructive">
+		<p id={messageId} role="alert" className="text-[11px] text-destructive">
 			{error}
 		</p>
 	) : null;
@@ -68,16 +68,16 @@ export function DiscountCodeField() {
 			<div className="grid gap-2">
 				<div
 					role="status"
-					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900"
+					className="flex min-h-11 items-center justify-between gap-3 border border-line bg-linesoft pl-3 text-foreground"
 				>
-					<p className="min-w-0 py-2 text-sm">
+					<p className="min-w-0 py-2 text-[11px] tracking-[0.06em]">
 						<span className="font-semibold break-all">{applied.code} applied</span>{" "}
 						<span className="whitespace-nowrap">{applied.label}</span>
 					</p>
 					<Button
 						type="button"
 						variant="ghost"
-						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950"
+						className="h-11 shrink-0 px-3 text-[10px] uppercase tracking-[0.16em] underline underline-offset-4 hover:bg-transparent"
 						aria-label={`Remove discount code ${applied.code}`}
 						aria-busy={isMutating || undefined}
 						onClick={() => {
@@ -96,10 +96,10 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
+			<label htmlFor={inputId} className="cap-xs text-faint">
 				Discount code
 			</label>
-			<div className="flex gap-2">
+			<div className="flex border-b border-foreground">
 				<Input
 					id={inputId}
 					name="discountCode"
@@ -108,7 +108,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-[12px] tracking-[0.08em] shadow-none focus-visible:ring-0 md:text-[12px]"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -126,8 +126,8 @@ export function DiscountCodeField() {
 				/>
 				<Button
 					type="button"
-					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					variant="ghost"
+					className="h-10 shrink-0 px-2 text-[10px] uppercase tracking-[0.18em] hover:bg-transparent"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}
