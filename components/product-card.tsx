@@ -115,7 +115,7 @@ export async function ProductCard({
 					))}
 			</div>
 			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
+				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
 				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
 			</div>
 		</Link>
