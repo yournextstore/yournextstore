@@ -108,8 +108,14 @@ for _ in $(seq 1 "$POLL_ATTEMPTS"); do
 			# Informational only — the deploy already happened, so a regressed shell
 			# is reported, not fatal. The live first flush is the same shell the
 			# build gate measures. A store that predates the gate has no check to run.
-			if [ -n "$DEPLOYMENT_URL" ] && [ -f "$SHELL_CHECK" ]; then
-				YNS_SHELL_CHECK=warn bash "$SHELL_CHECK" "https://$DEPLOYMENT_URL/" || true
+			# It fetches the store's public address (its verified domain, else its
+			# subdomain), never the deployment URL: that one sits behind Vercel
+			# Authentication, and its login redirect has no chrome to find.
+			if [ -f "$SHELL_CHECK" ]; then
+				STORE_URL="$("$API" GET /me 2>/dev/null | jq -r '.storeBaseUrl // empty' 2>/dev/null || true)"
+				if [ -n "$STORE_URL" ]; then
+					YNS_SHELL_CHECK=warn bash "$SHELL_CHECK" "${STORE_URL%/}/" || true
+				fi
 			fi
 			exit 0
 			;;
