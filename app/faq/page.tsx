@@ -1,8 +1,8 @@
-import { Mail } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { FaqList, PageShell } from "@/components/bento/page-shell";
+import { getStoreBasics } from "@/lib/aqua";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -47,12 +47,12 @@ function buildFaqJsonLd(categories: FAQCategory[]): Record<string, unknown> {
 
 function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 	return (
-		<nav className="flex flex-wrap gap-2">
+		<nav aria-label="FAQ topics" className="flex flex-wrap gap-2">
 			{categories.map((category) => (
 				<a
 					key={category.id}
 					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+					className="rounded-full border border-white/15 px-4 py-2 text-sm text-[#d4d4d4] transition-colors hover:border-amber/50 hover:text-amber"
 				>
 					{category.title}
 				</a>
@@ -61,72 +61,38 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 	);
 }
 
-function FAQSection({ category }: { category: FAQCategory }) {
+export default async function FAQPage() {
+	const { contactForm } = await getStoreBasics();
 	return (
-		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion type="single" collapsible className="rounded-lg border border-border px-4">
-				{category.questions.map((item, index) => (
-					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
-						<AccordionTrigger>{item.question}</AccordionTrigger>
-						<AccordionContent>
-							<p className="text-muted-foreground leading-relaxed">{item.answer}</p>
-						</AccordionContent>
-					</AccordionItem>
-				))}
-			</Accordion>
-		</section>
-	);
-}
-
-function ContactCard() {
-	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
-			<p className="mt-2 text-muted-foreground">
-				We're here to help. Reach out and we'll get back to you as soon as possible.
-			</p>
-			<div className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-				<Mail className="h-4 w-4" />
-				<span>Contact us via the details on our website</span>
-			</div>
-		</div>
-	);
-}
-
-export default function FAQPage() {
-	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<PageShell
+			eyebrow="Help"
+			title="Questions, answered."
+			intro="Orders, payments, shipping and returns: the things people ask before and after they buy."
+		>
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
-					Find answers to the most common questions about your orders, payments, shipping, and more.
-				</p>
-			</div>
-
-			{/* Category Navigation */}
-			<div className="mb-10">
+			<div className="mb-12">
 				<CategoryNav categories={faqCategories} />
 			</div>
-
-			{/* FAQ Sections */}
 			<div className="space-y-12">
 				{faqCategories.map((category) => (
-					<FAQSection key={category.id} category={category} />
+					<section key={category.id} id={category.id} className="scroll-mt-28">
+						<h2 className="mb-2 text-xl font-normal">{category.title}</h2>
+						<FaqList items={category.questions.map((q) => ({ question: q.question, answer: q.answer }))} />
+					</section>
 				))}
 			</div>
-
-			{/* Contact Card */}
-			<div className="mt-16">
-				<ContactCard />
+			<div className="mt-16 rounded-[2rem] border border-line bg-white/[0.02] p-1.5">
+				<div className="rounded-[calc(2rem-0.375rem)] bg-panel-2 px-8 py-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+					<h2 className="text-2xl font-normal">Still have questions?</h2>
+					<p className="mt-2 text-[#a3a3a3]">Real people answer, before and after you buy.</p>
+					<Link
+						href={contactForm ? "/contact" : "/about"}
+						className="mt-6 inline-flex rounded-full bg-amber px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110"
+					>
+						{contactForm ? "Write to us" : "About the shop"}
+					</Link>
+				</div>
 			</div>
-		</div>
+		</PageShell>
 	);
 }

@@ -1,61 +1,66 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Suspense, useState } from "react";
+import { HeaderSearch, HeaderSearchSkeleton } from "@/components/bento/header-search";
+import { LogoMark } from "@/components/bento/logo-mark";
+import { squareButton } from "@/components/bento/styles";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/** Full-screen deep-water menu sliding in from the left: wordmark, search, divided list. */
+export function MobileMenu({ links, storeName }: { links: NavLink[]; storeName: string }) {
 	const [open, setOpen] = useState(false);
+	const items = [{ href: "/products", label: "All products" }, ...links];
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<button
-						type="button"
-						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-					>
-						<Menu className="h-6 w-6" />
-					</button>
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger asChild>
+				<button type="button" aria-label="Open menu" className={squareButton}>
+					<Menu className="h-5 w-5" aria-hidden="true" />
+				</button>
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				hideClose
+				overlayClassName="bg-black/50 backdrop-blur-[.5px]"
+				className="block w-full overflow-y-auto border-none bg-deep p-4 pb-6 text-bone shadow-none sm:max-w-none"
+			>
+				<SheetTitle className="sr-only">Menu</SheetTitle>
+				<div className="mb-5 flex items-center justify-between gap-4">
+					<Link href="/" onClick={() => setOpen(false)} className="min-w-0">
+						<LogoMark name={storeName} />
+					</Link>
+					<SheetClose asChild>
+						<button type="button" aria-label="Close menu" className={squareButton}>
+							<X className="h-6 w-6" aria-hidden="true" />
+						</button>
+					</SheetClose>
+				</div>
+				<div className="mb-6 w-full">
+					<Suspense fallback={<HeaderSearchSkeleton />}>
+						<HeaderSearch onNavigate={() => setOpen(false)} />
+					</Suspense>
+				</div>
+				<ul className="flex w-full flex-col divide-y divide-white/10">
+					{items.map((link) => (
+						<li key={link.href}>
 							<Link
-								key={link.href}
 								href={link.href}
 								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+								className="block py-3 text-lg font-medium text-[#e5e5e5] transition-colors hover:text-amber"
 							>
 								{link.label}
 							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						</li>
+					))}
+				</ul>
+			</SheetContent>
+		</Sheet>
 	);
 }

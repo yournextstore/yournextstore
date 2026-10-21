@@ -33,8 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function LegalPageSkeleton() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-			<Skeleton className="mb-8 h-9 w-64" />
+		<div className="mx-auto min-h-svh max-w-3xl px-6 py-16 md:py-24">
+			<Skeleton className="mb-10 h-12 w-64 bg-white/5" />
 			<div className="space-y-3">
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-5/6" />
@@ -72,10 +72,14 @@ const LegalPageContent = async ({ params }: { params: Promise<{ slug: string }> 
 	}
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-			<h1 className="text-3xl font-bold tracking-tight mb-8">{page.label}</h1>
+		<div className="mx-auto max-w-3xl px-6 py-16 md:py-24">
+			<div className="mb-3 flex items-center gap-3">
+				<span aria-hidden="true" className="h-px w-7 bg-amber" />
+				<span className="text-xs font-semibold tracking-[0.18em] text-amber uppercase">Legal</span>
+			</div>
+			<h1 className="mb-10 text-4xl font-normal wrap-break-word md:text-5xl">{page.label}</h1>
 			{page.contentHtml ? (
-				<div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: page.contentHtml }} />
+				<div className="page-prose" dangerouslySetInnerHTML={{ __html: page.contentHtml }} />
 			) : (
 				<p className="text-muted-foreground">No content available.</p>
 			)}

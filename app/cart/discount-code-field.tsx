@@ -68,7 +68,7 @@ export function DiscountCodeField() {
 			<div className="grid gap-2">
 				<div
 					role="status"
-					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900"
+					className="flex min-h-10 items-center justify-between gap-3 rounded-full border border-amber/30 bg-amber/[0.07] pl-4 text-bone"
 				>
 					<p className="min-w-0 py-2 text-sm">
 						<span className="font-semibold break-all">{applied.code} applied</span>{" "}
@@ -77,7 +77,7 @@ export function DiscountCodeField() {
 					<Button
 						type="button"
 						variant="ghost"
-						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950"
+						className="h-10 shrink-0 rounded-full px-4 text-sm text-amber underline underline-offset-2 hover:bg-amber/10 hover:text-amber"
 						aria-label={`Remove discount code ${applied.code}`}
 						aria-busy={isMutating || undefined}
 						onClick={() => {
@@ -96,7 +96,10 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
+			<label
+				htmlFor={inputId}
+				className="text-[11px] font-semibold tracking-[0.18em] text-[#8a9a9c] uppercase"
+			>
 				Discount code
 			</label>
 			<div className="flex gap-2">
@@ -108,7 +111,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="h-10 min-w-0 flex-1 rounded-full border-white/15 bg-white/[0.03] px-4 text-base text-bone md:text-sm dark:bg-white/[0.03]"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -127,7 +130,7 @@ export function DiscountCodeField() {
 				<Button
 					type="button"
 					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="h-10 shrink-0 rounded-full border-white/15 bg-transparent px-5 text-sm text-bone hover:border-amber/50 hover:bg-transparent hover:text-amber dark:bg-transparent dark:hover:bg-transparent"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

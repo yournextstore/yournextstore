@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -30,7 +29,6 @@ type MediaGalleryProps = {
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
 	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [isZoomed, setIsZoomed] = useState(false);
 
 	// The gallery always shows the full image set (product + every variant image). When a
 	// variant is selected we don't filter the list — that would hide the other thumbnails —
@@ -81,134 +79,97 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		[displayImages.length, handlePrevious, handleNext],
 	);
 
-	if (displayImages.length === 0) {
-		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
-				</div>
-			</div>
-		);
-	}
+	const current = displayImages[selectedIndex] ?? "";
+	const arrowClass =
+		"flex h-full items-center justify-center px-6 transition-all ease-in-out hover:scale-110 hover:text-amber";
 
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
-		<section
-			aria-roledescription="carousel"
-			aria-label="Product media gallery"
-			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
-		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
+		<section aria-label="Product images" onKeyDown={handleKeyDown} className="outline-none">
+			<div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden rounded-xl">
+				{current ? (
+					isVideoUrl(current) ? (
+						<video
+							className="absolute inset-0 h-full w-full object-contain"
+							src={current}
+							muted
+							loop
+							autoPlay
+							playsInline
+							controls
+						/>
+					) : (
+						<YNSMedia
+							src={current}
+							alt={`${productName}, image ${selectedIndex + 1} of ${displayImages.length}`}
+							fill
+							sizes="(min-width: 1024px) 66vw, 100vw"
+							className="h-full w-full object-contain"
+							priority
+						/>
+					)
 				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-					/>
-				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
+					<div className="flex h-full items-center justify-center text-muted-foreground">
+						No images available
 					</div>
 				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
+				{displayImages.length > 1 ? (
+					<div className="absolute bottom-[15%] flex w-full justify-center">
+						<div className="mx-auto flex h-11 items-center rounded-full border border-white/15 bg-deep/80 text-[#d4d4d4] backdrop-blur-sm">
+							<button
+								type="button"
+								onClick={handlePrevious}
+								aria-label="Previous product image"
+								className={arrowClass}
+							>
+								<ArrowLeft className="h-5 w-5" aria-hidden="true" />
+							</button>
+							<div className="mx-1 h-6 w-px bg-white/20" />
+							<button
+								type="button"
+								onClick={handleNext}
+								aria-label="Next product image"
+								className={arrowClass}
+							>
+								<ArrowRight className="h-5 w-5" aria-hidden="true" />
+							</button>
 						</div>
 					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
+				) : null}
 			</div>
 
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{displayImages.map((image, index) => (
-						<button
-							key={`${image}-${index}`}
-							type="button"
-							onClick={() => setSelectedIndex(index)}
-							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
-							)}
-						>
-							{isVideoUrl(image) ? (
-								<video
-									className="absolute inset-0 w-full h-full object-cover"
-									src={image}
-									muted
-									playsInline
-								/>
-							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
-							)}
-						</button>
-					))}
-				</div>
-			)}
+			{displayImages.length > 1 ? (
+				<ul className="mt-6 flex flex-wrap items-center justify-center gap-2 overflow-auto py-1">
+					{displayImages.map((image, index) => {
+						const isActive = index === selectedIndex;
+						return (
+							<li key={`${image}-${index}`} className="h-20 w-20">
+								<button
+									type="button"
+									onClick={() => setSelectedIndex(index)}
+									aria-label={`Show image ${index + 1}`}
+									aria-current={isActive ? "true" : undefined}
+									className={cn(
+										"relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-panel-2 hover:border-amber/60",
+										isActive ? "border-2 border-amber" : "border border-white/10",
+									)}
+								>
+									{isVideoUrl(image) ? (
+										<video
+											className="absolute inset-0 h-full w-full object-cover"
+											src={image}
+											muted
+											playsInline
+										/>
+									) : (
+										<YNSMedia src={image} alt="" fill sizes="80px" className="object-cover" />
+									)}
+								</button>
+							</li>
+						);
+					})}
+				</ul>
+			) : null}
 		</section>
 	);
 }
