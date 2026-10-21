@@ -7,7 +7,7 @@ import Link from "next/link";
 import { formatMoney } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
@@ -18,10 +18,17 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	headingLevel = "h2",
+	className,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	/** h3 under a section's h2 (home), h2 under a page h1 (listings), for heading order. */
+	headingLevel?: "h2" | "h3";
+	className?: string;
 }) {
+	const Heading = headingLevel;
+	const categoryName = "category" in product && product.category ? product.category.name : null;
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const { min: minPrice, max: maxPrice } =
@@ -58,8 +65,11 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn("group relative flex flex-col", className)}
+		>
+			<div className="relative mb-5 aspect-[9/10] w-full overflow-hidden bg-secondary">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -78,7 +88,10 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={cn(
+								"absolute inset-0 size-full object-cover transition-[opacity,filter] duration-500 group-hover:brightness-[.8]",
+								secondaryImage && "group-hover:opacity-0",
+							)}
 							src={primaryImage}
 							muted
 							loop
@@ -90,15 +103,18 @@ export async function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+							className={cn(
+								"object-cover transition-[opacity,filter] duration-500 group-hover:brightness-[.8]",
+								secondaryImage && "group-hover:opacity-0",
+							)}
 							priority={priority}
 						/>
 					))}
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -108,17 +124,22 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
+			{categoryName && (
+				<div className="mb-3 flex items-center gap-1.5">
+					<span className="rounded-md bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
+						{categoryName}
+					</span>
+				</div>
+			)}
+			<Heading className="mb-1.5 text-sm font-semibold text-balance sm:text-base">{product.name}</Heading>
+			<p className="text-sm font-medium text-muted-foreground sm:text-base">{priceDisplay}</p>
 		</Link>
 	);
 }

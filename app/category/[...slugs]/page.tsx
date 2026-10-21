@@ -6,7 +6,7 @@ import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { PRODUCT_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
@@ -16,6 +16,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { photographedFirst } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -125,9 +126,12 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<p className="mb-4 text-sm text-muted-foreground">
+				{result.meta.count} {result.meta.count === 1 ? "product" : "products"}
+			</p>
+			<div className={PRODUCT_GRID}>
+				{photographedFirst(result.data).map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index < 2} />
 				))}
 			</div>
 			<ListingPagination
@@ -142,9 +146,9 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className="layout min-h-svh pt-6 pb-24">
+			<div className="mb-6 h-5 w-64 animate-pulse rounded bg-secondary" />
+			<div className="mb-8 h-12 w-72 animate-pulse rounded bg-secondary" />
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -206,7 +210,7 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="layout min-h-svh pt-6 pb-24">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
@@ -239,23 +243,27 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
+			<h1 className="mb-8 font-display text-[2.5rem] leading-[1.05] sm:text-5xl lg:text-6xl">
+				{category.name.split(">").at(-1)?.trim() || category.name}
+			</h1>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			<div
+				className={
+					filtersAvailable
+						? "lg:grid lg:grid-cols-[12.5rem_minmax(0,1fr)] lg:items-start lg:gap-10 xl:grid-cols-[14rem_minmax(0,1fr)]"
+						: ""
+				}
+			>
 				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
 
-				<div>
+				<div className="min-w-0">
 					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
+						<div className="mb-6 flex lg:hidden">
 							<ProductFiltersMobile facets={facets} showCategories={false} />
 						</div>
 					)}
 
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
+					<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 				</div>
 			</div>
 		</div>

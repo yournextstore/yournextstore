@@ -1,38 +1,21 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { BannerCarousel } from "@/components/sections/banner-carousel";
+import { HomeProducts } from "@/components/sections/home-products";
+import { ShopTiles } from "@/components/sections/shop-tiles";
+import { getBannerSlides, getShopTiles, getStoreInfo } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+export default async function Home() {
+	const [slides, tiles, info] = await Promise.all([getBannerSlides(), getShopTiles(), getStoreInfo()]);
 	return (
-		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+		<div className="layout pt-6 pb-24 lg:pt-8 lg:pb-32">
+			<h1 className="sr-only">{info.storeName}</h1>
+			{slides.length > 0 && <BannerCarousel slides={slides} />}
+			<ShopTiles tiles={tiles} />
+			<HomeProducts />
+		</div>
 	);
 }

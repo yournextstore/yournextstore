@@ -5,7 +5,6 @@ import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -63,9 +62,16 @@ type FilterControlsProps = {
 	facets: APIProductFiltersResult;
 	showCategories?: boolean;
 	showCollections?: boolean;
+	/** The page's sort control, shown first like the original's "Sort By" group. */
+	sortSlot?: ReactNode;
 };
 
-function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+function FilterControls({
+	facets,
+	showCategories = true,
+	showCollections = true,
+	sortSlot,
+}: FilterControlsProps) {
 	const { currency, locale } = useStoreConfig();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -135,194 +141,140 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	// All groups that will render, in display order — only the first opens by default.
-	const accordionGroups = [
-		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
-		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
-		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
-		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
-	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+
+	// Single-choice facets (category, collection, brand) still read as the original's checkbox list.
+	const singleChoice = (key: string, items: { slug: string; name: string }[]) => (
+		<CollapsibleList
+			items={items}
+			className="grid gap-2"
+			renderItem={(item) => {
+				const id = `${key}-${item.slug}`;
+				return (
+					<li key={item.slug} className="flex items-center gap-2">
+						<Checkbox
+							id={id}
+							checked={searchParams.get(key) === item.slug}
+							onCheckedChange={() => setSingle(key, item.slug)}
+						/>
+						<label htmlFor={id} className="cursor-pointer text-sm leading-tight">
+							{item.name}
+						</label>
+					</li>
+				);
+			}}
+		/>
+	);
 
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
-				{hasActiveFilters && (
-					<button
-						type="button"
-						onClick={clearAll}
-						className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-					>
-						Clear all
-					</button>
-				)}
-			</div>
+		<div className="grid gap-5">
+			{sortSlot}
 
-			<Accordion type="multiple" defaultValue={accordionDefault} className="w-full">
-				{showCategories && facets.categories.length > 0 && (
-					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.categories}
-								className="space-y-1"
-								renderItem={(category) => {
-									const isActive = searchParams.get("category") === category.slug;
-									return (
-										<li key={category.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("category", category.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{category.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
+			{showCategories && facets.categories.length > 0 && (
+				<FilterGroup title="Category">{singleChoice("category", facets.categories)}</FilterGroup>
+			)}
 
-				{showCollections && facets.collections.length > 0 && (
-					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.collections}
-								className="space-y-1"
-								renderItem={(collection) => {
-									const isActive = searchParams.get("collection") === collection.slug;
-									return (
-										<li key={collection.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("collection", collection.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{collection.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
+			{showCollections && facets.collections.length > 0 && (
+				<FilterGroup title="Collection">{singleChoice("collection", facets.collections)}</FilterGroup>
+			)}
 
-				{facets.variantTypes.map((vt) => {
-					const selectedValues = optimisticVts[vt.label] ?? [];
-					return (
-						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
-							<AccordionContent>
-								<CollapsibleList
-									items={vt.values}
-									className="space-y-2"
-									renderItem={(value) => {
-										const id = `${vt.label}-${value}`;
-										const checked = selectedValues.includes(value);
-										return (
-											<li key={value} className="flex items-center gap-2">
-												<Checkbox
-													id={id}
-													checked={checked}
-													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
-												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
-													{value}
-												</label>
-											</li>
-										);
-									}}
-								/>
-							</AccordionContent>
-						</AccordionItem>
-					);
-				})}
+			{facets.variantTypes.map((vt) => {
+				const selectedValues = optimisticVts[vt.label] ?? [];
+				return (
+					<FilterGroup key={vt.label} title={vt.label}>
+						<CollapsibleList
+							items={vt.values}
+							className="grid gap-2"
+							renderItem={(value) => {
+								const id = `${vt.label}-${value}`;
+								const checked = selectedValues.includes(value);
+								return (
+									<li key={value} className="flex items-center gap-2">
+										<Checkbox
+											id={id}
+											checked={checked}
+											onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
+										/>
+										<label htmlFor={id} className="cursor-pointer text-sm leading-tight">
+											{value}
+										</label>
+									</li>
+								);
+							}}
+						/>
+					</FilterGroup>
+				);
+			})}
 
-				{facets.brands.length > 0 && (
-					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.brands}
-								className="space-y-1"
-								renderItem={(brand) => {
-									const isActive = searchParams.get("brand") === brand.slug;
-									return (
-										<li key={brand.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("brand", brand.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{brand.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
+			{facets.brands.length > 0 && (
+				<FilterGroup title="Brand">{singleChoice("brand", facets.brands)}</FilterGroup>
+			)}
 
-				{hasPrice && (
-					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
-						<AccordionContent>
-							<div className="px-1 pt-2">
-								<Slider
-									value={priceRange}
-									min={priceFloor}
-									max={priceCeil}
-									step={1}
-									minStepsBetweenThumbs={1}
-									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommit={([min = priceFloor, max = priceCeil]) =>
-										commit((params) => {
-											if (min <= priceFloor) {
-												params.delete("priceMin");
-											} else {
-												params.set("priceMin", String(min));
-											}
-											if (max >= priceCeil) {
-												params.delete("priceMax");
-											} else {
-												params.set("priceMax", String(max));
-											}
-										})
+			{hasPrice && (
+				<FilterGroup title="Price">
+					<div className="px-1 pt-2">
+						<Slider
+							value={priceRange}
+							min={priceFloor}
+							max={priceCeil}
+							step={1}
+							minStepsBetweenThumbs={1}
+							onValueChange={(value) => setPriceRange(value as [number, number])}
+							onValueCommit={([min = priceFloor, max = priceCeil]) =>
+								commit((params) => {
+									if (min <= priceFloor) {
+										params.delete("priceMin");
+									} else {
+										params.set("priceMin", String(min));
 									}
-								/>
-								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
-									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
-									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
-								</div>
-							</div>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-			</Accordion>
+									if (max >= priceCeil) {
+										params.delete("priceMax");
+									} else {
+										params.set("priceMax", String(max));
+									}
+								})
+							}
+						/>
+						<div className="mt-3 flex justify-between text-xs text-muted-foreground">
+							<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
+							<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
+						</div>
+					</div>
+				</FilterGroup>
+			)}
+
+			{hasActiveFilters && (
+				<button
+					type="button"
+					onClick={clearAll}
+					className="w-max text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+				>
+					Clear all filters
+				</button>
+			)}
 		</div>
 	);
 }
 
-/** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
+function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+	return (
+		<div>
+			<h3 className="mb-2 text-base font-medium">{title}</h3>
+			{children}
+		</div>
+	);
+}
+
+/** Desktop sidebar (hidden on small screens — use `ProductFiltersMobile` there). */
 export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
 	return (
-		<aside className={cn("hidden lg:block", className)}>
+		<aside
+			aria-label="Filters"
+			className={cn(
+				"hidden lg:sticky lg:top-36 lg:block lg:max-h-[calc(100svh-10rem)] lg:overflow-y-auto",
+				className,
+			)}
+		>
+			<h2 className="mb-4 text-xl font-medium">Filter</h2>
 			<FilterControls {...props} />
 		</aside>
 	);
@@ -336,9 +288,9 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
+				<Button variant="outline" className="h-9 rounded-full lg:hidden">
 					<SlidersHorizontalIcon className="size-4" />
-					Filters
+					Filter
 					{activeCount > 0 && (
 						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
 							{activeCount}
@@ -346,12 +298,12 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 					)}
 				</Button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
-					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
+			<SheetContent side="left" className="block w-[85vw] max-w-sm overflow-y-auto">
+				<SheetHeader className="px-5 pt-6">
+					<SheetTitle className="text-xl font-medium">Filter</SheetTitle>
+					<SheetDescription className="sr-only">Sort and refine the product list</SheetDescription>
 				</SheetHeader>
-				<div className="px-4 pb-8">
+				<div className="px-5 pb-8">
 					<FilterControls {...props} />
 				</div>
 			</SheetContent>

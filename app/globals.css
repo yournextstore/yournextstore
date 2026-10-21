@@ -8,7 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-jakarta);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +32,70 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-main: var(--main);
+	--color-pastel-1: var(--pastel-1);
+	--color-pastel-2: var(--pastel-2);
+	--color-pastel-3: var(--pastel-3);
+	--color-pastel-4: var(--pastel-4);
+	--color-pastel-5: var(--pastel-5);
 }
 
+/* Light-only design. The palette is the original's shadcn zinc set, with the muted
+   text darkened one step so it clears AA on the #f5f5f5 panels it sits on. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #09090b;
+	--card: #ffffff;
+	--card-foreground: #111111;
+	--popover: #ffffff;
+	--popover-foreground: #09090b;
+	--primary: #111111;
+	--primary-foreground: #fafafa;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #111111;
+	--muted: #f5f5f5;
+	--muted-foreground: #66666e;
+	--accent: #f5f5f5;
+	--accent-foreground: #111111;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #09090b;
+	--main: #ff1f5a;
+	--pastel-1: #fdee8b;
+	--pastel-2: #f9d9de;
+	--pastel-3: #d5ecdf;
+	--pastel-4: #e3ddf6;
+	--pastel-5: #d7e8f6;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #09090b;
+	--card: #ffffff;
+	--card-foreground: #111111;
+	--popover: #ffffff;
+	--popover-foreground: #09090b;
+	--primary: #111111;
+	--primary-foreground: #fafafa;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #111111;
+	--muted: #f5f5f5;
+	--muted-foreground: #66666e;
+	--accent: #f5f5f5;
+	--accent-foreground: #111111;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #09090b;
+	--main: #ff1f5a;
+	--pastel-1: #fdee8b;
+	--pastel-2: #f9d9de;
+	--pastel-3: #d5ecdf;
+	--pastel-4: #e3ddf6;
+	--pastel-5: #d7e8f6;
 }
 
 @layer base {
@@ -84,7 +104,80 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts its variables on <body>, so the face is set here, not on <html>. */
+		font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 	}
+	html {
+		scrollbar-width: thin;
+	}
+}
+
+@utility layout {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 1440px;
+	padding-inline: 1rem;
+	@media (width >= 48rem) {
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 80rem) {
+		padding-inline: 2rem;
+	}
+}
+
+/* Display serif (Canela in the original, Newsreader at its display optical size here). */
+@utility font-display {
+	font-family: var(--font-newsreader), ui-serif, Georgia, serif;
+	font-optical-sizing: auto;
+	letter-spacing: -0.02em;
+}
+
+@layer components {
+/* The original's hover sweep on dark buttons. */
+.shimmer {
+	position: relative;
+	overflow: hidden;
+}
+
+.shimmer:hover::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	transform: translateX(-100%);
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		rgb(255 255 255 / 0.1),
+		rgb(255 255 255 / 0.3),
+		rgb(255 255 255 / 0.1),
+		transparent
+	);
+	animation: shimmer-sweep 2.5s infinite;
+	pointer-events: none;
+}
+
+@keyframes shimmer-sweep {
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.shimmer:hover::after {
+		animation: none;
+	}
+}
+
+/* Studio packshots on a light grey sweep, dropped into a pastel or grey panel: the backdrop
+   multiplies away, the lift keeps the panel colour clean, the mask softens the square edge. */
+.packshot {
+	mix-blend-mode: multiply;
+	filter: brightness(1.1) contrast(1.06);
+}
+
+.packshot-fade {
+	mask-image: radial-gradient(closest-side, #000 70%, transparent);
+}
 }
 
 .prose {
