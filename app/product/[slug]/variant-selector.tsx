@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -133,7 +139,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-5">
 			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
@@ -164,9 +170,9 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
+													"relative size-9 rounded-full transition-all duration-200",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+														? "ring-2 ring-brand-display ring-offset-2 ring-offset-background"
 														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
@@ -183,10 +189,8 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 							</>
 						) : (
 							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
+								<legend className="mb-2 text-sm font-medium">{group.label}</legend>
+								<div className="flex flex-wrap gap-2">
 									{group.options.map((option) => {
 										const isSelected = selectedOptions[group.label] === option.id;
 
@@ -194,15 +198,16 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 											<button
 												key={option.id}
 												type="button"
+												aria-pressed={isSelected}
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-brand-display bg-brand-soft text-brand-soft-foreground"
+														: "border-[#d1d5db] bg-card text-foreground/80 hover:border-[#9ca3af] dark:border-border",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												{option.value}
 											</button>
 										);
 									})}

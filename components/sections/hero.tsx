@@ -1,42 +1,77 @@
-import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+import { formatMoney } from "@/lib/money";
+import { displayPrice, type TaxBehavior } from "@/lib/pricing";
 
-export function Hero() {
+type HeroProps = {
+	storeName: string;
+	stats: {
+		productCount: number;
+		categoryCount: number;
+		collectionCount: number;
+		cheapest: { price: string; priceGross?: string | null } | null;
+	};
+	money: { currency: string; locale: string; taxBehavior: TaxBehavior };
+};
+
+export function Hero({ storeName, stats, money }: HeroProps) {
+	const from = stats.cheapest
+		? formatMoney({
+				amount: BigInt(displayPrice(stats.cheapest, money.taxBehavior)),
+				currency: money.currency,
+				locale: money.locale,
+			})
+		: null;
+	const statItems = [
+		{ label: "Products", value: stats.productCount },
+		{ label: "Categories", value: stats.categoryCount },
+		{ label: "Collections", value: stats.collectionCount },
+	].filter((item) => item.value > 0);
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
+		<section className="shop-container pt-16 pb-12 md:pt-24 md:pb-20">
+			<div className="grid grid-cols-1 items-end gap-12 lg:grid-cols-[1fr_auto] lg:gap-20">
+				<div className="min-w-0">
+					<p className="anim-fade-up mb-6 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+						{storeName} — New Collection
+					</p>
+					<h1 className="anim-fade-up anim-delay-1 font-display leading-[0.88] tracking-tight text-foreground">
+						<span className="block text-[clamp(3.5rem,9vw,8.5rem)] font-medium">Discover</span>
+						<span className="-mt-1 block text-[clamp(3.5rem,9vw,8.5rem)] font-extrabold">the Finest</span>
+						<span className="-mt-1 block text-[clamp(3.5rem,9vw,8.5rem)] font-medium text-brand-display">
+							Products.
+						</span>
+					</h1>
+					<div className="anim-fade-up anim-delay-2 mt-10 flex flex-wrap items-center gap-6">
+						<Link
+							href="/products"
+							className="inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-sm font-semibold uppercase tracking-widest text-primary-foreground transition-colors duration-300 hover:bg-brand hover:text-brand-foreground"
+						>
+							Explore Collection
+							<span aria-hidden className="text-base">
+								→
+							</span>
+						</Link>
+						{stats.productCount > 0 && (
+							<span className="font-price text-xs tracking-[-0.02em] text-muted-foreground">
+								{stats.productCount} products{from ? ` from ${from}` : ""}
+							</span>
+						)}
 					</div>
 				</div>
+
+				{statItems.length > 0 && (
+					<dl className="anim-fade-up anim-delay-3 hidden flex-col items-end gap-8 pb-2 lg:flex">
+						{statItems.map(({ label, value }) => (
+							<div key={label} className="flex flex-col-reverse text-right">
+								<dt className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+									{label}
+								</dt>
+								<dd className="font-price text-3xl font-bold text-foreground">{value}</dd>
+							</div>
+						))}
+					</dl>
+				)}
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
 		</section>
 	);
 }

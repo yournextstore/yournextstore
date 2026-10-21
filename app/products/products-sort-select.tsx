@@ -70,10 +70,16 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				aria-label="Sort products"
+				className={cn(
+					"h-10! w-auto gap-2 rounded-full border-border bg-card px-4 text-xs font-semibold text-foreground/80 shadow-none hover:border-[#9ca3af] dark:bg-card",
+					className,
+				)}
+			>
 				<SelectValue />
 			</SelectTrigger>
-			<SelectContent align="end">
+			<SelectContent align="end" className="rounded-xl">
 				{options.map((option) => (
 					<SelectItem key={option.value} value={option.value}>
 						{option.label}

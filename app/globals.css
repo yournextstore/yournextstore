@@ -9,8 +9,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-dm-sans);
 	--font-mono: var(--font-geist-mono);
+	--font-display: var(--font-syne);
+	--font-price: var(--font-space-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -33,50 +35,80 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Mustard: `brand` carries white text and small type (AA), `brand-display` is the
+	   brighter tone for big display words and rules, `brand-soft` the pale badge tint. */
+	--color-brand: var(--brand);
+	--color-brand-foreground: var(--brand-foreground);
+	--color-brand-display: var(--brand-display);
+	--color-brand-soft: var(--brand-soft);
+	--color-brand-soft-foreground: var(--brand-soft-foreground);
+	--color-ink: var(--ink);
+	--color-ink-foreground: var(--ink-foreground);
+	--color-ink-muted: var(--ink-muted);
+	--color-ink-line: var(--ink-line);
 }
 
+/* Warm off-white shop surface, ink text, mustard accent (Warm Amber Gold). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #faf9f7;
+	--foreground: #111827;
+	--card: #ffffff;
+	--card-foreground: #111827;
+	--popover: #ffffff;
+	--popover-foreground: #111827;
+	--primary: #111827;
+	--primary-foreground: #ffffff;
+	--secondary: #f2efea;
+	--secondary-foreground: #111827;
+	--muted: #f2efea;
+	/* The original's #8a8578, darkened to clear AA on the warm surfaces. */
+	--muted-foreground: #66614f;
+	--accent: #f9efd3;
+	--accent-foreground: #5a3e0e;
+	--destructive: #dc2626;
+	--border: #e8e4de;
+	--input: #e8e4de;
+	--ring: #c28b19;
+	--brand: #9c6b10;
+	--brand-foreground: #ffffff;
+	--brand-display: #b07d14;
+	--brand-soft: #f9efd3;
+	--brand-soft-foreground: #7d5612;
+	--ink: #111827;
+	--ink-foreground: #ffffff;
+	--ink-muted: #9ca3af;
+	--ink-line: #1f2937;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #0d0b08;
+	--foreground: #f3f4f6;
+	--card: #171410;
+	--card-foreground: #f3f4f6;
+	--popover: #171410;
+	--popover-foreground: #f3f4f6;
+	--primary: #f3f4f6;
+	--primary-foreground: #111827;
+	--secondary: #211d17;
+	--secondary-foreground: #f3f4f6;
+	--muted: #211d17;
+	--muted-foreground: #a39a8e;
+	--accent: #3a2c10;
+	--accent-foreground: #f0cc76;
+	--destructive: #f87171;
+	--border: #2a2520;
+	--input: #2a2520;
+	--ring: #e5b752;
+	--brand: #e5b752;
+	--brand-foreground: #111827;
+	--brand-display: #e5b752;
+	--brand-soft: #3a2c10;
+	--brand-soft-foreground: #f0cc76;
+	--ink: #050403;
+	--ink-foreground: #f3f4f6;
+	--ink-muted: #a39a8e;
+	--ink-line: #2a2520;
 }
 
 @layer base {
@@ -85,6 +117,9 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variables on <body>; @theme inline never emits a default family. */
+		font-family: var(--font-dm-sans), system-ui, sans-serif;
+		font-feature-settings: "kern" 1, "liga" 1;
 	}
 }
 
@@ -168,4 +203,100 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* ── Marquee strips ───────────────────────────────────────── */
+@keyframes marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.animate-marquee {
+	display: flex;
+	width: max-content;
+	animation: marquee 32s linear infinite;
+	will-change: transform;
+}
+
+.animate-marquee:hover {
+	animation-play-state: paused;
+}
+
+/* ── Hero reveal ──────────────────────────────────────────── */
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.anim-fade-up {
+	animation: fade-up 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.anim-delay-1 {
+	animation-delay: 0.1s;
+}
+.anim-delay-2 {
+	animation-delay: 0.22s;
+}
+.anim-delay-3 {
+	animation-delay: 0.36s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee,
+	.anim-fade-up {
+		animation: none;
+	}
+}
+
+@layer components {
+/* ── Product card lift ────────────────────────────────────── */
+.shop-card {
+	transition:
+		transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+		translate 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+		color 0.2s,
+		box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.shop-card-img {
+	transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@media (hover: hover) {
+	.shop-card:hover .shop-card-img {
+		transform: scale(1.04);
+	}
+}
+
+}
+
+@utility shop-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 1400px;
+	padding-inline: 1.5rem;
+	@variant md {
+		padding-inline: 3rem;
+	}
+	@variant lg {
+		padding-inline: 5rem;
+	}
+}
+
+@utility kicker {
+	font-size: 10px;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var(--muted-foreground);
 }

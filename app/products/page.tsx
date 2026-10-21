@@ -2,21 +2,14 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingGridFallback, NothingFound, ResultCount } from "@/components/listing-results";
+import { ListingHeader, ListingToolbar, SORT_OPTIONS } from "@/components/listing-toolbar";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { CARD_GRID } from "@/components/product-grid-skeleton";
+import { getStoreName } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
-
-const sortOptions = [
-	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
-] as const;
 
 type ProductFilterParams = {
 	page?: string;
@@ -62,7 +55,7 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
+	const sortOption = SORT_OPTIONS.find((s) => s.value === filters.sort) ?? SORT_OPTIONS[0];
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -80,21 +73,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<ResultCount count={result.meta.count} />
+			{result.data.length === 0 ? (
+				<NothingFound />
+			) : (
+				<div className={CARD_GRID}>
+					{result.data.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={index === 0} />
+					))}
+				</div>
+			)}
 
 			<ListingPagination
 				basePath="/products"
@@ -114,46 +104,14 @@ async function ProductSection({ searchParams }: { searchParams: Promise<ProductF
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
-	const filtersAvailable =
-		facets.categories.length > 0 ||
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
+	const storeName = await getStoreName();
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
+		<div className="shop-container min-h-svh pb-20">
+			<ListingHeader kicker={`${storeName} Store`} title="All Products" />
+			<ListingToolbar />
+			<Suspense fallback={<ListingGridFallback />}>
+				<ProductSection searchParams={searchParams} />
 			</Suspense>
 		</div>
 	);

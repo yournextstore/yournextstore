@@ -14,7 +14,18 @@ export async function getFilterFacets() {
 	cacheLife("minutes");
 	// Filters are an enhancement — never let a facets failure take down the product list.
 	try {
-		return await commerce.productFilters();
+		const [facets, collections] = await Promise.all([
+			commerce.productFilters(),
+			commerce.collectionBrowse({ limit: 50 }).catch(() => null),
+		]);
+		if (!collections) return facets;
+		// A manual collection without members opens an empty page, so it never shows up as a link.
+		const filled = new Set(
+			collections.data
+				.filter((c) => (c.productCollections?.length ?? 0) > 0 || (c.metafieldRules?.length ?? 0) > 0)
+				.map((c) => c.slug),
+		);
+		return { ...facets, collections: facets.collections.filter((c) => filled.has(c.slug)) };
 	} catch {
 		return EMPTY_FACETS;
 	}
