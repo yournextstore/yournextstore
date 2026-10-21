@@ -1,38 +1,41 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { cacheLife } from "next/cache";
+import {
+	CatalogGrid,
+	CatalogHeading,
+	CatalogPagination,
+	CategoryRow,
+	DEFAULT_SORT,
+	PRODUCTS_PER_PAGE,
+	SortRow,
+	sortQuery,
+} from "@/components/catalog";
+import { getCategoryLinks, picturedFirst } from "@/lib/catalog";
+import { commerce } from "@/lib/commerce";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// The storefront opens on the catalog itself, as minshop does. The first page is fully
+// cached, so the home page prerenders whole; sorting and paging continue on /products.
+async function getFirstPage() {
+	"use cache";
+	cacheLife("minutes");
+	return commerce.productBrowse({ active: true, limit: PRODUCTS_PER_PAGE, ...sortQuery(DEFAULT_SORT) });
+}
+
+export default async function Home() {
+	const [products, categories] = await Promise.all([getFirstPage(), getCategoryLinks()]);
+	const totalPages = Math.ceil(products.meta.count / PRODUCTS_PER_PAGE);
+
 	return (
-		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+		<div className="shell">
+			<CatalogHeading eyebrow="Shop" title="All products" />
+			<CategoryRow links={categories} />
+			<SortRow basePath="/products" />
+			<CatalogGrid products={picturedFirst(products.data)} />
+			<CatalogPagination basePath="/products" currentPage={1} totalPages={totalPages} />
+		</div>
 	);
 }

@@ -72,8 +72,9 @@ function SheetContent({
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
-          <XIcon className="size-4" />
+        {/* A 44px box, not a bare glyph: the primary way out of a full-height mobile panel. */}
+        <SheetPrimitive.Close className="text-faint hover:bg-card hover:text-foreground focus-visible:ring-ring absolute top-4 right-4 flex size-11 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-hidden disabled:pointer-events-none">
+          <XIcon className="size-5" strokeWidth={1.5} />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>
