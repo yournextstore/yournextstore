@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-work-sans);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +33,58 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-rule: var(--rule);
+	--color-stage: var(--stage);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	/* Tailwind v2 greys, as in the original Nordic Store. */
+	--background: #ffffff;
+	--foreground: #1f2937;
+	--card: #ffffff;
+	--card-foreground: #1f2937;
+	--popover: #ffffff;
+	--popover-foreground: #1f2937;
+	--primary: #111827;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #111827;
+	--muted: #f3f4f6;
+	--muted-foreground: #4b5563;
+	--accent: #f3f4f6;
+	--accent-foreground: #111827;
+	--destructive: #b91c1c;
+	--border: #e5e7eb;
+	--input: #d1d5db;
+	--ring: #9ca3af;
+	--rule: #9ca3af;
+	--stage: #efeeec;
 }
 
+/* Light-only design: the dark block mirrors :root (forcedTheme="light"). */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0rem;
+	--background: #ffffff;
+	--foreground: #1f2937;
+	--card: #ffffff;
+	--card-foreground: #1f2937;
+	--popover: #ffffff;
+	--popover-foreground: #1f2937;
+	--primary: #111827;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #111827;
+	--muted: #f3f4f6;
+	--muted-foreground: #4b5563;
+	--accent: #f3f4f6;
+	--accent-foreground: #111827;
+	--destructive: #b91c1c;
+	--border: #e5e7eb;
+	--input: #d1d5db;
+	--ring: #9ca3af;
+	--rule: #9ca3af;
+	--stage: #efeeec;
 }
 
 @layer base {
@@ -84,7 +92,9 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-muted-foreground;
+		font-family: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+		letter-spacing: 0;
 	}
 }
 
@@ -112,6 +122,28 @@
 .tiptap-content p:empty {
 	min-height: 1em;
 	overflow: hidden;
+}
+
+/* Section title of the original ("STORE", "ABOUT"). */
+@utility nordic-title {
+	font-size: 1.25rem;
+	line-height: 1.75rem;
+	font-weight: 700;
+	letter-spacing: 0.025em;
+	text-transform: uppercase;
+	color: var(--foreground);
+}
+
+/* The original's underlined text link ("view product"). */
+@utility nordic-link {
+	display: inline-block;
+	border-bottom: 1px solid #4b5563;
+	line-height: 1.625;
+	transition: color 0.2s, border-color 0.2s;
+	&:hover {
+		color: #000;
+		border-color: #000;
+	}
 }
 
 .yns-image-shimmer {

@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -217,17 +216,17 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+			{summary && <p className="leading-relaxed whitespace-pre-line">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span className="text-2xl text-gray-900">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
 						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
@@ -245,8 +244,8 @@ export function AddToCartButton({
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
+									stockStatus.tone === "low" && "text-amber-700",
+									stockStatus.tone === "in" && "text-green-700",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -295,7 +294,7 @@ export function AddToCartButton({
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="h-14 w-full bg-gray-900 px-8 py-4 text-sm font-bold tracking-widest text-white uppercase transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{buttonText}
 							</button>
@@ -305,8 +304,6 @@ export function AddToCartButton({
 			) : (
 				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }

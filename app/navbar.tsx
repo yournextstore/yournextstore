@@ -1,58 +1,101 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useEffect, useState } from "react";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+const MAIN_LINKS: NavLink[] = [
+	{ href: "/products", label: "Shop" },
+	{ href: "/about", label: "About" },
+];
+
+/** Left side of the header: "Shop · About" on desktop, the original's drop-down list on phones. */
+export function Navbar({ categories }: { categories: NavLink[] }) {
 	const [open, setOpen] = useState(false);
 
+	useEffect(() => {
+		if (!open) return;
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === "Escape") setOpen(false);
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [open]);
+
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
+		<div className="flex shrink-0 items-center md:flex-1 md:basis-0">
+			<button
+				type="button"
+				aria-label={open ? "Close menu" : "Open menu"}
+				aria-expanded={open}
+				aria-controls="mobile-menu"
+				onClick={() => setOpen((value) => !value)}
+				className="-ml-1 p-1 text-foreground md:hidden"
+			>
+				{open ? <X aria-hidden className="h-6 w-6" /> : <Menu aria-hidden className="h-6 w-6" />}
+			</button>
+
+			<nav aria-label="Main" className="hidden md:block">
+				<ul className="flex items-center text-gray-700">
+					{MAIN_LINKS.map((link) => (
+						<li key={link.href}>
+							<Link href={link.href} className="inline-block px-4 py-2 hover:text-black hover:underline">
 								{link.label}
 							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
+						</li>
+					))}
+					<li>
+						<Link href="/search" aria-label="Search" className="inline-flex px-4 py-2 hover:text-black">
+							<Search aria-hidden className="h-5 w-5" strokeWidth={1.75} />
+						</Link>
+					</li>
+				</ul>
 			</nav>
-		</>
+
+			{open && (
+				<nav
+					id="mobile-menu"
+					aria-label="Mobile"
+					className="absolute inset-x-0 top-full z-40 border-b border-border bg-background px-6 pb-6 md:hidden"
+				>
+					<ul className="text-base text-gray-700">
+						{[...MAIN_LINKS, { href: "/search", label: "Search" }].map((link) => (
+							<li key={link.href}>
+								<Link
+									href={link.href}
+									onClick={() => setOpen(false)}
+									className="block py-2 hover:text-black hover:underline"
+								>
+									{link.label}
+								</Link>
+							</li>
+						))}
+					</ul>
+					{categories.length > 0 && (
+						<>
+							<p className="mt-4 text-sm font-bold tracking-wide text-foreground uppercase">Categories</p>
+							<ul className="mt-1 grid grid-cols-2 gap-x-4 text-sm text-gray-700">
+								{categories.map((link) => (
+									<li key={link.href}>
+										<Link
+											href={link.href}
+											onClick={() => setOpen(false)}
+											className="block py-2 hover:text-black hover:underline"
+										>
+											{link.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</>
+					)}
+				</nav>
+			)}
+		</div>
 	);
 }

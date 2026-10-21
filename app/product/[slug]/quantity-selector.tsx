@@ -20,8 +20,8 @@ export function QuantitySelector({
 }: QuantitySelectorProps) {
 	return (
 		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
+			<span className="mb-3 block text-sm font-bold tracking-wide text-foreground uppercase">Quantity</span>
+			<div className="inline-flex items-center border border-input">
 				<Button
 					variant="ghost"
 					size="icon"

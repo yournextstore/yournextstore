@@ -10,14 +10,16 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="relative p-1.5 transition-colors hover:text-black"
+			aria-label={
+				itemCount > 0 ? `Open cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : "Open cart"
+			}
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<ShoppingCart aria-hidden className="h-6 w-6" strokeWidth={1.5} />
 			{itemCount > 0 ? (
 				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
+					aria-hidden
+					className="absolute -top-0.5 -right-0.5 flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-primary px-1 text-[0.6875rem] text-primary-foreground"
 				>
 					{itemCount}
 				</span>

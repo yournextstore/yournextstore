@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -331,18 +330,18 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** Filter trigger + slide-over sheet, at every width (the original keeps the grid four across). */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
+			<SheetTrigger className="inline-flex h-9 w-24 items-center justify-end gap-2 px-2 text-sm text-foreground transition-colors hover:text-black">
+				<SlidersHorizontalIcon aria-hidden className="size-5" strokeWidth={1.5} />
+				Filter
 				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+					<span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
 						{activeCount}
 					</span>
 				)}

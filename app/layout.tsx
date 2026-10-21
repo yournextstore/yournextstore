@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { ShoppingBag, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Work_Sans } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -16,18 +16,17 @@ import { Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { getShopInfo } from "@/lib/shop";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+const workSans = Work_Sans({
+	variable: "--font-work-sans",
+	subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
@@ -108,20 +107,10 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
+	const categories = await commerce.categoriesBrowse({ active: true, limit: 50 }).catch(() => null);
+	return (categories?.data ?? [])
+		.filter((category) => !category.parentId)
+		.map((category) => ({ href: `/category/${category.slug}`, label: category.name }));
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,42 +120,37 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [categories, storeConfig, shop] = await Promise.all([getNavLinks(), getStoreConfig(), getShopInfo()]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<header className="site-header relative z-30 w-full bg-background py-1">
+						<div className="container mx-auto flex items-center justify-between gap-3 px-6 py-3">
+							<Navbar categories={categories} />
+							<Link
+								href="/"
+								className="flex min-w-0 flex-1 items-center justify-center gap-2 text-lg font-bold tracking-wide max-[359px]:gap-1.5 max-[359px]:text-base text-foreground uppercase md:flex-none md:text-xl"
+							>
+								<ShoppingBag aria-hidden className="h-5 w-5 shrink-0 md:h-6 md:w-6" strokeWidth={1.75} />
+								<span className="truncate">{shop.storeName}</span>
+							</Link>
+							<div className="flex shrink-0 items-center justify-end gap-1 text-foreground md:flex-1 md:basis-0">
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={accountHref}
+									className="p-1.5 transition-colors hover:text-black"
+									aria-label="Account"
+								>
+									<UserRound aria-hidden className="h-6 w-6" strokeWidth={1.5} />
+								</a>
+								<CartButton />
 							</div>
 						</div>
 					</header>
@@ -214,7 +198,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${workSans.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +206,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
