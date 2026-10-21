@@ -52,7 +52,7 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 				<a
 					key={category.id}
 					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+					className="rounded-md border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
 				>
 					{category.title}
 				</a>
@@ -64,7 +64,7 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
+			<h2 className="font-heading text-2xl tracking-tight mb-4">{category.title}</h2>
 			<Accordion type="single" collapsible className="rounded-lg border border-border px-4">
 				{category.questions.map((item, index) => (
 					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
@@ -82,7 +82,7 @@ function FAQSection({ category }: { category: FAQCategory }) {
 function ContactCard() {
 	return (
 		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
+			<h2 className="font-heading text-2xl tracking-tight">Still have questions?</h2>
 			<p className="mt-2 text-muted-foreground">
 				We're here to help. Reach out and we'll get back to you as soon as possible.
 			</p>
@@ -105,7 +105,7 @@ export default function FAQPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
+				<h1 className="mt-4 font-heading text-4xl tracking-tight">Frequently Asked Questions</h1>
 				<p className="mt-3 text-lg text-muted-foreground">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>

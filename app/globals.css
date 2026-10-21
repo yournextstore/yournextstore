@@ -10,6 +10,7 @@
 @theme inline {
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
+	--font-heading: var(--font-cal-sans);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -34,48 +35,80 @@
 	--color-ring: var(--ring);
 }
 
+/* The original's breakpoints (xs 480, xxs 380) and its 1400px centred container with 2rem gutters. */
+@theme {
+	--breakpoint-xxs: 23.75rem;
+	--breakpoint-xs: 30rem;
+	--animate-fade-up: fade-up 0.5s ease-out both;
+}
+
+@keyframes fade-up {
+	0% {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	75% {
+		opacity: 0.6;
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@utility shell {
+	width: 100%;
+	max-width: 1400px;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (width >= 40rem) {
+		padding-inline: 2rem;
+	}
+}
+
+/* shadcn zinc, the original's palette. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #09090b;
+	--card: #ffffff;
+	--card-foreground: #09090b;
+	--popover: #ffffff;
+	--popover-foreground: #09090b;
+	--primary: #18181b;
+	--primary-foreground: #fafafa;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #18181b;
+	--muted: #f4f4f5;
+	/* zinc-500 (#71717a) is 4.4:1 on zinc-100; one step darker, same tint. */
+	--muted-foreground: #66666f;
+	--accent: #f4f4f5;
+	--accent-foreground: #18181b;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #18181b;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #09090b;
+	--foreground: #fafafa;
+	--card: #09090b;
+	--card-foreground: #fafafa;
+	--popover: #09090b;
+	--popover-foreground: #fafafa;
+	--primary: #fafafa;
+	--primary-foreground: #18181b;
+	--secondary: #27272a;
+	--secondary-foreground: #fafafa;
+	--muted: #27272a;
+	--muted-foreground: #a1a1aa;
+	--accent: #27272a;
+	--accent-foreground: #fafafa;
+	--destructive: #f87171;
+	--border: #27272a;
+	--input: #27272a;
+	--ring: #d4d4d8;
 }
 
 @layer base {
@@ -84,6 +117,8 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variables on <body>; preflight never sees --font-sans from @theme inline. */
+		font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 	}
 }
 
@@ -99,11 +134,9 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--muted) 0%,
+		var(--background) 50%,
+		var(--muted) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

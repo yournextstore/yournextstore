@@ -1,7 +1,17 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -78,5 +88,42 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 				))}
 			</SelectContent>
 		</Select>
+	);
+}
+
+/** The original's "Sort ⌄" button: a dropdown with "Sort by" and the active option in bold. */
+export function SortMenu({ options }: { options: readonly SortOption[] }) {
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const defaultValue = options[0]?.value;
+	const current = searchParams.get("sort") ?? defaultValue;
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button size="sm" aria-label="Sort products">
+					Sort
+					<ChevronDown className="size-4" aria-hidden="true" />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start" className="w-48">
+				<DropdownMenuLabel>Sort by</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				{options.map((option) => (
+					<DropdownMenuItem
+						key={option.value}
+						className={cn(option.value === current && "bg-accent font-bold")}
+						onSelect={() =>
+							router.push(buildSortHref(searchParams, pathname, option.value, defaultValue), {
+								scroll: false,
+							})
+						}
+					>
+						{option.label}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }

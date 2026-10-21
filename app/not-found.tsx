@@ -13,7 +13,7 @@ export default function NotFound() {
 	return (
 		<div className="flex min-h-[90dvh] flex-1 flex-col items-center justify-center px-4 py-24 text-center">
 			<ShoppingCartIcon className="size-16 text-muted-foreground/50" strokeWidth={1.5} />
-			<h1 className="mt-6 text-7xl font-bold tracking-tight">404</h1>
+			<h1 className="mt-6 font-heading text-7xl tracking-tight">404</h1>
 			<h2 className="mt-4 text-xl text-muted-foreground">Page not found</h2>
 			<p className="mt-2 text-sm text-muted-foreground">
 				This page doesn't exist or has been moved. But our store is still open!
