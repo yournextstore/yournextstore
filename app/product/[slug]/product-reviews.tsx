@@ -56,9 +56,9 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 
 export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBrowseResult; slug: string }) {
 	return (
-		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
+		<section id="reviews" className="mt-20 border-t-2 border-ink pt-16 scroll-mt-28">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
+				<h2 className="font-title text-sp-5">Customer reviews</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
 			{reviews.data.length > 0 ? (

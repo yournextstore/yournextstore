@@ -1,5 +1,4 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 
@@ -16,32 +15,25 @@ async function getCategoryProducts(categorySlug?: string) {
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+// No Suspense of its own: rendered inside the page's boundary, so it lands with the details
+// instead of streaming in after the footer has painted and pushing it down.
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
 	productId: string;
 	categorySlug?: string;
 }) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	// A small category tops up from the whole catalog so the row always has three cards.
+	const [inCategory, everything] = await Promise.all([
+		getCategoryProducts(categorySlug),
+		categorySlug ? getCategoryProducts(undefined) : Promise.resolve([]),
+	]);
+	const related = [...inCategory, ...everything]
+		.filter((p, index, all) => p.id !== productId && all.findIndex((q) => q.id === p.id) === index)
+		.slice(0, 3);
 
 	if (related.length === 0) return null;
 
-	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
-	);
+	return <ProductGrid title="You may also like" products={related} showViewAll={false} />;
 }

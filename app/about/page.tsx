@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { ListingBand } from "@/components/listing-band";
+import { ArrowUpRight, HeroStar } from "@/components/shapes";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -30,7 +32,7 @@ async function getStoreInfo() {
 	try {
 		const me = await meGetCached();
 		return {
-			storeName: me.store.name || "our store",
+			storeName: me.store.settings?.storeName || me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
 			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
@@ -53,85 +55,99 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "Loud by design",
+			text: "Colour, shape and attitude first. Pieces that start conversations, not blend in.",
+			tone: "bg-lilac",
+		},
+		{
+			title: "Made to be worn",
+			text: "Fabrics and cuts that take a beating, wash after wash and season after season.",
+			tone: "bg-tangerine",
+		},
+		{
+			title: "Real people",
+			text: "A small team that answers your messages, packs your order and fixes what goes wrong.",
+			tone: "bg-mint",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
+			<ListingBand
+				title="About us"
+				crumbs={[{ href: "/", label: "Home" }, { label: "About us" }]}
+				description={storeDescription}
+			/>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+			<section className="py-[75px] md:py-[150px]">
+				<div className="sp-container grid gap-[50px] sp-xl:grid-cols-2 sp-xl:items-center">
+					<div>
+						<h2 className="font-title mb-[30px] text-sp-3 md:text-sp-3-md">Our story</h2>
+						<div className="space-y-5 text-sp-8 leading-[1.8]">
+							<p>
+								{storeName} started with a simple idea: getting dressed should be fun. We hunt down bold
+								basics and statement pieces, test them ourselves and only keep what we would wear.
 							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
+							<p>
+								Every drop is small and picked by hand, so the shop keeps changing. If something catches your
+								eye, do not wait too long. It might not come back.
 							</p>
 						</div>
 					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+					<div className="relative mx-auto hidden w-full max-w-[520px] sp-xl:block" aria-hidden="true">
+						<HeroStar className="absolute -top-16 -left-16" />
+						<div className="relative aspect-square border-2 border-ink bg-lilac shadow-brut">
+							<p className="font-title absolute inset-0 grid place-items-center p-10 text-center text-sp-3-md">
+								Wear it loud
+							</p>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
+			</section>
+
+			<section aria-labelledby="values-title" className="pb-[75px] md:pb-[150px]">
+				<div className="sp-container">
+					<h2 id="values-title" className="font-title mb-[45px] text-center text-sp-3 md:text-sp-3-md">
+						What we stand for
+					</h2>
+					<ul className="grid gap-6 md:grid-cols-3">
+						{values.map((value) => (
+							<li key={value.title} className="border-2 border-ink bg-background shadow-brut">
+								<div className={`h-4 border-b-2 border-ink ${value.tone}`} />
+								<div className="p-[30px]">
+									<h3 className="font-title text-sp-6">{value.title}</h3>
+									<p className="mt-4 text-base leading-[1.8]">{value.text}</p>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			</section>
+
+			<section className="bg-gainsboro py-[100px]">
+				<div className="sp-container">
+					<div className="mx-auto max-w-2xl border-2 border-ink bg-background px-[30px] py-16 text-center shadow-brut md:px-[90px]">
+						<h2 className="font-title text-sp-3 md:text-sp-3-md">Come take a look</h2>
+						<p className="mt-5 mb-[45px] text-sp-8 leading-[1.8]">
+							Browse the whole shop or get in touch. We would love to hear from you.
+						</p>
+						<div className="flex flex-col items-center justify-center gap-5 sm:flex-row">
+							<Link href="/products" className="btn-brut btn-orange">
+								<span>Shop now</span>
+								<ArrowUpRight className="size-5" />
+							</Link>
+							{contactFormEnabled && (
+								<Link href="/contact" className="btn-brut">
+									Contact us
+								</Link>
+							)}
+						</div>
+					</div>
+				</div>
+			</section>
+		</>
 	);
 }

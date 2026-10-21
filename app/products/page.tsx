@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import { ListingBand } from "@/components/listing-band";
+import { ListingEmpty, ListingGrid, ListingGridSkeleton } from "@/components/listing-grid";
 import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
@@ -56,7 +56,7 @@ export async function generateMetadata({
 	};
 }
 
-async function ProductList({ filters }: { filters: ProductFilterParams }) {
+async function ProductList({ filters, withFilters }: { filters: ProductFilterParams; withFilters: boolean }) {
 	"use cache";
 	cacheLife("minutes");
 
@@ -81,20 +81,12 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
+		return <ListingEmpty />;
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<ListingGrid products={result.data} withFilters={withFilters} />
 
 			<ListingPagination
 				basePath="/products"
@@ -108,9 +100,28 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 // Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
 // stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
-async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
+async function ProductSection({
+	searchParams,
+	withFilters,
+}: {
+	searchParams: Promise<ProductFilterParams>;
+	withFilters: boolean;
+}) {
 	const filters = await searchParams;
-	return <ProductList filters={filters} />;
+	return <ProductList filters={filters} withFilters={withFilters} />;
+}
+
+// Same frame as the streamed content (sidebar, toolbar row, grid), so nothing moves when it lands.
+function ListingFallback({ withFilters }: { withFilters: boolean }) {
+	return (
+		<div className={withFilters ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			{withFilters && <div className="hidden lg:block" />}
+			<div>
+				<div className="mb-10 h-[46px]" />
+				<ListingGridSkeleton withFilters={withFilters} />
+			</div>
+		</div>
+	);
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
@@ -126,35 +137,36 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<>
+			<ListingBand
+				title="Shop"
+				crumbs={[{ href: "/", label: "Home" }, { label: "Shop" }]}
+				description="Every piece in the store, in one place. Sort it, filter it, find your next favourite."
+			/>
+			<div className="sp-container py-[60px] md:py-[100px]">
+				{/* The filter and sort controls read useSearchParams(), so they stream in behind one
+				    boundary with the grid while the chrome and the band above prerender. */}
+				<Suspense fallback={<ListingFallback withFilters={filtersAvailable} />}>
+					<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+						{filtersAvailable && <ProductFilters facets={facets} />}
 
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
+						<div>
+							<div className="mb-10 flex min-h-[46px] flex-wrap items-center justify-between gap-4">
+								{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+								<div className="flex items-center gap-4 lg:hidden">
+									<SortSelect options={sortOptions} />
+								</div>
+								<div className="hidden flex-wrap items-center gap-x-6 gap-y-2 lg:flex">
+									<span className="text-sm font-semibold uppercase">Sort by</span>
+									<SortLinks options={sortOptions} />
+								</div>
+							</div>
 
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
+							<ProductSection searchParams={searchParams} withFilters={filtersAvailable} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
 					</div>
-				</div>
-			</Suspense>
-		</div>
+				</Suspense>
+			</div>
+		</>
 	);
 }

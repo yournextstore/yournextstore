@@ -7,13 +7,57 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Shoppie type scale, under its own names so shadcn's text-sm/base/lg keep their sizes. */
+@theme {
+	--text-sp-1: 3.875rem;
+	--text-sp-1--line-height: 1.2;
+	--text-sp-2: 2.75rem;
+	--text-sp-2--line-height: 1.2;
+	--text-sp-2-md: 4.875rem;
+	--text-sp-2-md--line-height: 1.2;
+	--text-sp-2-2xl: 5.625rem;
+	--text-sp-2-2xl--line-height: 1.2;
+	--text-sp-3: 2.375rem;
+	--text-sp-3--line-height: 1.2;
+	--text-sp-3-md: 4.125rem;
+	--text-sp-3-md--line-height: 1.2;
+	--text-sp-4: 2.125rem;
+	--text-sp-4--line-height: 1.2;
+	--text-sp-4-md: 2.625rem;
+	--text-sp-4-md--line-height: 1.2;
+	--text-sp-5: 1.875rem;
+	--text-sp-5--line-height: 1.2;
+	--text-sp-6: 1.5625rem;
+	--text-sp-6--line-height: 1.2;
+	--text-sp-7: 1.25rem;
+	--text-sp-7--line-height: 1.2;
+	--text-sp-8: 1.125rem;
+	--text-sp-10: 1.5rem;
+	--text-sp-10--line-height: 1.2;
+	--breakpoint-sp-sm: 35.9375rem;
+	--breakpoint-sp-lg: 62rem;
+	--breakpoint-sp-xl: 75rem;
+	--breakpoint-sp-2xl: 87.5rem;
+}
+
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
+	--font-display: var(--font-archivo);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--color-lilac: var(--sp-lilac);
+	--color-tangerine: var(--sp-orange);
+	--color-tangerine-ink: var(--sp-orange-ink);
+	--color-sunny: var(--sp-yellow);
+	--color-mint: var(--sp-mint);
+	--color-gainsboro: var(--sp-gainsboro);
+	--color-ink: var(--sp-ink);
+	--shadow-brut: 4px 4px 0 var(--sp-ink);
+	--shadow-brut-sm: 2px 2px 0 var(--sp-ink);
+	--shadow-header: 0 4px 6px hsla(256, 100%, 9%, 0.1);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -35,47 +79,67 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	/* Shoppie palette (codewithsadee/shoppie): wild-blue-yonder lilac, orange crayola,
+	   gainsboro, eerie black, plus the yellow and mint of its cut-paper shapes. */
+	--sp-lilac: #a6b1d8;
+	--sp-orange: #fc7840;
+	/* Orange as text on white: the tint darkened until it clears AA (5:1). */
+	--sp-orange-ink: #c93e03;
+	--sp-yellow: #f6d86b;
+	--sp-mint: #a3d9b1;
+	--sp-gainsboro: #d8dfdc;
+	--sp-ink: #121212;
+	--radius: 0rem;
+	--card: #ffffff;
+	--card-foreground: #121212;
+	--popover: #ffffff;
+	--popover-foreground: #121212;
+	--primary: #121212;
+	--primary-foreground: #ffffff;
+	--secondary: #d8dfdc;
+	--secondary-foreground: #121212;
+	--muted: #d8dfdc;
+	--muted-foreground: #464b49;
+	--accent: #a6b1d8;
+	--accent-foreground: #121212;
+	--destructive: #b42318;
+	--border: #121212;
+	--input: #121212;
+	--ring: #121212;
+	--background: #ffffff;
+	--foreground: #121212;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	/* Shoppie palette (codewithsadee/shoppie): wild-blue-yonder lilac, orange crayola,
+	   gainsboro, eerie black, plus the yellow and mint of its cut-paper shapes. */
+	--sp-lilac: #a6b1d8;
+	--sp-orange: #fc7840;
+	/* Orange as text on white: the tint darkened until it clears AA (5:1). */
+	--sp-orange-ink: #c93e03;
+	--sp-yellow: #f6d86b;
+	--sp-mint: #a3d9b1;
+	--sp-gainsboro: #d8dfdc;
+	--sp-ink: #121212;
+	--radius: 0rem;
+	--card: #ffffff;
+	--card-foreground: #121212;
+	--popover: #ffffff;
+	--popover-foreground: #121212;
+	--primary: #121212;
+	--primary-foreground: #ffffff;
+	--secondary: #d8dfdc;
+	--secondary-foreground: #121212;
+	--muted: #d8dfdc;
+	--muted-foreground: #464b49;
+	--accent: #a6b1d8;
+	--accent-foreground: #121212;
+	--destructive: #b42318;
+	--border: #121212;
+	--input: #121212;
+	--ring: #121212;
+	--background: #ffffff;
+	--foreground: #121212;
 }
 
 @layer base {
@@ -84,11 +148,135 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		line-height: 1.5;
+	}
+}
+
+/* Display face: Archivo widened, standing in for the original's Clash Display. */
+@utility font-title {
+	font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+	font-weight: 700;
+	font-stretch: 112.5%;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+}
+
+/* The original's container: 16px gutters, then fixed widths per breakpoint. */
+@utility sp-container {
+	width: 100%;
+	padding-inline: 16px;
+	margin-inline: auto;
+	@media (min-width: 575px) {
+		max-width: 540px;
+	}
+	@media (min-width: 768px) {
+		max-width: 720px;
+	}
+	@media (min-width: 992px) {
+		max-width: 960px;
+	}
+	@media (min-width: 1200px) {
+		max-width: 1140px;
+	}
+	@media (min-width: 1400px) {
+		max-width: 1320px;
+	}
+}
+
+/* Outlined block button with a hard offset shadow that collapses on hover. */
+@utility btn-brut {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	min-width: max-content;
+	padding: var(--btn-py, 15px) var(--btn-px, 30px);
+	background-color: var(--btn-bg, var(--background));
+	color: var(--sp-ink);
+	border: 2px solid var(--sp-ink);
+	box-shadow: 4px 4px 0 var(--sp-ink);
+	font-weight: 600;
+	text-transform: uppercase;
+	transition:
+		box-shadow 250ms ease,
+		color 250ms ease,
+		transform 250ms ease;
+	&:hover,
+	&:focus-visible {
+		box-shadow: none;
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+	@media (min-width: 768px) {
+		padding: var(--btn-py-md, 20px) var(--btn-px-md, 50px);
+	}
+}
+
+/* Sizes and the orange fill go through variables, so they never fight btn-brut's own rules. */
+@utility btn-brut-sm {
+	--btn-py: 10px;
+	--btn-px: 25px;
+	--btn-py-md: 10px;
+	--btn-px-md: 25px;
+}
+
+@utility btn-brut-md {
+	--btn-py-md: 15px;
+	--btn-px-md: 30px;
+}
+
+@utility btn-orange {
+	--btn-bg: var(--sp-orange);
+}
+
+/* Scroll-snapping rail ("Explore new arrivals"). */
+@utility snap-rail {
+	display: flex;
+	gap: 40px;
+	overflow-x: auto;
+	scroll-snap-type: inline mandatory;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	& > * {
+		min-width: 100%;
+		scroll-snap-align: start;
+		@media (min-width: 768px) {
+			min-width: calc(50% - 20px);
+		}
+		@media (min-width: 1200px) {
+			min-width: calc((100% - 80px) / 3);
+		}
+	}
+}
+
+/* Header: lilac where the page opens on a lilac band, white once scrolled. */
+.site-header {
+	background-color: var(--background);
+	transition:
+		background-color 250ms ease,
+		box-shadow 250ms ease;
+}
+:root:has([data-band]) .site-header {
+	background-color: var(--sp-lilac);
+}
+:root .site-header[data-scrolled="true"] {
+	background-color: var(--background);
+	box-shadow: 0 4px 6px hsla(256, 100%, 9%, 0.1);
+}
+@media (min-width: 992px) {
+	.site-header[data-scrolled="true"] .header-rule,
+	.site-header[data-scrolled="true"] .cart-divider {
+		border-color: transparent;
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: var(--foreground);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);

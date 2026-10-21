@@ -18,9 +18,12 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	size = "grid",
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	/** "rail" is the smaller title of the original's new-arrivals carousel. */
+	size?: "rail" | "grid";
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -57,9 +60,50 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const sizes = "(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 33vw";
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link href={`/product/${product.slug}${variantSearch}`} className="group relative block text-center">
+			<div className="relative aspect-[448/470] overflow-hidden bg-gainsboro">
+				{primaryImage &&
+					(isVideoUrl(primaryImage) ? (
+						<video
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							src={primaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={primaryImage}
+							alt=""
+							fill
+							sizes={sizes}
+							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							priority={priority}
+						/>
+					))}
+				{secondaryImage &&
+					(isVideoUrl(secondaryImage) ? (
+						<video
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							src={secondaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={secondaryImage}
+							alt=""
+							fill
+							sizes={sizes}
+							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+						/>
+					))}
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -75,49 +119,16 @@ export async function ProductCard({
 						}}
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="mt-[30px] px-2">
+				<h3
+					className={`font-title line-clamp-2 text-balance group-hover:underline ${size === "rail" ? "text-sp-6" : "text-[1.5rem] sp-xl:text-sp-5"}`}
+				>
+					{product.name}
+				</h3>
+				{priceDisplay && (
+					<p className="font-title mt-2.5 text-sp-7 tracking-normal text-tangerine-ink">{priceDisplay}</p>
+				)}
 			</div>
 		</Link>
 	);

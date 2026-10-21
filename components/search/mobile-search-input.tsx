@@ -50,11 +50,11 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-12 w-full rounded-full border border-border bg-background pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+						className="h-12 w-full border-2 border-ink bg-background pl-12 pr-4 text-base text-foreground shadow-brut transition-shadow placeholder:text-muted-foreground focus:shadow-none focus:outline-none"
 					/>
 				</div>
 				{panelOpen ? (
-					<div className="mt-3 border-t border-border pt-1">
+					<div className="mt-3 border-t-2 border-ink pt-1">
 						<Suggestions
 							listboxId={listboxId}
 							open={panelOpen}

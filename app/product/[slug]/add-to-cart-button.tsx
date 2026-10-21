@@ -6,7 +6,6 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -196,7 +195,7 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+			{summary && <p className="text-sp-8 leading-[1.8] whitespace-pre-line">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
@@ -212,29 +211,28 @@ export function AddToCartButton({
 					) : null}
 				</div>
 
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
+				{omnibusPrice && <p className="text-xs">Lowest price in the last 30 days: {omnibusPrice}</p>}
 
 				{/* SKU & stock availability */}
 				{(selectedVariant?.sku || stockStatus) && (
 					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
 						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
+							<span className="inline-flex items-center gap-2 font-semibold uppercase">
+								<span
+									className={cn(
+										"size-2.5 rounded-full border border-ink",
+										stockStatus.tone === "out" && "bg-destructive",
+										stockStatus.tone === "low" && "bg-sunny",
+										stockStatus.tone === "in" && "bg-mint",
+									)}
+									aria-hidden
+								/>
 								{stockStatus.label}
 							</span>
 						)}
 						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
+							<span>
+								SKU: <span className="font-semibold">{selectedVariant.sku}</span>
 							</span>
 						)}
 					</div>
@@ -259,14 +257,12 @@ export function AddToCartButton({
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="btn-brut btn-orange w-full"
 					>
 						{buttonText}
 					</button>
 				</form>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }
