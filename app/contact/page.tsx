@@ -53,7 +53,7 @@ export default async function ContactPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">Contact Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Contact Us</h1>
+				<h1 className="mt-4 text-4xl font-semibold tracking-tight">Contact Us</h1>
 				<p className="mt-3 text-lg text-muted-foreground">
 					Have a question or just want to say hello? Send us a message and we'll get back to you as soon as we
 					can.

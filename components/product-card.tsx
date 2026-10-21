@@ -7,40 +7,38 @@ import Link from "next/link";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
+export type CardProduct = BrowseProduct | CollectionProduct | FullProduct;
 
+/**
+ * The original's product tile: a square photograph over a faint slate gradient panel with the
+ * name, a muted category line, the variant count and the price pinned to the bottom.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	headingLevel = "h3",
+	className,
+	sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 340px",
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	headingLevel?: "h2" | "h3";
+	className?: string;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const variantCount = variants?.length ?? 0;
+	const category = "category" in product && product.category ? product.category.name : null;
 
-	const allImages = [
-		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const image = [...(product.images ?? []), ...(variants?.flatMap((v) => v.images ?? []) ?? [])][0];
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -55,29 +53,19 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const Heading = headingLevel;
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn("group flex h-full w-full flex-col overflow-hidden rounded-lg", className)}
+		>
+			<div className="relative aspect-square overflow-hidden bg-secondary">
+				{image &&
+					(isVideoUrl(image) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
+							className="absolute inset-0 size-full object-cover"
+							src={image}
 							muted
 							loop
 							autoPlay
@@ -85,38 +73,37 @@ export async function ProductCard({
 						/>
 					) : (
 						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
+							src={image}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes={sizes}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex shrink-0 grow flex-col bg-linear-to-b from-transparent to-primary/5 p-4 text-pretty">
+				<Heading className="line-clamp-2 text-base font-semibold text-foreground md:text-lg">
+					{product.name}
+				</Heading>
+				{category && <p className="pt-1 text-sm text-muted-foreground">{category}</p>}
+				{listing && (
+					<div className="mt-auto flex flex-col pt-10">
+						{variantCount > 0 && (
+							<p className="text-sm text-muted-foreground">
+								{variantCount} variant{variantCount > 1 ? "s" : ""}
+							</p>
+						)}
+						<div className="flex w-full items-baseline justify-between gap-2 text-sm">
+							{/* "From" only when the variants are priced differently. */}
+							<span className="text-muted-foreground">{listing.from ? "From" : null}</span>
+							<span className="text-base font-semibold text-foreground md:text-lg">
+								{formatMoney({ amount: listing.amount, currency, locale })}
+							</span>
+						</div>
+					</div>
+				)}
 			</div>
 		</Link>
 	);

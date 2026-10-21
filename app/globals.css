@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +33,107 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-ink: var(--ink);
+	--color-ink-hover: var(--ink-hover);
+	--color-field: var(--field);
+	--color-field-border: var(--field-border);
+	--container-shop: 80rem;
+	--container-wide: 87.5rem;
+	--animate-enter: enter 0.2s calc(20ms * var(--stagger, 0)) ease-out both;
 }
 
+@keyframes enter {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* The original's 1280px content column (max-w-container-md) with its 16px mobile gutter. */
+@utility shop-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: var(--container-shop);
+	padding-inline: 1rem;
+	@media (width >= 80rem) {
+		padding-inline: 0;
+	}
+}
+
+/* Home sections sit in a wider 1400px column with 16/24/32px gutters. */
+@utility wide-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: var(--container-wide);
+	padding-inline: 1rem;
+	@media (width >= 40rem) {
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 64rem) {
+		padding-inline: 2rem;
+	}
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Enterprise palette: white surfaces, slate ink, slate-100 panels, a single black action colour. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #0f172a;
+	--card: #ffffff;
+	--card-foreground: #0f172a;
+	--popover: #ffffff;
+	--popover-foreground: #0f172a;
+	--primary: #0f172a;
+	--primary-foreground: #f8fafc;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #0f172a;
+	--muted: #f1f5f9;
+	/* The original's slate-500 (#64748b) misses AA on slate-100; this keeps the slate tint. */
+	--muted-foreground: #5a6a80;
+	--accent: #f1f5f9;
+	--accent-foreground: #0f172a;
+	--destructive: #dc2626;
+	--border: #e2e8f0;
+	--input: #e2e8f0;
+	--ring: #94a3b8;
+	/* Theme-only tokens. */
+	--ink: #000000;
+	--ink-hover: #262626;
+	--field: #f5f5f5;
+	--field-border: #d4d4d4;
 }
 
+/* Light-only design (forcedTheme="light"); kept so the palette test sees both blocks. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #0f172a;
+	--card: #ffffff;
+	--card-foreground: #0f172a;
+	--popover: #ffffff;
+	--popover-foreground: #0f172a;
+	--primary: #0f172a;
+	--primary-foreground: #f8fafc;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #0f172a;
+	--muted: #f1f5f9;
+	--muted-foreground: #5a6a80;
+	--accent: #f1f5f9;
+	--accent-foreground: #0f172a;
+	--destructive: #dc2626;
+	--border: #e2e8f0;
+	--input: #e2e8f0;
+	--ring: #94a3b8;
 }
 
 @layer base {
@@ -84,7 +141,12 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground;
+	}
+	input[type="number"]::-webkit-outer-spin-button,
+	input[type="number"]::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
 }
 

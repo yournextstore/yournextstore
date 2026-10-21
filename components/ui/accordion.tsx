@@ -1,25 +1,17 @@
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
-import { cn } from "@/lib/utils"
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 
-function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
-  return (
-    <AccordionPrimitive.Root
-      data-slot="accordion"
-      className={cn(
-        "flex w-full flex-col overflow-hidden rounded-2xl border",
-        className
-      )}
-      {...props}
-    />
-  )
+import { PlusIcon } from "@/components/icons"
+import { cn } from "@/lib/utils"
+
+function Accordion({ ...props }: AccordionPrimitive.Root.Props) {
+  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
 }
 
 function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("not-last:border-b data-open:bg-muted/50", className)}
+      className={cn("border-b last:border-b-0", className)}
       {...props}
     />
   )
@@ -28,23 +20,25 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
 function AccordionTrigger({
   className,
   children,
+  headingLevel: Heading = "h3",
   ...props
-}: AccordionPrimitive.Trigger.Props) {
+}: AccordionPrimitive.Trigger.Props & { headingLevel?: "h2" | "h3" }) {
   return (
-    <AccordionPrimitive.Header className="flex">
+    // A plain heading rather than AccordionPrimitive.Header with a render prop: the heading
+    // level is a prop of the trigger, so the element stays the same on server and client.
+    <Heading className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger relative flex flex-1 items-start justify-between gap-6 border border-transparent p-4 text-left text-sm font-medium transition-all outline-none hover:underline aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
+          "group focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-center justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] aria-disabled:pointer-events-none aria-disabled:opacity-50",
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDownIcon data-slot="accordion-trigger-icon" className="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden" />
-        <ChevronUpIcon data-slot="accordion-trigger-icon" className="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline" />
+        <PlusIcon className="pointer-events-none size-4 shrink-0 text-ink" />
       </AccordionPrimitive.Trigger>
-    </AccordionPrimitive.Header>
+    </Heading>
   )
 }
 
@@ -56,12 +50,12 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className="overflow-hidden px-4 text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+      className="overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
       {...props}
     >
       <div
         className={cn(
-          "h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+          "h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0",
           className
         )}
       >

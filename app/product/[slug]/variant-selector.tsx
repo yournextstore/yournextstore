@@ -2,12 +2,13 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -133,83 +139,48 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="flex flex-col gap-4">
+			<p className="text-sm text-muted-foreground">Select options</p>
 			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
-				const selectedOption = selectedOptionId
-					? optionsById.get(group.label)?.get(selectedOptionId)
-					: undefined;
-
+				const id = `variant-${group.label.replace(/\W+/g, "-").toLowerCase()}`;
 				return (
-					<fieldset key={group.label} className="border-0 p-0 m-0">
-						{group.type === "color" ? (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
-									)}
-								</div>
-								<div className="flex gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-										const isLightColor =
-											option.colorValue?.toUpperCase() === "#FFFFFF" ||
-											option.colorValue?.toUpperCase() === "#FFFFF0" ||
-											option.colorValue?.toUpperCase() === "#FFF";
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
-													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
-												)}
-												style={{ backgroundColor: option.colorValue ?? "#fff" }}
-												aria-label={option.value}
-												title={option.value}
-											>
-												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
-												)}
-											</button>
-										);
-									})}
-								</div>
-							</>
-						) : (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
-													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
-												)}
-											>
-												<span className="text-sm font-medium">{option.value}</span>
-											</button>
-										);
-									})}
-								</div>
-							</>
-						)}
-					</fieldset>
+					<div key={group.label} className="flex flex-col gap-2">
+						<label htmlFor={id} className="text-sm text-ink">
+							{group.label}
+						</label>
+						<Select
+							value={selectedOptionId ?? null}
+							onValueChange={(optionId) => {
+								if (optionId !== null) {
+									handleOptionSelect(group.label, optionId);
+								}
+							}}
+							// The value is the option id; `items` lets the trigger show its name instead.
+							items={group.options.map((option) => ({ value: option.id, label: option.value }))}
+						>
+							<SelectTrigger
+								id={id}
+								className="h-9 w-full rounded-md border-border bg-white text-sm text-ink shadow-none"
+							>
+								<SelectValue placeholder={`Choose ${group.label.toLowerCase()}`} />
+							</SelectTrigger>
+							<SelectContent>
+								{group.options.map((option) => (
+									<SelectItem key={option.id} value={option.id}>
+										{group.type === "color" && option.colorValue && (
+											<span
+												aria-hidden
+												className="size-3 rounded-full border border-black/10"
+												style={{ backgroundColor: option.colorValue }}
+											/>
+										)}
+										{option.value}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				);
 			})}
 		</div>
