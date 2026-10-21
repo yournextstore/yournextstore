@@ -1,8 +1,9 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 
+/** The honey-yellow round bag button with the original's rose count bubble. */
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
 
@@ -10,14 +11,14 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="relative inline-flex h-9 w-9 items-center justify-center rounded-full bg-honey text-white shadow-sm transition-colors hover:bg-amber-800 md:mx-2 md:h-10 md:w-10"
+			aria-label={itemCount > 0 ? `Open bag, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : "Open bag"}
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<ShoppingBag className="h-5 w-5 md:h-6 md:w-6" strokeWidth={1.75} aria-hidden />
 			{itemCount > 0 ? (
 				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
+					aria-hidden
+					className="absolute -top-2 -right-2 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-badge text-xs font-bold text-white"
 				>
 					{itemCount}
 				</span>

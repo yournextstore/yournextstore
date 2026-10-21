@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { ABOUT_IMAGE } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -53,85 +55,68 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "Chosen with care",
+			body: "Every piece earns its place for how it is used day to day, not only how it looks on a shelf.",
+		},
+		{
+			title: "Clear choices",
+			body: "Colours, sizes and options laid out plainly, so the right one is easy to find.",
+		},
+		{
+			title: "Details up front",
+			body: "Each product lists its options, price and stock before you add it to your bag.",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
+			<section className="mb-5 flex items-center justify-between gap-10 py-1">
+				<div className="w-full max-w-xl py-2 lg:w-1/2">
+					<h1 className="py-3 text-display-xs font-semibold sm:text-display-sm">About us</h1>
+					<p className="py-3 text-lg text-gray-600">
+						{storeDescription ??
+							`${storeName} gathers everyday frames, sunglasses and readers, picked with care.`}
+					</p>
+					<div className="flex flex-wrap items-center gap-3">
+						<Link href="/products" className="btn-primary text-sm md:text-base">
+							Start Shopping
 						</Link>
-					)}
+						{contactFormEnabled && (
+							<Link href="/contact" className="btn-rounded-secondary text-sm md:text-base">
+								Contact us
+							</Link>
+						)}
+					</div>
 				</div>
-			</div>
+				<div className="hidden w-1/2 justify-end lg:flex">
+					<div className="relative aspect-[350/317] w-2/3 overflow-hidden rounded-[1.75rem] bg-[radial-gradient(120%_90%_at_20%_15%,#fde68a_0%,#facc15_38%,#eab308_70%,#d99a06_100%)]">
+						<YNSMedia
+							src={ABOUT_IMAGE.src}
+							alt=""
+							fill
+							sizes="24vw"
+							className="object-cover"
+							style={{ objectPosition: ABOUT_IMAGE.position }}
+						/>
+					</div>
+				</div>
+			</section>
+
+			<section className="mt-10">
+				<h2 className="text-center text-3xl md:text-4xl">What we care about</h2>
+				<ul className="mt-6 grid gap-4 md:grid-cols-3">
+					{values.map((value) => (
+						<li key={value.title} className="rounded-xl bg-black/[0.06] p-6">
+							<h3 className="text-xl font-bold">{value.title}</h3>
+							<p className="mt-2 text-gray-600">{value.body}</p>
+						</li>
+					))}
+				</ul>
+			</section>
 		</div>
 	);
 }

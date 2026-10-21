@@ -1,13 +1,12 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
-import { useCart } from "@/app/cart/cart-context";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Sheet,
 	SheetContent,
@@ -31,110 +30,134 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
-					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
-					</SheetDescription>
+			<SheetContent className="flex w-full flex-col gap-0 overflow-y-auto border-0 bg-background sm:max-w-md">
+				<SheetHeader className="px-5 pt-5 pb-2">
+					<SheetTitle className="text-2xl font-bold">Bag{itemCount > 0 ? ` (${itemCount})` : ""}</SheetTitle>
+					<SheetDescription className="sr-only">Review the items in your bag and check out.</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
+					<div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 py-12">
+						<EmptyBag />
 						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+							<p className="text-2xl font-bold">Hey, it feels so light!</p>
+							<p className="text-sm text-muted-foreground">
+								There&apos;s nothing in your bag. Let&apos;s add some items.
+							</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+						<Link href="/products" onClick={closeCart} className="btn-rounded-secondary mt-5 text-sm">
+							Explore
+						</Link>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
-								{items.map((item) => (
-									<CartItem key={item.productVariant.id} item={item} />
-								))}
-							</div>
-						</ScrollArea>
+						<div className="shrink-0 space-y-2 px-5 pb-2">
+							{items.map((item) => (
+								<CartItem key={item.productVariant.id} item={item} />
+							))}
+						</div>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
+						<SheetFooter className="mt-auto shrink-0 p-5 pt-3">
+							<section className="flex w-full flex-col gap-4 rounded-md bg-white/70 p-5 shadow-sm">
+								<h2 className="text-xl">Price Details</h2>
+								<ul className="space-y-1">
+									{items.map((item) => (
+										<li key={item.productVariant.id} className="flex justify-between gap-3">
+											<span className="min-w-0 flex-1 text-gray-600">
+												{item.productVariant.product.name} ({item.quantity}) item
+											</span>
+											<span className="text-lg">
+												{formatMoney({
+													amount: getLineItemUnitPrice(item, taxBehavior) * BigInt(item.quantity),
+													currency,
+													locale,
+												})}
+											</span>
+										</li>
+									))}
+								</ul>
 								<DiscountCodeField />
 								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
-										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
-												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
+									<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<span>Discount</span>
+										<span className="tabular-nums">
+											−{formatMoney({ amount: discount, currency, locale })}
+										</span>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+								<hr />
+								<div className="flex items-center justify-between">
+									<p className="text-gray-600">Total</p>
+									<p className="text-2xl">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
+									</p>
 								</div>
-								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
+								{/* Tax is already inside the shown total on an inclusive store — promising to
 								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
+								<p className="-mt-2 text-xs text-muted-foreground">
 									{taxBehavior === "inclusive"
 										? "Shipping calculated at checkout"
 										: "Shipping and taxes calculated at checkout"}
 								</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
-								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
+								    different Next.js zone. A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<a
-										href={checkoutUrl}
-										aria-disabled={isMutating}
-										tabIndex={isMutating ? -1 : undefined}
-										onClick={(e) => {
-											if (isMutating) {
-												e.preventDefault();
-											}
-										}}
-										className={cn(isMutating && "pointer-events-none opacity-60")}
-									>
-										{isMutating ? (
-											<>
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Updating…
-											</>
-										) : (
-											"Checkout"
-										)}
-									</a>
-								</Button>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+								<a
+									href={checkoutUrl}
+									aria-disabled={isMutating}
+									tabIndex={isMutating ? -1 : undefined}
+									onClick={(e) => {
+										if (isMutating) {
+											e.preventDefault();
+										}
+									}}
+									className={cn(
+										"btn-rounded-primary self-start py-2",
+										isMutating && "pointer-events-none opacity-60",
+									)}
 								>
-									Continue Shopping
-								</button>
-							</div>
+									{isMutating ? (
+										<>
+											<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+											Updating…
+										</>
+									) : (
+										"Proceed to Checkout"
+									)}
+								</a>
+							</section>
 						</SheetFooter>
 					</>
 				)}
 			</SheetContent>
 		</Sheet>
+	);
+}
+
+/** The original's empty-bag sticker: a tilted yellow shopping bag, drawn here as SVG. */
+function EmptyBag() {
+	return (
+		<svg viewBox="0 0 120 140" className="mt-5 h-36 -rotate-12 drop-shadow-lg" aria-hidden>
+			<path
+				d="M38 44 C38 18 82 18 82 44"
+				fill="none"
+				stroke="#3f3f46"
+				strokeWidth="4"
+				strokeLinecap="round"
+			/>
+			<path
+				d="M14 40 L106 40 L98 128 L22 128 Z"
+				fill="#fde047"
+				stroke="#3f3f46"
+				strokeWidth="4"
+				strokeLinejoin="round"
+			/>
+			<path d="M24 108 L96 108 L95 126 L23 126 Z" fill="#facc15" />
+			<path d="M24 108 L96 108" stroke="#3f3f46" strokeWidth="3" strokeLinecap="round" />
+			<circle cx="38" cy="54" r="4" fill="none" stroke="#3f3f46" strokeWidth="3" />
+			<circle cx="82" cy="54" r="4" fill="none" stroke="#3f3f46" strokeWidth="3" />
+			<path d="M88 46 L100 44" stroke="#fff" strokeWidth="3" strokeLinecap="round" opacity=".7" />
+		</svg>
 	);
 }
