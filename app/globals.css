@@ -9,7 +9,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
+	--font-serif: var(--font-newsreader);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +34,76 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-orange: var(--orange);
+	--color-orange-foreground: var(--orange-foreground);
+	--color-orange-ink: var(--orange-ink);
+	--color-tile: var(--tile);
+	--color-stock: var(--stock);
+	--color-sale: var(--sale);
+	--color-sale-foreground: var(--sale-foreground);
 }
 
+/* Amerta: white canvas, near-black ink, one warm orange. Light only (forcedTheme="light"); the
+   .dark block repeats the palette so the contrast test checks both. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #18181b;
+	--card: #ffffff;
+	--card-foreground: #18181b;
+	--popover: #ffffff;
+	--popover-foreground: #18181b;
+	--primary: #18181b;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #18181b;
+	--muted: #f4f4f5;
+	/* zinc-600: the original's grey copy, AA on white and on the product tiles. */
+	--muted-foreground: #52525b;
+	--accent: #f4f4f5;
+	--accent-foreground: #18181b;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #a1a1aa;
+	--orange: #f9a13a;
+	--orange-foreground: #18181b;
+	/* Wordmark orange: the accent darkened to 3.5:1 on white, for large display text only. */
+	--orange-ink: #cf6f0e;
+	--tile: #f4f4f5;
+	--stock: #15803d;
+	--sale: #fde2e4;
+	--sale-foreground: #be123c;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #18181b;
+	--card: #ffffff;
+	--card-foreground: #18181b;
+	--popover: #ffffff;
+	--popover-foreground: #18181b;
+	--primary: #18181b;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #18181b;
+	--muted: #f4f4f5;
+	--muted-foreground: #52525b;
+	--accent: #f4f4f5;
+	--accent-foreground: #18181b;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #a1a1aa;
+	--orange: #f9a13a;
+	--orange-foreground: #18181b;
+	/* Wordmark orange: the accent darkened to 3.5:1 on white, for large display text only. */
+	--orange-ink: #cf6f0e;
+	--tile: #f4f4f5;
+	--stock: #15803d;
+	--sale: #fde2e4;
+	--sale-foreground: #be123c;
 }
 
 @layer base {
@@ -86,6 +113,48 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+	/* The original's italic-serif accent: <em> inside a sans heading switches face. */
+	:where(h1, h2, h3) em {
+		font-family: var(--font-newsreader), ui-serif, Georgia, serif;
+		font-style: italic;
+		font-weight: 400;
+		letter-spacing: -0.01em;
+	}
+}
+
+@layer components {
+	/* The original container: 1216px of content at 1440, 16px gutters on phones. */
+	.shell {
+		margin-inline: auto;
+		width: 100%;
+		max-width: 80rem;
+		padding-inline: 1rem;
+	}
+	@media (min-width: 40rem) {
+		.shell {
+			padding-inline: 1.5rem;
+		}
+	}
+	@media (min-width: 64rem) {
+		.shell {
+			padding-inline: 2rem;
+		}
+	}
+}
+
+/* Hollow display word of the hero ("Indulge"): the fill is see-through, the computed colour stays
+   solid white so contrast audits read the real ink. */
+.text-hollow {
+	-webkit-text-fill-color: transparent;
+	-webkit-text-stroke: 1.5px currentColor;
+}
+
+/* Horizontal product/post rails. */
+.rail {
+	scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+	display: none;
 }
 
 .prose {

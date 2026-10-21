@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -25,35 +24,7 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
+/** "Sort by" dropdown of the listing toolbar. Reads the current sort from the URL (client-side). */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -70,7 +41,15 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				size="sm"
+				className={cn(
+					"h-9 w-auto gap-1.5 rounded-md border-0 bg-transparent px-2 text-sm/6 uppercase text-foreground shadow-none hover:bg-secondary dark:bg-transparent",
+					className,
+				)}
+				aria-label="Sort products"
+			>
+				<span className="hidden text-muted-foreground sm:inline">Sort by</span>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="end">

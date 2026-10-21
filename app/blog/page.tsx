@@ -1,20 +1,11 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { BreadcrumbBar, ListingTitle } from "@/components/listing";
+import { PostCard } from "@/components/sections/home";
 import { commerce, getCanonicalUrl, getStoreSeo } from "@/lib/commerce";
-import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
-import { YNSMedia } from "@/lib/yns-media";
 
 const POSTS_LIMIT = 24;
 
@@ -64,66 +55,27 @@ export default async function BlogPage() {
 	};
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={blogJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>Blog</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Blog</h1>
-				<p className="mt-3 text-lg text-muted-foreground">News, guides, and stories from our team.</p>
+			<BreadcrumbBar items={[{ label: "Home", href: "/" }, { label: "Blog" }]} />
+			<ListingTitle
+				lead="Our"
+				title="Journal."
+				subtitle="Stay up to date with the latest news and insights"
+			/>
+			<div className="shell">
+				{posts.length === 0 ? (
+					<div className="py-16 text-center">
+						<p className="text-sm/6 uppercase text-muted-foreground">No posts yet. Check back soon.</p>
+					</div>
+				) : (
+					<div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+						{posts.map((post) => (
+							<PostCard key={post.id} post={post} />
+						))}
+					</div>
+				)}
 			</div>
-
-			{/* Posts */}
-			{posts.length === 0 ? (
-				<div className="rounded-lg border border-border bg-secondary/30 p-12 text-center">
-					<h2 className="text-xl font-medium tracking-tight">No posts yet</h2>
-					<p className="mt-2 text-muted-foreground">Check back soon for new articles.</p>
-				</div>
-			) : (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-					{posts.map((post) => (
-						<Link key={post.id} href={`/blog/${post.slug}`} className="group">
-							<div className="relative aspect-[3/2] bg-secondary rounded-2xl overflow-hidden mb-4">
-								{post.image && (
-									<YNSMedia
-										src={post.image}
-										alt={post.title}
-										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-										className="object-cover transition-transform duration-500 group-hover:scale-105"
-									/>
-								)}
-							</div>
-							<div className="space-y-2">
-								<div className="flex items-center gap-3 text-xs text-muted-foreground">
-									{post.tag && (
-										<span className="rounded-full bg-secondary px-3 py-1 font-medium text-foreground">
-											{post.tag}
-										</span>
-									)}
-									<time dateTime={post.publishedAt ?? post.createdAt}>
-										{formatDate(post.publishedAt ?? post.createdAt)}
-									</time>
-								</div>
-								<h2 className="text-lg font-medium tracking-tight text-foreground group-hover:text-foreground/70 transition-colors">
-									{post.title}
-								</h2>
-							</div>
-						</Link>
-					))}
-				</div>
-			)}
 		</div>
 	);
 }

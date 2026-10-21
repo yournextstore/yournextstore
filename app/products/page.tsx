@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import {
+	BreadcrumbBar,
+	ListingSkeleton,
+	ListingTitle,
+	ListingToolbar,
+	listingGridClass,
+} from "@/components/listing";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { type FilterFacets, getFilterFacets } from "@/lib/facets";
+import { SortSelect } from "./products-sort-select";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 16;
 
 const sortOptions = [
 	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
@@ -56,7 +62,15 @@ export async function generateMetadata({
 	};
 }
 
-async function ProductList({ filters }: { filters: ProductFilterParams }) {
+async function ProductList({
+	filters,
+	facets,
+	filtersAvailable,
+}: {
+	filters: ProductFilterParams;
+	facets: FilterFacets;
+	filtersAvailable: boolean;
+}) {
 	"use cache";
 	cacheLife("minutes");
 
@@ -80,21 +94,24 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<ListingToolbar
+				count={result.meta.count}
+				sort={<SortSelect options={sortOptions} />}
+				filters={filtersAvailable ? <ProductFiltersMobile facets={facets} /> : null}
+			/>
+			{result.data.length === 0 ? (
+				<div className="py-24 text-center">
+					<p className="text-sm/6 uppercase text-muted-foreground">No products match these filters.</p>
+				</div>
+			) : (
+				<div className={listingGridClass}>
+					{result.data.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={index === 0} />
+					))}
+				</div>
+			)}
 
 			<ListingPagination
 				basePath="/products"
@@ -108,9 +125,17 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 // Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
 // stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
-async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
+async function ProductSection({
+	searchParams,
+	facets,
+	filtersAvailable,
+}: {
+	searchParams: Promise<ProductFilterParams>;
+	facets: FilterFacets;
+	filtersAvailable: boolean;
+}) {
 	const filters = await searchParams;
-	return <ProductList filters={filters} />;
+	return <ProductList filters={filters} facets={facets} filtersAvailable={filtersAvailable} />;
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
@@ -126,35 +151,20 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="min-h-svh">
+			<BreadcrumbBar items={[{ label: "Home", href: "/" }, { label: "Products" }]} />
+			<ListingTitle
+				lead="All"
+				title="Products"
+				subtitle="Single-origin coffee, drip bags, brewing gear and cups"
+			/>
+			<div className="shell">
+				{/* The toolbar's sort and filter controls read useSearchParams(), so they stream in with the
+				    grid behind one boundary while the chrome and the title above prerender. */}
+				<Suspense fallback={<ListingSkeleton />}>
+					<ProductSection searchParams={searchParams} facets={facets} filtersAvailable={filtersAvailable} />
+				</Suspense>
 			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
-			</Suspense>
 		</div>
 	);
 }

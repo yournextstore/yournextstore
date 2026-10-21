@@ -331,16 +331,24 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** Filters trigger + slide-over sheet; Amerta keeps it in the toolbar at every width. */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
+			<SheetTrigger
+				render={
+					<Button
+						variant="ghost"
+						size="sm"
+						className="h-9 rounded-full px-3 text-sm/6 font-normal uppercase hover:bg-secondary"
+					/>
+				}
+			>
+				<SlidersHorizontalIcon className="size-4" strokeWidth={1.5} />
+				<span className="max-[359px]:sr-only">Filter</span>
 				{activeCount > 0 && (
 					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
 						{activeCount}
@@ -348,8 +356,8 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 				)}
 			</SheetTrigger>
 			<SheetContent
-				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				side="right"
+				className="block overflow-y-auto data-[side=right]:w-[85vw] data-[side=right]:max-w-sm"
 			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>

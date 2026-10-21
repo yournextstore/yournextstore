@@ -1,8 +1,7 @@
-import { Mail } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { FaqAccordion } from "@/components/faq-accordion";
+import { BreadcrumbBar, ListingTitle } from "@/components/listing";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -47,12 +46,12 @@ function buildFaqJsonLd(categories: FAQCategory[]): Record<string, unknown> {
 
 function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 	return (
-		<nav className="flex flex-wrap gap-2">
+		<nav aria-label="FAQ topics" className="flex flex-wrap justify-center gap-2">
 			{categories.map((category) => (
 				<a
 					key={category.id}
 					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+					className="inline-flex h-10 items-center rounded-full border border-border px-5 text-sm/6 uppercase transition-colors hover:bg-secondary"
 				>
 					{category.title}
 				</a>
@@ -63,69 +62,38 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
-		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion>
-				{category.questions.map((item, index) => (
-					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
-						<AccordionTrigger>{item.question}</AccordionTrigger>
-						<AccordionContent>
-							<p className="text-muted-foreground leading-relaxed">{item.answer}</p>
-						</AccordionContent>
-					</AccordionItem>
-				))}
-			</Accordion>
+		<section id={category.id} className="grid scroll-mt-32 gap-6 lg:grid-cols-[1fr_2fr] lg:gap-16">
+			<h2 className="text-[2rem] leading-none font-medium">{category.title}</h2>
+			<FaqAccordion items={category.questions} defaultOpen={null} className="border-y border-border" />
 		</section>
-	);
-}
-
-function ContactCard() {
-	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
-			<p className="mt-2 text-muted-foreground">
-				We're here to help. Reach out and we'll get back to you as soon as possible.
-			</p>
-			<div className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-				<Mail className="h-4 w-4" />
-				<span>Contact us via the details on our website</span>
-			</div>
-		</div>
 	);
 }
 
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
-					Find answers to the most common questions about your orders, payments, shipping, and more.
-				</p>
-			</div>
-
-			{/* Category Navigation */}
-			<div className="mb-10">
+			<BreadcrumbBar items={[{ label: "Home", href: "/" }, { label: "FAQ" }]} />
+			<ListingTitle
+				lead="Questions"
+				title="& Answers"
+				subtitle="Orders, payments, shipping and more, answered"
+			/>
+			<div className="shell">
 				<CategoryNav categories={faqCategories} />
-			</div>
-
-			{/* FAQ Sections */}
-			<div className="space-y-12">
-				{faqCategories.map((category) => (
-					<FAQSection key={category.id} category={category} />
-				))}
-			</div>
-
-			{/* Contact Card */}
-			<div className="mt-16">
-				<ContactCard />
+				<div className="mx-auto mt-16 max-w-5xl space-y-16">
+					{faqCategories.map((category) => (
+						<FAQSection key={category.id} category={category} />
+					))}
+				</div>
+				<div className="mx-auto mt-24 max-w-xl text-center">
+					<h2 className="text-[2rem] leading-none font-medium sm:text-4xl">
+						Still have <em>questions</em>?
+					</h2>
+					<p className="mt-4 text-sm/6 text-muted-foreground">
+						We are here to help. Reach out and we will get back to you as soon as possible.
+					</p>
+				</div>
 			</div>
 		</div>
 	);

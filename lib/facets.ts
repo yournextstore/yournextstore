@@ -9,7 +9,9 @@ const EMPTY_FACETS = {
 	brands: [],
 } satisfies Awaited<ReturnType<typeof commerce.productFilters>>;
 
-export async function getFilterFacets() {
+export type FilterFacets = Awaited<ReturnType<typeof commerce.productFilters>>;
+
+export async function getFilterFacets(): Promise<FilterFacets> {
 	"use cache";
 	cacheLife("minutes");
 	// Filters are an enhancement — never let a facets failure take down the product list.
