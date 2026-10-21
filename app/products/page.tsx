@@ -79,20 +79,27 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	});
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
+	// Under the default order, pictured, priced products lead the page; image-less or zero-priced ones close it.
+	const pictured = (p: (typeof result.data)[number]) =>
+		(p.images?.length ?? 0) > 0 && p.variants.some((v) => Number(v.price) > 0);
+	const products = filters.sort
+		? result.data
+		: [...result.data.filter(pictured), ...result.data.filter((p) => !pictured(p))];
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="hs-panel px-6 py-16 text-center">
+				<p className="hs-label">[ 00 results ]</p>
+				<p className="hs-display mt-3 text-[1.4rem]">Nothing matches these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+				{products.map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index === 0} index={offset + index} />
 				))}
 			</div>
 
@@ -103,6 +110,22 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 				filters={filters}
 			/>
 		</>
+	);
+}
+
+// Same boxes as the real toolbar and grid, so nothing moves when the list lands.
+function ListingFallback({ filtersAvailable }: { filtersAvailable: boolean }) {
+	return (
+		<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			{filtersAvailable && <div className="hidden lg:block" />}
+			<div>
+				<div className="mb-6 flex h-9 items-center justify-between gap-3">
+					<span className="h-9 w-24 rounded-[9px] border border-line" />
+					<span className="h-9 w-36 rounded-[9px] border border-line" />
+				</div>
+				<ProductGridSkeleton count={6} />
+			</div>
+		</div>
 	);
 }
 
@@ -126,28 +149,31 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="hs-wrap min-h-svh pb-20 pt-10 sm:pt-16">
+			<div className="mb-10 max-w-[64ch]">
+				<p className="hs-kicker mb-4">[ Catalogue ]</p>
+				<h1 className="hs-display hs-h1">All products</h1>
+				<p className="hs-lede mt-4">
+					Every part in the shop, with its price on the tag and nothing hidden in a drop-down.
+				</p>
 			</div>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
 			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
+			<Suspense fallback={<ListingFallback filtersAvailable={filtersAvailable} />}>
 				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
 					{filtersAvailable && <ProductFilters facets={facets} />}
 
 					<div>
 						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+						<div className="mb-6 flex h-9 items-center justify-between gap-3 lg:hidden">
 							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
 							<SortSelect options={sortOptions} />
 						</div>
 
 						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
+						<div className="mb-6 hidden h-9 flex-wrap items-center gap-2 lg:flex">
+							<span className="hs-label mr-1">Sort</span>
 							<SortLinks options={sortOptions} />
 						</div>
 

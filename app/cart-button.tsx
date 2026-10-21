@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 
+/** The original's outlined "Reserve" pill becomes the cart: it fills lime on hover. */
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
 
@@ -10,18 +10,16 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="hs-nav-cta"
+			aria-label={`Cart ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			Cart{" "}
+			<span
+				aria-live="polite"
+				className="hs-mono grid h-5 min-w-5 place-items-center rounded-md bg-foreground px-1 text-[0.7rem] leading-none text-background"
+			>
+				{itemCount}
+			</span>
 		</button>
 	);
 }
