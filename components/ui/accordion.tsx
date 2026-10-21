@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDownIcon } from "lucide-react"
+import { MinusIcon, PlusIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -35,13 +35,15 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
+          "group focus-visible:ring-ring/50 flex flex-1 items-center justify-between gap-4 rounded-md py-6 text-left text-sm font-medium text-foreground transition-colors outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 data-[state=open]:text-indigo",
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
+        {/* The original's disclosure: a grey plus that turns into an indigo minus when open. */}
+        <PlusIcon aria-hidden strokeWidth={1.25} className="pointer-events-none size-6 shrink-0 text-[#9ca3af] group-hover:text-[#6b7280] group-data-[state=open]:hidden" />
+        <MinusIcon aria-hidden strokeWidth={1.25} className="pointer-events-none hidden size-6 shrink-0 text-indigo group-data-[state=open]:block" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )
@@ -58,7 +60,7 @@ function AccordionContent({
       className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
       {...props}
     >
-      <div className={cn("pt-0 pb-4", className)}>{children}</div>
+      <div className={cn("pt-0 pb-6", className)}>{children}</div>
     </AccordionPrimitive.Content>
   )
 }

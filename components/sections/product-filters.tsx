@@ -1,12 +1,11 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { FunnelIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -17,6 +16,7 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { sentenceCase } from "@/lib/display";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
@@ -63,9 +63,16 @@ type FilterControlsProps = {
 	facets: APIProductFiltersResult;
 	showCategories?: boolean;
 	showCollections?: boolean;
+	/** Rendered above the disclosures (the category page's sibling-category links). */
+	extraTop?: ReactNode;
 };
 
-function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+function FilterControls({
+	facets,
+	showCategories = true,
+	showCollections = true,
+	extraTop,
+}: FilterControlsProps) {
 	const { currency, locale } = useStoreConfig();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -135,64 +142,52 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	// All groups that will render, in display order — only the first opens by default.
-	const accordionGroups = [
-		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
-		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
-		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
-		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
-	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	// Every disclosure starts closed, as in the original sidebar.
 
 	return (
-		<div className="space-y-4">
+		<div>
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="sr-only">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
 						onClick={clearAll}
-						className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+						className="mb-2 text-sm font-medium text-indigo underline-offset-4 hover:underline"
 					>
 						Clear all
 					</button>
 				)}
 			</div>
 
-			<Accordion type="multiple" defaultValue={accordionDefault} className="w-full">
-				{showCategories && facets.categories.length > 0 && (
-					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.categories}
-								className="space-y-1"
-								renderItem={(category) => {
-									const isActive = searchParams.get("category") === category.slug;
-									return (
-										<li key={category.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("category", category.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{category.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
+			{/* The original's sidebar opens with its category list, plain links above the disclosures. */}
+			{showCategories && facets.categories.length > 0 && (
+				<ul className="space-y-4 border-b border-border pb-6 text-sm font-medium">
+					{facets.categories.map((category) => {
+						const isActive = searchParams.get("category") === category.slug;
+						return (
+							<li key={category.slug}>
+								<button
+									type="button"
+									aria-pressed={isActive}
+									onClick={() => setSingle("category", category.slug)}
+									className={cn(
+										"text-left transition-colors hover:text-indigo",
+										isActive ? "text-indigo" : "text-foreground",
+									)}
+								>
+									{sentenceCase(category.name)}
+								</button>
+							</li>
+						);
+					})}
+				</ul>
+			)}
+			{extraTop}
 
+			<Accordion type="multiple" className="w-full">
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger>Collections</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -223,7 +218,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger>{sentenceCase(vt.label)}</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -238,8 +233,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 													checked={checked}
 													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
 												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
-													{value}
+												<label htmlFor={id} className="cursor-pointer text-sm text-[#4b5563]">
+													{sentenceCase(value)}
 												</label>
 											</li>
 										);
@@ -252,7 +247,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger>Brands</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -281,7 +276,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger>Price</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider
@@ -336,19 +331,22 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
-					Filters
+				<button
+					type="button"
+					aria-label={activeCount > 0 ? `Filters, ${activeCount} active` : "Filters"}
+					className="relative -m-2 flex size-11 items-center justify-center text-[#9ca3af] hover:text-[#6b7280] lg:hidden"
+				>
+					<FunnelIcon aria-hidden className="size-5" fill="currentColor" />
 					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+						<span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-indigo text-[10px] text-white">
 							{activeCount}
 						</span>
 					)}
-				</Button>
+				</button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+			<SheetContent side="right" className="block w-[85vw] max-w-xs overflow-y-auto">
+				<SheetHeader className="px-4 pt-6">
+					<SheetTitle className="text-lg font-medium">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">

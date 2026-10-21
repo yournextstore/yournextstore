@@ -2,29 +2,28 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { SortSelect } from "@/app/products/products-sort-select";
 import { ListingPagination } from "@/components/listing-pagination";
+import { Crumbs } from "@/components/mandala/crumbs";
+import { ListingFallback, ListingHead } from "@/components/mandala/listing-head";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { getCatalogCategories } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
+import { sentenceCase } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { sortOptions } from "@/lib/sort";
 
 const PRODUCTS_PER_PAGE = 12;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
 	page?: string;
+	sort?: string;
 	collection?: string;
 	brand?: string;
 	priceMin?: string;
@@ -100,10 +99,13 @@ async function CategoryProducts({
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 
 	const result = await commerce.productBrowse({
 		active: true,
 		category: slug,
+		orderBy: sortOption.orderBy,
+		orderDirection: sortOption.orderDirection,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
 		collection: filters.collection,
@@ -125,7 +127,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={LISTING_GRID}>
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,10 +144,11 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="shell min-h-svh pb-24">
+			<div className="pt-6">
+				<div className="h-5 w-48 animate-pulse rounded bg-secondary" />
+			</div>
+			<ListingFallback title="" />
 		</div>
 	);
 }
@@ -187,7 +190,11 @@ const CategoryContent = async ({
 	}
 
 	// Both reads are cached and independent — fetch them in parallel.
-	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
+	const [category, facets, categories] = await Promise.all([
+		getCategoryData(slug),
+		getFilterFacets(),
+		getCatalogCategories(),
+	]);
 	if (!category?.active) {
 		notFound();
 	}
@@ -205,54 +212,59 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	// The original's sidebar lists the sibling categories above its filters.
+	const siblingLinks = (
+		<ul className="space-y-4 border-b border-border pb-6 text-sm font-medium">
+			{categories.map((entry) => (
+				<li key={entry.slug}>
+					<Link
+						href={`/category/${entry.slug}`}
+						aria-current={entry.slug === category.slug ? "page" : undefined}
+						className={entry.slug === category.slug ? "text-indigo" : "text-foreground hover:text-indigo"}
+					>
+						{entry.name}
+					</Link>
+				</li>
+			))}
+		</ul>
+	);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="shell min-h-svh pb-24">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
+			<Crumbs
+				items={[
+					{ href: "/products", label: "Shop" },
+					...hierarchy.map((crumb, index) => ({
+						label: sentenceCase(crumb.name),
+						href:
+							index === hierarchy.length - 1
+								? undefined
+								: `/category/${hierarchy
+										.slice(0, index + 1)
+										.map((c) => c.slug)
+										.join("/")}`,
+					})),
+				]}
+			/>
+			<ListingHead
+				title={sentenceCase(category.name)}
+				toolbar={
+					<>
+						<SortSelect options={sortOptions} />
+						{filtersAvailable ? (
+							<ProductFiltersMobile facets={facets} showCategories={false} extraTop={siblingLinks} />
+						) : null}
+					</>
+				}
+			/>
+			<div className="pt-6 lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)] lg:gap-x-8">
+				{filtersAvailable ? (
+					<ProductFilters facets={facets} showCategories={false} extraTop={siblingLinks} />
+				) : (
+					<aside className="hidden lg:block">{siblingLinks}</aside>
+				)}
+				<div className="pt-2">
 					<Suspense fallback={<ProductGridSkeleton />}>
 						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 					</Suspense>

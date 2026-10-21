@@ -1,7 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MinusIcon, PlusIcon } from "@/components/mandala/icons";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** The original's quantity box: a bordered strip with a pale minus, the count and a dark plus. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -19,31 +19,28 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
+		<div className="flex h-12 w-fit items-stretch border border-border bg-white">
+			<button
+				type="button"
+				className="flex w-12 items-center justify-center text-[#111827] transition-colors hover:bg-secondary disabled:text-[#d1d5db] disabled:hover:bg-transparent"
+				onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
+				disabled={disabled || quantity <= min}
+				aria-label="Decrease quantity"
+			>
+				<MinusIcon className="size-5" />
+			</button>
+			<output aria-live="polite" className="flex w-10 items-center justify-center text-base tabular-nums">
+				{quantity}
+			</output>
+			<button
+				type="button"
+				className="flex w-12 items-center justify-center text-[#111827] transition-colors hover:bg-secondary disabled:text-[#d1d5db] disabled:hover:bg-transparent"
+				onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
+				disabled={disabled || quantity >= max}
+				aria-label="Increase quantity"
+			>
+				<PlusIcon className="size-5" />
+			</button>
 		</div>
 	);
 }
