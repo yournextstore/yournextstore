@@ -1,37 +1,59 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import Link from "next/link";
 import { Hero } from "@/components/sections/hero";
+import { Marquee } from "@/components/sections/marquee";
 import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { getCatalogStats, getCategories, getStoreName } from "@/lib/catalog";
+import { getStoreConfig } from "@/lib/store-config";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+const pill =
+	"inline-block rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand";
+
+export default async function Home() {
+	// All cached reads: the home page prerenders whole, with no Suspense to shift the grid.
+	const [storeName, stats, categories, config] = await Promise.all([
+		getStoreName(),
+		getCatalogStats(),
+		getCategories(),
+		getStoreConfig(),
+	]);
+	const ticker = ["New arrivals", ...categories.slice(0, 4).map((c) => c.name), "Curated collection"];
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
+			<Marquee items={ticker} />
+			<Hero storeName={storeName} stats={stats} money={config} />
+			<div className="shop-container">
+				<div className="border-t border-border" />
+			</div>
+			<ProductGrid kicker="Handpicked for you" title="New Arrivals" limit={8} />
+			<Marquee items={ticker} inverted />
+			{categories.length > 0 && (
+				<section aria-labelledby="home-categories" className="shop-container py-16 md:py-20">
+					<h2 id="home-categories" className="kicker mb-6">
+						Browse by category
+					</h2>
+					<ul className="flex flex-wrap gap-3">
+						<li>
+							<Link href="/products" className={pill}>
+								All Products
+							</Link>
+						</li>
+						{categories.map((category) => (
+							<li key={category.id}>
+								<Link href={`/category/${category.slug}`} className={pill}>
+									{category.name}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</section>
+			)}
 			<Newsletter />
 		</>
 	);

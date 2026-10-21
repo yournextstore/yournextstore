@@ -1,8 +1,5 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
 type QuantitySelectorProps = {
 	quantity: number;
 	onQuantityChange: (quantity: number) => void;
@@ -10,6 +7,9 @@ type QuantitySelectorProps = {
 	max?: number;
 	disabled?: boolean;
 };
+
+const stepClass =
+	"flex size-11 items-center justify-center text-lg text-foreground/70 transition-colors hover:text-foreground disabled:opacity-40";
 
 export function QuantitySelector({
 	quantity,
@@ -19,31 +19,32 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
-		</div>
+		<fieldset className="flex shrink-0 items-center rounded-full border border-border">
+			<legend className="sr-only">Quantity</legend>
+			<button
+				type="button"
+				className={stepClass}
+				onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
+				disabled={disabled || quantity <= min}
+				aria-label="Decrease quantity"
+			>
+				−
+			</button>
+			<output
+				aria-live="polite"
+				className="min-w-8 text-center font-price text-sm font-semibold text-foreground"
+			>
+				{quantity}
+			</output>
+			<button
+				type="button"
+				className={stepClass}
+				onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
+				disabled={disabled || quantity >= max}
+				aria-label="Increase quantity"
+			>
+				+
+			</button>
+		</fieldset>
 	);
 }

@@ -1,9 +1,8 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist_Mono, Space_Mono, Syne } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,22 +11,35 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { MobileMenu, Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
+import { SearchFallback, SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
+import { getStoreName } from "@/lib/catalog";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+const dmSans = DM_Sans({
+	variable: "--font-dm-sans",
+	subsets: ["latin", "latin-ext"],
+});
+
+const syne = Syne({
+	variable: "--font-syne",
+	subsets: ["latin", "latin-ext"],
+});
+
+// Prices only: the original's monospaced figures.
+const spaceMono = Space_Mono({
+	variable: "--font-space-mono",
+	subsets: ["latin", "latin-ext"],
+	weight: ["400", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -108,18 +120,17 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [categories, collections, me] = await Promise.all([
+		commerce.categoriesBrowse({ active: true, limit: 1 }).catch(() => null),
+		commerce.collectionBrowse({ limit: 1 }).catch(() => null),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
 	return [
 		{ href: "/", label: "Home" },
 		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
+		...(categories?.data.length ? [{ href: "/categories", label: "Categories" }] : []),
+		...(collections?.data.length ? [{ href: "/collections", label: "Collections" }] : []),
 		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
 }
@@ -131,47 +142,61 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, storeName] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getStoreName(),
+	]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
+					<header className="sticky top-0 z-40 border-b border-border bg-card">
+						<div className="mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8">
+							<div className="flex h-16 items-center justify-between gap-4">
+								<Link href="/" className="flex min-w-0 items-center gap-2">
+									<span
+										aria-hidden
+										className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand text-xl font-bold text-brand-foreground"
+									>
+										{storeName.trim().charAt(0).toUpperCase()}
+									</span>
+									<span className="truncate text-lg font-semibold text-foreground">{storeName}</span>
+								</Link>
+								<Navbar links={links} />
+								<div className="hidden max-w-md flex-1 md:flex">
+									<Suspense fallback={<SearchFallback />}>
 										<SearchInput />
 									</Suspense>
+								</div>
+								<div className="flex shrink-0 items-center gap-1 sm:gap-2">
 									<ThemeToggle />
+									<CartButton />
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
 									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
+										href={accountHref}
+										className="hidden rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90 lg:inline-flex"
 									>
-										<UserRound className="w-5 h-5" />
+										Sign In
 									</a>
-									<CartButton />
+									<MobileMenu links={links} accountHref={accountHref} />
 								</div>
+							</div>
+							<div className="pb-4 md:hidden">
+								<Suspense fallback={<SearchFallback />}>
+									<SearchInput />
+								</Suspense>
 							</div>
 						</div>
 					</header>
 					<main className="flex-1">{children}</main>
-					<Footer />
+					<Footer storeName={storeName} />
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
@@ -214,7 +239,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${dmSans.variable} ${syne.variable} ${spaceMono.variable} ${geistMono.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
