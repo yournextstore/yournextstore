@@ -1,77 +1,42 @@
-import type {
-	APICollectionGetByIdResult,
-	APIProductGetByIdResult,
-	APIProductsBrowseResult,
-} from "commerce-kit";
-import { ArrowRight } from "lucide-react";
+import type { APIProductsBrowseResult } from "commerce-kit";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
+import { type CardProduct, ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
-type ProductGridProps = {
-	title?: string;
-	description?: string;
-	products?: (
-		| Product
-		| APICollectionGetByIdResult["productCollections"][number]["product"]
-		| NonNullable<APIProductGetByIdResult>
-	)[];
-	limit?: number;
-	showViewAll?: boolean;
-	viewAllHref?: string;
-};
-
+/** The original's "Some other things you might like" row: a serif line over a four-up grid. */
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title,
 	products,
-	limit = 6,
-	showViewAll = true,
-	viewAllHref = "/products",
-}: ProductGridProps) {
+	limit = 8,
+}: {
+	title?: string;
+	products?: CardProduct[];
+	limit?: number;
+}) {
 	"use cache";
 	cacheLife("minutes");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				)}
-			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+		<section className="py-3 md:py-4 lg:py-8">
+			{title && (
+				<h2 className="w-2/3 font-serif text-xl leading-tight md:w-full md:text-3xl md:leading-normal">
+					{title}
+				</h2>
+			)}
+			<div className="grid grid-cols-2 gap-4 pt-4 md:gap-8 md:pt-8 xl:grid-cols-4">
+				{displayProducts.map((product) => (
+					<ProductCard
+						key={product.id}
+						product={product}
+						imageClassName="h-72 md:h-96 lg:h-112"
+						sizes="(max-width: 1280px) 50vw, 25vw"
+					/>
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

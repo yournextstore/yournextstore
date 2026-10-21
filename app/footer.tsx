@@ -1,164 +1,73 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { Fragment } from "react";
 import { PaymentMethods } from "@/components/payment-methods";
+import { Wordmark } from "@/components/wordmark";
 import { commerce, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+type FooterLink = { href: string; label: string };
+
+// Cached so the footer stays in the prerendered shell; `new Date()` is pinned to the entry.
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
+	const [me, legal] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+	]);
+	const tools = me?.store.settings?.enabledTools;
+	const links: FooterLink[] = [
+		{ href: "/products", label: "Shop" },
+		{ href: "/about", label: "About" },
+		...(tools?.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+		{ href: "/search", label: "Search" },
+		{ href: "/faq", label: "FAQ" },
+		...(tools?.blog ? [{ href: "/blog", label: "Journal" }] : []),
+		...legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+	];
 
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		tagline: me?.store.settings?.storeDescription || null,
+		links,
+		year: new Date().getFullYear(),
+	};
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
+/**
+ * The original's footer: a small logotype, a quiet centre line, and on the right a
+ * comma-separated row of links ending in the copyright, over an italic serif tagline.
+ */
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { storeName, tagline, links, year } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+		<footer className="py-6 lg:py-12">
+			<div className="shell space-y-6 md:flex md:items-center md:space-y-0 md:px-4 lg:px-5">
+				<div className="w-full md:w-1/3">
+					<Link href="/" aria-label={`${storeName} home`} className="block w-full max-w-44">
+						<Wordmark name={storeName} />
+					</Link>
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="flex w-full items-center md:w-1/3 md:justify-center">
 					<PaymentMethods />
+				</div>
+
+				<div className="w-full md:w-1/3 md:text-right">
+					<p>
+						{links.map((link) => (
+							<Fragment key={link.href}>
+								<Link href={link.href} className="hover:italic">
+									{link.label}
+								</Link>
+								,{" "}
+							</Fragment>
+						))}
+						<span>&copy; {year}</span>
+					</p>
+					{tagline && <p className="font-serif italic">{tagline}</p>}
 				</div>
 			</div>
 		</footer>

@@ -25,7 +25,7 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
+/** The sort order as one comma-separated line of text links, the original's only control style. */
 export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -33,23 +33,27 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	const current = searchParams.get("sort") ?? defaultValue;
 
 	return (
-		<>
-			{options.map((option) => {
+		<p className="text-sm md:text-base">
+			<span className="text-muted-foreground">Sort by </span>
+			{options.map((option, index) => {
 				const isActive = option.value === current;
 				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
+					<span key={option.value}>
+						{index ? ", " : ""}
+						<Link
+							href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
+							aria-current={isActive ? "true" : undefined}
+							className={cn(
+								"inline-flex min-h-6 items-center",
+								isActive ? "italic underline underline-offset-4" : "hover:italic",
+							)}
+						>
+							{option.label}
+						</Link>
+					</span>
 				);
 			})}
-		</>
+		</p>
 	);
 }
 
