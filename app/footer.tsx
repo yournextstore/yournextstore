@@ -1,166 +1,74 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { getStoreIdentity } from "@/lib/catalog";
+import { commerce } from "@/lib/commerce";
+import { fitDisplaySize } from "@/lib/display-type";
 
-async function FooterBlogLink() {
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
+	const [identity, legal] = await Promise.all([
+		getStoreIdentity(),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+	]);
+	return { identity, legal: legal.data };
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
+const link = "py-1 hover:underline hover:underline-offset-[3px]";
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
+/** Help and account links on one hairline row, then the store's name as a giant wordmark. */
+export async function Footer({ accountHref }: { accountHref: string }) {
+	const { identity, legal } = await getFooterData();
+	const wordmark = fitDisplaySize(identity.storeName, { maxPx: 420, budgetPx: 1376, vwBudget: 92 });
 
 	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
+		<footer className="flex flex-col gap-6 overflow-clip border-t border-line px-4 pb-6 lg:px-8">
+			<div className="flex flex-wrap items-start justify-between gap-4 pt-6 text-sm">
+				<nav aria-label="Help" className="flex flex-wrap gap-x-6 gap-y-1">
+					<Link href="/about" className={link}>
+						About
+					</Link>
+					<Link href="/faq" className={link}>
+						FAQ
+					</Link>
+					{identity.contactFormEnabled ? (
+						<Link href="/contact" className={link}>
+							Contact
 						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
+					) : null}
+					{identity.blogEnabled ? (
+						<Link href="/blog" className={link}>
+							Journal
+						</Link>
+					) : null}
+					{legal.map((page) => (
+						<Link key={page.id} href={`/legal${page.href}`} className={link}>
 							{page.label}
 						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
-export async function Footer() {
-	const year = await getCopyrightYear();
-
-	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
-				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
-				</div>
+					))}
+				</nav>
+				<nav aria-label="Shop" className="flex flex-wrap gap-x-6 gap-y-1">
+					<Link href="/products" className={link}>
+						Everything
+					</Link>
+					<Link href="/search" className={link}>
+						Search
+					</Link>
+					{/* Plain <a>: /account is a proxied zone. */}
+					<a href={accountHref} className={link}>
+						Account
+					</a>
+				</nav>
 			</div>
+			<PaymentMethods className="opacity-90" />
+			<p
+				aria-hidden="true"
+				style={{ fontSize: wordmark }}
+				className="select-none whitespace-nowrap text-center font-display leading-[0.76]"
+			>
+				{identity.storeName}
+			</p>
 		</footer>
 	);
 }

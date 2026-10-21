@@ -1,10 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -14,201 +11,116 @@ type Variant = {
 	combinations: {
 		variantValue: {
 			value: string;
-			variantType: {
-				label: string;
-			};
+			variantType: { label: string };
 		};
 	}[];
 };
 
-type MediaGalleryProps = {
+/** Desktop shows the lead photo and a two-up grid of the next ones. */
+const DESKTOP_LIMIT = 9;
+
+function Media({
+	src,
+	alt,
+	sizes,
+	priority = false,
+	className,
+}: {
+	src: string;
+	alt: string;
+	sizes: string;
+	priority?: boolean;
+	className?: string;
+}) {
+	return isVideoUrl(src) ? (
+		<video className="absolute inset-0 size-full object-cover" src={src} muted loop autoPlay playsInline />
+	) : (
+		<YNSMedia
+			src={src}
+			alt={alt}
+			fill
+			sizes={sizes}
+			priority={priority}
+			className={cn("object-cover", className)}
+		/>
+	);
+}
+
+/**
+ * The product's photos as tiles over the photo ground: one large, then two by two on desktop;
+ * a swipe row with a counter on phones. Choosing an option brings its photos to the front.
+ */
+export function MediaGallery({
+	images,
+	productName,
+	variants,
+}: {
 	images: string[];
 	productName: string;
 	variants: Variant[];
-};
+}) {
+	const selected = useSelectedVariant(variants);
+	const lead = selected && selected.combinations.length > 0 ? selected.images : [];
+	const ordered = [...lead, ...images.filter((image) => !lead.includes(image))];
+	const [current, setCurrent] = useState(0);
+	const railRef = useRef<HTMLDivElement>(null);
 
-export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
-	const searchParams = useSearchParams();
-	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [isZoomed, setIsZoomed] = useState(false);
-
-	// The gallery always shows the full image set (product + every variant image). When a
-	// variant is selected we don't filter the list — that would hide the other thumbnails —
-	// we just jump the active image to that variant's first photo within the full gallery.
-	const displayImages = images;
-
-	const selectedVariant = useSelectedVariant(variants);
-
-	const variantImageIndex = useMemo(() => {
-		// Only variants with real combinations drive the gallery jump.
-		const firstVariantImage =
-			selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
-		if (!firstVariantImage) return 0;
-
-		const index = images.indexOf(firstVariantImage);
-		return index >= 0 ? index : 0;
-	}, [selectedVariant, images]);
-
-	// Jump to the selected variant's image when the variant changes (avoids useEffect)
-	const searchParamsKey = searchParams.toString();
-	const prevSearchParamsKey = useRef(searchParamsKey);
-	if (prevSearchParamsKey.current !== searchParamsKey) {
-		prevSearchParamsKey.current = searchParamsKey;
-		setSelectedIndex(variantImageIndex);
+	if (ordered.length === 0) {
+		return <div className="aspect-[3/4] rounded-photo-lg bg-photo" />;
 	}
 
-	const handlePrevious = useCallback(() => {
-		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
-	}, [displayImages.length]);
-
-	const handleNext = useCallback(() => {
-		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
-	}, [displayImages.length]);
-
-	// Keyboard navigation: ArrowLeft / ArrowRight (scoped to gallery container)
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			if (displayImages.length <= 1) return;
-
-			if (e.key === "ArrowLeft") {
-				e.preventDefault();
-				handlePrevious();
-			} else if (e.key === "ArrowRight") {
-				e.preventDefault();
-				handleNext();
-			}
-		},
-		[displayImages.length, handlePrevious, handleNext],
-	);
-
-	if (displayImages.length === 0) {
-		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
-				</div>
-			</div>
-		);
-	}
+	const desktop = ordered.slice(0, DESKTOP_LIMIT);
+	const [first, ...rest] = desktop;
 
 	return (
-		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
-		<section
-			aria-roledescription="carousel"
-			aria-label="Product media gallery"
-			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
-		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-					/>
-				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
-			</div>
-
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{displayImages.map((image, index) => (
-						<button
+		<section aria-label={`${productName} photos`} className="min-w-0">
+			{/* Phones: a full-bleed swipe row, rounded at the foot like a sheet. */}
+			<div className="relative -mx-4 lg:hidden">
+				<div
+					ref={railRef}
+					onScroll={(event) => {
+						const rail = event.currentTarget;
+						setCurrent(Math.round(rail.scrollLeft / Math.max(rail.clientWidth, 1)));
+					}}
+					className="flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-b-photo [scrollbar-width:none]"
+				>
+					{ordered.map((image, index) => (
+						<div
 							key={`${image}-${index}`}
-							type="button"
-							onClick={() => setSelectedIndex(index)}
-							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
-							)}
+							className="relative aspect-square w-full shrink-0 snap-start bg-photo"
 						>
-							{isVideoUrl(image) ? (
-								<video
-									className="absolute inset-0 w-full h-full object-cover"
-									src={image}
-									muted
-									playsInline
-								/>
-							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
-							)}
-						</button>
+							<Media
+								src={image}
+								alt={index === 0 ? productName : `${productName}, photo ${index + 1}`}
+								sizes="100vw"
+								priority={index === 0}
+							/>
+						</div>
 					))}
 				</div>
-			)}
+				{ordered.length > 1 ? (
+					<span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/80 px-3 py-1 text-xs font-medium tabular-nums text-[#111214] backdrop-blur-md">
+						{Math.min(current + 1, ordered.length)} / {ordered.length}
+					</span>
+				) : null}
+			</div>
+
+			{/* Desktop: the lead photo, then two by two. */}
+			<div className="hidden grid-cols-2 gap-2 lg:grid">
+				{first ? (
+					<div className="relative col-span-2 aspect-[4/5] overflow-hidden rounded-photo-lg bg-photo">
+						<Media src={first} alt={productName} sizes="(max-width: 1023px) 100vw, 58vw" priority />
+					</div>
+				) : null}
+				{rest.map((image, index) => (
+					<div
+						key={`${image}-${index}`}
+						className="relative aspect-[3/4] overflow-hidden rounded-photo-lg bg-photo"
+					>
+						<Media src={image} alt={`${productName}, photo ${index + 2}`} sizes="29vw" />
+					</div>
+				))}
+			</div>
 		</section>
 	);
 }

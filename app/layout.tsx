@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo, Geist, Geist_Mono } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,7 +12,8 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { ActiveNavLinks, type NavLink, NavLinkList } from "@/app/nav-links";
+import { MobileMenu } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
@@ -21,13 +22,22 @@ import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCatalogCount, getShopSections, getStoreIdentity } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { fitDisplaySize, fitDisplaySizeAll } from "@/lib/display-type";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
-	subsets: ["latin"],
+	subsets: ["latin", "latin-ext"],
+});
+
+// Condensed display voice: the width axis is driven by font-stretch 62%.
+const archivo = Archivo({
+	variable: "--font-archivo",
+	subsets: ["latin", "latin-ext"],
+	axes: ["wdth"],
 });
 
 const geistMono = Geist_Mono({
@@ -105,23 +115,39 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+async function getNavData() {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
+	const [sections, count, identity] = await Promise.all([
+		getShopSections(),
+		getCatalogCount(),
+		getStoreIdentity(),
 	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
+	const links: NavLink[] = [
+		{ href: "/products", label: "New arrivals" },
+		...sections.slice(0, 3).map((section, index) => ({
+			href: section.href,
+			label: section.name,
+			wide: index === 2,
 		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
+	const menuSections = [
+		{ name: "New arrivals", href: "/products", count, image: sections[0]?.image ?? null },
+		...sections,
+	];
+	const helpLinks = [
+		{ href: "/about", label: "About" },
+		{ href: "/faq", label: "FAQ" },
+		...(identity.contactFormEnabled ? [{ href: "/contact", label: "Contact" }] : []),
+		...(identity.blogEnabled ? [{ href: "/blog", label: "Journal" }] : []),
+	];
+	// Phones: the wordmark shares the bar with four controls, so a long name steps down.
+	const mobileWordmark = fitDisplaySize(identity.storeName, { maxPx: 26, budgetPx: 150, vwBudget: 40 });
+	const menuSize = fitDisplaySizeAll(
+		menuSections.map((section) => section.name),
+		{ maxPx: 50, budgetPx: 240, vwBudget: 64 },
+	);
+	return { links, menuSections, helpLinks, storeName: identity.storeName, mobileWordmark, menuSize };
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,47 +157,74 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [nav, storeConfig] = await Promise.all([getNavData(), getStoreConfig()]);
+	// Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md). Static on
+	// purpose: reading the session here would pull the header out of the prerendered shell.
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
-							</div>
+					{/* Desktop: a floating glass pill. The header around it has no surface and lets
+					    clicks through, so the page scrolls behind and beside the pill. */}
+					<header className="pointer-events-none sticky top-0 z-40 hidden justify-center px-8 pt-5 lg:flex">
+						<nav
+							aria-label="Main"
+							className="pointer-events-auto flex items-center gap-1 rounded-full bg-glass p-1.5 shadow-float backdrop-blur-[20px] backdrop-saturate-150 xl:gap-2"
+						>
+							<Link
+								href="/"
+								className="max-w-[16rem] truncate px-[18px] font-display text-[26px] leading-[44px]"
+							>
+								{nav.storeName}
+							</Link>
+							<Suspense fallback={<NavLinkList links={nav.links} />}>
+								<ActiveNavLinks links={nav.links} />
+							</Suspense>
+							<Suspense>
+								<SearchInput />
+							</Suspense>
+							<a
+								href={accountHref}
+								aria-label="Account"
+								className="press grid size-11 place-items-center rounded-full hover:bg-wash"
+							>
+								<UserRound className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
+							</a>
+							<ThemeToggle />
+							<CartButton className="h-11 px-[18px] text-sm" />
+						</nav>
+					</header>
+
+					{/* Phones and tablets: a plain sticky bar and a full-screen menu sheet. */}
+					<header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-2 bg-background pl-4 pr-2 lg:hidden">
+						<Link
+							href="/"
+							style={{ fontSize: nav.mobileWordmark }}
+							className="min-w-0 truncate font-display leading-none"
+						>
+							{nav.storeName}
+						</Link>
+						<div className="flex shrink-0 items-center gap-0.5">
+							<ThemeToggle />
+							<Suspense>
+								<SearchInput />
+							</Suspense>
+							<CartButton className="mx-1 h-10 px-3.5 text-[13px]" />
+							<MobileMenu
+								storeName={nav.storeName}
+								sections={nav.menuSections}
+								sectionSize={nav.menuSize}
+								accountHref={accountHref}
+								helpLinks={nav.helpLinks}
+							/>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
-					<Footer />
+					<main className="mx-auto w-full max-w-[1920px] flex-1 px-4 pb-24 lg:px-8">{children}</main>
+					<Footer accountHref={accountHref} />
 				</div>
 				<CartSidebar />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
@@ -214,7 +267,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,12 +275,12 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
 					</Suspense>
-					<Toaster richColors position="top-center" />
+					<Toaster position="bottom-center" />
 				</ThemeProvider>
 				{env === "development" && (
 					<>

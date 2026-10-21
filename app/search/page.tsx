@@ -60,10 +60,10 @@ async function searchProducts({
 
 function SearchResultsSkeleton() {
 	return (
-		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+		<div className="grid grid-cols-2 gap-x-2.5 gap-y-[18px] md:grid-cols-3 lg:grid-cols-4 lg:gap-x-4 lg:gap-y-7">
 			{[0, 1, 2, 3, 4, 5].map((i) => (
 				<div key={i} className="flex flex-col gap-3">
-					<div className="aspect-square w-full animate-pulse bg-secondary motion-reduce:animate-none" />
+					<div className="aspect-[3/4] w-full animate-pulse rounded-photo bg-wash motion-reduce:animate-none" />
 					<div className="h-3 w-2/3 animate-pulse bg-secondary motion-reduce:animate-none" />
 					<div className="h-3 w-1/3 animate-pulse bg-secondary/60 motion-reduce:animate-none" />
 				</div>
@@ -95,7 +95,7 @@ async function SearchResults({
 		return (
 			<div>
 				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
-				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+				<h2 className="mt-3 max-w-3xl font-display text-[48px] leading-[0.9] text-foreground sm:text-[80px]">
 					Nothing matched &ldquo;{q}&rdquo;
 				</h2>
 				<p className="mt-6 max-w-md text-sm text-muted-foreground">
@@ -107,7 +107,7 @@ async function SearchResults({
 
 	return (
 		<div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+			<div className="grid grid-cols-2 gap-x-2.5 gap-y-[18px] md:grid-cols-3 lg:grid-cols-4 lg:gap-x-4 lg:gap-y-7">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -127,7 +127,7 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 	return (
 		<div className="border-t border-border pt-12 sm:pt-20">
 			<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Search</p>
-			<h2 className="mt-3 max-w-3xl text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+			<h2 className="mt-3 max-w-3xl font-display text-[56px] leading-[0.88] text-foreground sm:text-[104px]">
 				What are you looking for?
 			</h2>
 			{categories.length ? (
@@ -154,7 +154,7 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 
 function SearchPageSkeleton() {
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+		<section className="pb-24">
 			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
 				<div className="mx-auto max-w-3xl">
 					<div className="h-12 w-full animate-pulse bg-secondary motion-reduce:animate-none" />
@@ -195,7 +195,7 @@ const SearchContent = async ({
 	]);
 
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+		<section className="pb-24">
 			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
 				<div className="mx-auto max-w-3xl">
 					<SearchPageInput initialQuery={query} />

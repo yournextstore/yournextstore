@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -336,22 +335,24 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
+				<button
+					type="button"
+					className="press flex h-10 items-center gap-2 whitespace-nowrap rounded-full border border-line px-4 text-sm transition-colors hover:border-foreground"
+				>
+					<SlidersHorizontalIcon className="size-4" aria-hidden="true" />
 					Filters
-					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-							{activeCount}
-						</span>
-					)}
-				</Button>
+					{activeCount > 0 && <span className="tabular-nums">· {activeCount}</span>}
+				</button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+			<SheetContent
+				side="right"
+				className="block w-full overflow-y-auto border-0 bg-panel shadow-drawer sm:max-w-[460px]"
+			>
+				<SheetHeader className="px-6 pt-6">
+					<SheetTitle className="font-display text-[56px] leading-[0.85]">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
-				<div className="px-4 pb-8">
+				<div className="px-6 pb-8">
 					<FilterControls {...props} />
 				</div>
 			</SheetContent>

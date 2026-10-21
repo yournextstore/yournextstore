@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { SectionRow } from "@/components/home/section-row";
+import { getShopSections, getStoreIdentity, sectionRowSize } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
@@ -11,127 +14,139 @@ export async function generateMetadata(): Promise<Metadata> {
 	const { storeName, storeDescription } = await getStoreSeo();
 	const description = storeDescription
 		? `Learn more about ${storeName}. ${storeDescription}`
-		: `Learn about ${storeName} — our story, our values, and the people behind the products.`;
+		: `Learn about ${storeName}: how we choose, make and send every piece.`;
 
 	return {
-		title: "About Us",
+		title: "Our story",
 		description,
 		alternates: { canonical: "/about" },
-		openGraph: {
-			type: "website",
-			title: "About Us",
-			description,
-			url: "/about",
-		},
+		openGraph: { type: "website", title: "Our story", description, url: "/about" },
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
+// Editorial photographs bundled with the theme (Pexels, free licence; credits in NOTICE.md).
+const PHOTOS = [
+	{
+		src: "/images/pexels/tote-street.jpg",
+		alt: "An olive canvas messenger bag worn over a grey hoodie on a city street",
+	},
+	{
+		src: "/images/pexels/concrete-pose.jpg",
+		alt: "A tan duck canvas chore coat and brown carpenter pants against pale concrete",
+	},
+	{
+		src: "/images/pexels/summer-tote.jpg",
+		alt: "A white boxy tee, grey fleece shorts and white sneakers on a concrete stoop",
+	},
+];
+
+const PRINCIPLES = [
+	{
+		title: "Fewer, better pieces",
+		text: "We keep a short range and make each piece count: materials that last, made to be worn often.",
+	},
+	{
+		title: "Made with care",
+		text: "Every piece is chosen on purpose, photographed plainly and described honestly.",
+	},
+	{
+		title: "Easy to reach",
+		text: "Questions about a piece or an order are always welcome.",
+	},
+];
 
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
-
-	const aboutJsonLd = {
-		"@context": "https://schema.org",
-		"@type": "AboutPage",
-		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
-	};
+	const [identity, sections] = await Promise.all([getStoreIdentity(), getShopSections()]);
+	const rowSize = sectionRowSize(sections);
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={aboutJsonLd} />
+		<div className="flex flex-col gap-16 pt-2 lg:gap-24 lg:pt-10">
+			<JsonLdScript
+				data={{
+					"@context": "https://schema.org",
+					"@type": "AboutPage",
+					name: `About ${identity.storeName}`,
+					description: identity.storeDescription ?? "Our story, and how we choose every piece.",
+				}}
+			/>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
+			<header className="flex flex-col gap-6 border-b border-line pb-8">
+				<h1 className="font-display text-[min(120px,30vw)] leading-[0.8] lg:text-[min(240px,17vw)]">
+					Our story
+				</h1>
+				<p className="max-w-[60ch] text-lg leading-relaxed lg:text-xl">
+					{identity.storeDescription ??
+						`${identity.storeName} is a small shop with a short list of pieces we love. We choose every one ourselves and describe it the way we would want to read about it.`}
 				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+			</header>
+
+			<div className="grid grid-cols-2 gap-2.5 lg:grid-cols-3 lg:gap-4">
+				{PHOTOS.map((photo, index) => (
+					<div
+						key={photo.src}
+						className={`relative aspect-[2/3] overflow-hidden rounded-photo-lg bg-photo ${index === 2 ? "max-lg:hidden" : ""}`}
+					>
+						<Image
+							src={photo.src}
+							alt={photo.alt}
+							fill
+							priority={index === 0}
+							sizes="(max-width: 1023px) 50vw, 33vw"
+							className="object-cover"
+						/>
+					</div>
+				))}
+			</div>
+
+			<section className="flex flex-col gap-8">
+				<h2 className="font-display text-[48px] leading-[0.9] lg:text-[min(120px,8.3vw)] lg:leading-[0.85]">
+					How we work
+				</h2>
+				<ol className="grid gap-8 border-t border-line pt-8 md:grid-cols-3 md:gap-6">
+					{PRINCIPLES.map((principle, index) => (
+						<li key={principle.title} className="flex flex-col gap-3">
+							<span className="font-display text-[56px] leading-none opacity-60 tabular-nums">
+								{String(index + 1).padStart(2, "0")}
+							</span>
+							<h3 className="text-[15px] font-semibold">{principle.title}</h3>
+							<p className="max-w-[45ch] leading-relaxed text-muted-foreground">{principle.text}</p>
+						</li>
+					))}
+				</ol>
+				<div className="flex flex-wrap gap-2">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="press flex h-14 items-center rounded-full bg-foreground px-[26px] font-semibold text-background transition-colors hover:bg-ink-hover"
 					>
-						Shop products
+						See what&apos;s new
 					</Link>
-					{contactFormEnabled && (
+					{identity.contactFormEnabled ? (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="press flex h-14 items-center rounded-full border border-foreground px-[26px] font-medium"
 						>
-							Contact us
+							Write to us
 						</Link>
-					)}
+					) : null}
 				</div>
-			</div>
+			</section>
+
+			{sections.length > 0 ? (
+				<nav aria-label="Browse sections" className="-mx-4 flex flex-col border-t border-line lg:-mx-8">
+					{sections.map((section) => (
+						<SectionRow
+							key={section.slug}
+							href={section.href}
+							label={section.name}
+							count={section.count}
+							size={rowSize}
+						/>
+					))}
+				</nav>
+			) : null}
 		</div>
 	);
 }

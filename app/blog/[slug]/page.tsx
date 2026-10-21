@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function BlogPostSkeleton() {
 	return (
-		<article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<article className="max-w-3xl mx-auto py-12 sm:py-16">
 			<Skeleton className="h-5 w-48" />
 			<Skeleton className="mt-6 h-6 w-40" />
 			<Skeleton className="mt-4 h-10 w-3/4" />
@@ -122,7 +122,7 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 	};
 
 	return (
-		<article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<article className="max-w-3xl mx-auto py-12 sm:py-16">
 			<JsonLdScript data={articleJsonLd} />
 			<JsonLdScript data={breadcrumbJsonLd} />
 
