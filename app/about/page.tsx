@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { EDITORIAL } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -30,7 +32,7 @@ async function getStoreInfo() {
 	try {
 		const me = await meGetCached();
 		return {
-			storeName: me.store.name || "our store",
+			storeName: me.store.settings?.storeName || me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
 			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
@@ -54,84 +56,95 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
+			<section className="relative flex h-[26rem] items-end overflow-hidden bg-ink text-white md:h-[32rem]">
+				<YNSMedia src={EDITORIAL.aboutHero.src} alt="" fill priority sizes="100vw" className="object-cover" />
+				<div aria-hidden className="absolute inset-0 bg-linear-to-t from-black/65 via-black/25 to-black/15" />
+				<div className="page-x relative pb-12 lg:pb-16">
+					<p className="text-body-sm">About us</p>
+					<h1 className="mt-3 text-display">The story behind {storeName}</h1>
+					{storeDescription && (
+						<p className="mt-4 max-w-2xl text-body-sm text-white/90 line-clamp-3">{storeDescription}</p>
+					)}
+				</div>
+			</section>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
+			<section className="page-x grid items-center gap-10 py-16 md:grid-cols-2 lg:gap-16 lg:py-24">
+				<div className="relative aspect-4/5 overflow-hidden rounded-md bg-secondary">
+					<YNSMedia
+						src={EDITORIAL.aboutStory.src}
+						alt={EDITORIAL.aboutStory.alt}
+						fill
+						sizes="(max-width: 768px) 100vw, 50vw"
+						className="object-cover"
+					/>
+				</div>
+				<div className="max-w-xl">
+					<h2 className="text-heading-lg">Our story</h2>
+					<div className="mt-6 space-y-4 text-body leading-relaxed">
 						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
+							We believe a small wardrobe of good clothes beats a full one. Every piece in our collection is
+							chosen to layer with the rest, in colours that work together and cloth that wears in well.
 						</p>
 						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
+							We work with makers who share that view: those who put lasting materials, careful construction
+							and timeless cuts ahead of fleeting trends.
 						</p>
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="mt-8 inline-flex h-11 items-center rounded-md bg-primary px-6 text-body-sm text-primary-foreground transition-colors hover:bg-primary/85"
+					>
+						Shop the collection
+					</Link>
+				</div>
+			</section>
+
+			<section aria-label="What we stand for" className="bg-band">
+				<div className="page-x py-16 lg:py-20">
+					<h2 className="text-center text-heading-lg">What we stand for</h2>
+					<ul className="mt-12 grid gap-10 text-center md:grid-cols-3">
+						{[
+							{ title: "Quality first", body: "Durable, well-made pieces we are proud to stand behind." },
+							{ title: "Thoughtful design", body: "Considered details that make everyday moments better." },
+							{
+								title: "Made to layer",
+								body: "Pieces that work together, so a few good things go a long way.",
+							},
+						].map((value) => (
+							<li key={value.title}>
+								<h3 className="text-heading-sm">{value.title}</h3>
+								<p className="mx-auto mt-3 max-w-xs text-body-sm">{value.body}</p>
+							</li>
+						))}
+					</ul>
+				</div>
+			</section>
+
+			<section className="page-x py-16 text-center lg:py-20">
+				<h2 className="text-heading-lg uppercase">Want to learn more?</h2>
+				<p className="mx-auto mt-4 max-w-xl text-body-sm">
+					Explore the collection or get in touch. We would love to hear from you.
+				</p>
+				<div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+					<Link
+						href="/products"
+						className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-6 text-body-sm text-primary-foreground transition-colors hover:bg-primary/85"
 					>
 						Shop products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex h-11 items-center justify-center rounded-md border border-line px-6 text-body-sm transition-colors hover:bg-secondary"
 						>
 							Contact us
 						</Link>
 					)}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

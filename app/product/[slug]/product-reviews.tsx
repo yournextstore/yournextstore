@@ -10,9 +10,7 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg
 			{Array.from({ length: 5 }, (_, i) => (
 				<Star
 					key={i}
-					className={`${sizeClass} ${
-						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
-					}`}
+					className={`${sizeClass} ${i < rating ? "fill-success text-success" : "fill-muted text-muted"}`}
 				/>
 			))}
 		</div>

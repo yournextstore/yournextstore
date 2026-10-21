@@ -3,161 +3,129 @@ import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+type FooterLink = { href: string; label: string };
+
+// Text labels rather than brand marks: lucide no longer ships logos, and drawing them is off-limits.
+const SOCIALS: Record<string, { label: string }> = {
+	instagram: { label: "Instagram" },
+	tiktok: { label: "TikTok" },
+	facebook: { label: "Facebook" },
+	x: { label: "X" },
+	youtube: { label: "YouTube" },
+	linkedin: { label: "LinkedIn" },
+	email: { label: "Email" },
+};
+
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
+	const [me, legal, socials, categories, collections] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+		commerce.socialsGet().catch(() => null),
+		commerce.categoriesBrowse({ active: true, limit: 50 }).catch(() => ({ data: [] })),
+		commerce.collectionBrowse({ limit: 5 }).catch(() => ({ data: [] })),
+	]);
+	const tools = me?.store.settings?.enabledTools;
 
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
+	const shop: FooterLink[] = [
+		{ href: "/products", label: "All products" },
+		...categories.data
+			.filter((category) => !category.parentId)
+			.slice(0, 4)
+			.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
+	];
+	const collectionLinks: FooterLink[] = collections.data
+		.filter((collection) => collection.active)
+		.map((collection) => ({ href: `/collection/${collection.slug}`, label: collection.name }));
+	const help: FooterLink[] = [
+		{ href: "/about", label: "About us" },
+		{ href: "/faq", label: "FAQ" },
+		...(tools?.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+		...(tools?.blog ? [{ href: "/blog", label: "Journal" }] : []),
+	];
+	const policies: FooterLink[] = legal.data.map((page) => ({
+		href: `/legal${page.href}`,
+		label: page.label,
+	}));
+	const socialLinks = socials
+		? Object.keys(SOCIALS).flatMap((key) => {
+				const value = socials.socials[key as keyof typeof socials.socials];
+				if (!value) return [];
+				return [{ key, href: key === "email" && !value.startsWith("mailto:") ? `mailto:${value}` : value }];
+			})
+		: [];
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
+	return {
+		storeName: me?.store.settings?.storeName || me?.store.name || "Your Next Store",
+		description:
+			me?.store.settings?.storeDescription ||
+			"Considered pieces made to be worn, kept and loved, season after season.",
+		year: new Date().getFullYear(),
+		columns: [
+			{ title: "Shop everything", links: shop },
+			...(collectionLinks.length > 0 ? [{ title: "Collections", links: collectionLinks }] : []),
+			{ title: "Customer care", links: help },
+			...(policies.length > 0 ? [{ title: "Policies", links: policies }] : []),
+		],
+		socialLinks,
+	};
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { storeName, description, year, columns, socialLinks } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="bg-ink text-ink-foreground">
+			<div className="page-x pt-14 pb-8 lg:pt-16">
+				<div className="grid gap-10 border-b border-white/15 pb-10 lg:grid-cols-3 lg:gap-12">
+					<div className="lg:col-span-1">
+						<Link href="/" className="text-[1.375rem] uppercase tracking-[0.12em]">
+							{storeName}
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
+						<p className="mt-4 max-w-sm text-body-sm text-ink-muted line-clamp-4">{description}</p>
+						{socialLinks.length > 0 && (
+							<ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+								{socialLinks.map((social) => (
+									<li key={social.key}>
+										<a
+											href={social.href}
+											target="_blank"
+											rel="noreferrer"
+											className="text-body-sm underline-offset-4 hover:underline"
+										>
+											{SOCIALS[social.key]?.label}
+										</a>
+									</li>
+								))}
+							</ul>
+						)}
 					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
+					<div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:col-span-2">
+						{columns.map((column) => (
+							<div key={column.title}>
+								<h2 className="text-body uppercase tracking-wide">{column.title}</h2>
+								<ul className="mt-5 space-y-3">
+									{column.links.map((link) => (
+										<li key={link.href}>
+											<Link
+												href={link.href}
+												className="text-body-sm text-ink-muted transition-colors hover:text-ink-foreground hover:underline"
+											>
+												{link.label}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+						))}
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="flex flex-col items-center gap-5 pt-8 md:flex-row md:justify-between">
+					<p className="text-body-sm text-ink-muted">
+						&copy; {year} {storeName}. All rights reserved.
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>
