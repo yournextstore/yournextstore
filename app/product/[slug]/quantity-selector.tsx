@@ -1,8 +1,5 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
 type QuantitySelectorProps = {
 	quantity: number;
 	onQuantityChange: (quantity: number) => void;
@@ -11,6 +8,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** The original cart's boxed "- n +" stepper, beside a Quantity label. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -19,30 +17,28 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
+		<div className="flex items-center justify-between gap-4">
+			<span className="text-sm text-muted-foreground">Quantity</span>
+			<div className="flex h-10 w-[120px] items-center justify-between rounded-md border border-border px-1 text-sm">
+				<button
+					type="button"
+					className="flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-ink disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					-
+				</button>
+				<span className="tabular-nums text-ink">{quantity}</span>
+				<button
+					type="button"
+					className="flex size-8 items-center justify-center text-muted-foreground transition-colors hover:text-ink disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
 				>
-					<Plus className="h-4 w-4" />
-				</Button>
+					+
+				</button>
 			</div>
 		</div>
 	);

@@ -1,12 +1,6 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import Link from "next/link";
+import { ChevronIcon } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
 function getPageNumbers(currentPage: number, totalPages: number) {
 	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -47,34 +41,57 @@ export function ListingPagination({
 	if (totalPages <= 1) return null;
 
 	const pageNumbers = getPageNumbers(currentPage, totalPages);
+	const box =
+		"flex size-9 items-center justify-center rounded-md text-sm text-ink transition-colors hover:bg-secondary";
 
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
-				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
-				)}
+		<nav aria-label="Pagination" className="my-24 border-t border-black/5 py-4">
+			<ul className="flex items-center justify-center gap-4">
+				<li className="hidden sm:block">
+					{currentPage > 1 ? (
+						<Link
+							href={buildUrl(basePath, currentPage - 1, filters)}
+							aria-label="Previous page"
+							className={box}
+						>
+							<ChevronIcon className="size-4 rotate-90" />
+						</Link>
+					) : (
+						<span className={cn(box, "pointer-events-none opacity-40")} aria-hidden="true">
+							<ChevronIcon className="size-4 rotate-90" />
+						</span>
+					)}
+				</li>
 				{pageNumbers.map((page, index) =>
 					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
+						<li key={`ellipsis-${index}`} aria-hidden="true" className="text-sm text-muted-foreground">
+							…
+						</li>
 					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
+						<li key={page}>
+							<Link
+								href={buildUrl(basePath, page, filters)}
+								aria-label={`Go to page ${page}`}
+								aria-current={page === currentPage ? "page" : undefined}
+								className={cn(box, page === currentPage && "bg-ink text-white hover:bg-ink")}
+							>
 								{page}
-							</PaginationLink>
-						</PaginationItem>
+							</Link>
+						</li>
 					),
 				)}
-				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
-				)}
-			</PaginationContent>
-		</Pagination>
+				<li className="hidden sm:block">
+					{currentPage < totalPages ? (
+						<Link href={buildUrl(basePath, currentPage + 1, filters)} aria-label="Next page" className={box}>
+							<ChevronIcon className="size-4 -rotate-90" />
+						</Link>
+					) : (
+						<span className={cn(box, "pointer-events-none opacity-40")} aria-hidden="true">
+							<ChevronIcon className="size-4 -rotate-90" />
+						</span>
+					)}
+				</li>
+			</ul>
+		</nav>
 	);
 }

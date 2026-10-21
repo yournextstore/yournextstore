@@ -33,7 +33,7 @@ export function RestockNotify({
 				<Button
 					type="button"
 					variant="outline"
-					className="h-14 w-full rounded-full text-base font-medium tracking-wide"
+					className="h-14 w-full rounded-md bg-ink text-sm font-medium text-white hover:bg-black/85"
 				>
 					<BellRing className="h-5 w-5" />
 					Remind me when back in stock
@@ -56,7 +56,11 @@ export function RestockNotify({
 						</div>
 						<NewsletterConsent checked={marketingConsent} onCheckedChange={setMarketingConsent} />
 						{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-						<Button type="submit" disabled={isPending} className="h-11 w-full rounded-full">
+						<Button
+							type="submit"
+							disabled={isPending}
+							className="h-11 w-full rounded-md bg-ink text-white hover:bg-black/85"
+						>
 							{isPending ? "Submitting..." : "Notify me"}
 						</Button>
 					</form>

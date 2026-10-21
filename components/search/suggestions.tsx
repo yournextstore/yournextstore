@@ -100,7 +100,7 @@ export function Suggestions({
 						highlight === seeAllIndex ? "opacity-100" : "opacity-80 hover:opacity-100"
 					}`}
 				>
-					<span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+					<span className="text-sm text-muted-foreground">
 						See all results for{" "}
 						<span className="font-medium normal-case tracking-normal text-foreground">{trimmed}</span>
 					</span>

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -25,35 +24,7 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
+/** "Sort by" dropdown above the grid. Reads the current sort from the URL (client-side). */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -67,8 +38,19 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
+			<SelectTrigger
+				size="sm"
+				className={cn(
+					"w-max gap-1 rounded-md border-0 bg-transparent px-2 text-sm text-ink shadow-none transition-colors duration-200 hover:bg-gray-100 [&_svg]:text-ink! [&_svg]:opacity-100!",
+					className,
+				)}
+				aria-label="Sort products"
+			>
+				<span>Sort by</span>
+				<span className="sr-only">:</span>
+				<span className="hidden text-muted-foreground sm:inline">
+					<SelectValue />
+				</span>
 			</SelectTrigger>
 			<SelectContent align="end">
 				{options.map((option) => (

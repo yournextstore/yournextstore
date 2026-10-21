@@ -82,7 +82,7 @@ export default async function BlogPage() {
 						</BreadcrumbItem>
 					</BreadcrumbList>
 				</Breadcrumb>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Blog</h1>
+				<h1 className="mt-4 text-4xl font-semibold tracking-tight">Blog</h1>
 				<p className="mt-3 text-lg text-muted-foreground">News, guides, and stories from our team.</p>
 			</div>
 
