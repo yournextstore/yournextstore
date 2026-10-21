@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { Closer, EstateSection, HERO_IMAGES, LandscapeHero, SectionHead } from "@/components/sections/home";
+import { getStoreBrand } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -39,11 +41,29 @@ async function getStoreInfo() {
 	}
 }
 
+const PRINCIPLES = [
+	{
+		title: "One at a time",
+		copy: "Every wine has its own entry: grape, vintage, site and lot, the sizes it comes in and what it costs, written out in full.",
+	},
+	{
+		title: "A short list",
+		copy: "A short cellar list on purpose, kept in shelves and collections you can read end to end in one sitting.",
+	},
+	{
+		title: "The account, open",
+		copy: "Prices, stock and options stand on every entry as they are today. Delivery and taxes are settled at checkout.",
+	},
+] as const;
+
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [{ storeName, storeDescription, contactFormEnabled }, brand] = await Promise.all([
+		getStoreInfo(),
+		getStoreBrand(),
+	]);
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -54,84 +74,77 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
+			<LandscapeHero
+				compact
+				image={HERO_IMAGES.about}
+				eyebrow="The house — how the books are kept"
+				title={
+					<h1 className="serif text-[clamp(3rem,9vw,6.6rem)] font-medium leading-[0.98] text-cream [text-shadow:0_2px_40px_rgba(20,3,10,.5)]">
+						<span className="hero-line">
+							<span>The house</span>
+						</span>
+						<span className="hero-line">
+							<span>
+								<em className="font-normal text-gold-2 italic">and its ledger</em>
+							</span>
+						</span>
+					</h1>
+				}
+				sub={brand.tagline}
+			/>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
+			<EstateSection kicker="Nº 01 — The house" />
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
+			<section aria-labelledby="principles-title" className="ledger-rule section-y">
+				<div className="container-x">
+					<SectionHead
+						id="principles-title"
+						kicker="Nº 02 — How we keep it"
+						title={
+							<>
+								Three rules, <em>kept plainly.</em>
+							</>
+						}
+						lede={`${storeName} keeps a short list and keeps it well. These are the three rules every entry answers to.`}
+					/>
+					<ol className="grid gap-5 lg:grid-cols-3">
+						{PRINCIPLES.map((principle, index) => (
+							<li
+								key={principle.title}
+								className="reveal rounded-[4px] border border-line bg-panel p-[clamp(22px,3.4vw,34px)]"
+							>
+								<p className="ledger mb-[0.7rem] text-[0.62rem] tracking-[0.2em] text-faint">
+									Rule Nº {String(index + 1).padStart(2, "0")}
+								</p>
+								<h3 className="serif text-[1.9rem] font-medium leading-[1.1] text-gold-2">
+									{principle.title}
+								</h3>
+								<p className="mt-3 text-[0.98rem] leading-[1.7] text-dim">{principle.copy}</p>
+							</li>
+						))}
+					</ol>
+					<div className="reveal mt-12 flex flex-wrap items-center gap-4">
+						<Link href="/products" className="btn btn-primary">
+							Read the ledger
 						</Link>
-					)}
+						<Link href={contactFormEnabled ? "/contact" : "/faq"} className="btn">
+							{contactFormEnabled ? "Write to us" : "Read the questions"} <span aria-hidden="true">→</span>
+						</Link>
+					</div>
 				</div>
-			</div>
-		</div>
+			</section>
+
+			<Closer
+				line={
+					<>
+						Good things keep their own <em>accounts.</em>
+					</>
+				}
+				href="/#shelves"
+				cta="See the shelves"
+			/>
+		</>
 	);
 }

@@ -8,12 +8,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+	--font-heading: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+	--font-mono: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+	--radius-sm: calc(var(--radius) - 2px);
+	--radius-md: var(--radius);
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: calc(var(--radius) + 2px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,58 +33,504 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own names: burgundy page and panels, cream ink, dim/faint text, gold, the pour. */
+	--color-page: var(--page);
+	--color-panel: var(--panel);
+	--color-panel-2: var(--panel-2);
+	--color-cream: var(--cream);
+	--color-dim: var(--dim);
+	--color-faint: var(--faint);
+	--color-gold: var(--gold);
+	--color-gold-2: var(--gold-2);
+	--color-wine: var(--wine);
+	--color-wine-2: var(--wine-2);
+	--color-line: var(--line);
+	--color-line-2: var(--line-2);
+	--color-on-gold: #2a1503;
+	--ease-decant: cubic-bezier(0.5, 0.02, 0.16, 1);
 }
 
+/*
+ * The original's old-world burgundy (styles.css :root). Its --faint (#8a6a63) is 3.7:1 on the page, so
+ * small text uses a lifted twin (#a8877f, ≥4.8:1 on every panel); gold stays for display type and accents.
+ * Dark-only design: :root and .dark carry the same palette and the theme is forced.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 4px;
+	--background: #2a0a14;
+	--foreground: #f3e9dd;
+	--card: #3a0f1d;
+	--card-foreground: #f3e9dd;
+	--popover: #3a0f1d;
+	--popover-foreground: #f3e9dd;
+	--primary: #c9a24b;
+	--primary-foreground: #2a1503;
+	--secondary: #330d1a;
+	--secondary-foreground: #f3e9dd;
+	--muted: #330d1a;
+	--muted-foreground: #c9a9a2;
+	--accent: #421224;
+	--accent-foreground: #f3e9dd;
+	--destructive: #f08a78;
+	--border: rgba(243, 233, 221, 0.12);
+	--input: rgba(243, 233, 221, 0.2);
+	--ring: #c9a24b;
+	--page: #2a0a14;
+	--panel: #3a0f1d;
+	--panel-2: #330d1a;
+	--cream: #f3e9dd;
+	--dim: #c9a9a2;
+	--faint: #a8877f;
+	--gold: #c9a24b;
+	--gold-2: #e0be6f;
+	--wine: #7c1f38;
+	--wine-2: #a63b52;
+	--line: rgba(243, 233, 221, 0.12);
+	--line-2: rgba(243, 233, 221, 0.06);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 4px;
+	--background: #2a0a14;
+	--foreground: #f3e9dd;
+	--card: #3a0f1d;
+	--card-foreground: #f3e9dd;
+	--popover: #3a0f1d;
+	--popover-foreground: #f3e9dd;
+	--primary: #c9a24b;
+	--primary-foreground: #2a1503;
+	--secondary: #330d1a;
+	--secondary-foreground: #f3e9dd;
+	--muted: #330d1a;
+	--muted-foreground: #c9a9a2;
+	--accent: #421224;
+	--accent-foreground: #f3e9dd;
+	--destructive: #f08a78;
+	--border: rgba(243, 233, 221, 0.12);
+	--input: rgba(243, 233, 221, 0.2);
+	--ring: #c9a24b;
+	--page: #2a0a14;
+	--panel: #3a0f1d;
+	--panel-2: #330d1a;
+	--cream: #f3e9dd;
+	--dim: #c9a9a2;
+	--faint: #a8877f;
+	--gold: #c9a24b;
+	--gold-2: #e0be6f;
+	--wine: #7c1f38;
+	--wine-2: #a63b52;
+	--line: rgba(243, 233, 221, 0.12);
+	--line-2: rgba(243, 233, 221, 0.06);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+		color-scheme: dark;
+	}
+	/* next/font puts its variables on <body>, so the faces are set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-inter), "Inter", system-ui, sans-serif;
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+	}
+	/* Platform pages (FAQ, legal, search, contact) inherit the original's display face. */
+	h1,
+	h2 {
+		font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+		font-weight: 500;
+	}
+	p {
+		text-wrap: pretty;
+	}
+	::selection {
+		background: var(--gold);
+		color: #2a1503;
+	}
+	/* The fixed header floats over the page; hero pages run their photograph under it. */
+	main {
+		padding-top: var(--header-h);
+	}
+	:root:has([data-hero]) main {
+		padding-top: 0;
+	}
+}
+
+:root {
+	--header-h: 76px;
+}
+@media (min-width: 768px) {
+	:root {
+		--header-h: 84px;
+	}
+}
+
+/* Cormorant Garamond at the original's weight; its italic is the "script" accent, in gold. */
+@utility display {
+	font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+	font-weight: 500;
+	letter-spacing: 0.005em;
+	& em {
+		color: var(--gold);
+		font-style: italic;
+		font-weight: 500;
+	}
+}
+
+@utility serif {
+	font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+}
+
+@utility mono {
+	font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+}
+
+/* DM Mono small caps for kickers, lot numbers and ledger data. */
+@utility ledger {
+	font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+@utility kicker {
+	font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	font-size: 0.72rem;
+	color: var(--gold);
+}
+
+@utility container-x {
+	width: 100%;
+	max-width: calc(1200px + 2 * clamp(18px, 4vw, 48px));
+	margin-inline: auto;
+	padding-inline: clamp(18px, 4vw, 48px);
+}
+
+@utility section-y {
+	padding-block: clamp(80px, 12vh, 150px);
+}
+
+/* The double ledger rule the original draws between sections. */
+@utility ledger-rule {
+	position: relative;
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: var(--rule-inset, clamp(18px, 4vw, 48px));
+		right: var(--rule-inset, clamp(18px, 4vw, 48px));
+		height: 5px;
+		border-top: 1px solid var(--line);
+		border-bottom: 1px solid var(--line-2);
+		pointer-events: none;
+	}
+}
+
+/* Raised burgundy panel: wine cards, club tiers, the booking card. */
+@utility panel {
+	background: var(--panel);
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+}
+
+/* Nearly square buttons: gold primary, hairline ghost. Knobs are variables (a plain utility beside a
+   custom one has no reliable order). */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border-radius: var(--radius);
+	padding: var(--btn-py, 14px) var(--btn-px, 28px);
+	font-size: 0.9rem;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	border: 1px solid var(--btn-border, var(--line));
+	background: var(--btn-bg, transparent);
+	color: var(--btn-fg, var(--cream));
+	cursor: pointer;
+	transition:
+		transform 0.5s var(--ease-decant),
+		background-color 0.35s,
+		border-color 0.35s,
+		color 0.35s,
+		box-shadow 0.5s;
+	&:hover {
+		transform: translateY(-2px);
+		border-color: var(--btn-border-hover, var(--gold));
+		color: var(--btn-fg-hover, var(--gold-2));
+		background: var(--btn-bg-hover, var(--btn-bg, transparent));
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.55;
+		cursor: not-allowed;
+		transform: none;
+	}
+}
+
+@utility btn-primary {
+	--btn-bg: var(--gold);
+	--btn-fg: #2a1503;
+	--btn-border: var(--gold);
+	--btn-bg-hover: var(--gold-2);
+	--btn-fg-hover: #2a1503;
+	--btn-border-hover: var(--gold-2);
+	&:hover {
+		box-shadow: 0 14px 40px -14px rgba(201, 162, 75, 0.55);
+	}
+}
+
+/* Booking-card chips: mono, hairline, gold when pressed. */
+@utility chip {
+	display: inline-flex;
+	align-items: center;
+	font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+	font-size: 0.78rem;
+	letter-spacing: 0.06em;
+	color: var(--dim);
+	background: transparent;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	padding: 9px 16px;
+	min-height: 40px;
+	cursor: pointer;
+	transition:
+		color 0.3s,
+		border-color 0.3s,
+		background-color 0.3s;
+	&:hover {
+		color: var(--cream);
+		border-color: rgba(201, 162, 75, 0.5);
+	}
+	&[aria-pressed="true"],
+	&[aria-current="page"],
+	&[data-active="true"] {
+		background: var(--gold);
+		border-color: var(--gold);
+		color: #2a1503;
+	}
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* ---------- hero: the six-layer landscape (photo, gold rays, scrim, hills, furrows, wordmark) ---------- */
+.hero-rays {
+	mix-blend-mode: screen;
+	opacity: 0.75;
+	background:
+		linear-gradient(112deg, transparent 34%, rgba(201, 162, 75, 0.28) 44%, transparent 52%),
+		linear-gradient(100deg, transparent 55%, rgba(224, 190, 111, 0.18) 64%, transparent 72%);
+	animation: rayglow 9s cubic-bezier(0.3, 0.65, 0.25, 1) infinite alternate;
+}
+@keyframes rayglow {
+	from {
+		opacity: 0.55;
+	}
+	to {
+		opacity: 0.9;
+	}
+}
+.hero-scrim {
+	background: linear-gradient(
+		180deg,
+		rgba(42, 10, 20, 0.42),
+		rgba(42, 10, 20, 0.08) 34%,
+		rgba(42, 10, 20, 0.28) 62%,
+		rgba(42, 10, 20, 0.92) 88%,
+		var(--page)
+	);
+}
+.hero-line {
+	display: block;
+	overflow: hidden;
+}
+.hero-line > span {
+	display: inline-block;
+	animation: hero-rise 1.4s var(--ease-decant) both;
+}
+.hero-line:nth-child(2) > span {
+	animation-delay: 0.17s;
+}
+@keyframes hero-rise {
+	from {
+		transform: translateY(114%);
+	}
+}
+.hero-fade {
+	animation: hero-fade 1.2s var(--ease-decant) both;
+	animation-delay: var(--d, 0.1s);
+}
+@keyframes hero-fade {
+	from {
+		opacity: 0;
+		transform: translateY(26px);
+	}
+}
+.scroll-cue span {
+	display: block;
+	width: 1px;
+	height: 100%;
+	background: linear-gradient(180deg, transparent, var(--gold));
+	animation: cue 2.6s var(--ease-decant) infinite;
+}
+@keyframes cue {
+	from {
+		transform: translateY(-100%);
+	}
+	60% {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(100%);
+	}
+}
+
+/* ---------- scroll reveals: armed by JS only for blocks still below the fold ---------- */
+[data-reveal="pending"] {
+	opacity: 0;
+	transform: translateY(26px);
+}
+[data-reveal="in"] {
+	opacity: 1;
+	transform: none;
+	transition:
+		opacity 1.1s var(--ease-decant),
+		transform 1.1s var(--ease-decant);
+}
+
+/* ---------- price shelves: the pour (a clipped rect scaled to --fill) ---------- */
+.vessel-line {
+	fill: none;
+	stroke: rgba(243, 233, 221, 0.55);
+	stroke-width: 1.6;
+	stroke-linecap: round;
+}
+.vessel-shine {
+	stroke: rgba(243, 233, 221, 0.14);
+	stroke-width: 2;
+	stroke-linecap: round;
+}
+.vessel-fill {
+	fill: var(--wine);
+	transform: scaleY(var(--fill, 0.6));
+	transform-box: fill-box;
+	transform-origin: center bottom;
+	transition: transform 2s var(--ease-decant) 0.25s;
+}
+.vessel-surface {
+	fill: var(--wine-2);
+	opacity: 0.9;
+	transform: translateY(calc(var(--fill, 0.6) * -96px));
+	transition:
+		transform 2s var(--ease-decant) 0.25s,
+		opacity 0.5s 0.35s;
+}
+.pour-stream {
+	stroke: var(--wine-2);
+	stroke-width: 3;
+	stroke-linecap: round;
+	opacity: 0;
+	transform-box: fill-box;
+	transform-origin: center top;
+}
+[data-pour="empty"] .vessel-fill {
+	transform: scaleY(0.001);
+}
+[data-pour="empty"] .vessel-surface {
+	transform: translateY(0);
+	opacity: 0;
+}
+[data-pouring="true"] .pour-stream {
+	animation: pour 1.5s cubic-bezier(0.3, 0.65, 0.25, 1) forwards;
+}
+@keyframes pour {
+	0% {
+		opacity: 0;
+		transform: scaleY(0);
+	}
+	12% {
+		opacity: 0.95;
+		transform: scaleY(1);
+	}
+	78% {
+		opacity: 0.95;
+		transform: scaleY(1);
+	}
+	100% {
+		opacity: 0;
+		transform: scaleY(1);
+	}
+}
+
+/* ---------- status pills on the ledger cards ---------- */
+.status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	flex: none;
+	background: var(--cream);
+}
+[data-status="open"] .status-dot {
+	background: var(--gold-2);
+	box-shadow: 0 0 8px rgba(224, 190, 111, 0.7);
+}
+[data-status="cellar"] {
+	border-color: rgba(201, 162, 75, 0.45);
+	color: var(--gold-2);
+}
+[data-status="cellar"] .status-dot {
+	background: var(--gold);
+}
+[data-status="out"] {
+	color: var(--faint);
+}
+[data-status="out"] .status-dot {
+	background: var(--faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	[data-reveal="pending"] {
+		opacity: 1;
+		transform: none;
+	}
+	[data-pour="empty"] .vessel-fill {
+		transform: scaleY(var(--fill, 0.6));
+	}
+	[data-pour="empty"] .vessel-surface {
+		transform: translateY(calc(var(--fill, 0.6) * -96px));
+		opacity: 0.9;
+	}
+	.scroll-cue {
+		display: none;
 	}
 }
 
@@ -97,14 +544,7 @@
 }
 
 .yns-image-shimmer {
-	background: linear-gradient(
-		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
-	);
+	background: linear-gradient(90deg, #3a0f1d 0%, #421224 40%, #4a1529 50%, #421224 60%, #3a0f1d 100%);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }
@@ -151,3 +591,4 @@
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
 }
+

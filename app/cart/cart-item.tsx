@@ -99,23 +99,23 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="flex gap-4 border-b border-line-2 py-5 first:pt-0">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				tabIndex={-1}
+				aria-hidden="true"
+				className="relative h-[112px] w-[84px] shrink-0 overflow-hidden rounded-[4px] border border-line bg-panel"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="84px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+			<div className="flex min-w-0 flex-1 flex-col">
 				<div className="flex items-start justify-between gap-2">
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="serif line-clamp-2 text-[1.4rem] font-medium leading-tight text-cream transition-colors hover:text-gold-2"
 					>
 						{product.name}
 					</Link>
@@ -123,44 +123,40 @@ export function CartItem({ item }: CartItemProps) {
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="-mr-2 inline-flex size-8 shrink-0 items-center justify-center text-faint transition-colors hover:text-gold-2 disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash2 className="size-4" strokeWidth={1.5} />
 					</button>
 				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
+				<p className="mono mb-3 mt-1 text-[0.8rem] tracking-[0.06em] text-gold-2">
+					{formatMoney({ amount: lineTotal, currency, locale })}
+				</p>
+				<div
+					className={cn(
+						"inline-flex w-fit items-center rounded-[4px] border border-line transition-opacity",
+						isPending && "opacity-70",
+					)}
+				>
+					<button
+						type="button"
+						onClick={handleDecrement}
+						className="flex size-10 items-center justify-center text-dim transition-colors hover:text-gold-2"
+						aria-label="Decrease quantity"
 					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
+						<Minus className="size-3.5" />
+					</button>
+					<span className="mono min-w-[18px] text-center text-[0.8rem] tabular-nums text-cream">
+						{quantity}
 					</span>
+					<button
+						type="button"
+						onClick={handleIncrement}
+						className="flex size-10 items-center justify-center text-dim transition-colors hover:text-gold-2"
+						aria-label="Increase quantity"
+					>
+						<Plus className="size-3.5" />
+					</button>
 				</div>
 			</div>
 		</div>

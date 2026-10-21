@@ -5,16 +5,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductCard } from "@/components/product-card";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { firstStill, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -36,9 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -61,48 +52,55 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/** A ledger page header for one collection: kicker, name in gold italic and its note, beside a framed photograph. */
+function CollectionHeader({
+	collection,
+	image,
+	count,
+}: {
+	collection: APICollectionGetByIdResult;
+	image: string | null;
+	count: number;
+}) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
+		<section className="grid items-center gap-[clamp(28px,5vw,70px)] md:grid-cols-[1fr_1.1fr]">
+			<div className="min-w-0">
+				<p className="kicker mb-[1.2rem]">
+					Collection — {count} {count === 1 ? "entry" : "entries"}
+				</p>
+				<h1 className="display wrap-break-word text-[clamp(2.4rem,6vw,4.4rem)] leading-[1.04] text-cream">
+					<em>{collection.name}</em>
+				</h1>
+				<p className="mt-[1.2rem] max-w-[58ch] text-[1.06rem] text-dim">
+					{description || "A small, considered page of the ledger, entered to sit together."}
+				</p>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+			<figure className="relative aspect-[4/3] overflow-hidden rounded-[4px] border border-line bg-panel">
+				{image && (
 					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
+						src={image}
+						alt=""
 						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
+						sizes="(max-width: 768px) 100vw, 600px"
+						className="object-cover"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
+				)}
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(42,10,20,.85))]"
+				/>
+				<figcaption className="ledger absolute bottom-4 left-5 right-5 text-[0.62rem] tracking-[0.22em] text-dim">
+					In the ledger · {count} {count === 1 ? "entry" : "entries"}
+				</figcaption>
+			</figure>
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+	return <ProductGridSkeleton />;
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,34 +155,21 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
+		<div className="container-x min-h-svh pb-[clamp(80px,12vh,150px)] pt-[clamp(40px,8vh,90px)]">
+			<div className="grid items-center gap-[clamp(28px,5vw,70px)] md:grid-cols-[1fr_1.1fr]">
+				<div className="space-y-5">
+					<div className="h-3 w-40 animate-pulse rounded-[2px] bg-panel" />
+					<div className="h-14 w-3/4 animate-pulse rounded-[2px] bg-panel" />
+					<div className="h-12 w-full animate-pulse rounded-[2px] bg-panel" />
 				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+				<div className="aspect-[4/3] animate-pulse rounded-[4px] bg-panel" />
+			</div>
+			<div className="mt-[clamp(48px,7vh,80px)]">
+				<CollectionProductsSkeleton />
+			</div>
+		</div>
 	);
 }
 
@@ -215,29 +200,41 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+	const image = collection.image ?? firstStill(products[0]?.images);
+
 	return (
-		<>
+		<div className="container-x min-h-svh pb-[clamp(80px,12vh,150px)] pt-[clamp(40px,8vh,90px)]">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<CollectionHeader collection={collection} image={image} count={products.length} />
+			{products.length > 0 ? (
+				<section className="ledger-rule mt-[clamp(48px,7vh,80px)] pt-[clamp(40px,6vh,64px)] [--rule-inset:0px]">
+					<div className="mb-8 flex items-end justify-between gap-6">
+						<h2 className="display text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.1] text-cream">
+							In this <em>collection</em>
+						</h2>
+						<div className="hidden shrink-0 sm:block">
+							<Link href="/products" className="btn [--btn-px:18px] [--btn-py:10px]">
+								The whole ledger <span aria-hidden="true">→</span>
+							</Link>
+						</div>
+					</div>
+					<div className={LISTING_GRID}>
+						{products.map((product) => (
+							<ProductCard key={product.id} product={product} />
+						))}
+					</div>
+				</section>
+			) : (
+				<p className="serif py-24 text-center text-[1.8rem] text-cream italic">
+					This page of the ledger is blank for now.{" "}
+					<Link href="/products" className="text-gold-2 underline-offset-4 hover:underline">
+						Read the whole ledger
+					</Link>
+					.
+				</p>
+			)}
+		</div>
 	);
 };
