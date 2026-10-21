@@ -1,8 +1,5 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
 type QuantitySelectorProps = {
 	quantity: number;
 	onQuantityChange: (quantity: number) => void;
@@ -11,6 +8,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** The original's square stepper: "−", the count between hairlines, "+". */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -20,29 +18,29 @@ export function QuantitySelector({
 }: QuantitySelectorProps) {
 	return (
 		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
+			<span className="mb-2 block font-body text-xs uppercase tracking-widest text-earth-soft">Quantity</span>
+			<div className="flex w-fit items-center border border-earth/20">
+				<button
+					type="button"
+					className="px-4 py-3 font-body text-lg leading-none text-earth transition-colors hover:text-crimson disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					−
+				</button>
+				<span className="min-w-12 border-x border-earth/20 px-6 py-3 text-center font-body text-sm tabular-nums">
+					{quantity}
+				</span>
+				<button
+					type="button"
+					className="px-4 py-3 font-body text-lg leading-none text-earth transition-colors hover:text-crimson disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
 				>
-					<Plus className="h-4 w-4" />
-				</Button>
+					+
+				</button>
 			</div>
 		</div>
 	);

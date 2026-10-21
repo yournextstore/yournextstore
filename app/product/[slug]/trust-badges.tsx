@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
+import { CreditCard, FileText, Truck } from "lucide-react";
 
 type TrustBadge = {
 	icon: LucideIcon;
@@ -8,21 +8,22 @@ type TrustBadge = {
 };
 
 const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+	{ icon: CreditCard, title: "Secure Checkout", description: "Encrypted payment" },
+	{ icon: Truck, title: "Delivery", description: "Options at checkout" },
+	{ icon: FileText, title: "Store Policies", description: "Always on hand" },
 ];
 
+/** The original's three-up row under the button: an icon, a bold label and a small line. */
 export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
+		<ul className="mt-8 grid grid-cols-3 gap-4 border-t border-earth/10 pt-8">
 			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
+				<li key={badge.title} className="text-center">
+					<badge.icon className="mx-auto mb-2 size-6 text-crimson" strokeWidth={1.5} aria-hidden="true" />
+					<p className="font-body text-xs font-semibold text-earth">{badge.title}</p>
+					<p className="font-body text-2xs text-earth-soft">{badge.description}</p>
+				</li>
 			))}
-		</div>
+		</ul>
 	);
 }

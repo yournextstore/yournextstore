@@ -3,17 +3,18 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
+import { btnGhostClass, eyebrowClass, sectionTitleClass } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
 	title?: string;
-	description?: string;
+	eyebrow?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -22,15 +23,22 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	viewAllLabel?: string;
+	align?: "center" | "start";
+	className?: string;
 };
 
+/** The original's product row: small-caps eyebrow over a serif title, a 2/4-column card grid, a ghost button. */
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Best Sellers",
+	eyebrow = "Curated Favourites",
 	products,
-	limit = 6,
+	limit = 4,
 	showViewAll = true,
 	viewAllHref = "/products",
+	viewAllLabel = "View All Products",
+	align = "center",
+	className,
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
@@ -38,37 +46,22 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				)}
+		<section className={cn("mx-auto max-w-7xl px-6 py-12 lg:px-12 lg:py-20", className)}>
+			<div className={cn("mb-12", align === "center" && "text-center")}>
+				<p className={eyebrowClass}>{eyebrow}</p>
+				<h2 className={sectionTitleClass}>{title}</h2>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
+				<div className="mt-12 text-center">
+					<Link href={viewAllHref} className={btnGhostClass}>
+						{viewAllLabel}
 					</Link>
 				</div>
 			)}

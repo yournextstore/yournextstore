@@ -131,7 +131,7 @@ export function CategorySidebar({
 
 	return (
 		<nav aria-label="Filter by category">
-			<h2 className="mb-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h2>
+			<h2 className="mb-4 font-body text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h2>
 			<ul className="flex flex-col">
 				<FilterRow
 					href={buildUrl(searchParams, { category: null })}

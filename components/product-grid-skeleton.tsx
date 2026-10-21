@@ -2,11 +2,12 @@ import { cn } from "@/lib/utils";
 
 export function ProductCardSkeleton() {
 	return (
-		<div>
-			<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-			<div className="space-y-2">
-				<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-				<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+		<div className="overflow-hidden rounded-2xl border border-earth/5 bg-card/60">
+			<div className="yns-image-shimmer aspect-3/4" />
+			<div className="space-y-2 p-4">
+				<div className="h-2.5 w-1/3 rounded bg-sand" />
+				<div className="h-5 w-3/4 rounded bg-sand" />
+				<div className="h-5 w-1/4 rounded bg-sand" />
 			</div>
 		</div>
 	);
@@ -14,7 +15,7 @@ export function ProductCardSkeleton() {
 
 export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
 	return (
-		<div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8", className)}>
+		<div className={cn("grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6", className)}>
 			{Array.from({ length: count }).map((_, i) => (
 				<ProductCardSkeleton key={`skeleton-${i}`} />
 			))}

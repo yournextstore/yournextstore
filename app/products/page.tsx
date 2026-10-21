@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
+import { ListingHeader } from "@/components/listing-header";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { btnSecondaryClass } from "@/lib/styles";
+import { SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -79,19 +82,33 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	});
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
+	// Under the default order, pictured, priced products lead the page; image-less or zero-priced ones close it.
+	const pictured = (p: (typeof result.data)[number]) =>
+		(p.images?.length ?? 0) > 0 && p.variants.some((v) => Number(v.price) > 0);
+	const products = filters.sort
+		? result.data
+		: [...result.data.filter(pictured), ...result.data.filter((p) => !pictured(p))];
 
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="font-display text-3xl text-earth-soft">No products found</p>
+				<p className="mt-2 font-body text-sm text-earth-soft">Try adjusting your filters</p>
+				<Link href="/products" className={`${btnSecondaryClass} mt-6`}>
+					Clear Filters
+				</Link>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<p className="mb-6 font-body text-sm text-earth-soft">
+				{result.meta.count} {result.meta.count === 1 ? "product" : "products"} found
+			</p>
+			<h2 className="sr-only">Products</h2>
+			<div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6">
+				{products.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -126,35 +143,52 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div className="min-h-svh">
+			<ListingHeader eyebrow="All Collections" title="Products">
+				Browse the complete collection.
+			</ListingHeader>
 
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
+			<div className="mx-auto max-w-screen-xl px-6 py-12 lg:px-12">
+				{/* The filter and sort controls read useSearchParams(), so they stream in behind one
+				    boundary with the grid while the chrome and the band above prerender. */}
+				<Suspense fallback={<ListingSkeleton />}>
+					<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12" : ""}>
+						{filtersAvailable && (
+							<ProductFilters facets={facets} className="lg:sticky lg:top-28 lg:self-start" />
+						)}
 
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
+						<div className="min-w-0">
+							<div className="mb-6 flex items-center justify-between gap-3">
+								{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+								<SortSelect options={sortOptions} className="ml-auto" />
+							</div>
+
+							<ProductSection searchParams={searchParams} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
 					</div>
+				</Suspense>
+			</div>
+		</div>
+	);
+}
+
+function ListingSkeleton() {
+	return (
+		<div className="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
+			<div className="hidden space-y-3 lg:block">
+				<div className="h-4 w-24 rounded bg-sand" />
+				<div className="h-9 w-full rounded-md bg-sand/70" />
+				<div className="h-9 w-full rounded-md bg-sand/70" />
+				<div className="h-9 w-full rounded-md bg-sand/70" />
+			</div>
+			<div>
+				<div className="mb-6 flex h-9 items-center justify-between">
+					<div className="h-9 w-24 rounded-md border border-input lg:invisible" />
+					<div className="h-9 w-36 rounded-md border border-input" />
 				</div>
-			</Suspense>
+				<div className="mb-6 h-5 w-32 rounded bg-sand" />
+				<ProductGridSkeleton />
+			</div>
 		</div>
 	);
 }
