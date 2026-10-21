@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { ProductCard } from "@/components/product-card";
+import { Rail } from "@/components/rail";
 import { commerce } from "@/lib/commerce";
 
 // Cached per category, not per product: every product page in a category shares one
@@ -10,21 +10,15 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 9,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+// No Suspense of its own: it renders inside the product page's boundary, so it lands with the
+// details instead of streaming in after the footer has painted (PLAYBOOK §4).
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
@@ -32,16 +26,27 @@ async function RelatedProductsContent({
 	categorySlug?: string;
 }) {
 	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const related = products.filter((p) => p.id !== productId).slice(0, 8);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<section className="border-t border-border">
+			<div className="shell py-16 lg:py-24">
+				<Rail
+					label="related products"
+					heading={
+						<h2 className="text-[2rem] leading-none font-medium sm:text-4xl xl:text-[2.5rem]">
+							You may also <em>like</em>
+						</h2>
+					}
+					description="More from the same shelf, picked to go with this one."
+				>
+					{related.map((product) => (
+						<ProductCard key={product.id} product={product} />
+					))}
+				</Rail>
+			</div>
+		</section>
 	);
 }

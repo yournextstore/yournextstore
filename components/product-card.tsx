@@ -5,40 +5,57 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
+import { displayPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
+export type CardProduct = BrowseProduct | CollectionProduct | FullProduct;
 
+/**
+ * Amerta product tile: one grey card holding a 3:4 photo, the bag button in the corner,
+ * the name in small caps, the price (with a "Sale" chip) and a green stock line.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	sizes = "(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 25vw",
+	className,
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	sizes?: string;
+	className?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const { min: minPrice, max: maxPrice } =
 		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 
 	const priceDisplay =
-		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
-			: minPrice
-				? formatMoney({ amount: minPrice, currency, locale })
+		minPrice !== null && maxPrice !== null && minPrice !== maxPrice
+			? `${fmt(minPrice)} – ${fmt(maxPrice)}`
+			: minPrice !== null
+				? fmt(minPrice)
 				: null;
+
+	const onSale =
+		variants?.some((v) => {
+			const list = displayPrice(v, taxBehavior, "originalPrice");
+			return list !== null && BigInt(list) > BigInt(displayPrice(v, taxBehavior));
+		}) ?? false;
+	const outOfStock = variants !== null && variants.length > 0 && variants.every((v) => v.stock === 0);
 
 	const allImages = [
 		...(product.images ?? []),
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
 			[]),
-	];
+	].filter((url) => !isVideoUrl(url));
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
@@ -56,69 +73,67 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
+		<article className={cn("group relative flex h-full flex-col bg-tile", className)}>
+			<div className="relative aspect-[3/4] overflow-hidden">
+				{primaryImage && (
+					<YNSMedia
+						src={primaryImage}
+						alt=""
+						fill
+						sizes={sizes}
+						priority={priority}
+						className={cn(
+							"object-cover transition-opacity duration-300",
+							secondaryImage && "group-hover:opacity-0",
+						)}
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{secondaryImage && (
+					<YNSMedia
+						src={secondaryImage}
+						alt=""
+						fill
+						sizes={sizes}
+						className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+					/>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			{singleVariant && (
+				<QuickAddButton
+					variantId={singleVariant.id}
+					variantSku={"sku" in singleVariant ? singleVariant.sku : null}
+					variantPrice={singleVariant.price}
+					variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
+					variantImages={singleVariant.images}
+					product={{
+						id: product.id,
+						name: product.name,
+						slug: product.slug,
+						images: product.images ?? [],
+					}}
+				/>
+			)}
+			<div className="flex flex-1 flex-col gap-2 px-4 pt-4 pb-4">
+				<Link href={href} className="text-sm/6 uppercase text-foreground after:absolute after:inset-0">
+					{product.name}
+				</Link>
+				{priceDisplay && (
+					<p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-base text-foreground">
+						<span className="tabular-nums">{priceDisplay}</span>
+						{onSale && (
+							<span className="rounded bg-sale px-1.5 py-0.5 text-xs leading-none text-sale-foreground">
+								Sale
+							</span>
+						)}
+					</p>
+				)}
+				<p className={cn("text-xs uppercase", outOfStock ? "text-destructive" : "text-stock")}>
+					{outOfStock ? "Out of stock" : "In stock"}
+				</p>
 			</div>
-		</Link>
+		</article>
 	);
 }

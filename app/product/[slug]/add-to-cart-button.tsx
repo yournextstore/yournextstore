@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -57,6 +57,8 @@ type AddToCartButtonProps = {
 	volumePricingTiers?: VolumeTier[];
 	/** Show a "remind me when back in stock" flow when out of stock (Restock Notifications module). */
 	restockNotificationsEnabled?: boolean;
+	/** Reviews summary shown after the price ("/ ★ 4.8 · 12 reviews"). */
+	rating?: ReactNode;
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -67,6 +69,7 @@ export function AddToCartButton({
 	summary,
 	volumePricingTiers = [],
 	restockNotificationsEnabled = false,
+	rating,
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
@@ -92,11 +95,9 @@ export function AddToCartButton({
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock]);
+	const totalLabel = totalPrice ? formatMoney({ amount: totalPrice, currency, locale }) : null;
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -196,50 +197,34 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
 			{/* Price & sale */}
 			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+				<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg">
+					<span className="tabular-nums">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<span className="text-base text-muted-foreground line-through">{priceInfo.compareAt}</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
+						<span className="rounded bg-sale px-1.5 py-0.5 text-xs leading-none text-sale-foreground">
+							Sale −{priceInfo.discountPercent}%
 						</span>
 					) : null}
+					{rating && (
+						<>
+							<span aria-hidden="true" className="text-border">
+								/
+							</span>
+							{rating}
+						</>
+					)}
 				</div>
 
 				{omnibusPrice && (
 					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
 				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
 			</div>
+
+			{summary && <p className="max-w-xl text-base/7 whitespace-pre-line">{summary}</p>}
 
 			{variants.length > 1 && <VariantSelector variants={variants} />}
 
@@ -255,14 +240,51 @@ export function AddToCartButton({
 			{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 				<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 			) : (
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit} className="space-y-3">
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="relative flex h-16 w-full items-center justify-center rounded-full bg-primary px-20 text-sm uppercase text-primary-foreground transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{buttonText}
+						<span
+							aria-hidden="true"
+							className="absolute top-1/2 right-2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15"
+						>
+							<svg
+								aria-hidden="true"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								className="h-5 w-5"
+							>
+								<path
+									d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
+						</span>
 					</button>
+					{(stockStatus || totalLabel) && (
+						<div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs uppercase">
+							{stockStatus && (
+								<span
+									className={cn(
+										stockStatus.tone === "out" && "text-destructive",
+										stockStatus.tone === "low" && "text-amber-700",
+										stockStatus.tone === "in" && "text-stock",
+									)}
+								>
+									{stockStatus.label}
+								</span>
+							)}
+							{totalLabel && effectiveQuantity > 1 && (
+								<span className="text-muted-foreground">Total {totalLabel}</span>
+							)}
+						</div>
+					)}
 				</form>
 			)}
 

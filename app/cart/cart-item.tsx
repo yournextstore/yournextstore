@@ -99,49 +99,40 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="flex gap-4 py-4">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				tabIndex={-1}
+				aria-hidden="true"
+				className="relative h-32 w-24 shrink-0 overflow-hidden rounded-md bg-tile"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="96px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
+			<div className="flex min-w-0 flex-1 flex-col">
+				<div className="flex items-start justify-between gap-4">
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 text-sm/6 uppercase text-foreground hover:underline"
 					>
 						{product.name}
 					</Link>
-					<button
-						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
-					>
-						<Trash2 className="h-4 w-4" />
-					</button>
+					<span className="shrink-0 text-sm/6 tabular-nums">
+						{formatMoney({ amount: lineTotal, currency, locale })}
+					</span>
 				</div>
+				<p className="mt-1 text-xs/5 text-muted-foreground">
+					{formatMoney({ amount: price, currency, locale })} each
+				</p>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
+				<div className="mt-auto flex items-center justify-between pt-2">
+					<div className={cn("flex items-center gap-1 transition-opacity", isPending && "opacity-70")}>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-7 w-7 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
@@ -150,17 +141,21 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-7 w-7 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
+					<button
+						type="button"
+						onClick={handleRemove}
+						disabled={isPending}
+						className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
+					>
+						<Trash2 className="h-4 w-4" strokeWidth={1.5} />
+					</button>
 				</div>
 			</div>
 		</div>
