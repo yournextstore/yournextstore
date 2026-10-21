@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 
+/** The original's outlined "The counter" button, here the basket with its count; highlighter on hover. */
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
 
@@ -10,18 +10,13 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="nav-cta"
+			aria-label={`Basket ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			Basket{" "}
+			<span className="mono min-w-[1.4em] rounded-full bg-ink px-1.5 text-center text-[0.68rem] leading-[1.6] text-kraft tabular-nums">
+				{itemCount}
+			</span>
 		</button>
 	);
 }
