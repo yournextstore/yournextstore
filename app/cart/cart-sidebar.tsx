@@ -1,22 +1,15 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
+import { CloseIcon } from "@/components/icons";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
@@ -32,109 +25,107 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
+			<SheetContent
+				showCloseButton={false}
+				className="flex flex-col gap-0 border-0 px-6 pt-10 shadow-none data-[side=right]:w-full data-[side=right]:max-w-100 data-[side=right]:border-l-0 data-[side=right]:sm:max-w-139 sm:px-12"
+			>
+				<SheetHeader className="mb-2 flex-row items-center justify-between space-y-0 p-0">
+					<SheetTitle className="text-title-md font-normal">
+						Cart
+						{itemCount > 0 && <span className="sr-only"> ({itemCount} items)</span>}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
 						Review items in your cart and proceed to checkout.
 					</SheetDescription>
+					<button
+						type="button"
+						onClick={closeCart}
+						aria-label="Close cart"
+						className="inline-flex size-8 items-center justify-center"
+					>
+						<CloseIcon className="size-6" />
+					</button>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+					<div>
+						<p className="mt-2 mb-6 max-sm:mr-10 md:text-body-lg">
+							You don&apos;t have anything in your cart. Let&apos;s change that, use the link below to start
+							browsing our products.
+						</p>
+						<Link href="/products" onClick={closeCart} className="hover:underline">
+							Explore products
+						</Link>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
-								{items.map((item) => (
-									<CartItem key={itemKey(item)} item={item} />
-								))}
-							</div>
-						</ScrollArea>
+						<div className="-mr-3 min-h-0 flex-1 overflow-y-auto pr-3 pb-8 sm:-mr-4 sm:pr-4">
+							{items.map((item) => (
+								<CartItem key={itemKey(item)} item={item} />
+							))}
+						</div>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<DiscountCodeField />
+						<div className="mt-auto border-t border-grayscale-200 bg-background pt-4 pb-6">
+							<div className="flex flex-col gap-2">
+								<div className="flex justify-between">
+									<span className="text-grayscale-500">Subtotal:</span>
+									<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
+								</div>
 								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
-										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
-												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
+									<div className="flex justify-between">
+										<span className="text-grayscale-500">Discount:</span>
+										<span className="tabular-nums">
+											− {formatMoney({ amount: discount, currency, locale })}
+										</span>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
-										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
+								<div className="flex justify-between">
+									<span className="text-grayscale-500">Shipping:</span>
+									<span>Calculated at checkout</span>
 								</div>
 								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
-								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
-									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
-								</p>
-								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
-								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
-								    While a cart write is in flight, block the link: a full navigation now would
-								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<a
-									href={checkoutUrl}
-									aria-disabled={isMutating}
-									tabIndex={isMutating ? -1 : undefined}
-									onClick={(e) => {
-										if (isMutating) {
-											e.preventDefault();
-										}
-									}}
-									className={cn(
-										buttonVariants(),
-										"w-full h-12 text-base font-medium",
-										isMutating && "pointer-events-none opacity-60",
-									)}
-								>
-									{isMutating ? (
-										<>
-											<Loader2 className="h-4 w-4 animate-spin" />
-											Updating…
-										</>
-									) : (
-										"Checkout"
-									)}
-								</a>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									Continue Shopping
-								</button>
+								    add it at checkout there would read as an extra charge to come. */}
+								<div className="flex justify-between">
+									<span className="text-grayscale-500">Taxes:</span>
+									<span>{taxBehavior === "inclusive" ? "Included" : "Calculated at checkout"}</span>
+								</div>
 							</div>
-						</SheetFooter>
+							<hr className="my-4 border-grayscale-200" />
+							<div className="flex justify-between text-title-md font-semibold">
+								<span>Total:</span>
+								<span>{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}</span>
+							</div>
+							<div className="mt-6">
+								<DiscountCodeField />
+							</div>
+							{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
+							    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
+							    While a cart write is in flight, block the link: a full navigation now would
+							    load /checkout before the item is committed server-side and show an empty cart. */}
+							<a
+								href={checkoutUrl}
+								aria-disabled={isMutating}
+								tabIndex={isMutating ? -1 : undefined}
+								onClick={(e) => {
+									if (isMutating) {
+										e.preventDefault();
+									}
+								}}
+								className={cn(
+									"mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xs bg-foreground px-6 text-background transition-colors hover:bg-grayscale-800",
+									isMutating && "pointer-events-none bg-grayscale-500",
+								)}
+							>
+								{isMutating ? (
+									<>
+										<Loader2 className="h-4 w-4 animate-spin" />
+										Updating…
+									</>
+								) : (
+									"Proceed to checkout"
+								)}
+							</a>
+						</div>
 					</>
 				)}
 			</SheetContent>

@@ -1,24 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { CategoryShowcase } from "@/components/sections/category-showcase";
+import { CollectionsCarousel } from "@/components/sections/collections-carousel";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { Story } from "@/components/sections/story";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
@@ -28,11 +15,21 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<div className="flex flex-col gap-26 pt-26 pb-26 md:gap-36 md:pt-36 md:pb-36">
+				{/* Cached reads, outside any boundary, so they prerender with the shell. */}
+				<CategoryShowcase />
+				<CollectionsCarousel />
+				<Suspense
+					fallback={
+						<div className="layout">
+							<ProductGridSkeleton className="col-span-full" />
+						</div>
+					}
+				>
+					<ProductGrid title="Featured products" limit={6} />
+				</Suspense>
+				<Story />
+			</div>
 		</>
 	);
 }

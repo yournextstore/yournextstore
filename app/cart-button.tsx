@@ -1,7 +1,7 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
+import { BagIcon } from "@/components/icons";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
@@ -10,16 +10,16 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="relative inline-flex size-8 items-center justify-center"
+			aria-label={itemCount > 0 ? `Open cart, ${itemCount} items` : "Open cart"}
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<BagIcon className="size-6" />
 			{itemCount > 0 ? (
 				<span
 					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
+					className="absolute top-0.5 right-0 flex size-4 items-center justify-center rounded-full bg-foreground text-body-2xs leading-none text-background"
 				>
-					{itemCount}
+					{itemCount > 99 ? "99+" : itemCount}
 				</span>
 			) : null}
 		</button>

@@ -1,30 +1,30 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { SortSelect } from "@/app/products/products-sort-select";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductFilterBar, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
 const PRODUCTS_PER_PAGE = 12;
 
+const sortOptions = [
+	{ value: "newest", label: "Latest arrivals", orderBy: "createdAt", orderDirection: "desc" },
+	{ value: "price-asc", label: "Lowest price", orderBy: "price", orderDirection: "asc" },
+	{ value: "price-desc", label: "Highest price", orderBy: "price", orderDirection: "desc" },
+	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
+] as const;
+
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
 	page?: string;
+	sort?: string;
 	collection?: string;
 	brand?: string;
 	priceMin?: string;
@@ -100,10 +100,13 @@ async function CategoryProducts({
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 
 	const result = await commerce.productBrowse({
 		active: true,
 		category: slug,
+		orderBy: sortOption.orderBy,
+		orderDirection: sortOption.orderDirection,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
 		collection: filters.collection,
@@ -114,20 +117,18 @@ async function CategoryProducts({
 	});
 
 	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
+		return <p className="py-16 md:text-title-md">No products match these filters.</p>;
 	}
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-12 gap-x-4 gap-y-10 md:gap-x-12 md:gap-y-16">
+				{result.data.map((product) => (
+					<div key={product.id} className="col-span-6 md:col-span-4">
+						<ProductCard product={product} />
+					</div>
 				))}
 			</div>
 			<ListingPagination
@@ -142,10 +143,12 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="layout pt-8 pb-26 md:pt-26 md:pb-36">
+			<div className="col-span-full">
+				<div className="mb-6 h-10 w-56 animate-pulse bg-grayscale-50 md:mb-7 md:h-16" />
+				<div className="mb-6 h-10 w-full animate-pulse bg-grayscale-50 md:mb-8" />
+				<ProductGridSkeleton />
+			</div>
 		</div>
 	);
 }
@@ -206,53 +209,24 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="layout pt-8 pb-26 md:pt-26 md:pb-36">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
+			<div className="col-span-full">
+				<h1 className="mb-6 text-title-md md:mb-7 md:text-title-2xl">{category.name}</h1>
+				<div className="mb-6 flex justify-between gap-10 md:mb-8">
+					{filtersAvailable ? (
+						<>
 							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
+							<ProductFilterBar facets={facets} showCategories={false} />
+						</>
+					) : (
+						<span />
 					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
+					<SortSelect options={sortOptions} />
 				</div>
+				<Suspense fallback={<ProductGridSkeleton />}>
+					<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+				</Suspense>
 			</div>
 		</div>
 	);

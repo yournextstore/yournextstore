@@ -1,11 +1,11 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { itemKey, lineOptions, planLabel } from "@/app/cart/cart-math";
+import { MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
@@ -101,75 +101,67 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="flex gap-6 border-b border-grayscale-100 py-8 last:border-b-0">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative aspect-[3/4] w-25 shrink-0 overflow-hidden bg-grayscale-50 sm:w-30"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="120px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
-						<Link
-							href={`/product/${product.slug}`}
-							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-						>
+			<div className="flex min-w-0 flex-grow flex-col justify-between">
+				<div>
+					<h3 className="text-base font-normal sm:text-title-md">
+						<Link href={`/product/${product.slug}`} onClick={closeCart} className="line-clamp-2">
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
-						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
-						)}
-					</div>
+					</h3>
+					{options && <p className="mt-1 text-body-xs text-grayscale-500">{options}</p>}
+					{item.subscriptionPlan && (
+						<p className="mt-1 text-body-xs text-grayscale-500">{planLabel(item.subscriptionPlan)}</p>
+					)}
+					<p className="mt-1 text-body-xs sm:hidden">
+						{formatMoney({ amount: lineTotal, currency, locale })}
+					</p>
+				</div>
+				<div
+					className={cn(
+						"mt-4 flex h-8 w-25 items-center justify-between rounded-xs border border-grayscale-200 px-4 transition-opacity",
+						isPending && "opacity-70",
+					)}
+				>
 					<button
 						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						onClick={handleDecrement}
+						className="inline-flex size-6 shrink-0 items-center justify-center"
+						aria-label="Decrease quantity"
 					>
-						<Trash2 className="h-4 w-4" />
+						<MinusIcon className="size-4" />
+					</button>
+					<span className="text-body-xs tabular-nums">{quantity}</span>
+					<button
+						type="button"
+						onClick={handleIncrement}
+						className="inline-flex size-6 shrink-0 items-center justify-center"
+						aria-label="Increase quantity"
+					>
+						<PlusIcon className="size-4" />
 					</button>
 				</div>
+			</div>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
+			<div className="flex flex-col items-end justify-between text-right">
+				<span className="max-sm:hidden">{formatMoney({ amount: lineTotal, currency, locale })}</span>
+				<button
+					type="button"
+					onClick={handleRemove}
+					disabled={isPending}
+					className="-mr-1 inline-flex size-8 items-center justify-center transition-colors hover:text-sale disabled:pointer-events-none disabled:opacity-50"
+					aria-label={`Remove ${product.name}`}
+				>
+					<TrashIcon className="size-6" />
+				</button>
 			</div>
 		</div>
 	);

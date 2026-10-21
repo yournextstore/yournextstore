@@ -59,7 +59,8 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
+	// No explicit sort shows the "Sort by" placeholder, like the original.
+	const current = searchParams.get("sort");
 
 	const onChange = (value: string | null) => {
 		if (value === null) {
@@ -70,10 +71,10 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
+			<SelectTrigger className={cn("w-auto min-w-28 md:min-w-35", className)} aria-label="Sort products">
+				<SelectValue placeholder="Sort by" />
 			</SelectTrigger>
-			<SelectContent align="end">
+			<SelectContent align="end" className="w-60">
 				{options.map((option) => (
 					<SelectItem key={option.value} value={option.value}>
 						{option.label}

@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -27,190 +26,160 @@ type MediaGalleryProps = {
 	variants: Variant[];
 };
 
+/**
+ * Portrait slides on a horizontal rail: on desktop the next slide peeks in at the right, round
+ * arrow buttons sit over the edges (filled black while there is somewhere to go) and a row of
+ * numbers underneath marks the current slide. Phones get the same rail edge to edge, swiped,
+ * with the numbers laid over the photograph.
+ */
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
-
-	// The gallery always shows the full image set (product + every variant image). When a
-	// variant is selected we don't filter the list — that would hide the other thumbnails —
-	// we just jump the active image to that variant's first photo within the full gallery.
-	const displayImages = images;
-
+	const trackRef = useRef<HTMLDivElement>(null);
+	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [canPrev, setCanPrev] = useState(false);
+	const [canNext, setCanNext] = useState(images.length > 1);
 	const selectedVariant = useSelectedVariant(variants);
+	const single = images.length <= 1;
 
-	const variantImageIndex = useMemo(() => {
-		// Only variants with real combinations drive the gallery jump.
-		const firstVariantImage =
-			selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
-		if (!firstVariantImage) return 0;
+	const scrollToIndex = (index: number, behavior: ScrollBehavior = "smooth") => {
+		const track = trackRef.current;
+		const slide = track?.children[index];
+		if (!track || !(slide instanceof HTMLElement)) return;
+		track.scrollTo({ left: slide.offsetLeft - track.offsetLeft, behavior });
+	};
 
+	// Selecting a variant jumps the rail to that variant's first photograph.
+	const searchKey = searchParams.toString();
+	const firstVariantImage =
+		selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-run when the selection in the URL changes
+	useEffect(() => {
+		if (!firstVariantImage) return;
 		const index = images.indexOf(firstVariantImage);
-		return Math.max(index, 0);
-	}, [selectedVariant, images]);
+		if (index >= 0) scrollToIndex(index);
+	}, [searchKey, firstVariantImage, images]);
 
-	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
-	// the gallery, so a jump on change alone would land back on the first image.
-	const [selectedIndex, setSelectedIndex] = useState(variantImageIndex);
-	const [isZoomed, setIsZoomed] = useState(false);
+	useEffect(() => {
+		const track = trackRef.current;
+		if (!track) return;
+		const update = () => {
+			setCanPrev(track.scrollLeft > 1);
+			setCanNext(track.scrollLeft + track.clientWidth < track.scrollWidth - 1);
+			const slides = Array.from(track.children);
+			const nearest = slides.reduce(
+				(best, slide, index) => {
+					const distance = Math.abs((slide as HTMLElement).offsetLeft - track.offsetLeft - track.scrollLeft);
+					return distance < best.distance ? { index, distance } : best;
+				},
+				{ index: 0, distance: Number.POSITIVE_INFINITY },
+			);
+			setSelectedIndex(nearest.index);
+		};
+		update();
+		track.addEventListener("scroll", update, { passive: true });
+		window.addEventListener("resize", update, { passive: true });
+		return () => {
+			track.removeEventListener("scroll", update);
+			window.removeEventListener("resize", update);
+		};
+	}, []);
 
-	// Jump to the selected variant's image when the variant changes (avoids useEffect). The previous
-	// key lives in state, not a ref: a variant change renders inside a transition, and a discarded
-	// render would move a ref while dropping the index update.
-	const searchParamsKey = searchParams.toString();
-	const [prevSearchParamsKey, setPrevSearchParamsKey] = useState(searchParamsKey);
-	if (prevSearchParamsKey !== searchParamsKey) {
-		setPrevSearchParamsKey(searchParamsKey);
-		setSelectedIndex(variantImageIndex);
-	}
-
-	const handlePrevious = useCallback(() => {
-		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
-	}, [displayImages.length]);
-
-	const handleNext = useCallback(() => {
-		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
-	}, [displayImages.length]);
-
-	// Keyboard navigation: ArrowLeft / ArrowRight (scoped to gallery container)
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			if (displayImages.length <= 1) return;
-
-			if (e.key === "ArrowLeft") {
-				e.preventDefault();
-				handlePrevious();
-			} else if (e.key === "ArrowRight") {
-				e.preventDefault();
-				handleNext();
-			}
-		},
-		[displayImages.length, handlePrevious, handleNext],
-	);
-
-	if (displayImages.length === 0) {
+	if (images.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
-				</div>
+			<div className="flex aspect-[3/4] w-full items-center justify-center bg-grayscale-50">
+				<p className="text-grayscale-500">No images available</p>
 			</div>
 		);
 	}
 
 	return (
-		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
 		<section
 			aria-roledescription="carousel"
-			aria-label="Product media gallery"
-			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			aria-label={`${productName} photographs`}
+			className="relative overflow-hidden"
+			onKeyDown={(e) => {
+				if (e.key === "ArrowLeft") scrollToIndex(Math.max(0, selectedIndex - 1));
+				if (e.key === "ArrowRight") scrollToIndex(Math.min(images.length - 1, selectedIndex + 1));
+			}}
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
+			<div className="relative flex items-center lg:mb-6">
+				{!single && (
+					<button
+						type="button"
+						onClick={() => scrollToIndex(Math.max(0, selectedIndex - 1))}
+						disabled={!canPrev}
+						aria-label="Previous image"
 						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
+							"absolute left-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-foreground transition-colors max-lg:hidden",
+							canPrev ? "bg-foreground text-background" : "bg-transparent text-foreground",
 						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-						fetchPriority="high"
-					/>
+					>
+						<ArrowLeftIcon className="size-6" />
+					</button>
 				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
-			</div>
-
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{displayImages.map((image, index) => (
-						<button
+				<div ref={trackRef} className="no-scrollbar flex w-full snap-x snap-mandatory gap-4 overflow-x-auto">
+					{images.map((image, index) => (
+						<div
 							key={`${image}-${index}`}
-							type="button"
-							onClick={() => setSelectedIndex(index)}
-							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
-							)}
+							className="relative aspect-[3/4] w-full shrink-0 snap-start overflow-hidden bg-grayscale-50 md:max-w-[80%]"
 						>
 							{isVideoUrl(image) ? (
 								<video
-									className="absolute inset-0 w-full h-full object-cover"
+									className="absolute inset-0 h-full w-full object-cover"
 									src={image}
 									muted
+									loop
+									autoPlay
 									playsInline
 								/>
 							) : (
 								<YNSMedia
 									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
+									alt={`${productName}, image ${index + 1}`}
 									fill
-									sizes="80px"
+									sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 45vw"
 									className="object-cover"
+									priority={index === 0}
+									fetchPriority={index === 0 ? "high" : undefined}
 								/>
 							)}
+						</div>
+					))}
+				</div>
+				{!single && (
+					<button
+						type="button"
+						onClick={() => scrollToIndex(Math.min(images.length - 1, selectedIndex + 1))}
+						disabled={!canNext}
+						aria-label="Next image"
+						className={cn(
+							"absolute right-4 z-10 inline-flex size-10 items-center justify-center rounded-full border border-foreground transition-colors max-lg:hidden",
+							canNext ? "bg-foreground text-background" : "bg-transparent text-foreground",
+						)}
+					>
+						<ArrowRightIcon className="size-6" />
+					</button>
+				)}
+			</div>
+			{!single && (
+				<div className="flex justify-center max-lg:absolute max-lg:bottom-4 max-lg:w-full">
+					{images.map((image, index) => (
+						<button
+							key={`${image}-dot-${index}`}
+							type="button"
+							onClick={() => scrollToIndex(index)}
+							aria-label={`Show image ${index + 1}`}
+							aria-current={index === selectedIndex}
+							className="min-h-6 min-w-6 px-1.5"
+						>
+							<span
+								className={cn(
+									"border-b px-0.5 transition-colors",
+									index === selectedIndex ? "border-foreground" : "border-transparent",
+								)}
+							>
+								{index + 1}
+							</span>
 						</button>
 					))}
 				</div>
