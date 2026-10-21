@@ -1,6 +1,4 @@
-import { Mail } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { type FAQCategory, faqCategories } from "@/app/faq/faq-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getStoreSeo } from "@/lib/commerce";
@@ -47,13 +45,9 @@ function buildFaqJsonLd(categories: FAQCategory[]): Record<string, unknown> {
 
 function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 	return (
-		<nav className="flex flex-wrap gap-2">
+		<nav aria-label="FAQ topics" className="flex flex-wrap gap-2">
 			{categories.map((category) => (
-				<a
-					key={category.id}
-					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-				>
+				<a key={category.id} href={`#${category.id}`} className="hull-btn">
 					{category.title}
 				</a>
 			))}
@@ -61,16 +55,23 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 	);
 }
 
+/** The original's accordion group: a ruled list with 18px semibold toggles. */
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
-		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion>
+		<section id={category.id} className="mb-12 scroll-mt-40 last:mb-0">
+			<h2 className="mb-4 text-h4">{category.title}</h2>
+			<Accordion className="border-b border-border">
 				{category.questions.map((item, index) => (
-					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
-						<AccordionTrigger>{item.question}</AccordionTrigger>
+					<AccordionItem
+						key={`${category.id}-${index}`}
+						value={`${category.id}-${index}`}
+						className="border-t border-b-0 border-border"
+					>
+						<AccordionTrigger className="rounded-none py-4 text-[1.125rem] leading-[1.35] font-semibold hover:no-underline">
+							{item.question}
+						</AccordionTrigger>
 						<AccordionContent>
-							<p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+							<p className="max-w-2xl pb-8 text-body">{item.answer}</p>
 						</AccordionContent>
 					</AccordionItem>
 				))}
@@ -79,53 +80,25 @@ function FAQSection({ category }: { category: FAQCategory }) {
 	);
 }
 
-function ContactCard() {
-	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
-			<p className="mt-2 text-muted-foreground">
-				We're here to help. Reach out and we'll get back to you as soon as possible.
-			</p>
-			<div className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-				<Mail className="h-4 w-4" />
-				<span>Contact us via the details on our website</span>
-			</div>
-		</div>
-	);
-}
-
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
-					Find answers to the most common questions about your orders, payments, shipping, and more.
+			<section className="grid gap-4 border-b border-border px-4 py-12 md:grid-cols-2 md:gap-8 md:p-8 md:py-16 lg:py-20">
+				<h1 className="text-h1">Questions &amp; Answers</h1>
+				<p className="max-w-xl text-h5 leading-[1.6] md:text-h4">
+					Orders, payments, shipping and returns — the short answers.
 				</p>
-			</div>
-
-			{/* Category Navigation */}
-			<div className="mb-10">
+			</section>
+			<div className="border-b border-border px-4 py-6 md:px-8">
 				<CategoryNav categories={faqCategories} />
 			</div>
-
-			{/* FAQ Sections */}
-			<div className="space-y-12">
-				{faqCategories.map((category) => (
-					<FAQSection key={category.id} category={category} />
-				))}
-			</div>
-
-			{/* Contact Card */}
-			<div className="mt-16">
-				<ContactCard />
+			<div className="px-4 py-12 md:p-8 md:py-16 lg:py-20">
+				<div className="mx-auto max-w-3xl">
+					{faqCategories.map((category) => (
+						<FAQSection key={category.id} category={category} />
+					))}
+				</div>
 			</div>
 		</div>
 	);

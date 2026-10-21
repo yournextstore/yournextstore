@@ -5,21 +5,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+	ListingCount,
+	ListingEmpty,
+	ListingGrid,
+	ListingIntro,
+	ListingSkeleton,
+	ListingToolbar,
+} from "@/components/hull-listing";
+import { plainText } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -37,9 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		plainText(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -60,52 +55,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 			images: collection.image ? [collection.image] : undefined,
 		},
 	};
-}
-
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -164,30 +113,33 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	const products = await getCollectionProducts(collection);
 
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<>
+			<ListingToolbar>
+				<p className="p-4 text-nav font-semibold uppercase">
+					{products.length} {products.length === 1 ? "Product" : "Products"}
+				</p>
+				<Link href="/products" className="hull-indicator p-4 text-nav font-semibold uppercase">
+					Shop everything
+				</Link>
+			</ListingToolbar>
+			{products.length > 0 ? (
+				<ListingGrid products={products} />
+			) : (
+				<ListingEmpty>Nothing here yet. Check back soon.</ListingEmpty>
+			)}
+			<ListingCount shown={products.length} total={products.length} />
+		</>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
+		<div className="min-h-svh">
+			<section className="border-b border-border px-4 py-12 md:p-8 md:py-16 lg:py-20">
+				<div className="h-[60px] w-64 animate-pulse bg-muted" />
 			</section>
-			<CollectionProductsSkeleton />
-		</>
+			<ListingSkeleton />
+		</div>
 	);
 }
 
@@ -219,26 +171,11 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 	}
 
 	return (
-		<>
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<ListingIntro title={collection.name} description={plainText(collection.description) || null} />
+			<CollectionProducts collection={collection} />
+		</div>
 	);
 };

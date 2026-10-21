@@ -27,15 +27,18 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 		...plans.map((plan) => ({ id: plan.id, label: planLabel(plan), detail: plan.benefits })),
 	];
 
+	// Ruled rows under an uppercase title, like the variant option rows above it.
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
+		<fieldset className="border-t border-border pt-4">
+			<legend className="float-left mb-2 w-full text-micro font-semibold tracking-wider uppercase">
+				Purchase
+			</legend>
 			{options.map((option) => (
 				<label
 					key={option.id ?? "one-time"}
 					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
+						"flex cursor-pointer items-start gap-3 border-t border-border py-4 transition-opacity first-of-type:border-t-0 hover:opacity-70",
+						value === option.id && "hover:opacity-100",
 					)}
 				>
 					<input
@@ -43,11 +46,15 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 						name="purchase"
 						checked={value === option.id}
 						onChange={() => onChange(option.id)}
-						className="mt-0.5 size-4 shrink-0 accent-foreground"
+						className="mt-1 size-4 shrink-0 accent-foreground"
 					/>
-					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
-						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
+					<span>
+						<span className={cn("block text-body", value === option.id && "font-semibold")}>
+							{option.label}
+						</span>
+						{option.detail && (
+							<span className="mt-1 block text-micro text-muted-foreground">{option.detail}</span>
+						)}
 					</span>
 				</label>
 			))}

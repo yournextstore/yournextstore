@@ -1,15 +1,14 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
+	SheetClose,
 	SheetContent,
 	SheetDescription,
 	SheetHeader,
@@ -148,7 +147,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="sr-only">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -331,31 +330,34 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** "SHOW FILTERS" toolbar trigger + the original's ink filter drawer, at every breakpoint. */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
+			<SheetTrigger className="flex cursor-pointer items-center p-4 text-nav font-semibold uppercase">
+				Show Filters
 				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+					<span className="ml-2 flex size-6 items-center justify-center rounded-full bg-foreground text-micro text-background">
 						{activeCount}
 					</span>
 				)}
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				showCloseButton={false}
+				className="hull-inverted block overflow-y-auto border-r border-border p-0 text-foreground shadow-none data-[side=left]:w-full data-[side=left]:max-w-md data-[side=left]:sm:max-w-md"
 			>
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+				<SheetHeader className="relative flex-row items-center px-4 py-3 after:absolute after:inset-x-0 after:bottom-0 after:border-t after:border-border md:px-8 md:py-6">
+					<SheetTitle className="mr-auto flex h-12 items-center text-nav font-semibold uppercase">
+						Filters
+					</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
+					<SheetClose className="-mr-2 cursor-pointer p-2 text-nav font-semibold uppercase">Done</SheetClose>
 				</SheetHeader>
-				<div className="px-4 pb-8">
+				<div className="px-4 pt-2 pb-8 md:px-8">
 					<FilterControls {...props} />
 				</div>
 			</SheetContent>
