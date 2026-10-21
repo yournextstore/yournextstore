@@ -1,17 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
+import { pill } from "@/components/munch/styles";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange } from "@/lib/pricing";
@@ -78,6 +77,7 @@ export function AddToCartButton({
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
+	const buttonRef = useRef<HTMLButtonElement>(null);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
 	const selectedVariant = useSelectedVariant(variants);
@@ -102,17 +102,14 @@ export function AddToCartButton({
 	);
 
 	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
+	const _totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
 
 	const buttonText = useMemo(() => {
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock, plan]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -215,98 +212,121 @@ export function AddToCartButton({
 		});
 	};
 
+	const outOfStockOrMissing = !selectedVariant || isOutOfStock;
+
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
+		<div className="flex flex-col gap-lg">
+			<div className="flex flex-col gap-1">
+				<p className="flex flex-wrap items-baseline gap-x-3 text-b-lg leading-[1.5] lg:text-b-xl">
+					<span>{priceInfo.display}</span>
+					{priceInfo.compareAt && <s className="text-b-md opacity-80">{priceInfo.compareAt}</s>}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
+						<span className="font-display-d bg-blush px-1 text-l-xs">−{priceInfo.discountPercent}%</span>
 					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
+				</p>
+				{omnibusPrice && <p className="text-b-xs">Lowest price in the last 30 days: {omnibusPrice}</p>}
+				{stockStatus && stockStatus.tone !== "in" && <p className="text-b-sm">{stockStatus.label}</p>}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
-
-			{purchasable ? (
-				<>
-					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
-					)}
-
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
-
-					<VolumePricingDisplay
-						tiers={resolvedTiers}
-						quantity={effectiveQuantity}
-						volumePrice={volumePrice}
-					/>
-
-					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
-						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
-					) : (
-						<form onSubmit={handleSubmit}>
-							<button
-								type="submit"
-								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								{buttonText}
-							</button>
-						</form>
-					)}
-				</>
-			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+			{summary && (
+				<p className="text-b-md leading-[1.5] font-normal whitespace-pre-line lg:text-b-lg">{summary}</p>
 			)}
 
-			<TrustBadges />
+			<div className="mt-s flex flex-col gap-s">
+				{variants.length > 1 && <VariantSelector variants={variants} />}
+
+				{purchasable ? (
+					<>
+						{plans.length > 0 && (
+							<SubscriptionOptions
+								plans={plans}
+								value={planId}
+								onChange={setPlanId}
+								allowOneTime={allowOneTime}
+							/>
+						)}
+
+						<VolumePricingDisplay
+							tiers={resolvedTiers}
+							quantity={effectiveQuantity}
+							volumePrice={volumePrice}
+						/>
+
+						{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+							<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
+						) : (
+							<form id="pdp-atc" onSubmit={handleSubmit}>
+								<button
+									ref={buttonRef}
+									type="submit"
+									disabled={outOfStockOrMissing}
+									className={pill({ size: "xl", variant: "outline", className: "w-full" })}
+								>
+									{buttonText}
+								</button>
+							</form>
+						)}
+					</>
+				) : (
+					<p className="text-b-sm">This subscription isn't available right now.</p>
+				)}
+			</div>
+			<StickyAddToCart target={buttonRef} label={buttonText} disabled={outOfStockOrMissing || !purchasable} />
+		</div>
+	);
+}
+
+/**
+ * The original's phone-only bar: a tomato pill docked to the bottom while the page's own button is
+ * scrolled away, hidden again once the footer arrives. It submits the same form.
+ */
+function StickyAddToCart({
+	target,
+	label,
+	disabled,
+}: {
+	target: React.RefObject<HTMLButtonElement | null>;
+	label: string;
+	disabled: boolean;
+}) {
+	const [visible, setVisible] = useState(false);
+
+	useEffect(() => {
+		const button = target.current;
+		const footer = document.querySelector("footer");
+		if (!button) return;
+		let buttonInView = true;
+		let footerInView = false;
+		const update = () => setVisible(!buttonInView && !footerInView);
+		const observer = new IntersectionObserver((entries) => {
+			for (const entry of entries) {
+				if (entry.target === button) buttonInView = entry.isIntersecting;
+				else footerInView = entry.isIntersecting;
+			}
+			update();
+		});
+		observer.observe(button);
+		if (footer) observer.observe(footer);
+		return () => observer.disconnect();
+	}, [target]);
+
+	return (
+		<div
+			data-sticky-atc={visible ? "on" : "off"}
+			inert={!visible}
+			className={cn(
+				"fixed inset-x-0 bottom-0 z-40 border-t border-brand bg-background p-m transition-transform duration-300 lg:hidden",
+				visible ? "translate-y-0" : "translate-y-full",
+			)}
+		>
+			<button
+				type="submit"
+				form="pdp-atc"
+				disabled={disabled}
+				className={pill({ size: "md", variant: "primary", className: "mx-auto h-15" })}
+			>
+				{label}
+			</button>
 		</div>
 	);
 }

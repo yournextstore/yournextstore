@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
+import { headingSizes, pill } from "@/components/munch/styles";
 import { NewsletterConsent } from "@/components/newsletter-consent";
 import { trackIdentify } from "@/lib/track";
+import { cn } from "@/lib/utils";
 
+/** The original's sign-up band above the footer: big serif line, tall outlined field and pill. */
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 	const [marketingConsent, setMarketingConsent] = useState(false);
@@ -15,54 +17,47 @@ export function Newsletter() {
 	}, [state]);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
-							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+		<section className="shell flex flex-col gap-s py-2xl">
+			{state?.success ? (
+				<p className="font-serif text-d-xl leading-[1.1] text-brand lg:text-d-5xl">{state.message}</p>
+			) : (
+				<>
+					<h2 className={cn(headingSizes.page, "lg:text-d-5xl")}>Subscribe for fresh news.</h2>
+					<form action={action} className="flex flex-col gap-s">
+						<div className="flex flex-col gap-s lg:flex-row">
+							<label htmlFor="newsletter-email" className="sr-only">
+								Email address
+							</label>
+							<input
+								id="newsletter-email"
+								type="email"
+								name="email"
+								placeholder="Email address"
+								autoComplete="email"
+								required
+								className="h-20 w-full rounded-lg border-[1.5px] border-brand bg-transparent px-lg font-sans text-b-4xl leading-[1.4] tracking-[-0.64px] text-foreground outline-none placeholder:text-foreground/75 focus-visible:ring-4 focus-visible:ring-brand/40 lg:max-w-240 lg:px-2xl lg:text-b-8xl lg:tracking-[-0.96px]"
+							/>
+							<button
+								type="submit"
+								disabled={isPending || !marketingConsent}
+								className={pill({ size: "xl", variant: "outline", className: "w-full lg:flex-1" })}
+							>
+								{isPending ? "Subscribing…" : "Subscribe"}
+							</button>
 						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-4">
-								<div className="flex flex-col gap-3 sm:flex-row">
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-									/>
-									<button
-										type="submit"
-										disabled={isPending || !marketingConsent}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-									>
-										{isPending ? "Subscribing\u2026" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-									</button>
-								</div>
-								<NewsletterConsent
-									checked={marketingConsent}
-									onCheckedChange={setMarketingConsent}
-									disabled={isPending}
-								/>
-							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
+						<NewsletterConsent
+							checked={marketingConsent}
+							onCheckedChange={setMarketingConsent}
+							disabled={isPending}
+						/>
+					</form>
+					{state?.error && (
+						<p className="rounded-lg bg-blush p-s text-b-lg text-destructive" role="alert">
+							{state.error}
+						</p>
 					)}
-				</div>
-			</div>
+				</>
+			)}
 		</section>
 	);
 }

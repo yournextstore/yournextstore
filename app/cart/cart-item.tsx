@@ -101,74 +101,67 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="flex items-start justify-between gap-4">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative size-25 shrink-0 overflow-hidden rounded-lg border-[1.5px] border-brand bg-[#f4ebdb]"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="100px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
+			<div className="flex w-full min-w-0 flex-col items-start gap-4">
+				<div className="flex w-full justify-between gap-3">
+					<div className="min-w-0">
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="text-b-lg leading-[1.3] hover:underline"
 						>
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
-						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
-						)}
+						{options && <p className="mt-1 text-b-sm">{options}</p>}
+						{item.subscriptionPlan && <p className="mt-1 text-b-sm">{planLabel(item.subscriptionPlan)}</p>}
 					</div>
-					<button
-						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
-					>
-						<Trash2 className="h-4 w-4" />
-					</button>
+					<span className="text-b-md font-semibold tabular-nums">
+						{formatMoney({ amount: lineTotal, currency, locale })}
+					</span>
 				</div>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
+				<div className="flex w-full items-center justify-between gap-4">
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"flex h-10 w-32 items-center justify-center gap-1 overflow-hidden rounded-lg border border-brand transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-full flex-1 items-center justify-center hover:bg-blush"
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							<Minus aria-hidden="true" className="size-3" strokeWidth={2} />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="flex-1 text-center text-b-md tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-full flex-1 items-center justify-center hover:bg-blush"
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							<Plus aria-hidden="true" className="size-3" strokeWidth={2} />
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
+					<button
+						type="button"
+						onClick={handleRemove}
+						disabled={isPending}
+						className="inline-flex size-8 items-center justify-center disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
+					>
+						<Trash2 aria-hidden="true" className="size-6" strokeWidth={1.5} />
+					</button>
 				</div>
 			</div>
 		</div>

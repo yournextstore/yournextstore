@@ -9,6 +9,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
+	/** Renders a plain labelled button (e.g. the PDP's "Add +" pill) instead of the icon overlay. */
+	children?: React.ReactNode;
+	className?: string;
 	variantId: string;
 	variantSku?: string | null;
 	variantPrice: string;
@@ -24,6 +27,8 @@ type QuickAddButtonProps = {
 };
 
 export function QuickAddButton({
+	children,
+	className,
 	variantId,
 	variantSku,
 	variantPrice,
@@ -71,6 +76,14 @@ export function QuickAddButton({
 			}
 		});
 	};
+
+	if (children) {
+		return (
+			<button type="button" onClick={handleClick} className={className}>
+				{children}
+			</button>
+		);
+	}
 
 	return (
 		<Tooltip>
