@@ -6,12 +6,12 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg
 	const sizeClass = size === "lg" ? "h-5 w-5" : "h-4 w-4";
 
 	return (
-		<div className="flex gap-0.5">
+		<div className="flex" aria-hidden>
 			{Array.from({ length: 5 }, (_, i) => (
 				<Star
 					key={i}
 					className={`${sizeClass} ${
-						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
 					}`}
 				/>
 			))}
@@ -23,56 +23,59 @@ function ReviewSummary({ summary }: { summary: APIProductReviewsBrowseResult["su
 	if (summary.reviewCount === 0) return null;
 
 	return (
-		<div className="flex items-center gap-3">
-			<StarRating rating={Math.round(summary.averageRating)} size="lg" />
-			<span className="text-lg font-medium">{summary.averageRating.toFixed(1)}</span>
-			<span className="text-muted-foreground">
-				({summary.reviewCount} {summary.reviewCount === 1 ? "review" : "reviews"})
-			</span>
+		<div className="mt-4 flex items-center gap-4">
+			<p className="text-3xl font-medium">
+				{summary.averageRating.toFixed(1)}
+				<span className="sr-only"> average review score</span>
+			</p>
+			<div>
+				<StarRating rating={Math.round(summary.averageRating)} size="lg" />
+				<p className="mt-0.5 text-xs text-gray-600">
+					Based on {summary.reviewCount} {summary.reviewCount === 1 ? "review" : "reviews"}
+				</p>
+			</div>
 		</div>
 	);
 }
 
 function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][number] }) {
 	return (
-		<div className="space-y-2 border-b border-border pb-6 last:border-0">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-3">
-					<StarRating rating={review.rating} />
-					<span className="font-medium">{review.author}</span>
-				</div>
-				<time className="text-sm text-muted-foreground" dateTime={review.createdAt}>
-					{new Date(review.createdAt).toLocaleDateString(undefined, {
+		<blockquote>
+			<div className="sm:flex sm:items-center sm:gap-4">
+				<StarRating rating={review.rating} size="lg" />
+				<p className="mt-2 font-medium sm:mt-0">{review.author}</p>
+			</div>
+			<p className="mt-2 text-gray-700">{review.content}</p>
+			<footer className="mt-4">
+				<time className="text-xs text-gray-600" dateTime={review.createdAt}>
+					{new Date(review.createdAt).toLocaleDateString("en-US", {
 						year: "numeric",
-						month: "short",
+						month: "long",
 						day: "numeric",
 					})}
 				</time>
-			</div>
-			<p className="text-muted-foreground leading-relaxed">{review.content}</p>
-		</div>
+			</footer>
+		</blockquote>
 	);
 }
 
 export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBrowseResult; slug: string }) {
 	return (
-		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
-			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
-				<ReviewSummary summary={reviews.summary} />
-			</div>
+		<div id="reviews" className="mt-10 mb-20 scroll-mt-28">
+			<h2 className="text-xl font-bold text-zinc-900 sm:text-2xl">Customer Reviews</h2>
+			<ReviewSummary summary={reviews.summary} />
 			{reviews.data.length > 0 ? (
-				<div className="space-y-6">
+				<div className="mt-8 grid grid-cols-1 gap-x-16 gap-y-12 lg:grid-cols-2">
 					{reviews.data.map((review) => (
 						<ReviewCard key={review.id} review={review} />
 					))}
 				</div>
 			) : (
-				<p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
+				<p className="mt-4 text-gray-600">No reviews yet. Be the first to share your thoughts.</p>
 			)}
-			<div className="mt-10">
+			<div className="mt-10 max-w-2xl">
 				<ReviewForm slug={slug} />
 			</div>
-		</section>
+		</div>
 	);
 }

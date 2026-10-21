@@ -3,13 +3,13 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -29,7 +29,7 @@ export async function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `From ${formatMoney({ amount: minPrice, currency, locale })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
@@ -40,9 +40,6 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -58,27 +55,15 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-900"
+		>
+			<div className="relative aspect-[4/5] overflow-hidden bg-[#e9e2d6]">
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className="absolute inset-0 h-full w-full object-cover"
 							src={primaryImage}
 							muted
 							loop
@@ -88,36 +73,27 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(min-width: 1280px) 400px, (min-width: 1024px) 30vw, (min-width: 768px) 45vw, calc(100vw - 48px)"
+							className="object-cover"
 							priority={priority}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{/* The original's hover veil with a full-width gradient "Shop now" bar. */}
+				<div
+					aria-hidden
+					className="absolute inset-0 z-10 grid items-end opacity-0 transition-all group-hover:bg-black/10 group-hover:opacity-100 group-focus-visible:opacity-100"
+				>
+					<span className="btn-emerald w-full rounded-none">
+						Shop now
+						<ArrowRight className="h-5 w-5" />
+					</span>
+				</div>
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-1 items-start justify-between gap-4 px-5 py-6 text-zinc-700">
+				<span className="min-w-0 group-hover:underline">{product.name}</span>
+				{priceDisplay ? <span className="shrink-0 whitespace-nowrap font-bold">{priceDisplay}</span> : null}
 			</div>
 		</Link>
 	);

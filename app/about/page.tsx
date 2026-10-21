@@ -64,33 +64,33 @@ export default async function AboutPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
+				<h1 className="mt-4 text-2xl font-bold text-zinc-800 sm:text-4xl">About Us</h1>
 				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
 			</div>
 
 			{/* Story */}
 			<div className="space-y-12">
 				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
+					<h2 className="text-2xl font-bold text-zinc-800 mb-4">Our Story</h2>
 					<div className="space-y-4 text-muted-foreground leading-relaxed">
 						<p>
 							We believe in the power of thoughtful design. Every product in our collection is carefully
 							selected to bring quality, beauty, and functionality into your everyday life.
 						</p>
 						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
+							We keep the range focused, describe every product plainly and show it as it is, so choosing is
+							easy and what arrives is what you expected.
 						</p>
 					</div>
 				</section>
 
 				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
+					<h2 className="text-2xl font-bold text-zinc-800 mb-4">What We Stand For</h2>
 					<div className="grid gap-6 sm:grid-cols-3">
 						<div>
 							<h3 className="text-base font-medium text-foreground">Quality first</h3>
 							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+								Well-made products we are glad to recommend.
 							</p>
 						</div>
 						<div>
@@ -111,21 +111,18 @@ export default async function AboutPage() {
 
 			{/* CTA */}
 			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
+				<h2 className="text-2xl font-bold text-zinc-800">Want to learn more?</h2>
 				<p className="mt-2 text-muted-foreground">
 					Explore our products or get in touch — we would love to hear from you.
 				</p>
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
+					<Link href="/products" className="btn-emerald">
 						Shop products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex items-center justify-center rounded-lg border border-border px-8 py-3 font-medium text-foreground transition-colors hover:bg-secondary"
 						>
 							Contact us
 						</Link>

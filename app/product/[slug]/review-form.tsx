@@ -18,11 +18,15 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						onMouseEnter={() => setHovered(starValue)}
 						onMouseLeave={() => setHovered(0)}
 						onClick={() => onChange(starValue)}
+						aria-label={`${starValue} ${starValue === 1 ? "star" : "stars"}`}
+						aria-pressed={starValue <= value}
 						className="transition-transform hover:scale-110"
 					>
 						<Star
 							className={`h-6 w-6 ${
-								starValue <= (hovered || value) ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+								starValue <= (hovered || value)
+									? "fill-yellow-400 text-yellow-400"
+									: "fill-gray-200 text-gray-200"
 							}`}
 						/>
 					</button>
@@ -101,11 +105,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 
 			{state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
-			<button
-				type="submit"
-				disabled={isPending || rating === 0}
-				className="rounded-md bg-foreground px-6 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-			>
+			<button type="submit" disabled={isPending || rating === 0} className="btn-emerald">
 				{isPending ? "Submitting..." : "Submit Review"}
 			</button>
 		</form>

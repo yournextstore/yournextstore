@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -141,11 +147,11 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 					: undefined;
 
 				return (
-					<fieldset key={group.label} className="border-0 p-0 m-0">
+					<fieldset key={group.label} className="mx-0 border-0 p-0">
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="text-sm font-bold text-zinc-700">{group.label}</legend>
 									{selectedOption && (
 										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
 									)}
@@ -166,7 +172,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												className={cn(
 													"relative h-12 w-12 rounded-full transition-all duration-200",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+														? "ring-2 ring-emerald-900 ring-offset-2 ring-offset-background"
 														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
@@ -184,7 +190,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="text-sm font-bold text-zinc-700">{group.label}</legend>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -196,10 +202,10 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"flex flex-col items-center rounded-lg border px-5 py-2.5 transition-colors",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-emerald-900 bg-emerald-900 text-white"
+														: "border-gray-300 bg-white text-zinc-800 hover:border-zinc-500",
 												)}
 											>
 												<span className="text-sm font-medium">{option.value}</span>

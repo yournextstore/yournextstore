@@ -16,6 +16,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { richTextToPlain } from "@/lib/display";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
@@ -62,45 +63,35 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
+		<section className="container pt-6">
+			<div className="grid overflow-hidden rounded-lg bg-[#e2d8c9] shadow sm:grid-cols-2">
+				<div className="flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-14">
+					<h1 className="text-2xl font-bold text-zinc-800 sm:text-4xl">{collection.name}</h1>
+					{description ? <p className="mt-4 max-w-md text-base text-zinc-800">{description}</p> : null}
+				</div>
+				{collection.image ? (
+					<div className="relative aspect-[16/9] sm:aspect-auto sm:min-h-72">
+						<YNSMedia
+							src={collection.image}
+							alt=""
+							fill
+							sizes="(min-width: 1280px) 616px, (min-width: 640px) 50vw, 100vw"
+							className="object-cover object-[50%_70%]"
+							priority
+						/>
 					</div>
-				</div>
+				) : null}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
+		<section className="container py-16 sm:py-20">
+			<ProductGridSkeleton />
 		</section>
 	);
 }
@@ -162,29 +153,27 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 
 	return (
 		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
+			title={`${collection.name}: ${products.length} ${products.length === 1 ? "product" : "products"}`}
+			description=""
+			hideTitle
 			products={products}
 			showViewAll={false}
+			className="py-12 sm:py-16"
 		/>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh">
+			<div className="container pt-6">
+				<div className="h-5 w-48 animate-pulse rounded bg-secondary" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
+			<section className="container pt-6">
+				<div className="h-72 animate-pulse rounded-lg bg-[#e2d8c9]" />
 			</section>
 			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -216,10 +205,10 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 	}
 
 	return (
-		<>
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+			<div className="container pt-6">
 				<Breadcrumb>
 					<BreadcrumbList>
 						<BreadcrumbItem>
@@ -235,9 +224,7 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 				</Breadcrumb>
 			</div>
 			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<CollectionProducts collection={collection} />
+		</div>
 	);
 };

@@ -64,7 +64,7 @@ export default async function BlogPage() {
 	};
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container py-12 sm:py-16">
 			<JsonLdScript data={blogJsonLd} />
 
 			{/* Header */}
@@ -82,7 +82,7 @@ export default async function BlogPage() {
 						</BreadcrumbItem>
 					</BreadcrumbList>
 				</Breadcrumb>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Blog</h1>
+				<h1 className="mt-4 text-2xl font-bold text-zinc-800 sm:text-4xl">Blog</h1>
 				<p className="mt-3 text-lg text-muted-foreground">News, guides, and stories from our team.</p>
 			</div>
 
@@ -96,7 +96,7 @@ export default async function BlogPage() {
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 					{posts.map((post) => (
 						<Link key={post.id} href={`/blog/${post.slug}`} className="group">
-							<div className="relative aspect-[3/2] bg-secondary rounded-2xl overflow-hidden mb-4">
+							<div className="relative aspect-[3/2] bg-secondary rounded-lg overflow-hidden mb-4">
 								{post.image && (
 									<YNSMedia
 										src={post.image}

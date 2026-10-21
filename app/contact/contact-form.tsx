@@ -47,11 +47,7 @@ export function ContactForm() {
 					className="mt-2 w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none transition-all placeholder:text-muted-foreground/60 focus:border-foreground/40 focus:ring-2 focus:ring-foreground/10"
 				/>
 			</div>
-			<button
-				type="submit"
-				disabled={isPending}
-				className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90 disabled:opacity-50"
-			>
+			<button type="submit" disabled={isPending} className="btn-emerald">
 				{isPending ? "Sending…" : "Send message"}
 				{!isPending && <ArrowRightIcon className="h-4 w-4" />}
 			</button>

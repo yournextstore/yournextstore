@@ -8,8 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+		--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -34,56 +33,118 @@
 	--color-ring: var(--ring);
 }
 
+/* Astro Shopify palette: Tailwind's white/zinc/gray grid with emerald accents.
+   Light only; :root and .dark carry the same tokens (the palette test reads both). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #27272a;
+	--card: #ffffff;
+	--card-foreground: #3f3f46;
+	--popover: #ffffff;
+	--popover-foreground: #27272a;
+	--primary: #064e3b;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #27272a;
+	--muted: #f4f4f5;
+	--muted-foreground: #52525b;
+	--accent: #f4f4f5;
+	--accent-foreground: #27272a;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #e5e7eb;
+	--ring: #064e3b;
+	--emerald: #064e3b;
+	--emerald-strong: #047857;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #27272a;
+	--card: #ffffff;
+	--card-foreground: #3f3f46;
+	--popover: #ffffff;
+	--popover-foreground: #27272a;
+	--primary: #064e3b;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #27272a;
+	--muted: #f4f4f5;
+	--muted-foreground: #52525b;
+	--accent: #f4f4f5;
+	--accent-foreground: #27272a;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #e5e7eb;
+	--ring: #064e3b;
+	--emerald: #064e3b;
+	--emerald-strong: #047857;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
 	body {
 		@apply bg-background text-foreground;
+		/* The original ships no webface: the live demo's native stack (no bare system-ui, which
+		   resolves to CJK faces without a bold on some Linux setups). */
+		font-family:
+			-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif,
+			"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	}
+	details > summary {
+		list-style: none;
+	}
+	details > summary::-webkit-details-marker {
+		display: none;
+	}
+}
+
+/* Tailwind's container with the original's 1.5rem gutter. */
+@utility container {
+	margin-inline: auto;
+	padding-inline: 1.5rem;
+}
+
+@layer components {
+	/* The original's `.button`: emerald gradient, rounded-lg, white medium label. */
+	.btn-emerald {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		border-radius: var(--radius);
+		background-image: linear-gradient(to bottom right, #064e3b, #065f46, var(--emerald-strong));
+		background-color: var(--emerald);
+		padding: 0.75rem 2rem;
+		font-size: 1rem;
+		line-height: 1.5rem;
+		font-weight: 500;
+		color: #ffffff;
+		transition: opacity 150ms;
+	}
+	.btn-emerald:hover {
+		opacity: 0.85;
+	}
+	.btn-emerald:focus-visible {
+		outline: 2px solid #000000;
+		outline-offset: 2px;
+	}
+	.btn-emerald:disabled,
+	.btn-emerald[aria-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+	/* Announcement bar: the original's cyan-to-magenta sweep, deepened so white text clears AA. */
+	.announce-gradient {
+		background-color: #6d45bb;
+		background-image: linear-gradient(to right, #1a78a3, #b40fd0);
 	}
 }
 
