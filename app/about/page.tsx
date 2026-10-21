@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
@@ -39,6 +40,44 @@ async function getStoreInfo() {
 	}
 }
 
+type Figure = { src: string; caption: string };
+
+// Editorial photographs (generated, listed in NOTICE.md) that break up the long read.
+const FIGURES_TOP: Figure[] = [
+	{ src: "/images/pexels/summer-flatlay.jpg", caption: "Set for breakfast" },
+	{ src: "/images/pexels/beach-bag.jpg", caption: "A sofa corner in pastels" },
+];
+const FIGURES_BOTTOM: Figure[] = [
+	{ src: "/images/pexels/hydrangea-light.jpg", caption: "Colour where you least expect it" },
+	{ src: "/images/pexels/sunlit-desk.jpg", caption: "Terrazzo pots and bud vases on the shelf" },
+];
+
+function Prose({ children }: { children: React.ReactNode }) {
+	return <div className="mx-auto max-w-[40rem] space-y-4 px-4 leading-paragraph md:px-0">{children}</div>;
+}
+
+/** Two photographs side by side with small captions, as the original breaks up its long read. */
+function Figures({ items }: { items: Figure[] }) {
+	return (
+		<div className="my-16 grid grid-cols-1 gap-5 px-4 md:my-24 md:grid-cols-2 md:gap-[5vw] md:px-8">
+			{items.map((item, index) => (
+				<figure key={item.src} className={index % 2 === 1 ? "md:mt-[5vw]" : undefined}>
+					<div className="relative aspect-[4/3] overflow-hidden rounded-md bg-lightgray">
+						<Image
+							src={item.src}
+							alt=""
+							fill
+							sizes="(max-width: 768px) 100vw, 50vw"
+							className="object-cover"
+						/>
+					</div>
+					<figcaption className="mt-3 text-ui-sm text-darkgray">{item.caption}</figcaption>
+				</figure>
+			))}
+		</div>
+	);
+}
+
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
@@ -54,84 +93,67 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mb-32">
 			<JsonLdScript data={aboutJsonLd} />
+			<h1 className="mx-auto max-w-[60rem] px-4 pt-6 pb-8 text-center text-ui-3xl md:px-8 md:pt-9 md:text-ui-4xl">
+				About {storeName}
+			</h1>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
+			<Prose>
+				<p>
+					<strong className="font-bold">{storeName}</strong>{" "}
+					{storeDescription
+						? storeDescription
+						: "is a small shop for cheerful homewares: tableware, vases, candles and soft things in bold pastels."}
 				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+				<p>
+					We would rather sell you one thing you keep for years than five you replace next season. So we
+					choose carefully, keep the range small, and tell you plainly what you are buying.
+				</p>
+				<p>
+					<Link href="/products" className="font-bold underline hover:no-underline">
+						Browse everything we stock
+					</Link>{" "}
+					or read on for how we work.
+				</p>
+			</Prose>
+
+			<Figures items={FIGURES_TOP} />
+
+			<Prose>
+				<h2 className="pt-4 text-ui-xl font-bold md:text-ui-2xl">How we choose</h2>
+				<p>Everything we sell has to be useful and has to make you smile when you see it on the shelf.</p>
+				<p>
+					We favour durable materials, honest construction and designs that will not date, and we keep our
+					range small so each item gets the attention it deserves.
+				</p>
+			</Prose>
+
+			<Figures items={FIGURES_BOTTOM} />
+
+			<Prose>
+				<h2 className="pt-4 text-ui-xl font-bold md:text-ui-2xl">Questions?</h2>
+				<p>
+					If you would like to know more about a piece before you buy it, or need a hand with an order, we are
+					happy to help.
+				</p>
+				<div className="flex flex-wrap gap-3 pt-4">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="flex h-10 items-center rounded-full bg-offblack px-4 text-ui-sm font-bold text-white duration-200 hover:opacity-80"
 					>
-						Shop products
+						Shop all products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="flex h-10 items-center rounded-full border border-offblack px-4 text-ui-sm font-bold duration-200 hover:opacity-50"
 						>
 							Contact us
 						</Link>
 					)}
 				</div>
-			</div>
+			</Prose>
 		</div>
 	);
 }

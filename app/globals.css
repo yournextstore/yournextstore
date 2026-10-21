@@ -7,13 +7,58 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* The original's type scale, under its own names: overriding text-sm/base/lg would resize every
+   shadcn component. Every step is tightly tracked (-0.03em) and set solid. */
+@theme {
+	--text-ui-xs: 0.75rem;
+	--text-ui-xs--line-height: 1.1;
+	--text-ui-xs--letter-spacing: -0.03em;
+	--text-ui-sm: 0.875rem;
+	--text-ui-sm--line-height: 1.1;
+	--text-ui-sm--letter-spacing: -0.03em;
+	--text-ui-md: 1rem;
+	--text-ui-md--line-height: 1.1;
+	--text-ui-md--letter-spacing: -0.03em;
+	--text-ui-lg: 1.125rem;
+	--text-ui-lg--line-height: 1.1;
+	--text-ui-lg--letter-spacing: -0.03em;
+	--text-ui-xl: 1.5rem;
+	--text-ui-xl--line-height: 1.1;
+	--text-ui-xl--letter-spacing: -0.03em;
+	--text-ui-2xl: 2.25rem;
+	--text-ui-2xl--line-height: 1.1;
+	--text-ui-2xl--letter-spacing: -0.03em;
+	--text-ui-3xl: 3.375rem;
+	--text-ui-3xl--line-height: 1;
+	--text-ui-3xl--letter-spacing: -0.03em;
+	--text-ui-4xl: 4.625rem;
+	--text-ui-4xl--line-height: 1;
+	--text-ui-4xl--letter-spacing: -0.03em;
+	--text-ui-5xl: 6.875rem;
+	--text-ui-5xl--line-height: 1;
+	--text-ui-5xl--letter-spacing: -0.03em;
+	--leading-paragraph: 1.6;
+	--spacing-header-sm: 4.375rem;
+	--spacing-header-lg: 6.25rem;
+	--radius-xs: 2px;
+	--shadow-tile: 0 0 4px rgb(0 0 0 / 0.1);
+}
+
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-dm-sans);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	/* The original's radii: 4 / 8 / 15 / 20px. */
+	--radius-sm: 4px;
+	--radius-md: var(--radius);
+	--radius-lg: 15px;
+	--radius-xl: 20px;
+	--color-peach: var(--peach);
+	--color-offblack: var(--offblack);
+	--color-gray: var(--gray);
+	--color-lightgray: var(--lightgray);
+	--color-darkgray: var(--darkgray);
+	--color-sale: var(--sale);
+	--color-sale-line: var(--sale-line);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -35,26 +80,35 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 8px;
+	/* The original palette: off-black ink, peach chrome, light-grey image wells. */
+	--offblack: #2b2e2e;
+	--peach: #ffe1d1;
+	--gray: #e7e7e7;
+	--lightgray: #f3f3f3;
+	/* The original's #757575 grey, darkened to clear AA on the light-grey wells. */
+	--darkgray: #686868;
+	/* Sale red: text darkened for AA on white; the strike-through keeps the original's red. */
+	--sale: #d3381f;
+	--sale-line: #ec5039;
+	--card: #ffffff;
+	--card-foreground: #2b2e2e;
+	--popover: #ffffff;
+	--popover-foreground: #2b2e2e;
+	--primary: #2b2e2e;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f3f3;
+	--secondary-foreground: #2b2e2e;
+	--muted: #f3f3f3;
+	--muted-foreground: #686868;
+	--accent: #f3f3f3;
+	--accent-foreground: #2b2e2e;
+	--destructive: #d3381f;
+	--border: #e7e7e7;
+	--input: #e7e7e7;
+	--ring: #757575;
+	--background: #ffffff;
+	--foreground: #2b2e2e;
 }
 
 .dark {
@@ -81,10 +135,63 @@
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
+		font-variant-ligatures: none;
+	}
+	html {
+		@apply font-medium text-ui-md;
+		overflow-x: hidden;
 	}
 	body {
 		@apply bg-background text-foreground;
 	}
+	button {
+		letter-spacing: inherit;
+	}
+}
+
+@utility link-underline {
+	text-decoration-thickness: 0.1em;
+	text-underline-offset: 0.1em;
+	&:hover {
+		text-decoration-line: underline;
+	}
+}
+
+/* The fixed header floats over every page. Pages that open with a coloured hero carry
+   [data-flush] and pad themselves (the hero runs under the header); everything else is
+   pushed below it here, so the platform pages (FAQ, legal, search…) need no changes. */
+.site-main {
+	padding-top: var(--spacing-header-sm);
+	/* The footer card rides 20px up over the page's last pixels. */
+	padding-bottom: 1.25rem;
+}
+@media (width >= 64rem) {
+	.site-main {
+		padding-top: var(--spacing-header-lg);
+	}
+}
+.site-main:has([data-flush]) {
+	padding-top: 0;
+}
+.site-header .header-bg {
+	opacity: 0;
+}
+.site-header[data-scrolled="true"] .header-bg {
+	opacity: 1;
+}
+
+/* Collection artwork: soft shapes the photograph is cut into, like the original's vector masks. */
+.shape-arch {
+	mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M8 100V48a42 42 0 0 1 84 0v52z'/></svg>") center / contain no-repeat;
+}
+.shape-flower {
+	mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='27' cy='50' r='26'/><circle cx='73' cy='50' r='26'/><circle cx='50' cy='27' r='26'/><circle cx='50' cy='73' r='26'/><circle cx='50' cy='50' r='30'/></svg>") center / contain no-repeat;
+}
+.shape-circle {
+	mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48'/></svg>") center / contain no-repeat;
+}
+.shape-pill {
+	mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='2' y='20' width='96' height='60' rx='30'/></svg>") center / contain no-repeat;
 }
 
 .prose {

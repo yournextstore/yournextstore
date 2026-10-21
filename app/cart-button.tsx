@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 
+/** The original's cart toggle: an outlined circle holding the item count. */
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
 
@@ -10,18 +10,10 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="flex aspect-square w-[2.375rem] items-center justify-center rounded-full border border-offblack text-ui-sm font-bold duration-200 hover:border-offblack/50"
+			aria-label={`Open cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			<span aria-live="polite">{itemCount}</span>
 		</button>
 	);
 }

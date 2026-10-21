@@ -33,9 +33,9 @@ export function RestockNotify({
 				<Button
 					type="button"
 					variant="outline"
-					className="h-14 w-full rounded-full text-base font-medium tracking-wide"
+					className="h-auto min-h-10 w-full whitespace-normal rounded-full border-offblack px-4 py-2 text-ui-sm font-bold text-offblack"
 				>
-					<BellRing className="h-5 w-5" />
+					<BellRing className="size-4 shrink-0" />
 					Remind me when back in stock
 				</Button>
 			</DialogTrigger>

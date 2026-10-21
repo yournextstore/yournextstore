@@ -1,24 +1,17 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CalloutModule } from "@/components/modules/callout";
+import { ProductHero } from "@/components/modules/product-hero";
+import { ProductListing } from "@/components/product-listing";
+import { richTextToPlain } from "@/lib/catalog";
+import { colorThemeFor } from "@/lib/color-theme";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -36,9 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -59,50 +50,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 			images: collection.image ? [collection.image] : undefined,
 		},
 	};
-}
-
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,34 +104,12 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		<div data-flush className="rounded-b-xl bg-lightgray px-4 pt-24 pb-4 md:px-8 md:pt-34 md:pb-8">
+			<div className="mx-auto mb-7 h-[3.375rem] w-72 rounded-md bg-gray md:h-[6.875rem]" />
+			<div className="mt-6 aspect-[1300/768] w-full rounded-md bg-gray md:mt-12" />
+		</div>
 	);
 }
 
@@ -215,29 +140,60 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const theme = colorThemeFor(collection.slug);
+	const products = await getCollectionProducts(collection);
+	const [heroProduct] = products;
+	// Placeholder copy ("IVAR collection") repeats the title; show only a real description.
+	const description = richTextToPlain(collection.description);
+	const showDescription =
+		description.length > 0 && description.toLowerCase() !== `${collection.name} collection`.toLowerCase();
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
+			{/* The original's collection hero: the collection's own pastel ground and ink. */}
+			<section
+				data-flush
+				className="rounded-b-xl px-4 pt-24 pb-4 md:px-8 md:pt-34 md:pb-8"
+				style={{ background: theme.background }}
+			>
+				<h1
+					className="mx-auto mb-7 max-w-[60rem] text-center text-ui-3xl whitespace-pre-line md:text-ui-5xl"
+					style={{ color: theme.text }}
+				>
+					{collection.name}
+				</h1>
+				{showDescription && (
+					<p
+						className="mx-auto mb-8 max-w-[40rem] text-center leading-paragraph whitespace-pre-line"
+						style={{ color: theme.text }}
+					>
+						{description}
+					</p>
+				)}
+				{heroProduct && (
+					<div className="mt-6 md:mt-12">
+						<ProductHero product={heroProduct} priority />
+					</div>
+				)}
+			</section>
+			<div className="mt-8 mb-32 px-4 md:px-8">
+				{products.length === 0 ? (
+					<div className="mt-16 text-center text-ui-lg text-darkgray">
+						No products in this collection yet.
+					</div>
+				) : (
+					<ProductListing products={products} priorityFirst={false} />
+				)}
+				<div className="mt-[7.5vw]">
+					<CalloutModule
+						text={`Every piece in ${collection.name} is chosen to be used, loved and kept for years.`}
+						link={{ href: "/products", label: "Shop all products" }}
+						color={theme.text}
+					/>
+				</div>
 			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
 		</>
 	);
 };

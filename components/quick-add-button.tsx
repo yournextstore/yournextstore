@@ -1,11 +1,8 @@
 "use client";
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
-import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
@@ -72,23 +69,16 @@ export function QuickAddButton({
 		});
 	};
 
+	// The original's "Quick add" pill: tucked under the image's bottom edge, it slides up on
+	// hover (and on keyboard focus, so it is never a hidden tab stop).
 	return (
-		<TooltipPrimitive.Provider delayDuration={1000}>
-			<TooltipPrimitive.Root>
-				<TooltipTrigger asChild>
-					<button
-						type="button"
-						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-						aria-label={`Add ${product.name} to cart`}
-					>
-						<ShoppingBag className="h-3.5 w-3.5" />
-					</button>
-				</TooltipTrigger>
-				<TooltipContent side="top" className="text-xs">
-					Add to cart
-				</TooltipContent>
-			</TooltipPrimitive.Root>
-		</TooltipPrimitive.Provider>
+		<button
+			type="button"
+			onClick={handleClick}
+			className="absolute right-4 bottom-0 z-10 flex h-10 translate-y-full items-center justify-center rounded-full bg-offblack px-4 text-ui-sm font-bold text-white opacity-0 transition duration-200 ease-in-out group-hover:-translate-y-4 group-hover:opacity-100 hover:opacity-80 focus-visible:-translate-y-4 focus-visible:opacity-100"
+			aria-label={`Quick add ${product.name} to cart`}
+		>
+			Quick add
+		</button>
 	);
 }

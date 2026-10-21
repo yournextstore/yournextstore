@@ -1,9 +1,8 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist_Mono } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,21 +11,24 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { HeaderScroll } from "@/app/header-scroll";
+import { DesktopNav, type MenuData, MobileMenu, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
+import { getCardDetails } from "@/components/product-card";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
+import { getCollectionTiles } from "@/lib/catalog";
+import { colorThemeAt } from "@/lib/color-theme";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+// DM Sans, the original's only face (medium and bold), as one variable file.
+const dmSans = DM_Sans({
+	variable: "--font-dm-sans",
 	subsets: ["latin"],
 });
 
@@ -105,23 +107,58 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+// The original's header: a "Products" panel (collection tiles and newest products), then a few
+// short links. Filled from the catalog: the first top-level categories, About, and the blog.
+async function getHeaderData(): Promise<{ storeName: string } & Omit<MenuData, "accountHref">> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [categories, tiles, products, me] = await Promise.all([
+		commerce.categoriesBrowse({ active: true, limit: 20 }).catch(() => ({ data: [] })),
+		getCollectionTiles(4),
+		commerce
+			.productBrowse({ active: true, limit: 4, orderBy: "createdAt", orderDirection: "desc" })
+			.then((result) => result.data)
+			.catch(() => []),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+	const links: NavLink[] = [
+		...categories.data
+			.filter((category) => !category.parentId)
+			.slice(0, 2)
+			.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
+		...(blogEnabled ? [{ href: "/blog", label: "Journal" }] : []),
+		{ href: "/about", label: "About" },
 	];
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		links,
+		collections: tiles.map((tile, index) => {
+			const theme = colorThemeAt(index);
+			return {
+				id: tile.id,
+				name: tile.name,
+				href: tile.href,
+				background: theme.background,
+				ink: theme.text,
+				shape: theme.shape,
+			};
+		}),
+		products: await Promise.all(
+			products.map(async (product) => {
+				const details = await getCardDetails(product);
+				return {
+					id: product.id,
+					name: product.name,
+					href: `/product/${product.slug}`,
+					image: details.image ?? null,
+					category: details.category,
+					price: details.price,
+					compareAt: details.compareAt,
+				};
+			}),
+		),
+	};
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,46 +168,60 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [{ storeName, links, collections, products }, storeConfig] = await Promise.all([
+		getHeaderData(),
+		getStoreConfig(),
+	]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<header
+						id="site-header"
+						data-scrolled="false"
+						className="site-header fixed top-0 z-40 flex h-header-sm w-full px-4 md:px-8 lg:h-header-lg"
+					>
+						<div className="header-bg absolute inset-0 bg-white/90 backdrop-blur-lg transition-opacity duration-500" />
+						<div className="relative flex w-full items-center">
+							<MobileMenu links={links} collections={collections} accountHref={accountHref} />
+							<DesktopNav links={links} collections={collections} products={products} />
+							{/* The wordmark sits dead centre, like the original's logo lockup. */}
+							<Link
+								href="/"
+								className="absolute top-1/2 left-1/2 max-w-[60vw] -translate-x-1/2 -translate-y-1/2 truncate text-center text-ui-sm font-bold tracking-[0.12em] uppercase sm:text-ui-md sm:tracking-[0.18em] lg:max-w-[28vw] lg:text-ui-lg"
+							>
+								{storeName}
+							</Link>
+							<div className="ml-auto flex h-full items-center gap-2 md:mr-0">
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={accountHref}
+									className="hidden h-[2.4rem] items-center rounded-sm p-2 duration-150 hover:bg-darkgray/10 lg:flex"
+								>
+									<span className="sr-only">Account</span>
+									<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none">
+										<circle cx="12" cy="8.5" r="3.75" stroke="currentColor" strokeWidth="1.2" />
+										<path
+											d="M4.75 20c.9-3.6 3.7-5.5 7.25-5.5s6.35 1.9 7.25 5.5"
+											stroke="currentColor"
+											strokeWidth="1.2"
+										/>
+									</svg>
+								</a>
+								<CartButton />
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<HeaderScroll />
+					<main id="main" className="site-main flex-1">
+						{children}
+					</main>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -214,7 +265,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${dmSans.variable} ${geistMono.variable} font-sans antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +273,8 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				{/* Light only, like the original: the forced theme keeps the toaster and chat on the light palette. */}
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
