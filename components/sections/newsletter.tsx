@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 import { NewsletterConsent } from "@/components/newsletter-consent";
@@ -15,50 +15,50 @@ export function Newsletter() {
 	}, [state]);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
+		<section className="bg-primary text-white">
+			<div className="uk-container py-10">
+				<div className="mx-auto max-w-[600px] text-center">
 					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
+						<div className="animate-in fade-in duration-500">
+							<div className="mx-auto mb-[15px] flex size-10 items-center justify-center rounded-full bg-white/15">
+								<CheckIcon aria-hidden className="size-5" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
+							<h2 className="text-uk-h2 text-white">You&apos;re on the list</h2>
+							<p className="mt-[5px] text-uk-sm text-white">{state.message}</p>
 						</div>
 					) : (
 						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-4">
-								<div className="flex flex-col gap-3 sm:flex-row">
+							<h2 className="text-uk-h2 text-white lg:text-[2rem]">Subscribe for updates</h2>
+							<p className="text-uk-sm text-white">Be aware of new products and special offers.</p>
+							<form action={action} className="mx-auto mt-5 flex max-w-[440px] flex-col gap-[15px]">
+								<div className="flex flex-col gap-[10px] sm:flex-row">
+									<label htmlFor="newsletter-email" className="sr-only">
+										Email address
+									</label>
 									<input
+										id="newsletter-email"
 										type="email"
 										name="email"
-										placeholder="your@email.com"
+										placeholder="Your email"
 										required
-										className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
+										className="h-10 w-full flex-1 rounded-[4px] border border-white/40 bg-[#115eab] px-[10px] text-uk-sm text-white outline-none placeholder:text-white/90 focus:border-white"
 									/>
 									<button
 										type="submit"
 										disabled={isPending || !marketingConsent}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
+										className="uk-btn bg-white text-primary hover:bg-white/90"
 									>
 										{isPending ? "Subscribing\u2026" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
 									</button>
 								</div>
 								<NewsletterConsent
 									checked={marketingConsent}
 									onCheckedChange={setMarketingConsent}
 									disabled={isPending}
+									className="text-white [&_button]:border-white [&_span]:text-uk-xs [&_span]:opacity-100"
 								/>
 							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
+							{state?.error && <p className="mt-[10px] text-uk-sm text-white">{state.error}</p>}
 						</>
 					)}
 				</div>

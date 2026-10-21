@@ -8,12 +8,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-roboto);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: 2px;
+	--radius-md: 3px;
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: 6px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,50 +32,80 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* UIkit theme extras */
+	--color-ink: var(--ink);
+	--color-ink-muted: var(--ink-muted);
+	--color-tint: var(--tint);
+	--color-sale: var(--sale);
 }
 
+/* UIkit's type scale under its own names (never override text-sm/base/lg). */
+@theme {
+	--text-uk-xs: 0.6875rem;
+	--text-uk-xs--line-height: 1.2;
+	--text-uk-sm: 0.875rem;
+	--text-uk-sm--line-height: 1.5;
+	--text-uk-md: 1rem;
+	--text-uk-md--line-height: 1.5;
+	--text-uk-lg: 1.25rem;
+	--text-uk-lg--line-height: 1.4;
+	--text-uk-h2: 1.5rem;
+	--text-uk-h2--line-height: 1.3;
+	--text-uk-h1: 2.625rem;
+	--text-uk-h1--line-height: 1.2;
+}
+
+/* Light-only design: :root and .dark carry the same palette (palette test reads both). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 4px;
+	--background: #f8f8f8;
+	--foreground: #333333;
+	--card: #ffffff;
+	--card-foreground: #333333;
+	--popover: #ffffff;
+	--popover-foreground: #333333;
+	--primary: #1570cc;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f8f8;
+	--secondary-foreground: #333333;
+	--muted: #f8f8f8;
+	--muted-foreground: #666666;
+	--accent: #f8f8f8;
+	--accent-foreground: #333333;
+	--destructive: #d23b58;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #1570cc;
+	--ink: #222222;
+	--ink-muted: #999999;
+	--tint: #dcebfb;
+	--sale: #d23b58;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 4px;
+	--background: #f8f8f8;
+	--foreground: #333333;
+	--card: #ffffff;
+	--card-foreground: #333333;
+	--popover: #ffffff;
+	--popover-foreground: #333333;
+	--primary: #1570cc;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f8f8;
+	--secondary-foreground: #333333;
+	--muted: #f8f8f8;
+	--muted-foreground: #666666;
+	--accent: #f8f8f8;
+	--accent-foreground: #333333;
+	--destructive: #d23b58;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #1570cc;
+	--ink: #222222;
+	--ink-muted: #999999;
+	--tint: #dcebfb;
+	--sale: #d23b58;
 }
 
 @layer base {
@@ -83,7 +113,54 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-muted-foreground;
+		font-family: var(--font-roboto), "Helvetica Neue", Arial, sans-serif;
+		font-size: 1rem;
+		line-height: 1.5;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
+	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		@apply text-foreground;
+		font-weight: 400;
+	}
+}
+
+@layer components {
+	/* UIkit container: 15px gutters, 30px from 640, 40px from 960, max 1200 content. */
+	.uk-container {
+		@apply mx-auto w-full max-w-[1280px] px-[15px] sm:px-[30px] lg:px-10;
+	}
+	.uk-section {
+		@apply py-10 lg:py-[70px];
+	}
+	.uk-section-sm {
+		@apply py-5 lg:py-10;
+	}
+	.uk-card {
+		@apply rounded-[4px] bg-card shadow-[0_5px_15px_rgba(0,0,0,0.08)];
+	}
+	.uk-btn {
+		@apply inline-flex h-10 items-center justify-center gap-2 rounded-[4px] px-[30px] text-uk-sm uppercase leading-10 transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+	}
+	.uk-btn-primary {
+		@apply bg-primary text-primary-foreground hover:bg-[#115eab];
+	}
+	.uk-btn-default {
+		@apply border border-border bg-transparent text-foreground hover:border-[#b2b2b2];
+	}
+	.uk-link-all {
+		@apply inline-flex items-center gap-1 text-uk-sm uppercase text-muted-foreground transition-colors hover:text-foreground;
+	}
+	.uk-badge {
+		@apply inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-[5px] text-[11px] leading-none text-white;
+	}
+	.uk-label {
+		@apply inline-block rounded-[2px] px-[5px] text-uk-xs uppercase leading-[1.5] text-white;
 	}
 }
 
