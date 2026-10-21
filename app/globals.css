@@ -8,7 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-archivo);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +32,67 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Ink-navy editorial palette, under its own names */
+	--color-ink: var(--foreground);
+	--color-soft: var(--soft);
+	--color-faint: var(--muted-foreground);
+	--color-line: var(--border);
+	--color-linesoft: var(--accent);
+	--color-tint: var(--secondary);
+	--color-acc: var(--acc);
+	--color-acclite: #c8bef5;
+	--color-stage: #e6e2da;
 }
 
+/* Ink navy on white with one lilac accent. No radius anywhere: the theme is all right angles.
+   The original label grey (#8c8a82) fails AA on white and on the tint, so the text token is
+   darkened to #6b6962; the tint and paper stay as designed. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	--background: #ffffff;
+	--foreground: #191936;
+	--card: #ffffff;
+	--card-foreground: #191936;
+	--popover: #ffffff;
+	--popover-foreground: #191936;
+	--primary: #191936;
+	--primary-foreground: #ffffff;
+	--secondary: #efece6;
+	--secondary-foreground: #191936;
+	--muted: #efece6;
+	--muted-foreground: #6b6962;
+	--accent: #f0eee9;
+	--accent-foreground: #191936;
+	--destructive: #b42318;
+	--border: #e6e4de;
+	--input: #e6e4de;
+	--ring: #191936;
+	--soft: #575669;
+	--acc: #6f5bd6;
 }
 
+/* Light-only design: the dark block mirrors :root so forced-light pages and the palette test agree. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #191936;
+	--card: #ffffff;
+	--card-foreground: #191936;
+	--popover: #ffffff;
+	--popover-foreground: #191936;
+	--primary: #191936;
+	--primary-foreground: #ffffff;
+	--secondary: #efece6;
+	--secondary-foreground: #191936;
+	--muted: #efece6;
+	--muted-foreground: #6b6962;
+	--accent: #f0eee9;
+	--accent-foreground: #191936;
+	--destructive: #b42318;
+	--border: #e6e4de;
+	--input: #e6e4de;
+	--ring: #191936;
+	--soft: #575669;
+	--acc: #6f5bd6;
 }
 
 @layer base {
@@ -83,9 +100,134 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-light text-foreground;
+		-webkit-font-smoothing: antialiased;
+	}
+	::selection {
+		background: #e3dfea;
 	}
 }
+
+/* Tracked caps: the voice of the theme. */
+@utility cap {
+	text-transform: uppercase;
+	letter-spacing: 0.16em;
+	font-size: 10px;
+	line-height: 1.5;
+}
+@utility cap-xs {
+	text-transform: uppercase;
+	letter-spacing: 0.24em;
+	font-size: 9px;
+	line-height: 1.5;
+}
+@utility cap-tag {
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	font-size: 11px;
+}
+/* A monospace whisper for campaign notes. */
+@utility note {
+	font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 9px;
+	letter-spacing: 0.06em;
+}
+@utility link-u {
+	text-decoration-line: underline;
+	text-underline-offset: 6px;
+	text-decoration-thickness: 1px;
+}
+@utility btn-ink {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--foreground);
+	color: #fff;
+	cursor: pointer;
+	font-size: 10px;
+	font-weight: 400;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	transition: opacity 0.2s ease;
+	&:hover {
+		opacity: 0.88;
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.45;
+		cursor: default;
+	}
+}
+@utility btn-ghost {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: 1px solid var(--border);
+	cursor: pointer;
+	font-size: 10px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	transition: border-color 0.2s ease;
+	&:hover {
+		border-color: var(--foreground);
+	}
+}
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* ── Masthead ───────────────────────────────────────────────
+   Sticky under the announcement bar; solid white by default. On a page that marks its hero with
+   [data-hero] it sits transparent over the photograph (white type) until the shopper scrolls past,
+   hovers it or opens a panel. Driven from the DOM, so the header never leaves the prerendered shell. */
+:root {
+	--header-h: 103px;
+}
+@media (min-width: 40rem) {
+	:root {
+		--header-h: 87px;
+	}
+}
+.site-header {
+	background: var(--background);
+	color: var(--foreground);
+	border-bottom: 1px solid var(--border);
+	transition:
+		background-color 0.4s ease,
+		color 0.4s ease,
+		border-color 0.4s ease;
+}
+:root:has([data-hero]) .site-header:not([data-solid="true"]):not(:hover):not(:focus-within):not(:has([data-open="true"])) {
+	background: transparent;
+	color: #fff;
+	border-bottom-color: transparent;
+}
+:root:has([data-hero]) .site-header .nav-rule {
+	border-top-color: color-mix(in srgb, currentColor 18%, transparent);
+}
+[data-hero] {
+	margin-top: calc(-1 * var(--header-h));
+}
+
+@keyframes nm-fade {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+.anim-fade {
+	animation: nm-fade 0.3s ease both;
+}
+
+
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);

@@ -1,24 +1,16 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { ListingHeading } from "@/components/listing";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { firstStill, getCatalogProducts, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -59,50 +51,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 			images: collection.image ? [collection.image] : undefined,
 		},
 	};
-}
-
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -159,32 +107,54 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
+	const others =
+		products.length === 0 ? (await getCatalogProducts()).filter((p) => firstStill(p.images)).slice(0, 4) : [];
 
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<>
+			<div className="mb-8 flex h-[55px] items-center border-y border-line sm:mb-11 sm:h-[63px]">
+				<p className="cap text-faint">
+					{products.length} {products.length === 1 ? "piece" : "pieces"}
+				</p>
+			</div>
+			{products.length === 0 ? (
+				<>
+					<p className="cap pb-10 text-center text-faint">Nothing here yet — a few pieces from the shop</p>
+					<div className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
+						{others.map((product) => (
+							<ProductCard key={product.id} product={product} />
+						))}
+					</div>
+				</>
+			) : (
+				<div className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
+					{products.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={index < 2} />
+					))}
+				</div>
+			)}
+		</>
+	);
+}
+
+function CollectionProductsSkeleton() {
+	return (
+		<>
+			<div className="mb-8 h-[55px] border-y border-line sm:mb-11 sm:h-[63px]" />
+			<ProductGridSkeleton />
+		</>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="mx-auto min-h-svh max-w-[1640px] px-4 pt-6 sm:px-5 sm:pt-8 lg:px-9">
+			<div className="mb-8 flex flex-col gap-3 sm:mb-11">
+				<div className="h-[13.5px] w-40 animate-pulse bg-tint" />
+				<div className="h-[30px] w-64 animate-pulse bg-tint sm:h-[37.5px]" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
 			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -215,29 +185,21 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const description = richTextToPlain(collection.description);
+
 	return (
-		<>
+		<div className="mx-auto min-h-svh max-w-[1640px] px-4 pt-6 sm:px-5 sm:pt-8 lg:px-9">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
+			<ListingHeading
+				crumbs={[{ href: "/products", label: "Shop" }, { label: collection.name }]}
+				title={collection.name}
+			>
+				{description && <p className="max-w-[60ch] text-[12px] leading-loose text-soft">{description}</p>}
+			</ListingHeading>
 			<Suspense fallback={<CollectionProductsSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
-		</>
+		</div>
 	);
 };
