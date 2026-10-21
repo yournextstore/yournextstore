@@ -8,12 +8,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-jakarta);
+	--font-serif: var(--font-cormorant);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-md: var(--radius);
+	--radius-lg: calc(var(--radius) + 4px);
+	--radius-xl: calc(var(--radius) + 8px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,50 +33,82 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's extra roles: header/card surface, the deeper sand band, gold accent,
+	   sale red, and the near-black footer with its warm greys. */
+	--color-surface: var(--surface);
+	--color-sand: var(--sand);
+	--color-gold: var(--gold);
+	--color-sale: var(--sale);
+	--color-ink: var(--ink);
+	--color-ink-muted: var(--ink-muted);
+	--color-ink-line: var(--ink-line);
+	--color-on-ink: var(--on-ink);
+	--breakpoint-xs: 26rem;
+	--shadow-card: 0 1px 3px rgb(0 0 0 / 0.04), 0 8px 24px -4px rgb(0 0 0 / 0.08);
+	--shadow-card-hover: 0 4px 12px rgb(0 0 0 / 0.06), 0 16px 40px -8px rgb(0 0 0 / 0.12);
 }
 
+/* Light-only design (Cormorant + Plus Jakarta on warm off-white); .dark mirrors :root so the
+   palette test still sees both blocks. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #f7f5f0;
+	--foreground: #0f0d0c;
+	--surface: #fbfaf7;
+	--card: #ffffff;
+	--card-foreground: #0f0d0c;
+	--popover: #ffffff;
+	--popover-foreground: #0f0d0c;
+	--primary: #0f0d0c;
+	--primary-foreground: #f7f5f0;
+	--secondary: #ede8e0;
+	--secondary-foreground: #0f0d0c;
+	--muted: #ede8e0;
+	/* Original #78716c; darkened to clear AA on the sand surfaces, tint kept. */
+	--muted-foreground: #5f5953;
+	--accent: #e8e3da;
+	--accent-foreground: #0f0d0c;
+	--destructive: #c81e1e;
+	--sale: #c81e1e;
+	--border: #e7e4dd;
+	--input: #d6d3cc;
+	--ring: #c2680a;
+	--gold: #c2680a;
+	--sand: #f0ece5;
+	--ink: #1a1714;
+	--ink-muted: #b3ada6;
+	--ink-line: #2e2a26;
+	--on-ink: #f7f5f0;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #f7f5f0;
+	--foreground: #0f0d0c;
+	--surface: #fbfaf7;
+	--card: #ffffff;
+	--card-foreground: #0f0d0c;
+	--popover: #ffffff;
+	--popover-foreground: #0f0d0c;
+	--primary: #0f0d0c;
+	--primary-foreground: #f7f5f0;
+	--secondary: #ede8e0;
+	--secondary-foreground: #0f0d0c;
+	--muted: #ede8e0;
+	--muted-foreground: #5f5953;
+	--accent: #e8e3da;
+	--accent-foreground: #0f0d0c;
+	--destructive: #c81e1e;
+	--sale: #c81e1e;
+	--border: #e7e4dd;
+	--input: #d6d3cc;
+	--ring: #c2680a;
+	--gold: #c2680a;
+	--sand: #f0ece5;
+	--ink: #1a1714;
+	--ink-muted: #b3ada6;
+	--ink-line: #2e2a26;
+	--on-ink: #f7f5f0;
 }
 
 @layer base {
@@ -84,6 +117,74 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+	}
+	/* Headings in the display serif, regular weight, slightly tight (the original's base layer).
+	   Points at the next/font variable: @theme inline tokens are not emitted as variables. */
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+		font-weight: 400;
+		letter-spacing: -0.01em;
+	}
+	::selection {
+		background-color: var(--gold);
+		color: var(--on-ink);
+	}
+	:focus-visible {
+		outline: 2px solid var(--gold);
+		outline-offset: 2px;
+	}
+}
+
+/* Utilities of the original: the hero's top/bottom darkening and the card's bottom fade. */
+@utility overlay-hero {
+	background: linear-gradient(180deg, rgb(15 13 12 / 0.5) 0%, rgb(15 13 12 / 0.25) 40%, rgb(15 13 12 / 0.6) 100%);
+}
+
+@utility overlay-card {
+	background: linear-gradient(180deg, transparent 45%, rgb(15 13 12 / 0.72) 100%);
+}
+
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 1600px;
+	padding-inline: 1rem;
+	@variant sm {
+		padding-inline: 1.5rem;
+	}
+	@variant lg {
+		padding-inline: 3rem;
+	}
+}
+
+/* Small uppercase label with a hairline above it ("AS FEATURED IN", "TESTIMONIALS"). */
+@utility overline {
+	display: inline-block;
+	border-top: 1px solid currentColor;
+	padding-top: 0.25rem;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+@utility scrollbar-none {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
