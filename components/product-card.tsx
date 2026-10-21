@@ -18,9 +18,12 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	index,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	/** Position in the list, printed as the part number ("01 —"), as on the original's part cards. */
+	index?: number;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -29,7 +32,7 @@ export async function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `${formatMoney({ amount: minPrice, currency, locale })} – ${formatMoney({ amount: maxPrice, currency, locale })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
@@ -57,9 +60,16 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const summary = "summary" in product ? product.summary : null;
+	const variantNote =
+		variants && variants.length > 1 ? `${variants.length} variants` : variants ? "one finish" : null;
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group hs-card relative flex h-full flex-col p-2.5"
+		>
+			<div className="hs-plate relative aspect-square overflow-hidden rounded-[10px]">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -78,7 +88,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -91,14 +101,14 @@ export async function ProductCard({
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`object-cover transition-[opacity,transform] duration-500 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -108,16 +118,23 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-1 flex-col px-1.5 pb-1.5 pt-3.5">
+				<p className="hs-kicker text-[0.7rem] tracking-[0.14em]">
+					{typeof index === "number" ? `${String(index + 1).padStart(2, "0")} — ` : ""}
+					{product.name}
+				</p>
+				<p className="hs-mono mt-1.5 text-[0.78rem] text-foreground">
+					{priceDisplay}
+					{variantNote ? <span className="text-faint"> · {variantNote}</span> : null}
+				</p>
+				{summary && <p className="mt-1.5 line-clamp-2 text-[0.86rem] text-muted-foreground">{summary}</p>}
 			</div>
 		</Link>
 	);

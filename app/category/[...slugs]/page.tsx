@@ -116,7 +116,7 @@ async function CategoryProducts({
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="hs-display text-[1.4rem]">Nothing matches these filters.</p>
 			</div>
 		);
 	}
@@ -125,7 +125,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,7 +142,7 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="hs-wrap min-h-svh pb-20 pt-10 sm:pt-16">
 			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
 			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
 			<ProductGridSkeleton />
@@ -206,7 +206,7 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="hs-wrap min-h-svh pb-20 pt-10 sm:pt-16">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
@@ -240,7 +240,8 @@ const CategoryContent = async ({
 			</Breadcrumb>
 
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+				<p className="hs-kicker mb-4">[ Category ]</p>
+				<h1 className="hs-display hs-h1">{category.name}</h1>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>

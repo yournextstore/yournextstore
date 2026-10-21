@@ -8,8 +8,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-manrope);
+	--font-mono: var(--font-space-mono);
+	--font-display: var(--font-archivo);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -32,59 +33,554 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Halfstep extras: hi-viz lime, its readable stand-in, the faint label grey, hairlines. */
+	--color-lime: var(--lime);
+	--color-lime-ink: var(--lime-ink);
+	--color-signal: var(--signal);
+	--color-faint: var(--faint);
+	--color-line: var(--line);
+	--color-line-soft: var(--line-soft);
+	--color-plate: var(--plate);
 }
 
+/* Bone and graphite. Light is the default; the original's moon button flips to .dark. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #ece7dd;
+	--foreground: #17181a;
+	--card: #f4f0e6;
+	--card-foreground: #17181a;
+	--popover: #f4f0e6;
+	--popover-foreground: #17181a;
+	--primary: #c7f04a;
+	--primary-foreground: #17181a;
+	--secondary: #e3ded1;
+	--secondary-foreground: #17181a;
+	--muted: #e3ded1;
+	--muted-foreground: #46484b;
+	--accent: #e3ded1;
+	--accent-foreground: #17181a;
+	--destructive: #b42318;
+	--border: rgba(23, 24, 26, 0.16);
+	--input: rgba(23, 24, 26, 0.2);
+	--ring: #4c5c28;
+	--lime: #c7f04a;
+	--lime-ink: #17181a;
+	--signal: #4c5c28;
+	--faint: #57584f;
+	--line: rgba(23, 24, 26, 0.16);
+	--line-soft: rgba(23, 24, 26, 0.08);
+	--plate: #e9e4d9;
+	--tire: #232527;
+	--rim: #7d8076;
+	--metal: #43464b;
+	--paint: #26282b;
+	--shadow-panel: 0 24px 60px -34px rgba(40, 40, 32, 0.5);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #17181a;
+	--foreground: #ece7dd;
+	--card: #202226;
+	--card-foreground: #ece7dd;
+	--popover: #202226;
+	--popover-foreground: #ece7dd;
+	--primary: #c7f04a;
+	--primary-foreground: #17181a;
+	--secondary: #1c1e21;
+	--secondary-foreground: #ece7dd;
+	--muted: #1c1e21;
+	--muted-foreground: #b7b3a7;
+	--accent: #26282b;
+	--accent-foreground: #ece7dd;
+	--destructive: #f97066;
+	--border: rgba(236, 231, 221, 0.14);
+	--input: rgba(236, 231, 221, 0.2);
+	--ring: #c7f04a;
+	--lime: #c7f04a;
+	--lime-ink: #17181a;
+	--signal: #c7f04a;
+	--faint: #9a978f;
+	--line: rgba(236, 231, 221, 0.14);
+	--line-soft: rgba(236, 231, 221, 0.07);
+	--plate: #dcd6c9;
+	--tire: #3b3e42;
+	--rim: #a3a69b;
+	--metal: #8b8f96;
+	--paint: #ded8ca;
+	--shadow-panel: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		-webkit-text-size-adjust: 100%;
+	}
+	/* The next/font variables live on <body>, so the face is declared here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-manrope), system-ui, sans-serif;
+		font-size: clamp(15px, 1vw + 13px, 17px);
+		line-height: 1.6;
+		transition:
+			background-color 0.5s var(--ease-cadence),
+			color 0.5s var(--ease-cadence);
 	}
+	:where(a, button, input, select, textarea, [role="radio"]):focus-visible {
+		outline: 2px solid var(--signal);
+		outline-offset: 3px;
+	}
+}
+
+:root {
+	--ease-cadence: cubic-bezier(0.21, 0.86, 0.26, 0.99);
+	--ease-pop: cubic-bezier(0.34, 1.4, 0.44, 1);
+}
+
+@layer components {
+/* ---------- layered fixed backdrop: lime haze top-right, bone pool bottom-left, dot grid ---------- */
+.hs-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(110% 70% at 85% -10%, color-mix(in oklab, var(--lime) 10%, transparent), transparent 55%),
+		radial-gradient(90% 90% at 0% 110%, var(--secondary), transparent 65%);
+}
+.hs-backdrop::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(circle at 1px 1px, var(--line-soft) 1px, transparent 0);
+	background-size: 26px 26px;
+	opacity: 0.7;
+}
+
+/* ---------- type ---------- */
+.hs-wrap {
+	width: min(100% - 2.4rem, 1200px);
+	margin-inline: auto;
+}
+.hs-display {
+	font-family: var(--font-archivo), system-ui, sans-serif;
+	font-weight: 900;
+	line-height: 1;
+	letter-spacing: -0.02em;
+	text-transform: uppercase;
+}
+.hs-hero-title {
+	font-size: clamp(2.7rem, 7.6vw, 5.6rem);
+}
+.hs-h1 {
+	font-size: clamp(2.2rem, 5.4vw, 4rem);
+	overflow-wrap: break-word;
+}
+.hs-h2 {
+	font-size: clamp(1.9rem, 4.2vw, 3.2rem);
+	letter-spacing: -0.015em;
+}
+.hs-h3 {
+	font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+}
+.hs-mono {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	font-variant-ligatures: none;
+}
+.hs-kicker {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	color: var(--signal);
+	font-size: 0.74rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+}
+.hs-label {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	color: var(--faint);
+	font-size: 0.7rem;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+.hs-lede {
+	color: var(--muted-foreground);
+	font-size: clamp(1rem, 1.4vw, 1.13rem);
+}
+.hs-display em,
+.hs-signal {
+	font-style: normal;
+	color: var(--signal);
+}
+
+/* ---------- buttons ---------- */
+.hs-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.74rem 1.2rem;
+	border-radius: 11px;
+	border: 1px solid transparent;
+	font-weight: 700;
+	font-size: 0.92rem;
+	line-height: 1.4;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		transform 0.22s var(--ease-pop),
+		background-color 0.25s,
+		border-color 0.25s,
+		color 0.25s,
+		box-shadow 0.25s;
+}
+.hs-btn:disabled,
+.hs-btn[aria-disabled="true"] {
+	opacity: 0.55;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+.hs-btn-primary {
+	background: var(--lime);
+	color: var(--lime-ink);
+}
+.hs-btn-primary:not(:disabled):hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 26px -14px var(--lime);
+}
+.hs-btn-ghost {
+	border-color: var(--line);
+	color: var(--foreground);
+}
+.hs-btn-ghost:hover {
+	border-color: var(--signal);
+	color: var(--signal);
+}
+.hs-btn-block {
+	width: 100%;
+}
+
+/* ---------- surfaces ---------- */
+.hs-panel {
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: var(--card);
+	box-shadow: var(--shadow-panel);
+}
+.hs-card {
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	background: var(--card);
+	transition:
+		transform 0.3s var(--ease-cadence),
+		border-color 0.3s;
+}
+.hs-card:hover {
+	transform: translateY(-3px);
+	border-color: color-mix(in oklab, var(--lime) 45%, var(--line));
+}
+.hs-band {
+	background: var(--secondary);
+	border-block: 1px solid var(--line);
+}
+/* Studio packshots sit on a pale "plate"; multiply melts their white sweep into it. */
+.hs-plate {
+	background: var(--plate);
+}
+.hs-plate img {
+	mix-blend-mode: multiply;
+}
+.hs-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	padding: 0.25rem 0.7rem;
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	font-size: 0.72rem;
+	color: var(--muted-foreground);
+}
+
+/* ---------- option cards (the configurator's radios, reused for variants) ---------- */
+.hs-opt {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.1rem;
+	padding: 0.75rem 0.9rem;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: var(--card);
+	text-align: left;
+	cursor: pointer;
+	transition:
+		border-color 0.25s,
+		transform 0.22s var(--ease-pop),
+		box-shadow 0.25s;
+}
+.hs-opt:hover {
+	transform: translateY(-2px);
+}
+.hs-opt strong {
+	font-family: var(--font-archivo), system-ui, sans-serif;
+	font-weight: 800;
+	font-size: 1.02rem;
+	letter-spacing: -0.01em;
+	line-height: 1.25;
+}
+.hs-opt small {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	font-size: 0.68rem;
+	color: var(--faint);
+}
+.hs-opt[aria-checked="true"],
+.hs-opt[aria-pressed="true"] {
+	border-color: var(--signal);
+	box-shadow: inset 0 0 0 1px var(--signal);
+}
+.hs-opt[aria-checked="true"] strong,
+.hs-opt[aria-pressed="true"] strong {
+	color: var(--signal);
+}
+
+/* ---------- header: a floating, blurred, hairline bar ---------- */
+.hs-nav {
+	background: color-mix(in oklab, var(--background) 74%, transparent);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid var(--line);
+	border-radius: 14px;
+}
+.hs-nav-link {
+	color: var(--muted-foreground);
+	font-size: 0.86rem;
+	font-weight: 600;
+	padding: 0.45rem 0.7rem;
+	border-radius: 9px;
+	white-space: nowrap;
+	transition:
+		color 0.25s,
+		background-color 0.25s;
+}
+.hs-nav-link:hover {
+	color: var(--foreground);
+	background: var(--line-soft);
+}
+.hs-icon-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 34px;
+	height: 34px;
+	border: 1px solid var(--line);
+	border-radius: 9px;
+	color: var(--muted-foreground);
+	transition:
+		color 0.25s,
+		border-color 0.25s,
+		transform 0.2s var(--ease-pop);
+}
+.hs-icon-btn:hover {
+	color: var(--foreground);
+	border-color: var(--signal);
+}
+.hs-icon-btn:active {
+	transform: scale(0.92);
+}
+.hs-nav-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	height: 34px;
+	padding: 0 0.75rem;
+	border: 1px solid var(--line);
+	border-radius: 9px;
+	font-size: 0.86rem;
+	font-weight: 700;
+	color: var(--foreground);
+	transition:
+		background-color 0.25s,
+		color 0.25s,
+		border-color 0.25s;
+}
+.hs-nav-cta:hover {
+	background: var(--lime);
+	color: var(--lime-ink);
+	border-color: transparent;
+}
+
+/* ---------- the plotted object (shared by hero, exploded view and about) ---------- */
+.lp-ground {
+	stroke: var(--line);
+	stroke-width: 2;
+}
+.lp-cord {
+	fill: none;
+	stroke: var(--tire);
+	stroke-width: 3.5;
+	stroke-linecap: round;
+}
+.lp-canopy {
+	fill: var(--metal);
+}
+.lp-cap {
+	fill: var(--paint);
+	transition: fill 0.4s var(--ease-cadence);
+}
+.lp-socket {
+	fill: var(--metal);
+}
+.lp-ring {
+	fill: none;
+	stroke: var(--rim);
+	stroke-width: 3;
+}
+.lp-shade {
+	fill: var(--paint);
+	transition: fill 0.4s var(--ease-cadence);
+}
+.lp-shade-in {
+	fill: var(--lime);
+	opacity: 0.85;
+}
+.lp-rim {
+	fill: none;
+	stroke: var(--rim);
+	stroke-width: 3;
+}
+.lp-glass {
+	fill: color-mix(in oklab, var(--lime) 30%, transparent);
+	stroke: var(--rim);
+	stroke-width: 2.5;
+}
+.lp-filament {
+	fill: none;
+	stroke: var(--signal);
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+.lp-thread {
+	fill: var(--metal);
+}
+.lp-seal {
+	fill: var(--signal);
+}
+.lp-beam {
+	fill: var(--lime);
+	opacity: 0.16;
+}
+.dark .lp-beam {
+	fill: color-mix(in oklab, var(--lime) 55%, var(--background));
+}
+.lp-pool {
+	fill: var(--lime);
+	opacity: 0.22;
+}
+.lp-shadow {
+	fill: var(--foreground);
+	opacity: 0.08;
+}
+.lp-callout text {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	font-size: 15px;
+	letter-spacing: 0.08em;
+	fill: var(--muted-foreground);
+}
+.lp-callout .c-name {
+	font-weight: 700;
+	fill: var(--signal);
+}
+.lp-callout .c-line {
+	stroke: var(--line);
+	stroke-width: 1.5;
+}
+.lp-callout .c-dot {
+	fill: var(--lime);
+	stroke: var(--foreground);
+	stroke-width: 1;
+}
+.lp-part {
+	transform-box: fill-box;
+	transform-origin: center;
+}
+@media (max-width: 640px) {
+	.lp-callout text {
+		font-size: 21px;
+		letter-spacing: 0.02em;
+	}
+}
+/* Callouts wait for the explode once the scroll script is armed; without JS they simply show. */
+[data-armed="true"] .lp-callout {
+	opacity: 0;
+}
+.lp-hero-beam {
+	animation: hs-beam 3.2s var(--ease-cadence) 0.5s both;
+}
+@keyframes hs-beam {
+	0% {
+		opacity: 0;
+	}
+	45% {
+		opacity: 0.26;
+	}
+	100% {
+		opacity: 0.16;
+	}
+}
+
+/* ---------- reveals (armed by a client script, so nothing hides without JS) ---------- */
+[data-reveal-armed] [data-reveal] {
+	opacity: 0;
+	transform: translateY(22px);
+	transition:
+		opacity 0.9s var(--ease-cadence),
+		transform 0.9s var(--ease-cadence);
+}
+[data-reveal-armed] [data-reveal].is-in {
+	opacity: 1;
+	transform: none;
+}
+
+/* watermark word behind a section */
+.hs-wm {
+	position: absolute;
+	top: 4%;
+	right: -2%;
+	z-index: 0;
+	pointer-events: none;
+	user-select: none;
+	font-family: var(--font-archivo), system-ui, sans-serif;
+	font-weight: 900;
+	font-size: clamp(5rem, 17vw, 14rem);
+	line-height: 1;
+	color: var(--foreground);
+	opacity: 0.04;
+	letter-spacing: -0.02em;
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-reveal-armed] [data-reveal] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+	.lp-hero-beam {
+		animation: none;
+	}
+	.hs-btn,
+	.hs-opt,
+	.hs-card {
+		transition: none;
+	}
+	.hs-card:hover,
+	.hs-opt:hover,
+	.hs-btn-primary:not(:disabled):hover {
+		transform: none;
+	}
+}
 }
 
 .prose {
@@ -99,11 +595,9 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--secondary) 0%,
+		var(--card) 50%,
+		var(--secondary) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -150,4 +644,60 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+@layer components {
+/* Radio option cards: a real (invisible) radio laid over each card, as in the original configurator. */
+.hs-opt-wrap {
+	position: relative;
+}
+.hs-opt-input {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	margin: 0;
+	cursor: pointer;
+}
+.hs-opt-input:checked + .hs-opt {
+	border-color: var(--signal);
+	box-shadow: inset 0 0 0 1px var(--signal);
+}
+.hs-opt-input:checked + .hs-opt strong {
+	color: var(--signal);
+}
+.hs-opt-input:focus-visible + .hs-opt {
+	outline: 2px solid var(--signal);
+	outline-offset: 3px;
+}
+.hs-opt-wrap:hover .hs-opt {
+	transform: translateY(-2px);
+}
+
+/* Hero title lines rise out of their own mask on first paint (pure CSS, so no JS gate). */
+.hs-rise {
+	display: block;
+	overflow: hidden;
+	padding-bottom: 0.06em;
+	margin-bottom: -0.06em;
+}
+.hs-rise > span {
+	display: block;
+	animation: hs-rise 0.9s var(--ease-cadence) both;
+}
+.hs-rise + .hs-rise > span {
+	animation-delay: 0.12s;
+}
+@keyframes hs-rise {
+	from {
+		transform: translateY(112%);
+	}
+	to {
+		transform: none;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.hs-rise > span {
+		animation: none;
+	}
+}
 }

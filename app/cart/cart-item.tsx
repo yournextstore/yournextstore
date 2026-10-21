@@ -104,7 +104,7 @@ export function CartItem({ item }: CartItemProps) {
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="hs-plate relative h-22 w-22 shrink-0 overflow-hidden rounded-[10px] border border-line"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</Link>
@@ -115,7 +115,7 @@ export function CartItem({ item }: CartItemProps) {
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 font-display text-[0.98rem] font-extrabold uppercase leading-tight tracking-[-0.01em] text-foreground hover:text-signal"
 					>
 						{product.name}
 					</Link>
@@ -134,23 +134,25 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex items-center rounded-[9px] border border-line bg-card transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-[8px] hover:bg-secondary transition-colors"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="hs-mono flex h-7 w-8 items-center justify-center text-[0.8rem] font-bold">
+							{quantity}
+						</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-[8px] hover:bg-secondary transition-colors"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
@@ -158,7 +160,7 @@ export function CartItem({ item }: CartItemProps) {
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="hs-mono text-[0.85rem] font-bold">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

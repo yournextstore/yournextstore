@@ -52,7 +52,7 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 				<a
 					key={category.id}
 					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+					className="hs-chip transition-colors hover:border-signal hover:text-signal"
 				>
 					{category.title}
 				</a>
@@ -64,8 +64,8 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion type="single" collapsible className="rounded-lg border border-border px-4">
+			<h2 className="hs-display mb-4 text-[1.5rem]">{category.title}</h2>
+			<Accordion type="single" collapsible className="hs-card px-4 hover:transform-none">
 				{category.questions.map((item, index) => (
 					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
 						<AccordionTrigger>{item.question}</AccordionTrigger>
@@ -81,8 +81,8 @@ function FAQSection({ category }: { category: FAQCategory }) {
 
 function ContactCard() {
 	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
+		<div className="hs-panel p-8 text-center">
+			<h2 className="hs-display text-[1.5rem]">Still have questions?</h2>
 			<p className="mt-2 text-muted-foreground">
 				We're here to help. Reach out and we'll get back to you as soon as possible.
 			</p>
@@ -96,7 +96,7 @@ function ContactCard() {
 
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto w-[min(100%-2.4rem,820px)] pb-20 pt-10 sm:pt-14">
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
 			{/* Header */}
 			<div className="mb-10">
@@ -105,8 +105,9 @@ export default function FAQPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
+				<p className="hs-kicker mb-3 mt-8">[ Support ]</p>
+				<h1 className="hs-display hs-h1">Questions, answered</h1>
+				<p className="hs-lede mt-4">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>
 			</div>

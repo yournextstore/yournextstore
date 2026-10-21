@@ -6,7 +6,6 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -93,9 +92,9 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -195,46 +194,57 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+		<div className="space-y-6">
+			{summary && <p className="whitespace-pre-line text-muted-foreground">{summary}</p>}
 
 			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
+			<div className="space-y-2 border-y border-line-soft py-4">
+				<div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+					<span className="hs-label">Price</span>
+					<span className="flex flex-wrap items-baseline gap-x-3">
+						{priceInfo.compareAt && (
+							<span className="hs-mono text-[0.95rem] text-faint line-through">{priceInfo.compareAt}</span>
+						)}
+						{priceInfo.discountPercent ? (
+							<span className="hs-mono rounded-[7px] bg-lime px-2 py-0.5 text-[0.7rem] font-bold text-lime-ink">
+								−{priceInfo.discountPercent}%
+							</span>
+						) : null}
+						<span className="hs-display text-[2.2rem] normal-case tracking-[-0.02em]">
+							{priceInfo.display}
 						</span>
-					) : null}
+					</span>
 				</div>
 
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					<p className="hs-mono text-[0.7rem] text-faint">Lowest price in the last 30 days: {omnibusPrice}</p>
 				)}
 
 				{/* SKU & stock availability */}
 				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+					<div className="hs-mono flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[0.72rem] uppercase tracking-[0.1em]">
 						{stockStatus && (
 							<span
 								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
+									"inline-flex items-center gap-2 font-bold",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+									stockStatus.tone === "low" && "text-signal",
+									stockStatus.tone === "in" && "text-signal",
 								)}
 							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
+								<span
+									className={cn(
+										"h-2 w-2 rounded-full",
+										stockStatus.tone === "out" ? "bg-destructive" : "bg-lime ring-1 ring-foreground",
+									)}
+									aria-hidden
+								/>
 								{stockStatus.label}
 							</span>
 						)}
 						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
+							<span className="text-faint">
+								SKU <span className="text-foreground">{selectedVariant.sku}</span>
 							</span>
 						)}
 					</div>
@@ -259,14 +269,18 @@ export function AddToCartButton({
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="hs-btn hs-btn-primary hs-btn-block min-h-[52px] text-[0.98rem]"
 					>
 						{buttonText}
 					</button>
 				</form>
 			)}
 
-			<TrustBadges />
+			<p className="hs-mono text-center text-[0.7rem] text-faint">
+				{taxBehavior === "inclusive"
+					? "Tax included · shipping calculated at checkout"
+					: "Shipping and taxes calculated at checkout"}
+			</p>
 		</div>
 	);
 }
