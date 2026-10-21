@@ -1,20 +1,27 @@
 import { cn } from "@/lib/utils";
 
+/** Same box as `ProductCard`: hairline card, square packshot, caption, name and price row. */
 export function ProductCardSkeleton() {
 	return (
-		<div>
-			<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-			<div className="space-y-2">
-				<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-				<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+		<div className="fc-card p-4">
+			<div className="mb-3 aspect-square animate-pulse rounded-md bg-gray-100" />
+			<div className="flex flex-col gap-3">
+				<div className="h-[18px] w-1/3 animate-pulse rounded bg-gray-100" />
+				<div className="h-[21px] w-3/4 animate-pulse rounded bg-gray-100" />
+				<div className="flex items-center justify-between">
+					<div className="h-[21px] w-1/4 animate-pulse rounded bg-gray-100" />
+					<div className="h-[28px] w-16 animate-pulse rounded-md bg-gray-100" />
+				</div>
 			</div>
 		</div>
 	);
 }
 
+export const CARD_GRID = "grid grid-cols-1 gap-4 xs:grid-cols-2 lg:grid-cols-3";
+
 export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
 	return (
-		<div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8", className)}>
+		<div className={cn(CARD_GRID, className)}>
 			{Array.from({ length: count }).map((_, i) => (
 				<ProductCardSkeleton key={`skeleton-${i}`} />
 			))}

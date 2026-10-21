@@ -1,12 +1,11 @@
 "use client";
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { ShoppingBag } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
-import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
+import { cn } from "@/lib/utils";
 
 type QuickAddButtonProps = {
 	variantId: string;
@@ -21,6 +20,10 @@ type QuickAddButtonProps = {
 		slug: string;
 		images: string[];
 	};
+	/** "Add" on the compact card, "Add to Cart" on the full-width deal card. */
+	label?: string;
+	size?: "sm" | "md";
+	className?: string;
 };
 
 export function QuickAddButton({
@@ -30,6 +33,9 @@ export function QuickAddButton({
 	variantPriceGross,
 	variantImages,
 	product,
+	label = "Add",
+	size = "sm",
+	className,
 }: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -73,22 +79,14 @@ export function QuickAddButton({
 	};
 
 	return (
-		<TooltipPrimitive.Provider delayDuration={1000}>
-			<TooltipPrimitive.Root>
-				<TooltipTrigger asChild>
-					<button
-						type="button"
-						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-						aria-label={`Add ${product.name} to cart`}
-					>
-						<ShoppingBag className="h-3.5 w-3.5" />
-					</button>
-				</TooltipTrigger>
-				<TooltipContent side="top" className="text-xs">
-					Add to cart
-				</TooltipContent>
-			</TooltipPrimitive.Root>
-		</TooltipPrimitive.Provider>
+		<button
+			type="button"
+			onClick={handleClick}
+			className={cn("fc-btn fc-btn-green gap-x-1", size === "sm" && "fc-btn-sm", className)}
+			aria-label={`${label}, ${product.name}`}
+		>
+			<Plus className="size-3.5" strokeWidth={2.5} aria-hidden />
+			{label}
+		</button>
 	);
 }

@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { Crumbs } from "@/components/crumbs";
+import {
+	EmptyListing,
+	ListingGrid,
+	ListingShell,
+	ListingSkeleton,
+	ListingToolbar,
+	TitlePanel,
+} from "@/components/listing";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { picturedFirst, richTextToPlain } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -90,10 +90,14 @@ async function CategoryProducts({
 	slug,
 	canonicalPath,
 	filters,
+	facets,
+	filtersAvailable,
 }: {
 	slug: string;
 	canonicalPath: string;
 	filters: CategoryFilterParams;
+	facets: Awaited<ReturnType<typeof getFilterFacets>>;
+	filtersAvailable: boolean;
 }) {
 	"use cache";
 	cacheLife("minutes");
@@ -113,23 +117,27 @@ async function CategoryProducts({
 		vts: filters.vts,
 	});
 
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<ListingToolbar count={result.meta.count}>
+				{filtersAvailable ? <ProductFiltersMobile facets={facets} showCategories={false} /> : null}
+			</ListingToolbar>
+			{result.data.length === 0 ? (
+				<EmptyListing />
+			) : (
+				<ListingGrid>
+					{picturedFirst(result.data).map((product, index) => (
+						<ProductCard
+							key={product.id}
+							product={product}
+							priority={index === 0}
+							sizes="(max-width: 480px) 100vw, (max-width: 1024px) 50vw, 25vw"
+						/>
+					))}
+				</ListingGrid>
+			)}
 			<ListingPagination
 				basePath={`/category/${canonicalPath}`}
 				currentPage={currentPage}
@@ -142,11 +150,12 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
-		</div>
+		<ListingShell
+			crumbs={<div className="mt-4 h-[21px] w-48 animate-pulse rounded bg-gray-100" />}
+			title={<div className="mb-4 h-[104px] animate-pulse rounded-lg bg-gray-100" />}
+		>
+			<ListingSkeleton />
+		</ListingShell>
 	);
 }
 
@@ -205,59 +214,41 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richTextToPlain(category.description);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
-		</div>
+		<ListingShell
+			crumbs={
+				<>
+					<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
+					<Crumbs
+						items={[
+							{ href: "/", label: "Home" },
+							{ href: "/products", label: "Shop" },
+							...hierarchy.map((crumb, index) => ({
+								href:
+									index === hierarchy.length - 1
+										? undefined
+										: `/category/${hierarchy
+												.slice(0, index + 1)
+												.map((c) => c.slug)
+												.join("/")}`,
+								label: crumb.name,
+							})),
+						]}
+					/>
+				</>
+			}
+			sidebar={filtersAvailable ? <ProductFilters facets={facets} showCategories={false} /> : null}
+			title={<TitlePanel title={category.name} text={description || `Everything in ${category.name}.`} />}
+		>
+			<CategoryProducts
+				slug={slug}
+				canonicalPath={canonicalPath}
+				filters={filters}
+				facets={facets}
+				filtersAvailable={filtersAvailable}
+			/>
+		</ListingShell>
 	);
 };

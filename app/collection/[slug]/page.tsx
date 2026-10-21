@@ -1,20 +1,13 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Crumbs } from "@/components/crumbs";
+import { EmptyListing, ListingGrid, ListingSkeleton, ListingToolbar } from "@/components/listing";
+import { ProductCard } from "@/components/product-card";
+import { getCatalogProducts, picturedFirst, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -61,47 +54,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
+/** The home page's promo banner, page-sized: title and copy on the left, the photograph fading in on the right. */
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+		<div className="relative mb-6 flex flex-col-reverse overflow-hidden rounded-lg bg-[#f3efeb] sm:block">
+			{collection.image ? (
+				<div className="relative aspect-[3/2] w-full [mask-image:linear-gradient(to_bottom,transparent,black_30%)] sm:absolute sm:inset-y-0 sm:right-0 sm:aspect-auto sm:w-1/2 sm:[mask-image:linear-gradient(to_right,transparent,black_40%)]">
 					<YNSMedia
 						src={collection.image}
-						alt={collection.name}
+						alt=""
 						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
+						sizes="(max-width: 640px) 100vw, 660px"
+						className="object-cover"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
 				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
+			) : null}
+			<div className="relative max-w-xl px-6 pt-8 pb-2 sm:px-8 sm:py-14 md:w-3/5">
+				<span className="mb-4 inline-block rounded-lg bg-sun p-2 text-fc-sm leading-none font-semibold text-gray-900">
+					Collection
+				</span>
+				<h1 className="text-fc-xl font-bold break-words sm:text-fc-3xl">{collection.name}</h1>
+				{description ? (
+					<p className="mt-3 max-w-md text-fc-md font-light text-gray-700">{description}</p>
+				) : null}
+			</div>
+		</div>
 	);
 }
 
@@ -160,31 +139,46 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
+	if (products.length === 0) {
+		const { products: fallback } = await getCatalogProducts();
+		return (
+			<>
+				<EmptyListing text="This collection is empty for now." />
+				{fallback.length > 0 ? (
+					<section className="mt-10">
+						<h2 className="mb-6 text-fc-lg">Meanwhile, in the shop</h2>
+						<div className="grid grid-cols-1 gap-4 xs:grid-cols-2 lg:grid-cols-4">
+							{fallback.slice(0, 4).map((product) => (
+								<ProductCard key={product.id} product={product} />
+							))}
+						</div>
+					</section>
+				) : null}
+			</>
+		);
+	}
+
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<>
+			<ListingToolbar count={products.length} />
+			<ListingGrid className="lg:grid-cols-4 xl:grid-cols-5">
+				{picturedFirst<(typeof products)[number]>(products).map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index === 0} />
+				))}
+			</ListingGrid>
+		</>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="fc-container min-h-svh">
+			<div className="mt-4 h-[21px] w-48 animate-pulse rounded bg-gray-100" />
+			<div className="mt-8 mb-14">
+				<div className="mb-6 h-[420px] animate-pulse rounded-lg bg-gray-100 sm:h-[246px]" />
+				<ListingSkeleton count={5} className="lg:grid-cols-4 xl:grid-cols-5" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -216,28 +210,21 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 	}
 
 	return (
-		<>
+		<div className="fc-container min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
+			<Crumbs
+				items={[
+					{ href: "/", label: "Home" },
+					{ href: "/products", label: "Shop" },
+					{ label: collection.name },
+				]}
+			/>
+			<div className="mt-8 mb-14">
+				<CollectionHeader collection={collection} />
+				{/* No boundary of its own: the products are cached and land with the header (no shift). */}
 				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			</div>
+		</div>
 	);
 };

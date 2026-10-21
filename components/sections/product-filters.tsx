@@ -148,7 +148,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="text-fc-md">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -163,7 +163,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 			<Accordion type="multiple" defaultValue={accordionDefault} className="w-full">
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="text-fc-base font-semibold text-gray-800 hover:no-underline">
+							Categories
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -176,8 +178,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full rounded-md px-2 py-1.5 text-left text-fc-base transition-colors hover:bg-gray-100 hover:text-green-600",
+													isActive ? "font-semibold text-green-600" : "text-gray-800",
 												)}
 											>
 												{category.name}
@@ -192,7 +194,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="text-fc-base font-semibold text-gray-800 hover:no-underline">
+							Collections
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -205,8 +209,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full rounded-md px-2 py-1.5 text-left text-fc-base transition-colors hover:bg-gray-100 hover:text-green-600",
+													isActive ? "font-semibold text-green-600" : "text-gray-800",
 												)}
 											>
 												{collection.name}
@@ -223,7 +227,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="text-fc-base font-semibold text-gray-800 hover:no-underline">
+								{vt.label}
+							</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -238,7 +244,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 													checked={checked}
 													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
 												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
+												<label htmlFor={id} className="cursor-pointer text-fc-base text-gray-800">
 													{value}
 												</label>
 											</li>
@@ -252,7 +258,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="text-fc-base font-semibold text-gray-800 hover:no-underline">
+							Brands
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -265,8 +273,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full rounded-md px-2 py-1.5 text-left text-fc-base transition-colors hover:bg-gray-100 hover:text-green-600",
+													isActive ? "font-semibold text-green-600" : "text-gray-800",
 												)}
 											>
 												{brand.name}
@@ -281,7 +289,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger className="text-fc-base font-semibold text-gray-800 hover:no-underline">
+							Price
+						</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider
