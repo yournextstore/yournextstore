@@ -3,7 +3,7 @@
 import { try_ } from "safe-try";
 import { refusedCodeMessage } from "@/app/cart/discount-code";
 import { commerce } from "@/lib/commerce";
-import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
+import { clearCartCookie, getCartCookieJson, isCartNotFoundError, setCartCookie } from "@/lib/cookies";
 import { getStoreConfig } from "@/lib/store-config";
 
 export async function getCart() {
@@ -15,6 +15,13 @@ export async function getCart() {
 
 	const [error, cart] = await try_(commerce.cartGet({ cartId: cartCookie.id }));
 	if (error) {
+		// Expected after a completed checkout (Back restores the page from bfcache and
+		// reconciles) or an expired cart. Drop the dead cookie so the layout stops looking
+		// it up on every request; a transient failure keeps it, the cart may still exist.
+		if (isCartNotFoundError(error)) {
+			await clearCartCookie();
+			return null;
+		}
 		console.error("cart: cartGet failed", { cartId: cartCookie.id, error });
 		return null;
 	}
