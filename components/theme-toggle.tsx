@@ -2,31 +2,25 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-export function ThemeToggle() {
-	const { setTheme } = useTheme();
+/** One tap between light and dark, as on the original. */
+export function ThemeToggle({ className }: { className?: string }) {
+	const { resolvedTheme, setTheme } = useTheme();
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="icon-sm" aria-label="Change theme">
-					{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
-					<Sun className="size-5 dark:hidden" />
-					<Moon className="hidden size-5 dark:block" />
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+		<button
+			type="button"
+			onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+			aria-label="Toggle dark mode"
+			className={cn(
+				"flex h-9 w-9 items-center justify-center text-foreground transition-colors hover:text-muted-foreground",
+				className,
+			)}
+		>
+			{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
+			<Moon className="h-[18px] w-[18px] dark:hidden" strokeWidth={1.5} aria-hidden="true" />
+			<Sun className="hidden h-[18px] w-[18px] dark:block" strokeWidth={1.5} aria-hidden="true" />
+		</button>
 	);
 }

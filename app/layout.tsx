@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { ArrowUpRight, UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Gelasio } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -16,18 +16,27 @@ import { Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
+import { SearchDialog } from "@/components/search/search-dialog";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getShopCategories, getShopCollections } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
-	subsets: ["latin"],
+	subsets: ["latin", "latin-ext"],
+});
+
+// Georgia-metric serif: the original sets its display type in Georgia, which Android and
+// Linux lack. Gelasio keeps those proportions on every platform.
+const gelasio = Gelasio({
+	variable: "--font-gelasio",
+	subsets: ["latin", "latin-ext"],
+	style: ["normal", "italic"],
 });
 
 const geistMono = Geist_Mono({
@@ -108,20 +117,37 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [collections, categories, me] = await Promise.all([
+		getShopCollections(),
+		getShopCategories(),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
+	const collectionLinks = collections.slice(0, 2).map((collection) => ({
+		href: `/collection/${collection.slug}`,
+		label: collection.name,
+	}));
+	// Three to four short links, as on the original: collections first, categories fill in.
+	const featured = [
+		...collectionLinks,
+		...categories.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
+	].slice(0, 2);
 	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+		{ href: "/products", label: "The collection" },
+		...featured,
+		...(blogEnabled ? [{ href: "/blog", label: "Journal" }] : []),
+		{ href: "/about", label: "Our story" },
 	];
+}
+
+async function getHeaderData() {
+	"use cache";
+	cacheLife("hours");
+	const [categories, me] = await Promise.all([getShopCategories(), meGetCached().catch(() => null)]);
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		categories: categories.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
+	};
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,46 +157,64 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, header] = await Promise.all([getNavLinks(), getStoreConfig(), getHeaderData()]);
+	// Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
+	const chips = header.categories.slice(0, 5);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<a
+						href="#main-content"
+						className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-background focus:px-5 focus:py-3 focus:shadow-lg"
+					>
+						Skip to content
+					</a>
+					<div className="bg-band px-4 py-2.5 text-center text-[10px] tracking-[0.08em] text-band-foreground sm:text-[11px]">
+						<Link
+							href="/products"
+							className="inline-flex items-center justify-center gap-2 underline-offset-4 hover:underline"
+						>
+							Small things, chosen well.
+							<span className="hidden sm:inline">Explore the collection.</span>
+							<ArrowUpRight size={12} aria-hidden="true" />
+						</Link>
+					</div>
+					<header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
+						<div className="frame relative flex h-[72px] items-center justify-between gap-4 sm:h-20">
+							<Link
+								href="/"
+								className="min-w-0 truncate text-[17px] font-medium tracking-[0.14em] uppercase sm:text-[22px] sm:tracking-[0.16em] xl:text-[26px]"
+							>
+								{header.storeName}
+							</Link>
+							<div className="flex shrink-0 items-center gap-1 sm:gap-2.5">
+								<ThemeToggle className="hidden sm:flex" />
+								<SearchDialog chips={chips} />
+								<CartButton />
+								<a
+									href={accountHref}
+									className="hidden h-9 w-9 items-center justify-center text-foreground transition-colors hover:text-muted-foreground sm:flex"
+									aria-label="Account"
+								>
+									<UserRound className="h-[18px] w-[18px]" strokeWidth={1.5} aria-hidden="true" />
+								</a>
+								<Navbar
+									links={links}
+									categories={header.categories}
+									storeName={header.storeName}
+									accountHref={accountHref}
+								/>
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<main id="main-content" className="flex-1">
+						{children}
+					</main>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -214,7 +258,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${gelasio.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />

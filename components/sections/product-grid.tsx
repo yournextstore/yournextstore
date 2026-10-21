@@ -3,17 +3,17 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
-import { commerce } from "@/lib/commerce";
+import { getHomeFavourites } from "@/lib/catalog";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
+	eyebrow?: string;
 	title?: string;
-	description?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -22,56 +22,49 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	viewAllLabel?: string;
+	className?: string;
 };
 
+/** "Good things, on repeat." — eyebrow, serif title, underlined link and a four-up row. */
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	eyebrow = "A few favourites",
+	title = "Good things, on repeat.",
 	products,
-	limit = 6,
+	limit = 4,
 	showViewAll = true,
 	viewAllHref = "/products",
+	viewAllLabel = "Shop all pieces",
+	className = "frame py-16 lg:py-24",
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	// The home row (no products passed) skips products without a photo.
+	const displayProducts = products ?? (await getHomeFavourites()).slice(0, limit);
+
+	if (displayProducts.length === 0) {
+		return null;
+	}
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section className={className}>
+			<div className="mb-9 flex flex-wrap items-end justify-between gap-5 sm:mb-12">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<p className="eyebrow text-muted-foreground">{eyebrow}</p>
+					<h2 className="mt-3 font-display text-4xl tracking-[-0.035em] sm:text-5xl">{title}</h2>
 				</div>
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+					<Link href={viewAllHref} className="collection-link border-b border-foreground/40 pb-1.5 text-xs">
+						{viewAllLabel} <ArrowUpRight size={15} aria-hidden="true" />
 					</Link>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-2 gap-x-4 gap-y-9 md:grid-cols-4 md:gap-x-6">
+				{displayProducts.slice(0, 4).map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }
