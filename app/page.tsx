@@ -1,38 +1,39 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { cacheLife } from "next/cache";
+import { Banner } from "@/components/sections/banner";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { HomeCategories } from "@/components/sections/home-categories";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { ShopByStyle } from "@/components/sections/shop-by-style";
+import { Stories } from "@/components/sections/stories";
+import { getStoreName } from "@/lib/catalog";
+import { meGetCached } from "@/lib/commerce";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+async function getBlogEnabled() {
+	"use cache";
+	cacheLife("hours");
+	const me = await meGetCached().catch(() => null);
+	return me?.store.settings?.enabledTools?.blog ?? false;
+}
+
+// The original's home, top to bottom: split hero, trending row, category tiles, the black
+// collection banner, shop by style, and the black "stay up to date" band. Every section is a
+// cached read rendered without its own Suspense boundary, so the page prerenders whole.
+export default async function Home() {
+	const [storeName, blogEnabled] = await Promise.all([getStoreName(), getBlogEnabled()]);
+
 	return (
-		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+		<div className="flex flex-col gap-8">
+			<Hero storeName={storeName} />
+			<ProductGrid title="Trending now" limit={4} />
+			<HomeCategories />
+			<Banner />
+			<ShopByStyle />
+			<Stories blogEnabled={blogEnabled} />
+		</div>
 	);
 }
