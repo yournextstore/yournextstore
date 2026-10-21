@@ -27,6 +27,10 @@ const FILTER_KEYS = ["category", "collection", "brand", "priceMin", "priceMax", 
 // Max entries shown per filter group before collapsing the rest behind "Show more".
 const VISIBLE_ENTRY_LIMIT = 10;
 
+// Ruled rows rather than the stock bordered box: no outer frame, no tint on open groups, flush text.
+const itemClass = "border-b border-border last:border-b-0 data-open:bg-transparent";
+const triggerClass = "px-0 font-sans text-base font-normal first-letter:uppercase";
+
 /** Renders a list of filter entries, truncated to `limit` with a "Show more"/"Show less" toggle. */
 function CollapsibleList<T>({
 	items,
@@ -148,7 +152,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="text-2xl text-foreground">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -160,11 +164,11 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 			</div>
 
-			<Accordion multiple defaultValue={accordionDefault} className="w-full">
+			<Accordion multiple defaultValue={accordionDefault} className="w-full rounded-none border-0">
 				{showCategories && facets.categories.length > 0 && (
-					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className={itemClass} value="categories">
+						<AccordionTrigger className={triggerClass}>Categories</AccordionTrigger>
+						<AccordionContent className="-mx-4">
 							<CollapsibleList
 								items={facets.categories}
 								className="space-y-1"
@@ -176,7 +180,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
+													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors first-letter:uppercase hover:bg-secondary",
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
@@ -191,9 +195,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 
 				{showCollections && facets.collections.length > 0 && (
-					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className={itemClass} value="collections">
+						<AccordionTrigger className={triggerClass}>Collections</AccordionTrigger>
+						<AccordionContent className="-mx-4">
 							<CollapsibleList
 								items={facets.collections}
 								className="space-y-1"
@@ -205,7 +209,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
+													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors first-letter:uppercase hover:bg-secondary",
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
@@ -222,9 +226,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				{facets.variantTypes.map((vt) => {
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
-						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
-							<AccordionContent>
+						<AccordionItem className={itemClass} key={vt.label} value={`vt-${vt.label}`}>
+							<AccordionTrigger className={triggerClass}>{vt.label}</AccordionTrigger>
+							<AccordionContent className="-mx-4">
 								<CollapsibleList
 									items={vt.values}
 									className="space-y-2"
@@ -253,9 +257,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				})}
 
 				{facets.brands.length > 0 && (
-					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className={itemClass} value="brands">
+						<AccordionTrigger className={triggerClass}>Brands</AccordionTrigger>
+						<AccordionContent className="-mx-4">
 							<CollapsibleList
 								items={facets.brands}
 								className="space-y-1"
@@ -267,7 +271,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
+													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors first-letter:uppercase hover:bg-secondary",
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
@@ -282,9 +286,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 				)}
 
 				{hasPrice && (
-					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
-						<AccordionContent>
+					<AccordionItem className={itemClass} value="price">
+						<AccordionTrigger className={triggerClass}>Price</AccordionTrigger>
+						<AccordionContent className="-mx-4">
 							<div className="px-1 pt-2">
 								<Slider
 									value={priceRange}
@@ -338,8 +342,16 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
+			<SheetTrigger
+				render={
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-10 rounded-md bg-card px-3.5 font-normal lg:hidden"
+					/>
+				}
+			>
+				<SlidersHorizontalIcon className="size-4" strokeWidth={1.5} />
 				Filters
 				{activeCount > 0 && (
 					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
@@ -349,7 +361,7 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto bg-surface data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
 			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>

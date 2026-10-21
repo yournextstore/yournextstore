@@ -19,3 +19,5 @@ export async function getFilterFacets() {
 		return EMPTY_FACETS;
 	}
 }
+
+export type FilterFacets = Awaited<ReturnType<typeof getFilterFacets>>;
