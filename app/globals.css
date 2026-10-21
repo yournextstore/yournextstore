@@ -9,12 +9,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--font-sans: var(--font-chivo);
+	--font-mono: var(--font-space-mono);
+	--font-display: var(--font-anton);
+	--radius-sm: 1px;
+	--radius-md: 2px;
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: 4px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,58 +34,358 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Field-manual palette under its own names */
+	--color-page: var(--fs-bg);
+	--color-panel: var(--fs-panel);
+	--color-panel-2: var(--fs-panel-2);
+	--color-ink: var(--fs-ink);
+	--color-dim: var(--fs-dim);
+	--color-faint: var(--fs-faint);
+	--color-signal: var(--fs-accent);
+	--color-flare: var(--fs-flare);
+	--color-line: var(--fs-line);
+	--color-line-2: var(--fs-line-2);
 }
 
+/* Breakpoints the original uses (560 / 760 / 860 / 900) map onto sm/md/lg; one extra for the tier grid. */
+@theme {
+	--breakpoint-xs: 35rem;
+}
+
+/* Dark-only theme: :root and .dark carry the same palette (palette.test.ts parses both blocks). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 3px;
+	--fs-bg: #0a0d0c;
+	--fs-panel: #121715;
+	--fs-panel-2: #182019;
+	--fs-ink: #eaf0e8;
+	--fs-dim: #93a096;
+	/* The original's #5C6862 grid-ref grey is decorative; lifted for AA where it carries text. */
+	--fs-faint: #7c8a82;
+	--fs-accent: #ff5a1f;
+	--fs-flare: #ff8a50;
+	--fs-line: rgba(234, 240, 232, 0.1);
+	--fs-line-2: rgba(234, 240, 232, 0.055);
+	--fs-accent-soft: rgba(255, 90, 31, 0.12);
+	--fs-hatch: repeating-linear-gradient(45deg, #ff5a1f 0 5px, transparent 5px 11px);
+	--fs-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--fs-ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+	--header-h: 64px;
+	--background: #0a0d0c;
+	--foreground: #eaf0e8;
+	--card: #121715;
+	--card-foreground: #eaf0e8;
+	--popover: #121715;
+	--popover-foreground: #eaf0e8;
+	--primary: #ff5a1f;
+	--primary-foreground: #0a0d0c;
+	--secondary: #182019;
+	--secondary-foreground: #eaf0e8;
+	--muted: #182019;
+	--muted-foreground: #93a096;
+	--accent: #182019;
+	--accent-foreground: #eaf0e8;
+	--destructive: #ff6b5a;
+	--border: rgba(234, 240, 232, 0.1);
+	--input: rgba(234, 240, 232, 0.16);
+	--ring: #ff5a1f;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #0a0d0c;
+	--foreground: #eaf0e8;
+	--card: #121715;
+	--card-foreground: #eaf0e8;
+	--popover: #121715;
+	--popover-foreground: #eaf0e8;
+	--primary: #ff5a1f;
+	--primary-foreground: #0a0d0c;
+	--secondary: #182019;
+	--secondary-foreground: #eaf0e8;
+	--muted: #182019;
+	--muted-foreground: #93a096;
+	--accent: #182019;
+	--accent-foreground: #eaf0e8;
+	--destructive: #ff6b5a;
+	--border: rgba(234, 240, 232, 0.1);
+	--input: rgba(234, 240, 232, 0.16);
+	--ring: #ff5a1f;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		color-scheme: dark;
+		scroll-behavior: smooth;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts its variables on <body>, so the stacks are declared here, not on :root. */
+		font-family: var(--font-chivo), system-ui, sans-serif;
+		line-height: 1.6;
+		overflow-x: clip;
+	}
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-anton), Impact, system-ui, sans-serif;
+		font-weight: 400;
+		text-transform: uppercase;
+		letter-spacing: 0.005em;
+		line-height: 0.98;
+	}
+	::selection {
+		background: var(--fs-accent);
+		color: var(--fs-bg);
+	}
+	a:focus-visible,
+	button:focus-visible,
+	[tabindex]:focus-visible {
+		outline: 2px solid var(--fs-accent);
+		outline-offset: 3px;
+	}
+}
+
+/* ---------- shared field-manual pieces ---------- */
+@utility font-display {
+	font-family: var(--font-anton), Impact, system-ui, sans-serif;
+	font-weight: 400;
+	text-transform: uppercase;
+	letter-spacing: 0.005em;
+	line-height: 0.98;
+}
+@utility font-field {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+}
+@utility eyebrow {
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.16em;
+	color: var(--fs-accent);
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+@utility grid-ref {
+	color: var(--fs-faint);
+	font-weight: 400;
+	letter-spacing: 0.1em;
+}
+@utility hatch {
+	background: var(--fs-hatch);
+}
+@utility section-x {
+	padding-inline: clamp(16px, 4vw, 44px);
+}
+@utility section-y {
+	padding-block: clamp(72px, 11vh, 132px);
+}
+@utility frame {
+	max-width: 1180px;
+	margin-inline: auto;
+	width: 100%;
+}
+@utility title-section {
+	font-size: clamp(2.1rem, 5.6vw, 4rem);
+}
+@utility title-hero {
+	font-size: clamp(3.4rem, 10.5vw, 7rem);
+}
+@utility lead {
+	max-width: 56ch;
+	color: var(--fs-dim);
+	font-size: clamp(1rem, 1.3vw, 1.12rem);
+}
+
+/* angled clip like cut tarp, with safety-tape hatch in the corner */
+@utility cut-both {
+	position: relative;
+	clip-path: polygon(0 0.9%, 100% 0, 100% 99.1%, 0 100%);
+	background: linear-gradient(180deg, var(--fs-panel) 0%, var(--fs-bg) 60%), var(--fs-panel);
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 120px;
+		height: 8px;
+		background: var(--fs-hatch);
+		opacity: 0.5;
+		pointer-events: none;
+	}
+}
+
+/* buttons: knobs through variables so a modifier never fights the utility (playbook 014) */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 9px;
+	cursor: pointer;
+	font-family: var(--font-space-mono), ui-monospace, monospace;
+	font-weight: 700;
+	font-size: 0.82rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	padding: var(--btn-py, 14px) var(--btn-px, 22px);
+	border: 1px solid transparent;
+	border-radius: 2px;
+	transition:
+		transform 0.3s var(--fs-ease-snap),
+		box-shadow 0.35s var(--fs-ease),
+		background 0.25s,
+		border-color 0.25s,
+		color 0.25s;
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.55;
+		cursor: not-allowed;
+		transform: none;
+	}
+}
+@utility btn-primary {
+	background: var(--fs-accent);
+	color: var(--fs-bg);
+	box-shadow: 0 10px 34px -14px rgba(255, 90, 31, 0.9);
+	&:hover:not(:disabled) {
+		background: var(--fs-flare);
+		transform: translateY(-2px);
+		box-shadow: 0 16px 44px -14px rgba(255, 90, 31, 0.95);
+	}
+}
+@utility btn-ghost {
+	color: var(--fs-ink);
+	border-color: var(--fs-line);
+	background: rgba(255, 255, 255, 0.015);
+	&:hover {
+		border-color: rgba(234, 240, 232, 0.3);
+		transform: translateY(-2px);
+	}
+}
+@utility btn-tier {
+	color: var(--fs-accent);
+	border-color: var(--fs-line);
+	background: transparent;
+	--btn-py: 12px;
+	--btn-px: 18px;
+	width: 100%;
+	justify-content: space-between;
+	&:hover {
+		border-color: var(--fs-accent);
+		background: var(--fs-accent-soft);
+	}
+}
+
+/* ---------- header: transparent over the hero, blurred once scrolled ---------- */
+.site-header {
+	transition:
+		background 0.35s var(--fs-ease),
+		border-color 0.35s var(--fs-ease);
+	border-bottom: 1px solid transparent;
+}
+.site-header[data-scrolled="true"],
+:root:not(:has([data-hero])) .site-header {
+	background: rgba(10, 13, 12, 0.82);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border-bottom-color: var(--fs-line);
+}
+main {
+	padding-top: var(--header-h);
+}
+:root:has([data-hero]) main {
+	padding-top: 0;
+}
+
+/* ---------- hero scrim ---------- */
+.hero-scrim {
+	background:
+		linear-gradient(
+			180deg,
+			rgba(10, 13, 12, 0.55) 0%,
+			rgba(10, 13, 12, 0.1) 34%,
+			rgba(10, 13, 12, 0.35) 60%,
+			var(--fs-bg) 100%
+		),
+		radial-gradient(120% 90% at 20% 90%, rgba(10, 13, 12, 0.7), transparent 60%);
+}
+
+/* ---------- tent diagram (terrain section) ---------- */
+.tent-svg path {
+	fill: none;
+	stroke-width: 1.7;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	vector-effect: non-scaling-stroke;
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	transition: stroke-dashoffset 0.7s var(--fs-ease);
+}
+.tent-svg .ground {
+	stroke: var(--fs-faint);
+}
+.tent-svg .member {
+	stroke: var(--fs-ink);
+	opacity: 0.85;
+}
+.tent-svg .stake {
+	stroke: var(--fs-dim);
+}
+.tent-svg .hl {
+	stroke: var(--fs-accent);
+	stroke-width: 2.4;
+}
+.tent-svg .wind {
+	stroke: var(--fs-flare);
+}
+.tent-svg .callout {
+	font-family: var(--font-space-mono), monospace;
+	font-size: 9px;
+	letter-spacing: 0.12em;
+	fill: var(--fs-dim);
+	text-transform: uppercase;
+	opacity: 0;
+	transition: opacity 0.4s var(--fs-ease);
+}
+.tent-svg .callout.hl-txt {
+	fill: var(--fs-flare);
+}
+.tent-config {
+	opacity: 0;
+	transition: opacity 0.4s var(--fs-ease);
+}
+.tent-config[data-active="true"] {
+	opacity: 1;
+}
+.tent-config[data-active="true"] path {
+	stroke-dashoffset: 0;
+}
+.tent-config[data-active="true"] .member {
+	transition-delay: 0.08s;
+}
+.tent-config[data-active="true"] .hl {
+	transition-delay: 0.32s;
+}
+.tent-config[data-active="true"] .callout {
+	opacity: 1;
+	transition-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tent-svg path,
+	.tent-config,
+	.tent-svg .callout {
+		transition: none !important;
 	}
 }
 
@@ -115,14 +416,7 @@
 }
 
 .yns-image-shimmer {
-	background: linear-gradient(
-		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
-	);
+	background: linear-gradient(90deg, #121715 0%, #182019 40%, #1e2820 50%, #182019 60%, #121715 100%);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }

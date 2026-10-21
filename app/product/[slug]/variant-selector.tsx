@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -145,9 +151,13 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="font-field text-[0.74rem] tracking-[0.1em] text-faint uppercase">
+										{group.label}
+									</legend>
 									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
+										<span className="font-field text-[0.8rem] font-bold text-ink">
+											{selectedOption.value}
+										</span>
 									)}
 								</div>
 								<div className="flex gap-3">
@@ -164,9 +174,9 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
+													"relative h-11 w-11 rounded-[2px] transition-all duration-200",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+														? "ring-2 ring-signal ring-offset-2 ring-offset-background"
 														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
@@ -174,7 +184,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												title={option.value}
 											>
 												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
+													<span className="absolute inset-0 rounded-[2px] border border-line" />
 												)}
 											</button>
 										);
@@ -184,7 +194,9 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="font-field text-[0.74rem] tracking-[0.1em] text-faint uppercase">
+										{group.label}
+									</legend>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -196,13 +208,13 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"font-field flex flex-col items-center rounded-[2px] border px-5 py-3 text-[0.8rem] tracking-[0.06em] uppercase transition-colors duration-200",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-signal bg-signal/10 text-signal"
+														: "border-line bg-panel text-dim hover:border-ink/30 hover:text-ink",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												<span className="font-bold">{option.value}</span>
 											</button>
 										);
 									})}

@@ -68,7 +68,7 @@ export function DiscountCodeField() {
 			<div className="grid gap-2">
 				<div
 					role="status"
-					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900"
+					className="flex min-h-11 items-center justify-between gap-3 rounded-[2px] border border-signal/40 bg-signal/10 pl-3 text-ink"
 				>
 					<p className="min-w-0 py-2 text-sm">
 						<span className="font-semibold break-all">{applied.code} applied</span>{" "}
@@ -77,7 +77,7 @@ export function DiscountCodeField() {
 					<Button
 						type="button"
 						variant="ghost"
-						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950"
+						className="h-11 shrink-0 px-3 text-sm text-signal underline underline-offset-2 hover:bg-signal/10 hover:text-flare"
 						aria-label={`Remove discount code ${applied.code}`}
 						aria-busy={isMutating || undefined}
 						onClick={() => {
@@ -96,7 +96,7 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
+			<label htmlFor={inputId} className="font-field text-[0.72rem] tracking-[0.1em] text-faint uppercase">
 				Discount code
 			</label>
 			<div className="flex gap-2">
@@ -108,7 +108,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="font-field h-11 min-w-0 flex-1 rounded-[2px] bg-transparent text-base uppercase dark:bg-transparent md:text-base"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -127,7 +127,7 @@ export function DiscountCodeField() {
 				<Button
 					type="button"
 					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="font-field h-11 shrink-0 rounded-[2px] px-4 text-[0.8rem] tracking-[0.06em] uppercase dark:bg-transparent"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

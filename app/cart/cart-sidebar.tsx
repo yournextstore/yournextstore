@@ -1,16 +1,17 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Sheet,
+	SheetClose,
 	SheetContent,
 	SheetDescription,
 	SheetFooter,
@@ -32,43 +33,50 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
+			<SheetContent
+				showCloseButton={false}
+				className="flex flex-col gap-0 border-line bg-page data-[side=right]:w-full data-[side=right]:sm:max-w-lg"
+			>
+				<SheetHeader className="flex-row items-center justify-between border-b border-line px-5 py-4">
+					<SheetTitle className="flex items-baseline gap-3 text-[1.9rem] text-ink">
+						Your bag
+						<span className="font-field text-[0.78rem] font-bold tracking-[0.06em] text-signal">
+							[{itemCount}]
+						</span>
 					</SheetTitle>
+					<SheetClose className="p-1.5 text-dim transition-colors hover:text-ink" aria-label="Close cart">
+						<X className="h-5 w-5" aria-hidden="true" />
+					</SheetClose>
 					<SheetDescription className="sr-only">
 						Review items in your cart and proceed to checkout.
 					</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+					<div className="flex flex-1 flex-col items-start justify-center gap-5 px-6 py-12">
+						<p className="eyebrow">
+							<span className="grid-ref" aria-hidden="true">
+								[ 00 ]
+							</span>
+							NOTHING PACKED
+						</p>
+						<p className="font-display text-[2.6rem] text-ink">The bag is empty.</p>
+						<p className="text-dim">Load it up before the weather turns.</p>
+						<Link href="/products" onClick={closeCart} className="btn btn-primary">
+							Shop the range
+						</Link>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="min-h-0 flex-1 px-5">
+							<div className="divide-y divide-line">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
+						<SheetFooter className="mt-auto border-t border-line bg-panel px-5 pt-5 pb-6">
 							<div className="w-full space-y-4">
 								<DiscountCodeField />
 								{discount ? (
@@ -77,7 +85,7 @@ export function CartSidebar() {
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-sm font-medium text-signal">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -85,15 +93,17 @@ export function CartSidebar() {
 										</div>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+								<div className="flex items-baseline justify-between">
+									<span className="font-field text-[0.74rem] tracking-[0.1em] text-faint uppercase">
+										{discount ? "Total" : "Subtotal"}
+									</span>
+									<span className="font-display text-[2rem] text-ink">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
 								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
 								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
+								<p className="font-field text-[0.7rem] tracking-[0.04em] text-dim uppercase">
 									{taxBehavior === "inclusive"
 										? "Shipping calculated at checkout"
 										: "Shipping and taxes calculated at checkout"}
@@ -112,8 +122,7 @@ export function CartSidebar() {
 										}
 									}}
 									className={cn(
-										buttonVariants(),
-										"w-full h-12 text-base font-medium",
+										"btn btn-primary w-full [--btn-py:16px]",
 										isMutating && "pointer-events-none opacity-60",
 									)}
 								>
@@ -123,15 +132,17 @@ export function CartSidebar() {
 											Updating…
 										</>
 									) : (
-										"Checkout"
+										<>
+											Proceed to checkout <span aria-hidden="true">→</span>
+										</>
 									)}
 								</a>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="font-field w-full py-1 text-[0.74rem] tracking-[0.06em] text-dim uppercase transition-colors hover:text-ink"
 								>
-									Continue Shopping
+									Keep shopping
 								</button>
 							</div>
 						</SheetFooter>
