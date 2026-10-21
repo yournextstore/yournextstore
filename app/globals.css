@@ -8,11 +8,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-roboto);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
+	--font-serif: var(--font-merriweather);
+	--font-brand: var(--font-pacifico);
+	--radius-sm: calc(var(--radius) - 2px);
+	--radius-md: var(--radius);
+	--radius-lg: calc(var(--radius) + 2px);
 	--radius-xl: calc(var(--radius) + 4px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -32,63 +34,207 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Bakery palette under its own names (original: brand, fill, surface). */
+	--color-surface: var(--surface);
+	--color-brand: var(--brand);
+	--color-brand-hover: var(--brand-hover);
+	--color-fill: var(--fill);
+	--color-fill-hover: var(--fill-hover);
+	--color-on-fill: var(--on-fill);
+	--color-line: var(--line);
+	--color-line-soft: var(--line-soft);
+	--color-menu: var(--menu);
 }
 
+/* The original type scale, renamed so shadcn's text-sm/base/lg keep their sizes. */
+@theme {
+	--text-body-xs: 0.75rem;
+	--text-body-xs--line-height: 1.6;
+	--text-body-sm: 0.875rem;
+	--text-body-sm--line-height: 1.6;
+	--text-body-md: 1rem;
+	--text-body-md--line-height: 1.6;
+	--text-body-lg: 1.125rem;
+	--text-body-lg--line-height: 1.6;
+	--text-body-xl: 1.25rem;
+	--text-body-xl--line-height: 1.6;
+	--text-heading-xl: 1.25rem;
+	--text-heading-xl--line-height: 1.25;
+	--text-heading-2xl: 1.5rem;
+	--text-heading-2xl--line-height: 1.25;
+	--text-heading-3xl: 1.875rem;
+	--text-heading-3xl--line-height: 1.25;
+	--text-heading-4xl: 2.25rem;
+	--text-heading-4xl--line-height: 1.25;
+	--text-heading-5xl: 3rem;
+	--text-heading-5xl--line-height: 1.25;
+	--text-heading-6xl: 3.75rem;
+	--text-heading-6xl--line-height: 1.25;
+	--shadow-soft: 0 0 1rem 0 hsl(45deg 12% 80% / 0.75);
+	--shadow-brand: 0 0 1rem 0 hsl(6deg 90% 16% / 0.1);
+	--shadow-fill: 0 0 1rem 0 hsl(186deg 90% 16% / 0.1);
+}
+
+/* Light-only design: :root and .dark carry the same cream palette (forcedTheme="light"). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.375rem;
+	--background: #f1efe9;
+	--foreground: #171716;
+	--surface: #eae7dc;
+	--card: #eae7dc;
+	--card-foreground: #171716;
+	--popover: #f1efe9;
+	--popover-foreground: #171716;
+	--primary: #4e0b04;
+	--primary-foreground: #fdfcfc;
+	--secondary: #eae7dc;
+	--secondary-foreground: #171716;
+	--muted: #eae7dc;
+	--muted-foreground: #5c5c58;
+	--accent: #e2ded0;
+	--accent-foreground: #171716;
+	--destructive: #a3200f;
+	--border: #dad5c3;
+	--input: #dad5c3;
+	--ring: #62241d;
+	--brand: #4e0b04;
+	--brand-hover: #62241d;
+	--fill: #04464e;
+	--fill-hover: #1d5a62;
+	--on-fill: #fdfcfc;
+	--line: #dad5c3;
+	--line-soft: #e2ded0;
+	--menu: #62241d;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.375rem;
+	--background: #f1efe9;
+	--foreground: #171716;
+	--surface: #eae7dc;
+	--card: #eae7dc;
+	--card-foreground: #171716;
+	--popover: #f1efe9;
+	--popover-foreground: #171716;
+	--primary: #4e0b04;
+	--primary-foreground: #fdfcfc;
+	--secondary: #eae7dc;
+	--secondary-foreground: #171716;
+	--muted: #eae7dc;
+	--muted-foreground: #5c5c58;
+	--accent: #e2ded0;
+	--accent-foreground: #171716;
+	--destructive: #a3200f;
+	--border: #dad5c3;
+	--input: #dad5c3;
+	--ring: #62241d;
+	--brand: #4e0b04;
+	--brand-hover: #62241d;
+	--fill: #04464e;
+	--fill-hover: #1d5a62;
+	--on-fill: #fdfcfc;
+	--line: #dad5c3;
+	--line-soft: #e2ded0;
+	--menu: #62241d;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* next/font puts its variables on <body>, so the face is declared here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-merriweather), Georgia, serif;
+		position: relative;
+	}
+	/* Paper grain over the whole page, as in the original (fractal noise, desaturated, 10%). */
+	body::after {
+		content: "";
+		pointer-events: none;
+		position: fixed;
+		inset: 0;
+		z-index: 60;
+		opacity: 0.1;
+		filter: contrast(0);
+		background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	}
+	@media (min-width: 64rem) {
+		body::after {
+			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		}
+	}
+}
+
+/* The original's centred container: 1.5rem gutters, 2rem from lg, max width per breakpoint. */
+@utility bake-container {
+	width: 100%;
+	margin-inline: auto;
+	padding-inline: 1.5rem;
+	@media (width >= 40rem) {
+		max-width: 40rem;
+	}
+	@media (width >= 48rem) {
+		max-width: 48rem;
+	}
+	@media (width >= 64rem) {
+		max-width: 64rem;
+		padding-inline: 2rem;
+	}
+	@media (width >= 80rem) {
+		max-width: 80rem;
+	}
+}
+
+/* Torn-paper zigzag between bands (the original's Seperator). */
+@utility zigzag-edge {
+	clip-path: polygon(0% 0%, 10% 100%, 20% 0%, 30% 100%, 40% 0%, 50% 100%, 60% 0%, 70% 100%, 80% 0%, 90% 100%, 100% 0%);
+	@media (width >= 64rem) {
+		clip-path: polygon(
+			0% 0%,
+			5% 100%,
+			10% 0%,
+			15% 100%,
+			20% 0%,
+			25% 100%,
+			30% 0%,
+			35% 100%,
+			40% 0%,
+			45% 100%,
+			50% 0%,
+			55% 100%,
+			60% 0%,
+			65% 100%,
+			70% 0%,
+			75% 100%,
+			80% 0%,
+			85% 100%,
+			90% 0%,
+			95% 100%,
+			100% 0%
+		);
+	}
+}
+
+/* Blob-masked hero photograph (the original's own mask artwork, MIT). */
+.blob-mask {
+	mask-image: url("/images/hero-image-mask-mobile.png");
+	mask-size: contain;
+	mask-repeat: no-repeat;
+	mask-position: center;
+}
+.blob-shadow {
+	filter: drop-shadow(0 0 1rem hsl(45deg 12% 80% / 0.75));
+}
+@media (width >= 64rem) {
+	.blob-mask {
+		mask-image: url("/images/hero-image-mask-desktop.png");
 	}
 }
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
+	font-family: var(--font-roboto), system-ui, sans-serif;
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);
@@ -99,11 +245,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#e2ded0 0%,
+		#eae7dc 40%,
+		#f1efe9 50%,
+		#eae7dc 60%,
+		#e2ded0 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

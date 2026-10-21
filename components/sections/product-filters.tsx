@@ -148,7 +148,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="font-serif text-heading-xl font-bold text-brand">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -322,7 +322,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 /** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
 export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
 	return (
-		<aside className={cn("hidden lg:block", className)}>
+		<aside className={cn("hidden font-sans lg:sticky lg:top-32 lg:block lg:self-start", className)}>
 			<FilterControls {...props} />
 		</aside>
 	);
@@ -336,7 +336,11 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
+				<Button
+					variant="outline"
+					size="sm"
+					className="h-10 rounded-md border-line bg-surface px-4 font-sans lg:hidden"
+				>
 					<SlidersHorizontalIcon className="size-4" />
 					Filters
 					{activeCount > 0 && (
@@ -346,9 +350,9 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 					)}
 				</Button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
+			<SheetContent side="left" className="block w-[85vw] max-w-sm overflow-y-auto font-sans">
 				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+					<SheetTitle className="font-serif text-heading-xl font-bold text-brand">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">

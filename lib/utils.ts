@@ -1,5 +1,31 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's type scale (text-body-md, text-heading-xl, …) is unknown to tailwind-merge, which
+// would otherwise read those classes as colours and drop one of a size/colour pair.
+const twMerge = extendTailwindMerge({
+	extend: {
+		classGroups: {
+			"font-size": [
+				{
+					text: [
+						"body-xs",
+						"body-sm",
+						"body-md",
+						"body-lg",
+						"body-xl",
+						"heading-xl",
+						"heading-2xl",
+						"heading-3xl",
+						"heading-4xl",
+						"heading-5xl",
+						"heading-6xl",
+					],
+				},
+			],
+		},
+	},
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

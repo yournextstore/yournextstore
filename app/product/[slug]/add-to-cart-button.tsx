@@ -6,14 +6,15 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
+import { Arrow } from "@/components/bakery/arrow";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
+import { buttonClass } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 // Every net price below has a gross twin; which of the pair a shopper sees is the store's
@@ -93,9 +94,9 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -196,17 +197,25 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+			{summary && (
+				<p className="font-sans text-body-md whitespace-pre-line text-muted-foreground lg:text-body-lg">
+					{summary}
+				</p>
+			)}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span className="font-serif text-heading-3xl font-bold text-brand tabular-nums">
+						{priceInfo.display}
+					</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<span className="font-serif text-heading-xl text-muted-foreground line-through">
+							{priceInfo.compareAt}
+						</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="rounded-md bg-fill px-2.5 py-0.5 font-sans text-body-xs font-bold text-on-fill">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
@@ -218,14 +227,14 @@ export function AddToCartButton({
 
 				{/* SKU & stock availability */}
 				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-sans text-body-sm">
 						{stockStatus && (
 							<span
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+									stockStatus.tone === "low" && "text-brand",
+									stockStatus.tone === "in" && "text-fill",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -259,14 +268,13 @@ export function AddToCartButton({
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className={buttonClass({ className: "w-full whitespace-normal px-6 text-center sm:px-10" })}
 					>
-						{buttonText}
+						<span>{buttonText}</span>
+						{selectedVariant && !isOutOfStock ? <Arrow /> : null}
 					</button>
 				</form>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }

@@ -1,12 +1,13 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
+import { Arrow } from "@/components/bakery/arrow";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Sheet,
@@ -17,6 +18,7 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
+import { buttonClass } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
@@ -31,52 +33,67 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+			<SheetContent
+				hideClose
+				overlayClassName="bg-background/20 backdrop-blur-md"
+				className="flex w-full flex-col gap-0 border-l border-line-soft bg-background p-0 sm:max-w-md"
+			>
+				<SheetHeader className="flex-row items-center justify-between gap-4 border-b border-line-soft px-6 py-6">
+					<SheetTitle className="font-serif text-heading-2xl font-bold text-foreground">
+						Your Basket{" "}
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="font-sans text-body-md font-normal text-muted-foreground">
+								({itemCount} {itemCount === 1 ? "item" : "items"})
+							</span>
 						)}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
+						Review the items in your basket and go to checkout.
 					</SheetDescription>
+					<button
+						type="button"
+						onClick={closeCart}
+						aria-label="Close basket"
+						className="-mr-2 rounded-md p-2 text-foreground hover:text-brand-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-hover"
+					>
+						<X aria-hidden="true" className="h-6 w-6" />
+					</button>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+					<div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-12 text-center">
+						<p className="font-brand text-heading-3xl text-brand">Still empty.</p>
+						<p className="font-sans text-body-md text-muted-foreground">
+							Your basket is waiting for something lovely. Have a look around the shop.
+						</p>
+						<Link href="/products" onClick={closeCart} className={buttonClass({ variant: "secondary" })}>
+							<span>See the shop</span>
+							<Arrow />
+						</Link>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="min-h-0 flex-1 px-6">
+							<div className="divide-y divide-line-soft">
 								{items.map((item) => (
 									<CartItem key={item.productVariant.id} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
+						<div aria-hidden="true" className="relative h-2 w-full shrink-0 overflow-hidden bg-surface">
+							<div className="zigzag-edge absolute inset-x-0 -top-px h-full bg-background" />
+						</div>
+						<SheetFooter className="mt-0 bg-surface px-6 pt-5 pb-6">
+							<div className="w-full space-y-4 font-sans">
 								<DiscountCodeField />
 								{discount ? (
 									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
+										<div className="flex items-center justify-between text-body-sm text-muted-foreground">
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-body-sm font-bold text-fill">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -84,15 +101,15 @@ export function CartSidebar() {
 										</div>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+								<div className="flex items-center justify-between font-serif text-heading-xl">
+									<span className="font-bold">{discount ? "Total" : "Subtotal"}</span>
+									<span className="font-bold text-brand tabular-nums">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
 								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
 								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
+								<p className="text-body-xs text-muted-foreground">
 									{taxBehavior === "inclusive"
 										? "Shipping calculated at checkout"
 										: "Shipping and taxes calculated at checkout"}
@@ -101,34 +118,37 @@ export function CartSidebar() {
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<a
-										href={checkoutUrl}
-										aria-disabled={isMutating}
-										tabIndex={isMutating ? -1 : undefined}
-										onClick={(e) => {
-											if (isMutating) {
-												e.preventDefault();
-											}
-										}}
-										className={cn(isMutating && "pointer-events-none opacity-60")}
-									>
-										{isMutating ? (
-											<>
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Updating…
-											</>
-										) : (
-											"Checkout"
-										)}
-									</a>
-								</Button>
+								<a
+									href={checkoutUrl}
+									aria-disabled={isMutating}
+									tabIndex={isMutating ? -1 : undefined}
+									onClick={(e) => {
+										if (isMutating) {
+											e.preventDefault();
+										}
+									}}
+									className={buttonClass({
+										className: cn("w-full", isMutating && "pointer-events-none opacity-60"),
+									})}
+								>
+									{isMutating ? (
+										<>
+											<Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
+											<span>Updating…</span>
+										</>
+									) : (
+										<>
+											<span>Checkout</span>
+											<Arrow />
+										</>
+									)}
+								</a>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full font-sans text-body-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
 								>
-									Continue Shopping
+									Continue shopping
 								</button>
 							</div>
 						</SheetFooter>
