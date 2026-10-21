@@ -4,18 +4,12 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
+import { ListingHeader, ListingHeaderSkeleton } from "@/components/listing-header";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { richTextToPlain } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -116,7 +110,8 @@ async function CategoryProducts({
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="font-display text-3xl text-earth-soft">No products found</p>
+				<p className="mt-2 font-body text-sm text-earth-soft">Try adjusting your filters</p>
 			</div>
 		);
 	}
@@ -125,7 +120,11 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<p className="mb-6 font-body text-sm text-earth-soft">
+				{result.meta.count} {result.meta.count === 1 ? "product" : "products"} found
+			</p>
+			<h2 className="sr-only">Products</h2>
+			<div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,10 +141,12 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="min-h-svh">
+			<ListingHeaderSkeleton />
+			<div className="mx-auto max-w-screen-xl px-6 py-12 lg:px-12">
+				<div className="mb-6 h-5 w-32 rounded bg-sand" />
+				<ProductGridSkeleton />
+			</div>
 		</div>
 	);
 }
@@ -205,53 +206,63 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richTextToPlain(category.description);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
+			<ListingHeader
+				title={category.name}
+				eyebrow={
+					<nav aria-label="Breadcrumb">
+						<ol className="flex flex-wrap items-center gap-x-2">
+							<li>
+								<Link href="/products" className="transition-colors hover:text-gold">
+									All Collections
+								</Link>
+							</li>
+							{hierarchy.slice(0, -1).map((crumb, index) => (
+								<Fragment key={crumb.slug}>
+									<li aria-hidden="true">/</li>
+									<li>
+										<Link
+											href={`/category/${hierarchy
+												.slice(0, index + 1)
+												.map((c) => c.slug)
+												.join("/")}`}
+											className="transition-colors hover:text-gold"
+										>
+											{crumb.name}
+										</Link>
+									</li>
+								</Fragment>
+							))}
+						</ol>
+					</nav>
+				}
+			>
+				{description || null}
+			</ListingHeader>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
+			<div className="mx-auto max-w-screen-xl px-6 py-12 lg:px-12">
+				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12" : ""}>
 					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
+						<ProductFilters
+							facets={facets}
+							showCategories={false}
+							className="lg:sticky lg:top-28 lg:self-start"
+						/>
 					)}
 
-					<Suspense fallback={<ProductGridSkeleton />}>
+					<div className="min-w-0">
+						{filtersAvailable && (
+							<div className="mb-6 flex lg:hidden">
+								<ProductFiltersMobile facets={facets} showCategories={false} />
+							</div>
+						)}
+
 						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
+					</div>
 				</div>
 			</div>
 		</div>

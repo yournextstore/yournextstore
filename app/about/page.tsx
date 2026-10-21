@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { ListingHeader } from "@/components/listing-header";
+import { getStoreBrand } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
+import { ABOUT_IMAGE } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
+import {
+	btnPrimaryClass,
+	btnSecondaryClass,
+	eyebrowClass,
+	pageContainerClass,
+	sectionTitleClass,
+} from "@/lib/styles";
+import { cn } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -26,112 +38,108 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
+const VALUES = [
+	{
+		title: "Chosen with Care",
+		copy: "Every bear, bunny and fox is chosen for its fabric, its face and how it feels in the arms.",
+	},
+	{
+		title: "Made for Hugging",
+		copy: "Soft enough for the cot and sturdy enough for daily play, from a pocket bunny to a jointed bear.",
+	},
+	{
+		title: "Made to Last",
+		copy: "Mohair, alpaca, velvet and linen in classic shapes, so a first friend can become a family keepsake.",
+	},
+];
 
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const brand = await getStoreBrand();
+	const image = ABOUT_IMAGE;
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
 		"@type": "AboutPage",
-		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+		name: `About ${brand.name}`,
+		description: brand.description,
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
+			<ListingHeader eyebrow="Our Story" title={`About ${brand.name}`}>
+				{brand.description}
+			</ListingHeader>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
+			<section className={cn(pageContainerClass, "grid items-center gap-12 lg:grid-cols-2 lg:gap-20")}>
+				<div>
+					<p className={eyebrowClass}>Our Philosophy</p>
+					<h2 className={cn(sectionTitleClass, "mb-6")}>
+						Friends worth <em>keeping</em>
+					</h2>
+					<div className="space-y-4 font-body text-base leading-relaxed text-earth">
 						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
+							At {brand.name}, we believe a soft toy should be hugged every day and still be loved years from
+							now, then handed on.
 						</p>
 						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
+							We started with a simple wish: a toy shop where every bear, bunny and fox has a real face and a
+							fabric you want to touch. So we keep the shelves small and make each friend in limited runs.
 						</p>
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
+				</div>
+				{image && (
+					<div className="relative aspect-4/5 overflow-hidden rounded-2xl bg-sand shadow-luxury-lg">
+						<YNSMedia
+							src={image}
+							alt=""
+							fill
+							sizes="(max-width: 1024px) 100vw, 50vw"
+							className="object-cover"
+							priority
+						/>
 					</div>
-				</section>
-			</div>
+				)}
+			</section>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
+			<section className="bg-royal/5 py-20">
+				<div className="mx-auto max-w-7xl px-6 lg:px-12">
+					<div className="mb-12 text-center">
+						<p className={eyebrowClass}>What We Stand For</p>
+						<h2 className={sectionTitleClass}>Our Values</h2>
+					</div>
+					<div className="grid gap-4 md:grid-cols-3 lg:gap-6">
+						{VALUES.map((value, index) => (
+							<div key={value.title} className="rounded-2xl border border-earth/5 bg-card/60 p-8">
+								<p className="font-display text-4xl text-crimson">0{index + 1}</p>
+								<h3 className="mt-3 mb-2 font-display text-2xl text-royal">{value.title}</h3>
+								<p className="font-body text-sm leading-relaxed text-earth">{value.copy}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className={cn(pageContainerClass, "pb-32 text-center")}>
+				<p className={eyebrowClass}>Say Hello</p>
+				<h2 className={cn(sectionTitleClass, "mb-4")}>Come and Say Hello</h2>
+				<p className="mx-auto mb-8 max-w-xl font-body text-base leading-loose tracking-wide text-earth-soft">
+					Browse the shop, or get in touch — we would love to help you find something worth keeping.
 				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
+				<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+					<Link href="/products" className={btnPrimaryClass}>
+						Explore the Shop
 					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
+					{brand.contact && (
+						<Link href="/contact" className={btnSecondaryClass}>
+							Contact Us
 						</Link>
 					)}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

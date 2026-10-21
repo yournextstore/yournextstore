@@ -1,9 +1,9 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { SearchIcon, SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type ReactNode, startTransition, useOptimistic, useState } from "react";
+import { type ReactNode, startTransition, useId, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ function CollapsibleList<T>({
 				<button
 					type="button"
 					onClick={() => setExpanded((prev) => !prev)}
-					className="mt-2 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+					className="mt-2 px-3 font-body text-xs text-earth-soft underline-offset-4 hover:text-crimson hover:underline"
 				>
 					{expanded ? "Show less" : "Show more"}
 				</button>
@@ -71,6 +71,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 
+	const searchId = useId();
 	const selectedVts = parseVts(searchParams.get("vts"));
 	const [optimisticVts, setOptimisticVts] = useOptimistic(selectedVts);
 
@@ -147,23 +148,55 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	return (
 		<div className="space-y-4">
+			{showCategories && (
+				<form action="/search">
+					<label
+						htmlFor={searchId}
+						className="mb-2 block font-body text-2xs uppercase tracking-widest text-earth-soft"
+					>
+						Search
+					</label>
+					<div className="flex items-center rounded-lg border border-earth/20 bg-background transition-colors focus-within:border-royal">
+						<input
+							id={searchId}
+							type="search"
+							name="q"
+							placeholder="Search products…"
+							className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-body text-sm text-earth outline-none placeholder:text-earth-soft"
+						/>
+						<button
+							type="submit"
+							aria-label="Search"
+							className="shrink-0 px-3 py-2.5 text-earth-soft transition-colors hover:text-crimson"
+						>
+							<SearchIcon className="size-4" aria-hidden="true" />
+						</button>
+					</div>
+				</form>
+			)}
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="font-body text-2xs uppercase tracking-widest text-earth-soft">Refine</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
 						onClick={clearAll}
-						className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+						className="font-body text-xs text-crimson underline-offset-4 hover:underline"
 					>
 						Clear all
 					</button>
 				)}
 			</div>
 
-			<Accordion multiple defaultValue={accordionDefault} className="w-full">
+			<Accordion
+				multiple
+				defaultValue={accordionDefault}
+				className="w-full [&_[data-slot=accordion-item]]:border-earth/10"
+			>
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="py-3 font-body text-2xs font-normal uppercase tracking-widest text-earth-soft hover:no-underline">
+							Categories
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -176,8 +209,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full cursor-pointer rounded-md px-3 py-2 text-left font-body text-sm transition-colors",
+													isActive
+														? "bg-crimson/5 font-semibold text-crimson"
+														: "text-earth hover:bg-earth/5 hover:text-crimson",
 												)}
 											>
 												{category.name}
@@ -192,7 +227,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="py-3 font-body text-2xs font-normal uppercase tracking-widest text-earth-soft hover:no-underline">
+							Collections
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -205,8 +242,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full cursor-pointer rounded-md px-3 py-2 text-left font-body text-sm transition-colors",
+													isActive
+														? "bg-crimson/5 font-semibold text-crimson"
+														: "text-earth hover:bg-earth/5 hover:text-crimson",
 												)}
 											>
 												{collection.name}
@@ -223,7 +262,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="py-3 font-body text-2xs font-normal uppercase tracking-widest text-earth-soft hover:no-underline">
+								{vt.label}
+							</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -240,7 +281,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 													checked={checked}
 													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
 												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
+												<label htmlFor={id} className="cursor-pointer font-body text-sm text-earth">
 													{value}
 												</label>
 											</li>
@@ -254,7 +295,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="py-3 font-body text-2xs font-normal uppercase tracking-widest text-earth-soft hover:no-underline">
+							Brands
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -267,8 +310,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full cursor-pointer rounded-md px-3 py-2 text-left font-body text-sm transition-colors",
+													isActive
+														? "bg-crimson/5 font-semibold text-crimson"
+														: "text-earth hover:bg-earth/5 hover:text-crimson",
 												)}
 											>
 												{brand.name}
@@ -283,7 +328,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger className="py-3 font-body text-2xs font-normal uppercase tracking-widest text-earth-soft hover:no-underline">
+							Price
+						</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider
@@ -309,7 +356,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 										});
 									}}
 								/>
-								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
+								<div className="mt-3 flex justify-between font-body text-xs text-earth-soft">
 									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
 									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
 								</div>
@@ -338,21 +385,27 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
+			<SheetTrigger
+				render={
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-9 rounded-md border-earth/20 bg-transparent font-body text-xs uppercase tracking-widest text-earth hover:bg-earth/5 lg:hidden"
+					/>
+				}
+			>
 				<SlidersHorizontalIcon className="size-4" />
 				Filters
 				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
+					<span className="ml-1 rounded-full bg-crimson px-1.5 text-2xs text-cream">{activeCount}</span>
 				)}
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto bg-background data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
 			>
 				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+					<SheetTitle className="font-display text-2xl font-normal text-royal">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">

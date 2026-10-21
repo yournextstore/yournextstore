@@ -9,12 +9,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-jost);
+	--font-display: var(--font-cormorant), Georgia, serif;
+	--font-body: var(--font-jost), "Helvetica Neue", sans-serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-4xl: 2rem;
+	--radius-5xl: 2.5rem;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,58 +37,196 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's brand palette under its own names. */
+	--color-cream: var(--cream);
+	--color-sand: var(--sand);
+	--color-royal: var(--royal);
+	--color-royal-deep: var(--royal-deep);
+	--color-crimson: var(--crimson);
+	--color-crimson-deep: var(--crimson-deep);
+	--color-gold: var(--gold);
+	--color-gold-light: var(--gold-light);
+	--color-earth: var(--earth);
+	--color-earth-soft: var(--earth-soft);
 }
 
+@theme {
+	/* Its extra type step and shadows. Named so they cannot collide with a colour token. */
+	--text-2xs: 0.625rem;
+	--text-2xs--line-height: 1rem;
+	--shadow-luxury: 0 4px 40px -4px rgb(50 36 112 / 0.15);
+	--shadow-luxury-lg: 0 20px 80px -10px rgb(50 36 112 / 0.25);
+	--shadow-warm: 0 4px 40px -4px rgb(98 63 27 / 0.2);
+	--shadow-glow-primary: 0 0 30px rgb(187 36 10 / 0.3);
+	--ease-luxury: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	--animate-fade-up: fade-up 0.6s ease both;
+	--animate-marquee: marquee 32s linear infinite;
+	--animate-pulse-slow: pulse-slow 3s ease-in-out infinite;
+	--animate-float: float 6s ease-in-out infinite;
+
+	@keyframes fade-up {
+		0% {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	@keyframes marquee {
+		0% {
+			transform: translateX(0%);
+		}
+		100% {
+			transform: translateX(-50%);
+		}
+	}
+	@keyframes pulse-slow {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-12px);
+		}
+	}
+}
+
+/* Light-only design: both blocks carry the same warm-cream palette (the palette test reads each). */
 :root {
 	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--cream: #e5dbd1;
+	--sand: #d4c8bc;
+	--royal: #322470;
+	--royal-deep: #1e1648;
+	--crimson: #bb240a;
+	--crimson-deep: #8b1a07;
+	--gold: #edcc4d;
+	--gold-light: #f5dc7a;
+	--earth: #623f1b;
+	/* The original's earth/60 small print, darkened until it clears AA on sand. */
+	--earth-soft: #66503d;
+	--background: #e5dbd1;
+	--foreground: #623f1b;
+	--card: #f2ede8;
+	--card-foreground: #623f1b;
+	--popover: #efe8e1;
+	--popover-foreground: #623f1b;
+	--primary: #bb240a;
+	--primary-foreground: #f7f2ec;
+	--secondary: #d4c8bc;
+	--secondary-foreground: #322470;
+	--muted: #d4c8bc;
+	--muted-foreground: #66503d;
+	--accent: #dcd1c6;
+	--accent-foreground: #322470;
+	--destructive: #bb240a;
+	--border: #d3c5b8;
+	--input: #c4b4a5;
+	--ring: #322470;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.625rem;
+	--cream: #e5dbd1;
+	--sand: #d4c8bc;
+	--royal: #322470;
+	--royal-deep: #1e1648;
+	--crimson: #bb240a;
+	--crimson-deep: #8b1a07;
+	--gold: #edcc4d;
+	--gold-light: #f5dc7a;
+	--earth: #623f1b;
+	--earth-soft: #66503d;
+	--background: #e5dbd1;
+	--foreground: #623f1b;
+	--card: #f2ede8;
+	--card-foreground: #623f1b;
+	--popover: #efe8e1;
+	--popover-foreground: #623f1b;
+	--primary: #bb240a;
+	--primary-foreground: #f7f2ec;
+	--secondary: #d4c8bc;
+	--secondary-foreground: #322470;
+	--muted: #d4c8bc;
+	--muted-foreground: #66503d;
+	--accent: #dcd1c6;
+	--accent-foreground: #322470;
+	--destructive: #bb240a;
+	--border: #d3c5b8;
+	--input: #c4b4a5;
+	--ring: #322470;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
+	/* The next/font variables live on <body>, so the face is declared here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-jost), "Helvetica Neue", sans-serif;
+		font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+	}
+	/* Base pages (search, FAQ, legal) inherit the original's serif headings in royal violet. */
+	h1,
+	h2 {
+		font-family: var(--font-cormorant), Georgia, serif;
+		font-weight: 500;
+		color: var(--royal);
+	}
+	::selection {
+		background-color: var(--gold);
+		color: var(--earth);
+	}
+}
+
+/* The original's warm grain over everything. */
+.grain::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+	pointer-events: none;
+	z-index: 9999;
+}
+
+/* Hero canvas: the cream-to-taupe gradient under two blurred colour blooms. */
+.hero-canvas {
+	background: linear-gradient(135deg, #e5dbd1 0%, #d4c8bc 50%, #c8bab0 100%);
+}
+
+.marquee-track:hover {
+	animation-play-state: paused;
+}
+
+/* Product image zoom on hover. */
+.img-zoom img {
+	transition: transform 700ms var(--ease-luxury);
+}
+.img-zoom:hover img {
+	transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee,
+	.animate-float,
+	.animate-pulse-slow,
+	.animate-bounce {
+		animation: none;
 	}
 }
 
@@ -117,11 +259,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#d4c8bc 0%,
+		#ddd2c7 40%,
+		#e5dbd1 50%,
+		#ddd2c7 60%,
+		#d4c8bc 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -168,4 +310,32 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Centred logotype: capped at the original's 36px and shrunk to fit long store names. */
+.wordmark {
+	font-family: var(--font-jost), "Helvetica Neue", sans-serif;
+	font-weight: 400;
+	text-transform: uppercase;
+	letter-spacing: 0.25em;
+	color: var(--royal);
+	line-height: 1;
+	font-size: min(1.875rem, calc((100vw - 8.5rem) / (var(--wm-n) * 0.92)));
+	/* The trailing tracking would push the word off-centre. */
+	margin-right: -0.25em;
+}
+@media (min-width: 64rem) {
+	.wordmark {
+		font-size: min(2.25rem, calc((100vw - 18rem) / (var(--wm-n) * 0.92)));
+	}
+}
+@media (min-width: 80rem) {
+	.wordmark {
+		font-size: min(2.25rem, calc((100vw - 54rem) / (var(--wm-n) * 0.92)));
+	}
+}
+
+.site-header[data-scrolled="true"] {
+	box-shadow: var(--shadow-warm);
+	border-bottom: 1px solid color-mix(in srgb, var(--earth) 10%, transparent);
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -101,74 +100,67 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="flex gap-4 py-4">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-earth/5"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="80px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
-						<Link
-							href={`/product/${product.slug}`}
-							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-						>
-							{product.name}
-						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
-						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
-						)}
-					</div>
-					<button
-						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
-					>
-						<Trash2 className="h-4 w-4" />
-					</button>
-				</div>
+			<div className="min-w-0 flex-1">
+				<Link
+					href={`/product/${product.slug}`}
+					onClick={closeCart}
+					className="block truncate font-display text-base leading-tight text-royal hover:text-crimson"
+				>
+					{product.name}
+				</Link>
+				{options && <p className="mt-0.5 font-body text-xs text-earth-soft">{options}</p>}
+				{item.subscriptionPlan && (
+					<p className="mt-0.5 font-body text-xs text-earth-soft">{planLabel(item.subscriptionPlan)}</p>
+				)}
+				<p className="mt-1 font-body text-sm font-semibold text-crimson">
+					{formatMoney({ amount: lineTotal, currency, locale })}
+				</p>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
+				<div className="mt-2 flex items-center justify-between">
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"flex items-center rounded-sm border border-earth/20 transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="px-2 py-1 font-body text-sm text-earth transition-colors hover:text-crimson"
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							−
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="border-x border-earth/20 px-3 font-body text-sm tabular-nums text-earth">
+							{quantity}
+						</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="px-2 py-1 font-body text-sm text-earth transition-colors hover:text-crimson"
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							+
 						</button>
 					</div>
 
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
+					<button
+						type="button"
+						onClick={handleRemove}
+						disabled={isPending}
+						className="font-body text-xs uppercase tracking-wider text-earth-soft transition-colors hover:text-crimson disabled:pointer-events-none disabled:opacity-50"
+					>
+						Remove
+					</button>
 				</div>
 			</div>
 		</div>
