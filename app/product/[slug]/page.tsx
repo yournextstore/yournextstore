@@ -7,20 +7,13 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { richTextToPlain } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
@@ -30,28 +23,28 @@ import { cn } from "@/lib/utils";
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
+		<div className="flex flex-col gap-4 lg:col-span-7 lg:sticky lg:top-40 lg:self-start">
+			<Skeleton className="aspect-square rounded-xl bg-card" />
 		</div>
 	);
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="space-y-6">
+			<Skeleton className="h-7 w-24" />
+			<Skeleton className="h-12 w-full rounded-md" />
+			<Skeleton className="h-[54px] w-48" />
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+		<div className="container-page py-6 md:py-10">
+			<div className="lg:grid lg:grid-cols-12 lg:gap-12">
 				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
+				<div className="mt-8 space-y-8 lg:col-span-5 lg:mt-0">
 					<Skeleton className="h-12 w-3/4" />
 					<PurchasePanelSkeleton />
 				</div>
@@ -67,7 +60,10 @@ function StarRow({ rating }: { rating: number }) {
 			{Array.from({ length: 5 }, (_, i) => (
 				<Star
 					key={i}
-					className={cn("h-4 w-4", i < rounded ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted")}
+					className={cn(
+						"h-4 w-4",
+						i < rounded ? "fill-foreground text-foreground" : "fill-none text-foreground",
+					)}
 				/>
 			))}
 		</span>
@@ -182,57 +178,61 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
+	const description = product.summary;
+	const storeName = await getStoreName();
+	const details = [
+		brand
+			? { label: "Brand", value: brand.name, href: `/products?brand=${encodeURIComponent(brand.slug)}` }
+			: { label: "Brand", value: storeName, href: null },
+		{ label: "Type", value: product.category?.name ?? null, href: null },
+	].filter((detail) => detail.value);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="container-page py-6 md:py-10">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={variants} />
-				</Suspense>
+			<div className="lg:grid lg:grid-cols-12 lg:gap-12">
+				{/* Left: gallery, then the original's Description / Shipping / Returns accordions */}
+				<div className="lg:col-span-7">
+					<Suspense fallback={<GallerySkeleton />}>
+						<MediaGallery images={allImages} productName={product.name} variants={variants} />
+					</Suspense>
+					<h2 className="sr-only max-lg:hidden">Product information</h2>
+					<Accordion
+						multiple
+						defaultValue={["description"]}
+						className={cn(accordionClassName, "mt-6 max-lg:hidden")}
+					>
+						<ProductAccordionItems product={product} description={description} />
+					</Accordion>
+				</div>
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
+				{/* Right: title, details, price and purchase */}
+				<div className="mt-8 space-y-6 lg:col-span-5 lg:mt-0">
 					<div className="space-y-3">
-						{brand && (
-							<Link
-								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
-							>
-								{brand.name}
-							</Link>
-						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-[2.25rem] leading-[1.1] text-foreground text-balance md:text-[2.75rem]">
 							{product.name}
 						</h1>
+						{details.length > 0 && (
+							<p className="flex flex-wrap gap-x-4 text-[13px] font-semibold text-muted-foreground">
+								{details.map((detail) => (
+									<span key={detail.label}>
+										{detail.label}:{" "}
+										{detail.href ? (
+											<Link
+												href={detail.href}
+												className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+											>
+												{detail.value}
+											</Link>
+										) : (
+											detail.value
+										)}
+									</span>
+								))}
+							</p>
+						)}
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
 							<a
 								href="#reviews"
@@ -271,7 +271,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 									slug: product.slug,
 									images: product.images,
 								}}
-								summary={product.summary}
 								volumePricingTiers={product.volumePricingTiers}
 								restockNotificationsEnabled={restockNotificationsEnabled}
 								subscriptionMode={product.subscriptionMode}
@@ -279,27 +278,76 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							/>
 						</Suspense>
 					)}
+
+					<h2 className="sr-only lg:hidden">Product information</h2>
+					<Accordion multiple defaultValue={["description"]} className={cn(accordionClassName, "lg:hidden")}>
+						<ProductAccordionItems product={product} description={description} />
+					</Accordion>
 				</div>
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
-			)}
-
 			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
 
 			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);
 };
+
+async function getStoreName() {
+	"use cache";
+	cacheLife("hours");
+	const me = await meGetCached().catch(() => null);
+	return me?.store.name ?? null;
+}
+
+// The stock accordion is a padded, bordered box; the theme's sections are plain ruled rows.
+const accordionClassName =
+	"rounded-none border-0 [&_[data-slot=accordion-content]]:px-0 [&_[data-slot=accordion-item]]:data-open:bg-transparent [&_[data-slot=accordion-trigger]]:px-0";
+
+function ProductAccordionItems({
+	product,
+	description,
+}: {
+	product: Pick<NonNullable<Awaited<ReturnType<typeof safeProductGet>>>, "content">;
+	description: string | null | undefined;
+}) {
+	const hasContent = Boolean(product.content) && richTextToPlain(product.content).length > 0;
+	return (
+		<>
+			{(hasContent || description) && (
+				<AccordionItem value="description" className="border-border">
+					<AccordionTrigger className="text-[15px] font-medium hover:no-underline">
+						Description
+					</AccordionTrigger>
+					<AccordionContent>
+						{description && <p className="text-sm leading-relaxed text-foreground">{description}</p>}
+						{hasContent && (
+							<div className="prose prose-sm mt-3 max-w-none text-foreground tiptap-content">
+								<TiptapRenderer content={product.content} />
+							</div>
+						)}
+					</AccordionContent>
+				</AccordionItem>
+			)}
+			<AccordionItem value="shipping" className="border-border">
+				<AccordionTrigger className="text-[15px] font-medium hover:no-underline">Shipping</AccordionTrigger>
+				<AccordionContent className="text-sm leading-relaxed text-foreground">
+					Shipping options and costs for your address are shown at checkout before you pay. Most orders leave
+					us within a few business days.
+				</AccordionContent>
+			</AccordionItem>
+			<AccordionItem value="returns" className="border-border">
+				<AccordionTrigger className="text-[15px] font-medium hover:no-underline">Returns</AccordionTrigger>
+				<AccordionContent className="text-sm leading-relaxed text-foreground">
+					Changed your mind? See our{" "}
+					<Link href="/faq" className="underline underline-offset-4">
+						help centre
+					</Link>{" "}
+					for how returns and exchanges work.
+				</AccordionContent>
+			</AccordionItem>
+		</>
+	);
+}

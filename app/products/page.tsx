@@ -4,10 +4,11 @@ import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
+import { picturedFirst } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -82,16 +83,19 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="rounded-2xl bg-card py-24 text-center">
+				<p className="font-heading text-title-sm text-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<p className="sr-only" aria-live="polite">
+				{result.meta.count} products
+			</p>
+			<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+				{picturedFirst(result.data).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -126,34 +130,28 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div className="container-page py-10 md:py-14">
+			<h1 className="mb-8 text-center text-title-xl text-foreground md:mb-10">All Products</h1>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
+			    boundary with the grid while the chrome and the heading above prerender. The
+			    fallback carries the same toolbar height so nothing shifts when it resolves. */}
+			<Suspense
+				fallback={
+					<>
+						<div className="mb-6 h-10" />
+						<ProductGridSkeleton />
+					</>
+				}
+			>
+				<div className="mb-6 flex items-center justify-between gap-3">
+					{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+					<div className="flex items-center gap-3">
+						<span className="text-sm max-sm:hidden">Sort by</span>
+						<SortSelect options={sortOptions} className="h-10 min-w-[11rem] bg-card" />
 					</div>
 				</div>
+				<ProductSection searchParams={searchParams} />
 			</Suspense>
 		</div>
 	);

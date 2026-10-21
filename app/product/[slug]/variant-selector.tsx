@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -133,7 +139,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-6">
 			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
@@ -183,10 +189,10 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 							</>
 						) : (
 							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
+								<legend className="mb-3 text-sm">
+									<span className="font-semibold">{group.label}:</span> {selectedOption?.value}
+								</legend>
+								<div className="flex flex-wrap gap-2.5">
 									{group.options.map((option) => {
 										const isSelected = selectedOptions[group.label] === option.id;
 
@@ -196,10 +202,10 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"flex h-10 items-center rounded-md border px-3.5 transition-colors",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-primary bg-primary text-primary-foreground"
+														: "border-border bg-card text-foreground hover:border-foreground",
 												)}
 											>
 												<span className="text-sm font-medium">{option.value}</span>

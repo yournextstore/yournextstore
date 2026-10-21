@@ -5,17 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { TrendingNow } from "@/components/sections/home";
+import { richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -62,48 +55,41 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
+/** The original's collection banner: copy on a blush panel, the collection photograph beside it. */
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
+		<section className="container-page pt-6 md:pt-8">
+			<div className="grid overflow-hidden rounded-xl bg-[#ecdeda] md:grid-cols-2">
+				<div className="flex flex-col justify-center px-6 py-10 md:px-10 md:py-14">
+					<h1 className="text-title-xl text-foreground">{collection.name}</h1>
+					{description && (
+						<p className="mt-4 max-w-md text-[15px] leading-relaxed text-foreground">{description}</p>
+					)}
+				</div>
+				{collection.image && (
+					<div className="relative aspect-[16/9] md:aspect-auto md:min-h-[300px]">
+						<YNSMedia
+							src={collection.image}
+							alt=""
+							fill
+							sizes="(max-width: 768px) 100vw, 50vw"
+							className="object-cover"
+							priority
+							fetchPriority="high"
+						/>
 					</div>
-				</div>
+				)}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
+		<section className="container-page py-8 md:py-10">
+			<div className="mb-6 h-10" />
+			<ProductGridSkeleton />
 		</section>
 	);
 }
@@ -164,27 +150,38 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	const products = await getCollectionProducts(collection);
 
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<section aria-label={`${collection.name} products`} className="container-page py-8 md:py-10">
+			<div className="mb-6 flex h-10 items-center border-b border-border pb-0">
+				<p className="text-sm">
+					{products.length} {products.length === 1 ? "product" : "products"}
+				</p>
+			</div>
+			{products.length === 0 ? (
+				<div className="rounded-2xl bg-card px-6 py-20 text-center">
+					<p className="font-heading text-title-sm text-foreground">This collection is being restocked.</p>
+					<Link
+						href="/products"
+						className="mt-4 inline-block text-sm font-medium underline underline-offset-4"
+					>
+						Shop all products
+					</Link>
+				</div>
+			) : (
+				<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+					{products.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={index < 4} />
+					))}
+				</div>
+			)}
+		</section>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
 		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
+			<section className="container-page pt-6 md:pt-8">
+				<div className="h-[300px] animate-pulse rounded-xl bg-[#ecdeda]" />
 			</section>
 			<CollectionProductsSkeleton />
 		</>
@@ -222,23 +219,11 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<CollectionProductsSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
+			<TrendingNow />
 		</>
 	);
 };

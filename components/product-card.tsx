@@ -4,10 +4,11 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { meGetCached } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
@@ -15,14 +16,36 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+/** The merchant's card badge ("New", "Bestseller"), when one is set. */
+function badgeText(badge: unknown): string {
+	if (badge && typeof badge === "object" && "content" in badge && typeof badge.content === "string") {
+		return badge.content.trim();
+	}
+	return "";
+}
+
+/**
+ * The original's product card: a rounded tile (white on grey sections, grey on white ones) with an
+ * inset square photograph, a small label pill, the name and the price.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	tone = "white",
+	className,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	tone?: "white" | "grey";
+	className?: string;
 }) {
-	const { currency, locale, taxBehavior } = await getStoreConfig();
+	const [{ currency, locale, taxBehavior }, me] = await Promise.all([
+		getStoreConfig(),
+		meGetCached().catch(() => null),
+	]);
+	const badge = badgeText("badge" in product ? product.badge : null);
+	const category = "category" in product && product.category ? product.category.name : null;
+	const label = badge || category || me?.store.name || null;
 	const variants = "variants" in product ? product.variants : null;
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
 	const priceDisplay = listing
@@ -56,8 +79,15 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn(
+				"group flex min-w-0 flex-col gap-4 rounded-2xl px-2.5 pt-2.5 pb-4 transition-shadow hover:shadow-[0_6px_24px_-12px_rgb(40_33_35/0.35)] sm:px-3 sm:pt-3 sm:pb-5",
+				tone === "white" ? "bg-card" : "bg-background",
+				className,
+			)}
+		>
+			<div className="relative aspect-square overflow-hidden rounded-xl bg-subtle-2">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -88,7 +118,7 @@ export async function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 768px) 50vw, (max-width: 1440px) 25vw, 340px"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
@@ -109,14 +139,21 @@ export async function ProductCard({
 							src={secondaryImage}
 							alt={`${product.name} - alternate view`}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 768px) 50vw, (max-width: 1440px) 25vw, 340px"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-col items-start gap-1.5 px-0.5">
+				{label && (
+					<span className="max-w-full truncate rounded-full bg-subtle-2 px-2 py-0.5 text-[10px] font-medium leading-4 text-secondary-foreground">
+						{label}
+					</span>
+				)}
+				<h2 className="line-clamp-2 text-[13px] font-semibold leading-snug text-foreground sm:text-sm">
+					{product.name}
+				</h2>
+				<p className="text-[13px] font-bold text-foreground sm:text-sm">{priceDisplay}</p>
 			</div>
 		</Link>
 	);
