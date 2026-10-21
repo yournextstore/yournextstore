@@ -179,17 +179,15 @@ export function BundleBuilder({
 				return (
 					<section key={group.id} className="grid gap-3">
 						<div className="flex items-baseline justify-between gap-3">
-							<h3 className="font-semibold text-lg">
-								{group.name ?? (isForcedGroup ? "Included" : "Choose your items")}
-							</h3>
+							<h3>{group.name ?? (isForcedGroup ? "Included" : "Choose your items")}</h3>
 							{!isForcedGroup && group.maxQuantity != null && (
-								<span className="shrink-0 text-muted-foreground text-sm">
+								<span className="shrink-0 font-normal">
 									Selected {picked} of {group.maxQuantity}
 								</span>
 							)}
 						</div>
 
-						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+						<div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
 							{group.items.map((item) => {
 								const qty = inner[item.variantId] ?? 0;
 								const selected = qty > 0;
@@ -217,13 +215,13 @@ export function BundleBuilder({
 									<div
 										key={item.variantId}
 										className={cn(
-											"relative flex flex-col overflow-hidden rounded-xl border bg-card transition-colors",
-											selected ? "border-primary ring-1 ring-primary" : "border-border",
+											"relative flex flex-col overflow-hidden rounded-sm bg-white transition-colors",
+											selected ? "ring-2 ring-black ring-inset" : "",
 											outOfStock && "opacity-50",
 										)}
 									>
 										{selected && (
-											<span className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+											<span className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-full bg-black text-white">
 												<CheckIcon className="size-4" />
 											</span>
 										)}
@@ -238,7 +236,7 @@ export function BundleBuilder({
 											}}
 											className="flex flex-1 flex-col gap-2 p-2 text-left disabled:cursor-not-allowed"
 										>
-											<div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+											<div className="aspect-square w-full overflow-hidden rounded-sm bg-paper">
 												{image ? (
 													<Image
 														src={image}
@@ -249,7 +247,7 @@ export function BundleBuilder({
 													/>
 												) : null}
 											</div>
-											<span className="flex items-center gap-1.5 font-medium text-sm">
+											<span className="flex items-center gap-1.5 leading-[1.2]">
 												{swatchColor && (
 													<span
 														aria-hidden
@@ -259,14 +257,14 @@ export function BundleBuilder({
 												)}
 												<span className="line-clamp-2">{label}</span>
 											</span>
-											<span className="text-muted-foreground text-sm">
+											<span className="font-normal">
 												{formatMoney({
 													amount: BigInt(displayPrice(item.variant, taxBehavior)),
 													currency,
 													locale,
 												})}
 											</span>
-											{outOfStock && <span className="text-destructive text-xs">Out of stock</span>}
+											{outOfStock && <span className="text-brand">Out of stock</span>}
 											{item.forced && (
 												<Badge variant="secondary" className="w-fit">
 													{item.fixedQuantity > 1 ? `Included ×${item.fixedQuantity}` : "Included"}
@@ -275,7 +273,7 @@ export function BundleBuilder({
 										</button>
 
 										{!isRadio && !item.forced && selected && (
-											<div className="flex items-center justify-between border-t px-2 py-1.5">
+											<div className="flex items-center justify-between border-t border-black/10 px-2 py-1">
 												<Button
 													type="button"
 													size="icon"
@@ -285,7 +283,7 @@ export function BundleBuilder({
 												>
 													<MinusIcon className="size-4" />
 												</Button>
-												<span className="min-w-6 text-center font-medium text-sm">{qty}</span>
+												<span className="min-w-6 text-center tabular-nums">{qty}</span>
 												<Button
 													type="button"
 													size="icon"
@@ -306,24 +304,23 @@ export function BundleBuilder({
 				);
 			})}
 
-			<div className="sticky bottom-0 flex flex-col gap-3 border-t bg-background/95 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-				<div className="flex items-baseline gap-2">
+			<div className="sticky bottom-1 z-10 grid grid-cols-2 items-center gap-1">
+				<div className="flex h-8 items-center gap-2 rounded-sm bg-white px-3">
 					{hasSavings && (
-						<span className="text-muted-foreground text-lg line-through">
+						<span className="font-normal line-through">
 							{formatMoney({ amount: originalTotal, currency, locale })}
 						</span>
 					)}
-					<span className="font-bold text-2xl">{formatMoney({ amount: total, currency, locale })}</span>
+					<span>{formatMoney({ amount: total, currency, locale })}</span>
 				</div>
-				<Button
+				<button
 					type="button"
-					size="lg"
-					className="rounded-4xl"
+					className="h-8 rounded-sm bg-brand px-3 text-white hover:underline disabled:cursor-not-allowed disabled:bg-black/60"
 					disabled={!canAdd || isAdding}
 					onClick={handleAddToCart}
 				>
 					{isAdding ? "Adding…" : "Add to cart"}
-				</Button>
+				</button>
 			</div>
 		</div>
 	);

@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
 
 // Cached per category, not per product: every product page in a category shares one
@@ -37,11 +37,17 @@ async function RelatedProductsContent({
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<section className="card mx-1 mt-1 bg-white" aria-labelledby="related-title">
+			<h2 id="related-title">More pieces</h2>
+			<div className="scroll-row mt-12 lg:mt-16">
+				<ul className="flex">
+					{related.map((product) => (
+						<li key={product.id} className="w-[240px] flex-none pr-3 lg:w-[calc((100%-132px)*3/12+36px)]">
+							<ProductCard product={product} sizes="(width >= 64rem) 25vw, 240px" />
+						</li>
+					))}
+				</ul>
+			</div>
+		</section>
 	);
 }

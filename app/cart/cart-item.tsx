@@ -1,6 +1,5 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -99,70 +98,70 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<li
+			className={cn(
+				"relative flex gap-3 rounded-sm bg-black p-2 transition-opacity",
+				isPending && "opacity-70",
+			)}
+		>
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				tabIndex={-1}
+				aria-hidden="true"
+				className="relative size-16 shrink-0 overflow-hidden rounded-sm bg-paper lg:size-[100px]"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="100px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<Link
-						href={`/product/${product.slug}`}
-						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-					>
-						{product.name}
-					</Link>
+			{/* Two columns, as in the original: name and options, then quantity and price. */}
+			<div className="grid min-w-0 flex-1 grid-cols-[minmax(0,11rem)_1fr] content-between gap-x-3 gap-y-2 pr-6">
+				<Link href={`/product/${product.slug}`} onClick={closeCart} className="leading-[1.2] hover:underline">
+					{product.name}
+				</Link>
+				<span className="text-right leading-[1.2] lg:text-left">
+					{quantity > 1 ? `${formatMoney({ amount: price, currency, locale })} each` : ""}
+				</span>
+				<div className="flex items-center gap-1">
 					<button
 						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						onClick={handleDecrement}
+						className="flex size-6 items-center justify-center rounded-sm hover:bg-white/15"
+						aria-label="Decrease quantity"
 					>
-						<Trash2 className="h-4 w-4" />
+						−
+					</button>
+					<span className="min-w-8 text-center tabular-nums">{quantity} pc</span>
+					<button
+						type="button"
+						onClick={handleIncrement}
+						className="flex size-6 items-center justify-center rounded-sm hover:bg-white/15"
+						aria-label="Increase quantity"
+					>
+						+
 					</button>
 				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
+				<span className="self-center whitespace-nowrap">
+					{formatMoney({ amount: lineTotal, currency, locale })}
+				</span>
 			</div>
-		</div>
+			<button
+				type="button"
+				onClick={handleRemove}
+				disabled={isPending}
+				className="absolute top-1 right-1 flex size-6 items-center justify-center disabled:opacity-50"
+				aria-label={`Remove ${product.name}`}
+			>
+				<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+					<path
+						d="M11.333 4.667 4.667 11.333m0-6.666 6.666 6.666"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						strokeLinecap="square"
+					/>
+				</svg>
+			</button>
+		</li>
 	);
 }

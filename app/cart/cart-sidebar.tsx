@@ -1,27 +1,22 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
+/**
+ * The cart: a panel under the header's "Cart (n)" rather than a drawer, as in the original.
+ * Black line cards, a summary card, and the red Checkout bar; a long cart scrolls inside it.
+ */
 export function CartSidebar() {
 	const { currency, locale, language, taxBehavior } = useStoreConfig();
-	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
+	const { cart, isOpen, closeCart, items, subtotal, isMutating } = useCart();
 	const discount = cartDiscountOf(cart, taxBehavior);
 
 	// `?lang=` tells the platform which language version the shopper is leaving from, so the hosted
@@ -30,111 +25,88 @@ export function CartSidebar() {
 	const checkoutUrl = language ? `/checkout?lang=${encodeURIComponent(language)}` : "/checkout";
 
 	return (
-		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
-					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
-					</SheetDescription>
-				</SheetHeader>
+		<Dialog.Root open={isOpen} onOpenChange={(open) => !open && closeCart()}>
+			<Dialog.Portal>
+				<Dialog.Content
+					aria-describedby={undefined}
+					className="fixed inset-x-3 top-[34px] z-50 max-h-[calc(100svh-38px)] overflow-y-auto overscroll-contain text-label font-semibold text-white focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-1 lg:left-auto lg:w-[500px]"
+				>
+					<Dialog.Title className="sr-only">Cart</Dialog.Title>
+					{/* For keyboards: shown only while focused (Escape and clicking outside close it too). */}
+					<Dialog.Close className="sr-only z-10 rounded-sm bg-white p-2 text-black focus-visible:not-sr-only focus-visible:absolute focus-visible:top-2 focus-visible:right-10">
+						Close cart
+					</Dialog.Close>
 
-				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
-					</div>
-				) : (
-					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+					{items.length === 0 ? (
+						<>
+							<p className="card bg-black">Your cart is empty.</p>
+							<Link
+								href="/products"
+								onClick={closeCart}
+								className="mt-1 flex h-8 items-center justify-center rounded-sm bg-brand hover:underline"
+							>
+								Visit the shop
+							</Link>
+						</>
+					) : (
+						<>
+							<ul className="flex flex-col gap-1">
 								{items.map((item) => (
 									<CartItem key={item.productVariant.id} item={item} />
 								))}
-							</div>
-						</ScrollArea>
+							</ul>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
+							<div className="card mt-1 flex flex-col gap-3 bg-black">
 								<DiscountCodeField />
-								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
-										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
+								<dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2">
+									{discount ? (
+										<>
+											<dt>Subtotal</dt>
+											<dd className="text-right">{formatMoney({ amount: subtotal, currency, locale })}</dd>
+											<dt>Discount</dt>
+											<dd className="text-right tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
-									</div>
-								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+											</dd>
+										</>
+									) : null}
+									<dt>{discount ? "Total" : "Subtotal"}</dt>
+									<dd className="text-right">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
-								</div>
+									</dd>
+								</dl>
 								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
 								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
+								<p className="text-copy font-normal text-white/80">
 									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
+										? "Shipping calculated at checkout."
+										: "Shipping and taxes calculated at checkout."}
 								</p>
-								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
-								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
-								    While a cart write is in flight, block the link: a full navigation now would
-								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<a
-										href={checkoutUrl}
-										aria-disabled={isMutating}
-										tabIndex={isMutating ? -1 : undefined}
-										onClick={(e) => {
-											if (isMutating) {
-												e.preventDefault();
-											}
-										}}
-										className={cn(isMutating && "pointer-events-none opacity-60")}
-									>
-										{isMutating ? (
-											<>
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Updating…
-											</>
-										) : (
-											"Checkout"
-										)}
-									</a>
-								</Button>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									Continue Shopping
-								</button>
 							</div>
-						</SheetFooter>
-					</>
-				)}
-			</SheetContent>
-		</Sheet>
+
+							{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
+							    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
+							    While a cart write is in flight, block the link: a full navigation now would
+							    load /checkout before the item is committed server-side and show an empty cart. */}
+							<a
+								href={checkoutUrl}
+								aria-disabled={isMutating}
+								tabIndex={isMutating ? -1 : undefined}
+								onClick={(e) => {
+									if (isMutating) {
+										e.preventDefault();
+									}
+								}}
+								className={cn(
+									"mt-1 flex h-8 items-center justify-center rounded-sm bg-brand hover:underline",
+									isMutating && "pointer-events-none opacity-70",
+								)}
+							>
+								{isMutating ? "Updating…" : "Checkout"}
+							</a>
+						</>
+					)}
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 }
