@@ -41,8 +41,10 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 						key={option.value}
 						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
 						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
+							"text-[11px] font-medium uppercase tracking-[0.2em] transition-colors",
+							isActive
+								? "text-foreground underline decoration-[var(--warm)] underline-offset-[6px]"
+								: "text-muted-foreground hover:text-foreground",
 						)}
 					>
 						{option.label}
@@ -70,7 +72,11 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				size="sm"
+				className={cn("w-auto min-w-[9rem] rounded-sm text-[11px] uppercase tracking-[0.16em]", className)}
+				aria-label="Sort products"
+			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="end">

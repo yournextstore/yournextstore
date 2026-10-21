@@ -9,12 +9,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+	--font-display: var(--font-cormorant), "Cormorant", ui-serif, Georgia, serif;
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-sm: 2px;
+	--radius-md: 3px;
+	--radius-lg: 4px;
+	--radius-xl: 6px;
+	--radius-2xl: 8px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,59 +35,441 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-ink: var(--ink);
+	--color-ink-soft: var(--ink-soft);
+	--color-warm: var(--warm);
+	--color-gold: var(--gold);
+	--color-hairline: var(--hairline);
+	--color-hairline-strong: var(--hairline-strong);
+	--color-stage: var(--stage);
+	--color-panel: var(--panel);
+	--color-frame: var(--frame);
+	--color-band: var(--band);
+	--color-band-deep: var(--band-deep);
 }
 
+/* The original's display sizes under their own names, so shadcn's text-sm/base/lg keep theirs. */
+@theme {
+	--text-hero: clamp(2.75rem, 8vw, 5.5rem);
+	--text-hero--line-height: 0.92;
+	--text-statement: clamp(2.5rem, 7vw, 4.75rem);
+	--text-statement--line-height: 1.02;
+	--text-manifesto: clamp(2rem, 5.5vw, 3.5rem);
+	--text-manifesto--line-height: 1.12;
+	--text-kicker: 11px;
+	--text-kicker--line-height: 1.4;
+	--text-micro: 10px;
+	--text-micro--line-height: 1.4;
+	--ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-theme: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Two finishes, as the original: "Ivory" (light, warm stone) in :root and "Obsidian" (the
+   default, near-black with a gold key light) in .dark. Text tokens are pushed just far enough
+   from their surfaces to clear AA; the tints are the original's. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 4px;
+	--background: #f0ede6;
+	--foreground: #1c1917;
+	--card: #e8e4db;
+	--card-foreground: #1c1917;
+	--popover: #f5f2ec;
+	--popover-foreground: #1c1917;
+	--primary: #1c1917;
+	--primary-foreground: #f0ede6;
+	--secondary: #e4e0d6;
+	--secondary-foreground: #1c1917;
+	--muted: #e4e0d6;
+	--muted-foreground: #5d5750;
+	--accent: #e4e0d6;
+	--accent-foreground: #1c1917;
+	--destructive: #b42318;
+	--border: #d6d1c6;
+	--input: #cfc9bd;
+	--ring: #6f5e47;
+	--ink: #0c0a09;
+	--ink-soft: #44403c;
+	--warm: #6f5e47;
+	--gold: #a07f38;
+	--hairline: rgba(28, 25, 23, 0.08);
+	--hairline-strong: rgba(28, 25, 23, 0.14);
+	--stage: #ebe8e2;
+	--panel: #e8e4db;
+	--frame: #ddd9cf;
+	--band: #e4e0d6;
+	--band-deep: #dcd7cc;
+	--footer: #d5d0c4;
+	--frame-inset: rgba(255, 255, 255, 0.35);
+	--panel-from: rgba(255, 255, 255, 0.55);
+	--panel-glow: rgba(255, 255, 255, 0.35);
+	--premium-border: rgba(28, 25, 23, 0.14);
+	--premium-bg: rgba(255, 255, 255, 0.55);
+	--premium-inset: rgba(255, 255, 255, 0.45);
+	--premium-hover-border: rgba(28, 25, 23, 0.24);
+	--premium-hover-bg: rgba(255, 255, 255, 0.8);
+	--ghost-border: rgba(28, 25, 23, 0.14);
+	--ghost-hover-border: rgba(28, 25, 23, 0.26);
+	--title-from: #1c1917;
+	--title-via: #44403c;
+	--title-to: #a07f38;
+	--hero-radial-warm: radial-gradient(ellipse 75% 55% at 50% 42%, rgba(201, 168, 98, 0.16), transparent 72%);
+	--hero-radial-cool: radial-gradient(ellipse 90% 70% at 50% 100%, rgba(120, 100, 70, 0.07), transparent 55%);
+	--hero-vignette: linear-gradient(
+		180deg,
+		rgba(255, 255, 255, 0.55) 0%,
+		transparent 30%,
+		transparent 65%,
+		rgba(210, 200, 185, 0.5) 100%
+	);
+	--key-light: radial-gradient(closest-side, rgba(201, 168, 98, 0.32), rgba(201, 168, 98, 0.08) 60%, transparent);
+	--brand-radial: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(201, 168, 98, 0.1), transparent);
+	--ambient-a: radial-gradient(ellipse at center, rgba(180, 155, 110, 0.14) 0%, transparent 65%);
+	--ambient-b: radial-gradient(ellipse at center, rgba(140, 120, 90, 0.09) 0%, transparent 60%);
+	--noise-opacity: 0.04;
+	--photo-filter: none;
+	--scroll-line: #a8a29e;
+	--scroll-dot: #44403c;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #060606;
+	--foreground: #e4e4e7;
+	--card: #0a0a0a;
+	--card-foreground: #e4e4e7;
+	--popover: #0c0c0d;
+	--popover-foreground: #e4e4e7;
+	--primary: #e4e4e7;
+	--primary-foreground: #060606;
+	--secondary: #141416;
+	--secondary-foreground: #e4e4e7;
+	--muted: #141416;
+	/* The original's zinc-500 labels (#71717a) sit under AA on the card greys; same hue, lifted. */
+	--muted-foreground: #8e8e97;
+	--accent: #18181b;
+	--accent-foreground: #e4e4e7;
+	--destructive: #f2555a;
+	--border: #1c1c1f;
+	--input: #27272a;
+	--ring: #a89b88;
+	--ink: #fafafa;
+	--ink-soft: #a1a1aa;
+	--warm: #a89b88;
+	--gold: #c9a862;
+	--hairline: rgba(255, 255, 255, 0.06);
+	--hairline-strong: rgba(255, 255, 255, 0.1);
+	--stage: #070708;
+	--panel: #080808;
+	--frame: #0a0a0a;
+	--band: #070707;
+	--band-deep: #050505;
+	--footer: #050505;
+	--frame-inset: rgba(255, 255, 255, 0.04);
+	--panel-from: rgba(255, 255, 255, 0.04);
+	--panel-glow: rgba(255, 255, 255, 0.04);
+	--premium-border: rgba(255, 255, 255, 0.12);
+	--premium-bg: rgba(255, 255, 255, 0.06);
+	--premium-inset: rgba(255, 255, 255, 0.06);
+	--premium-hover-border: rgba(255, 255, 255, 0.22);
+	--premium-hover-bg: rgba(255, 255, 255, 0.1);
+	--ghost-border: rgba(255, 255, 255, 0.1);
+	--ghost-hover-border: rgba(255, 255, 255, 0.25);
+	--title-from: #fafafa;
+	--title-via: #e8e0d4;
+	--title-to: #c9a862;
+	--hero-radial-warm: radial-gradient(ellipse 75% 55% at 50% 42%, rgba(201, 162, 39, 0.09), transparent 72%);
+	--hero-radial-cool: radial-gradient(ellipse 90% 70% at 50% 100%, rgba(90, 86, 78, 0.14), transparent 55%);
+	--hero-vignette: linear-gradient(
+		180deg,
+		rgba(6, 6, 8, 0.2) 0%,
+		transparent 28%,
+		transparent 62%,
+		rgba(4, 4, 6, 0.85) 100%
+	);
+	--key-light: radial-gradient(closest-side, rgba(201, 162, 39, 0.2), rgba(201, 162, 39, 0.05) 60%, transparent);
+	--brand-radial: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(255, 255, 255, 0.05), transparent);
+	--ambient-a: radial-gradient(ellipse at center, rgba(120, 120, 128, 0.12) 0%, transparent 65%);
+	--ambient-b: radial-gradient(ellipse at center, rgba(80, 80, 88, 0.1) 0%, transparent 60%);
+	--noise-opacity: 0.035;
+	/* Studio photos are shot on pale grey: in the dark finish they read as a lamp lit in a dark room. */
+	--photo-filter: brightness(0.8) sepia(0.16) contrast(1.05);
+	--scroll-line: #52525b;
+	--scroll-dot: #d4d4d8;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
-	body {
-		@apply bg-background text-foreground;
+	html {
+		font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+		background: var(--background);
+		color-scheme: light;
 	}
+	html.dark {
+		color-scheme: dark;
+	}
+	body {
+		@apply text-foreground;
+		font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+		transition:
+			background-color 1.5s var(--ease-theme),
+			color 1.5s var(--ease-theme);
+	}
+	::selection {
+		background: color-mix(in srgb, var(--ink) 14%, transparent);
+		color: var(--ink);
+	}
+	:focus-visible {
+		outline: 1px solid var(--warm);
+		outline-offset: 3px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}
+
+/* The original's cross-fade when the finish changes. */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 1.2s;
+	animation-timing-function: var(--ease-theme);
+}
+
+.font-display {
+	font-family: var(--font-cormorant), "Cormorant", ui-serif, Georgia, serif;
+}
+
+@utility container-wide {
+	@apply mx-auto w-full max-w-[1400px] px-6 md:px-12;
+}
+
+@utility container-stage {
+	@apply mx-auto w-full max-w-[1500px] px-5 sm:px-8 md:px-12 lg:px-16;
+}
+
+/* Spaced small caps above every heading. */
+@utility kicker {
+	@apply text-kicker font-medium uppercase tracking-[0.4em] text-muted-foreground;
+}
+
+/* The original's PremiumLink "solid": a translucent plate with a hairline and an inner highlight.
+   Padding and size go through variables so a modifier never fights the utility. */
+@utility btn-premium {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	cursor: pointer;
+	white-space: nowrap;
+	padding: var(--btn-py, 0.875rem) var(--btn-px, 2rem);
+	font-size: var(--btn-fs, 13px);
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.22em;
+	color: var(--ink);
+	border: 1px solid var(--premium-border);
+	background: var(--premium-bg);
+	box-shadow: inset 0 1px 0 var(--premium-inset);
+	backdrop-filter: blur(8px);
+	transition:
+		border-color 300ms,
+		background-color 300ms,
+		transform 300ms var(--ease-cinema);
+	&:hover {
+		border-color: var(--premium-hover-border);
+		background: var(--premium-hover-bg);
+	}
+	&:active {
+		transform: translateY(1px);
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+}
+
+/* PremiumLink "ghost": hairline only. */
+@utility btn-ghost-line {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	cursor: pointer;
+	white-space: nowrap;
+	padding: var(--btn-py, 0.875rem) var(--btn-px, 2rem);
+	font-size: var(--btn-fs, 13px);
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.22em;
+	color: var(--ink-soft);
+	border: 1px solid var(--ghost-border);
+	transition:
+		border-color 300ms,
+		color 300ms;
+	&:hover {
+		border-color: var(--ghost-hover-border);
+		color: var(--foreground);
+	}
+}
+
+/* Small button size used in the header and drawers. */
+@utility btn-sm {
+	--btn-py: 0.625rem;
+	--btn-px: 1.25rem;
+	--btn-fs: 11px;
+}
+
+@utility btn-md {
+	--btn-py: 0.75rem;
+	--btn-px: 1.75rem;
+	--btn-fs: 12px;
+}
+
+/* The overview "product frame": inset highlight on a slightly raised surface. */
+@utility frame {
+	border: 1px solid var(--hairline-strong);
+	background: var(--frame);
+	box-shadow: inset 0 1px 0 var(--frame-inset);
+}
+
+/* The design-section panel: a diagonal sheen over the band. */
+@utility panel {
+	border: 1px solid var(--hairline-strong);
+	background-image: linear-gradient(to bottom right, var(--panel-from), transparent);
+	box-shadow: inset 0 1px 0 var(--frame-inset);
+}
+
+/* Title word in the original's champagne gradient. The computed colour stays solid (ink), so
+   contrast checks read real text, not a transparent fill. */
+@utility title-gilt {
+	color: var(--ink);
+	background-image: linear-gradient(to right, var(--title-from), var(--title-via), var(--title-to));
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* Product photography as a pool of light: the studio backdrop falls off into the stage. */
+@utility spotlight {
+	filter: var(--photo-filter);
+	mask-image: radial-gradient(closest-side, #000 38%, rgba(0, 0, 0, 0.62) 62%, rgba(0, 0, 0, 0.18) 84%, transparent 100%);
+}
+
+@utility spotlight-soft {
+	filter: var(--photo-filter);
+	mask-image: radial-gradient(closest-side, #000 50%, rgba(0, 0, 0, 0.7) 70%, rgba(0, 0, 0, 0.2) 90%, transparent 100%);
+}
+
+@utility noise {
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	opacity: var(--noise-opacity);
+}
+
+/* The hero's layered backdrop: base, warm key light, cool floor, vignette. */
+@utility stage-backdrop {
+	background: var(--hero-vignette), var(--hero-radial-cool), var(--hero-radial-warm), var(--stage);
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@utility animate-rise {
+	animation: rise 900ms var(--ease-cinema) both;
+}
+
+@keyframes glow-breathe {
+	0%,
+	100% {
+		opacity: 0.55;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.9;
+		transform: scale(1.05);
+	}
+}
+
+@utility animate-breathe {
+	animation: glow-breathe 18s ease-in-out infinite;
+}
+
+@keyframes cue {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(36px);
+	}
+}
+
+@utility animate-cue {
+	animation: cue 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes bar-pulse {
+	0%,
+	100% {
+		opacity: 0.18;
+	}
+	25% {
+		opacity: 0.48;
+	}
+	50% {
+		opacity: 0.28;
+	}
+	75% {
+		opacity: 0.42;
+	}
+}
+
+/* Sections drift up as they enter, transform only (no opacity, so nothing is ever unreadable). */
+@supports (animation-timeline: view()) {
+	@keyframes drift-in {
+		from {
+			transform: translateY(28px);
+		}
+		to {
+			transform: none;
+		}
+	}
+	.reveal {
+		animation: drift-in linear both;
+		animation-timeline: view();
+		animation-range: entry 0% entry 60%;
+	}
+}
+
+/* Fixed header: transparent over the stage, a blurred plate with a hairline once scrolled
+   (data-sticky is toggled by HeaderScroll). */
+.site-header {
+	@apply fixed inset-x-0 top-0 z-40 border-b border-transparent backdrop-blur-md transition-[background-color,border-color] duration-500;
+	background-color: transparent;
+}
+.site-header[data-sticky="true"] {
+	background-color: color-mix(in srgb, var(--background) 82%, transparent);
+	border-color: var(--hairline-strong);
+}
+.site-main {
+	@apply pt-[4.5rem] md:pt-20;
+}
+:root:has([data-hero]) .site-main {
+	@apply pt-0 md:pt-0;
 }
 
 .prose {
@@ -117,11 +501,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--frame) 0%,
+		var(--muted) 40%,
+		var(--secondary) 50%,
+		var(--muted) 60%,
+		var(--frame) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

@@ -28,14 +28,16 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 	];
 
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
+		<fieldset className="space-y-3">
+			<legend className="mb-3 text-micro font-medium uppercase tracking-[0.28em] text-warm">Purchase</legend>
 			{options.map((option) => (
 				<label
 					key={option.id ?? "one-time"}
 					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
+						"flex cursor-pointer items-start gap-3 rounded-sm border px-5 py-4 transition-colors duration-300",
+						value === option.id
+							? "border-gold/40 bg-[var(--premium-bg)] text-ink shadow-[inset_0_0_0_1px_rgba(201,168,98,0.12)]"
+							: "border-hairline-strong text-muted-foreground hover:text-foreground",
 					)}
 				>
 					<input
@@ -43,10 +45,10 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 						name="purchase"
 						checked={value === option.id}
 						onChange={() => onChange(option.id)}
-						className="mt-0.5 size-4 shrink-0 accent-foreground"
+						className="mt-0.5 size-4 shrink-0 accent-gold"
 					/>
 					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
+						<span className="block text-[13px] font-medium tracking-wide">{option.label}</span>
 						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
 					</span>
 				</label>

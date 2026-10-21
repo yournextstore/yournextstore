@@ -101,14 +101,14 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
+		<div className="flex gap-4 py-5">
 			{/* Product Image */}
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="frame relative size-24 shrink-0 overflow-hidden rounded-sm"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="spotlight-soft object-cover" sizes="96px" />}
 			</Link>
 
 			{/* Product Details */}
@@ -118,13 +118,17 @@ export function CartItem({ item }: CartItemProps) {
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-2 text-[15px] font-medium leading-tight tracking-wide text-foreground transition-colors hover:text-warm"
 						>
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						{options && (
+							<p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{options}</p>
+						)}
 						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+							<p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+								{planLabel(item.subscriptionPlan)}
+							</p>
 						)}
 					</div>
 					<button
@@ -134,7 +138,7 @@ export function CartItem({ item }: CartItemProps) {
 						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
 						aria-label="Remove item"
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash2 className="h-4 w-4" strokeWidth={1.25} />
 					</button>
 				</div>
 
@@ -142,23 +146,23 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex items-center border border-hairline-strong transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex size-8 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-[var(--premium-bg)] hover:text-foreground"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="flex h-8 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex size-8 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-[var(--premium-bg)] hover:text-foreground"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
@@ -166,7 +170,7 @@ export function CartItem({ item }: CartItemProps) {
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="font-display text-xl font-light text-ink tabular-nums">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

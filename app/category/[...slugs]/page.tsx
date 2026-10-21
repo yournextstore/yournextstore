@@ -115,8 +115,9 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="border border-hairline-strong py-24 text-center">
+				<p className="font-display text-3xl font-light text-ink">Nothing in this light.</p>
+				<p className="mt-3 text-sm text-muted-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
@@ -125,7 +126,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,9 +143,9 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className="container-wide min-h-svh pb-24 pt-12 md:pt-16">
+			<div className="mb-6 h-5 w-64 animate-pulse rounded-sm bg-muted" />
+			<div className="mb-12 h-24 w-72 animate-pulse rounded-sm bg-muted md:mb-16" />
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -206,9 +207,9 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container-wide min-h-svh pb-24 pt-12 md:pb-32 md:pt-16">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
+			<Breadcrumb className="mb-8">
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
@@ -235,11 +236,14 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
+			<header className="mb-12 border-b border-hairline pb-12 md:mb-16 md:pb-16">
+				<p className="kicker">Category</p>
+				<h1 className="mt-6 break-words font-display text-statement font-light tracking-[-0.03em] text-ink">
+					{category.name}
+				</h1>
+			</header>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12" : ""}>
 				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
 
 				<div>

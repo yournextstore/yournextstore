@@ -1,165 +1,65 @@
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { getFooterData } from "@/lib/catalog";
 
-async function FooterBlogLink() {
-	"use cache";
-	cacheLife("hours");
+const linkClass = "transition-colors hover:text-foreground";
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
+/** The original's three-part footer: wordmark and line, small-caps links, socials and copyright. */
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { storeName, tagline, shipping, links, legal, social, year } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="border-t border-hairline bg-[var(--footer)]">
+			<div className="mx-auto flex max-w-[1400px] flex-col gap-12 px-6 py-16 md:flex-row md:items-end md:justify-between md:px-12 md:py-20">
+				<div className="max-w-xs">
+					<Link href="/" className="font-display text-2xl text-ink">
+						{storeName}
+					</Link>
+					<p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+						{tagline ?? "Headphones and earphones for listening closely."}
+					</p>
+				</div>
+				<nav
+					aria-label="Footer"
+					className="flex flex-wrap gap-x-10 gap-y-4 text-[12px] uppercase tracking-[0.18em] text-muted-foreground md:max-w-xl md:justify-center"
+				>
+					{links.map((link) => (
+						<Link key={link.href} href={link.href} className={linkClass}>
+							{link.label}
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+					))}
+				</nav>
+				<div className="flex flex-col gap-4 md:items-end">
+					{social.length > 0 && (
+						<ul className="flex flex-wrap gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+							{social.map((item) => (
+								<li key={item.href}>
+									<a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+										{item.label}
+									</a>
+								</li>
+							))}
 						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					)}
+					{shipping && (
+						<p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{shipping}</p>
+					)}
+					<p className="text-[11px] text-muted-foreground">
+						© {year} {storeName}. All rights reserved.
+					</p>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
-				</div>
+			</div>
+			<div className="mx-auto flex max-w-[1400px] flex-col gap-4 border-t border-hairline px-6 py-6 sm:flex-row sm:items-center sm:justify-between md:px-12">
+				<ul className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-muted-foreground">
+					{legal.map((page) => (
+						<li key={page.href}>
+							<Link href={page.href} className={linkClass}>
+								{page.label}
+							</Link>
+						</li>
+					))}
+				</ul>
+				<PaymentMethods />
 			</div>
 		</footer>
 	);

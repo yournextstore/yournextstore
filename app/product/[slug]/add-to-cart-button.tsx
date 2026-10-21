@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -109,9 +108,9 @@ export function AddToCartButton({
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart · ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -217,17 +216,17 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+			{summary && <p className="whitespace-pre-line leading-relaxed text-ink-soft">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span className="font-display text-4xl font-light text-ink md:text-5xl">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
 						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="border border-[var(--gold)]/40 px-2.5 py-0.5 text-micro font-medium uppercase tracking-[0.2em] text-warm">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
@@ -239,14 +238,14 @@ export function AddToCartButton({
 
 				{/* SKU & stock availability */}
 				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+					<div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[11px] uppercase tracking-[0.18em]">
 						{stockStatus && (
 							<span
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
+									stockStatus.tone === "low" && "text-warm",
+									stockStatus.tone === "in" && "text-ink-soft",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -255,7 +254,7 @@ export function AddToCartButton({
 						)}
 						{selectedVariant?.sku && (
 							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
+								SKU <span className="font-medium text-foreground">{selectedVariant.sku}</span>
 							</span>
 						)}
 					</div>
@@ -295,7 +294,7 @@ export function AddToCartButton({
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="btn-premium w-full [--btn-fs:12px] [--btn-py:1.05rem]"
 							>
 								{buttonText}
 							</button>
@@ -305,8 +304,6 @@ export function AddToCartButton({
 			) : (
 				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }

@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -145,9 +151,11 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="text-micro font-medium uppercase tracking-[0.28em] text-warm">
+										{group.label}
+									</legend>
 									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
+										<span className="text-[13px] text-ink-soft">{selectedOption.value}</span>
 									)}
 								</div>
 								<div className="flex gap-3">
@@ -164,10 +172,10 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
+													"relative size-11 rounded-full border-2 border-hairline-strong shadow-inner transition-all duration-300",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
+														? "ring-2 ring-gold/50 ring-offset-2 ring-offset-background"
+														: "hover:ring-1 hover:ring-[var(--ghost-hover-border)] hover:ring-offset-2 hover:ring-offset-background",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
 												aria-label={option.value}
@@ -184,7 +192,9 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="text-micro font-medium uppercase tracking-[0.28em] text-warm">
+										{group.label}
+									</legend>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -196,13 +206,13 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"flex min-h-11 items-center rounded-sm border px-5 py-3 transition-colors duration-300",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-gold/40 bg-[var(--premium-bg)] text-ink shadow-[inset_0_0_0_1px_rgba(201,168,98,0.12)]"
+														: "border-hairline-strong text-muted-foreground hover:text-foreground",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												<span className="text-[13px] font-medium tracking-wide">{option.value}</span>
 											</button>
 										);
 									})}

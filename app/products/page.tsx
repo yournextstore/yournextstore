@@ -82,15 +82,16 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="border border-hairline-strong py-24 text-center">
+				<p className="font-display text-3xl font-light text-ink">Nothing in this light.</p>
+				<p className="mt-3 text-sm text-muted-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -126,28 +127,42 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div className="container-wide min-h-svh pb-24 pt-12 md:pb-32 md:pt-16">
+			<header className="mb-12 border-b border-hairline pb-12 md:mb-16 md:pb-16">
+				<p className="kicker">Shop</p>
+				<h1 className="mt-6 font-display text-statement font-light tracking-[-0.03em] text-ink">
+					Every <span className="title-gilt">pair</span>
+				</h1>
+				<p className="mt-6 max-w-lg text-[15px] leading-[1.8] text-ink-soft md:text-lg">
+					Headphones, earphones and the things around them, each chosen to be listened to and kept.
+				</p>
+			</header>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			    boundary with the grid while the chrome and the heading above prerender. The fallback
+			    reserves the toolbar row so nothing shifts when it lands. */}
+			<Suspense
+				fallback={
+					<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12" : ""}>
+						{filtersAvailable && <div className="hidden lg:block" />}
+						<div>
+							<div className="mb-10 h-10" />
+							<ProductGridSkeleton />
+						</div>
+					</div>
+				}
+			>
+				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12" : ""}>
 					{filtersAvailable && <ProductFilters facets={facets} />}
 
 					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
+						{/* Below lg: Filters + compact sort; lg+: spaced small-caps sort links. */}
+						<div className="mb-10 flex h-10 items-center justify-between gap-3 lg:hidden">
 							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
 							<SortSelect options={sortOptions} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
+						<div className="mb-10 hidden h-10 flex-wrap items-center gap-x-8 gap-y-2 lg:flex">
+							<span className="text-micro font-medium uppercase tracking-[0.28em] text-warm">Sort</span>
 							<SortLinks options={sortOptions} />
 						</div>
 

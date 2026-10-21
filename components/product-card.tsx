@@ -56,8 +56,16 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative flex h-full flex-col overflow-hidden rounded-sm border border-hairline-strong bg-panel shadow-[inset_0_1px_0_var(--frame-inset)] transition-[border-color,transform] duration-500 ease-[var(--ease-cinema)] hover:-translate-y-[3px] hover:border-[var(--ghost-hover-border)]"
+		>
+			{/* A small stage: warm key light behind the photograph, which falls off into the panel. */}
+			<div className="relative aspect-square overflow-hidden stage-backdrop">
+				<div
+					aria-hidden="true"
+					className="absolute inset-[12%] rounded-full blur-2xl [background:var(--key-light)]"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -76,7 +84,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`spotlight-soft absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,10 +94,10 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`spotlight-soft object-cover transition-[opacity,transform] duration-700 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -97,7 +105,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="spotlight-soft absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -107,17 +115,23 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="spotlight-soft object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-1 items-end justify-between gap-4 border-t border-hairline px-6 py-5">
+				<h2 className="min-w-0 text-[15px] font-medium tracking-wide text-foreground">{product.name}</h2>
+				{priceDisplay && (
+					<p className="shrink-0 font-display text-xl font-light text-ink tabular-nums">{priceDisplay}</p>
+				)}
 			</div>
+			<span
+				aria-hidden="true"
+				className="pointer-events-none absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-[var(--warm)] to-transparent transition-all duration-700 group-hover:w-full"
+			/>
 		</Link>
 	);
 }

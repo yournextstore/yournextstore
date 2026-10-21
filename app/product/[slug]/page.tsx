@@ -7,7 +7,6 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
@@ -21,6 +20,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { splitTitle } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
@@ -29,33 +29,40 @@ import { cn } from "@/lib/utils";
 // MediaGallery and the purchase panel read useSearchParams (selected variant),
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
-	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
-		</div>
-	);
+	return <div className="aspect-square" />;
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="space-y-8">
+			<Skeleton className="h-12 w-40 rounded-sm" />
+			<Skeleton className="h-[4.5rem] w-36 rounded-sm" />
+			<Skeleton className="h-[3.25rem] w-full rounded-sm" />
 		</div>
 	);
 }
 
+const STAGE_GRID =
+	"grid grid-cols-1 md:grid-cols-[minmax(0,40fr)_minmax(0,60fr)] md:grid-rows-[auto_1fr] md:gap-x-10 xl:gap-x-14";
+
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
-					<PurchasePanelSkeleton />
+		<div className="min-h-svh">
+			<section data-hero className="relative isolate overflow-hidden">
+				<div aria-hidden="true" className="stage-backdrop pointer-events-none absolute inset-0" />
+				<div className={`container-stage relative pb-20 pt-28 md:pt-32 ${STAGE_GRID}`}>
+					<div className="space-y-6 md:col-start-1 md:row-start-1">
+						<Skeleton className="h-4 w-48 rounded-sm" />
+						<Skeleton className="h-20 w-3/4 rounded-sm" />
+					</div>
+					<div className="mt-10 md:col-start-2 md:row-span-2 md:row-start-1 md:mt-0">
+						<GallerySkeleton />
+					</div>
+					<div className="mt-10 md:col-start-1 md:row-start-2">
+						<PurchasePanelSkeleton />
+					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }
@@ -67,7 +74,7 @@ function StarRow({ rating }: { rating: number }) {
 			{Array.from({ length: 5 }, (_, i) => (
 				<Star
 					key={i}
-					className={cn("h-4 w-4", i < rounded ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted")}
+					className={cn("h-4 w-4", i < rounded ? "fill-gold text-gold" : "fill-muted text-muted")}
 				/>
 			))}
 		</span>
@@ -182,61 +189,76 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
+	const [lead, gilt] = splitTitle(product.name);
+	const firstVariant = variants[0];
+	const sheet = [
+		...(brand ? [{ label: "Brand", value: brand.name }] : []),
+		...(product.category ? [{ label: "Category", value: product.category.name }] : []),
+		{
+			label: "Finishes",
+			value: variants.length > 1 ? `${variants.length} options` : "One finish",
+		},
+		...(firstVariant?.sku ? [{ label: "Reference", value: firstVariant.sku }] : []),
+		{
+			label: "Availability",
+			value: variants.some((variant) => variant.stock !== 0) ? "Ready to ship" : "Sold out",
+		},
+	];
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="min-h-svh">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={variants} />
-				</Suspense>
+			{firstVariant && <TrackProductView variant={firstVariant} name={product.name} />}
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
+			{/* The launch stage again: details at 40, the lit product at 60. */}
+			<section data-hero className="relative isolate overflow-hidden">
+				<div aria-hidden="true" className="stage-backdrop pointer-events-none absolute inset-0" />
+				<div aria-hidden="true" className="noise pointer-events-none absolute inset-0" />
+				<div className={`container-stage relative pb-20 pt-28 md:pb-28 md:pt-32 ${STAGE_GRID}`}>
+					<div className="animate-rise md:col-start-1 md:row-start-1">
+						<Breadcrumb>
+							<BreadcrumbList>
+								<BreadcrumbItem>
+									<BreadcrumbLink render={<Link href="/products" />}>Shop</BreadcrumbLink>
+								</BreadcrumbItem>
+								{product.category && (
+									<>
+										<BreadcrumbSeparator />
+										<BreadcrumbItem>
+											<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
+												{product.category.name}
+											</BreadcrumbLink>
+										</BreadcrumbItem>
+									</>
+								)}
+								<BreadcrumbSeparator />
+								<BreadcrumbItem>
+									<BreadcrumbPage className="text-warm">{product.name}</BreadcrumbPage>
+								</BreadcrumbItem>
+							</BreadcrumbList>
+						</Breadcrumb>
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="mt-6 inline-flex min-h-6 items-center text-kicker font-medium uppercase tracking-[0.42em] text-warm transition-colors hover:text-foreground"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
+						<h1
+							className={cn(
+								"break-words font-display text-[clamp(2.6rem,9vw,4.75rem)] font-light leading-[0.95] tracking-[-0.03em] text-ink",
+								brand ? "mt-3" : "mt-6",
+							)}
+						>
+							{lead && <span>{lead} </span>}
+							<span className="title-gilt">{gilt}</span>
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
 							<a
 								href="#reviews"
-								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
+								className="mt-5 inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
 							>
 								<StarRow rating={reviewSummary.averageRating} />
 								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
@@ -247,58 +269,86 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
-					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder
-							bundleId={product.id}
-							bundle={product.bundle}
-							pricing={{
-								mode: product.bundlePriceMode,
-								fixedPriceAmount: product.bundleFixedPriceAmount,
-								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
-								amountOffAmount: product.bundleAmountOffAmount,
-								amountOffAmountGross: product.bundleAmountOffAmountGross,
-							}}
-						/>
-					) : (
-						<Suspense fallback={<PurchasePanelSkeleton />}>
-							<AddToCartButton
-								variants={variants}
-								product={{
-									id: product.id,
-									name: product.name,
-									slug: product.slug,
-									images: product.images,
-								}}
-								summary={product.summary}
-								volumePricingTiers={product.volumePricingTiers}
-								restockNotificationsEnabled={restockNotificationsEnabled}
-								subscriptionMode={product.subscriptionMode}
-								plans={plans}
-							/>
+					<div className="relative mt-10 md:col-start-2 md:row-span-2 md:row-start-1 md:mt-0 md:self-center">
+						<Suspense fallback={<GallerySkeleton />}>
+							<MediaGallery images={allImages} productName={product.name} variants={variants} />
 						</Suspense>
-					)}
-				</div>
-			</div>
-
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
 					</div>
-				</section>
+
+					<div className="mt-10 md:col-start-1 md:row-start-2 md:mt-10">
+						{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
+						    Renders only for bundle products, so it stays dormant for regular stores. */}
+						{product.type === "bundle" && product.bundle?.groups?.length ? (
+							<BundleBuilder
+								bundleId={product.id}
+								bundle={product.bundle}
+								pricing={{
+									mode: product.bundlePriceMode,
+									fixedPriceAmount: product.bundleFixedPriceAmount,
+									fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
+									amountOffAmount: product.bundleAmountOffAmount,
+									amountOffAmountGross: product.bundleAmountOffAmountGross,
+								}}
+							/>
+						) : (
+							<Suspense fallback={<PurchasePanelSkeleton />}>
+								<AddToCartButton
+									variants={variants}
+									product={{
+										id: product.id,
+										name: product.name,
+										slug: product.slug,
+										images: product.images,
+									}}
+									summary={product.summary}
+									volumePricingTiers={product.volumePricingTiers}
+									restockNotificationsEnabled={restockNotificationsEnabled}
+									subscriptionMode={product.subscriptionMode}
+									plans={plans}
+								/>
+							</Suspense>
+						)}
+					</div>
+				</div>
+			</section>
+
+			{/* The original's "Technical sheet, distilled", for one product. */}
+			<section className="border-t border-hairline bg-band-deep py-24 md:py-32">
+				<div className="container-wide grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-12">
+					<div className="lg:col-span-4">
+						<p className="kicker">Details</p>
+						<h2 className="mt-6 font-display text-4xl font-light tracking-[-0.02em] text-ink md:text-[2.75rem] md:leading-[1.1]">
+							The pair, distilled.
+						</h2>
+					</div>
+					<div className="lg:col-span-8">
+						<dl className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-hairline-strong bg-hairline-strong sm:grid-cols-2">
+							{sheet.map((cell) => (
+								<div key={cell.label} className="flex flex-col justify-center bg-panel px-8 py-7 md:px-10">
+									<dt className="text-micro font-medium uppercase tracking-[0.28em] text-muted-foreground">
+										{cell.label}
+									</dt>
+									<dd className="mt-3 break-words font-display text-xl font-light text-ink md:text-2xl">
+										{cell.value}
+									</dd>
+								</div>
+							))}
+						</dl>
+						{product.content && (
+							<div className="prose prose-sm mt-12 max-w-none text-muted-foreground dark:prose-invert tiptap-content">
+								<TiptapRenderer content={product.content} />
+							</div>
+						)}
+					</div>
+				</div>
+			</section>
+
+			{reviews && (
+				<div className="container-wide">
+					<ProductReviews reviews={reviews} slug={slug} />
+				</div>
 			)}
 
-			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);

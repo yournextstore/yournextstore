@@ -53,85 +53,108 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "Listening first",
+			copy: "We tune every pair for how it sounds over a whole album, not only for how it looks on a shelf.",
+		},
+		{
+			title: "Fewer, better",
+			copy: "A short range of headphones and accessories we use ourselves.",
+		},
+		{
+			title: "Honest answers",
+			copy: "Ask about fit, sound or compatibility before you order, and get a straight answer.",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
+			<section data-hero className="relative isolate overflow-hidden">
+				<div aria-hidden="true" className="stage-backdrop pointer-events-none absolute inset-0" />
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 [background:var(--brand-radial)]"
+				/>
+				<div className="relative mx-auto max-w-[900px] px-6 pb-28 pt-36 text-center md:px-12 md:pb-36 md:pt-48">
+					<p className="text-kicker font-medium uppercase tracking-[0.45em] text-warm">About {storeName}</p>
+					<h1 className="animate-rise mt-10 font-display text-manifesto font-light tracking-[-0.02em] text-ink">
+						We believe the best things are the ones you <span className="title-gilt">feel</span> before you
+						notice them.
+					</h1>
+					{storeDescription && (
+						<p className="mx-auto mt-8 max-w-lg text-base leading-relaxed text-ink-soft">
+							{storeDescription}
 						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
 					)}
 				</div>
-			</div>
+			</section>
+
+			<section className="border-t border-hairline py-24 md:py-36">
+				<div className="container-stage grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,40fr)_minmax(0,60fr)] lg:gap-x-12">
+					<div>
+						<p className="kicker">Our story</p>
+						<h2 className="mt-6 font-display text-4xl font-light tracking-[-0.02em] text-ink md:text-5xl">
+							Restraint, made audible.
+						</h2>
+					</div>
+					<div className="max-w-2xl space-y-6 text-[15px] leading-[1.85] text-ink-soft md:text-lg md:leading-[1.75]">
+						<p>
+							{storeName} started with a simple frustration: headphones that looked beautiful in a catalogue
+							and tired after a month of real use. Too much is tuned for the first impression, not for the
+							hundredth listen.
+						</p>
+						<p>
+							So we keep a small range of headphones, earphones and the things around them that do one thing
+							well: let you hear more of the music, for longer. Every pair is lived with before it joins the
+							shop.
+						</p>
+						<ul className="space-y-3 border-l border-hairline-strong pl-6 text-sm text-muted-foreground">
+							<li className="text-foreground">Clear, even sound over boosted bass</li>
+							<li>Materials that wear in, not out</li>
+							<li>Replaceable cushions and cables, so a pair keeps going</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+
+			<section className="border-t border-hairline bg-band py-24 md:py-32">
+				<div className="container-wide">
+					<p className="kicker">What we stand for</p>
+					<div className="mt-12 grid gap-12 md:grid-cols-3 md:gap-10">
+						{values.map((value) => (
+							<div key={value.title} className="reveal">
+								<h3 className="text-sm font-medium uppercase tracking-[0.2em] text-foreground">
+									{value.title}
+								</h3>
+								<p className="mt-4 text-sm leading-[1.8] text-muted-foreground md:text-[15px]">
+									{value.copy}
+								</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="border-t border-hairline py-24 md:py-32">
+				<div className="mx-auto max-w-2xl px-6 text-center">
+					<h2 className="font-display text-4xl font-light tracking-[-0.02em] text-ink md:text-5xl">
+						Find the pair for how you listen.
+					</h2>
+					<div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+						<Link href="/products" className="btn-premium btn-md">
+							Shop the collection
+						</Link>
+						{contactFormEnabled && (
+							<Link href="/contact" className="btn-ghost-line btn-md">
+								Contact us
+							</Link>
+						)}
+					</div>
+				</div>
+			</section>
 		</div>
 	);
 }
