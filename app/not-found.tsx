@@ -1,4 +1,4 @@
-import { ShoppingCartIcon } from "lucide-react";
+import { ArrowLeft, House, ShoppingBag } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -11,19 +11,23 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
 	return (
-		<div className="flex min-h-[90dvh] flex-1 flex-col items-center justify-center px-4 py-24 text-center">
-			<ShoppingCartIcon className="size-16 text-muted-foreground/50" strokeWidth={1.5} />
-			<h1 className="mt-6 text-7xl font-bold tracking-tight">404</h1>
-			<h2 className="mt-4 text-xl text-muted-foreground">Page not found</h2>
-			<p className="mt-2 text-sm text-muted-foreground">
-				This page doesn't exist or has been moved. But our store is still open!
+		<div className="flex min-h-[80dvh] flex-1 flex-col items-center justify-center px-5 py-24 text-center">
+			<ShoppingBag className="size-20 text-foreground" strokeWidth={1.75} aria-hidden />
+			<h1 className="ed-display mt-6 text-6xl font-bold">404</h1>
+			<p className="ed-display mt-1 text-2xl text-muted-foreground">Not found</p>
+			<p className="mt-8 text-base text-muted-foreground">
+				The page you&apos;re looking for doesn&apos;t exist.
 			</p>
-			<Link
-				href="/"
-				className="mt-8 inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
-			>
-				Continue Shopping
-			</Link>
+			<div className="mt-6 flex flex-wrap justify-center gap-4">
+				<Link href="/products" className="ed-btn ed-btn--ghost">
+					<ArrowLeft className="h-4 w-4" aria-hidden />
+					Keep shopping
+				</Link>
+				<Link href="/" className="ed-btn">
+					<House className="h-4 w-4" aria-hidden />
+					Return home
+				</Link>
+			</div>
 		</div>
 	);
 }

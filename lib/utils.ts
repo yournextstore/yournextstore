@@ -1,5 +1,17 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's type steps (`text-eyebrow`, `text-display-*`) would otherwise read as colours and
+// silently drop a colour class merged beside them.
+const twMerge = extendTailwindMerge({
+	extend: {
+		classGroups: {
+			"font-size": [
+				{ text: ["eyebrow", "navlink", "display-hero", "display-section", "display-page", "display-pdp"] },
+			],
+		},
+	},
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

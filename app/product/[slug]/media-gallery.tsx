@@ -1,10 +1,10 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -30,7 +30,6 @@ type MediaGalleryProps = {
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
 	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [isZoomed, setIsZoomed] = useState(false);
 
 	// The gallery always shows the full image set (product + every variant image). When a
 	// variant is selected we don't filter the list — that would hide the other thumbnails —
@@ -81,134 +80,166 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		[displayImages.length, handlePrevious, handleNext],
 	);
 
+	const share = async () => {
+		const url = window.location.href;
+		if (navigator.share) {
+			await navigator.share({ title: productName, url }).catch(() => {});
+			return;
+		}
+		await navigator.clipboard?.writeText(url).catch(() => {});
+		toast.success("Link copied");
+	};
+
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className="lg:sticky lg:top-20 lg:self-start">
+				<div className="flex aspect-[3/4] items-center justify-center rounded-lg border border-border bg-card">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
 		);
 	}
 
+	const current = displayImages[selectedIndex] ?? "";
+	const many = displayImages.length > 1;
+
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
 		<section
-			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="min-w-0 outline-none lg:sticky lg:top-20 lg:grid lg:grid-cols-[88px_minmax(0,1fr)] lg:gap-5 lg:self-start xl:grid-cols-[96px_minmax(0,1fr)]"
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-					/>
-				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
-			</div>
-
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+			{/* Thumbnail rail (desktop): a column of framed squares, the active one outlined in ink. */}
+			{many && (
+				<div className="hidden max-h-[min(80vh,700px)] flex-col gap-2 overflow-y-auto p-px lg:flex">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
+							aria-label={`Show image ${index + 1}`}
+							aria-current={selectedIndex === index}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+								"relative aspect-square w-full shrink-0 overflow-hidden rounded-lg border bg-card transition-colors",
+								selectedIndex === index ? "border-foreground" : "border-border hover:border-border-strong",
 							)}
 						>
 							{isVideoUrl(image) ? (
 								<video
-									className="absolute inset-0 w-full h-full object-cover"
+									className="absolute inset-0 h-full w-full object-cover"
 									src={image}
 									muted
 									playsInline
 								/>
 							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
+								<YNSMedia src={image} alt="" fill sizes="96px" className="object-cover" />
 							)}
 						</button>
 					))}
 				</div>
 			)}
+
+			<div className={cn("relative -mx-[clamp(20px,5vw,48px)] sm:mx-0", !many && "lg:col-span-2")}>
+				<div className="relative aspect-square overflow-hidden bg-card sm:aspect-[3/4] sm:rounded-lg">
+					{isVideoUrl(current) ? (
+						<video
+							className="absolute inset-0 h-full w-full object-cover"
+							src={current}
+							muted
+							loop
+							autoPlay
+							playsInline
+							controls
+						/>
+					) : (
+						<YNSMedia
+							src={current}
+							alt={`${productName} — image ${selectedIndex + 1} of ${displayImages.length}`}
+							fill
+							sizes="(min-width: 1024px) 42vw, 100vw"
+							className="object-cover"
+							priority
+						/>
+					)}
+				</div>
+
+				<button
+					type="button"
+					onClick={share}
+					className="absolute top-3 right-3 inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-3.5 text-sm font-medium text-foreground shadow-[0_2px_4px_rgba(0,0,0,0.1)] transition-colors hover:bg-muted lg:top-2 lg:right-2"
+				>
+					<Share2 className="h-4 w-4" aria-hidden />
+					<span className="hidden sm:inline">Share</span>
+					<span className="sr-only sm:hidden">Share</span>
+				</button>
+
+				{many && (
+					<>
+						<button
+							type="button"
+							onClick={handlePrevious}
+							aria-label="Previous image"
+							className="absolute top-1/2 left-3 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,0.1)] transition-colors hover:bg-muted sm:flex"
+						>
+							<ChevronLeft className="h-4 w-4" />
+						</button>
+						<button
+							type="button"
+							onClick={handleNext}
+							aria-label="Next image"
+							className="absolute top-1/2 right-3 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-[0_2px_4px_rgba(0,0,0,0.1)] transition-colors hover:bg-muted sm:flex"
+						>
+							<ChevronRight className="h-4 w-4" />
+						</button>
+
+						{/* Phones: pill dots like the original's slider, or a counter for long galleries. */}
+						<div className="mt-2 flex items-center justify-center gap-1 sm:hidden">
+							{displayImages.length <= 8 ? (
+								displayImages.map((image, index) => (
+									<button
+										key={`dot-${image}-${index}`}
+										type="button"
+										onClick={() => setSelectedIndex(index)}
+										aria-label={`Show image ${index + 1}`}
+										aria-current={selectedIndex === index}
+										className="grid h-6 w-6 place-items-center"
+									>
+										<span
+											className={cn(
+												"block h-1.5 rounded-full transition-all",
+												selectedIndex === index ? "w-5 bg-foreground" : "w-1.5 bg-border-strong",
+											)}
+										/>
+									</button>
+								))
+							) : (
+								<div className="flex items-center gap-3">
+									<button
+										type="button"
+										onClick={handlePrevious}
+										aria-label="Previous image"
+										className="grid h-9 w-9 place-items-center rounded-full border border-border"
+									>
+										<ChevronLeft className="h-4 w-4" />
+									</button>
+									<span className="text-xs font-medium tabular-nums text-muted-foreground">
+										{selectedIndex + 1} / {displayImages.length}
+									</span>
+									<button
+										type="button"
+										onClick={handleNext}
+										aria-label="Next image"
+										className="grid h-9 w-9 place-items-center rounded-full border border-border"
+									>
+										<ChevronRight className="h-4 w-4" />
+									</button>
+								</div>
+							)}
+						</div>
+					</>
+				)}
+			</div>
 		</section>
 	);
 }
