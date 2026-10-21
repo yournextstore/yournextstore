@@ -42,3 +42,6 @@ next-env.d.ts
 .claude/*.local.*
 # next-agents-md (superseded by node_modules/next/dist/docs)
 .next-docs/
+
+# theme conversion: reference screenshots of the original design
+/.reference/

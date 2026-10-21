@@ -1,20 +1,14 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { SortSelect } from "@/app/products/products-sort-select";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { richTextParagraphs } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -23,6 +17,38 @@ import { YNSMedia } from "@/lib/yns-media";
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const sortOptions = [
+	{ value: "newest", label: "Latest arrivals" },
+	{ value: "price-asc", label: "Lowest price" },
+	{ value: "price-desc", label: "Highest price" },
+	{ value: "name", label: "Name: A–Z" },
+] as const;
+
+type Sortable = { name: string; createdAt: string; variants: readonly { price: string }[] };
+
+const lowestPrice = (product: Sortable) =>
+	product.variants.reduce<bigint | null>((min, variant) => {
+		const price = BigInt(variant.price);
+		return min === null || price < min ? price : min;
+	}, null) ?? 0n;
+
+// A collection is one fetched list, so its sort runs here rather than in the browse query.
+function sortProducts<T extends Sortable>(products: T[], sort: string | undefined): T[] {
+	const sorted = [...products];
+	if (sort === "price-asc" || sort === "price-desc") {
+		const direction = sort === "price-asc" ? 1 : -1;
+		return sorted.sort((a, b) => {
+			const diff = lowestPrice(a) - lowestPrice(b);
+			return diff === 0n ? 0 : diff > 0n ? direction : -direction;
+		});
+	}
+	if (sort === "name") return sorted.sort((a, b) => a.name.localeCompare(b.name));
+	if (sort === "newest") {
+		return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+	}
+	return sorted;
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -61,48 +87,59 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/**
+ * Full-bleed photograph, a full viewport tall from md, under the transparent header. The
+ * collection's own image when it has one, the theme's lifestyle photograph otherwise.
+ */
+function CollectionHero({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+		<div data-hero className="relative mb-8 aspect-[2/1] w-full md:mb-19 md:aspect-auto md:h-screen">
+			{collection.image ? (
+				<YNSMedia
+					src={collection.image}
+					alt={collection.name}
+					fill
+					sizes="100vw"
+					className="object-cover"
+					priority
+				/>
+			) : (
+				<Image
+					src="/images/interiors/collection-dining-chair.jpg"
+					alt="An oak dining chair with a linen throw against a warm grey plaster wall"
+					fill
+					sizes="100vw"
+					className="object-cover"
+					priority
+				/>
+			)}
+		</div>
+	);
+}
+
+/** The statement row: the description's first paragraph large on the left, the rest beside it. */
+function CollectionIntro({ collection }: { collection: APICollectionGetByIdResult }) {
+	const [lead, ...rest] = richTextParagraphs(collection.description);
+	if (!lead) return null;
+
+	return (
+		<div className="layout mb-26 md:mb-36">
+			<p className="col-span-full font-medium text-title-md max-md:mb-6 md:text-title-2xl lg:col-span-6">
+				{lead}
+			</p>
+			{rest.length > 0 && (
+				<div className="col-span-full flex flex-col gap-5 md:mt-18 md:gap-9 md:text-title-md lg:col-start-8 lg:col-end-13">
+					{rest.map((paragraph) => (
+						<p key={paragraph}>{paragraph}</p>
+					))}
 				</div>
 			)}
-		</section>
+		</div>
 	);
 }
 
 function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+	return <ProductGridSkeleton />;
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,33 +194,41 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
+async function CollectionProducts({
+	collection,
+	searchParams,
+}: {
+	collection: APICollectionGetByIdResult;
+	searchParams: Promise<{ sort?: string }>;
+}) {
+	const [products, { sort }] = await Promise.all([getCollectionProducts(collection), searchParams]);
+	const sorted = sortProducts<(typeof products)[number]>(products, sort);
+
+	if (sorted.length === 0) {
+		return <p className="py-16 md:text-title-md">This collection has no products yet.</p>;
+	}
 
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<div className="grid grid-cols-12 gap-x-4 gap-y-10 md:gap-x-12 md:gap-y-16">
+			{sorted.map((product) => (
+				<div key={product.id} className="col-span-6 md:col-span-4">
+					<ProductCard product={product} />
+				</div>
+			))}
+		</div>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
 		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
+			<div className="mb-8 aspect-[2/1] w-full animate-pulse bg-grayscale-50 md:mb-19 md:aspect-auto md:h-screen" />
+			<div className="layout pb-26 md:pb-36">
+				<div className="col-span-full">
+					<div className="mb-6 h-10 w-56 animate-pulse bg-grayscale-50 md:mb-7 md:h-16" />
+					<ProductGridSkeleton />
 				</div>
-			</section>
-			<CollectionProductsSkeleton />
+			</div>
 		</>
 	);
 }
@@ -193,7 +238,7 @@ function CollectionPageSkeleton() {
 export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	return (
 		<Suspense fallback={<CollectionPageSkeleton />}>
-			<CollectionContent params={props.params} />
+			<CollectionContent params={props.params} searchParams={props.searchParams} />
 		</Suspense>
 	);
 }
@@ -207,7 +252,13 @@ const getCollectionData = async (slug: string) => {
 	return error ? null : collection;
 };
 
-const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
+const CollectionContent = async ({
+	params,
+	searchParams,
+}: {
+	params: PageProps<"/collection/[slug]">["params"];
+	searchParams: Promise<{ sort?: string }>;
+}) => {
 	const { slug } = await params;
 	const collection = await getCollectionData(slug);
 
@@ -219,25 +270,19 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
+			<CollectionHero collection={collection} />
+			<CollectionIntro collection={collection} />
+			<div className="layout pb-26 md:pb-36">
+				<div className="col-span-full">
+					<h1 className="mb-6 text-title-md md:mb-7 md:text-title-2xl">{collection.name}</h1>
+					<div className="mb-6 flex justify-end md:mb-8">
+						<SortSelect options={sortOptions} />
+					</div>
+					<Suspense fallback={<CollectionProductsSkeleton />}>
+						<CollectionProducts collection={collection} searchParams={searchParams} />
+					</Suspense>
+				</div>
 			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
 		</>
 	);
 };

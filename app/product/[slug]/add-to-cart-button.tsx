@@ -6,7 +6,6 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -59,8 +58,6 @@ type AddToCartButtonProps = {
 	restockNotificationsEnabled?: boolean;
 };
 
-const LOW_STOCK_THRESHOLD = 5;
-
 export function AddToCartButton({
 	variants,
 	product,
@@ -89,14 +86,9 @@ export function AddToCartButton({
 	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
 	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
 
-	const buttonText = useMemo(() => {
-		if (!selectedVariant) return "Select options";
-		if (isOutOfStock) return "Out of stock";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
+	const buttonText = !selectedVariant ? "Select variant" : isOutOfStock ? "Out of stock" : "Add to cart";
+	const totalLabel =
+		totalPrice && effectiveQuantity > 1 ? formatMoney({ amount: totalPrice, currency, locale }) : null;
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -119,7 +111,7 @@ export function AddToCartButton({
 
 		const { min: minPrice, max: maxPrice } = priceRange(variants, taxBehavior);
 		return {
-			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
+			display: minPrice === maxPrice ? fmt(minPrice) : `From ${fmt(minPrice)}`,
 			compareAt: null,
 			discountPercent: null,
 		};
@@ -132,17 +124,6 @@ export function AddToCartButton({
 		if (!lowest) return null;
 		return formatMoney({ amount: BigInt(lowest), currency, locale });
 	}, [selectedVariant, priceInfo.compareAt, locale, currency, taxBehavior]);
-
-	// Stock availability. null stock means it isn't tracked (treated as in stock).
-	const stockStatus = useMemo(() => {
-		if (!selectedVariant) return null;
-		const { stock } = selectedVariant;
-		if (stock === 0) return { label: "Out of stock", tone: "out" as const };
-		if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
-			return { label: `Only ${stock} left in stock`, tone: "low" as const };
-		}
-		return { label: "In stock", tone: "in" as const };
-	}, [selectedVariant]);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -195,78 +176,59 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+		<div>
+			{/* Price: a struck-through list price over the sale price in the accent colour. */}
+			<div className="mb-8">
+				{priceInfo.compareAt && (
+					<p className="mb-1 text-body-lg text-grayscale-500 line-through">{priceInfo.compareAt}</p>
 				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
+				<p className={cn("text-title-md", priceInfo.compareAt && "text-sale")}>{priceInfo.display}</p>
+				{omnibusPrice && (
+					<p className="mt-2 text-body-xs text-grayscale-500">
+						Lowest price in the last 30 days: {omnibusPrice}
+					</p>
 				)}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
+			{summary && (
+				<p className="mb-8 max-w-120 whitespace-pre-line max-md:text-body-xs md:mb-16">{summary}</p>
+			)}
 
-			<QuantitySelector
-				quantity={effectiveQuantity}
-				onQuantityChange={setQuantity}
-				max={Math.max(1, Math.min(99, maxQuantity))}
-				disabled={isOutOfStock}
-			/>
+			{variants.length > 1 && (
+				<div className="mb-8 md:mb-16">
+					<VariantSelector variants={variants} />
+				</div>
+			)}
 
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 
 			{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 				<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 			) : (
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit} className="flex gap-4 max-sm:flex-col">
+					<QuantitySelector
+						quantity={effectiveQuantity}
+						onQuantityChange={setQuantity}
+						max={Math.max(1, Math.min(99, maxQuantity))}
+						disabled={!selectedVariant || isOutOfStock}
+						className="w-full max-md:justify-center max-md:gap-2 sm:w-35"
+					/>
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="inline-flex h-12 items-center justify-center gap-2 rounded-xs bg-foreground px-6 text-background transition-colors hover:bg-grayscale-800 disabled:pointer-events-none disabled:bg-grayscale-200 sm:flex-1"
 					>
 						{buttonText}
+						{totalLabel && !isOutOfStock ? <span className="opacity-70">· {totalLabel}</span> : null}
 					</button>
 				</form>
 			)}
-
-			<TrustBadges />
+			{selectedVariant?.stock !== null &&
+			selectedVariant?.stock !== undefined &&
+			selectedVariant.stock > 0 &&
+			selectedVariant.stock <= 5 ? (
+				<p className="mt-4 text-body-xs text-grayscale-500">Only {selectedVariant.stock} left in stock</p>
+			) : null}
 		</div>
 	);
 }

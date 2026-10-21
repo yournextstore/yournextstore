@@ -1,42 +1,38 @@
-import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
+/**
+ * Full-bleed lifestyle photograph (a full viewport tall from md, under the transparent header),
+ * followed by the headline row: a large statement on the left, a short invitation with an
+ * underlined link on the right.
+ */
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
+		<>
+			<div data-hero className="relative">
+				<Image
+					src="/images/interiors/hero-living-room.jpg"
+					width={1920}
+					height={1280}
+					alt="A grey sofa, an oak lounge chair and a round oak coffee table on a sisal rug in a concrete-walled living room"
+					priority
+					sizes="100vw"
+					className="h-auto w-full md:h-screen md:object-cover"
+				/>
+			</div>
+			<div className="layout pt-8 md:pt-26">
+				<h1 className="col-span-full text-title-md max-md:mb-6 md:col-span-7 md:text-title-2xl">
+					Calm, Well-Made Furniture for the Rooms You Live In
+				</h1>
+				<div className="col-span-full flex items-center md:col-start-9 md:col-end-13">
+					<div className="md:text-title-md">
+						<p>Find the piece your room is missing</p>
+						<Link href="/products" className="link-underline">
+							Explore Now
+						</Link>
 					</div>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
-		</section>
+		</>
 	);
 }

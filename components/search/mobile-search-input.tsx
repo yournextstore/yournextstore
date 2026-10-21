@@ -1,7 +1,7 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { useId, useRef } from "react";
+import { SearchIcon } from "@/components/icons";
 import { Suggestions } from "@/components/search/suggestions";
 import {
 	getActiveId,
@@ -30,10 +30,7 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 					Search products
 				</label>
 				<div className="relative">
-					<Search
-						className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-						strokeWidth={1.75}
-					/>
+					<SearchIcon className="pointer-events-none absolute left-0 top-1/2 size-5 -translate-y-1/2" />
 					<input
 						ref={inputRef}
 						id={`${listboxId}-input`}
@@ -50,11 +47,11 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-12 w-full rounded-full border border-border bg-background pl-12 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+						className="h-8 w-full border-0 border-b border-transparent bg-transparent pl-9 pr-0 text-base text-current placeholder:text-current/60 focus:outline-none focus-visible:border-current"
 					/>
 				</div>
 				{panelOpen ? (
-					<div className="mt-3 border-t border-border pt-1">
+					<div className="mt-4 rounded-xs bg-background p-1 text-foreground">
 						<Suggestions
 							listboxId={listboxId}
 							open={panelOpen}
