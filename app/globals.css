@@ -9,7 +9,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
+	--font-serif: var(--font-garamond);
+	--font-display: var(--font-ultra);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +35,94 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's named palette: ink, two neutrals and five product accents. */
+	--color-ink: #150703;
+	--color-ecru: #faf8f3;
+	--color-white-rock: #e8e0cf;
+	--color-clementine: #ef7300;
+	--color-tumbleweed: #d9a876;
+	--color-hawkes-blue: #c7ddfd;
+	--color-asparagus: #789750;
+	--color-goldenrod: #ffce70;
+	--spacing-112: 28rem;
+	--shadow-sheet: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
 }
 
+/* Light-only design: .dark carries the same palette so forced themes and the palette test agree. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #150703;
+	--card: #ffffff;
+	--card-foreground: #150703;
+	--popover: #faf8f3;
+	--popover-foreground: #150703;
+	--primary: #150703;
+	--primary-foreground: #faf8f3;
+	--secondary: #faf8f3;
+	--secondary-foreground: #150703;
+	--muted: #faf8f3;
+	/* The original's 60% ink, flattened and darkened just enough to clear AA on ecru. */
+	--muted-foreground: #6a5d5a;
+	--accent: #e8e0cf;
+	--accent-foreground: #150703;
+	--destructive: #b42318;
+	--border: #e8e0cf;
+	--input: #150703;
+	--ring: #150703;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #150703;
+	--card: #ffffff;
+	--card-foreground: #150703;
+	--popover: #faf8f3;
+	--popover-foreground: #150703;
+	--primary: #150703;
+	--primary-foreground: #faf8f3;
+	--secondary: #faf8f3;
+	--secondary-foreground: #150703;
+	--muted: #faf8f3;
+	/* The original's 60% ink, flattened and darkened just enough to clear AA on ecru. */
+	--muted-foreground: #6a5d5a;
+	--accent: #e8e0cf;
+	--accent-foreground: #150703;
+	--destructive: #b42318;
+	--border: #e8e0cf;
+	--input: #150703;
+	--ring: #150703;
+}
+
+/* The original's centred container (Tailwind v1: no 2xl step) with its 0.75rem gutter. */
+@utility shell {
+	width: 100%;
+	margin-inline: auto;
+	padding-inline: 0.75rem;
+	@media (min-width: 40rem) {
+		max-width: 40rem;
+	}
+	@media (min-width: 48rem) {
+		max-width: 48rem;
+	}
+	@media (min-width: 64rem) {
+		max-width: 64rem;
+	}
+	@media (min-width: 80rem) {
+		max-width: 80rem;
+	}
+}
+
+/* Pages built on the original's split screen (home, product) carry data-split: the header
+   then floats over their left column instead of sitting above the page. */
+@media (min-width: 48rem) {
+	:root:has([data-split]) .site-header {
+		position: absolute;
+		top: 0;
+		left: 0.75rem;
+		width: calc((100% - 1.5rem - 2.5rem) / 2);
+	}
 }
 
 @layer base {
@@ -85,6 +131,10 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+	}
+	::selection {
+		background: var(--color-goldenrod);
+		color: var(--color-ink);
 	}
 }
 

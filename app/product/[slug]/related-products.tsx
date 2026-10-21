@@ -2,6 +2,7 @@ import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
+import { picturedFirst } from "@/lib/pictured";
 
 // Cached per category, not per product: every product page in a category shares one
 // browse, and the current product is filtered out afterwards.
@@ -10,7 +11,7 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 12,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
@@ -31,17 +32,21 @@ async function RelatedProductsContent({
 	productId: string;
 	categorySlug?: string;
 }) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	// Same-category picks first, topped up from the whole shop so the row is always a full four
+	// (or an even two) instead of a lone tile.
+	const [inCategory, everything] = await Promise.all([
+		categorySlug ? getCategoryProducts(categorySlug) : Promise.resolve([]),
+		getCategoryProducts(),
+	]);
+	const seen = new Set([productId]);
+	const merged = [...picturedFirst(inCategory), ...picturedFirst(everything)].filter((p) => {
+		if (seen.has(p.id)) return false;
+		seen.add(p.id);
+		return true;
+	});
+	const related = merged.slice(0, merged.length >= 4 ? 4 : merged.length - (merged.length % 2));
 
 	if (related.length === 0) return null;
 
-	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
-	);
+	return <ProductGrid title="Some other things you might like" products={related} />;
 }

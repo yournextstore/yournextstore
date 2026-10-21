@@ -7,20 +7,28 @@ import Link from "next/link";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
+export type CardProduct = BrowseProduct | CollectionProduct | FullProduct;
 
+/**
+ * The original's product tile: a tall photograph with soft corners that square off on hover,
+ * then name and price on one line underneath.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	imageClassName = "aspect-[9/14]",
+	sizes = "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw",
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	imageClassName?: string;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -35,12 +43,6 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -56,27 +58,17 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
+		<Link href={`/product/${product.slug}${variantSearch}`} className="group relative block">
+			<div
+				className={cn(
+					"relative w-full overflow-hidden rounded-lg bg-secondary transition-all duration-300 group-hover:rounded-none",
+					imageClassName,
 				)}
+			>
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className="absolute inset-0 h-full w-full object-cover"
 							src={primaryImage}
 							muted
 							loop
@@ -86,37 +78,18 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes={sizes}
+							className="object-cover"
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex justify-between gap-3 py-2 text-sm md:py-3 md:text-base lg:text-lg">
+				<span className="min-w-0 group-hover:italic">{product.name}</span>
+				{priceDisplay && <span className="shrink-0 tabular-nums">{priceDisplay}</span>}
 			</div>
 		</Link>
 	);

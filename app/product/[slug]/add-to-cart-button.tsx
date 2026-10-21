@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -63,6 +62,8 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
+	/** The product's accent class (lib/accent.ts) for the Add to Bag button. */
+	accentClassName?: string;
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -75,6 +76,7 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 	subscriptionMode = "optional",
 	plans = [],
+	accentClassName = "bg-white-rock",
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
@@ -101,18 +103,15 @@ export function AddToCartButton({
 		taxBehavior,
 	);
 
-	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
-
-	const buttonText = useMemo(() => {
-		if (!selectedVariant) return "Select options";
-		if (isOutOfStock) return "Out of stock";
-		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+	const buttonText = !selectedVariant
+		? "Select options"
+		: isOutOfStock
+			? "Sold out"
+			: plan
+				? plan.discountPercent > 0
+					? `Subscribe & save ${plan.discountPercent}%`
+					: "Subscribe"
+				: "Add to Bag";
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -172,8 +171,11 @@ export function AddToCartButton({
 
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
-		openCart();
 		setQuantity(1);
+		// The original confirms with a toast that opens the bag, rather than opening it.
+		toast(`${product.name} is now in your bag.`, {
+			action: { label: "View bag", onClick: openCart },
+		});
 
 		// Instant local feedback OUTSIDE the transition, then REPLACE with the
 		// server-returned cart (never refetch — cartGet reads a replica that can lag
@@ -216,97 +218,85 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
+		<div>
+			<div className="flex flex-wrap items-center justify-between gap-3 pt-3">
+				<div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+					<p className="pr-2 text-lg tabular-nums md:text-xl lg:text-2xl">
+						{priceInfo.display}
+						{priceInfo.compareAt && (
+							<>
+								{" "}
+								<s className="text-base text-muted-foreground md:text-lg">{priceInfo.compareAt}</s>
+							</>
+						)}
+					</p>
+					{variants.length > 1 && <VariantSelector variants={variants} />}
 				</div>
 
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
+				{!purchasable ? (
+					<p className="italic">This subscription isn't available right now.</p>
+				) : isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+					<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
+				) : (
+					<form onSubmit={handleSubmit}>
+						<button
+							type="submit"
+							disabled={!selectedVariant || isOutOfStock}
+							className={cn(
+								"rounded px-1.5 py-0.5 text-lg text-ink transition hover:rounded-none md:px-2 md:text-xl disabled:cursor-not-allowed disabled:opacity-50",
+								accentClassName,
+							)}
+						>
+							{buttonText}
+						</button>
+					</form>
 				)}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
-
-			{purchasable ? (
-				<>
-					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
-					)}
-
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
+			{purchasable && plans.length > 0 && (
+				<div className="pt-4">
+					<SubscriptionOptions
+						plans={plans}
+						value={planId}
+						onChange={setPlanId}
+						allowOneTime={allowOneTime}
 					/>
-
-					<VolumePricingDisplay
-						tiers={resolvedTiers}
-						quantity={effectiveQuantity}
-						volumePrice={volumePrice}
-					/>
-
-					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
-						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
-					) : (
-						<form onSubmit={handleSubmit}>
-							<button
-								type="submit"
-								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								{buttonText}
-							</button>
-						</form>
-					)}
-				</>
-			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				</div>
 			)}
 
-			<TrustBadges />
+			{(omnibusPrice || (stockStatus && stockStatus.tone !== "in") || resolvedTiers.length > 0) && (
+				<div className="space-y-3 pt-4 text-sm">
+					{omnibusPrice && (
+						<p className="text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					)}
+					{stockStatus && stockStatus.tone !== "in" && (
+						<p className={cn("italic", stockStatus.tone === "out" && "text-destructive")}>
+							{stockStatus.label}
+						</p>
+					)}
+					{resolvedTiers.length > 0 && (
+						<>
+							<QuantitySelector
+								quantity={effectiveQuantity}
+								onQuantityChange={setQuantity}
+								max={Math.max(1, Math.min(99, maxQuantity))}
+								disabled={isOutOfStock}
+							/>
+							<VolumePricingDisplay
+								tiers={resolvedTiers}
+								quantity={effectiveQuantity}
+								volumePrice={volumePrice}
+							/>
+						</>
+					)}
+				</div>
+			)}
+
+			{summary && (
+				<p className="whitespace-pre-line pt-5 md:pt-8 md:leading-relaxed lg:pt-10 lg:text-lg lg:leading-loose">
+					{summary}
+				</p>
+			)}
 		</div>
 	);
 }
