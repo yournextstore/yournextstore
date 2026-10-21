@@ -1,7 +1,6 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** HiyoRi's pill stepper: minus, count, plus inside a 2px rounded outline. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -20,29 +20,29 @@ export function QuantitySelector({
 }: QuantitySelectorProps) {
 	return (
 		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
+			<span className="mb-2 block text-sm font-medium">Quantity</span>
+			<div className="flex h-12 w-36 items-center justify-between rounded-full border-2 border-input px-3">
+				<button
+					type="button"
+					className="flex h-8 w-8 items-center justify-center disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					<Minus className="h-5 w-5" strokeWidth={1.5} />
+				</button>
+				<span className="text-center text-sm tabular-nums" aria-live="polite">
+					{quantity}
+				</span>
+				<button
+					type="button"
+					className="flex h-8 w-8 items-center justify-center disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
 				>
-					<Plus className="h-4 w-4" />
-				</Button>
+					<Plus className="h-5 w-5" strokeWidth={1.5} />
+				</button>
 			</div>
 		</div>
 	);

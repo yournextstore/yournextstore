@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { CollectionBanner, CollectionPageSkeleton, SectionHeading } from "@/components/collection-banner";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingToolbar } from "@/components/listing-toolbar";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { PRODUCT_GRID } from "@/components/product-grid-skeleton";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
+import { EDITORIAL } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
+import { picturedFirst, richTextToPlain } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
@@ -125,8 +120,8 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<div className={PRODUCT_GRID}>
+				{picturedFirst(result.data).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -140,24 +135,12 @@ async function CategoryProducts({
 	);
 }
 
-function CategoryPageSkeleton() {
-	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
-		</div>
-	);
-}
-
-// Awaiting params/searchParams at the top of the page blocks the static shell —
-// the page stays a sync shell and the dynamic content streams inside Suspense.
 export default function CategoryPage(props: {
 	params: Promise<{ slugs: string[] }>;
 	searchParams: Promise<CategoryFilterParams>;
 }) {
 	return (
-		<Suspense fallback={<CategoryPageSkeleton />}>
+		<Suspense fallback={<CollectionPageSkeleton />}>
 			<CategoryContent params={props.params} searchParams={props.searchParams} />
 		</Suspense>
 	);
@@ -205,58 +188,21 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const banner = category.image ?? EDITORIAL.banner;
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="shell min-h-svh pt-6 pb-8 md:py-8">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
+			<CollectionBanner title={category.name} image={banner} />
+			<SectionHeading
+				heading={`Discover ${category.name}`}
+				description={richTextToPlain(category.description)}
+			/>
+			<div className="space-y-6">
+				{filtersAvailable && (
+					<ListingToolbar filters={<ProductFiltersMobile facets={facets} showCategories={false} />} />
+				)}
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 			</div>
 		</div>
 	);

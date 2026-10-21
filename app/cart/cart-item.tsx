@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -99,12 +99,12 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
+		<div className="flex gap-5 border-b border-border py-4">
 			{/* Product Image */}
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 shrink-0 overflow-hidden bg-card sm:h-28 sm:w-28"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</Link>
@@ -115,7 +115,7 @@ export function CartItem({ item }: CartItemProps) {
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 text-base leading-tight font-semibold text-foreground hover:underline"
 					>
 						{product.name}
 					</Link>
@@ -123,10 +123,10 @@ export function CartItem({ item }: CartItemProps) {
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
+						className="shrink-0 p-1 transition-opacity hover:opacity-60 disabled:pointer-events-none disabled:opacity-50"
 						aria-label="Remove item"
 					>
-						<Trash2 className="h-4 w-4" />
+						<X className="h-5 w-5" strokeWidth={1.5} />
 					</button>
 				</div>
 
@@ -134,7 +134,7 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex h-10 items-center rounded-full border-2 border-input px-1 transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>

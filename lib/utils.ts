@@ -18,3 +18,20 @@ export function isVideoUrl(url: string): boolean {
 export const getProductThumbnail = (urls: string[]): string | undefined => {
 	return urls.find((url) => !isVideoUrl(url));
 };
+
+/** Mirrors `images.remotePatterns` in next.config.ts: anything else is served unoptimized. */
+export function isOptimizableImage(url: string): boolean {
+	if (url.startsWith("/")) return true;
+	try {
+		const { hostname } = new URL(url);
+		return (
+			hostname.endsWith(".public.blob.vercel-storage.com") ||
+			hostname === "yns.store" ||
+			hostname.endsWith(".yns.store") ||
+			hostname === "yns.cx" ||
+			hostname.endsWith(".yns.cx")
+		);
+	} catch {
+		return false;
+	}
+}
