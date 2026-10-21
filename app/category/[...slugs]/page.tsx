@@ -1,35 +1,41 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+	BannerSkeleton,
+	ListingBanner,
+	ListingResults,
+	ListingResultsSkeleton,
+	ListingShell,
+	PriceChips,
+	presentBuckets,
+} from "@/components/bento/listing";
+import { ListingPagination } from "@/components/listing-pagination";
+import { editorialPhoto, richText } from "@/lib/aqua";
 import { commerce } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import {
+	getListingSort,
+	getPriceBucket,
+	lowestPrice,
+	priceBrowseParams,
+	sortBrowseParams,
+} from "@/lib/listing";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 24;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
 	page?: string;
+	sort?: string;
 	collection?: string;
 	brand?: string;
 	priceMin?: string;
 	priceMax?: string;
 	vts?: string;
+	price?: string;
 };
 
 // The SDK loads the parent chain up to 2 levels deep (self -> parent -> grandparent),
@@ -86,12 +92,22 @@ export async function generateMetadata({
 	};
 }
 
+// Unfiltered prices for the chips: which buckets this category reaches at all.
+async function getCategoryPrices(slug: string) {
+	"use cache";
+	cacheLife("minutes");
+	const { data } = await commerce
+		.productBrowse({ active: true, category: slug, limit: 100 })
+		.catch(() => ({ data: [] }));
+	return data.map(lowestPrice);
+}
+
 async function CategoryProducts({
-	slug,
+	category,
 	canonicalPath,
 	filters,
 }: {
-	slug: string;
+	category: { slug: string; name: string; image?: string | null; description?: unknown };
 	canonicalPath: string;
 	filters: CategoryFilterParams;
 }) {
@@ -99,54 +115,75 @@ async function CategoryProducts({
 	cacheLife("minutes");
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
-	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+	const sort = getListingSort(filters.sort);
+	const bucket = getPriceBucket(filters.price);
+	const basePath = `/category/${canonicalPath}`;
 
-	const result = await commerce.productBrowse({
-		active: true,
-		category: slug,
-		limit: PRODUCTS_PER_PAGE,
-		offset,
-		collection: filters.collection,
-		brand: filters.brand,
-		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
-		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
-		vts: filters.vts,
-	});
-
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
-	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
+	const [result, prices] = await Promise.all([
+		commerce.productBrowse({
+			active: true,
+			category: category.slug,
+			limit: PRODUCTS_PER_PAGE,
+			offset: (currentPage - 1) * PRODUCTS_PER_PAGE,
+			...sortBrowseParams(sort),
+			collection: filters.collection,
+			brand: filters.brand,
+			...(bucket
+				? priceBrowseParams(bucket)
+				: {
+						priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
+						priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
+					}),
+			vts: filters.vts,
+		}),
+		getCategoryPrices(category.slug),
+	]);
+	const query = { sort: filters.sort, price: bucket?.slug };
+	const image = category.image ?? editorialPhoto(category.name, 0);
 
 	return (
-		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-			<ListingPagination
-				basePath={`/category/${canonicalPath}`}
-				currentPage={currentPage}
-				totalPages={totalPages}
-				filters={filters}
-			/>
-		</>
+		<ListingResults
+			products={result.data}
+			basePath={basePath}
+			sort={sort}
+			query={query}
+			empty={
+				prices.length === 0
+					? "No products found in this category."
+					: "No products match these filters. Try clearing one."
+			}
+			before={
+				<>
+					<ListingBanner
+						title={category.name}
+						description={richText(category.description)}
+						image={image}
+						count={bucket ? result.meta.count : prices.length}
+					/>
+					<PriceChips
+						basePath={basePath}
+						buckets={presentBuckets(prices.filter((price) => price > 0))}
+						query={query}
+					/>
+				</>
+			}
+			after={
+				<ListingPagination
+					basePath={basePath}
+					currentPage={currentPage}
+					totalPages={Math.ceil(result.meta.count / PRODUCTS_PER_PAGE)}
+					filters={{ ...filters, price: bucket?.slug }}
+				/>
+			}
+		/>
 	);
 }
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
-		</div>
+		<ListingShell activePath="">
+			<ListingResultsSkeleton before={<BannerSkeleton />} />
+		</ListingShell>
 	);
 }
 
@@ -186,17 +223,10 @@ const CategoryContent = async ({
 		notFound();
 	}
 
-	// Both reads are cached and independent — fetch them in parallel.
-	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
+	const category = await getCategoryData(slug);
 	if (!category?.active) {
 		notFound();
 	}
-	// Category facet is hidden here (it's the page context), so don't count it.
-	const filtersAvailable =
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
 
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
@@ -206,54 +236,20 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
-		</div>
+			<ListingShell activePath={`/category/${canonicalPath}`}>
+				<CategoryProducts
+					category={{
+						slug: category.slug,
+						name: category.name,
+						image: category.image,
+						description: category.description,
+					}}
+					canonicalPath={canonicalPath}
+					filters={filters}
+				/>
+			</ListingShell>
+		</>
 	);
 };

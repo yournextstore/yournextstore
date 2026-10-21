@@ -33,59 +33,215 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Named surfaces of the reference's deep-water system. */
+	--color-deep: var(--background);
+	--color-panel: var(--card);
+	--color-panel-2: var(--secondary);
+	--color-bone: var(--foreground);
+	--color-amber: var(--primary);
+	--color-line: var(--border);
+	--color-ink-amber: var(--primary-foreground);
 }
 
+/*
+ * One dark palette in both blocks: the reference is dark-only ("deep water" canvas, bone text,
+ * a single grow-light amber). `:root` and `.dark` carry the same tokens so the palette test checks
+ * both and a forced theme can never paint a light page.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #060d0e;
+	--foreground: #eceae4;
+	--card: #0d1618;
+	--card-foreground: #eceae4;
+	--popover: #0d1618;
+	--popover-foreground: #eceae4;
+	--primary: #f2a93b;
+	--primary-foreground: #1a1205;
+	--secondary: #121e21;
+	--secondary-foreground: #eceae4;
+	--muted: #121e21;
+	--muted-foreground: #8a9a9c;
+	--accent: #121e21;
+	--accent-foreground: #eceae4;
+	--destructive: #f87171;
+	--border: #1b2425;
+	--input: #2a3537;
+	--ring: #f2a93b;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.75rem;
+	--background: #060d0e;
+	--foreground: #eceae4;
+	--card: #0d1618;
+	--card-foreground: #eceae4;
+	--popover: #0d1618;
+	--popover-foreground: #eceae4;
+	--primary: #f2a93b;
+	--primary-foreground: #1a1205;
+	--secondary: #121e21;
+	--secondary-foreground: #eceae4;
+	--muted: #121e21;
+	--muted-foreground: #8a9a9c;
+	--accent: #121e21;
+	--accent-foreground: #eceae4;
+	--destructive: #f87171;
+	--border: #1b2425;
+	--input: #2a3537;
+	--ring: #f2a93b;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		color-scheme: dark;
+	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variable on <body>; preflight never sees @theme inline's --font-sans. */
+		font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		letter-spacing: -0.028em;
+	}
+	::selection {
+		background: #f2a93b;
+		color: #000;
+	}
+	a:focus-visible,
+	input:focus-visible,
+	button:focus-visible,
+	select:focus-visible,
+	textarea:focus-visible,
+	summary:focus-visible {
+		outline: none;
+		box-shadow:
+			0 0 0 2px var(--background),
+			0 0 0 4px rgb(242 169 59 / 0.7);
+	}
+}
+
+/* Spec figures (prices, counts) in mono: the reference is a spec-led catalogue. */
+.aq-spec {
+	font-family: var(--font-geist-mono), ui-monospace, monospace;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Fixed film grain over the home page; never on a scrolling container. */
+.aq-grain::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 40;
+	pointer-events: none;
+	opacity: 0.035;
+	mix-blend-mode: overlay;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scroll reveal: transform + opacity only, and only once the observer has hydrated (no flash, no CLS). */
+@media (prefers-reduced-motion: no-preference) {
+	.aq-reveal[data-reveal="armed"] {
+		opacity: 0;
+		transform: translateY(22px);
+	}
+	.aq-reveal[data-reveal="in"] {
+		opacity: 1;
+		transform: none;
+		transition:
+			opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+			transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+}
+
+/* Caustic light sweep and drifting light rays in the hero tank. */
+@keyframes aq-caustic {
+	0%,
+	100% {
+		opacity: 0.3;
+		transform: translate3d(-2%, 0, 0) scale(1.04);
+	}
+	50% {
+		opacity: 0.55;
+		transform: translate3d(2%, 1%, 0) scale(1.1);
+	}
+}
+.aq-caustic {
+	animation: aq-caustic 14s ease-in-out infinite;
+	will-change: transform, opacity;
+}
+
+@keyframes aq-rays {
+	0%,
+	100% {
+		opacity: 0.75;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+.aq-rays {
+	animation: aq-rays 7s ease-in-out infinite;
+}
+
+@keyframes aq-bubble {
+	from {
+		transform: translateY(0);
+		opacity: 0;
+	}
+	15% {
+		opacity: 0.8;
+	}
+	to {
+		transform: translateY(-260px);
+		opacity: 0;
+	}
+}
+.aq-bubble {
+	animation: aq-bubble 6s linear infinite;
+}
+
+@keyframes aq-sway {
+	0%,
+	100% {
+		transform: rotate(-1.5deg);
+	}
+	50% {
+		transform: rotate(1.5deg);
+	}
+}
+.aq-sway {
+	transform-box: fill-box;
+	transform-origin: 50% 100%;
+	animation: aq-sway 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aq-caustic,
+	.aq-rays,
+	.aq-bubble,
+	.aq-sway {
+		animation: none;
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.animate-fade-in {
+	animation: fade-in 0.4s ease-in-out;
 }
 
 .prose {
@@ -117,11 +273,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#0d1618 0%,
+		#121e21 40%,
+		#17262a 50%,
+		#121e21 60%,
+		#0d1618 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -168,4 +324,28 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Content pages: the reference's PageShell sections (bone headings, muted 15px body, amber links). */
+.page-prose {
+	@apply prose max-w-none text-[15px] leading-relaxed;
+	--tw-prose-body: #c9cdc9;
+	--tw-prose-headings: var(--foreground);
+	--tw-prose-links: var(--primary);
+	--tw-prose-bold: var(--foreground);
+	--tw-prose-bullets: var(--primary);
+	--tw-prose-counters: var(--muted-foreground);
+	--tw-prose-hr: var(--border);
+	--tw-prose-quotes: var(--foreground);
+	--tw-prose-quote-borders: var(--primary);
+	--tw-prose-th-borders: var(--border);
+	--tw-prose-td-borders: var(--border);
+}
+
+.page-prose :where(h2, h3, h4) {
+	@apply mt-10 mb-3 text-xl font-semibold;
+}
+
+.page-prose :where(a) {
+	@apply underline-offset-4;
 }

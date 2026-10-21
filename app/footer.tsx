@@ -1,164 +1,129 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { LogoMark } from "@/components/bento/logo-mark";
+import { NewsletterForm } from "@/components/bento/newsletter-form";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { getCategoryTiles, getStoreBasics } from "@/lib/aqua";
+import { commerce } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+type FooterLink = { href: string; label: string };
+
+async function getLegalLinks(): Promise<FooterLink[]> {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
+	const legal = await commerce.legalPageBrowse().catch(() => ({ data: [] }));
+	return legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label }));
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
+// `new Date()` is an unstable value: reading it during the prerender is an error.
+// Caching pins it to the entry.
 async function getCopyrightYear() {
 	"use cache";
 	cacheLife("days");
-
 	return new Date().getFullYear();
 }
 
+function Column({ title, links }: { title: string; links: FooterLink[] }) {
+	return (
+		<div>
+			<h2 className="text-xs font-semibold tracking-[0.18em] text-[#8a9a9c] uppercase">{title}</h2>
+			<ul className="mt-4 space-y-2.5">
+				{links.map((link) => (
+					<li key={link.href}>
+						<Link href={link.href} className="text-sm text-[#a3a3a3] transition-colors hover:text-amber">
+							{link.label}
+						</Link>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, basics, categories, legal] = await Promise.all([
+		getCopyrightYear(),
+		getStoreBasics(),
+		getCategoryTiles(),
+		getLegalLinks(),
+	]);
+
+	const shop: FooterLink[] = [
+		{ href: "/products", label: "All products" },
+		...categories.map((category) => ({ href: category.href, label: category.name })),
+	];
+	const support: FooterLink[] = [
+		{ href: "/faq", label: "FAQ" },
+		...(basics.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+		{ href: "/about", label: "About" },
+		...(basics.blog ? [{ href: "/blog", label: "Journal" }] : []),
+	];
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+		<footer className="border-t border-white/10 bg-deep text-sm text-[#a3a3a3]">
+			<div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-10 px-6 py-16 md:grid-cols-5 md:px-12">
+				<div className="col-span-2">
+					<Link href="/" aria-label={`${basics.storeName} home`} className="inline-flex max-w-full">
+						<LogoMark name={basics.storeName} />
+					</Link>
+					<p className="mt-4 max-w-xs text-sm leading-relaxed text-[#8a9a9c]">
+						{basics.description ??
+							"A planted-aquarium shop: plants, light, stone and substrate, chosen on specs instead of marketing and described plainly."}
+					</p>
+					{basics.socials.length > 0 ? (
+						<ul className="mt-5 flex flex-wrap gap-3">
+							{basics.socials.map((social) => (
+								<li key={social.label}>
+									<a
+										href={social.href}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-block rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#a3a3a3] transition hover:border-amber/50 hover:text-amber"
+									>
+										{social.label}
+									</a>
+								</li>
+							))}
 						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					) : null}
 				</div>
 
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<Column title="Shop" links={shop} />
+				<Column title="Support" links={support} />
+
+				<div className="col-span-2 md:col-span-1">
+					<h2 className="text-xs font-semibold tracking-[0.18em] text-[#8a9a9c] uppercase">The drop list</h2>
+					<p className="mt-4 text-sm text-[#8a9a9c]">New arrivals, restocks and notes from the shop.</p>
+					<div className="mt-3">
+						<NewsletterForm />
+					</div>
+				</div>
+			</div>
+
+			<div className="border-t border-white/10">
+				<div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-6 py-6 text-xs text-[#8a9a9c] md:flex-row md:px-12">
+					<p>
+						&copy; {year} {basics.storeName}. All rights reserved.
+					</p>
+					<div className="flex items-center gap-3 md:ml-6">
+						<span>Secure checkout</span>
+						<PaymentMethods />
+					</div>
+					<ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 md:ml-auto">
+						{legal.map((link) => (
+							<li key={link.href}>
+								<Link href={link.href} className="hover:text-[#d4d4d4]">
+									{link.label}
+								</Link>
+							</li>
+						))}
+						<li>
+							{/* Plain <a>: /account is a proxied zone. */}
+							<a href="/account" className="hover:text-[#d4d4d4]">
+								My account
+							</a>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</footer>

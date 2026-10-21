@@ -3,6 +3,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/app/contact/contact-form";
+import { PageShell } from "@/components/bento/page-shell";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
@@ -43,34 +44,20 @@ export default async function ContactPage() {
 	}
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<PageShell
+			eyebrow="Contact"
+			title="Talk to a person."
+			intro="Have a question or just want to say hello? Send us a message and we'll get back to you as soon as we can."
+		>
 			<JsonLdScript data={contactJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">Contact Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Contact Us</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
-					Have a question or just want to say hello? Send us a message and we'll get back to you as soon as we
-					can.
-				</p>
-			</div>
-
-			{/* Form */}
 			<ContactForm />
-
-			{/* FAQ link */}
-			<p className="mt-10 text-sm text-muted-foreground">
+			<p className="mt-10 text-sm text-[#a3a3a3]">
 				Looking for a quick answer? Check our{" "}
-				<Link href="/faq" className="font-medium text-foreground hover:underline">
+				<Link href="/faq" className="font-medium text-amber underline-offset-4 hover:underline">
 					frequently asked questions
 				</Link>
 				.
 			</p>
-		</div>
+		</PageShell>
 	);
 }

@@ -5,118 +5,111 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { listingPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+export type TileProduct = BrowseProduct | CollectionProduct | FullProduct;
+
+/**
+ * The reference's double-bezel card: a hairline outer shell around an inner core with its own
+ * panel surface and a smaller radius; 4:3 photo fading into the panel, name, amber mono price.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	sizes = "(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 90vw",
+	badge,
+	heading = "h2",
+	className,
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: TileProduct;
 	priority?: boolean;
+	sizes?: string;
+	badge?: string;
+	heading?: "h2" | "h3";
+	className?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const min = listing?.amount ?? null;
+	const listMax =
+		variants && variants.length > 0 ? priceRange(variants, taxBehavior, "originalPrice").max : null;
+	const compare = min !== null && listMax !== null && listMax > min ? listMax : null;
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 
-	const allImages = [
+	const image = getProductThumbnail([
 		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+		...(variants?.flatMap((v) => v.images ?? []) ?? []),
+	]);
 
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
-
-	// A single-variant card deep-links to that variant; a bare link would show the product's default.
+	// A single-variant tile deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
 		}
-		const params = new URLSearchParams();
-		for (const combination of onlyVariant.combinations) {
-			params.set(combination.variantValue.variantType.label, combination.variantValue.value);
-		}
+		const params = new URLSearchParams(
+			onlyVariant.combinations.map((c) => [c.variantValue.variantType.label, c.variantValue.value]),
+		);
 		return `?${params.toString()}`;
 	})();
 
+	const Heading = heading;
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn(
+				"group relative block h-full rounded-[1.75rem] border border-line bg-white/[0.02] p-1.5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-amber/35",
+				className,
+			)}
+		>
+			<div className="flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-0.375rem)] bg-panel shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+				<div className="relative aspect-[4/3] overflow-hidden bg-panel-2">
+					{image ? (
 						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
+							src={image}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes={sizes}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
+							className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
 						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
-			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+					) : null}
+					<div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-panel via-transparent to-transparent" />
+					{badge ? (
+						<span className="absolute top-4 left-4 rounded-full bg-amber px-3 py-1 text-[10px] font-semibold tracking-[0.14em] text-ink-amber uppercase">
+							{badge}
+						</span>
+					) : null}
+				</div>
+				<div className="flex flex-1 flex-col gap-3 p-5">
+					<Heading className="text-[15px] leading-snug font-medium tracking-normal text-bone">
+						{product.name}
+					</Heading>
+					{min ? (
+						<p className="mt-auto flex items-baseline gap-2.5">
+							<span className="aq-spec text-lg font-semibold text-amber">
+								{listing?.from ? "From " : ""}
+								{fmt(min)}
+							</span>
+							{compare !== null ? (
+								<s className="aq-spec text-sm text-[#8a9a9c]">
+									<span className="sr-only">Was </span>
+									{fmt(compare)}
+								</s>
+							) : null}
+						</p>
+					) : null}
+				</div>
 			</div>
 		</Link>
 	);
