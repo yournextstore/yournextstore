@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingTabs } from "@/components/listing-tabs";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { PageMasthead } from "@/components/sections/home";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { SortPlaceholder, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -56,7 +56,7 @@ export async function generateMetadata({
 	};
 }
 
-async function ProductList({ filters }: { filters: ProductFilterParams }) {
+async function getProductPage(filters: ProductFilterParams) {
 	"use cache";
 	cacheLife("minutes");
 
@@ -77,22 +77,35 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
 		vts: filters.vts,
 	});
+	return { result, currentPage };
+}
 
+async function ProductList({ filters }: { filters: ProductFilterParams }) {
+	"use cache";
+	cacheLife("minutes");
+
+	const { result, currentPage } = await getProductPage(filters);
+	// Under the default order, pictured pieces lead the page so an image-less product never opens the grid.
+	const isDefaultSort = !filters.sort || filters.sort === sortOptions[0].value;
+	const hasPhoto = (product: (typeof result.data)[number]) => (product.images?.length ?? 0) > 0;
+	const products = isDefaultSort
+		? [...result.data.filter(hasPhoto), ...result.data.filter((product) => !hasPhoto(product))]
+		: result.data;
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="serif text-[1.5rem] text-cream italic">Nothing on the shelf matches that just yet.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className={LISTING_GRID}>
+				{products.map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index < 2} headingLevel="h2" />
 				))}
 			</div>
 
@@ -107,54 +120,27 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 }
 
 // Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
-// stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
+// stays prerenderable.
 async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
 	const filters = await searchParams;
 	return <ProductList filters={filters} />;
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
-	const filtersAvailable =
-		facets.categories.length > 0 ||
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
-
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="min-h-svh">
+			<PageMasthead title="The Shelf" line="Everything we carry, in one place." />
+			<div className="container-x section-y">
+				<h2 className="section-title">Everything</h2>
+				<ListingTabs>
+					<Suspense fallback={<SortPlaceholder />}>
+						<SortSelect options={sortOptions} />
+					</Suspense>
+				</ListingTabs>
+				<Suspense fallback={<ProductGridSkeleton />}>
+					<ProductSection searchParams={searchParams} />
+				</Suspense>
 			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
-			</Suspense>
 		</div>
 	);
 }

@@ -1,28 +1,17 @@
-import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
+// Three neutral notes under the buy buttons, in the info bar's caps with a brass ◆ between.
+const NOTES = ["Secure checkout", "Delivery set at checkout", "Prices as shown"];
 
-type TrustBadge = {
-	icon: LucideIcon;
-	title: string;
-	description: string;
-};
-
-const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
-];
-
-export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
+export function TrustBadges() {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
-			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
+		<ul className="caps flex flex-wrap gap-x-5 gap-y-2 text-[0.75rem] text-dim">
+			{NOTES.map((note) => (
+				<li key={note} className="flex items-center gap-2">
+					<span aria-hidden="true" className="text-[0.6rem] text-gold">
+						◆
+					</span>
+					{note}
+				</li>
 			))}
-		</div>
+		</ul>
 	);
 }

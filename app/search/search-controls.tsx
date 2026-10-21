@@ -89,7 +89,7 @@ export function SortSelect({ value }: { value: SortKey }) {
 	const [isPending, startTransition] = useTransition();
 
 	return (
-		<label className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+		<label className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.15em] text-muted-foreground">
 			<span>Sort</span>
 			<div className="relative">
 				<select
@@ -131,7 +131,7 @@ export function CategorySidebar({
 
 	return (
 		<nav aria-label="Filter by category">
-			<h2 className="mb-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h2>
+			<h2 className="mb-4 text-xs uppercase tracking-[0.15em] text-muted-foreground">Category</h2>
 			<ul className="flex flex-col">
 				<FilterRow
 					href={buildUrl(searchParams, { category: null })}
@@ -170,7 +170,7 @@ export function MobileControls({
 	const activeSort = SORT_OPTIONS.find((s) => s.value === sort);
 
 	return (
-		<div className="sticky top-16 z-30 -mx-4 flex items-center justify-between border-y border-border bg-background/90 px-4 py-3 text-xs uppercase tracking-[0.18em] backdrop-blur-md sm:hidden">
+		<div className="sticky top-16 z-30 -mx-4 flex items-center justify-between border-y border-border bg-background/90 px-4 py-3 text-xs uppercase tracking-[0.15em] backdrop-blur-md sm:hidden">
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger className="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-70">
 					<SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -181,7 +181,7 @@ export function MobileControls({
 				<SheetContent side="bottom" className="rounded-t-2xl p-6">
 					<SheetTitle className="text-2xl font-medium tracking-tight">Refine</SheetTitle>
 
-					<h3 className="mt-6 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Sort</h3>
+					<h3 className="mt-6 mb-3 text-xs uppercase tracking-[0.15em] text-muted-foreground">Sort</h3>
 					<ul className="flex flex-col">
 						{SORT_OPTIONS.map((opt) => (
 							<FilterRow
@@ -195,7 +195,7 @@ export function MobileControls({
 						))}
 					</ul>
 
-					<h3 className="mt-8 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h3>
+					<h3 className="mt-8 mb-3 text-xs uppercase tracking-[0.15em] text-muted-foreground">Category</h3>
 					<ul className="flex flex-col">
 						<FilterRow
 							href={buildUrl(searchParams, { category: null })}

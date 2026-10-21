@@ -1,6 +1,6 @@
-import { ShoppingCartIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Divider } from "@/components/sections/home";
 
 export const metadata: Metadata = {
 	title: "Page Not Found",
@@ -9,21 +9,47 @@ export const metadata: Metadata = {
 	robots: { index: false, follow: true },
 };
 
+/** The original's 404: a glowing brass numeral, the ◇ ornament, two buttons and a row of quiet links. */
 export default function NotFound() {
 	return (
-		<div className="flex min-h-[90dvh] flex-1 flex-col items-center justify-center px-4 py-24 text-center">
-			<ShoppingCartIcon className="size-16 text-muted-foreground/50" strokeWidth={1.5} />
-			<h1 className="mt-6 text-7xl font-bold tracking-tight">404</h1>
-			<h2 className="mt-4 text-xl text-muted-foreground">Page not found</h2>
-			<p className="mt-2 text-sm text-muted-foreground">
-				This page doesn't exist or has been moved. But our store is still open!
-			</p>
-			<Link
-				href="/"
-				className="mt-8 inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
-			>
-				Continue Shopping
-			</Link>
+		<div className="bar-masthead relative flex min-h-[70dvh] flex-1 flex-col items-center justify-center px-4 py-16 text-center">
+			<div className="relative z-[1]">
+				<p className="serif text-[3.5rem] font-bold leading-none text-gold [text-shadow:0_0_30px_rgba(201,162,39,0.3)]">
+					404
+				</p>
+				<Divider className="my-6" />
+				<h1 className="serif mb-4 text-[2rem] font-bold text-cream">Page Not Found</h1>
+				<p className="mb-8 text-[1.0625rem] text-ink">
+					The page you're looking for doesn't exist or has been moved.
+				</p>
+				<div className="flex flex-wrap justify-center gap-4">
+					<Link href="/" className="btn btn-primary">
+						Go home
+					</Link>
+					<Link href="/products" className="btn">
+						Browse the shelf
+					</Link>
+				</div>
+				<nav
+					aria-label="Elsewhere"
+					className="mx-auto mt-10 flex max-w-[300px] flex-wrap justify-center gap-6 border-t border-line-2 pt-6 sm:max-w-[400px]"
+				>
+					{[
+						{ href: "/#shelf", label: "Shelf" },
+						{ href: "/#space", label: "Gallery" },
+						{ href: "/about", label: "About" },
+						{ href: "/search", label: "Search" },
+					].map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							className="caps text-[0.875rem] text-dim transition-colors hover:text-gold"
+						>
+							{link.label}
+						</Link>
+					))}
+				</nav>
+			</div>
 		</div>
 	);
 }
