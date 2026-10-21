@@ -7,13 +7,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Copper plate: rag paper, bistre ink and copper, from the original's token set. Type, radii and
+ * surfaces live under their own names so shadcn's text-sm/base/lg keep their sizes.
+ */
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-host-grotesk), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-control: 10px;
+	--radius-frame: 16px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,63 +38,223 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-band: var(--band);
+	--color-stage: var(--stage);
+	--color-strong: var(--stroke-strong);
+	--color-faint: var(--text-muted);
+	--color-copper: var(--copper);
+	--color-copper-ink: var(--copper-ink);
+	--color-copper-wash: var(--accent);
+	--color-feature: var(--feature);
+	--color-announce: var(--announce);
+	--color-deep: var(--deep);
+	--color-on-deep: var(--on-deep);
+	--color-on-deep-2: var(--on-deep-2);
+	--color-on-feature: var(--on-feature);
+	--color-proof-mark: var(--proof-mark);
+	--color-primary-hover: var(--primary-hover);
+}
+
+/* The original's type roles, under new names. */
+@theme {
+	--text-title-display: 2.875rem;
+	--text-title-display--line-height: 1;
+	--text-title-display--letter-spacing: -0.03em;
+	--text-title-display--font-weight: 700;
+	--text-title-1: 2.5rem;
+	--text-title-1--line-height: 1.08;
+	--text-title-1--letter-spacing: -0.02em;
+	--text-title-1--font-weight: 600;
+	--text-title-2: 2rem;
+	--text-title-2--line-height: 1.2;
+	--text-title-2--letter-spacing: -0.02em;
+	--text-title-2--font-weight: 600;
+	--text-title-3: 1.25rem;
+	--text-title-3--line-height: 1.2;
+	--text-title-3--font-weight: 600;
+	--text-numeral: 3.5rem;
+	--text-numeral--line-height: 1;
+	--text-numeral--letter-spacing: -0.03em;
+	--text-numeral--font-weight: 600;
+}
+
+/* Room at the sides: the gutter on a phone, and on a wide screen whatever centres 1280px. */
+@utility band-x {
+	padding-inline: max(1.5rem, (100% - 1280px) / 2);
+}
+
+/* A full-width band of a page: 64px above and below, 96px from a laptop up. */
+@utility band {
+	padding-inline: max(1.5rem, (100% - 1280px) / 2);
+	padding-block: 4rem;
+	@media (width >= 64rem) {
+		padding-block: 6rem;
+	}
 }
 
 :root {
 	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--background: #fcfaf6;
+	--foreground: #17130f;
+	--card: #efe8dd;
+	--card-foreground: #17130f;
+	--popover: #fcfaf6;
+	--popover-foreground: #17130f;
+	--primary: #17130f;
+	--primary-foreground: #fcfaf6;
+	--primary-hover: #463d33;
+	--secondary: #efe8dd;
+	--secondary-foreground: #17130f;
+	--muted: #f7f2ea;
+	--muted-foreground: #5f5447;
+	--accent: #fbf1ea;
+	--accent-foreground: #7f4126;
+	--destructive: #b3261e;
+	--border: #e4dacb;
+	--input: #b9a890;
+	--ring: #9d522f;
+	--band: #f7f2ea;
+	--stage: #efe8dd;
+	--stroke-strong: #17130f;
+	--text-muted: #716457;
+	--copper: #9d522f;
+	--copper-ink: #7f4126;
+	--feature: #3b1e13;
+	--on-feature: #fcfaf6;
+	--announce: #7f4126;
+	--deep: #17130f;
+	--on-deep: #f0e9df;
+	--on-deep-2: #b8ab99;
+	--proof-mark: #b9a890;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #17130f;
+	--foreground: #f0e9df;
+	--card: #2a241e;
+	--card-foreground: #f0e9df;
+	--popover: #211c17;
+	--popover-foreground: #f0e9df;
+	--primary: #fcfaf6;
+	--primary-foreground: #17130f;
+	--primary-hover: #e4dacb;
+	--secondary: #2a241e;
+	--secondary-foreground: #f0e9df;
+	--muted: #211c17;
+	--muted-foreground: #b8ab99;
+	--accent: #25130c;
+	--accent-foreground: #e09c72;
+	--destructive: #f59a8b;
+	--border: #352e26;
+	--input: #463d33;
+	--ring: #e09c72;
+	--band: #211c17;
+	--stage: #2a241e;
+	--stroke-strong: #f0e9df;
+	--text-muted: #998b79;
+	--copper: #d18256;
+	--copper-ink: #e09c72;
+	--feature: #25130c;
+	--on-feature: #fcfaf6;
+	--announce: #5d2f1c;
+	--deep: #17130f;
+	--on-deep: #f0e9df;
+	--on-deep-2: #b8ab99;
+	--proof-mark: #463d33;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		/* The header is sticky: an anchor lands below it, not under it. */
+		scroll-padding-top: 4.5rem;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-size: 1rem;
+		line-height: 1.62;
+		font-variant-numeric: tabular-nums;
 	}
+	:focus-visible {
+		outline: 2px solid var(--ring);
+		outline-offset: 2px;
+	}
+}
+
+/* The trim marks a printer leaves on a proof, kept faint: one at each corner, outside the box. */
+.trim {
+	--gap: 0.5rem;
+	--length: 0.875rem;
+	position: absolute;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+.trim::before,
+.trim::after {
+	content: "";
+	position: absolute;
+	background: var(--proof-mark);
+}
+.trim::before {
+	width: 1px;
+	height: var(--length);
+}
+.trim::after {
+	width: var(--length);
+	height: 1px;
+}
+.trim-tl {
+	left: 0;
+	top: 0;
+}
+.trim-tl::before {
+	bottom: var(--gap);
+}
+.trim-tl::after {
+	right: var(--gap);
+}
+.trim-tr {
+	right: 0;
+	top: 0;
+}
+.trim-tr::before {
+	bottom: var(--gap);
+	right: 0;
+}
+.trim-tr::after {
+	left: var(--gap);
+}
+.trim-bl {
+	left: 0;
+	bottom: 0;
+}
+.trim-bl::before {
+	top: var(--gap);
+}
+.trim-bl::after {
+	right: var(--gap);
+	bottom: 0;
+}
+.trim-br {
+	right: 0;
+	bottom: 0;
+}
+.trim-br::before {
+	top: var(--gap);
+	right: 0;
+}
+.trim-br::after {
+	left: var(--gap);
+	bottom: 0;
 }
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-quotes: var(--foreground);
+	--tw-prose-hr: var(--border);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);
@@ -99,11 +265,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--stage) 0%,
+		var(--band) 40%,
+		var(--background) 50%,
+		var(--band) 60%,
+		var(--stage) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

@@ -1,21 +1,16 @@
+import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { TextLink, tileGridClass } from "@/components/deckle";
+import { type ChipGroup, FilterChips } from "@/components/filter-chips";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { richTextToPlain } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -113,23 +108,34 @@ async function CategoryProducts({
 		vts: filters.vts,
 	});
 
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
+	const count = result.meta.count;
+	const filtered = ["collection", "brand", "priceMin", "priceMax", "vts"].some(
+		(key) => filters[key as keyof CategoryFilterParams],
+	);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
+			<p
+				aria-live="polite"
+				className="mt-12 mb-6 flex min-h-[3.1rem] flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-border pt-6"
+			>
+				<strong className="font-semibold">
+					{count === 1 ? "1 product" : `${count} products`}, newest first
+				</strong>
+				{filtered && <TextLink href={`/category/${canonicalPath}`}>Clear the filters</TextLink>}
+			</p>
+			{result.data.length === 0 ? (
+				<p className="py-16 text-lg text-muted-foreground">Nothing matches these filters.</p>
+			) : (
+				<ul className={tileGridClass}>
+					{result.data.map((product, index) => (
+						<li key={product.id}>
+							<ProductCard product={product} priority={index < 2} />
+						</li>
+					))}
+				</ul>
+			)}
 			<ListingPagination
 				basePath={`/category/${canonicalPath}`}
 				currentPage={currentPage}
@@ -141,12 +147,17 @@ async function CategoryProducts({
 }
 
 function CategoryPageSkeleton() {
+	// As tall as a screen: the footer must not paint in the viewport and then jump.
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<section className="band min-h-svh !pt-6">
+			<div className="h-5 w-48 animate-pulse rounded bg-secondary" />
+			<div className="mt-10 grid gap-6">
+				<div className="h-11 w-72 animate-pulse rounded bg-secondary" />
+				<div className="h-6 w-96 max-w-full animate-pulse rounded bg-secondary" />
+			</div>
+			<p className="mt-12 mb-6 min-h-[3.1rem] border-t border-border pt-6" />
 			<ProductGridSkeleton />
-		</div>
+		</section>
 	);
 }
 
@@ -192,7 +203,7 @@ const CategoryContent = async ({
 		notFound();
 	}
 	// Category facet is hidden here (it's the page context), so don't count it.
-	const filtersAvailable =
+	const _filtersAvailable =
 		facets.collections.length > 0 ||
 		facets.brands.length > 0 ||
 		facets.variantTypes.length > 0 ||
@@ -205,16 +216,37 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richTextToPlain(category.description);
+	const generic = description.toLowerCase() === `${category.name} products`.toLowerCase();
+	const groups: ChipGroup[] = [
+		...(facets.brands.length > 0
+			? [
+					{
+						label: "Brand",
+						param: "brand",
+						all: "All",
+						options: facets.brands.map((b) => ({ label: b.name, value: b.slug })),
+					},
+				]
+			: []),
+		...facets.variantTypes.map((vt) => ({
+			label: vt.label,
+			param: `vts:${vt.label}`,
+			all: "Any",
+			options: vt.values.map((value) => ({ label: value, value })),
+		})),
+	];
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<section aria-labelledby="category-title" className="band !pt-6">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
+			<nav aria-label="Breadcrumb">
+				<ol className="flex flex-wrap items-center gap-2 text-[0.8125rem] text-muted-foreground">
+					<li>
+						<Link href="/products" className="hover:text-foreground">
+							Products
+						</Link>
+					</li>
 					{hierarchy.map((crumb, index) => {
 						const path = hierarchy
 							.slice(0, index + 1)
@@ -222,42 +254,61 @@ const CategoryContent = async ({
 							.join("/");
 						const isLast = index === hierarchy.length - 1;
 						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
+							<li key={crumb.slug} className="inline-flex items-center gap-2">
+								<ChevronRight aria-hidden="true" className="size-3" />
+								{isLast ? (
+									<span aria-current="page">{crumb.name}</span>
+								) : (
+									<Link href={`/category/${path}`} className="hover:text-foreground">
+										{crumb.name}
+									</Link>
+								)}
+							</li>
 						);
 					})}
-				</BreadcrumbList>
-			</Breadcrumb>
+				</ol>
+			</nav>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+			<div className="mt-10 grid justify-items-start gap-6">
+				<h1 id="category-title" className="max-w-[20ch] text-title-1 text-balance">
+					{category.name}
+				</h1>
+				<p className="max-w-[52ch] text-lg text-muted-foreground">
+					{description && !generic
+						? description
+						: `Every piece in ${category.name.toLowerCase()}, newest first.`}
+				</p>
+				{/* The sibling categories as a row of chips, the current one inked. */}
+				<nav aria-label="Categories" className="w-full min-w-0">
+					<div className="grid min-w-0 gap-2 lg:grid-cols-[6.5rem_minmax(0,1fr)] lg:items-center">
+						<span className="text-[0.8125rem] font-semibold text-muted-foreground">Category</span>
+						<ul className="relative flex gap-2 overflow-x-auto py-1 [scrollbar-width:none] lg:flex-wrap lg:overflow-x-visible">
+							<li className="shrink-0">
+								<Link
+									href="/products"
+									className="inline-flex min-h-9 items-center whitespace-nowrap rounded-full bg-secondary px-3.5 text-sm font-semibold hover:shadow-[inset_0_0_0_1px_var(--input)]"
+								>
+									All
+								</Link>
+							</li>
+							{facets.categories.map((c) => (
+								<li key={c.slug} className="shrink-0">
+									<Link
+										href={`/category/${c.slug}`}
+										aria-current={c.slug === slug ? "page" : undefined}
+										className="inline-flex min-h-9 items-center whitespace-nowrap rounded-full bg-secondary px-3.5 text-sm font-semibold hover:shadow-[inset_0_0_0_1px_var(--input)] aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground"
+									>
+										{c.name}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</div>
+				</nav>
+				{groups.length > 0 && <FilterChips groups={groups} label="Filter the products" />}
 			</div>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
-		</div>
+			<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+		</section>
 	);
 };

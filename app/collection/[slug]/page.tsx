@@ -1,24 +1,18 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
+import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { Chip, Stage, tileGridClass } from "@/components/deckle";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { pieces, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -61,47 +55,53 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function Crumbs({ name }: { name?: string }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
+		<nav aria-label="Breadcrumb">
+			<ol className="flex flex-wrap items-center gap-2 text-[0.8125rem] text-muted-foreground">
+				<li>
+					<Link href="/collections" className="hover:text-foreground">
+						Collections
+					</Link>
+				</li>
+				{name && (
+					<li className="inline-flex items-center gap-2">
+						<ChevronRight aria-hidden="true" className="size-3" />
+						<span aria-current="page">{name}</span>
+					</li>
+				)}
+			</ol>
+		</nav>
+	);
+}
+
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
+	const description = richTextToPlain(collection.description);
+	const generic = description.toLowerCase() === `${collection.name} collection`.toLowerCase();
+	return (
+		<div className="mt-6 grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+			<div className="grid justify-items-start gap-6">
+				<Chip tone="soft">{pieces(count)}</Chip>
+				<h1 className="max-w-[20ch] text-title-1 text-balance">{collection.name}</h1>
+				<p className="max-w-[52ch] text-lg text-muted-foreground">
+					{description && !generic
+						? description
+						: `${pieces(count)} gathered to sit side by side, each shown on its own sheet below.`}
+				</p>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
+			{collection.image && <Stage src={collection.image} alt="" caption={collection.name} priority />}
+		</div>
 	);
 }
 
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
+		<>
+			<p className="mt-12 mb-6 min-h-[3.1rem] border-t border-border pt-6">
+				<span className="block h-5 w-48 animate-pulse rounded bg-secondary" />
+			</p>
+			<ProductGridSkeleton />
+		</>
 	);
 }
 
@@ -157,34 +157,47 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
+async function CollectionProducts({
+	products,
+}: {
+	products: Awaited<ReturnType<typeof getCollectionProducts>>;
+}) {
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<>
+			<p className="mt-12 mb-6 flex min-h-[3.1rem] flex-wrap items-baseline gap-x-6 border-t border-border pt-6">
+				<strong className="font-semibold">
+					{products.length === 1 ? "1 product" : `${products.length} products`}
+				</strong>
+			</p>
+			{products.length === 0 ? (
+				<p className="py-16 text-lg text-muted-foreground">Nothing in this collection yet.</p>
+			) : (
+				<ul className={tileGridClass}>
+					{products.map((product, index) => (
+						<li key={product.id}>
+							<ProductCard product={product} priority={index < 2} />
+						</li>
+					))}
+				</ul>
+			)}
+		</>
 	);
 }
 
 function CollectionPageSkeleton() {
+	// As tall as a screen: the footer must not paint in the viewport and then jump.
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
+		<section className="band min-h-svh !pt-6">
+			<Crumbs />
+			<div className="mt-6 grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+				<div className="grid gap-6">
+					<div className="h-6 w-24 animate-pulse rounded-full bg-secondary" />
+					<div className="h-12 w-72 animate-pulse rounded bg-secondary" />
 				</div>
-			</section>
+				<div className="aspect-square animate-pulse rounded-frame bg-stage lg:aspect-[6/5]" />
+			</div>
 			<CollectionProductsSkeleton />
-		</>
+		</section>
 	);
 }
 
@@ -215,29 +228,17 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	// Fetched here, inside the page's one boundary: a nested Suspense would stream the grid in
+	// after the footer has painted and push it down.
+	const products = await getCollectionProducts(collection);
+
 	return (
-		<>
+		<section aria-label={collection.name} className="band !pt-6">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<Crumbs name={collection.name} />
+			<CollectionHeader collection={collection} count={products.length} />
+			<CollectionProducts products={products} />
+		</section>
 	);
 };

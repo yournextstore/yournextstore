@@ -1,7 +1,8 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { SectionHead, TextLink, tileGridClass } from "@/components/deckle";
+import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
+import { picturedFirst } from "@/lib/pictured";
 
 // Cached per category, not per product: every product page in a category shares one
 // browse, and the current product is filtered out afterwards.
@@ -10,38 +11,55 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 9,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
+async function getNewestProducts() {
+	"use cache";
+	cacheLife("minutes");
+	const { data } = await commerce.productBrowse({ active: true, limit: 9 });
+	return data;
 }
 
-async function RelatedProductsContent({
+/**
+ * More pieces, four across. Rendered without a Suspense boundary of its own: inside the page's
+ * boundary it arrives with the details, instead of streaming in after the footer and pushing it.
+ */
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
 	productId: string;
 	categorySlug?: string;
 }) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const [inCategory, newest] = await Promise.all([getCategoryProducts(categorySlug), getNewestProducts()]);
+	const related = [...picturedFirst(inCategory), ...picturedFirst(newest)]
+		.filter((p, index, all) => p.id !== productId && all.findIndex((q) => q.id === p.id) === index)
+		.slice(0, 4);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<section aria-labelledby="more-title" className="band">
+			<SectionHead
+				id="more-title"
+				title="More pieces"
+				action={
+					<TextLink href="/products" arrow>
+						See all products
+					</TextLink>
+				}
+			/>
+			<ul className={tileGridClass}>
+				{related.map((product) => (
+					<li key={product.id}>
+						<ProductCard product={product} />
+					</li>
+				))}
+			</ul>
+		</section>
 	);
 }
