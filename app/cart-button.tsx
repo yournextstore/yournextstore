@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 
+/** The original's outlined "Next drop" pill, now the bag: it fills with ink on hover. */
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
 
@@ -10,18 +10,13 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border-[1.5px] border-ink px-4 text-[0.9rem] font-medium text-ink transition-colors hover:bg-ink hover:text-foam"
+			aria-label={`Bag, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			Bag{" "}
+			<span className="mono text-[0.78rem] tabular-nums" aria-hidden="true">
+				({itemCount})
+			</span>
 		</button>
 	);
 }
