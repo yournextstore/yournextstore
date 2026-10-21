@@ -4,10 +4,12 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
+import { Heading } from "@/components/heading";
 import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
+import { ListingToolbar } from "@/components/listing-toolbar";
+import { CARD_GRID, ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { Separator } from "@/components/separator";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -17,13 +19,16 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
+import { plainText, shortName } from "@/lib/display";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { getFacetControls } from "@/lib/listing";
+import { findSort } from "@/lib/sort";
 
 const PRODUCTS_PER_PAGE = 12;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
+	sort?: string;
 	page?: string;
 	collection?: string;
 	brand?: string;
@@ -106,6 +111,8 @@ async function CategoryProducts({
 		category: slug,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
+		orderBy: findSort(filters.sort).orderBy,
+		orderDirection: findSort(filters.sort).orderDirection,
 		collection: filters.collection,
 		brand: filters.brand,
 		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
@@ -115,8 +122,8 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="rounded-lg border bg-card p-4 shadow-sm">
+				<p>No products match these filters.</p>
 			</div>
 		);
 	}
@@ -125,7 +132,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={CARD_GRID}>
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,9 +149,9 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh pt-4 page-x">
+			<div className="h-5 w-64 animate-pulse rounded bg-muted" />
+			<div className="my-4 h-14 w-72 animate-pulse rounded bg-muted" />
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -187,17 +194,11 @@ const CategoryContent = async ({
 	}
 
 	// Both reads are cached and independent — fetch them in parallel.
-	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
+	const [category, allFacets] = await Promise.all([getCategoryData(slug), getFacetControls()]);
+	const facets = allFacets.filter((facet) => facet.param !== "category");
 	if (!category?.active) {
 		notFound();
 	}
-	// Category facet is hidden here (it's the page context), so don't count it.
-	const filtersAvailable =
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
-
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
 	const currentPath = slugs.join("/");
@@ -206,9 +207,9 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh pt-4 page-x">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
+			<Breadcrumb>
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
@@ -224,9 +225,11 @@ const CategoryContent = async ({
 								<BreadcrumbSeparator />
 								<BreadcrumbItem>
 									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
+										<BreadcrumbPage>{shortName(crumb.name)}</BreadcrumbPage>
 									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
+										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>
+											{shortName(crumb.name)}
+										</BreadcrumbLink>
 									)}
 								</BreadcrumbItem>
 							</Fragment>
@@ -235,25 +238,16 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<Heading
+				as="h1"
+				title={shortName(category.name)}
+				description={plainText(category.description) || "Below is a list of products in this category."}
+			/>
+			<ListingToolbar facets={facets} />
+			<Separator />
+			<Suspense fallback={<ProductGridSkeleton />}>
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+			</Suspense>
 		</div>
 	);
 };

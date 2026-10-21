@@ -1,30 +1,23 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
+/** The original's one-click light/dark switch: an outline icon button. */
 export function ThemeToggle() {
-	const { setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Change theme" />}>
-				{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
-				<Sun className="size-5 dark:hidden" />
-				<Moon className="hidden size-5 dark:block" />
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+		<Button
+			variant="outline"
+			size="icon"
+			aria-label="Toggle dark mode"
+			onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+		>
+			{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
+			<MoonIcon className="h-4 dark:hidden" aria-hidden />
+			<SunIcon className="hidden h-4 dark:block" aria-hidden />
+		</Button>
 	);
 }
