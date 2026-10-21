@@ -1,7 +1,7 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useId, useState } from "react";
+import { Input } from "@/components/ui/input";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +11,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** "Quantity" label over a narrow number field; out-of-range values snap back on blur. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -18,32 +19,30 @@ export function QuantitySelector({
 	max = 99,
 	disabled = false,
 }: QuantitySelectorProps) {
+	const id = useId();
+	const [draft, setDraft] = useState<string | null>(null);
+
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
+		<div className="flex flex-col items-start gap-1">
+			<label htmlFor={id} className="text-sm font-medium leading-none">
+				Quantity
+			</label>
+			<Input
+				id={id}
+				type="number"
+				inputMode="numeric"
+				min={min}
+				max={max}
+				disabled={disabled}
+				value={draft ?? String(quantity)}
+				onChange={(e) => {
+					setDraft(e.target.value);
+					const next = Number(e.target.value);
+					if (Number.isInteger(next) && next >= min && next <= max) onQuantityChange(next);
+				}}
+				onBlur={() => setDraft(null)}
+				className="h-10 w-24"
+			/>
 		</div>
 	);
 }

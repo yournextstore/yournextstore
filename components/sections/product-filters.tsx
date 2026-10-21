@@ -1,11 +1,10 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -25,17 +24,17 @@ import { encodeVts, parseVts } from "@/lib/vts";
 const FILTER_KEYS = ["category", "collection", "brand", "priceMin", "priceMax", "vts"] as const;
 
 // Max entries shown per filter group before collapsing the rest behind "Show more".
-const VISIBLE_ENTRY_LIMIT = 10;
+const VISIBLE_ENTRY_LIMIT = 5;
 
-/** Renders a list of filter entries, truncated to `limit` with a "Show more"/"Show less" toggle. */
+/** A filter group's entries: the first five, then a full-width "Show more …" button (the original's seller list). */
 function CollapsibleList<T>({
 	items,
-	className,
+	noun,
 	renderItem,
 	limit = VISIBLE_ENTRY_LIMIT,
 }: {
 	items: T[];
-	className?: string;
+	noun: string;
 	renderItem: (item: T) => ReactNode;
 	limit?: number;
 }) {
@@ -45,17 +44,41 @@ function CollapsibleList<T>({
 
 	return (
 		<>
-			<ul className={className}>{visible.map(renderItem)}</ul>
+			<ul>{visible.map(renderItem)}</ul>
 			{hasMore && (
-				<button
-					type="button"
+				<Button
+					variant="secondary"
+					size="sm"
+					className="mt-2 w-full"
 					onClick={() => setExpanded((prev) => !prev)}
-					className="mt-2 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
 				>
-					{expanded ? "Show less" : "Show more"}
-				</button>
+					{expanded ? `Collapse ${noun}` : `Show more ${noun}`}
+					{expanded ? <ChevronUpIcon aria-hidden /> : <ChevronDownIcon aria-hidden />}
+				</Button>
 			)}
 		</>
+	);
+}
+
+/** One checkbox row; the box mirrors whether this value is the active filter. */
+function CheckRow({
+	id,
+	label,
+	checked,
+	onChange,
+}: {
+	id: string;
+	label: string;
+	checked: boolean;
+	onChange: (checked: boolean) => void;
+}) {
+	return (
+		<li className="my-2 flex items-center gap-2 py-1">
+			<Checkbox id={id} checked={checked} onCheckedChange={(state) => onChange(state === true)} />
+			<label htmlFor={id} className="cursor-pointer text-sm font-medium leading-none">
+				{label}
+			</label>
+		</li>
 	);
 }
 
@@ -135,189 +158,103 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	// All groups that will render, in display order — only the first opens by default.
-	const accordionGroups = [
-		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
-		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
-		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
-		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
-	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	const single = (key: string, entries: { slug: string; name: string }[], noun: string, heading: string) => (
+		<div className="mt-4">
+			<h3 className="text-xl font-semibold tracking-tight">{heading}</h3>
+			<CollapsibleList
+				items={entries}
+				noun={noun}
+				renderItem={(entry) => (
+					<CheckRow
+						key={entry.slug}
+						id={`${key}-${entry.slug}`}
+						label={entry.name}
+						checked={searchParams.get(key) === entry.slug}
+						onChange={() => setSingle(key, entry.slug)}
+					/>
+				)}
+			/>
+		</div>
+	);
 
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+		<div>
+			<div className="flex w-full items-center justify-between gap-2">
+				<h2 className="text-2xl font-semibold tracking-tight">Filters</h2>
 				{hasActiveFilters && (
-					<button
-						type="button"
-						onClick={clearAll}
-						className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-					>
-						Clear all
-					</button>
+					<Button size="sm" variant="link" className="text-muted-foreground" onClick={clearAll}>
+						Clear filters
+					</Button>
 				)}
 			</div>
 
-			<Accordion multiple defaultValue={accordionDefault} className="w-full">
-				{showCategories && facets.categories.length > 0 && (
-					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.categories}
-								className="space-y-1"
-								renderItem={(category) => {
-									const isActive = searchParams.get("category") === category.slug;
-									return (
-										<li key={category.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("category", category.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{category.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
+			{showCategories &&
+				facets.categories.length > 0 &&
+				single("category", facets.categories, "categories", "Categories")}
+			{showCollections &&
+				facets.collections.length > 0 &&
+				single("collection", facets.collections, "collections", "Collections")}
+			{facets.brands.length > 0 && single("brand", facets.brands, "brands", "Brands")}
 
-				{showCollections && facets.collections.length > 0 && (
-					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.collections}
-								className="space-y-1"
-								renderItem={(collection) => {
-									const isActive = searchParams.get("collection") === collection.slug;
-									return (
-										<li key={collection.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("collection", collection.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{collection.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-
-				{facets.variantTypes.map((vt) => {
-					const selectedValues = optimisticVts[vt.label] ?? [];
-					return (
-						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
-							<AccordionContent>
-								<CollapsibleList
-									items={vt.values}
-									className="space-y-2"
-									renderItem={(value) => {
-										// No spaces: the checkbox names itself through aria-labelledby, a space-separated
-										// id list, so "Dual Color" would point at two ids and leave it unnamed.
-										const id = `${vt.label}-${value}`.replace(/\s+/g, "-");
-										const checked = selectedValues.includes(value);
-										return (
-											<li key={value} className="flex items-center gap-2">
-												<Checkbox
-													id={id}
-													checked={checked}
-													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
-												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
-													{value}
-												</label>
-											</li>
-										);
-									}}
+			{facets.variantTypes.map((vt) => {
+				const selectedValues = optimisticVts[vt.label] ?? [];
+				return (
+					<div key={vt.label} className="mt-4">
+						<h3 className="text-xl font-semibold tracking-tight">{vt.label}</h3>
+						<CollapsibleList
+							items={vt.values}
+							noun="options"
+							renderItem={(value) => (
+								<CheckRow
+									key={value}
+									// No spaces: the checkbox names itself through aria-labelledby, a space-separated
+									// id list, so "Dual Color" would point at two ids and leave it unnamed.
+									id={`${vt.label}-${value}`.replace(/\s+/g, "-")}
+									label={value}
+									checked={selectedValues.includes(value)}
+									onChange={(checked) => toggleVariantValue(vt.label, value, checked)}
 								/>
-							</AccordionContent>
-						</AccordionItem>
-					);
-				})}
+							)}
+						/>
+					</div>
+				);
+			})}
 
-				{facets.brands.length > 0 && (
-					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.brands}
-								className="space-y-1"
-								renderItem={(brand) => {
-									const isActive = searchParams.get("brand") === brand.slug;
-									return (
-										<li key={brand.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("brand", brand.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{brand.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-
-				{hasPrice && (
-					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
-						<AccordionContent>
-							<div className="px-1 pt-2">
-								<Slider
-									value={priceRange}
-									min={priceFloor}
-									max={priceCeil}
-									step={1}
-									minStepsBetweenValues={1}
-									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommitted={(value) => {
-										const [min, max] = value as [number, number];
-										commit((params) => {
-											if (min <= priceFloor) {
-												params.delete("priceMin");
-											} else {
-												params.set("priceMin", String(min));
-											}
-											if (max >= priceCeil) {
-												params.delete("priceMax");
-											} else {
-												params.set("priceMax", String(max));
-											}
-										});
-									}}
-								/>
-								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
-									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
-									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
-								</div>
-							</div>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-			</Accordion>
+			{hasPrice && (
+				<div className="mt-4">
+					<h3 className="text-xl font-semibold tracking-tight">Price</h3>
+					<div className="px-1 pt-4">
+						<Slider
+							value={priceRange}
+							min={priceFloor}
+							max={priceCeil}
+							step={1}
+							minStepsBetweenValues={1}
+							aria-label="Price range"
+							onValueChange={(value) => setPriceRange(value as [number, number])}
+							onValueCommitted={(value) => {
+								const [min, max] = value as [number, number];
+								commit((params) => {
+									if (min <= priceFloor) {
+										params.delete("priceMin");
+									} else {
+										params.set("priceMin", String(min));
+									}
+									if (max >= priceCeil) {
+										params.delete("priceMax");
+									} else {
+										params.set("priceMax", String(max));
+									}
+								});
+							}}
+						/>
+						<div className="mt-3 flex justify-between text-sm text-muted-foreground">
+							<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
+							<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -325,7 +262,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 /** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
 export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
 	return (
-		<aside className={cn("hidden lg:block", className)}>
+		<aside className={cn("hidden rounded-md border border-border p-6 lg:block", className)}>
 			<FilterControls {...props} />
 		</aside>
 	);

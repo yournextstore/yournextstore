@@ -1,28 +1,27 @@
-import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
+import { CircleHelp, Lock, Truck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type TrustBadge = {
-	icon: LucideIcon;
-	title: string;
-	description: string;
-};
-
-const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+const features = [
+	{ icon: Truck, label: "Delivery at checkout" },
+	{ icon: Lock, label: "Secure payment" },
+	{ icon: CircleHelp, label: "Help Centre" },
 ];
 
-export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
+/** Three icon-over-label notes under the buy button: neutral, nothing the store has not set. */
+export function FeatureIcons({ className }: { className?: string }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
-			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
+		<ul
+			className={cn(
+				"flex items-center justify-between gap-8 rounded-md p-4 text-center sm:gap-4 md:w-fit",
+				className,
+			)}
+		>
+			{features.map(({ icon: Icon, label }) => (
+				<li key={label} className="flex flex-col items-center justify-center gap-2 sm:mx-4">
+					<Icon aria-hidden />
+					<span className="text-sm">{label}</span>
+				</li>
 			))}
-		</div>
+		</ul>
 	);
 }

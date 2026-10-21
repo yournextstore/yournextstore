@@ -88,8 +88,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className="w-full md:col-span-4">
+				<div className="flex h-96 w-full items-center justify-center bg-secondary">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -99,13 +99,12 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
 		<section
-			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="w-full outline-none md:col-span-4"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative h-96 w-full overflow-hidden bg-secondary">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -121,7 +120,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						src={displayImages[selectedIndex] ?? ""}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
+						sizes="(max-width: 768px) 100vw, 45vw"
 						className={cn(
 							"object-cover transition-transform duration-500",
 							isZoomed && "scale-150 cursor-zoom-out",
@@ -182,14 +181,14 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="mt-2 flex flex-nowrap items-center justify-start gap-2 overflow-auto p-1">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative h-24 w-24 shrink-0 overflow-hidden transition-all duration-200",
 								selectedIndex === index
 									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
