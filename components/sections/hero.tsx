@@ -1,42 +1,37 @@
-import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+import { editorialImages } from "@/lib/catalog";
+import { YNSMedia } from "@/lib/yns-media";
 
+/** Solace hero: a letterbox lifestyle photograph, then the headline with the CTA and a right-set intro. */
 export function Hero() {
+	const image = editorialImages.hero;
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
+		<section>
+			<div className="relative h-[10.5rem] w-full bg-secondary sm:h-[23rem] huge:h-[29.25rem]">
+				<YNSMedia
+					src={image.src}
+					alt={image.alt}
+					fill
+					priority
+					sizes="100vw"
+					className="object-cover object-[50%_55%]"
+				/>
+			</div>
+			<div className="shell flex flex-col gap-2 py-6 sm:gap-8 sm:py-10">
+				<h1 className="max-w-full text-heading-lg sm:max-w-[32rem] md:text-heading-xl">
+					Low, soft furniture for calm rooms
+				</h1>
+				<div className="flex flex-col-reverse justify-between gap-8 md:flex-row md:items-center">
+					<Link href="/products" className="pill w-max">
+						Explore now
+					</Link>
+					<p className="max-w-full text-lead md:max-w-[25.625rem] md:text-end">
+						Sofas, lounge chairs, solid ash dining pieces and travertine tables, sold direct and sized for
+						real homes.
+					</p>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
 		</section>
 	);
 }

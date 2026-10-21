@@ -1,5 +1,28 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's type scale (globals.css) is unknown to tailwind-merge, which would read
+// `text-copy` as a colour and drop it next to `text-muted-foreground`.
+const twMerge = extendTailwindMerge({
+	extend: {
+		classGroups: {
+			"font-size": [
+				{
+					text: [
+						"caption",
+						"copy",
+						"lead",
+						"heading-xs",
+						"heading-sm",
+						"heading-md",
+						"heading-lg",
+						"heading-xl",
+					],
+				},
+			],
+		},
+	},
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

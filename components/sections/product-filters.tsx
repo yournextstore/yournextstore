@@ -4,10 +4,11 @@ import type { APIProductFiltersResult } from "commerce-kit";
 import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
+import { ChevronDownIcon } from "@/components/icons";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
 	Sheet,
 	SheetContent,
@@ -65,8 +66,7 @@ type FilterControlsProps = {
 	showCollections?: boolean;
 };
 
-function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
-	const { currency, locale } = useStoreConfig();
+function useFilterActions(facets: APIProductFiltersResult) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -124,6 +124,20 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 		});
 	};
 
+	const commitPrice = ([min = priceFloor, max = priceCeil]: number[]) =>
+		commit((params) => {
+			if (min <= priceFloor) {
+				params.delete("priceMin");
+			} else {
+				params.set("priceMin", String(min));
+			}
+			if (max >= priceCeil) {
+				params.delete("priceMax");
+			} else {
+				params.set("priceMax", String(max));
+			}
+		});
+
 	const clearAll = () => {
 		setPriceRange([priceFloor, priceCeil]);
 		commit((params) => {
@@ -133,8 +147,39 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 		});
 	};
 
-	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
-	const hasPrice = priceCeil > priceFloor;
+	return {
+		searchParams,
+		optimisticVts,
+		priceFloor,
+		priceCeil,
+		priceRange,
+		setPriceRange,
+		setSingle,
+		toggleVariantValue,
+		commitPrice,
+		clearAll,
+		hasActiveFilters: FILTER_KEYS.some((key) => searchParams.has(key)),
+		hasPrice: priceCeil > priceFloor,
+	};
+}
+
+function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+	const { currency, locale } = useStoreConfig();
+	const {
+		searchParams,
+		optimisticVts,
+		priceFloor,
+		priceCeil,
+		priceRange,
+		setPriceRange,
+		setSingle,
+		toggleVariantValue,
+		commitPrice,
+		clearAll,
+		hasActiveFilters,
+		hasPrice,
+	} = useFilterActions(facets);
+
 	// All groups that will render, in display order — only the first opens by default.
 	const accordionGroups = [
 		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
@@ -291,20 +336,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									step={1}
 									minStepsBetweenThumbs={1}
 									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommit={([min = priceFloor, max = priceCeil]) =>
-										commit((params) => {
-											if (min <= priceFloor) {
-												params.delete("priceMin");
-											} else {
-												params.set("priceMin", String(min));
-											}
-											if (max >= priceCeil) {
-												params.delete("priceMax");
-											} else {
-												params.set("priceMax", String(max));
-											}
-										})
-									}
+									onValueCommit={commitPrice}
 								/>
 								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
 									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
@@ -319,16 +351,144 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	);
 }
 
-/** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
-export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
+const dropdownTrigger =
+	"inline-flex h-12 items-center gap-2 border border-border bg-background px-3 text-copy transition-colors hover:bg-secondary data-[state=open]:border-foreground";
+const optionRow =
+	"flex w-full items-center gap-3 px-3 py-2.5 text-left text-copy transition-colors hover:bg-secondary";
+
+function FilterDropdown({ label, count, children }: { label: string; count: number; children: ReactNode }) {
 	return (
-		<aside className={cn("hidden lg:block", className)}>
-			<FilterControls {...props} />
-		</aside>
+		<Popover>
+			<PopoverTrigger className={dropdownTrigger}>
+				{label}
+				{count > 0 && (
+					<span className="flex size-5 items-center justify-center rounded-full bg-foreground text-caption text-background">
+						{count}
+					</span>
+				)}
+				<ChevronDownIcon className="size-4" />
+			</PopoverTrigger>
+			<PopoverContent
+				align="start"
+				sideOffset={4}
+				className="max-h-80 w-64 overflow-y-auto rounded-none border border-foreground p-1 shadow-none"
+			>
+				{children}
+			</PopoverContent>
+		</Popover>
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** 640px and up: the original's row of square dropdown filters above the grid. */
+export function ProductFilters({
+	facets,
+	showCategories = true,
+	showCollections = true,
+	className,
+}: FilterControlsProps & { className?: string }) {
+	const { currency, locale } = useStoreConfig();
+	const {
+		searchParams,
+		optimisticVts,
+		priceFloor,
+		priceCeil,
+		priceRange,
+		setPriceRange,
+		setSingle,
+		toggleVariantValue,
+		commitPrice,
+		clearAll,
+		hasActiveFilters,
+		hasPrice,
+	} = useFilterActions(facets);
+
+	const single = (key: "category" | "collection" | "brand", items: { slug: string; name: string }[]) =>
+		items.map((item) => {
+			const active = searchParams.get(key) === item.slug;
+			return (
+				<button key={item.slug} type="button" onClick={() => setSingle(key, item.slug)} className={optionRow}>
+					<span
+						aria-hidden="true"
+						className={cn("size-4 shrink-0 rounded-full border border-foreground", active && "border-[5px]")}
+					/>
+					{item.name}
+				</button>
+			);
+		});
+
+	return (
+		<div className={cn("hidden flex-wrap items-center gap-2 sm:flex", className)}>
+			{showCollections && facets.collections.length > 0 && (
+				<FilterDropdown label="Collections" count={searchParams.has("collection") ? 1 : 0}>
+					{single("collection", facets.collections)}
+				</FilterDropdown>
+			)}
+			{showCategories && facets.categories.length > 0 && (
+				<FilterDropdown label="Product type" count={searchParams.has("category") ? 1 : 0}>
+					{single("category", facets.categories)}
+				</FilterDropdown>
+			)}
+			{facets.variantTypes.map((vt) => {
+				const selected = optimisticVts[vt.label] ?? [];
+				return (
+					<FilterDropdown key={vt.label} label={vt.label} count={selected.length}>
+						{vt.values.map((value) => {
+							const id = `inline-${vt.label}-${value}`;
+							return (
+								<label key={value} htmlFor={id} className={cn(optionRow, "cursor-pointer")}>
+									<Checkbox
+										id={id}
+										checked={selected.includes(value)}
+										onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
+									/>
+									{value}
+								</label>
+							);
+						})}
+					</FilterDropdown>
+				);
+			})}
+			{facets.brands.length > 0 && (
+				<FilterDropdown label="Brand" count={searchParams.has("brand") ? 1 : 0}>
+					{single("brand", facets.brands)}
+				</FilterDropdown>
+			)}
+			{hasPrice && (
+				<FilterDropdown
+					label="Price"
+					count={searchParams.has("priceMin") || searchParams.has("priceMax") ? 1 : 0}
+				>
+					<div className="px-3 pt-4 pb-3">
+						<Slider
+							value={priceRange}
+							min={priceFloor}
+							max={priceCeil}
+							step={1}
+							minStepsBetweenThumbs={1}
+							onValueChange={(value) => setPriceRange(value as [number, number])}
+							onValueCommit={commitPrice}
+						/>
+						<div className="mt-3 flex justify-between text-caption text-muted-foreground">
+							<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
+							<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
+						</div>
+					</div>
+				</FilterDropdown>
+			)}
+			{hasActiveFilters && (
+				<button
+					type="button"
+					onClick={clearAll}
+					className="h-12 px-3 text-copy underline underline-offset-4 hover:no-underline"
+				>
+					Clear all
+				</button>
+			)}
+		</div>
+	);
+}
+
+/** Phones: a tonal "Filters" pill opening the filter sheet. */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
@@ -336,22 +496,22 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
+				<button type="button" className="pill pill-tonal w-full sm:hidden">
+					<SlidersHorizontalIcon className="size-4" aria-hidden="true" />
 					Filters
 					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+						<span className="flex size-5 items-center justify-center rounded-full bg-foreground text-caption text-background">
 							{activeCount}
 						</span>
 					)}
-				</Button>
+				</button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+			<SheetContent side="left" className="block w-full overflow-y-auto sm:max-w-sm">
+				<SheetHeader className="border-b border-border">
+					<SheetTitle className="text-heading-xs font-normal">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
-				<div className="px-4 pb-8">
+				<div className="px-4 pt-4 pb-8">
 					<FilterControls {...props} />
 				</div>
 			</SheetContent>
