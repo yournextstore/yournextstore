@@ -1,42 +1,49 @@
-import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { HeroCarousel } from "@/components/hero-carousel";
+import { getHeroSlides } from "@/lib/catalog";
 
-export function Hero() {
+export async function Hero() {
+	const slides = await getHeroSlides();
+	if (slides.length === 0) return null;
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
+		<HeroCarousel
+			slides={slides.map((slide, index) => ({
+				id: slide.id,
+				node: (
+					<div className="relative aspect-[1.9/3] w-full bg-hero md:aspect-[16/7]">
+						<Image
+							src={slide.image}
+							alt=""
+							fill
+							sizes="100vw"
+							priority={index === 0}
+							className="object-cover object-[92%_50%] md:object-[center_35%]"
+						/>
+						<div
+							aria-hidden="true"
+							className="absolute inset-y-0 left-0 hidden w-3/5 bg-linear-to-r from-hero/90 via-hero/60 to-transparent md:block"
+						/>
+						<div
+							aria-hidden="true"
+							className="absolute inset-x-0 bottom-0 h-3/5 bg-linear-to-t from-hero via-hero/85 to-transparent md:hidden"
+						/>
+						<div className="absolute inset-0 flex flex-col items-center justify-end gap-5 px-4 pb-16 md:mx-16 md:items-start md:justify-center md:px-0 md:pb-0">
+							<p className="max-w-3xl text-center font-extrabold text-5xl text-bar uppercase leading-none wrap-break-word md:text-left md:text-7xl">
+								{slide.title}
+							</p>
 							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
+								href={slide.href}
+								aria-label={`Shop now: ${slide.title}`}
+								className="btn-sun rounded px-4 py-2 uppercase"
 							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
+								Shop now
 							</Link>
 						</div>
 					</div>
-				</div>
-			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
-		</section>
+				),
+			}))}
+		/>
 	);
 }

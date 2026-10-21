@@ -8,7 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-arimo), Arial, "Helvetica Neue", Helvetica, sans-serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +32,82 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-bar: var(--bar);
+	--color-bar-foreground: var(--bar-foreground);
+	--color-sun: var(--sun);
+	--color-sun-hover: var(--sun-hover);
+	--color-sale: var(--sale);
+	--color-tile: var(--tile);
+	--color-band: var(--band);
+	--color-band-deep: var(--band-deep);
+	--color-ink-soft: var(--ink-soft);
+	--color-hero: var(--hero);
 }
 
+/* SwiftMarket: charcoal bar, white page, grey product tiles, yellow-300 buttons, grey-100 footer. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.25rem;
+	--background: #ffffff;
+	--foreground: #111111;
+	--card: #ffffff;
+	--card-foreground: #111111;
+	--popover: #ffffff;
+	--popover-foreground: #111111;
+	--primary: #282828;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #111111;
+	--muted: #f3f4f6;
+	--muted-foreground: #4b5563;
+	--accent: #fde047;
+	--accent-foreground: #000000;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #d1d5db;
+	--ring: #282828;
+	--bar: #282828;
+	--bar-foreground: #ffffff;
+	--sun: #fde047;
+	--sun-hover: #eab308;
+	--sale: #dc2626;
+	--tile: #f5f5f5;
+	--band: #f3f4f6;
+	--band-deep: #e5e7eb;
+	--ink-soft: #1f2937;
+	--hero: #f8f7f5;
 }
 
+/* Light-only design: the dark block repeats the light palette so the palette test checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.25rem;
+	--background: #ffffff;
+	--foreground: #111111;
+	--card: #ffffff;
+	--card-foreground: #111111;
+	--popover: #ffffff;
+	--popover-foreground: #111111;
+	--primary: #282828;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #111111;
+	--muted: #f3f4f6;
+	--muted-foreground: #4b5563;
+	--accent: #fde047;
+	--accent-foreground: #000000;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #d1d5db;
+	--ring: #282828;
+	--bar: #282828;
+	--bar-foreground: #ffffff;
+	--sun: #fde047;
+	--sun-hover: #eab308;
+	--sale: #dc2626;
+	--tile: #f5f5f5;
+	--band: #f3f4f6;
+	--band-deep: #e5e7eb;
+	--ink-soft: #1f2937;
+	--hero: #f8f7f5;
 }
 
 @layer base {
@@ -84,6 +116,7 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-arimo), Arial, "Helvetica Neue", Helvetica, sans-serif;
 	}
 }
 
@@ -150,4 +183,49 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* The original's yellow-300 action: square, bold, black label. */
+@layer components {
+	.btn-sun {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		background: var(--sun);
+		color: #000;
+		font-weight: 700;
+		transition: background-color 150ms;
+	}
+	.btn-sun:hover {
+		background: var(--sun-hover);
+	}
+	.btn-sun:disabled,
+	.btn-sun[aria-disabled="true"] {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+
+
+@keyframes hero-progress {
+	from {
+		width: 0;
+	}
+	to {
+		width: 100%;
+	}
+}
+
+.hero-progress {
+	animation-name: hero-progress;
+	animation-timing-function: linear;
+	animation-fill-mode: both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-progress {
+		animation: none;
+	}
 }
