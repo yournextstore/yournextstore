@@ -1,58 +1,49 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
+/** Mobile drawer from the original: a start-side panel with a close chip and plain links. */
 export function Navbar({ links }: { links: NavLink[] }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger aria-label="Open menu" className="chip-btn md:hidden">
+				<Menu className="size-7" strokeWidth={1.75} aria-hidden="true" />
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				showCloseButton={false}
+				className="gap-6 overflow-y-auto p-4 data-[side=left]:w-[min(20rem,85vw)]"
+			>
+				<SheetTitle className="sr-only">Navigation menu</SheetTitle>
+				<SheetClose
+					aria-label="Close menu"
+					className="inline-flex size-10 items-center justify-center self-start rounded-full text-(--rose) transition hover:bg-accent"
 				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+					<X className="size-6" aria-hidden="true" />
+				</SheetClose>
+				<nav aria-label="Mobile navigation" className="flex flex-col gap-4">
+					{links.map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							onClick={() => setOpen(false)}
+							className="text-base text-foreground underline-offset-4 hover:underline"
+						>
+							{link.label}
+						</Link>
+					))}
+				</nav>
+			</SheetContent>
+		</Sheet>
 	);
 }

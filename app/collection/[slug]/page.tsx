@@ -5,7 +5,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { ProductCard } from "@/components/product-card";
+import { CARD_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
@@ -18,8 +19,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { cn } from "@/lib/utils";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -64,47 +65,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
+		<div className="mb-8 text-center">
+			<h1 className="text-4xl font-semibold tracking-tight">{collection.name}</h1>
+			{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
+			{typeof collection.description === "string" ? (
+				<p className="mx-auto mt-2 max-w-2xl text-[1.125rem] leading-relaxed text-muted-foreground">
+					{collection.description}
+				</p>
+			) : collection.description ? (
+				<div className="prose tiptap-content mx-auto mt-2 max-w-2xl text-[1.125rem] leading-relaxed text-muted-foreground">
+					<TiptapRenderer content={collection.description} />
 				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
+			) : null}
+		</div>
 	);
 }
 
@@ -163,31 +136,33 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
+	if (products.length === 0) {
+		return (
+			<div className="space-y-2">
+				<p className="mx-auto max-w-xl rounded-lg bg-amber-100 px-4 py-3 text-start text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100">
+					No products found in this collection yet.
+				</p>
+				<ProductGrid title="Meanwhile, in the shop" limit={4} showViewAll />
+			</div>
+		);
+	}
+
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<div className={cn(CARD_GRID, "lg:grid-cols-3")}>
+			{products.map((product, index) => (
+				<ProductCard key={product.id} product={product} priority={index === 0} />
+			))}
+		</div>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		<div className="mx-auto min-h-svh max-w-[82rem] px-4 py-10 sm:py-12">
+			<div className="mb-6 h-5 w-48 animate-pulse rounded bg-muted" />
+			<div className="mx-auto mb-8 h-10 w-72 animate-pulse rounded bg-muted" />
+			<ProductGridSkeleton className="lg:grid-cols-3" />
+		</div>
 	);
 }
 
@@ -222,8 +197,8 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
+			<div className="mx-auto min-h-svh max-w-[82rem] px-4 py-10 sm:py-12">
+				<Breadcrumb className="mb-6">
 					<BreadcrumbList>
 						<BreadcrumbItem>
 							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
@@ -234,11 +209,9 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 						</BreadcrumbItem>
 					</BreadcrumbList>
 				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
+				<CollectionHeader collection={collection} />
 				<CollectionProducts collection={collection} />
-			</Suspense>
+			</div>
 		</>
 	);
 };

@@ -22,12 +22,12 @@ export const faqCategories: FAQCategory[] = [
 			{
 				question: "How long does order processing take?",
 				answer:
-					"Most orders are processed within 1–3 business days. Processing times may vary depending on product availability and order volume. You'll receive a confirmation email once your order has shipped.",
+					"Processing times depend on the product and on demand. You'll receive a confirmation email when you order and another one once your order has shipped.",
 			},
 			{
 				question: "Can I request an invoice for my order?",
 				answer:
-					"Yes. If you need an invoice, please make sure to provide your billing details during checkout. The invoice will be sent to your email along with the order confirmation.",
+					"If you need an invoice, provide your billing details during checkout, or contact us with your order number.",
 			},
 			{
 				question: "Can I add special instructions to my order?",
@@ -48,7 +48,7 @@ export const faqCategories: FAQCategory[] = [
 			{
 				question: "Is my payment information secure?",
 				answer:
-					"Absolutely. All payments are processed through a PCI-compliant payment provider. We never store your full card details on our servers.",
+					"Yes. Payments are processed by a PCI-compliant payment provider, and your full card details are never stored by the store.",
 			},
 			{
 				question: "My payment failed. What should I do?",
@@ -58,7 +58,7 @@ export const faqCategories: FAQCategory[] = [
 			{
 				question: "When will I be charged?",
 				answer:
-					"Your payment is processed at the time of purchase. For pre-order items, you may be charged at the time of ordering or when the item ships, depending on the product.",
+					"Your payment is taken when you complete checkout. The total, including any shipping and taxes, is shown before you pay.",
 			},
 		],
 	},
@@ -68,28 +68,26 @@ export const faqCategories: FAQCategory[] = [
 		questions: [
 			{
 				question: "What are your shipping options?",
-				answer:
-					"We offer standard and express shipping options. Available methods and estimated delivery times are displayed at checkout based on your location.",
+				answer: "The shipping methods available for your address, with their costs, are shown at checkout.",
 			},
 			{
 				question: "Do you ship internationally?",
-				answer:
-					"Yes, we ship to many countries worldwide. International shipping options and costs are calculated at checkout based on your delivery address.",
+				answer: "Enter your delivery address at checkout to see whether we ship there and what it costs.",
 			},
 			{
 				question: "How can I track my order?",
 				answer:
-					"Once your order has shipped, you'll receive a confirmation email with a tracking number and a link to track your package in real time.",
+					"Once your order has shipped, you'll receive an email with the shipping details, including tracking information when the carrier provides it.",
 			},
 			{
 				question: "What should I do if my package arrives damaged?",
 				answer:
-					"If your order arrives damaged, please document the damage with photos and contact us immediately. We'll work with you to resolve the issue as quickly as possible.",
+					"If your order arrives damaged, take photos of the damage and the packaging and contact us with your order number. Our policy pages explain what happens next.",
 			},
 			{
 				question: "Can I combine multiple orders to save on shipping?",
 				answer:
-					"Unfortunately, we're unable to combine separate orders into a single shipment. To take advantage of any free shipping thresholds, make sure to add all items to a single order before checking out.",
+					"Each order ships on its own. To make the most of any shipping offer shown in the store, add everything you need to a single order before checking out.",
 			},
 		],
 	},
@@ -100,22 +98,22 @@ export const faqCategories: FAQCategory[] = [
 			{
 				question: "What is your return policy?",
 				answer:
-					"We accept returns within 14 days of delivery. Items must be unused, in their original packaging, and in the same condition as received. Please refer to our returns policy page for full details.",
+					"Our return conditions are set out on the store's policy pages, linked in the footer. Please read them before sending anything back.",
 			},
 			{
 				question: "How do I initiate a return?",
 				answer:
-					"To start a return, contact our support team with your order number and the reason for the return. We'll provide you with return instructions and, if applicable, a return shipping label.",
+					"Contact us with your order number and the reason for the return, and we'll explain the next steps under our returns policy.",
 			},
 			{
 				question: "How do exchanges work?",
 				answer:
-					"Exchanges are handled as a return followed by a new order. Simply return the original item and place a new order for the item you'd like instead.",
+					"An exchange is handled as a return followed by a new order: return the original item under our returns policy and order the one you'd like instead.",
 			},
 			{
 				question: "How long does it take to receive a refund?",
 				answer:
-					"Once we receive and inspect your returned item, refunds are typically processed within 5–10 business days. The refund will be credited to your original payment method.",
+					"Refunds are handled as described in our returns policy and go back to your original payment method. How long it takes to appear also depends on your bank.",
 			},
 		],
 	},
@@ -124,9 +122,8 @@ export const faqCategories: FAQCategory[] = [
 		title: "Discounts & Promotions",
 		questions: [
 			{
-				question: "Do you offer discounts for new customers?",
-				answer:
-					"Yes! New customers can subscribe to our newsletter to receive a welcome discount. Look for the signup form on our homepage.",
+				question: "Do you run discounts or offers?",
+				answer: "Any current offers are announced in the store and, if you subscribe, in our newsletter.",
 			},
 			{
 				question: "How do I apply a discount code?",
@@ -136,7 +133,7 @@ export const faqCategories: FAQCategory[] = [
 			{
 				question: "Can I use multiple discount codes on one order?",
 				answer:
-					"Only one discount code can be applied per order. The system will automatically use the code that provides the best value if multiple are entered.",
+					"Enter your code at checkout; the checkout shows whether it applies to your order and how codes can be combined.",
 			},
 		],
 	},

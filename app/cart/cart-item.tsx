@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -101,76 +101,63 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<li className="relative flex w-full justify-between gap-3 px-1 py-4">
+			<button
+				type="button"
+				onClick={handleRemove}
+				disabled={isPending}
+				aria-label={`Remove ${product.name}`}
+				className="absolute start-[52px] top-2 z-10 flex size-6 items-center justify-center rounded-full disabled:opacity-50"
+			>
+				<span className="flex size-[17px] items-center justify-center rounded-full bg-neutral-500 text-white dark:text-black">
+					<X className="size-3.5" aria-hidden="true" />
+				</span>
+			</button>
+
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="flex min-w-0 flex-1 gap-3 hover:[&_.name]:underline"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				<span className="relative h-24 w-18 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
+					{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="72px" />}
+				</span>
+				<span className="flex min-w-0 flex-1 flex-col text-sm sm:text-base">
+					<span className="name line-clamp-2 leading-tight break-words">{product.name}</span>
+					{options ? <span className="mt-1 text-sm text-muted-foreground capitalize">{options}</span> : null}
+					{item.subscriptionPlan ? (
+						<span className="mt-1 text-sm text-muted-foreground">{planLabel(item.subscriptionPlan)}</span>
+					) : null}
+				</span>
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
-						<Link
-							href={`/product/${product.slug}`}
-							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-						>
-							{product.name}
-						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
-						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
-						)}
-					</div>
+			<div className="flex min-h-24 shrink-0 flex-col items-end justify-between gap-2">
+				<span className="text-sm font-semibold">{formatMoney({ amount: lineTotal, currency, locale })}</span>
+				<div
+					className={cn(
+						"flex h-9 items-center rounded-lg border border-border transition-opacity",
+						isPending && "opacity-70",
+					)}
+				>
 					<button
 						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						onClick={handleDecrement}
+						className="flex h-full w-9 items-center justify-center rounded-s-lg text-neutral-600 transition hover:text-blue-500 dark:text-neutral-400"
+						aria-label={`Decrease quantity of ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Minus className="size-4" aria-hidden="true" />
+					</button>
+					<span className="w-6 text-center text-sm tabular-nums">{quantity}</span>
+					<button
+						type="button"
+						onClick={handleIncrement}
+						className="flex h-full w-9 items-center justify-center rounded-e-lg text-neutral-600 transition hover:text-blue-500 dark:text-neutral-400"
+						aria-label={`Increase quantity of ${product.name}`}
+					>
+						<Plus className="size-4" aria-hidden="true" />
 					</button>
 				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
 			</div>
-		</div>
+		</li>
 	);
 }

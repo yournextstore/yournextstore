@@ -6,7 +6,7 @@ import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { CARD_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
@@ -19,6 +19,7 @@ import {
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { cn } from "@/lib/utils";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -125,7 +126,7 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={cn(CARD_GRID, "lg:grid-cols-3")}>
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,10 +143,10 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="mx-auto min-h-svh max-w-[82rem] px-4 py-10 sm:py-12">
+			<div className="mb-6 h-5 w-64 animate-pulse rounded bg-muted" />
+			<div className="mx-auto mb-8 h-10 w-72 animate-pulse rounded bg-muted" />
+			<ProductGridSkeleton className="lg:grid-cols-3" />
 		</div>
 	);
 }
@@ -206,7 +207,7 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto min-h-svh max-w-[82rem] px-4 py-10 sm:py-12">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
@@ -235,8 +236,8 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+			<div className="mb-8 text-center">
+				<h1 className="text-4xl font-semibold tracking-tight">{category.name}</h1>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
@@ -249,7 +250,7 @@ const CategoryContent = async ({
 						</div>
 					)}
 
-					<Suspense fallback={<ProductGridSkeleton />}>
+					<Suspense fallback={<ProductGridSkeleton className="lg:grid-cols-3" />}>
 						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 					</Suspense>
 				</div>

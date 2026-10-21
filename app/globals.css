@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -37,46 +37,67 @@
 
 :root {
 	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
+	/* Original palette: neutral oklch greys, rose-800 (#9f1239) for actions and icons. */
 	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--foreground: oklch(0.15 0 0);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.15 0 0);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.15 0 0);
+	--primary: #9f1239;
+	--primary-foreground: #ffffff;
+	--secondary: oklch(0.97 0 0);
+	--secondary-foreground: oklch(0.15 0 0);
+	/* The original's "secondary" button (checkout): rose-300 with rose-950 text. */
+	--pink: #fda4af;
+	--pink-hover: #fb7185;
+	--pink-foreground: #4c0519;
+	--muted: oklch(0.97 0 0);
+	--muted-foreground: oklch(0.47 0 0);
+	--accent: oklch(0.97 0 0);
+	--accent-foreground: oklch(0.15 0 0);
+	--destructive: #dc2626;
+	--border: oklch(0.92 0 0);
+	--input: oklch(0.87 0 0);
+	--ring: oklch(0.7 0 0);
+	--rose: #9f1239;
+	--rose-hover: #881337;
+	--rose-tint: #fff1f2;
+	--badge: #4f46e5;
+	--icon-blue: #2563eb;
+	--icon-blue-tint: #eff6ff;
+	--surface: oklch(0.985 0 0);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: oklch(0.15 0 0);
+	--foreground: oklch(0.98 0 0);
+	--card: oklch(0.12 0 0);
+	--card-foreground: oklch(0.98 0 0);
+	--popover: oklch(0.18 0 0);
+	--popover-foreground: oklch(0.98 0 0);
+	--primary: #e11d48;
+	--primary-foreground: #ffffff;
+	--secondary: oklch(0.22 0 0);
+	--secondary-foreground: oklch(0.98 0 0);
+	--pink: #9f1239;
+	--pink-hover: #be123c;
+	--pink-foreground: #ffffff;
+	--muted: oklch(0.22 0 0);
+	--muted-foreground: oklch(0.74 0 0);
+	--accent: oklch(0.22 0 0);
+	--accent-foreground: oklch(0.98 0 0);
+	--destructive: #f87171;
+	--border: oklch(0.26 0 0);
+	--input: oklch(0.32 0 0);
+	--ring: oklch(0.45 0 0);
+	--rose: #fb7185;
+	--rose-hover: #fda4af;
+	--rose-tint: #2a1018;
+	--badge: #6366f1;
+	--icon-blue: #60a5fa;
+	--icon-blue-tint: #172554;
+	--surface: oklch(0.19 0 0);
 }
 
 @layer base {
@@ -85,6 +106,68 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	}
+}
+
+@layer components {
+	/* Rounded white "chip" icon buttons from the original header (shadow-sm, rose glyph). */
+	.chip-btn {
+		@apply relative inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-background text-(--rose) shadow-sm transition hover:bg-accent hover:shadow-md dark:bg-neutral-900 dark:hover:bg-neutral-800;
+	}
+	.btn-rose {
+		@apply inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-(--rose-hover) dark:hover:bg-[#be123c];
+	}
+	.layout-container {
+		@apply mx-auto w-full max-w-[86rem] px-4 md:px-8;
+	}
+	.faq-item {
+		@apply overflow-hidden rounded-xl border border-foreground/15 bg-background;
+	}
+	.faq-summary {
+		@apply flex cursor-pointer list-none items-center gap-3 px-5 py-4;
+	}
+	.faq-summary::-webkit-details-marker {
+		display: none;
+	}
+	.faq-icon {
+		@apply flex size-[26px] shrink-0 items-center justify-center rounded-full bg-foreground/8 text-foreground/70 transition;
+	}
+	.faq-item[open] .faq-icon {
+		@apply bg-foreground/15 text-foreground;
+	}
+	.faq-question {
+		@apply flex-1 text-[0.95rem] font-medium text-foreground/80;
+	}
+	.faq-item[open] .faq-question {
+		@apply text-foreground;
+	}
+	.faq-body {
+		@apply border-t border-foreground/12 px-5 pt-3.5 pb-[18px] text-[0.9rem] leading-[1.7] text-foreground/85;
+	}
+}
+
+@keyframes marquee {
+	from {
+		transform: translate3d(0, 0, 0);
+	}
+	to {
+		transform: translate3d(-50%, 0, 0);
+	}
+}
+
+.marquee-track {
+	animation: marquee 60s linear infinite;
+}
+
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+	animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.marquee-track {
+		animation: none;
 	}
 }
 

@@ -3,11 +3,12 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
+import { type CardProduct, ProductCard } from "@/components/product-card";
+import { CARD_GRID } from "@/components/product-grid-skeleton";
 import { commerce } from "@/lib/commerce";
+import { cn } from "@/lib/utils";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -22,56 +23,101 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	className?: string;
 };
 
+/** Archive block in grid mode: an uppercase centred intro over a 2/4-column card grid. */
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Featured products",
+	description,
 	products,
-	limit = 6,
+	limit = 8,
 	showViewAll = true,
 	viewAllHref = "/products",
+	className,
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	if (displayProducts.length === 0) return null;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				)}
+		<section className={cn("mx-auto max-w-[82rem] px-4 py-12 sm:py-16", className)}>
+			<div className="mx-auto mb-8 max-w-3xl text-center">
+				<h2 className="text-2xl tracking-tight uppercase">{title}</h2>
+				{description ? <p className="mt-2 text-sm text-muted-foreground">{description}</p> : null}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className={CARD_GRID}>
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
+			{showViewAll ? (
+				<div className="mt-8 text-center">
+					<Link href={viewAllHref} className="btn-rose">
 						View all products
-						<ArrowRight className="h-4 w-4" />
 					</Link>
 				</div>
-			)}
+			) : null}
+		</section>
+	);
+}
+
+/**
+ * Archive block in "autoScroll" mode: the row drifts sideways and pauses on hover or focus.
+ * The second copy only closes the loop; it is hidden from assistive tech and the tab order.
+ */
+export async function ProductMarquee({
+	title,
+	products,
+	align = "center",
+}: {
+	title: string;
+	products: CardProduct[];
+	align?: "center" | "start";
+}) {
+	if (products.length === 0) return null;
+	const animate = products.length >= 3;
+	const item = "w-[44vw] max-w-[21rem] shrink-0 md:w-[29vw] lg:w-[22vw] lg:max-w-[20rem]";
+
+	return (
+		<section
+			aria-label={title}
+			className={cn("mx-auto max-w-[82rem]", align === "center" ? "px-4 py-12 sm:py-16" : "pt-8")}
+		>
+			<h2
+				className={cn(
+					align === "center"
+						? "mb-8 text-center text-2xl tracking-tight uppercase"
+						: "mb-4 text-lg font-semibold",
+				)}
+			>
+				{title}
+			</h2>
+			<div className="marquee overflow-hidden motion-reduce:overflow-x-auto">
+				<div
+					className={cn("flex w-max", animate && "marquee-track")}
+					style={{ animationDuration: `${products.length * 9}s` }}
+				>
+					<div className="flex gap-4 pe-4">
+						{products.map((product) => (
+							<div key={product.id} className={item}>
+								<ProductCard product={product} sizes="(max-width: 768px) 44vw, 320px" />
+							</div>
+						))}
+					</div>
+					{animate ? (
+						<div aria-hidden="true" className="flex gap-4 pe-4 motion-reduce:hidden">
+							{products.map((product) => (
+								<div key={product.id} className={item}>
+									<ProductCard product={product} sizes="(max-width: 768px) 44vw, 320px" tabIndex={-1} />
+								</div>
+							))}
+						</div>
+					) : null}
+				</div>
+			</div>
 		</section>
 	);
 }
