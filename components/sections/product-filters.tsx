@@ -1,13 +1,10 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { ChevronDown, SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type ReactNode, startTransition, useOptimistic, useState } from "react";
+import { startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
 	SheetContent,
@@ -16,48 +13,12 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { Slider } from "@/components/ui/slider";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
 
 // Search params owned by the filters, cleared by "Clear all".
 const FILTER_KEYS = ["category", "collection", "brand", "priceMin", "priceMax", "vts"] as const;
-
-// Max entries shown per filter group before collapsing the rest behind "Show more".
-const VISIBLE_ENTRY_LIMIT = 10;
-
-/** Renders a list of filter entries, truncated to `limit` with a "Show more"/"Show less" toggle. */
-function CollapsibleList<T>({
-	items,
-	className,
-	renderItem,
-	limit = VISIBLE_ENTRY_LIMIT,
-}: {
-	items: T[];
-	className?: string;
-	renderItem: (item: T) => ReactNode;
-	limit?: number;
-}) {
-	const [expanded, setExpanded] = useState(false);
-	const visible = expanded ? items : items.slice(0, limit);
-	const hasMore = items.length > limit;
-
-	return (
-		<>
-			<ul className={className}>{visible.map(renderItem)}</ul>
-			{hasMore && (
-				<button
-					type="button"
-					onClick={() => setExpanded((prev) => !prev)}
-					className="mt-2 px-2 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-				>
-					{expanded ? "Show less" : "Show more"}
-				</button>
-			)}
-		</>
-	);
-}
 
 type FilterControlsProps = {
 	facets: APIProductFiltersResult;
@@ -135,229 +96,155 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 	const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.has(key));
 	const hasPrice = priceCeil > priceFloor;
-	// All groups that will render, in display order — only the first opens by default.
-	const accordionGroups = [
-		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
-		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
-		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
-		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
-	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	const major = (minor: number) => String(Math.round(minor / 100));
+	const commitPrice = (key: "priceMin" | "priceMax", raw: string) => {
+		const value = Math.round(Number(raw) * 100);
+		const outside = key === "priceMin" ? value <= priceFloor : value >= priceCeil;
+		const next = !raw || Number.isNaN(value) || outside ? null : String(value);
+		if (searchParams.get(key) === next) return;
+		const bound = key === "priceMin" ? priceFloor : priceCeil;
+		setPriceRange((range) =>
+			key === "priceMin" ? [next ? value : bound, range[1]] : [range[0], next ? value : bound],
+		);
+		commit((params) => {
+			if (next) {
+				params.set(key, next);
+			} else {
+				params.delete(key);
+			}
+		});
+	};
+	const symbol =
+		new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 })
+			.formatToParts(0)
+			.find((part) => part.type === "currency")?.value ?? currency;
+
+	const option = (key: string, checked: boolean, label: string, onChange: () => void) => (
+		<label key={key} className="filter-option">
+			<input type="checkbox" className="checkbox" checked={checked} onChange={onChange} />
+			{label}
+		</label>
+	);
+
+	const single = (title: string, key: string, items: { name: string; slug: string }[], open: boolean) =>
+		items.length > 0 && (
+			<details className="filter-group" open={open || searchParams.has(key)}>
+				<summary>
+					{title}
+					<ChevronDown size={16} className="filter-chevron" aria-hidden />
+				</summary>
+				<div className="filter-options">
+					{items.map((item) =>
+						option(item.slug, searchParams.get(key) === item.slug, item.name, () =>
+							setSingle(key, item.slug),
+						),
+					)}
+				</div>
+			</details>
+		);
 
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
-				{hasActiveFilters && (
-					<button
-						type="button"
-						onClick={clearAll}
-						className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-					>
-						Clear all
-					</button>
+		<div className="filter-form">
+			<div className="filter-scroll">
+				<div className="filter-head">
+					<h2>Filters</h2>
+					{hasActiveFilters && (
+						<button type="button" onClick={clearAll} className="text-link filter-clear">
+							Clear all
+						</button>
+					)}
+				</div>
+				{hasPrice && (
+					<fieldset className="filter-group filter-price">
+						<legend>Price</legend>
+						<div className="price-inputs">
+							<span className="input-affix">
+								<em aria-hidden>{symbol}</em>
+								<input
+									inputMode="numeric"
+									aria-label="Minimum price"
+									placeholder={major(priceFloor)}
+									defaultValue={priceMinParam ? major(Number(priceMinParam)) : ""}
+									key={`min-${priceMinParam}`}
+									onBlur={(e) => commitPrice("priceMin", e.currentTarget.value.trim())}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") commitPrice("priceMin", e.currentTarget.value.trim());
+									}}
+								/>
+							</span>
+							<span className="input-affix">
+								<em aria-hidden>{symbol}</em>
+								<input
+									inputMode="numeric"
+									aria-label="Maximum price"
+									placeholder="Any"
+									defaultValue={priceMaxParam ? major(Number(priceMaxParam)) : ""}
+									key={`max-${priceMaxParam}`}
+									onBlur={(e) => commitPrice("priceMax", e.currentTarget.value.trim())}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") commitPrice("priceMax", e.currentTarget.value.trim());
+									}}
+								/>
+							</span>
+						</div>
+						<p className="sr-only">
+							Range {formatMoney({ amount: priceRange[0], currency, locale })} to{" "}
+							{formatMoney({ amount: priceRange[1], currency, locale })}
+						</p>
+					</fieldset>
 				)}
-			</div>
-
-			<Accordion multiple defaultValue={accordionDefault} className="w-full">
-				{showCategories && facets.categories.length > 0 && (
-					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.categories}
-								className="space-y-1"
-								renderItem={(category) => {
-									const isActive = searchParams.get("category") === category.slug;
-									return (
-										<li key={category.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("category", category.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{category.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-
-				{showCollections && facets.collections.length > 0 && (
-					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.collections}
-								className="space-y-1"
-								renderItem={(collection) => {
-									const isActive = searchParams.get("collection") === collection.slug;
-									return (
-										<li key={collection.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("collection", collection.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{collection.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-
+				{showCategories && single("Category", "category", facets.categories, true)}
+				{showCollections && single("Collection", "collection", facets.collections, true)}
+				{single("Brand", "brand", facets.brands, true)}
 				{facets.variantTypes.map((vt) => {
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
-						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
-							<AccordionContent>
-								<CollapsibleList
-									items={vt.values}
-									className="space-y-2"
-									renderItem={(value) => {
-										// No spaces: the checkbox names itself through aria-labelledby, a space-separated
-										// id list, so "Dual Color" would point at two ids and leave it unnamed.
-										const id = `${vt.label}-${value}`.replace(/\s+/g, "-");
-										const checked = selectedValues.includes(value);
-										return (
-											<li key={value} className="flex items-center gap-2">
-												<Checkbox
-													id={id}
-													checked={checked}
-													onCheckedChange={(state) => toggleVariantValue(vt.label, value, state === true)}
-												/>
-												<label htmlFor={id} className="cursor-pointer text-sm text-muted-foreground">
-													{value}
-												</label>
-											</li>
-										);
-									}}
-								/>
-							</AccordionContent>
-						</AccordionItem>
+						<details key={vt.label} className="filter-group" open={selectedValues.length > 0}>
+							<summary>
+								{vt.label}
+								<ChevronDown size={16} className="filter-chevron" aria-hidden />
+							</summary>
+							<div className="filter-options">
+								{vt.values.map((value) => {
+									const checked = selectedValues.includes(value);
+									return option(value, checked, value, () => toggleVariantValue(vt.label, value, !checked));
+								})}
+							</div>
+						</details>
 					);
 				})}
-
-				{facets.brands.length > 0 && (
-					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
-						<AccordionContent>
-							<CollapsibleList
-								items={facets.brands}
-								className="space-y-1"
-								renderItem={(brand) => {
-									const isActive = searchParams.get("brand") === brand.slug;
-									return (
-										<li key={brand.slug}>
-											<button
-												type="button"
-												onClick={() => setSingle("brand", brand.slug)}
-												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{brand.name}
-											</button>
-										</li>
-									);
-								}}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-
-				{hasPrice && (
-					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
-						<AccordionContent>
-							<div className="px-1 pt-2">
-								<Slider
-									value={priceRange}
-									min={priceFloor}
-									max={priceCeil}
-									step={1}
-									minStepsBetweenValues={1}
-									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommitted={(value) => {
-										const [min, max] = value as [number, number];
-										commit((params) => {
-											if (min <= priceFloor) {
-												params.delete("priceMin");
-											} else {
-												params.set("priceMin", String(min));
-											}
-											if (max >= priceCeil) {
-												params.delete("priceMax");
-											} else {
-												params.set("priceMax", String(max));
-											}
-										});
-									}}
-								/>
-								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
-									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
-									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
-								</div>
-							</div>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-			</Accordion>
+			</div>
 		</div>
 	);
 }
 
-/** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
+/** Desktop sidebar filters: the original's sticky grey panel (hidden below 1024px). */
 export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
 	return (
-		<aside className={cn("hidden lg:block", className)}>
+		<aside className={cn("filter-sidebar", className)} aria-label="Filters">
 			<FilterControls {...props} />
 		</aside>
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** Mobile filters trigger + sheet (hidden on large screens). */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
+			<SheetTrigger className="button mobile-filter-button">
+				<SlidersHorizontalIcon size={16} aria-hidden />
 				Filters
-				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
-				)}
+				{activeCount > 0 && <span className="count-pill">{activeCount}</span>}
 			</SheetTrigger>
-			<SheetContent
-				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
-			>
-				<SheetHeader>
+			<SheetContent side="bottom" className="store-sheet filter-sheet">
+				<SheetHeader className="p-0">
 					<SheetTitle>Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
-				<div className="px-4 pb-8">
-					<FilterControls {...props} />
-				</div>
+				<FilterControls {...props} />
 			</SheetContent>
 		</Sheet>
 	);

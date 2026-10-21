@@ -1,38 +1,93 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import {
+	BrandRow,
+	CategoryTiles,
+	EventCards,
+	FeatureBanner,
+	Hero,
+	type HeroSlide,
+	PhoneShortcuts,
+	ProductCarousel,
+	TrustRow,
+} from "@/components/home-sections";
+import { getBrandMap, getCatalogProducts, getCategoryTiles, getCollectionTiles } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
+import { bannerPhoto, heroPhoto } from "@/lib/editorial";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// Every read here is cached, so the whole home page is part of the prerendered shell.
+export default async function Home() {
+	const [products, collections, categories, brands, { storeDescription }] = await Promise.all([
+		getCatalogProducts(),
+		getCollectionTiles(),
+		getCategoryTiles(),
+		getBrandMap(),
+		getStoreSeo(),
+	]);
+	const productsOf = (ids: string[] | undefined) => products.filter((p) => ids?.includes(p.id));
+	const categoryRows = categories
+		.map((category) => ({
+			...category,
+			items: products.filter((p) => category.href === `/category/${p.category?.slug}`),
+		}))
+		.sort((a, b) => b.items.length - a.items.length);
+	// The original's homepage rhythm: hero, trust row, tiles, a carousel, event cards, brands,
+	// a second carousel, the forest-green banner and a closing carousel. Collections fill the
+	// carousels; the largest category takes the middle one so no two rows repeat each other.
+	const withProducts = collections.filter((c) => c.productIds.length > 1);
+	const [bannerCollection, closingCollection, openingCollection] = withProducts;
+	const opening = openingCollection ?? (closingCollection ? undefined : bannerCollection);
+	const topCategory = categoryRows[0];
+	const slides: HeroSlide[] = [
+		{
+			id: "intro",
+			title: "Find your next favourite",
+			description: storeDescription,
+			href: collections[0]?.href ?? "/products",
+			cta: collections[0] ? `Explore ${collections[0].name.toLowerCase()}` : "Browse the shop",
+			photo: heroPhoto,
+		},
+		...collections.slice(1, 4).map((c) => ({
+			id: c.id,
+			title: c.name,
+			description: c.description,
+			href: c.href,
+			cta: `Shop ${c.name.toLowerCase()}`,
+			photo: c.photo,
+		})),
+	];
+	// Two editorial cards: collections first, then the fullest categories.
+	const events = [...collections, ...categoryRows.filter((c) => c.items.length > 0)].slice(0, 2);
+
 	return (
-		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+		<div className="store-width home-page">
+			<Hero slides={slides} />
+			<PhoneShortcuts tiles={categories} />
+			<TrustRow />
+			<CategoryTiles title="Shop by category" tiles={[...categories, ...collections].slice(0, 4)} />
+			{opening ? (
+				<ProductCarousel title={opening.name} href={opening.href} products={productsOf(opening.productIds)} />
+			) : (
+				<ProductCarousel title="New in" href="/products" products={products.slice(0, 8)} />
+			)}
+			<EventCards title="Explore" tiles={events.length === 2 ? events : []} />
+			<BrandRow brands={Object.values(brands)} />
+			{topCategory && topCategory.items.length > 1 && (
+				<ProductCarousel title={topCategory.name} href={topCategory.href} products={topCategory.items} />
+			)}
+			<FeatureBanner tile={bannerCollection ?? collections[0] ?? topCategory} photo={bannerPhoto} />
+			{closingCollection && closingCollection !== opening ? (
+				<ProductCarousel
+					title={closingCollection.name}
+					href={closingCollection.href}
+					products={productsOf(closingCollection.productIds)}
+				/>
+			) : (
+				opening && <ProductCarousel title="New in" href="/products" products={products.slice(0, 8)} />
+			)}
+		</div>
 	);
 }
