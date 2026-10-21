@@ -5,7 +5,7 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
+import { displayPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -14,25 +14,44 @@ import { QuickAddButton } from "./quick-add-button";
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
+export type CardProduct = BrowseProduct | CollectionProduct | FullProduct;
+
+/** Lowest shown price of a product, for client-side sorting of a rendered grid. */
+export function cardSortPrice(product: CardProduct, taxBehavior: "inclusive" | "exclusive") {
+	const variants = "variants" in product ? product.variants : [];
+	return variants.length > 0 ? Number(priceRange(variants, taxBehavior).min) : 0;
+}
 
 export async function ProductCard({
 	product,
 	priority = false,
+	headingLevel = "h3",
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	/** h2 on listing pages that have no section heading between the h1 and the grid. */
+	headingLevel?: "h2" | "h3";
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const { min: minPrice, max: maxPrice } =
 		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `${fmt(minPrice)} – ${fmt(maxPrice)}`
 			: minPrice
-				? formatMoney({ amount: minPrice, currency, locale })
+				? fmt(minPrice)
 				: null;
+
+	// The original's "Sale" badge and struck-through price, from the first variant's list price.
+	const firstVariant = variants?.[0];
+	const listPrice = firstVariant ? displayPrice(firstVariant, taxBehavior, "originalPrice") : null;
+	const onSale =
+		firstVariant && listPrice && variants?.length === 1
+			? BigInt(listPrice) > BigInt(displayPrice(firstVariant, taxBehavior))
+			: false;
 
 	const allImages = [
 		...(product.images ?? []),
@@ -40,7 +59,6 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
 
 	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
@@ -57,9 +75,41 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const Heading = headingLevel;
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative block rounded-lg transition hover:bg-tile/60"
+		>
+			<div className="relative overflow-hidden rounded-lg bg-tile">
+				<div className="relative aspect-square">
+					{primaryImage &&
+						(isVideoUrl(primaryImage) ? (
+							<video
+								className="absolute inset-0 h-full w-full object-cover"
+								src={primaryImage}
+								muted
+								loop
+								autoPlay
+								playsInline
+							/>
+						) : (
+							<YNSMedia
+								src={primaryImage}
+								alt=""
+								fill
+								sizes="(max-width: 768px) 50vw, 280px"
+								className="object-cover transition duration-300 group-hover:scale-[1.03]"
+								priority={priority}
+							/>
+						))}
+				</div>
+				{onSale ? (
+					<span className="absolute top-3 left-3 rounded-md bg-ink px-2.5 py-1 text-[12px] font-semibold text-paper">
+						Sale
+					</span>
+				) : null}
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -75,49 +125,15 @@ export async function ProductCard({
 						}}
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 text-center sm:gap-2 sm:px-4">
+				<Heading className="line-clamp-2 text-[14px] font-medium group-hover:underline group-hover:underline-offset-4 sm:text-[15px]">
+					{product.name}
+				</Heading>
+				<p className="text-[16px] text-muted-foreground sm:text-[18px]">
+					{onSale && listPrice ? <s className="mr-1.5 text-[13px]">{fmt(BigInt(listPrice))}</s> : null}
+					<span className={onSale ? "font-semibold text-pine-ink" : undefined}>{priceDisplay}</span>
+				</p>
 			</div>
 		</Link>
 	);

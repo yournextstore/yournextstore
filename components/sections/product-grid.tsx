@@ -3,75 +3,74 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
+import { photographedFirst } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
 	title?: string;
-	description?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
 		| NonNullable<APIProductGetByIdResult>
 	)[];
 	limit?: number;
+	/** "8 products" on the right of the heading, as on the original home page. */
+	showCount?: boolean;
 	showViewAll?: boolean;
-	viewAllHref?: string;
+	size?: "lg" | "md";
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "In the shop",
 	products,
-	limit = 6,
-	showViewAll = true,
-	viewAllHref = "/products",
+	limit = 8,
+	showCount = true,
+	showViewAll = false,
+	size = "lg",
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	// Browse a wider page so photographed, priced products can lead the grid.
+	const result = products ? null : await commerce.productBrowse({ active: true, limit: Math.max(limit, 24) });
+	const displayProducts = products ?? photographedFirst(result?.data ?? []).slice(0, limit);
+	const total = result?.meta.count ?? displayProducts.length;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
+		<section id="products" className="mx-auto max-w-6xl px-5 py-4 sm:py-14">
+			<div className="flex items-baseline justify-between gap-4">
+				<h2
+					className={
+						size === "lg"
+							? "font-display text-3xl font-bold tracking-tight"
+							: "font-display text-2xl font-bold tracking-tight"
+					}
+				>
+					{title}
+				</h2>
+				{showViewAll ? (
 					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						href="/products"
+						className="shrink-0 text-[14px] font-semibold underline underline-offset-4 hover:text-pine-ink"
 					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+						All {total} products
 					</Link>
-				)}
+				) : showCount ? (
+					<p className="shrink-0 text-[14px] text-muted-foreground">
+						{displayProducts.length} {displayProducts.length === 1 ? "product" : "products"}
+					</p>
+				) : null}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5 sm:mt-7 sm:gap-x-5 md:grid-cols-4">
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

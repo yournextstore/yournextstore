@@ -105,7 +105,9 @@ export default function FAQPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
+				<h1 className="mt-4 text-4xl font-display font-extrabold tracking-tight">
+					Frequently Asked Questions
+				</h1>
 				<p className="mt-3 text-lg text-muted-foreground">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>

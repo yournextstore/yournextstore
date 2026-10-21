@@ -2,20 +2,23 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
+import { chipRowClass, toolbarClass } from "@/components/njx/catalog-styles";
+import { CollectionPills } from "@/components/njx/collection-pills";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
+import { getCollections, getTopCategories, photographedFirst } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { CategoryChips, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
 const sortOptions = [
 	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
+	{ value: "price-asc", label: "Price: low to high", orderBy: "price", orderDirection: "asc" },
+	{ value: "price-desc", label: "Price: high to low", orderBy: "price", orderDirection: "desc" },
+	{ value: "name", label: "Name A–Z", orderBy: "name", orderDirection: "asc" },
 ] as const;
 
 type ProductFilterParams = {
@@ -82,18 +85,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
+			<p className="py-10 text-center text-muted-foreground sm:py-16">No products match these filters.</p>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
+			<div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5 md:grid-cols-4">
+				{(sortOption.value === "newest" ? photographedFirst(result.data) : result.data).map(
+					(product, index) => (
+						<ProductCard key={product.id} product={product} priority={index < 2} headingLevel="h2" />
+					),
+				)}
 			</div>
 
 			<ListingPagination
@@ -113,48 +116,60 @@ async function ProductSection({ searchParams }: { searchParams: Promise<ProductF
 	return <ProductList filters={filters} />;
 }
 
+function ToolbarSkeleton() {
+	return (
+		<>
+			<div className={toolbarClass}>
+				<div className="h-8 w-56 max-w-full animate-pulse rounded-full bg-tile sm:h-9" />
+				<div className="h-9 w-40 animate-pulse rounded-md bg-tile" />
+			</div>
+			<ProductGridSkeleton count={8} />
+		</>
+	);
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
+	// Cached and independent of `searchParams`, so they stay in the prerendered shell. Runtime
+	// `searchParams` is read inside the Suspense boundary below (see `ProductSection`).
+	const [facets, collections, categories] = await Promise.all([
+		getFilterFacets(),
+		getCollections(),
+		getTopCategories(),
+	]);
 	const filtersAvailable =
-		facets.categories.length > 0 ||
 		facets.collections.length > 0 ||
 		facets.brands.length > 0 ||
 		facets.variantTypes.length > 0 ||
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div className="min-h-svh">
+			<section className="mx-auto max-w-6xl px-5 pt-5 md:pt-6">
+				<h1 className="font-display text-[clamp(32px,5vw,52px)] font-extrabold tracking-tight">
+					All products
+				</h1>
+				<p className="mt-3 max-w-[52ch] text-[16px] leading-relaxed text-muted-foreground">
+					Everything in the shop, in one place. Narrow it down by category, or sort by price.
+				</p>
+				<CollectionPills collections={collections} />
+			</section>
 
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+			<section className="mx-auto max-w-6xl px-5 pb-4 sm:pb-8">
+				{/* The toolbar reads useSearchParams(), so it streams in behind one boundary with the
+				    grid; the fallback keeps the same rows so nothing shifts when it lands. */}
+				<Suspense fallback={<ToolbarSkeleton />}>
+					<div className={toolbarClass}>
+						<nav aria-label="Categories" className={chipRowClass}>
+							<CategoryChips categories={categories.map((c) => ({ slug: c.slug, name: c.name }))} />
+						</nav>
+						<div className="flex items-center gap-2">
+							{filtersAvailable ? <ProductFiltersMobile facets={facets} showCategories={false} /> : null}
 							<SortSelect options={sortOptions} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
 					</div>
-				</div>
-			</Suspense>
+					<ProductSection searchParams={searchParams} />
+				</Suspense>
+			</section>
 		</div>
 	);
 }

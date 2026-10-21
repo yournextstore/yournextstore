@@ -8,7 +8,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
+	--font-display: var(--font-bricolage);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +33,101 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+
+	/* Theme palette: paper background, ink text, pine accent. */
+	--color-paper: var(--paper);
+	--color-tile: var(--tile);
+	--color-ink: var(--ink);
+	--color-line: var(--line);
+	--color-pine: var(--pine);
+	--color-pine-deep: var(--pine-deep);
+	--color-pine-soft: var(--pine-soft);
+	--color-pine-ink: var(--pine-ink);
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--paper: #f7f6f2;
+	--tile: #eceae4;
+	--ink: #191817;
+	--line: #dad7ce;
+	--pine: #1e4d3b;
+	--pine-deep: #143728;
+	--pine-soft: #e4ece7;
+	/* Pine as a text colour (sale prices, eyebrows): same hue, AA on paper and tile. */
+	--pine-ink: #1e4d3b;
+
+	--radius: 0.5rem;
+	--background: #f7f6f2;
+	--foreground: #191817;
+	--card: #f7f6f2;
+	--card-foreground: #191817;
+	--popover: #f7f6f2;
+	--popover-foreground: #191817;
+	--primary: #1e4d3b;
+	--primary-foreground: #ffffff;
+	--secondary: #eceae4;
+	--secondary-foreground: #191817;
+	--muted: #eceae4;
+	/* The original's #6b6862 grey; holds AA on paper and on the tile surface. */
+	--muted-foreground: #64615b;
+	--accent: #e4ece7;
+	--accent-foreground: #191817;
+	--destructive: #b42318;
+	--border: #dad7ce;
+	--input: #dad7ce;
+	--ring: #1e4d3b;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--paper: #171614;
+	--tile: #22201d;
+	--ink: #ece9e2;
+	--line: #363329;
+	--pine: #2f8059;
+	--pine-deep: #26684a;
+	--pine-soft: #1e2b25;
+	--pine-ink: #5fb38a;
+
+	--background: #171614;
+	--foreground: #ece9e2;
+	--card: #171614;
+	--card-foreground: #ece9e2;
+	--popover: #22201d;
+	--popover-foreground: #ece9e2;
+	--primary: #26684a;
+	--primary-foreground: #ffffff;
+	--secondary: #22201d;
+	--secondary-foreground: #ece9e2;
+	--muted: #22201d;
+	--muted-foreground: #a29d93;
+	--accent: #1e2b25;
+	--accent-foreground: #ece9e2;
+	--destructive: #f97066;
+	--border: #363329;
+	--input: #363329;
+	--ring: #2f8059;
+}
+
+.dark img {
+	filter: brightness(0.92);
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+/* Tailwind v4 preflight gives buttons cursor:default; the original restores the pointer. */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+select,
+summary {
+	cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
 }
 
 @layer base {
@@ -83,7 +135,7 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground;
 	}
 }
 
@@ -99,11 +151,9 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--tile) 0%,
+		var(--paper) 50%,
+		var(--tile) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

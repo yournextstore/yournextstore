@@ -155,7 +155,9 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 					)}
 					<time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
 				</div>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight text-balance">{post.title}</h1>
+				<h1 className="mt-4 text-4xl font-display font-extrabold tracking-tight text-balance">
+					{post.title}
+				</h1>
 			</div>
 
 			{/* Cover image */}
