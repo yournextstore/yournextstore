@@ -3,31 +3,47 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, DM_Mono, Geist_Mono, Inter } from "next/font/google";
 import { getImageProps } from "next/image";
-import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { DesktopNav, MobileNav, type NavLink } from "@/app/navbar";
+import { BrandMark } from "@/components/brand-mark";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+import { HeaderScrollState, RevealObserver } from "@/components/ledger-motion";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCategoryTiles, getStoreBrand } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+// The original's three faces: Cormorant Garamond (display, its italic the gold accent), Inter (body/UI)
+// and DM Mono (lot numbers, years, kickers).
+const cormorant = Cormorant_Garamond({
+	variable: "--font-cormorant",
+	subsets: ["latin", "latin-ext"],
+	weight: ["400", "500", "600"],
+	style: ["normal", "italic"],
+});
+
+const inter = Inter({
+	variable: "--font-inter",
+	subsets: ["latin", "latin-ext"],
+});
+
+const dmMono = DM_Mono({
+	variable: "--font-dm-mono",
+	subsets: ["latin", "latin-ext"],
+	weight: ["400", "500"],
 });
 
 const geistMono = Geist_Mono({
@@ -108,19 +124,12 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
-	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
+	const categories = await getCategoryTiles(6);
 	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+		{ href: "/products", label: "Shop" },
+		...categories.slice(0, 3).map((category) => ({ href: category.href, label: category.name })),
+		{ href: "/#shelves", label: "The shelves" },
+		{ href: "/about", label: "The house" },
 	];
 }
 
@@ -131,46 +140,54 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, brand] = await Promise.all([getNavLinks(), getStoreConfig(), getStoreBrand()]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<a
+						href="#main"
+						className="fixed -top-16 left-4 z-[100] rounded-[4px] bg-gold px-[18px] py-2.5 font-medium text-on-gold transition-[top] duration-300 focus-visible:top-3.5"
+					>
+						Skip to content
+					</a>
+					{/* The original's fixed bar: a burgundy-to-clear wash over the hero, solid once scrolled. */}
+					<header
+						data-site-header
+						className="group/header fixed inset-x-0 top-0 z-40 bg-[linear-gradient(180deg,rgba(20,3,10,0.78),rgba(20,3,10,0))] backdrop-blur-[2px] transition-[background-color,border-color] duration-500 data-[scrolled=true]:border-b data-[scrolled=true]:border-line data-[scrolled=true]:bg-page/95"
+					>
+						<div className="mx-auto flex h-[var(--header-h)] max-w-[1440px] items-center gap-3 px-[clamp(18px,4vw,48px)] lg:gap-6">
+							<BrandMark name={brand.name} className="mr-auto" />
+							<DesktopNav links={links} />
+							<div className="flex items-center gap-0.5 sm:gap-1.5">
+								<Suspense>
+									<SearchInput />
+								</Suspense>
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={
+										storeConfig.language
+											? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+											: "/account"
+									}
+									className="hidden size-10 items-center justify-center text-dim transition-colors hover:text-cream sm:inline-flex"
+									aria-label="Account"
+								>
+									<UserRound className="size-[18px]" strokeWidth={1.5} />
+								</a>
+								<CartButton />
+								<MobileNav links={links} />
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<HeaderScrollState />
+					<RevealObserver />
+					<main id="main" className="flex-1">
+						{children}
+					</main>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -214,7 +231,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${cormorant.variable} ${inter.variable} ${dmMono.variable} ${geistMono.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +241,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="dark" enableSystem={false} disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />

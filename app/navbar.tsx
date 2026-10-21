@@ -1,58 +1,80 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/** Desktop: the original's quiet links in dim cream, brightening on hover. */
+export function DesktopNav({ links }: { links: NavLink[] }) {
+	return (
+		<nav aria-label="Main navigation" className="hidden items-center gap-[clamp(14px,2vw,30px)] lg:flex">
+			{links.map((link) => (
+				<Link
+					key={link.href}
+					href={link.href}
+					className="whitespace-nowrap text-[0.88rem] text-dim transition-colors duration-300 hover:text-cream"
+				>
+					{link.label}
+				</Link>
+			))}
+		</nav>
+	);
+}
+
+/** Below lg: a burgundy panel from the right, links set large in Cormorant like the section heads. */
+export function MobileNav({ links }: { links: NavLink[] }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="inline-flex size-10 items-center justify-center text-cream lg:hidden"
+			>
+				<Menu className="size-6" strokeWidth={1.5} />
+			</SheetTrigger>
+			<SheetContent
+				side="right"
+				showCloseButton={false}
+				className="block overflow-y-auto border-l border-line bg-page px-[clamp(18px,4vw,48px)] pb-10 pt-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md"
+			>
+				<div className="flex h-[var(--header-h)] items-center justify-between">
+					<SheetTitle className="kicker font-normal text-gold">Nº 00 — Contents</SheetTitle>
+					<SheetClose
+						aria-label="Close menu"
+						className="-mr-2 inline-flex size-10 items-center justify-center text-cream"
 					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						<X className="size-6" strokeWidth={1.5} />
+					</SheetClose>
+				</div>
+				<div className="border-y border-line py-4">
+					<MobileSearchInput onNavigate={() => setOpen(false)} />
+				</div>
+				<nav aria-label="Mobile navigation" className="mt-2 flex flex-col">
+					{links.map((link, index) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							onClick={() => setOpen(false)}
+							className="group flex items-baseline gap-4 border-b border-line-2 py-3.5"
+						>
+							<span className="ledger w-8 text-[0.62rem] text-faint">
+								{String(index + 1).padStart(2, "0")}
+							</span>
+							<span className="serif text-[1.9rem] font-medium leading-tight text-cream transition-colors group-hover:text-gold-2">
+								{link.label}
+							</span>
+						</Link>
+					))}
+				</nav>
+			</SheetContent>
+		</Sheet>
 	);
 }

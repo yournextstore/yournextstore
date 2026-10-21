@@ -1,23 +1,15 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingTabs } from "@/components/listing-tabs";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { SectionHead } from "@/components/sections/home";
+import { richTextToPlain } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -116,7 +108,7 @@ async function CategoryProducts({
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="serif text-[1.8rem] text-cream italic">This shelf is empty for now.</p>
 			</div>
 		);
 	}
@@ -125,9 +117,9 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={LISTING_GRID}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={index < 2} headingLevel="h2" />
 				))}
 			</div>
 			<ListingPagination
@@ -142,9 +134,11 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className="container-x min-h-svh pb-[clamp(80px,12vh,150px)] pt-[clamp(40px,8vh,90px)]">
+			<div className="h-3 w-40 animate-pulse rounded-[2px] bg-panel" />
+			<div className="mt-[1.2rem] h-12 w-2/3 max-w-md animate-pulse rounded-[2px] bg-panel md:h-16" />
+			<div className="mt-[1.2rem] h-14 w-full max-w-[58ch] animate-pulse rounded-[2px] bg-panel" />
+			<div className="mb-10 mt-10 h-[74px] border-y border-line md:h-[74px]" />
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -186,17 +180,10 @@ const CategoryContent = async ({
 		notFound();
 	}
 
-	// Both reads are cached and independent — fetch them in parallel.
-	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
+	const category = await getCategoryData(slug);
 	if (!category?.active) {
 		notFound();
 	}
-	// Category facet is hidden here (it's the page context), so don't count it.
-	const filtersAvailable =
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
 
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
@@ -205,55 +192,28 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richTextToPlain(category.description);
+	const top = hierarchy[0];
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container-x min-h-svh pb-[clamp(80px,12vh,150px)] pt-[clamp(40px,8vh,90px)]">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<SectionHead
+				as="h1"
+				kicker={
+					hierarchy.length > 1
+						? `Shelf — ${hierarchy
+								.slice(0, -1)
+								.map((c) => c.name)
+								.join(" · ")}`
+						: "Nº 01 — The shelf"
+				}
+				title={<em>{category.name}</em>}
+				lede={description || `Every ${category.name.toLowerCase()} entry in the ledger.`}
+				className="mb-10"
+			/>
+			<ListingTabs activeSlug={top?.slug} />
+			<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 		</div>
 	);
 };
