@@ -33,10 +33,12 @@ export function CartSidebar() {
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
 			<SheetContent className="flex flex-col w-full sm:max-w-lg">
 				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+					<SheetTitle className="nordic-title flex items-baseline gap-2">
+						Cart
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="text-sm font-normal tracking-normal text-muted-foreground normal-case">
+								({itemCount} {itemCount === 1 ? "item" : "items"})
+							</span>
 						)}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -46,16 +48,14 @@ export function CartSidebar() {
 
 				{items.length === 0 ? (
 					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
+						<ShoppingBag aria-hidden className="h-10 w-10 text-gray-400" strokeWidth={1.25} />
 						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+							<p className="text-lg text-foreground">Your cart is empty</p>
+							<p className="mt-1 text-sm">Add a piece or two to get started.</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+						<button type="button" onClick={closeCart} className="nordic-link mt-2 text-lg">
+							continue shopping
+						</button>
 					</div>
 				) : (
 					<>
@@ -84,9 +84,9 @@ export function CartSidebar() {
 										</div>
 									</div>
 								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+								<div className="flex items-center justify-between text-base text-foreground">
+									<span className="font-bold tracking-wide uppercase">{discount ? "Total" : "Subtotal"}</span>
+									<span className="text-gray-900">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
@@ -101,7 +101,10 @@ export function CartSidebar() {
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
 								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
+								<Button
+									asChild
+									className="h-14 w-full rounded-none bg-gray-900 text-sm font-bold tracking-widest text-white uppercase hover:bg-black"
+								>
 									<a
 										href={checkoutUrl}
 										aria-disabled={isMutating}
@@ -126,9 +129,9 @@ export function CartSidebar() {
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full text-sm underline-offset-4 transition-colors hover:text-black hover:underline"
 								>
-									Continue Shopping
+									Continue shopping
 								</button>
 							</div>
 						</SheetFooter>
