@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -102,73 +102,69 @@ export function CartItem({ item }: CartItemProps) {
 
 	return (
 		<div className="flex gap-3 py-4">
-			{/* Product Image */}
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				tabIndex={-1}
+				aria-hidden="true"
+				className="relative size-16 shrink-0 overflow-hidden rounded-card border border-border bg-secondary"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="64px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
+			<div className="flex min-w-0 flex-1 flex-col gap-2">
+				<div className="flex items-start justify-between gap-3">
 					<div className="min-w-0 space-y-1">
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-2 text-body-sm font-semibold leading-tight hover:underline"
 						>
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						{options && <p className="text-label-sm text-muted-foreground">{options}</p>}
 						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+							<p className="text-label-sm text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
 						)}
 					</div>
-					<button
-						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
-					>
-						<Trash2 className="h-4 w-4" />
-					</button>
+					<span className="shrink-0 text-body-sm font-semibold tabular-nums">
+						{formatMoney({ amount: lineTotal, currency, locale })}
+					</span>
 				</div>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
+				<div className="flex items-center justify-between gap-3">
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-grid grid-cols-[30px_28px_30px] items-center overflow-hidden rounded-full border border-border bg-card transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-8 items-center justify-center hover:bg-secondary"
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							<Minus aria-hidden="true" className="h-3.5 w-3.5" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="text-center text-label-md font-semibold tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-8 items-center justify-center hover:bg-secondary"
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							<Plus aria-hidden="true" className="h-3.5 w-3.5" />
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
+					<button
+						type="button"
+						onClick={handleRemove}
+						disabled={isPending}
+						className="text-label-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:pointer-events-none disabled:opacity-50"
+					>
+						Remove
+					</button>
 				</div>
 			</div>
 		</div>

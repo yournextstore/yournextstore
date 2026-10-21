@@ -1,58 +1,90 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { MenuIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/app/cart/cart-context";
+import {
+	Sheet,
+	SheetClose,
+	SheetContent,
+	SheetDescription,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/** The phone menu: a cream drawer from the left with the brand, the categories, then account and cart. */
+export function Navbar({
+	links,
+	categories,
+	storeName,
+	accountHref,
+}: {
+	links: NavLink[];
+	categories: NavLink[];
+	storeName: string;
+	accountHref: string;
+}) {
 	const [open, setOpen] = useState(false);
+	const { openCart, itemCount } = useCart();
+	const close = () => setOpen(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="inline-grid size-11 place-items-center rounded-full lg:hidden"
+			>
+				<MenuIcon aria-hidden="true" className="size-6" strokeWidth={1.5} />
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				showCloseButton={false}
+				className="block min-w-[270px] overflow-y-auto bg-background px-7 py-10 shadow-none data-[side=left]:w-[min(65vw,360px)] data-[side=left]:border-r-0 data-[side=left]:sm:max-w-none"
+			>
+				<SheetClose className="absolute top-8 right-4 inline-grid size-11 place-items-center rounded-full">
+					<XIcon aria-hidden="true" className="size-6" strokeWidth={1.5} />
+					<span className="sr-only">Close menu</span>
+				</SheetClose>
+				<SheetTitle className="mt-12 mb-10 text-label-md font-semibold uppercase">{storeName}</SheetTitle>
+				<SheetDescription className="sr-only">Browse the shop and store pages.</SheetDescription>
+				<nav aria-label="Mobile" className="flex flex-col gap-6 text-body-md">
+					{links.map((link) => (
+						<Link key={link.href} href={link.href} onClick={close}>
+							{link.label}
+						</Link>
+					))}
+				</nav>
+				{categories.length > 0 && (
+					<nav
+						aria-label="Shop categories"
+						className="mt-7 flex flex-col gap-4 border-t border-border pt-7 text-body-sm text-muted-foreground"
+					>
+						{categories.map((link) => (
+							<Link key={link.href} href={link.href} onClick={close} className="hover:text-foreground">
 								{link.label}
 							</Link>
 						))}
 					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+				)}
+				<div className="mt-7 flex flex-col items-start gap-6 border-t border-border pt-7 text-body-md">
+					<a href={accountHref}>Account</a>
+					<button
+						type="button"
+						onClick={() => {
+							close();
+							openCart();
+						}}
 					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						Cart{itemCount > 0 ? ` · ${itemCount} ${itemCount === 1 ? "item" : "items"}` : ""}
+					</button>
+				</div>
+			</SheetContent>
+		</Sheet>
 	);
 }

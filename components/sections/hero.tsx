@@ -1,42 +1,42 @@
-import { ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import Image from "next/image";
 
-export function Hero() {
+/**
+ * Editorial split hero: oat copy panel on the left (46%), the still-life photograph on the right;
+ * on phones the photograph sits above the copy.
+ */
+export function Hero({ storeName }: { storeName: string }) {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
-				</div>
+		<section className="mx-auto grid w-full max-w-[1280px] bg-muted lg:min-h-[530px] lg:grid-cols-[46%_54%]">
+			<div className="relative h-[280px] overflow-hidden sm:h-[360px] lg:col-start-2 lg:row-start-1 lg:h-auto">
+				<Image
+					src="/images/pexels/hero-straw-hat.jpg"
+					alt="Croissants on cream linen on a pale wood bakery counter in morning light"
+					fill
+					priority
+					sizes="(min-width: 1280px) 692px, (min-width: 1024px) 54vw, 100vw"
+					className="object-cover object-[30%_50%]"
+				/>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
+			<div className="flex flex-col items-start justify-center p-7 sm:p-10 lg:col-start-1 lg:row-start-1 lg:p-[clamp(28px,4vw,64px)]">
+				<p className="mb-7 text-[11px] uppercase tracking-[0.18em] text-eyebrow">
+					{storeName} · Baked this morning
+				</p>
+				<h1 className="font-display text-[clamp(38px,4.6vw,68px)] font-normal leading-[1.04] tracking-[-0.045em] text-foreground">
+					Good bread.
+					<br />
+					Slow mornings.
+				</h1>
+				<p className="mt-6 max-w-[32ch] text-body-md leading-[1.65] text-muted-foreground">
+					Sourdough, laminated pastries and simple cakes, baked early every day from flour, butter and time.
+				</p>
+				<p className="mt-3 text-body-sm text-muted-foreground">Slow-fermented · Baked daily</p>
+				<a
+					href="#shop"
+					className="mt-7 inline-flex h-[52px] min-w-[170px] items-center justify-center rounded-[4px] bg-primary px-7 text-body-md font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
+				>
+					Order from the bakery
+				</a>
+			</div>
 		</section>
 	);
 }

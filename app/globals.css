@@ -9,12 +9,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+	--font-serif: var(--font-gelasio), Georgia, "Times New Roman", serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-card: 12px;
+	--radius-input: 8px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -23,6 +26,7 @@
 	--color-popover-foreground: var(--popover-foreground);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--primary-hover);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
@@ -31,61 +35,147 @@
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
 	--color-border: var(--border);
+	--color-border-strong: var(--border-strong);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-eyebrow: var(--eyebrow);
+
+	/* The original's type scale (Crave design tokens), under their own names so shadcn's
+	   text-sm/base/lg keep their sizes. */
+	--text-label-sm: 12px;
+	--text-label-md: 13px;
+	--text-body-sm: 14px;
+	--text-body-md: 16px;
+	--text-body-lg: 18px;
+	--text-heading-sm: 18px;
+	--text-heading-md: 22px;
+	--text-heading-lg: 26px;
+	--text-display-sm: 32px;
+	--text-display-md: 40px;
+	--text-display-lg: 56px;
+	--text-display-xl: 72px;
 }
 
+/* Warm editorial: cream page, oat panels, roasted-brown actions. Light only. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #fdfaf5;
+	--foreground: #30271f;
+	--card: #fffefb;
+	--card-foreground: #30271f;
+	--popover: #fffefb;
+	--popover-foreground: #30271f;
+	--primary: #6b422b;
+	--primary-hover: #4a2e1d;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f5ec;
+	--secondary-foreground: #30271f;
+	--muted: #f7f2e9;
+	--muted-foreground: #6a5b4e;
+	--accent: #f1e8da;
+	--accent-foreground: #30271f;
+	--destructive: #b42318;
+	--border: #ded5c8;
+	--border-strong: #979797;
+	--input: #ded5c8;
+	--ring: #6b422b;
+	--eyebrow: #745940;
 }
 
+/* Same palette: the design is light-only (ThemeProvider forces light). */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #fdfaf5;
+	--foreground: #30271f;
+	--card: #fffefb;
+	--card-foreground: #30271f;
+	--popover: #fffefb;
+	--popover-foreground: #30271f;
+	--primary: #6b422b;
+	--primary-hover: #4a2e1d;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f5ec;
+	--secondary-foreground: #30271f;
+	--muted: #f7f2e9;
+	--muted-foreground: #6a5b4e;
+	--accent: #f1e8da;
+	--accent-foreground: #30271f;
+	--destructive: #b42318;
+	--border: #ded5c8;
+	--border-strong: #979797;
+	--input: #ded5c8;
+	--ring: #6b422b;
+	--eyebrow: #745940;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
-	body {
-		@apply bg-background text-foreground;
+	html {
+		scroll-behavior: smooth;
 	}
+	body {
+		@apply bg-background text-foreground font-sans;
+	}
+	:where(a, button, input, select, textarea):focus-visible {
+		outline: 2px solid var(--primary);
+		outline-offset: 4px;
+	}
+}
+
+/* Layout: 1280px content, 16px gutters on phones, 40px from lg (the original's shell). */
+@utility shell {
+	width: 100%;
+	max-width: 1280px;
+	margin-inline: auto;
+	padding-inline: 16px;
+	@media (width >= 64rem) {
+		padding-inline: 40px;
+	}
+}
+
+/* Display serif: Georgia-metric Gelasio, as the original preset sets its headings in Georgia. */
+@utility font-display {
+	font-family: var(--font-gelasio), Georgia, "Times New Roman", serif;
+}
+
+/* Category chips: oat pills, the first (current) one outlined on the page colour. */
+@utility chip {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	min-height: 36px;
+	padding: 8px 16px;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--secondary);
+	color: var(--foreground);
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+	&:hover {
+		border-color: var(--border-strong);
+	}
+	&[aria-current="true"],
+	&[aria-current="page"] {
+		border-color: var(--border-strong);
+		background: var(--background);
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Anchored menu sections clear the sticky header. */
+[id^="category-"],
+#most-ordered,
+#all-categories,
+#shop {
+	scroll-margin-top: 72px;
 }
 
 .prose {
@@ -117,11 +207,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#efe7da 0%,
+		#f7f2e9 40%,
+		#fdfaf5 50%,
+		#f7f2e9 60%,
+		#efe7da 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

@@ -1,29 +1,16 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { MenuGrid, MenuLayout, MenuSidebar } from "@/components/menu";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { getCollectionProducts, getMenuCategories, plainText } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
-
-// The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
-const SMART_COLLECTION_LIMIT = 100;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -37,9 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		plainText(collection.description) ?? `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -62,132 +47,55 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/** A compact version of the home hero: oat copy panel beside the collection's photograph. */
+function CollectionHeader({
+	collection,
+	image,
+	count,
+}: {
+	collection: APICollectionGetByIdResult;
+	image: string | undefined;
+	count: number;
+}) {
+	const description = plainText(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+		<section className="mx-auto grid w-full max-w-[1280px] bg-muted lg:min-h-[320px] lg:grid-cols-[46%_54%]">
+			{image ? (
+				<div className="relative h-[220px] overflow-hidden sm:h-[300px] lg:col-start-2 lg:row-start-1 lg:h-auto">
 					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
+						src={image}
+						alt=""
 						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
 						priority
 						fetchPriority="high"
+						sizes="(min-width: 1024px) 54vw, 100vw"
+						className="object-cover"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
 				</div>
-			)}
+			) : null}
+			<div className="flex flex-col items-start justify-center p-7 sm:p-10 lg:col-start-1 lg:row-start-1 lg:p-14">
+				<p className="mb-5 text-[11px] uppercase tracking-[0.18em] text-eyebrow">
+					Collection · {count} {count === 1 ? "item" : "items"}
+				</p>
+				<h1 className="font-display text-[clamp(34px,4vw,56px)] leading-[1.04] tracking-[-0.04em]">
+					{collection.name}
+				</h1>
+				{description ? (
+					<p className="mt-5 max-w-[40ch] text-body-md leading-[1.65] text-muted-foreground">{description}</p>
+				) : null}
+			</div>
 		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
-
-// Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
-// the smart filters are evaluated against the whole catalog when the storefront asks for them.
-// Re-expressing each one as the equivalent product browse is what keeps those collections from
-// rendering as an empty grid. Cached like the collection itself, which also pins the
-// `Date.now()` below to the cache entry.
-async function getCollectionProducts(collection: APICollectionGetByIdResult) {
-	"use cache";
-	cacheLife("minutes");
-	const { filter } = collection;
-
-	if (filter.type === "manual") {
-		const ids = collection.productCollections.map((pc) => pc.product.id);
-		// The SDK throws on a 404: one product deleted since it joined must not fail the page.
-		return (
-			await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id }).catch(() => null)))
-		).filter((product) => product !== null);
-	}
-
-	if (filter.type === "variantValues") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			vts: encodeVts(filter.values),
-		});
-		return data;
-	}
-
-	if (filter.type === "dynamicPrice") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			priceMin: filter.min ?? undefined,
-			priceMax: filter.max ?? undefined,
-		});
-		return data;
-	}
-
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: SMART_COLLECTION_LIMIT,
-		orderBy: "createdAt",
-		orderDirection: "desc",
-	});
-
-	// A rolling "new arrivals" window has no browse equivalent, so the age bound is applied here.
-	if (typeof filter.days !== "number") {
-		return data;
-	}
-	const cutoff = Date.now() - filter.days * MS_PER_DAY;
-	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
-}
-
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		<div className="min-h-svh">
+			<div className="mx-auto h-[300px] w-full max-w-[1280px] animate-pulse bg-muted lg:h-[320px]" />
+			<MenuLayout leading={<div className="h-64" />}>
+				<ProductGridSkeleton />
+			</MenuLayout>
+		</div>
 	);
 }
 
@@ -218,27 +126,29 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const [products, categories] = await Promise.all([getCollectionProducts(collection), getMenuCategories()]);
+	const image = collection.image ?? products.find((product) => product.images[0])?.images[0];
+	const links = [
+		{ href: "/products", label: "All items" },
+		...categories.map((c) => ({ href: `/category/${c.path}`, label: c.name })),
+	];
+
 	return (
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
+			<CollectionHeader collection={collection} image={image} count={products.length} />
+			<MenuLayout leading={<MenuSidebar links={links} />}>
+				{products.length > 0 ? (
+					<MenuGrid>
+						{products.map((product, index) => (
+							<ProductCard key={product.id} product={product} priority={index < 2} headingLevel="h2" />
+						))}
+					</MenuGrid>
+				) : (
+					<p className="py-16 text-body-md text-muted-foreground">Nothing in this collection yet.</p>
+				)}
+			</MenuLayout>
 		</>
 	);
 };

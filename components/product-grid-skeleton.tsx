@@ -3,20 +3,18 @@ import { cn } from "@/lib/utils";
 export function ProductCardSkeleton() {
 	return (
 		<div>
-			<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-			<div className="space-y-2">
-				<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-				<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
-			</div>
+			<div className="aspect-191/150 w-full animate-pulse rounded-card border border-border bg-secondary" />
+			<div className="mt-3 h-4 w-3/4 animate-pulse rounded bg-secondary" />
+			<div className="mt-2 h-3.5 w-1/3 animate-pulse rounded bg-secondary" />
 		</div>
 	);
 }
 
-export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
+export function ProductGridSkeleton({ className, count = 6 }: { className?: string; count?: number }) {
 	return (
-		<div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8", className)}>
-			{Array.from({ length: count }).map((_, i) => (
-				<ProductCardSkeleton key={`skeleton-${i}`} />
+		<div className={cn("grid grid-cols-2 gap-x-3 gap-y-8 lg:grid-cols-3 lg:gap-x-5", className)}>
+			{Array.from({ length: count }, (_, i) => (
+				<ProductCardSkeleton key={i} />
 			))}
 		</div>
 	);

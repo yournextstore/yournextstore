@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
+import { ProductCard } from "@/components/product-card";
+import { getMostOrdered } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -53,85 +56,105 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const featured = await getMostOrdered(4);
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<article>
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
+			<div className="relative h-60 w-full overflow-hidden bg-muted lg:h-[460px]">
+				<Image
+					src="/images/pexels/about-sunlit-room.jpg"
+					alt="A small bakery counter with loaves and pastries on wooden trays in morning sun"
+					fill
+					priority
+					sizes="100vw"
+					className="object-cover"
+				/>
 			</div>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
+			<section aria-labelledby="about-title" className="shell py-12 lg:py-20">
+				<div className="mx-auto flex max-w-3xl flex-col gap-4 text-center lg:gap-7">
+					<p className="text-[11px] uppercase tracking-[0.18em] text-eyebrow">Our story · {storeName}</p>
+					<h1
+						id="about-title"
+						className="font-display text-display-md font-semibold leading-[1.05] tracking-[-0.03em] lg:text-display-xl"
+					>
+						Baked early. Shared warm.
+					</h1>
+					<p className="text-body-md text-muted-foreground lg:text-body-lg">
+						{storeDescription ??
+							"A small neighbourhood bakery: slow-fermented bread, laminated pastries and simple cakes, baked every morning."}
+					</p>
+				</div>
 
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
+				{featured.length > 0 && (
+					<div className="mt-12 lg:mt-16">
+						<h2 className="sr-only">From the shop</h2>
+						<div className="grid grid-cols-2 gap-x-3 gap-y-8 lg:grid-cols-4 lg:gap-x-6">
+							{featured.map((product) => (
+								<ProductCard key={product.id} product={product} showSummary={false} />
+							))}
 						</div>
 					</div>
-				</section>
-			</div>
+				)}
+			</section>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+			<section aria-labelledby="values-title" className="bg-muted">
+				<div className="shell grid gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-12 lg:py-20">
+					<h2 id="values-title" className="font-display text-display-sm font-semibold leading-[1.1]">
+						What goes into every bake
+					</h2>
+					<div className="grid gap-8 sm:grid-cols-3">
+						<div>
+							<h3 className="font-semibold">Slow fermentation</h3>
+							<p className="mt-2 text-body-sm leading-relaxed text-muted-foreground">
+								Our doughs rest for up to 36 hours, for more flavour and a better crust.
+							</p>
+						</div>
+						<div>
+							<h3 className="font-semibold">Good ingredients</h3>
+							<p className="mt-2 text-body-sm leading-relaxed text-muted-foreground">
+								Stoneground flour, cultured butter and seasonal fruit, and nothing we would not bake with at
+								home.
+							</p>
+						</div>
+						<div>
+							<h3 className="font-semibold">A short menu</h3>
+							<p className="mt-2 text-body-sm leading-relaxed text-muted-foreground">
+								A handful of breads, pastries and cakes we bake well, rather than a counter that never ends.
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section
+				aria-labelledby="cta-title"
+				className="shell flex flex-col items-center gap-6 py-14 text-center lg:py-20"
+			>
+				<h2
+					id="cta-title"
+					className="font-display text-display-sm font-semibold leading-[1.1] lg:text-display-md"
+				>
+					Find something for the table
+				</h2>
+				<div className="flex flex-col gap-3 sm:flex-row">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="inline-flex h-[52px] min-w-[170px] items-center justify-center rounded-[4px] bg-primary px-7 font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
-						Shop products
+						Browse the shop
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex h-[52px] min-w-[170px] items-center justify-center rounded-[4px] border border-border-strong px-7 font-semibold transition-colors hover:bg-secondary"
 						>
 							Contact us
 						</Link>
 					)}
 				</div>
-			</div>
-		</div>
+			</section>
+		</article>
 	);
 }
