@@ -4,27 +4,25 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
+import { ListingHeader, ListingHeaderSkeleton } from "@/components/listing-header";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingLayout, ListingSidebar } from "@/components/listing-sidebar";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
+import { getCategoryShowcases } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
+import { sentenceCase } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { sortOptionFor } from "@/lib/sort-options";
 
 const PRODUCTS_PER_PAGE = 12;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
 	page?: string;
+	sort?: string;
 	collection?: string;
 	brand?: string;
 	priceMin?: string;
@@ -100,10 +98,13 @@ async function CategoryProducts({
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+	const sortOption = sortOptionFor(filters.sort);
 
 	const result = await commerce.productBrowse({
 		active: true,
 		category: slug,
+		orderBy: sortOption.orderBy,
+		orderDirection: sortOption.orderDirection,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
 		collection: filters.collection,
@@ -125,15 +126,17 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={LISTING_GRID}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={index < 2} />
 				))}
 			</div>
 			<ListingPagination
 				basePath={`/category/${canonicalPath}`}
 				currentPage={currentPage}
 				totalPages={totalPages}
+				totalCount={result.meta.count}
+				perPage={PRODUCTS_PER_PAGE}
 				filters={filters}
 			/>
 		</>
@@ -142,10 +145,11 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="min-h-svh">
+			<ListingHeaderSkeleton />
+			<ListingLayout sidebar={<div className="h-64" />} className="border-t-2 border-border">
+				<ProductGridSkeleton />
+			</ListingLayout>
 		</div>
 	);
 }
@@ -205,55 +209,65 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const showcase = (await getCategoryShowcases()).find((entry) => entry.slug === category.slug);
+	const image =
+		typeof category.image === "string" && category.image ? category.image : (showcase?.frames[0] ?? null);
+	const name = sentenceCase(category.name);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<ListingHeader
+				pretitle={
+					hierarchy.length > 1 ? (
+						<nav aria-label="Breadcrumb">
+							<ol className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+								{hierarchy.slice(0, -1).map((crumb, index) => (
+									<Fragment key={crumb.slug}>
+										<li>
+											<Link
+												href={`/category/${hierarchy
+													.slice(0, index + 1)
+													.map((c) => c.slug)
+													.join("/")}`}
+												className="hover:underline"
+											>
+												{sentenceCase(crumb.name)}
+											</Link>
+										</li>
+										<li aria-hidden>/</li>
+									</Fragment>
+								))}
+							</ol>
+						</nav>
+					) : (
+						"Category"
+					)
+				}
+				title={name}
+				description={
+					showcase
+						? `${showcase.count} ${showcase.count === 1 ? "product" : "products"} in ${name.toLowerCase()}. Sort them by price or newest below.`
+						: `Everything in ${name.toLowerCase()}, in one place.`
+				}
+				image={image}
+			/>
+			<ListingLayout
+				className="border-t-2 border-border"
+				sidebar={
+					<ListingSidebar
+						basePath={`/category/${canonicalPath}`}
+						params={filters}
+						categories={facets.categories}
+						activeCategory={category.slug}
+						filters={
+							filtersAvailable ? <ProductFiltersMobile facets={facets} showCategories={false} /> : undefined
+						}
+					/>
+				}
+			>
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+			</ListingLayout>
 		</div>
 	);
 };

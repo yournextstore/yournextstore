@@ -1,38 +1,38 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { Divider, Hero, MaterialTiles, NewArrivals, Showcase } from "@/components/sections/home";
+import { getCategoryShowcases } from "@/lib/catalog";
+import { sentenceCase } from "@/lib/display";
+import { EDITORIAL } from "@/lib/editorial";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// Every read below is cached, so the whole page prerenders with the shell and nothing
+// streams in under the hero: no section boundaries, no layout shift.
+export default async function Home() {
+	const showcases = await getCategoryShowcases();
+	const blocks = showcases.filter((showcase) => showcase.frames.length >= 2).slice(0, 4);
+	const blockSlugs = new Set(blocks.map((block) => block.slug));
+	const others = showcases.filter((showcase) => !blockSlugs.has(showcase.slug) && showcase.count > 1);
+	const tiles = (others.length >= 2 ? others : showcases).slice(0, 3);
+	const featured = showcases.slice(0, 3).map(({ name, slug }) => ({ name: sentenceCase(name), slug }));
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<Hero frames={EDITORIAL.hero} featured={featured} />
+			<Divider />
+			{blocks.map((showcase, index) => (
+				<Showcase
+					key={showcase.slug}
+					showcase={showcase}
+					index={index}
+					photo={EDITORIAL.showcase[index % EDITORIAL.showcase.length] ?? null}
+					textFirst={index % 2 === 0}
+				/>
+			))}
+			<NewArrivals />
+			<MaterialTiles tiles={tiles} />
 		</>
 	);
 }

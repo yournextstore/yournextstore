@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { ArrowDownWideNarrow } from "lucide-react";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -25,34 +25,6 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
 /** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
@@ -70,8 +42,17 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
+			<SelectTrigger
+				className={cn(
+					"w-full min-w-[10rem] rounded border-border bg-white px-4 text-sm text-black shadow-none data-[size=default]:h-11 sm:w-auto [&_svg:not([class*='text-'])]:text-black",
+					className,
+				)}
+				aria-label="Sort products"
+			>
+				<ArrowDownWideNarrow className="size-4" strokeWidth={1.5} aria-hidden />
+				<span className="flex-1 text-left">
+					<SelectValue />
+				</span>
 			</SelectTrigger>
 			<SelectContent align="end">
 				{options.map((option) => (
