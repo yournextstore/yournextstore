@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
+import { Em } from "@/components/brand/em";
+import { ArrowRightIcon } from "@/components/icons";
+import { Closing } from "@/components/sections/closing";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -14,12 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
 		: `Learn about ${storeName} — our story, our values, and the people behind the products.`;
 
 	return {
-		title: "About Us",
+		title: "About",
 		description,
 		alternates: { canonical: "/about" },
 		openGraph: {
 			type: "website",
-			title: "About Us",
+			title: "About",
 			description,
 			url: "/about",
 		},
@@ -50,88 +54,78 @@ export default async function AboutPage() {
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
 		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+			storeDescription ?? "Learn about our scents, the materials behind them and how they are composed.",
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+		<>
+			<div className="container-page pb-24 pt-14 md:pb-32 md:pt-18">
+				<JsonLdScript data={aboutJsonLd} />
+				<h1 className="max-w-4xl font-display text-title-xl text-balance md:text-[3.75rem] md:leading-[1.05]">
+					Composed slowly, <Em>worn closely</Em>
+				</h1>
+				<div className="mt-10 grid gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+					<div className="max-w-xl">
+						{storeDescription && <p className="text-lead text-ink/85">{storeDescription}</p>}
+						<div className="mt-10 space-y-6 text-ink/75">
+							<p>
+								{storeName} works with a short list of materials: cedar, iris, amber, fig, smoke. Each scent
+								is built around one of them and written out in full, top to heart to base.
+							</p>
+							<p>
+								The same accords carry over into candles and body care, so a scent you like on skin can fill a
+								room or follow you out of the bath.
+							</p>
+							<p>
+								If you are new to the house, start small: try a few scents over several days and notice how
+								each one changes as it settles.
 							</p>
 						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
+						<div className="mt-10 flex flex-wrap gap-3">
+							<Link href="/products" className="btn-glass">
+								Browse the shelf
+								<ArrowRightIcon width={18} height={18} />
+							</Link>
+							{contactFormEnabled && (
+								<Link href="/contact" className="btn-line h-12 rounded-full px-8">
+									Write to us
+								</Link>
+							)}
 						</div>
 					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+					<ul aria-label="Materials" className="grid grid-cols-2 gap-4">
+						{MATERIALS.map((item) => (
+							<li
+								key={item.src}
+								className="relative aspect-[4/5] overflow-hidden rounded-xl border border-line bg-surface"
+							>
+								<Image
+									src={item.src}
+									alt={item.alt}
+									fill
+									sizes="(min-width: 1024px) 22vw, 50vw"
+									className="object-cover"
+								/>
+								<span className="absolute bottom-3 left-3 rounded-full bg-page/70 px-3.5 py-1.5 text-sm text-ink backdrop-blur-[10px]">
+									{item.label}
+								</span>
+							</li>
+						))}
+					</ul>
 				</div>
 			</div>
-		</div>
+			<Closing />
+		</>
 	);
 }
+
+const MATERIALS = [
+	{ src: "/images/materials/cedar.jpg", label: "Cedar", alt: "Cedar shavings and split cedar wood" },
+	{ src: "/images/materials/iris.jpg", label: "Iris", alt: "A purple iris flower beside dried orris roots" },
+	{ src: "/images/materials/amber.jpg", label: "Amber", alt: "Glowing pieces of golden amber resin" },
+	{
+		src: "/images/materials/smoke.jpg",
+		label: "Smoke",
+		alt: "Birch bark and a smouldering wood chip with smoke",
+	},
+] as const;

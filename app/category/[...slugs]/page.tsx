@@ -4,9 +4,11 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
+import { AccentName } from "@/components/brand/em";
+import { FamilyDot } from "@/components/brand/family-dot";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { ListingSkeleton, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
@@ -16,6 +18,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getCategoryTones, richTextToPlain } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -115,8 +118,12 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="max-w-md py-16">
+				<p className="font-display text-title-sm">Nothing matches these filters</p>
+				<p className="mt-3 text-muted-foreground">Try a wider price range, or see everything on the shelf.</p>
+				<Link href="/products" className="btn-line mt-8">
+					Shop everything
+				</Link>
 			</div>
 		);
 	}
@@ -125,7 +132,10 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<p className="mb-8 text-sm text-muted-foreground">
+				{result.meta.count} {result.meta.count === 1 ? "product" : "products"}
+			</p>
+			<div className="grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -142,10 +152,10 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="container-page pb-20 pt-14 md:pb-28 md:pt-18">
+			<div className="mb-5 h-5 w-48 animate-pulse rounded bg-surface" />
+			<div className="mb-12 h-14 w-72 animate-pulse rounded bg-surface" />
+			<ListingSkeleton />
 		</div>
 	);
 }
@@ -198,6 +208,8 @@ const CategoryContent = async ({
 		facets.variantTypes.length > 0 ||
 		facets.priceBounds.max > 0;
 
+	const tone = (await getCategoryTones())[category.id];
+	const description = richTextToPlain(category.description);
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
 	const currentPath = slugs.join("/");
@@ -206,9 +218,9 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container-page pb-20 pt-14 md:pb-28 md:pt-18">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
+			<Breadcrumb className="mb-5 [&_ol]:text-xs [&_ol]:uppercase [&_ol]:tracking-[0.16em]">
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
@@ -235,21 +247,27 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+			<div className="mb-12 max-w-2xl">
+				<h1 className="flex items-center gap-4 font-display text-title-xl md:text-[3.75rem] md:leading-[1.05]">
+					{tone !== undefined && <FamilyDot index={tone} className="size-3" />}
+					<span>
+						<AccentName name={category.name} />
+					</span>
+				</h1>
+				{description && <p className="mt-5 text-lead text-ink/75">{description}</p>}
 			</div>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10" : ""}>
 				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
 
 				<div>
 					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
+						<div className="mb-8 flex lg:hidden">
 							<ProductFiltersMobile facets={facets} showCategories={false} />
 						</div>
 					)}
 
-					<Suspense fallback={<ProductGridSkeleton />}>
+					<Suspense fallback={<ProductGridSkeleton count={6} className="lg:grid-cols-2 xl:grid-cols-3" />}>
 						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 					</Suspense>
 				</div>

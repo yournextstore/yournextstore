@@ -9,12 +9,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-hanken), system-ui, sans-serif;
+	--font-display: var(--font-prata), "Times New Roman", serif;
+	--font-accent: var(--font-bodoni), "Times New Roman", serif;
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-sm: 2px;
+	--radius-md: 4px;
+	--radius-lg: 10px;
+	--radius-xl: 10px;
+	--radius-2xl: 14px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,59 +36,209 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-page: var(--page);
+	--color-surface: var(--surface);
+	--color-raised: var(--raised);
+	--color-line: var(--line);
+	--color-ink: var(--ink);
+	--color-taupe: var(--taupe);
+	--color-gold: var(--gold);
+	--color-woody: var(--woody);
+	--color-floral: var(--floral);
+	--color-citrus: var(--citrus);
+	--color-oud: var(--oud);
 }
 
+/* The original's modular scale (~1.25), under its own names so shadcn's text-sm/base/lg keep
+   their sizes. Display headings are set tight, body copy at 1.6. */
+@theme {
+	--text-lead: 1.25rem;
+	--text-lead--line-height: 1.6;
+	--text-title-sm: 1.5625rem;
+	--text-title-sm--line-height: 1.2;
+	--text-title-md: 1.953rem;
+	--text-title-md--line-height: 1.12;
+	--text-title-lg: 2.441rem;
+	--text-title-lg--line-height: 1.08;
+	--text-title-xl: 3.052rem;
+	--text-title-xl--line-height: 1.05;
+	--text-hero: clamp(2.5rem, 1.3rem + 3.6vw, 4.5rem);
+	--text-hero--line-height: 1.04;
+	--blur-glass: 10px;
+	--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Espresso, umber and cocoa surfaces, bone ink, taupe secondary text and one champagne accent.
+   Dark only: :root and .dark carry the same palette so the toaster and chat match the page. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 10px;
+	--page: #14100c;
+	--surface: #1e1712;
+	--raised: #2b2119;
+	--line: #3a2e24;
+	--ink: #efe6d6;
+	--taupe: #a3937e;
+	--gold: #c9a46a;
+	--woody: #9a6b43;
+	--floral: #c4838f;
+	--citrus: #bdbe5c;
+	--oud: #8e3a45;
+	--background: #14100c;
+	--foreground: #efe6d6;
+	--card: #1e1712;
+	--card-foreground: #efe6d6;
+	--popover: #1e1712;
+	--popover-foreground: #efe6d6;
+	--primary: #c9a46a;
+	--primary-foreground: #14100c;
+	--secondary: #2b2119;
+	--secondary-foreground: #efe6d6;
+	--muted: #2b2119;
+	/* The original taupe #a3937e reads 5.3:1 on espresso but under AA on cocoa; this keeps the tint. */
+	--muted-foreground: #b3a38e;
+	--accent: #2b2119;
+	--accent-foreground: #efe6d6;
+	--destructive: #c4574f;
+	--border: #3a2e24;
+	--input: #3a2e24;
+	--ring: #c9a46a;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #14100c;
+	--foreground: #efe6d6;
+	--card: #1e1712;
+	--card-foreground: #efe6d6;
+	--popover: #1e1712;
+	--popover-foreground: #efe6d6;
+	--primary: #c9a46a;
+	--primary-foreground: #14100c;
+	--secondary: #2b2119;
+	--secondary-foreground: #efe6d6;
+	--muted: #2b2119;
+	--muted-foreground: #b3a38e;
+	--accent: #2b2119;
+	--accent-foreground: #efe6d6;
+	--destructive: #c4574f;
+	--border: #3a2e24;
+	--input: #3a2e24;
+	--ring: #c9a46a;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	:root {
+		color-scheme: dark;
+	}
+	html {
+		background: var(--page);
+		scrollbar-width: thin;
+		scrollbar-color: var(--line) var(--page);
+	}
 	body {
 		@apply bg-background text-foreground;
+		line-height: 1.6;
 	}
+	::selection {
+		background: var(--gold);
+		color: var(--page);
+	}
+	:focus-visible {
+		outline: 2px solid var(--gold);
+		outline-offset: 3px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+}
+
+/* Page gutters and max width, as the original's Container. */
+@utility container-page {
+	@apply mx-auto w-full max-w-7xl px-6 md:px-10;
+}
+
+/* Plain glass: a light blur of what sits behind and a hairline border. No fill, sheen or shadow. */
+@utility glass {
+	@apply relative overflow-hidden rounded-xl border border-ink/20 backdrop-blur-[10px];
+}
+
+/* The outlined translucent pill: the main action over photography and waves. */
+@utility btn-glass {
+	@apply inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-ink/35 bg-page/30 px-8 text-xs font-medium uppercase tracking-[0.16em] text-ink backdrop-blur-[10px] transition-colors duration-200 hover:border-gold hover:text-gold;
+}
+
+/* Solid champagne: add to cart, checkout. */
+@utility btn-gold {
+	@apply inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-md bg-gold px-8 text-base font-medium text-page transition-colors duration-200 hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Hairline outline: secondary actions. */
+@utility btn-line {
+	@apply inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-line px-6 text-sm font-medium text-ink transition-colors duration-200 hover:border-gold hover:text-gold;
+}
+
+/* Small uppercase label above controls and in eyebrows. */
+@utility eyebrow {
+	@apply text-xs uppercase tracking-[0.16em] text-muted-foreground;
+}
+
+@keyframes hero-rise {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@utility animate-hero-rise {
+	animation: hero-rise 700ms var(--ease-out-quart) both;
+}
+
+@keyframes wave-drift {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+@utility animate-wave-drift {
+	animation: wave-drift 40s linear infinite;
+}
+
+/* Fixed header floating over the page: tall with a soft fade at the top, a compact blurred
+   bar once scrolled (data-sticky is toggled by HeaderScroll). */
+.site-header {
+	@apply fixed inset-x-0 top-0 z-40 h-24 bg-gradient-to-b from-page/75 to-transparent transition-[height,background-color] duration-500 lg:h-30;
+	transition-timing-function: var(--ease-out-quart);
+}
+.site-header[data-sticky="true"] {
+	@apply h-16 bg-page/90 backdrop-blur-[10px] lg:h-16;
+}
+.site-header .logo-mark {
+	@apply transition-[opacity,transform,max-height,margin] duration-500;
+}
+.site-header[data-sticky="true"] .logo-mark {
+	@apply pointer-events-none -mb-1 max-h-0 -translate-y-2 opacity-0;
+}
+.site-main {
+	@apply pt-24 lg:pt-30;
+}
+:root:has([data-hero]) .site-main {
+	@apply pt-0 lg:pt-0;
 }
 
 .prose {
@@ -117,11 +270,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#1e1712 0%,
+		#2b2119 40%,
+		#33281e 50%,
+		#2b2119 60%,
+		#1e1712 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

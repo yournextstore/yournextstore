@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -133,7 +139,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-7">
 			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
@@ -145,12 +151,10 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						{group.type === "color" ? (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
-									)}
+									<legend className="eyebrow">{group.label}</legend>
+									{selectedOption && <span className="text-sm text-ink/80">{selectedOption.value}</span>}
 								</div>
-								<div className="flex gap-3">
+								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
 										const isSelected = selectedOptions[group.label] === option.id;
 										const isLightColor =
@@ -164,17 +168,17 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
+													"relative size-11 cursor-pointer rounded-full transition-all duration-200",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
+														? "ring-1 ring-gold ring-offset-[3px] ring-offset-page"
+														: "hover:ring-1 hover:ring-ink/40 hover:ring-offset-[3px] hover:ring-offset-page",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
 												aria-label={option.value}
 												title={option.value}
 											>
 												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
+													<span className="absolute inset-0 rounded-full border border-line" />
 												)}
 											</button>
 										);
@@ -184,7 +188,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 						) : (
 							<>
 								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
+									<legend className="eyebrow">{group.label}</legend>
 								</div>
 								<div className="flex flex-wrap gap-3">
 									{group.options.map((option) => {
@@ -196,13 +200,13 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"h-11 min-w-[5rem] cursor-pointer rounded-full border px-5 text-sm transition-colors",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-gold text-gold"
+														: "border-ink/25 text-ink/85 hover:border-gold",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												{option.value}
 											</button>
 										);
 									})}

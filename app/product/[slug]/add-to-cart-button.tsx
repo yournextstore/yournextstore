@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -109,9 +108,9 @@ export function AddToCartButton({
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -216,72 +215,63 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
-			</div>
+		<div className="glass space-y-7 p-6 md:p-7">
+			{summary && <p className="leading-relaxed whitespace-pre-line text-ink/75">{summary}</p>}
 
 			{variants.length > 1 && <VariantSelector variants={variants} />}
 
-			{purchasable ? (
-				<>
-					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
-					)}
+			{purchasable && plans.length > 0 && (
+				<SubscriptionOptions plans={plans} value={planId} onChange={setPlanId} allowOneTime={allowOneTime} />
+			)}
 
+			<div
+				className={cn(
+					"flex flex-wrap items-end justify-between gap-6",
+					(variants.length > 1 || (purchasable && plans.length > 0)) && "border-t border-ink/15 pt-7",
+				)}
+			>
+				<div className="space-y-1">
+					<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+						<span className="font-display text-[2rem] leading-none" aria-live="polite">
+							{priceInfo.display}
+						</span>
+						{priceInfo.compareAt && (
+							<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						)}
+						{priceInfo.discountPercent ? (
+							<span className="rounded-full border border-gold/50 px-2.5 py-0.5 text-xs text-gold">
+								Save {priceInfo.discountPercent}%
+							</span>
+						) : null}
+					</div>
+					{omnibusPrice && (
+						<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					)}
+					{stockStatus && (
+						<p
+							className={cn(
+								"text-sm text-muted-foreground",
+								stockStatus.tone === "out" && "text-[#e08a82]",
+								stockStatus.tone === "low" && "text-[#e3a46d]",
+							)}
+							aria-live="polite"
+						>
+							{stockStatus.tone === "in" ? "In stock, ready to ship." : `${stockStatus.label}.`}
+						</p>
+					)}
+				</div>
+				{purchasable && (
 					<QuantitySelector
 						quantity={effectiveQuantity}
 						onQuantityChange={setQuantity}
 						max={Math.max(1, Math.min(99, maxQuantity))}
 						disabled={isOutOfStock}
 					/>
+				)}
+			</div>
 
+			{purchasable ? (
+				<>
 					<VolumePricingDisplay
 						tiers={resolvedTiers}
 						quantity={effectiveQuantity}
@@ -292,11 +282,7 @@ export function AddToCartButton({
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
 						<form onSubmit={handleSubmit}>
-							<button
-								type="submit"
-								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
+							<button type="submit" disabled={!selectedVariant || isOutOfStock} className="btn-gold w-full">
 								{buttonText}
 							</button>
 						</form>
@@ -306,7 +292,7 @@ export function AddToCartButton({
 				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
 			)}
 
-			<TrustBadges />
+			{selectedVariant?.sku && <p className="text-xs text-muted-foreground">SKU {selectedVariant.sku}</p>}
 		</div>
 	);
 }

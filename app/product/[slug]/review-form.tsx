@@ -20,11 +20,11 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						onClick={() => onChange(starValue)}
 						aria-label={`${starValue} ${starValue === 1 ? "star" : "stars"}`}
 						aria-pressed={starValue === value}
-						className="transition-transform hover:scale-110"
+						className="inline-flex size-9 items-center justify-center transition-transform hover:scale-110"
 					>
 						<Star
 							className={`h-6 w-6 ${
-								starValue <= (hovered || value) ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+								starValue <= (hovered || value) ? "fill-gold text-gold" : "fill-raised text-raised"
 							}`}
 						/>
 					</button>
@@ -40,27 +40,27 @@ export function ReviewForm({ slug }: { slug: string }) {
 
 	if (state?.success) {
 		return (
-			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
+			<div className="glass p-6 text-center">
 				<p className="font-medium">{state.message}</p>
 			</div>
 		);
 	}
 
 	return (
-		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
-			<h3 className="text-lg font-medium">Write a Review</h3>
+		<form action={action} className="glass space-y-5 p-6 md:p-7">
+			<h3 className="font-display text-title-sm">Write a review</h3>
 
 			<input type="hidden" name="slug" value={slug} />
 			<input type="hidden" name="rating" value={rating} />
 
 			<div>
-				<span className="mb-1.5 block text-sm font-medium">Rating</span>
+				<span className="eyebrow mb-2 block">Rating</span>
 				<StarInput value={rating} onChange={setRating} />
 			</div>
 
 			<div className="grid gap-4 sm:grid-cols-2">
 				<div>
-					<label htmlFor="review-author" className="mb-1.5 block text-sm font-medium">
+					<label htmlFor="review-author" className="eyebrow mb-2 block">
 						Name
 					</label>
 					<input
@@ -68,12 +68,12 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="author"
 						type="text"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="w-full h-11 rounded-md border border-line bg-page px-3 py-2 text-base"
 						placeholder="Your name"
 					/>
 				</div>
 				<div>
-					<label htmlFor="review-email" className="mb-1.5 block text-sm font-medium">
+					<label htmlFor="review-email" className="eyebrow mb-2 block">
 						Email
 					</label>
 					<input
@@ -81,14 +81,14 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="email"
 						type="email"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="w-full h-11 rounded-md border border-line bg-page px-3 py-2 text-base"
 						placeholder="your@email.com"
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label htmlFor="review-content" className="mb-1.5 block text-sm font-medium">
+				<label htmlFor="review-content" className="eyebrow mb-2 block">
 					Review
 				</label>
 				<textarea
@@ -96,18 +96,14 @@ export function ReviewForm({ slug }: { slug: string }) {
 					name="content"
 					required
 					rows={4}
-					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+					className="w-full min-h-28 rounded-md border border-line bg-page px-3 py-2 text-base resize-none"
 					placeholder="Share your experience with this product..."
 				/>
 			</div>
 
-			{state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+			{state?.error && <p className="text-sm text-[#e08a82]">{state.error}</p>}
 
-			<button
-				type="submit"
-				disabled={isPending || rating === 0}
-				className="rounded-md bg-foreground px-6 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-			>
+			<button type="submit" disabled={isPending || rating === 0} className="btn-gold h-11 text-sm">
 				{isPending ? "Submitting..." : "Submit Review"}
 			</button>
 		</form>

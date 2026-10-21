@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
+import { Em } from "@/components/brand/em";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { ListingSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
@@ -82,15 +84,22 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="max-w-md py-16">
+				<p className="font-display text-title-sm">Nothing matches these filters</p>
+				<p className="mt-3 text-muted-foreground">Try a wider price range or another category.</p>
+				<Link href="/products" className="btn-line mt-8">
+					Clear filters
+				</Link>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<p className="mb-8 text-sm text-muted-foreground">
+				{result.meta.count} {result.meta.count === 1 ? "product" : "products"}
+			</p>
+			<div className="grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -126,16 +135,17 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="container-page pb-20 pt-14 md:pb-28 md:pt-18">
+			<div className="mb-12">
+				<h1 className="font-display text-title-xl md:text-[3.75rem] md:leading-[1.05]">
+					The <Em>shelf</Em>
+				</h1>
 			</div>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
 			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			<Suspense fallback={<ListingSkeleton filters={filtersAvailable} />}>
+				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-10" : ""}>
 					{filtersAvailable && <ProductFilters facets={facets} />}
 
 					<div>
@@ -146,8 +156,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 						</div>
 
 						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
+						<div className="mb-6 hidden flex-wrap items-center gap-x-5 gap-y-2 lg:flex">
+							<span className="eyebrow">Sort by</span>
 							<SortLinks options={sortOptions} />
 						</div>
 
