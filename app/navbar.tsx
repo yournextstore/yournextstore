@@ -1,58 +1,68 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, ShoppingBag, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/app/cart/cart-context";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/**
+ * Eyesome's phone menu: a hamburger that drops a small cream card under the bar. The original
+ * listed Wishlist and Bag; here it carries the shop's sections, the account and the bag.
+ */
+export function Navbar({ links, accountHref }: { links: NavLink[]; accountHref: string }) {
 	const [open, setOpen] = useState(false);
+	const { openCart } = useCart();
+	const item = "flex items-center gap-3 px-5 py-3 text-sm font-semibold transition-colors hover:bg-amber-100";
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
+		<Popover open={open} onOpenChange={setOpen}>
+			<PopoverTrigger
+				aria-label="Open menu"
+				className="-mr-1 inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-black/5 md:hidden"
+			>
+				<Menu className="h-5 w-5" aria-hidden />
+			</PopoverTrigger>
+			<PopoverContent
+				align="end"
+				sideOffset={10}
+				className="w-max min-w-52 gap-0 overflow-hidden rounded-lg border-0 bg-popover p-0 shadow ring-0"
+			>
+				<nav aria-label="Menu">
+					<ul>
 						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
+							<li key={link.href}>
+								<Link href={link.href} onClick={() => setOpen(false)} className={item}>
+									{link.label}
+								</Link>
+							</li>
 						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						<li className="border-t border-amber-200/70">
+							{/* Plain <a>: /account is a proxied zone (see AGENTS.md). */}
+							<a href={accountHref} className={item}>
+								<UserRound className="h-4 w-4" aria-hidden /> Account
+							</a>
+						</li>
+						<li>
+							<button
+								type="button"
+								onClick={() => {
+									setOpen(false);
+									openCart();
+								}}
+								className={`${item} w-full`}
+							>
+								<ShoppingBag className="h-4 w-4" aria-hidden /> Bag
+							</button>
+						</li>
+					</ul>
+				</nav>
+			</PopoverContent>
+		</Popover>
 	);
 }

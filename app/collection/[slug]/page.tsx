@@ -1,29 +1,15 @@
 import type { APICollectionGetByIdResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { commerce, getStoreSeo } from "@/lib/commerce";
+import { ListingBanner, ListingBannerSkeleton } from "@/components/listing-banner";
+import { ProductCard } from "@/components/product-card";
+import { CARD_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { getCollectionData, getCollectionProducts } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
+import { bannerFor } from "@/lib/editorial";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
-
-// The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
-const SMART_COLLECTION_LIMIT = 100;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -62,132 +48,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
-
-// Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
-// the smart filters are evaluated against the whole catalog when the storefront asks for them.
-// Re-expressing each one as the equivalent product browse is what keeps those collections from
-// rendering as an empty grid. Cached like the collection itself, which also pins the
-// `Date.now()` below to the cache entry.
-async function getCollectionProducts(collection: APICollectionGetByIdResult) {
-	"use cache";
-	cacheLife("minutes");
-	const { filter } = collection;
-
-	if (filter.type === "manual") {
-		const ids = collection.productCollections.map((pc) => pc.product.id);
-		// The SDK throws on a 404: one product deleted since it joined must not fail the page.
-		return (
-			await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id }).catch(() => null)))
-		).filter((product) => product !== null);
-	}
-
-	if (filter.type === "variantValues") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			vts: encodeVts(filter.values),
-		});
-		return data;
-	}
-
-	if (filter.type === "dynamicPrice") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			priceMin: filter.min ?? undefined,
-			priceMax: filter.max ?? undefined,
-		});
-		return data;
-	}
-
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: SMART_COLLECTION_LIMIT,
-		orderBy: "createdAt",
-		orderDirection: "desc",
-	});
-
-	// A rolling "new arrivals" window has no browse equivalent, so the age bound is applied here.
-	if (typeof filter.days !== "number") {
-		return data;
-	}
-	const cutoff = Date.now() - filter.days * MS_PER_DAY;
-	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
-}
-
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh">
+			<ListingBannerSkeleton />
+			<div className="py-3">
+				<div className="h-8 w-48 animate-pulse rounded bg-secondary" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+			<ProductGridSkeleton />
+		</div>
 	);
 }
 
@@ -201,14 +70,32 @@ export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	);
 }
 
-// The SDK throws on a 404 despite its `| null` type. Without the null, the `!collection`
-// branches never run and an unknown slug answers 200 with the error page.
-const getCollectionData = async (slug: string) => {
-	"use cache";
-	cacheLife("minutes");
-	const [error, collection] = await try_(commerce.collectionGet({ idOrSlug: slug }));
-	return error ? null : collection;
-};
+async function CollectionBody({ collection }: { collection: APICollectionGetByIdResult }) {
+	const products = await getCollectionProducts(collection);
+
+	return (
+		<>
+			<ListingBanner image={collection.image ?? bannerFor(collection.slug)} />
+			<section className="flex flex-col justify-between gap-1 py-3 md:flex-row md:items-baseline">
+				<h1 className="text-2xl font-bold">{collection.name}</h1>
+				<p className="text-sm text-muted-foreground">
+					{products.length} {products.length === 1 ? "product" : "products"}
+				</p>
+			</section>
+			{products.length > 0 ? (
+				<div className={CARD_GRID}>
+					{products.map((product, index) => (
+						<ProductCard key={product.id} product={product} priority={index === 0} />
+					))}
+				</div>
+			) : (
+				<p className="w-full py-32 text-center text-4xl font-bold tracking-wide text-muted-foreground uppercase">
+					Nothing to show!
+				</p>
+			)}
+		</>
+	);
+}
 
 const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
 	const { slug } = await params;
@@ -219,26 +106,10 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 	}
 
 	return (
-		<>
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<CollectionBody collection={collection} />
+		</div>
 	);
 };

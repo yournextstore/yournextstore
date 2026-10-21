@@ -108,7 +108,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="h-11 min-w-0 flex-1 rounded-full border-0 bg-black/[0.075] px-4 text-base shadow-none md:text-base"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -127,7 +127,7 @@ export function DiscountCodeField() {
 				<Button
 					type="button"
 					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="h-11 shrink-0 rounded-full border-foreground bg-transparent px-5 text-base hover:bg-foreground hover:text-white"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TOOLBAR_CONTROL } from "@/lib/listing-styles";
 import { cn } from "@/lib/utils";
 
 type SortOption = { value: string; label: string };
@@ -70,7 +71,11 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				size="sm"
+				className={cn(TOOLBAR_CONTROL, "w-auto min-w-[9rem] border-0 text-base", className)}
+				aria-label="Sort products"
+			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="end">

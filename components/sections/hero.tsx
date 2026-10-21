@@ -1,42 +1,64 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowDownRight } from "lucide-react";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { commerce } from "@/lib/commerce";
+import { HERO_IMAGE } from "@/lib/editorial";
+import { YNSMedia } from "@/lib/yns-media";
 
-export function Hero() {
+async function getProductCount() {
+	"use cache";
+	cacheLife("minutes");
+	const browse = await commerce.productBrowse({ active: true, limit: 1 }).catch(() => null);
+	return browse?.meta.count ?? 0;
+}
+
+/**
+ * Eyesome's banner: a huge two-line title, two lines of grey copy, a dark button and an
+ * "Explore More" arrow link; on desktop a rounded photograph on a yellow sweep sits at the right.
+ */
+export async function Hero() {
+	const count = await getProductCount();
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
+		<section className="relative mb-5 flex items-center justify-between py-1">
+			<div className="mx-auto w-full max-w-xl py-2 sm:mx-0 lg:w-1/3 lg:max-w-none">
+				<h1 className="w-full py-3 text-display-xs font-semibold sm:text-display-sm lg:text-display">
+					Glasses &amp; Lens
+				</h1>
+				<p className="py-3 text-base text-gray-600">
+					Everyday frames, sunglasses and readers, chosen with care.
+					{count > 0 && (
+						<>
+							<br />
+							{count} products to choose from.
+						</>
+					)}
+				</p>
+				<div className="flex items-center">
+					<Link href="/products" className="btn-primary text-sm md:text-base">
+						Start Shopping
+					</Link>
+					<a href="#categories" className="flex items-center p-3 text-sm md:text-base">
+						<span className="mx-2">Explore More</span>
+						<span className="inline-flex h-[1.125rem] w-[1.125rem] items-center justify-center rounded-full border-[1.5px] border-current">
+							<ArrowDownRight className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+						</span>
+					</a>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
+			<div className="hidden w-1/2 justify-end lg:flex">
+				<div className="relative aspect-[350/317] w-2/3 overflow-hidden rounded-[1.75rem] bg-[radial-gradient(120%_90%_at_20%_15%,#fde68a_0%,#facc15_38%,#eab308_70%,#d99a06_100%)]">
+					<YNSMedia
+						src={HERO_IMAGE.src}
+						alt=""
+						fill
+						priority
+						sizes="(min-width: 1024px) 24vw, 1px"
+						className="object-cover"
+						style={{ objectPosition: HERO_IMAGE.position }}
+					/>
+				</div>
+			</div>
 		</section>
 	);
 }

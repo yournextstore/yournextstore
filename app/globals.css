@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-josefin);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,58 +33,126 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Eyesome extras: the honey cart button, the mustard "Explore" pill, the amber
+	   price ink, the cream footer strip and the grey photo well behind every frame. */
+	--color-honey: var(--honey);
+	--color-mustard: var(--mustard);
+	--color-price: var(--price);
+	--color-strip: var(--strip);
+	--color-well: var(--well);
+	--color-badge: var(--badge);
+}
+
+@theme {
+	--breakpoint-xs: 23.4375rem;
+	/* Type scale of the original (Tailwind 3 sizes with its line heights), under new names. */
+	--text-display: 6rem;
+	--text-display--line-height: 1;
+	--text-display-sm: 4.5rem;
+	--text-display-sm--line-height: 1;
+	--text-display-xs: 3.75rem;
+	--text-display-xs--line-height: 1;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #fbfaf7;
+	--foreground: #252525;
+	--card: #ffffff;
+	--card-foreground: #252525;
+	--popover: #fffbeb;
+	--popover-foreground: #252525;
+	--primary: #252525;
+	--primary-foreground: #fbfaf7;
+	--secondary: #ebe9e5;
+	--secondary-foreground: #252525;
+	--muted: #ebe9e5;
+	/* The original's #807c77 warm grey, darkened until it clears AA on the grey wells. */
+	--muted-foreground: #5f5b56;
+	--accent: #fef3c7;
+	--accent-foreground: #252525;
+	--destructive: #be123c;
+	--border: #e4e1db;
+	--input: #d6d2cb;
+	--ring: #a16207;
+	--honey: #eab308;
+	--mustard: #a16207;
+	--price: #b45309;
+	--strip: #fffbeb;
+	--well: #e9e7e3;
+	--badge: #e11d48;
 }
 
+/* Light-only design: the same palette, so the palette test checks both blocks. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #fbfaf7;
+	--foreground: #252525;
+	--card: #ffffff;
+	--card-foreground: #252525;
+	--popover: #fffbeb;
+	--popover-foreground: #252525;
+	--primary: #252525;
+	--primary-foreground: #fbfaf7;
+	--secondary: #ebe9e5;
+	--secondary-foreground: #252525;
+	--muted: #ebe9e5;
+	--muted-foreground: #5f5b56;
+	--accent: #fef3c7;
+	--accent-foreground: #252525;
+	--destructive: #be123c;
+	--border: #e4e1db;
+	--input: #d6d2cb;
+	--ring: #a16207;
+	--honey: #eab308;
+	--mustard: #a16207;
+	--price: #b45309;
+	--strip: #fffbeb;
+	--well: #e9e7e3;
+	--badge: #e11d48;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
+		scrollbar-width: thin;
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts its variables on <body>, so the face is declared here, not on <html>. */
+		font-family: var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
+	}
+}
+
+@layer components {
+	/* The original's four buttons: square-ish dark, outline, and the two rounded pills. */
+	.btn-primary {
+		@apply inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-gray-100 transition-colors hover:bg-gray-800 disabled:opacity-50;
+	}
+	.btn-rounded-primary {
+		@apply inline-flex items-center justify-center gap-2 rounded-full border border-foreground bg-foreground px-6 py-1.5 text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50;
+	}
+	.btn-rounded-secondary {
+		@apply inline-flex items-center justify-center gap-2 rounded-full border border-foreground px-6 py-1.5 transition-colors hover:bg-foreground hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
+	}
+	.plus-gradient {
+		background: linear-gradient(180deg, rgb(226 169 45) 0%, rgb(148 62 14) 100%);
+	}
+	.glass-panel {
+		background: rgb(255 255 255 / 0.55);
+		box-shadow: 0 4px 30px rgb(0 0 0 / 0.1);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		border: 1px solid rgb(255 255 255 / 0.3);
+	}
+	.font-logo {
+		font-family: var(--font-monoton), ui-sans-serif, system-ui, sans-serif;
+	}
+	/* Catalogue packshots sit on a warm grey sweep: lift it to white so `multiply` drops it into
+	   whatever colour the panel is (the yellow hero, the listing banner). */
+	.blend-shot {
+		mix-blend-mode: multiply;
+		filter: brightness(1.09) contrast(1.08);
 	}
 }
 

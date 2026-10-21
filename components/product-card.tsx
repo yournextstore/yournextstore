@@ -1,123 +1,87 @@
-import type {
-	APICollectionGetByIdResult,
-	APIProductGetByIdResult,
-	APIProductsBrowseResult,
-} from "commerce-kit";
+import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
-import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { QuickAddButton } from "@/components/quick-add-button";
+import { type CardProduct, getCardInfo } from "@/lib/card-info";
+import { cn } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
-type BrowseProduct = APIProductsBrowseResult["data"][number];
-type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
-type FullProduct = NonNullable<APIProductGetByIdResult>;
-
+/**
+ * Eyesome's listing card: white glass card with a grey photo well on top, the name with the amber
+ * price (and the struck list price) beside it, a grey meta line, then a hairline and the outline
+ * "Add to Bag" pill. On small phones it lies on its side, photo left, as the original did.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	headingLevel = "h2",
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	headingLevel?: "h2" | "h3";
 }) {
-	const { currency, locale, taxBehavior } = await getStoreConfig();
-	const variants = "variants" in product ? product.variants : null;
-	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
-
-	const allImages = [
-		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
-
-	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
-	const variantSearch = (() => {
-		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
-			return "";
-		}
-		const params = new URLSearchParams();
-		for (const combination of onlyVariant.combinations) {
-			params.set(combination.variantValue.variantType.label, combination.variantValue.value);
-		}
-		return `?${params.toString()}`;
-	})();
+	const { price, compareAt, quickAdd, meta, image } = await getCardInfo(product);
+	const Heading = headingLevel;
+	const href = `/product/${product.slug}`;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
+		<div className="group relative flex flex-col overflow-hidden rounded-lg border-2 border-black/[0.05] bg-white/50 shadow-md transition-[transform,box-shadow] hover:scale-[1.02] hover:shadow-lg xs:max-sm:flex-row">
+			<div className="relative aspect-[4/3] w-full shrink-0 bg-well xs:max-sm:aspect-auto xs:max-sm:w-[45%]">
+				{image && (
+					<YNSMedia
+						src={image}
+						alt=""
+						fill
+						priority={priority}
+						fetchPriority={priority ? "high" : undefined}
+						sizes="(max-width: 640px) 45vw, (max-width: 1280px) 33vw, 25vw"
+						className="object-cover"
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 pt-4">
+				<div>
+					<div className="flex justify-between gap-2">
+						<Heading className="min-w-0 text-xl font-medium leading-tight">
+							<Link href={href} className="after:absolute after:inset-0">
+								{product.name}
+							</Link>
+						</Heading>
+						<div className="flex shrink-0 flex-col items-end">
+							<span className="text-price">{price}</span>
+							{compareAt && <span className="text-sm text-muted-foreground line-through">{compareAt}</span>}
+						</div>
+					</div>
+					{meta && <p className="mt-1 text-sm text-muted-foreground">{meta}</p>}
+				</div>
+				<div className="flex items-center justify-between border-t pt-2">
+					{quickAdd ? (
+						<QuickAddButton
+							variantId={quickAdd.id}
+							variantSku={"sku" in quickAdd ? quickAdd.sku : null}
+							variantPrice={quickAdd.price}
+							variantPriceGross={"priceGross" in quickAdd ? quickAdd.priceGross : null}
+							variantImages={quickAdd.images}
+							product={{
+								id: product.id,
+								name: product.name,
+								slug: product.slug,
+								images: product.images ?? [],
+							}}
+							label={`Add to Bag, ${product.name}`}
+							className="btn-rounded-secondary relative z-10 whitespace-nowrap px-4 text-sm hover:shadow-md sm:px-6"
+						>
+							Add to Bag
+						</QuickAddButton>
+					) : (
+						<span
+							className={cn("btn-rounded-secondary text-sm group-hover:bg-foreground group-hover:text-white")}
+						>
+							Choose options
+						</span>
+					)}
+					<ShoppingBag className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} aria-hidden />
+				</div>
 			</div>
-		</Link>
+		</div>
 	);
 }
