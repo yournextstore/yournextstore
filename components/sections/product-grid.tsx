@@ -8,6 +8,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
+import { SECTION_GRID } from "@/lib/grid";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
@@ -38,39 +39,41 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+		<section id="products" className="shell space-y-6 py-14 md:py-20">
+			<div className="flex items-center justify-between gap-4">
+				<div className="flex flex-1 flex-col gap-0.5">
+					<h2 className="font-heading text-2xl leading-[1.1] md:text-3xl">{title}</h2>
+					{description ? (
+						<p className="text-sm leading-normal text-muted-foreground sm:text-base sm:leading-7">
+							{description}
+						</p>
+					) : null}
 				</div>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="hidden h-9 shrink-0 items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent sm:inline-flex"
 					>
 						View all
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="size-4" aria-hidden="true" />
 					</Link>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className={SECTION_GRID}>
 				{displayProducts.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
+				<Link
+					href={viewAllHref}
+					className="mx-auto flex h-9 w-fit items-center gap-2 rounded-md px-4 text-sm font-medium transition-colors hover:bg-accent sm:hidden"
+				>
+					View all products
+					<ArrowRight className="size-4" aria-hidden="true" />
+				</Link>
 			)}
 		</section>
 	);

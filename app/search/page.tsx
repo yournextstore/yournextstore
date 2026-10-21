@@ -95,7 +95,7 @@ async function SearchResults({
 		return (
 			<div>
 				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
-				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+				<h2 className="mt-3 max-w-2xl font-heading text-3xl leading-[1.1] tracking-tight text-foreground sm:text-5xl">
 					Nothing matched &ldquo;{q}&rdquo;
 				</h2>
 				<p className="mt-6 max-w-md text-sm text-muted-foreground">
@@ -127,7 +127,7 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 	return (
 		<div className="border-t border-border pt-12 sm:pt-20">
 			<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Search</p>
-			<h2 className="mt-3 max-w-3xl text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+			<h2 className="mt-3 max-w-3xl font-heading text-4xl leading-[1.05] tracking-tight text-foreground sm:text-6xl">
 				What are you looking for?
 			</h2>
 			{categories.length ? (
@@ -208,12 +208,12 @@ const SearchContent = async ({
 						<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
 							<div>
 								<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
-								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+								<h1 className="mt-3 max-w-[14ch] font-heading text-4xl leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 									{query}
 								</h1>
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
+										{totalCount} {totalCount === 1 ? "product" : "products"}
 									</span>
 									<ActiveFilters categories={categories} activeCategory={category} />
 								</div>

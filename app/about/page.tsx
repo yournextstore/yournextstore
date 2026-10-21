@@ -64,14 +64,14 @@ export default async function AboutPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
+				<h1 className="mt-4 font-heading text-4xl tracking-tight">About Us</h1>
 				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
 			</div>
 
 			{/* Story */}
 			<div className="space-y-12">
 				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
+					<h2 className="font-heading text-2xl tracking-tight mb-4">Our Story</h2>
 					<div className="space-y-4 text-muted-foreground leading-relaxed">
 						<p>
 							We believe in the power of thoughtful design. Every product in our collection is carefully
@@ -85,7 +85,7 @@ export default async function AboutPage() {
 				</section>
 
 				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
+					<h2 className="font-heading text-2xl tracking-tight mb-4">What We Stand For</h2>
 					<div className="grid gap-6 sm:grid-cols-3">
 						<div>
 							<h3 className="text-base font-medium text-foreground">Quality first</h3>
@@ -111,21 +111,21 @@ export default async function AboutPage() {
 
 			{/* CTA */}
 			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
+				<h2 className="font-heading text-2xl tracking-tight">Want to learn more?</h2>
 				<p className="mt-2 text-muted-foreground">
 					Explore our products or get in touch — we would love to hear from you.
 				</p>
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
 					<Link
 						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+						className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground shadow transition-all hover:bg-foreground/90"
 					>
 						Shop products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex h-9 items-center justify-center rounded-md border border-input px-6 text-sm font-medium text-foreground shadow-xs transition-colors hover:bg-secondary"
 						>
 							Contact us
 						</Link>

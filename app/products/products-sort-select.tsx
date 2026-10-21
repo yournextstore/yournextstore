@@ -1,7 +1,18 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -81,5 +92,44 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 				))}
 			</SelectContent>
 		</Select>
+	);
+}
+
+/** The original's "Sort ⌄" button: a dropdown with "Sort by" and the active option in bold. */
+export function SortMenu({ options }: { options: readonly SortOption[] }) {
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const defaultValue = options[0]?.value;
+	const current = searchParams.get("sort") ?? defaultValue;
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger render={<Button size="sm" aria-label="Sort products" />}>
+				Sort
+				<ChevronDown className="size-4" aria-hidden="true" />
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start" className="w-48 rounded-md p-1 shadow-md">
+				<DropdownMenuGroup>
+					<DropdownMenuLabel className="px-2 py-1.5 text-sm font-medium text-foreground">
+						Sort by
+					</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					{options.map((option) => (
+						<DropdownMenuItem
+							key={option.value}
+							className={cn("rounded-sm px-2 py-1.5", option.value === current && "bg-accent font-bold")}
+							onClick={() =>
+								router.push(buildSortHref(searchParams, pathname, option.value, defaultValue), {
+									scroll: false,
+								})
+							}
+						>
+							{option.label}
+						</DropdownMenuItem>
+					))}
+				</DropdownMenuGroup>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }

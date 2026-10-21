@@ -19,31 +19,37 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
+		<div className="flex items-center">
+			<span className="sr-only">Quantity</span>
+			<Button
+				type="button"
+				variant="outline"
+				size="icon-sm"
+				className="size-8 shrink-0 rounded-r-none"
+				onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
+				disabled={disabled || quantity <= min}
+				aria-label="Remove one item"
+			>
+				<Minus className="size-3" aria-hidden="true" />
+			</Button>
+			<output
+				aria-live="polite"
+				aria-label="Quantity"
+				className="flex h-8 w-16 items-center border-y border-input bg-transparent px-3 text-sm shadow-xs dark:bg-input/30"
+			>
+				{quantity}
+			</output>
+			<Button
+				type="button"
+				variant="outline"
+				size="icon-sm"
+				className="size-8 shrink-0 rounded-l-none"
+				onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
+				disabled={disabled || quantity >= max}
+				aria-label="Add one item"
+			>
+				<Plus className="size-3" aria-hidden="true" />
+			</Button>
 		</div>
 	);
 }

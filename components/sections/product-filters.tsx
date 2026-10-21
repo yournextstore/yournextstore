@@ -1,7 +1,6 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
@@ -338,18 +337,17 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
+			<SheetTrigger render={<Button size="sm" aria-label="Filter products" />}>
+				Filter
 				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+					<span className="rounded-full bg-primary-foreground px-1.5 text-xs text-primary">
 						{activeCount}
 					</span>
 				)}
 			</SheetTrigger>
 			<SheetContent
-				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				side="right"
+				className="block overflow-y-auto data-[side=right]:w-[85vw] data-[side=right]:max-w-sm"
 			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>

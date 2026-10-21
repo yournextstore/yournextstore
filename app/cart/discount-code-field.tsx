@@ -68,7 +68,7 @@ export function DiscountCodeField() {
 			<div className="grid gap-2">
 				<div
 					role="status"
-					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900"
+					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900 dark:border-green-400/30 dark:bg-green-950 dark:text-green-100"
 				>
 					<p className="min-w-0 py-2 text-sm">
 						<span className="font-semibold break-all">{applied.code} applied</span>{" "}
@@ -77,7 +77,7 @@ export function DiscountCodeField() {
 					<Button
 						type="button"
 						variant="ghost"
-						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950"
+						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950 dark:text-green-100 dark:hover:bg-green-900 dark:hover:text-green-50"
 						aria-label={`Remove discount code ${applied.code}`}
 						aria-busy={isMutating || undefined}
 						onClick={() => {
@@ -108,7 +108,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="h-9 min-w-0 flex-1 text-base md:text-sm"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -127,7 +127,7 @@ export function DiscountCodeField() {
 				<Button
 					type="button"
 					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="h-9 shrink-0 px-4"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

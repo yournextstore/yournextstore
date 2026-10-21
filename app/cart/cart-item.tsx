@@ -101,76 +101,72 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
-			<Link
-				href={`/product/${product.slug}`}
-				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
-			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
-			</Link>
-
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
+		<div className="space-y-3">
+			<div className="flex flex-col items-start justify-between gap-4 xs:flex-row">
+				<div className="flex min-w-0 items-center gap-4">
+					<Link
+						href={`/product/${product.slug}`}
+						onClick={closeCart}
+						tabIndex={-1}
+						aria-hidden="true"
+						className="relative aspect-square size-16 shrink-0 overflow-hidden rounded bg-secondary"
+					>
+						{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="64px" />}
+					</Link>
+					<div className="flex min-w-0 flex-col gap-1 self-start">
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-1 text-sm font-medium hover:underline"
 						>
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						<span className="line-clamp-1 text-xs text-muted-foreground">
+							{formatMoney({ amount: price, currency, locale })} x {quantity} ={" "}
+							{formatMoney({ amount: lineTotal, currency, locale })}
+						</span>
+						{options && <span className="line-clamp-1 text-xs text-muted-foreground">{options}</span>}
 						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+							<span className="line-clamp-1 text-xs text-muted-foreground">
+								{planLabel(item.subscriptionPlan)}
+							</span>
 						)}
+					</div>
+				</div>
+				<div className={cn("flex shrink-0 items-center gap-2", isPending && "opacity-70")}>
+					<div className="flex items-center">
+						<button
+							type="button"
+							onClick={handleDecrement}
+							className="inline-flex size-8 items-center justify-center rounded-l-md border border-input bg-background shadow-xs transition-colors hover:bg-accent"
+							aria-label="Remove one item"
+						>
+							<Minus className="size-3" aria-hidden="true" />
+						</button>
+						<span className="flex h-8 w-14 items-center border-y border-input px-3 text-sm tabular-nums">
+							{quantity}
+						</span>
+						<button
+							type="button"
+							onClick={handleIncrement}
+							className="inline-flex size-8 items-center justify-center rounded-r-md border border-input bg-background shadow-xs transition-colors hover:bg-accent"
+							aria-label="Add one item"
+						>
+							<Plus className="size-3" aria-hidden="true" />
+						</button>
 					</div>
 					<button
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="inline-flex size-8 items-center justify-center rounded-md border border-input bg-background shadow-xs transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Delete ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash2 className="size-3" aria-hidden="true" />
 					</button>
 				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
 			</div>
+			<div className="h-px bg-border" />
 		</div>
 	);
 }

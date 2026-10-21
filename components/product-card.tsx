@@ -3,12 +3,14 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { Eye } from "lucide-react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
+import { LogoMark } from "./logo-mark";
 import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
@@ -18,9 +20,14 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	headingLevel = "h3",
+	className,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	/** h2 on listings that open with an h1, h3 under a section heading. */
+	headingLevel?: "h2" | "h3";
+	className?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -55,10 +62,68 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const href = `/product/${product.slug}${variantSearch}`;
+	const Title = headingLevel;
+	const chooseOptions = !singleVariant && (variants?.length ?? 0) > 1;
+
+	// The original's shadcn Card: 1px border, image over a border-b, name + price, then a
+	// full-width "Add to cart" beside a square "Preview" button.
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
+		<article
+			className={cn(
+				"group relative flex size-full flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow",
+				className,
+			)}
+		>
+			<Link href={href} tabIndex={-1} aria-hidden="true" className="block border-b">
+				<div className="relative aspect-[3/4] bg-secondary">
+					{primaryImage &&
+						(isVideoUrl(primaryImage) ? (
+							<video
+								className="absolute inset-0 h-full w-full object-cover"
+								src={primaryImage}
+								muted
+								loop
+								autoPlay
+								playsInline
+							/>
+						) : (
+							<YNSMedia
+								src={primaryImage}
+								alt=""
+								fill
+								sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 480px) 50vw, 100vw"
+								className={`object-cover transition-opacity duration-500 ${secondaryImage && !isVideoUrl(secondaryImage) ? "group-hover:opacity-0" : ""}`}
+								priority={priority}
+								fetchPriority={priority ? "high" : undefined}
+							/>
+						))}
+					{primaryImage ? null : (
+						<div className="absolute inset-0 flex items-center justify-center text-muted-foreground/60">
+							<LogoMark className="size-12" />
+						</div>
+					)}
+					{secondaryImage && !isVideoUrl(secondaryImage) ? (
+						<YNSMedia
+							src={secondaryImage}
+							alt=""
+							fill
+							sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 480px) 50vw, 100vw"
+							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+						/>
+					) : null}
+				</div>
+			</Link>
+			<div className="flex-1 space-y-1.5 p-4">
+				<Title className="line-clamp-1 font-semibold leading-tight tracking-tight">
+					<Link href={href} className="hover:underline">
+						{product.name}
+					</Link>
+				</Title>
+				<p className="line-clamp-1 text-sm text-muted-foreground">{priceDisplay}</p>
+			</div>
+			<div className="flex items-center gap-2 p-4 pt-1">
+				{singleVariant ? (
 					<QuickAddButton
 						variantId={singleVariant.id}
 						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
@@ -72,52 +137,24 @@ export async function ProductCard({
 							images: product.images ?? [],
 						}}
 					/>
+				) : (
+					<Link
+						href={href}
+						aria-label={`${chooseOptions ? "Choose options" : "View product"}, ${product.name}`}
+						className="inline-flex h-8 w-full items-center justify-center rounded-sm bg-primary px-3 text-xs font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+					>
+						{chooseOptions ? "Choose options" : "View product"}
+					</Link>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				<Link
+					href={href}
+					title="Preview"
+					className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary text-secondary-foreground shadow-xs transition-colors hover:bg-secondary/80"
+				>
+					<Eye className="size-4" aria-hidden="true" />
+					<span className="sr-only">Preview {product.name}</span>
+				</Link>
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+		</article>
 	);
 }

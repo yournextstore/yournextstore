@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Suggestions } from "@/components/search/suggestions";
 import {
 	getActiveId,
@@ -31,6 +31,22 @@ export function SearchInput() {
 		inlineInputRef.current?.blur();
 	});
 
+	// The original's Ctrl/⌘ K shortcut focuses the search bar.
+	useEffect(() => {
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+				event.preventDefault();
+				if (window.matchMedia("(min-width: 64rem)").matches) {
+					inlineInputRef.current?.focus();
+				} else {
+					setIconOpen(true);
+				}
+			}
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, []);
+
 	const iconPanelOpen = iconOpen && c.enoughChars;
 	const inlinePanelOpen = inlineOpen && c.enoughChars;
 
@@ -40,15 +56,15 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="inline-flex size-9 items-center justify-center rounded-md border border-input bg-background shadow-xs transition-colors hover:bg-accent lg:hidden"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="size-4" strokeWidth={1.75} />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
 					sideOffset={8}
 					initialFocus={iconInputRef}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
+					className="w-[min(24rem,calc(100vw-2rem))] rounded-md border-border bg-popover p-2 shadow-lg"
 				>
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
@@ -75,7 +91,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
 							/>
 						</div>
 					</form>
@@ -93,8 +109,8 @@ export function SearchInput() {
 				</PopoverContent>
 			</Popover>
 
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			{/* lg+ — the original's "Search products… Ctrl K" bar */}
+			<form onSubmit={handleSubmit} className="hidden lg:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
@@ -105,7 +121,7 @@ export function SearchInput() {
 							ref={inlineInputRef}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="Search products..."
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
@@ -124,15 +140,21 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-9 w-52 rounded-md border border-input bg-background pl-9 pr-16 text-sm font-medium text-foreground shadow-xs placeholder:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring xl:w-60"
 						/>
+						<kbd className="pointer-events-none absolute right-1.5 top-1/2 hidden h-6 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
+							<abbr title="Control" className="no-underline">
+								Ctrl
+							</abbr>
+							K
+						</kbd>
 					</div>
 					<PopoverContent
 						align="end"
 						sideOffset={8}
 						anchor={inlineAnchorRef}
 						initialFocus={false}
-						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
+						className="w-[min(22rem,calc(100vw-2rem))] rounded-md border-border bg-popover p-1.5 shadow-lg"
 					>
 						<Suggestions
 							listboxId={inlineListboxId}
