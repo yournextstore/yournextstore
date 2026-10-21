@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -16,7 +15,6 @@ import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
-import { cn } from "@/lib/utils";
 
 // Every net price below has a gross twin; which of the pair a shopper sees is the store's
 // `taxBehavior` (see lib/pricing.ts). The twins stay optional so this still renders against
@@ -103,16 +101,6 @@ export function AddToCartButton({
 
 	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
 	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
-
-	const buttonText = useMemo(() => {
-		if (!selectedVariant) return "Select options";
-		if (isOutOfStock) return "Out of stock";
-		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -215,98 +203,85 @@ export function AddToCartButton({
 		});
 	};
 
+	// The original's single black bar: the label centred, the price set off at the end by a white rule.
+	const buttonLabel = !selectedVariant
+		? "Select options"
+		: isOutOfStock
+			? "Sold out"
+			: plan
+				? plan.discountPercent > 0
+					? `Subscribe & save ${plan.discountPercent}%`
+					: "Subscribe"
+				: "Add to cart";
+
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
-			</div>
+		<div>
+			{summary && <p className="mb-6 pb-3 text-subheader whitespace-pre-line">{summary}</p>}
 
 			{variants.length > 1 && <VariantSelector variants={variants} />}
 
-			{purchasable ? (
-				<>
-					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
-					)}
+			{purchasable && plans.length > 0 && (
+				<div className="mt-6">
+					<SubscriptionOptions
+						plans={plans}
+						value={planId}
+						onChange={setPlanId}
+						allowOneTime={allowOneTime}
+					/>
+				</div>
+			)}
 
+			{(priceInfo.compareAt || omnibusPrice || stockStatus?.tone === "low") && (
+				<div className="mt-4 space-y-1 text-ink-soft">
+					{priceInfo.compareAt && (
+						<p>
+							Was <span className="line-through">{priceInfo.compareAt}</span>
+							{priceInfo.discountPercent ? (
+								<span className="ml-2 font-semibold text-destructive">−{priceInfo.discountPercent}%</span>
+							) : null}
+						</p>
+					)}
+					{omnibusPrice && <p className="text-caption">Lowest price in the last 30 days: {omnibusPrice}</p>}
+					{stockStatus?.tone === "low" && <p className="text-caption">{stockStatus.label}</p>}
+				</div>
+			)}
+
+			{purchasable && resolvedTiers.length > 0 && (
+				<div className="mt-6 space-y-4">
 					<QuantitySelector
 						quantity={effectiveQuantity}
 						onQuantityChange={setQuantity}
 						max={Math.max(1, Math.min(99, maxQuantity))}
 						disabled={isOutOfStock}
 					/>
-
 					<VolumePricingDisplay
 						tiers={resolvedTiers}
 						quantity={effectiveQuantity}
 						volumePrice={volumePrice}
 					/>
-
-					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
-						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
-					) : (
-						<form onSubmit={handleSubmit}>
-							<button
-								type="submit"
-								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								{buttonText}
-							</button>
-						</form>
-					)}
-				</>
-			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				</div>
 			)}
 
-			<TrustBadges />
+			{!purchasable ? (
+				<p className="py-6 text-ink-soft">This subscription isn't available right now.</p>
+			) : isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
+				<div className="py-6">
+					<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
+				</div>
+			) : (
+				<form onSubmit={handleSubmit} className="py-6">
+					<button
+						type="submit"
+						disabled={!selectedVariant || isOutOfStock}
+						className="flex h-14 w-full items-center bg-black pr-6 pl-4 text-body text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+					>
+						<span className="mr-4 flex-1 text-center">{buttonLabel}</span>
+						<span className="border-l border-white pl-4 tabular-nums">
+							{totalPrice ? formatMoney({ amount: totalPrice, currency, locale }) : priceInfo.display}
+						</span>
+					</button>
+				</form>
+			)}
 		</div>
 	);
 }
