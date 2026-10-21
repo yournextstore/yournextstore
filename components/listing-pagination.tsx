@@ -1,12 +1,5 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 function getPageNumbers(currentPage: number, totalPages: number) {
 	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -32,7 +25,7 @@ function buildUrl(basePath: string, page: number, filters: Record<string, string
 	return params.size ? `${basePath}?${params}` : basePath;
 }
 
-/** Numbered pagination for product listing pages. Carries every active filter across page links. */
+/** Numbered pagination in the original's round buttons. Carries every active filter across page links. */
 export function ListingPagination({
 	basePath,
 	currentPage,
@@ -49,32 +42,42 @@ export function ListingPagination({
 	const pageNumbers = getPageNumbers(currentPage, totalPages);
 
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
-				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
-				)}
-				{pageNumbers.map((page, index) =>
-					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
-					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
-								{page}
-							</PaginationLink>
-						</PaginationItem>
-					),
-				)}
-				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
-				)}
-			</PaginationContent>
-		</Pagination>
+		<nav className="pagination" aria-label="Pagination">
+			{currentPage > 1 && (
+				<Link
+					className="button icon"
+					href={buildUrl(basePath, currentPage - 1, filters)}
+					aria-label="Previous page"
+				>
+					<ChevronLeft size={16} aria-hidden />
+				</Link>
+			)}
+			{pageNumbers.map((page, index) =>
+				page === "ellipsis" ? (
+					<span key={`ellipsis-${index}`} className="pagination-gap" aria-hidden>
+						…
+					</span>
+				) : (
+					<Link
+						key={page}
+						className="button icon"
+						href={buildUrl(basePath, page, filters)}
+						aria-current={page === currentPage ? "page" : undefined}
+						aria-label={`Page ${page}`}
+					>
+						{page}
+					</Link>
+				),
+			)}
+			{currentPage < totalPages && (
+				<Link
+					className="button icon"
+					href={buildUrl(basePath, currentPage + 1, filters)}
+					aria-label="Next page"
+				>
+					<ChevronRight size={16} aria-hidden />
+				</Link>
+			)}
+		</nav>
 	);
 }

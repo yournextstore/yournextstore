@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { SectionHead } from "@/components/home-sections";
+import { ProductCard } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
 
 // Cached per category, not per product: every product page in a category shares one
@@ -10,38 +10,47 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 9,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+/** "You may also like": four cards from the same category, topped up from the catalog. */
+export async function RelatedProducts({
 	productId,
-	categorySlug,
+	category,
 }: {
 	productId: string;
-	categorySlug?: string;
+	category?: { slug: string; name: string } | null;
 }) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const [same, all] = await Promise.all([
+		category ? getCategoryProducts(category.slug) : Promise.resolve([]),
+		getCategoryProducts(),
+	]);
+	const seen = new Set([productId]);
+	const related = [...same, ...all]
+		.filter((p) => {
+			if (seen.has(p.id)) return false;
+			seen.add(p.id);
+			return true;
+		})
+		.slice(0, 4);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<section className="section">
+			<SectionHead
+				title="You may also like"
+				href={category ? `/category/${category.slug}` : "/products"}
+				linkLabel={category ? `More ${category.name.toLowerCase()}` : "All products"}
+			/>
+			<div className="product-grid related-grid">
+				{related.map((product) => (
+					<ProductCard key={product.id} product={product} />
+				))}
+			</div>
+		</section>
 	);
 }

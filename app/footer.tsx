@@ -1,163 +1,104 @@
+import { Mail, MessageCircle, UserRound } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { Newsletter } from "@/components/sections/newsletter";
+import { getCategoryTiles } from "@/lib/catalog";
+import { commerce, getStoreSeo, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
+	const [me, legal, categories, socials] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+		getCategoryTiles(),
+		commerce.socialsGet().catch(() => null),
+	]);
+	const tools = me?.store.settings?.enabledTools;
+	const help = [
+		{ href: "/about", label: "About us" },
+		{ href: "/faq", label: "FAQ" },
+		...(tools?.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+		...(tools?.blog ? [{ href: "/blog", label: "Journal" }] : []),
+		...legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+	];
+	const socialLinks = Object.entries(socials?.socials ?? {}).flatMap(([name, url]) =>
+		typeof url === "string" && url && name !== "email" ? [{ name, url }] : [],
 	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
+	const email = socials?.socials?.email ?? null;
+	// `new Date()` is unstable during prerender; caching pins it to the entry.
+	return { help, categories, socialLinks, email, year: new Date().getFullYear() };
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [{ help, categories, socialLinks, email, year }, { storeName, storeDescription }] = await Promise.all(
+		[getFooterData(), getStoreSeo()],
+	);
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="store-footer">
+			<div className="store-width">
+				<div className="footer-card">
+					<div className="footer-brand">
+						<Link href="/" className="store-logo footer-logo">
+							{storeName}
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
+						{storeDescription && <p>{storeDescription}</p>}
+						<ul className="footer-contact">
 							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
+								<UserRound size={15} aria-hidden />
+								{/* Plain <a>: /account is a proxied zone. */}
+								<a href="/account">Your account and orders</a>
 							</li>
-							<FooterContactLink />
+							{email && (
+								<li>
+									<Mail size={15} aria-hidden />
+									<a href={`mailto:${email}`}>{email}</a>
+								</li>
+							)}
 							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
+								<MessageCircle size={15} aria-hidden />
+								<Link href="/faq">Questions? Read the FAQ</Link>
 							</li>
-							<FooterBlogLink />
 						</ul>
+						{socialLinks.length > 0 && (
+							<ul className="social-links">
+								{socialLinks.map((social) => (
+									<li key={social.name}>
+										<a href={social.url} className="chip" target="_blank" rel="noopener noreferrer">
+											{social.name}
+										</a>
+									</li>
+								))}
+							</ul>
+						)}
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					<nav aria-label="Shop" className="footer-links">
+						<p>Shop</p>
+						<Link href="/products">All products</Link>
+						{categories.map((category) => (
+							<Link key={category.id} href={category.href}>
+								{category.name}
+							</Link>
+						))}
+					</nav>
+					<nav aria-label="Help and information" className="footer-links">
+						<p>Help</p>
+						{help.map((link) => (
+							<Link key={link.href} href={link.href}>
+								{link.label}
+							</Link>
+						))}
+					</nav>
+					<div className="footer-newsletter">
+						<Newsletter />
+					</div>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="footer-bottom">
+					<p>
+						© {year} {storeName}
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>

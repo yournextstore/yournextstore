@@ -18,6 +18,8 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						onMouseEnter={() => setHovered(starValue)}
 						onMouseLeave={() => setHovered(0)}
 						onClick={() => onChange(starValue)}
+						aria-label={`Rate ${starValue} out of 5`}
+						aria-pressed={starValue === value}
 						className="transition-transform hover:scale-110"
 					>
 						<Star
@@ -38,15 +40,15 @@ export function ReviewForm({ slug }: { slug: string }) {
 
 	if (state?.success) {
 		return (
-			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
+			<div className="reviews-empty">
 				<p className="font-medium">{state.message}</p>
 			</div>
 		);
 	}
 
 	return (
-		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
-			<h3 className="text-lg font-medium">Write a Review</h3>
+		<form action={action} className="review-form-card space-y-4">
+			<h3>Write a review</h3>
 
 			<input type="hidden" name="slug" value={slug} />
 			<input type="hidden" name="rating" value={rating} />
@@ -66,7 +68,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="author"
 						type="text"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-base"
 						placeholder="Your name"
 					/>
 				</div>
@@ -79,7 +81,7 @@ export function ReviewForm({ slug }: { slug: string }) {
 						name="email"
 						type="email"
 						required
-						className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-base"
 						placeholder="your@email.com"
 					/>
 				</div>
@@ -94,18 +96,14 @@ export function ReviewForm({ slug }: { slug: string }) {
 					name="content"
 					required
 					rows={4}
-					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+					className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-base resize-none"
 					placeholder="Share your experience with this product..."
 				/>
 			</div>
 
-			{state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+			{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-			<button
-				type="submit"
-				disabled={isPending || rating === 0}
-				className="rounded-md bg-foreground px-6 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-			>
+			<button type="submit" disabled={isPending || rating === 0} className="button primary">
 				{isPending ? "Submitting..." : "Submit Review"}
 			</button>
 		</form>

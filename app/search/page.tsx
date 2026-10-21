@@ -60,7 +60,7 @@ async function searchProducts({
 
 function SearchResultsSkeleton() {
 	return (
-		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+		<div className="product-grid">
 			{[0, 1, 2, 3, 4, 5].map((i) => (
 				<div key={i} className="flex flex-col gap-3">
 					<div className="aspect-square w-full animate-pulse bg-secondary motion-reduce:animate-none" />
@@ -107,7 +107,7 @@ async function SearchResults({
 
 	return (
 		<div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+			<div className="product-grid">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -213,7 +213,7 @@ const SearchContent = async ({
 								</h1>
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
+										{totalCount} {totalCount === 1 ? "product" : "products"}
 									</span>
 									<ActiveFilters categories={categories} activeCategory={category} />
 								</div>

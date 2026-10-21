@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
+@import "./storefront.css";
 
 /* Streamdown (store-chat markdown) ships its own Tailwind classes — Tailwind must scan them. */
 @source "../node_modules/streamdown/dist/*.js";
@@ -35,47 +36,50 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	/* Sage-and-forest palette from the original (theme.primary #343E32), mapped onto the shadcn names. */
+	--radius: 0.375rem;
+	--background: #ffffff;
+	--foreground: #141614;
+	--card: #ffffff;
+	--card-foreground: #141614;
+	--popover: #ffffff;
+	--popover-foreground: #141614;
+	--primary: #343e32;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f5f2;
+	--secondary-foreground: #141614;
+	--muted: #f4f5f2;
+	/* The original's #6c7068 grey, darkened just enough to clear AA on the grey panels. */
+	--muted-foreground: #62665e;
+	--accent: #eceee9;
+	--accent-foreground: #141614;
+	--destructive: #992c1f;
+	--border: #e6e8e3;
+	--input: #d5d8d0;
+	--ring: #343e32;
 }
 
+/* Light-only design (forcedTheme="light"); the block stays so the palette test checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.375rem;
+	--background: #ffffff;
+	--foreground: #141614;
+	--card: #ffffff;
+	--card-foreground: #141614;
+	--popover: #ffffff;
+	--popover-foreground: #141614;
+	--primary: #343e32;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f5f2;
+	--secondary-foreground: #141614;
+	--muted: #f4f5f2;
+	--muted-foreground: #62665e;
+	--accent: #eceee9;
+	--accent-foreground: #141614;
+	--destructive: #992c1f;
+	--border: #e6e8e3;
+	--input: #d5d8d0;
+	--ring: #343e32;
 }
 
 @layer base {
