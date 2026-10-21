@@ -1,38 +1,24 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { Caring, Hero, Promises, Shelf, Statement } from "@/components/sections/home-sections";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { EDITORIAL, getHomeData } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// Every read here is cached, so the whole page prerenders: no Suspense boundary to stream in late.
+export default async function Home() {
+	const { products, shelf } = await getHomeData();
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<Hero image={EDITORIAL.hero} />
+			<Shelf cards={shelf} />
+			<Statement />
+			<ProductGrid products={products} className="py-10 lg:py-[4.5rem]" />
+			<Caring image={EDITORIAL.caring} />
+			<Promises />
 		</>
 	);
 }

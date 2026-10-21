@@ -8,12 +8,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-poppins);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-image: 1.25rem;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,50 +33,92 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Horizon's named colours: indigo ink, plum body copy, sand band, butter accent, lilac rule. */
+	--color-ink: var(--ink);
+	--color-plum: var(--plum);
+	--color-sand: var(--sand);
+	--color-butter: var(--butter);
+	--color-peach: var(--peach);
+	--color-mist: var(--mist);
+	--color-rule: var(--rule);
+	--color-field: var(--field);
+	/* Horizon's type scale (base 16, ratio 1.125), under names that cannot shadow Tailwind's text-sm/base/lg. */
+	--text-display: 2.5rem;
+	--text-display--line-height: 1.1;
+	--text-title: 2rem;
+	--text-title--line-height: 1.2;
+	--text-lede: 1.25rem;
+	--text-lede--line-height: 1.4;
+	--text-label: 1.125rem;
+	--text-label--line-height: 1.4;
+	--text-copy: 0.875rem;
+	--text-copy--line-height: 1.5;
+	--text-fine: 0.75rem;
+	--text-fine--line-height: 1.5;
+	--shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--shadow-float: 0 3px 32px 4px rgba(0, 0, 0, 0.07);
+	--breakpoint-3xl: 120rem;
 }
 
+/* Light-only design: :root and .dark carry the same palette so sonner and the palette test agree. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--ink: #1d0a43;
+	--plum: #585165;
+	--sand: #f6f4ef;
+	--butter: #f2dca6;
+	--peach: #ffbc8f;
+	--mist: #e2e7ee;
+	--rule: #eceaf0;
+	--field: #bdb9c6;
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: var(--ink);
+	--card: #ffffff;
+	--card-foreground: var(--ink);
+	--popover: #ffffff;
+	--popover-foreground: var(--ink);
+	--primary: var(--ink);
+	--primary-foreground: #ffffff;
+	--secondary: var(--sand);
+	--secondary-foreground: var(--ink);
+	--muted: var(--sand);
+	--muted-foreground: var(--plum);
+	--accent: var(--sand);
+	--accent-foreground: var(--ink);
+	--destructive: #c2412f;
+	--border: var(--rule);
+	--input: var(--field);
+	--ring: #6e6585;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--ink: #1d0a43;
+	--plum: #585165;
+	--sand: #f6f4ef;
+	--butter: #f2dca6;
+	--peach: #ffbc8f;
+	--mist: #e2e7ee;
+	--rule: #eceaf0;
+	--field: #bdb9c6;
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: var(--ink);
+	--card: #ffffff;
+	--card-foreground: var(--ink);
+	--popover: #ffffff;
+	--popover-foreground: var(--ink);
+	--primary: var(--ink);
+	--primary-foreground: #ffffff;
+	--secondary: var(--sand);
+	--secondary-foreground: var(--ink);
+	--muted: var(--sand);
+	--muted-foreground: var(--plum);
+	--accent: var(--sand);
+	--accent-foreground: var(--ink);
+	--destructive: #c2412f;
+	--border: var(--rule);
+	--input: var(--field);
+	--ring: #6e6585;
 }
 
 @layer base {
@@ -84,6 +127,88 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-weight: 600;
+	}
+}
+
+/* The original's uppercase, slightly tracked control type (nav, buttons, kickers). */
+@utility caps {
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+/* Horizon's centred page column: 1072px of content with generous gutters. */
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: calc(67rem + 2 * var(--gutter, 1.5rem));
+	padding-inline: var(--gutter, 1.5rem);
+}
+
+/* Solid indigo CTA (TAKE THE QUIZ / ADD TO BAG / CHECKOUT). */
+@utility btn-ink {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: var(--btn-h, 3.5rem);
+	padding-inline: var(--btn-px, 2rem);
+	border-radius: 0.5rem;
+	background: var(--ink);
+	color: #fff;
+	font-weight: 600;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	transition: background-color 0.2s;
+	&:hover {
+		background: #2c1860;
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+/* Outline twin of btn-ink (TAKE OUR QUIZ on About). */
+@utility btn-line {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--btn-h, 3rem);
+	padding-inline: var(--btn-px, 2rem);
+	border-radius: 0.5rem;
+	border: 1px solid var(--ink);
+	color: var(--ink);
+	font-weight: 600;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	transition: background-color 0.2s;
+	&:hover {
+		background: var(--sand);
+	}
+}
+
+/* SHOP NOW: caps link with the thick 3px underline bar. */
+@utility link-bar {
+	display: inline-block;
+	padding-bottom: 0.5rem;
+	font-weight: 600;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	background: linear-gradient(currentColor, currentColor) bottom / 100% 3px no-repeat;
+	transition: background-size 0.3s;
+	&:hover {
+		background-size: 60% 3px;
 	}
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
@@ -83,13 +83,13 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
-				</div>
+			<div className="flex aspect-[9/10] items-center justify-center bg-sand lg:sticky lg:top-[5.5rem] lg:self-start">
+				<p className="text-copy text-plum">No images available</p>
 			</div>
 		);
 	}
+
+	const current = displayImages[selectedIndex] ?? "";
 
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
@@ -97,14 +97,14 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="relative outline-none lg:sticky lg:top-[5.5rem] lg:self-start"
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+			{/* Horizon's gallery is a full-bleed half-page photograph, no frame. */}
+			<div className="group relative aspect-[9/10] overflow-hidden bg-sand">
+				{isVideoUrl(current) ? (
 					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
+						className="absolute inset-0 h-full w-full object-cover"
+						src={current}
 						muted
 						loop
 						autoPlay
@@ -113,7 +113,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					/>
 				) : (
 					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
+						src={current}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
 						sizes="(max-width: 1024px) 100vw, 50vw"
@@ -126,13 +126,12 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					/>
 				)}
 
-				{/* Navigation Arrows */}
 				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
+					<div className="absolute inset-x-4 top-1/2 hidden -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100 lg:flex">
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="size-10 rounded-full bg-background text-ink shadow-soft hover:bg-background"
 							onClick={(e) => {
 								e.stopPropagation();
 								handlePrevious();
@@ -144,7 +143,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="size-10 rounded-full bg-background text-ink shadow-soft hover:bg-background"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleNext();
@@ -156,59 +155,61 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 					</div>
 				)}
 
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
+				{/* Desktop: the original's small vertical thumbnail stack, bottom left over the photograph. */}
 				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
+					<div className="absolute bottom-8 left-8 hidden max-h-[60%] flex-col gap-2 overflow-y-auto lg:flex">
+						{displayImages.map((image, index) => (
+							<button
+								key={`${image}-${index}`}
+								type="button"
+								onClick={() => setSelectedIndex(index)}
+								aria-label={`Show image ${index + 1}`}
+								aria-current={selectedIndex === index ? "true" : undefined}
+								className={cn(
+									"relative size-12 shrink-0 overflow-hidden rounded-md border bg-sand transition-opacity",
+									selectedIndex === index ? "border-ink" : "border-transparent opacity-70 hover:opacity-100",
+								)}
+							>
+								{isVideoUrl(image) ? (
+									<video
+										className="absolute inset-0 h-full w-full object-cover"
+										src={image}
+										muted
+										playsInline
+									/>
+								) : (
+									<YNSMedia src={image} alt="" fill sizes="48px" className="object-cover" />
+								)}
+							</button>
+						))}
 					</div>
 				)}
 			</div>
 
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{displayImages.map((image, index) => (
-						<button
-							key={`${image}-${index}`}
-							type="button"
-							onClick={() => setSelectedIndex(index)}
-							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
-							)}
-						>
-							{isVideoUrl(image) ? (
-								<video
-									className="absolute inset-0 w-full h-full object-cover"
-									src={image}
-									muted
-									playsInline
+			{/* Mobile: dots under the photograph (a counter once there are too many to fit). */}
+			{displayImages.length > 1 &&
+				(displayImages.length <= 8 ? (
+					<div className="flex justify-center gap-1 py-2 lg:hidden">
+						{displayImages.map((image, index) => (
+							<button
+								key={`dot-${image}-${index}`}
+								type="button"
+								onClick={() => setSelectedIndex(index)}
+								aria-label={`Show image ${index + 1}`}
+								aria-current={selectedIndex === index ? "true" : undefined}
+								className="flex size-6 items-center justify-center"
+							>
+								<span
+									className={cn("size-2 rounded-full", selectedIndex === index ? "bg-ink" : "bg-field")}
 								/>
-							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
-							)}
-						</button>
-					))}
-				</div>
-			)}
+							</button>
+						))}
+					</div>
+				) : (
+					<p className="py-2 text-center text-fine text-plum lg:hidden">
+						{selectedIndex + 1} / {displayImages.length}
+					</p>
+				))}
 		</section>
 	);
 }

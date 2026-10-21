@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
+import { EDITORIAL } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -50,88 +52,104 @@ export default async function AboutPage() {
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
 		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+			storeDescription ?? "Learn about our story, our values and how we make our skin, body and hair care.",
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+			{/* Split hero: statement left, portrait on Horizon's overlapping colour blocks right. */}
+			<section className="mx-auto grid max-w-[120rem] grid-cols-1 items-center gap-10 overflow-hidden pt-10 md:grid-cols-2 md:gap-6 md:pt-0">
+				<div className="px-6 md:pl-10 lg:pl-20">
+					<h1 className="max-w-[30rem] text-title font-semibold text-ink lg:text-display">
+						Good things,
+						<br />
+						chosen well
+					</h1>
+					<p className="mt-6 max-w-[34rem] text-lede text-ink">
+						{storeDescription ??
+							`Everyday things should be simple to find, good to use and fair to buy. That's the idea ${storeName} is built on.`}
+					</p>
 				</div>
-			</div>
-		</div>
+				<div aria-hidden className="relative h-[24rem] md:h-[33rem] lg:h-[46rem]">
+					<span className="absolute left-0 top-0 h-[44%] w-[47%] rounded-tl-[1.25rem] rounded-tr-[9rem] bg-peach" />
+					<span className="absolute right-0 top-0 h-[63%] w-[58%] rounded-tl-[1.25rem] bg-mist" />
+					<span className="absolute bottom-[34%] right-[2%] size-[26%] rounded-full bg-butter" />
+					<span className="absolute bottom-0 left-[20%] h-[46%] w-[54%] rounded-t-[1.25rem] bg-[#f0dba7]" />
+					<div className="absolute left-[16%] top-[18%] h-[57%] w-[69%] overflow-hidden rounded-image">
+						<Image
+							src={EDITORIAL.about}
+							alt=""
+							fill
+							priority
+							sizes="(max-width: 768px) 70vw, 35vw"
+							className="object-cover"
+						/>
+					</div>
+				</div>
+			</section>
+
+			{/* Sand values band */}
+			<section className="bg-sand">
+				<div className="mx-auto max-w-[36rem] px-6 py-14 text-center">
+					<p className="text-fine font-semibold text-ink">Our values</p>
+					<h2 className="mt-3 text-[1.5rem] font-semibold leading-tight text-ink lg:text-[2rem]">
+						Simple. Gentle. Honest.
+					</h2>
+					<p className="mt-4 text-[1.5rem] leading-snug text-ink lg:text-[1.75rem]">
+						At {storeName}, we want shopping to feel easy: a short range of gentle products, clear ingredient
+						lists and fair prices from the first click to checkout.
+					</p>
+				</div>
+			</section>
+
+			{/* Three line-drawn pillars */}
+			<section className="mx-auto max-w-[72rem] px-6 py-16 text-center">
+				<h2 className="text-[1.5rem] font-semibold text-ink lg:text-[2rem]">What we stand for</h2>
+				<ul className="mt-10 grid grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-8">
+					{PILLARS.map((pillar) => (
+						<li key={pillar.title} className="flex flex-col items-center">
+							<Image src={pillar.icon} alt="" width={144} height={144} className="size-28 lg:size-36" />
+							<h3 className="mt-6 text-lede font-normal text-ink">{pillar.title}</h3>
+							<p className="mt-3 max-w-[18rem] text-copy text-plum lg:text-base">{pillar.body}</p>
+						</li>
+					))}
+				</ul>
+				<Link href="/products" className="btn-line mt-12">
+					Shop the range
+				</Link>
+			</section>
+
+			{/* Closing band in the home page's statement style, with a way to reach the shop. */}
+			<section className="bg-sand">
+				<div className="shell flex flex-col gap-6 py-12 md:flex-row md:items-center md:justify-between">
+					<p className="max-w-[36rem] text-[1.5rem] leading-snug text-ink lg:text-title">
+						Questions about a product? <strong className="font-semibold">We&rsquo;re here to help.</strong>
+					</p>
+					<Link href={contactFormEnabled ? "/contact" : "/faq"} className="btn-ink shrink-0">
+						{contactFormEnabled ? "Contact us" : "Read the FAQ"}
+					</Link>
+				</div>
+			</section>
+		</>
 	);
 }
+
+const PILLARS = [
+	{
+		icon: "/images/icon-curated.svg",
+		title: "Curated products",
+		body: "A short range, so every product in it has a clear reason to be on your shelf.",
+	},
+	{
+		icon: "/images/icon-tested.svg",
+		title: "Thoughtfully made",
+		body: "Made for how they feel on skin day after day, not for the length of an ingredient list.",
+	},
+	{
+		icon: "/images/icon-plant.svg",
+		title: "Inspired by nature",
+		body: "Plant oils, butters and clays behind most of what we make.",
+	},
+] as const;

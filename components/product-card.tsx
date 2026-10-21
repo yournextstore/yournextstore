@@ -57,9 +57,11 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const summary = "summary" in product && typeof product.summary === "string" ? product.summary : null;
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link href={`/product/${product.slug}${variantSearch}`} className="group block min-w-0">
+			<div className="relative aspect-[4/5] overflow-hidden rounded-image bg-sand">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -78,7 +80,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -88,17 +90,17 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 340px"
+							className={`object-cover transition duration-500 group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 						/>
 					))}
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -108,16 +110,17 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 340px"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="mt-3">
+				<p className="text-copy font-semibold text-ink lg:text-base">{product.name}</p>
+				{summary && <p className="mt-0.5 line-clamp-2 text-copy text-plum">{summary}</p>}
+				<p className="mt-2.5 text-copy font-semibold text-ink">{priceDisplay}</p>
 			</div>
 		</Link>
 	);
