@@ -1,100 +1,32 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { getStoreIdentity } from "@/lib/catalog";
+import { commerce } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+const SOCIAL_LABELS = {
+	instagram: "Instagram",
+	facebook: "Facebook",
+	tiktok: "TikTok",
+	youtube: "YouTube",
+	x: "X",
+	linkedin: "LinkedIn",
+	email: "Email",
+} as const;
+
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
+	const [legal, socials] = await Promise.all([
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+		commerce.socialsGet().catch(() => null),
+	]);
+	const links = Object.entries(SOCIAL_LABELS).flatMap(([key, label]) => {
+		const value = socials?.socials?.[key as keyof typeof SOCIAL_LABELS];
+		if (!value) return [];
+		return [{ label, href: key === "email" && !value.startsWith("mailto:") ? `mailto:${value}` : value }];
+	});
+	return { legal: legal.data, socials: links };
 }
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
@@ -102,63 +34,76 @@ async function FooterLegalPages() {
 async function getCopyrightYear() {
 	"use cache";
 	cacheLife("days");
-
 	return new Date().getFullYear();
 }
 
+/** The original's tinted colophon band: mono small caps, house links on one side, socials on the other. */
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, identity, { legal, socials }] = await Promise.all([
+		getCopyrightYear(),
+		getStoreIdentity(),
+		getFooterData(),
+	]);
+	const house = [
+		{ label: "All pieces", href: "/products" },
+		{ label: "About", href: "/about" },
+		{ label: "Questions", href: "/faq" },
+		...(identity.contactFormEnabled ? [{ label: "Contact", href: "/contact" }] : []),
+		...(identity.blogEnabled ? [{ label: "Journal", href: "/blog" }] : []),
+	];
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+		<footer className="mt-20 border-t border-line bg-tint">
+			<div className="eti mx-auto flex max-w-[1240px] flex-col gap-5 px-4 py-6 text-faint sm:px-6">
+				<div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+					<nav aria-label="The house">
+						<ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+							{house.map((link) => (
+								<li key={link.href}>
+									<Link href={link.href} className="inline-block py-1 text-soft transition hover:text-acc">
+										{link.label}
+									</Link>
+								</li>
+							))}
 						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					</nav>
+					{socials.length > 0 ? (
+						<ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+							{socials.map((social, index) => (
+								<li key={social.href}>
+									<a
+										href={social.href}
+										target="_blank"
+										rel="noopener noreferrer"
+										className={
+											index === socials.length - 1
+												? "inline-block py-1 text-acc hover:text-acc-deep"
+												: "inline-block py-1 text-soft transition hover:text-acc"
+										}
+									>
+										{social.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					) : null}
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+				<div className="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+					<span>
+						© {year} {identity.storeName} · The register
+					</span>
+					{legal.length > 0 ? (
+						<ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+							{legal.map((page) => (
+								<li key={page.id}>
+									<Link href={`/legal${page.href}`} className="inline-block py-1 transition hover:text-acc">
+										{page.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+					) : null}
+					<PaymentMethods className="gap-1.5" />
 				</div>
 			</div>
 		</footer>

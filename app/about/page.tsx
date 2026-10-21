@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { HOUSE_PLATES } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
@@ -53,85 +55,81 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const plates = HOUSE_PLATES;
+	const principles: [string, string][] = [
+		["Provenance", "Every piece is traced to the hands that made it before it enters the register."],
+		["Description", "Photographed in daylight, measured and described plainly, flaws included."],
+		["Care", "Chosen with care and kept in the register until it finds its owner."],
+		["Clarity", "Prices, availability and details are shown plainly on every record."],
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto max-w-[1100px] px-4 sm:px-6">
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
+			<nav aria-label="Breadcrumb" className="eti flex gap-x-2.5 pt-10 text-faint">
+				<Link href="/" className="transition hover:text-acc">
+					The archive
 				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
+				<span aria-hidden>/</span>
+				<span aria-current="page" className="text-ink">
+					The house
+				</span>
+			</nav>
+			<section className="flex flex-wrap items-start gap-x-14 gap-y-9 pb-16 pt-8">
+				<div className="flex min-w-0 flex-[1_1_380px] flex-col gap-5">
+					<span className="eti tracking-[0.18em] text-acc">The house</span>
+					<h1 className="font-sf text-[clamp(30px,4.4vw,46px)] leading-[1.1] tracking-[-0.01em]">
+						About {storeName}
+					</h1>
+					<p className="max-w-[54ch] text-[14.5px] leading-[1.75] text-soft">
+						{storeDescription ??
+							"We keep a small register of pieces we would want to own ourselves. Each one is chosen, photographed and described before it is offered."}
+					</p>
+					<p className="max-w-[54ch] text-[14.5px] leading-[1.75] text-soft">
+						The archive is deliberately unhurried: no seasons, no countdowns, no series production. A piece
+						stays in the register until it finds its owner.
+					</p>
+					<div className="mt-2 flex flex-col">
+						{principles.map(([label, text]) => (
+							<div key={label} className="flex flex-wrap gap-x-[18px] gap-y-1 border-t border-line py-3">
+								<h2 className="eti w-[140px] flex-none text-faint">{label}</h2>
+								<p className="min-w-0 flex-[1_1_220px] text-[13.5px] leading-[1.6] text-ink">{text}</p>
+							</div>
+						))}
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
+					<div className="flex flex-wrap gap-3 border-t border-rule pt-5">
+						<Link href="/products" className="btn-keeper px-[22px] py-[13px]">
+							Browse the archive
 						</Link>
-					)}
+						{contactFormEnabled && (
+							<Link href="/contact" className="link-rule self-center text-acc">
+								Write to us
+							</Link>
+						)}
+					</div>
 				</div>
-			</div>
+				{plates.length > 0 ? (
+					<div className="grid min-w-0 flex-[1_1_380px] grid-cols-2 gap-3">
+						{plates.map((shot, index) => (
+							<div
+								key={shot.src}
+								className={`hatch relative flex aspect-[2/3] items-end overflow-hidden border border-line p-2.5 shadow-[0_14px_28px_-18px_oklch(0.22_0.006_0/0.45)] ${index === 1 ? "mt-10" : ""}`}
+							>
+								<Image
+									src={shot.src}
+									alt={shot.alt}
+									fill
+									priority={index === 0}
+									fetchPriority={index === 0 ? "high" : undefined}
+									sizes="(max-width: 768px) 50vw, 260px"
+									className="object-cover"
+								/>
+								<span className="plate-label relative">plate {String(index + 8).padStart(2, "0")}</span>
+							</div>
+						))}
+					</div>
+				) : null}
+			</section>
 		</div>
 	);
 }

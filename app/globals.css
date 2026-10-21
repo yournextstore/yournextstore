@@ -9,12 +9,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--font-sans: var(--font-karla);
+	--font-mono: var(--font-cousine);
+	--font-serif: var(--font-playfair);
+	--radius-sm: 1px;
+	--radius-md: 2px;
+	--radius-lg: 2px;
+	--radius-xl: 3px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,59 +34,242 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-paper: var(--paper);
+	--color-tint: var(--tint);
+	--color-line: var(--line);
+	--color-rule: var(--rule);
+	--color-ink: var(--ink);
+	--color-soft: var(--soft);
+	--color-dim: var(--dim);
+	--color-faint: var(--faint);
+	--color-acc: var(--acc);
+	--color-acc-deep: var(--acc-deep);
 }
 
+/* Maison is a light, printed design: .dark carries the same paper so a dark OS changes nothing. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 2px;
+	--background: oklch(0.97 0.002 0);
+	--foreground: oklch(0.22 0.006 0);
+	--card: oklch(0.985 0.002 0);
+	--card-foreground: oklch(0.22 0.006 0);
+	--popover: oklch(0.985 0.002 0);
+	--popover-foreground: oklch(0.22 0.006 0);
+	--primary: oklch(0.45 0.09 25);
+	--primary-foreground: oklch(0.985 0.002 0);
+	--secondary: oklch(0.955 0.002 0);
+	--secondary-foreground: oklch(0.22 0.006 0);
+	--muted: oklch(0.955 0.002 0);
+	/* The original's "muted" grey (L 0.5) is the design; it clears AA on paper and tint. */
+	--muted-foreground: oklch(0.5 0.006 0);
+	--accent: oklch(0.955 0.012 25);
+	--accent-foreground: oklch(0.35 0.09 25);
+	--destructive: oklch(0.45 0.09 25);
+	--border: oklch(0.91 0.004 0);
+	--input: oklch(0.88 0.004 0);
+	--ring: oklch(0.45 0.09 25);
+	/* Archive tokens: paper, hairlines, ink greys and the single bordeaux accent. */
+	--paper: oklch(0.97 0.002 0);
+	--tint: oklch(0.955 0.002 0);
+	--line: oklch(0.91 0.004 0);
+	--rule: oklch(0.88 0.004 0);
+	--ink: oklch(0.22 0.006 0);
+	--soft: oklch(0.42 0.006 0);
+	--dim: oklch(0.5 0.006 0);
+	/* The original's faint label grey (L 0.58) misses AA on the tint; darkened, same hue. */
+	--faint: oklch(0.52 0.006 0);
+	--acc: oklch(0.45 0.09 25);
+	--acc-deep: oklch(0.35 0.09 25);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 2px;
+	--background: oklch(0.97 0.002 0);
+	--foreground: oklch(0.22 0.006 0);
+	--card: oklch(0.985 0.002 0);
+	--card-foreground: oklch(0.22 0.006 0);
+	--popover: oklch(0.985 0.002 0);
+	--popover-foreground: oklch(0.22 0.006 0);
+	--primary: oklch(0.45 0.09 25);
+	--primary-foreground: oklch(0.985 0.002 0);
+	--secondary: oklch(0.955 0.002 0);
+	--secondary-foreground: oklch(0.22 0.006 0);
+	--muted: oklch(0.955 0.002 0);
+	/* The original's "muted" grey (L 0.5) is the design; it clears AA on paper and tint. */
+	--muted-foreground: oklch(0.5 0.006 0);
+	--accent: oklch(0.955 0.012 25);
+	--accent-foreground: oklch(0.35 0.09 25);
+	--destructive: oklch(0.45 0.09 25);
+	--border: oklch(0.91 0.004 0);
+	--input: oklch(0.88 0.004 0);
+	--ring: oklch(0.45 0.09 25);
+	/* Archive tokens: paper, hairlines, ink greys and the single bordeaux accent. */
+	--paper: oklch(0.97 0.002 0);
+	--tint: oklch(0.955 0.002 0);
+	--line: oklch(0.91 0.004 0);
+	--rule: oklch(0.88 0.004 0);
+	--ink: oklch(0.22 0.006 0);
+	--soft: oklch(0.42 0.006 0);
+	--dim: oklch(0.5 0.006 0);
+	/* The original's faint label grey (L 0.58) misses AA on the tint; darkened, same hue. */
+	--faint: oklch(0.52 0.006 0);
+	--acc: oklch(0.45 0.09 25);
+	--acc-deep: oklch(0.35 0.09 25);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		overflow-x: clip;
+	}
+	/* next/font puts its variables on <body>, so the face is set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-karla), system-ui, sans-serif;
 	}
+	::selection {
+		background: oklch(0.9 0.03 25);
+	}
+	input[type="range"] {
+		accent-color: var(--acc);
+	}
+}
+
+@layer components {
+	.font-sf {
+		font-family: var(--font-playfair), Georgia, serif;
+		font-weight: 400;
+	}
+
+	/* Mono small-caps label: the theme's signature. */
+	.eti {
+		font-family: var(--font-cousine), ui-monospace, monospace;
+		font-size: 10.5px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	/* Hatched stand-in behind every photograph (shows while it loads). */
+	.hatch {
+		background-image: repeating-linear-gradient(
+			135deg,
+			oklch(0.94 0.004 0) 0 6px,
+			oklch(0.965 0.002 0) 6px 12px
+		);
+	}
+
+	/* Outline button in the accent that inverts on hover. */
+	.btn-keeper {
+		border: 1px solid var(--acc);
+		color: var(--acc);
+		font-family: var(--font-cousine), ui-monospace, monospace;
+		font-size: 11px;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		transition:
+			background 0.15s ease,
+			color 0.15s ease;
+		cursor: pointer;
+	}
+	.btn-keeper:hover,
+	.btn-keeper.is-on {
+		background: var(--acc);
+		color: var(--card);
+	}
+	.btn-keeper:disabled,
+	.btn-keeper[aria-disabled="true"] {
+		cursor: not-allowed;
+		border-color: var(--rule);
+		background: transparent;
+		color: var(--faint);
+	}
+
+	/* Round icon button that sits on a photograph. */
+	.pin-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		background: oklch(0.985 0.002 0 / 0.92);
+		border: 1px solid var(--line);
+		color: var(--soft);
+		cursor: pointer;
+		transition:
+			color 0.15s ease,
+			border-color 0.15s ease,
+			background 0.15s ease;
+	}
+	.pin-btn:hover {
+		color: var(--acc);
+		border-color: var(--acc);
+	}
+	.pin-btn.is-on {
+		background: var(--acc);
+		border-color: var(--acc);
+		color: var(--card);
+	}
+
+	/* Underlined accent link in mono caps. */
+	.link-rule {
+		cursor: pointer;
+		font-family: var(--font-cousine), ui-monospace, monospace;
+		font-size: 10.5px;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		border-bottom: 1px solid var(--rule);
+		padding-bottom: 2px;
+		transition:
+			color 0.15s ease,
+			border-color 0.15s ease;
+	}
+	.link-rule:hover {
+		color: var(--acc);
+		border-color: var(--acc);
+	}
+
+	/* Active tab underline. */
+	.tab-on {
+		color: var(--acc);
+		border-bottom: 1px solid var(--acc);
+		padding-bottom: 2px;
+	}
+
+	/* Paper label pinned to the corner of a photograph. */
+	.plate-label {
+		background: var(--card);
+		padding: 3px 6px;
+		font-family: var(--font-cousine), ui-monospace, monospace;
+		font-size: 10px;
+		letter-spacing: 0.08em;
+		color: var(--faint);
+	}
+
+	.no-scrollbar {
+		scrollbar-width: none;
+	}
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-thin {
+		scrollbar-width: thin;
+	}
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+::-webkit-scrollbar-track {
+	background: var(--tint);
+}
+::-webkit-scrollbar-thumb {
+	background: var(--rule);
+	border: 2px solid var(--tint);
+	border-radius: 6px;
 }
 
 .prose {
