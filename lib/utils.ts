@@ -1,5 +1,29 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's own type scale (app/globals.css): without it tailwind-merge reads `text-headline-1`
+// as a colour and drops it whenever a `text-white` follows.
+const twMerge = extendTailwindMerge({
+	extend: {
+		theme: {
+			text: [
+				"display",
+				"headline-1",
+				"headline-2",
+				"title-1",
+				"title-2",
+				"title-3",
+				"title-4",
+				"body-1",
+				"body-2",
+				"body-3",
+				"body-4",
+				"label-1",
+				"label-2",
+			],
+		},
+	},
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

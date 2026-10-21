@@ -6,10 +6,10 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
+import { BtnLabel } from "@/components/grilli/btn-label";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange } from "@/lib/pricing";
@@ -93,9 +93,9 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -196,17 +196,20 @@ export function AddToCartButton({
 
 	return (
 		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+			{summary && <p className="text-body-4 whitespace-pre-line text-silver">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<del className="text-body-3 text-silver">
+							<span className="sr-only">Was </span>
+							{priceInfo.compareAt}
+						</del>
 					)}
+					<span className="text-body-1 text-gold xs:text-[1.875rem]">{priceInfo.display}</span>
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="self-center bg-gold px-2.5 font-display text-label-1 leading-[1.4] text-eerie uppercase">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
@@ -224,8 +227,8 @@ export function AddToCartButton({
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+									stockStatus.tone === "low" && "text-gold",
+									stockStatus.tone === "in" && "text-[#8fd19e]",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -233,8 +236,8 @@ export function AddToCartButton({
 							</span>
 						)}
 						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
+							<span className="text-silver">
+								SKU: <span className="font-medium text-white">{selectedVariant.sku}</span>
 							</span>
 						)}
 					</div>
@@ -258,15 +261,14 @@ export function AddToCartButton({
 				<form onSubmit={handleSubmit}>
 					<button
 						type="submit"
+						data-variant="solid"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="btn-g h-14 w-full max-w-none"
 					>
-						{buttonText}
+						<BtnLabel>{buttonText}</BtnLabel>
 					</button>
 				</form>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }

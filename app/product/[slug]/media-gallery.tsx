@@ -83,9 +83,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
+			<div className="pattern-band py-[30px] before:w-[45%] lg:sticky lg:top-24 lg:self-start">
+				<div className="flex aspect-square items-center justify-center bg-eerie-4">
+					<p className="text-silver">No images available</p>
 				</div>
 			</div>
 		);
@@ -99,79 +99,81 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			onKeyDown={handleKeyDown}
 			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-					/>
-				)}
+			{/* Main image on the gold lattice band, as the original's framed photographs. */}
+			<div className="pattern-band py-[30px] before:w-[45%]">
+				<div className="group relative aspect-square overflow-hidden bg-eerie-4">
+					{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+						<video
+							className="absolute inset-0 w-full h-full object-cover"
+							src={displayImages[selectedIndex]}
+							muted
+							loop
+							autoPlay
+							playsInline
+							controls
+						/>
+					) : (
+						<YNSMedia
+							src={displayImages[selectedIndex] ?? ""}
+							alt={`${productName} - View ${selectedIndex + 1}`}
+							fill
+							sizes="(max-width: 1024px) 100vw, 50vw"
+							className={cn(
+								"object-cover transition-transform duration-500",
+								isZoomed && "scale-150 cursor-zoom-out",
+							)}
+							onClick={() => setIsZoomed(!isZoomed)}
+							priority
+						/>
+					)}
 
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
+					{/* Navigation Arrows */}
+					{displayImages.length > 1 && (
+						<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
+							<Button
+								variant="secondary"
+								size="icon"
+								className="size-11 rotate-45 rounded-none border border-gold bg-smoky/80 text-gold hover:bg-gold hover:text-black [&>svg]:-rotate-45"
+								onClick={(e) => {
+									e.stopPropagation();
+									handlePrevious();
+								}}
+								aria-label="Previous image"
+							>
+								<ChevronLeft className="h-5 w-5" />
+							</Button>
+							<Button
+								variant="secondary"
+								size="icon"
+								className="size-11 rotate-45 rounded-none border border-gold bg-smoky/80 text-gold hover:bg-gold hover:text-black [&>svg]:-rotate-45"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleNext();
+								}}
+								aria-label="Next image"
+							>
+								<ChevronRight className="h-5 w-5" />
+							</Button>
 						</div>
-					</div>
-				)}
+					)}
 
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
+					{/* Zoom Indicator (hidden for videos) */}
+					{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
+						<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
+							<div className="flex items-center gap-2 bg-black px-3 py-1.5 text-label-2 font-bold tracking-1 text-gold uppercase">
+								<ZoomIn className="h-3.5 w-3.5" />
+								Click to zoom
+							</div>
+						</div>
+					)}
+
+					{/* Image Counter */}
+					{displayImages.length > 1 && (
+						<div className="absolute bottom-4 left-4 bg-black px-2.5 py-[5px] text-label-2 leading-[14px] font-bold tracking-1 text-gold">
+							{selectedIndex + 1} / {displayImages.length}
+						</div>
+					)}
+				</div>
 			</div>
 
 			{/* Thumbnails */}
@@ -183,9 +185,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-[24px] bg-gold transition-all duration-200",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+									? "ring-2 ring-gold ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
 							)}
 						>

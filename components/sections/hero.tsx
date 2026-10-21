@@ -1,42 +1,47 @@
-import { ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import { cacheLife } from "next/cache";
+import { type HeroSlide, HeroSlider } from "@/components/sections/hero-slider";
+import { getCategoryTiles, getCollectionTiles, getStoreBasics } from "@/lib/catalog";
+import { HERO_IMAGES } from "@/lib/editorial";
 
-export function Hero() {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
-				</div>
-			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
-		</section>
-	);
+// The original's three headlines, re-cut for a restaurant's larder; each slide opens a collection,
+// then a category, then the whole shop.
+const HEADLINES: [string, string][] = [
+	["From our kitchen", "to your table"],
+	["The pantry behind", "every service"],
+	["Bring the evening", "home with you"],
+];
+
+const FALLBACK_TEXT =
+	"The oils, sauces, preserves and chocolates we cook and serve with, packed for your own kitchen.";
+
+const clip = (text: string, max = 110) => {
+	if (text.length <= max) return text;
+	const cut = text.slice(0, max);
+	return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+};
+
+async function getSlides(): Promise<HeroSlide[]> {
+	"use cache";
+	cacheLife("minutes");
+	const [collections, categories, { description }] = await Promise.all([
+		getCollectionTiles(3),
+		getCategoryTiles(3),
+		getStoreBasics(),
+	]);
+	const shop = { id: "shop", name: "The Shop", href: "/products", description: "" };
+	const targets = [...collections, ...categories, shop].slice(0, HEADLINES.length);
+	return targets.map((target, i) => ({
+		id: target.id,
+		kicker: target.name,
+		title: HEADLINES[i] ?? HEADLINES[0] ?? ["", ""],
+		text: clip(target.description || description || FALLBACK_TEXT),
+		href: target.href,
+		cta: target.href === "/products" ? "Shop Now" : "Discover More",
+		image: HERO_IMAGES[i % HERO_IMAGES.length] ?? null,
+	}));
+}
+
+export async function Hero() {
+	const slides = await getSlides();
+	return <HeroSlider slides={slides} />;
 }

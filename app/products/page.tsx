@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import { PageBanner } from "@/components/grilli/page-banner";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { getStoreBasics } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
+import { picturedFirst } from "@/lib/pictured";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 24;
 
 const sortOptions = [
 	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
@@ -83,15 +86,17 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="font-display text-title-1 text-white">Nothing here yet</p>
+				<p className="mt-2 text-body-4 text-silver">No products match these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<h2 className="sr-only">Products</h2>
+			<div className="grid grid-cols-1 gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+				{(sortOption.value === "newest" ? picturedFirst(result.data) : result.data).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -125,36 +130,49 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.variantTypes.length > 0 ||
 		facets.priceBounds.max > 0;
 
+	const { description } = await getStoreBasics();
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<>
+			<PageBanner kicker="Our Selection" title="The Shop" text={description} />
+			<div className="container-g py-[70px] lg:py-[100px]">
+				{/* The filter and sort controls read useSearchParams(), so they stream in behind one
+				    boundary with the grid while the chrome and the banner above prerender. */}
+				<Suspense fallback={<ListingSkeleton />}>
+					<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12" : ""}>
+						{filtersAvailable && <ProductFilters facets={facets} />}
 
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
+						<div>
+							{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
+							<div className="mb-10 flex items-center justify-between gap-3 lg:hidden">
+								{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+								<SortSelect options={sortOptions} />
+							</div>
 
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
+							{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
+							<div className="mb-10 hidden h-11 flex-wrap items-center gap-x-7 gap-y-2 border-b border-line lg:flex">
+								<span className="text-label-2 font-bold tracking-3 text-silver uppercase">Sort by</span>
+								<SortLinks options={sortOptions} />
+							</div>
+
+							<ProductSection searchParams={searchParams} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
 					</div>
-				</div>
-			</Suspense>
+				</Suspense>
+			</div>
+		</>
+	);
+}
+
+// Same footprint as the loaded listing (toolbar included), so nothing shifts when it streams in.
+function ListingSkeleton() {
+	return (
+		<div className="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
+			<div className="hidden lg:block" />
+			<div>
+				<div className="mb-10 h-11" />
+				<ProductGridSkeleton />
+			</div>
 		</div>
 	);
 }

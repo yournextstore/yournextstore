@@ -79,10 +79,10 @@ export function QuickAddButton({
 					<button
 						type="button"
 						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
+						className="absolute right-4 bottom-[38px] z-10 flex size-11 cursor-pointer items-center justify-center bg-gold text-black transition-all hover:bg-white focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
 						aria-label={`Add ${product.name} to cart`}
 					>
-						<ShoppingBag className="h-3.5 w-3.5" />
+						<ShoppingBag className="size-[18px]" strokeWidth={1.5} />
 					</button>
 				</TooltipTrigger>
 				<TooltipContent side="top" className="text-xs">
