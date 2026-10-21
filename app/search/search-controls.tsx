@@ -89,7 +89,7 @@ export function SortSelect({ value }: { value: SortKey }) {
 	const [isPending, startTransition] = useTransition();
 
 	return (
-		<label className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+		<label className="inline-flex items-center gap-3 eti text-faint">
 			<span>Sort</span>
 			<div className="relative">
 				<select
@@ -131,7 +131,7 @@ export function CategorySidebar({
 
 	return (
 		<nav aria-label="Filter by category">
-			<h2 className="mb-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h2>
+			<h2 className="mb-4 eti text-faint">Category</h2>
 			<ul className="flex flex-col">
 				<FilterRow
 					href={buildUrl(searchParams, { category: null })}
@@ -186,7 +186,7 @@ export function MobileControls({
 				<SheetContent side="bottom" className="rounded-t-2xl p-6">
 					<SheetTitle className="text-2xl font-medium tracking-tight">Refine</SheetTitle>
 
-					<h3 className="mt-6 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Sort</h3>
+					<h3 className="mt-6 mb-3 eti text-faint">Sort</h3>
 					<ul className="flex flex-col">
 						{SORT_OPTIONS.map((opt) => (
 							<FilterRow
@@ -200,7 +200,7 @@ export function MobileControls({
 						))}
 					</ul>
 
-					<h3 className="mt-8 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Category</h3>
+					<h3 className="mt-8 mb-3 eti text-faint">Category</h3>
 					<ul className="flex flex-col">
 						<FilterRow
 							href={buildUrl(searchParams, { category: null })}

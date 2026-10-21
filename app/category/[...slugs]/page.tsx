@@ -1,36 +1,15 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Archive } from "@/components/maison/archive";
+import { ArchiveHero } from "@/components/maison/archive-hero";
+import { ArchiveSkeleton } from "@/components/maison/archive-skeleton";
+import { ActiveTab } from "@/components/maison/house-strip";
+import { displayName, editorialShots, toPieces } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
-
-const PRODUCTS_PER_PAGE = 12;
-
-// Filters that apply on top of the path-locked category.
-type CategoryFilterParams = {
-	page?: string;
-	collection?: string;
-	brand?: string;
-	priceMin?: string;
-	priceMax?: string;
-	vts?: string;
-};
 
 // The SDK loads the parent chain up to 2 levels deep (self -> parent -> grandparent),
 // so the canonical path is capped at 3 segments (e.g. fashion/tops/t-shirts).
@@ -86,79 +65,21 @@ export async function generateMetadata({
 	};
 }
 
-async function CategoryProducts({
-	slug,
-	canonicalPath,
-	filters,
-}: {
-	slug: string;
-	canonicalPath: string;
-	filters: CategoryFilterParams;
-}) {
+async function getCategoryPieces(slug: string) {
 	"use cache";
 	cacheLife("minutes");
-
-	const currentPage = Math.max(1, Number(filters.page) || 1);
-	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-
-	const result = await commerce.productBrowse({
-		active: true,
-		category: slug,
-		limit: PRODUCTS_PER_PAGE,
-		offset,
-		collection: filters.collection,
-		brand: filters.brand,
-		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
-		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
-		vts: filters.vts,
-	});
-
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
-	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
-
-	return (
-		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-			<ListingPagination
-				basePath={`/category/${canonicalPath}`}
-				currentPage={currentPage}
-				totalPages={totalPages}
-				filters={filters}
-			/>
-		</>
-	);
+	const { data } = await commerce
+		.productBrowse({ active: true, category: slug, limit: 100, orderBy: "createdAt", orderDirection: "asc" })
+		.catch(() => ({ data: [] }));
+	return { pieces: await toPieces(data), shots: editorialShots(data) };
 }
 
-function CategoryPageSkeleton() {
+// Awaiting params at the top of the page blocks the static shell — the page stays a sync
+// shell and the dynamic content streams inside Suspense.
+export default function CategoryPage(props: { params: Promise<{ slugs: string[] }> }) {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
-		</div>
-	);
-}
-
-// Awaiting params/searchParams at the top of the page blocks the static shell —
-// the page stays a sync shell and the dynamic content streams inside Suspense.
-export default function CategoryPage(props: {
-	params: Promise<{ slugs: string[] }>;
-	searchParams: Promise<CategoryFilterParams>;
-}) {
-	return (
-		<Suspense fallback={<CategoryPageSkeleton />}>
-			<CategoryContent params={props.params} searchParams={props.searchParams} />
+		<Suspense fallback={<ArchiveSkeleton />}>
+			<CategoryContent params={props.params} />
 		</Suspense>
 	);
 }
@@ -172,31 +93,17 @@ const getCategoryData = async (slug: string) => {
 	return error ? null : category;
 };
 
-const CategoryContent = async ({
-	params,
-	searchParams,
-}: {
-	params: Promise<{ slugs: string[] }>;
-	searchParams: Promise<CategoryFilterParams>;
-}) => {
+const CategoryContent = async ({ params }: { params: Promise<{ slugs: string[] }> }) => {
 	const { slugs } = await params;
-	const filters = await searchParams;
 	const slug = slugs.at(-1);
 	if (!slug) {
 		notFound();
 	}
 
-	// Both reads are cached and independent — fetch them in parallel.
-	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
+	const category = await getCategoryData(slug);
 	if (!category?.active) {
 		notFound();
 	}
-	// Category facet is hidden here (it's the page context), so don't count it.
-	const filtersAvailable =
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
 
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
@@ -205,59 +112,36 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const { pieces, shots } = await getCategoryPieces(slug);
+	const numbers = new Map(pieces.map((piece) => [piece.slug, piece.no]));
+	const name = displayName(category.name);
+	const description = typeof category.description === "string" ? category.description : null;
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto min-h-svh max-w-[1240px] px-4 sm:px-6">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<ActiveTab tab={hierarchy[0]?.slug ?? slug} />
+			<ArchiveHero
+				kicker={
+					hierarchy.length > 1
+						? hierarchy
+								.slice(0, -1)
+								.map((crumb) => displayName(crumb.name))
+								.join(" / ")
+						: "Department"
+				}
+				title={name}
+				blurb={
+					description ??
+					`${pieces.length} ${pieces.length === 1 ? "piece" : "pieces"} filed under ${name.toLocaleLowerCase()}, each photographed and described in the register. Open a record for its full specification.`
+				}
+				tiles={shots.slice(0, 3).map((shot) => ({
+					label: `No. ${numbers.get(shot.slug) ?? "—"}`,
+					href: `/product/${shot.slug}`,
+					src: shot.src,
+				}))}
+			/>
+			<Archive pieces={pieces} showDepartments={false} />
 		</div>
 	);
 };

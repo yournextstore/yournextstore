@@ -5,20 +5,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Archive } from "@/components/maison/archive";
+import { ArchiveHero } from "@/components/maison/archive-hero";
+import { ArchiveSkeleton } from "@/components/maison/archive-skeleton";
+import { editorialShots, toPieces } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -59,50 +52,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 			images: collection.image ? [collection.image] : undefined,
 		},
 	};
-}
-
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,42 +106,11 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
-function CollectionPageSkeleton() {
-	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
-	);
-}
-
 // Awaiting params at the top of the page blocks the static shell — the page
 // stays a sync shell and the params-dependent content streams inside Suspense.
 export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	return (
-		<Suspense fallback={<CollectionPageSkeleton />}>
+		<Suspense fallback={<ArchiveSkeleton />}>
 			<CollectionContent params={props.params} />
 		</Suspense>
 	);
@@ -207,6 +125,13 @@ const getCollectionData = async (slug: string) => {
 	return error ? null : collection;
 };
 
+async function getCollectionPieces(collection: APICollectionGetByIdResult) {
+	"use cache";
+	cacheLife("minutes");
+	const products = await getCollectionProducts(collection);
+	return { pieces: await toPieces(products), shots: editorialShots(products) };
+}
+
 const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
 	const { slug } = await params;
 	const collection = await getCollectionData(slug);
@@ -215,29 +140,44 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const { pieces, shots } = await getCollectionPieces(collection);
+	const numbers = new Map(pieces.map((piece) => [piece.slug, piece.no]));
+	const description = typeof collection.description === "string" ? collection.description : null;
+	const cover = collection.image
+		? [{ label: "the collection", href: `/collection/${collection.slug}`, src: collection.image }]
+		: [];
+	const tiles = [
+		...cover,
+		...shots.map((shot) => ({
+			label: `No. ${numbers.get(shot.slug) ?? "—"}`,
+			href: `/product/${shot.slug}`,
+			src: shot.src,
+		})),
+	].slice(0, 3);
+
 	return (
-		<>
+		<div className="mx-auto min-h-svh max-w-[1240px] px-4 sm:px-6">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<ArchiveHero
+				kicker="Collection"
+				title={collection.name}
+				blurb={
+					description ??
+					`${pieces.length} ${pieces.length === 1 ? "piece" : "pieces"} gathered from the register into one collection.`
+				}
+				tiles={tiles}
+			/>
+			{pieces.length > 0 ? (
+				<Archive pieces={pieces} />
+			) : (
+				<div className="py-[72px] text-center text-dim">
+					<p className="font-sf mb-3 text-[22px]">This collection is being catalogued</p>
+					<Link href="/products" className="link-rule text-acc">
+						Browse the whole archive
+					</Link>
+				</div>
+			)}
+		</div>
 	);
 };

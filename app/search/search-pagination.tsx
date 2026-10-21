@@ -45,7 +45,7 @@ export function SearchPagination({
 			{prevHref ? (
 				<Link
 					href={prevHref}
-					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+					className="group inline-flex items-center gap-3 eti text-faint transition-colors hover:text-acc"
 					rel="prev"
 				>
 					<ArrowLeft
@@ -65,7 +65,7 @@ export function SearchPagination({
 			{nextHref ? (
 				<Link
 					href={nextHref}
-					className="group inline-flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+					className="group inline-flex items-center gap-3 eti text-faint transition-colors hover:text-acc"
 					rel="next"
 				>
 					Next
