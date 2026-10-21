@@ -28,7 +28,7 @@ export function RouteErrorFallback({
 	return (
 		<div className="flex min-h-[60dvh] flex-col items-center justify-center px-4 py-24 text-center">
 			<AlertCircleIcon className="size-16 text-muted-foreground/50" strokeWidth={1.5} />
-			<h1 className="mt-6 text-2xl font-medium tracking-tight">{title}</h1>
+			<h1 className="mt-6 font-serif text-2xl tracking-tight">{title}</h1>
 			<p className="mt-2 max-w-md text-sm text-muted-foreground">{description}</p>
 			<div className="mt-8 flex items-center gap-4">
 				<button

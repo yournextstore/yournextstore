@@ -4,7 +4,6 @@ import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 import { cn } from "@/lib/utils"
 
-import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
@@ -59,19 +58,13 @@ function SheetContent({
         {...props}
       >
         {children}
+        {/* A 44px box, not a bare glyph: the primary way out of a full-height mobile panel. */}
         {showCloseButton && (
           <SheetPrimitive.Close
             data-slot="sheet-close"
-            render={
-              <Button
-                variant="ghost"
-                className="absolute top-4 right-4"
-                size="icon-sm"
-              />
-            }
+            className="text-faint hover:bg-card hover:text-foreground focus-visible:ring-ring absolute top-4 right-4 flex size-11 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-hidden disabled:pointer-events-none"
           >
-            <XIcon
-            />
+            <XIcon className="size-5" strokeWidth={1.5} />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>
         )}

@@ -64,7 +64,7 @@ export default async function BlogPage() {
 	};
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="shell">
 			<JsonLdScript data={blogJsonLd} />
 
 			{/* Header */}
@@ -80,7 +80,7 @@ export default async function BlogPage() {
 						</BreadcrumbItem>
 					</BreadcrumbList>
 				</Breadcrumb>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Blog</h1>
+				<h1 className="mt-4 font-serif text-4xl tracking-tight">Blog</h1>
 				<p className="mt-3 text-lg text-muted-foreground">News, guides, and stories from our team.</p>
 			</div>
 

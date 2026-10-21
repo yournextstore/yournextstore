@@ -99,7 +99,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 						<CheckCircle className="h-8 w-8 text-green-600" />
 					</div>
 				</div>
-				<h1 className="text-3xl font-semibold tracking-tight">Thank you for your order!</h1>
+				<h1 className="font-serif text-3xl tracking-tight">Thank you for your order!</h1>
 				<p className="text-muted-foreground mt-2">Order #{order.lookup} has been confirmed</p>
 				{customer?.email && (
 					<p className="text-sm text-muted-foreground mt-1">

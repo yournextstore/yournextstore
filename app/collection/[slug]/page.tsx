@@ -5,21 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CatalogGrid, CatalogGridSkeleton, CatalogHeading } from "@/components/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -62,50 +51,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
-	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+// Collection descriptions arrive as TipTap JSON; the header only needs their text.
+function plainText(node: unknown): string {
+	if (typeof node === "string") return node;
+	if (!node || typeof node !== "object") return "";
+	const text = "text" in node && typeof node.text === "string" ? node.text : "";
+	const children = "content" in node && Array.isArray(node.content) ? node.content : [];
+	return [text, ...children.map(plainText)].join(children.length > 0 && !text ? " " : "").trim();
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -162,32 +114,18 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
+	return <CatalogGrid products={products} />;
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="shell min-h-svh">
+			<div className="mb-10">
+				<div className="h-4 w-40 animate-pulse rounded-sm bg-secondary" />
+				<div className="mt-2 h-10 w-64 animate-pulse rounded-sm bg-secondary sm:h-12" />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+			<CatalogGridSkeleton />
+		</div>
 	);
 }
 
@@ -218,27 +156,35 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const description = plainText(collection.description);
+
 	return (
-		<>
+		// Same floor as the skeleton, so the footer never jumps into view when a short listing lands.
+		<div className="shell min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<CatalogHeading
+				title={collection.name}
+				eyebrow={
+					<nav aria-label="Breadcrumb">
+						<ol className="flex flex-wrap items-center gap-x-2">
+							<li>
+								<Link href="/products" className="transition-colors hover:text-foreground">
+									Shop
+								</Link>
+							</li>
+							<li aria-hidden="true">/</li>
+							<li>
+								<span aria-current="page">Collection</span>
+							</li>
+						</ol>
+					</nav>
+				}
+			/>
+			{description && description !== collection.name && (
+				<p className="-mt-4 mb-12 max-w-prose text-muted-foreground">{description}</p>
+			)}
+			<CollectionProducts collection={collection} />
+		</div>
 	);
 };

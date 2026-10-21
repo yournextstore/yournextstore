@@ -96,10 +96,10 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
+			<label htmlFor={inputId} className="text-xs uppercase tracking-widest text-muted-foreground">
 				Discount code
 			</label>
-			<div className="flex gap-2">
+			<div className="flex items-end gap-3">
 				<Input
 					id={inputId}
 					name="discountCode"
@@ -108,7 +108,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="h-10 min-w-0 flex-1 rounded-none border-0 border-b border-line bg-transparent px-1 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0 md:text-base"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -126,8 +126,8 @@ export function DiscountCodeField() {
 				/>
 				<Button
 					type="button"
-					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					variant="ghost"
+					className="h-10 shrink-0 px-2 text-xs uppercase tracking-widest text-muted-foreground hover:bg-transparent hover:text-foreground"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

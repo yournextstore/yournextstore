@@ -28,29 +28,33 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 	];
 
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
-			{options.map((option) => (
-				<label
-					key={option.id ?? "one-time"}
-					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
-					)}
-				>
-					<input
-						type="radio"
-						name="purchase"
-						checked={value === option.id}
-						onChange={() => onChange(option.id)}
-						className="mt-0.5 size-4 shrink-0 accent-foreground"
-					/>
-					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
-						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
-					</span>
-				</label>
-			))}
+		<fieldset className="m-0 mb-6 border-0 p-0">
+			<legend className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">Purchase</legend>
+			<div className="flex flex-col gap-2">
+				{options.map((option) => (
+					<label
+						key={option.id ?? "one-time"}
+						className={cn(
+							"flex cursor-pointer items-start gap-3 rounded-md border px-4 py-2.5 text-sm transition",
+							value === option.id
+								? "border-foreground text-foreground"
+								: "border-line text-muted-foreground hover:border-foreground",
+						)}
+					>
+						<input
+							type="radio"
+							name="purchase"
+							checked={value === option.id}
+							onChange={() => onChange(option.id)}
+							className="mt-0.5 size-3.5 shrink-0 accent-foreground"
+						/>
+						<span className="min-w-0 space-y-0.5">
+							<span className="block">{option.label}</span>
+							{option.detail && <span className="block text-xs text-faint">{option.detail}</span>}
+						</span>
+					</label>
+				))}
+			</div>
 		</fieldset>
 	);
 }
