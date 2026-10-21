@@ -28,13 +28,13 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 	];
 
 	return (
-		<fieldset className="space-y-2">
-			<legend className="mb-3 text-sm font-medium">Purchase</legend>
+		<fieldset className="m-0 space-y-2 border-0 p-0">
+			<legend className="mb-2 text-sm font-semibold">Purchase</legend>
 			{options.map((option) => (
 				<label
 					key={option.id ?? "one-time"}
 					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
+						"flex cursor-pointer items-start gap-3 rounded-[12px] border border-line px-4 py-3.5 transition-colors hover:border-foreground",
 						value === option.id && "border-foreground",
 					)}
 				>
@@ -46,8 +46,10 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 						className="mt-0.5 size-4 shrink-0 accent-foreground"
 					/>
 					<span className="space-y-1">
-						<span className="block text-sm font-medium">{option.label}</span>
-						{option.detail && <span className="block text-xs text-muted-foreground">{option.detail}</span>}
+						<span className="block text-sm">{option.label}</span>
+						{option.detail && (
+							<span className="block text-[13px] text-muted-foreground">{option.detail}</span>
+						)}
 					</span>
 				</label>
 			))}

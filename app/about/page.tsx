@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
-import { JsonLdScript } from "@/lib/json-ld";
+import { getStoreSeo } from "@/lib/commerce";
+import { EDITORIAL, getStoreIdentity } from "@/lib/theme";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	const { storeName, storeDescription } = await getStoreSeo();
 	const description = storeDescription
 		? `Learn more about ${storeName}. ${storeDescription}`
-		: `Learn about ${storeName} — our story, our values, and the people behind the products.`;
+		: `Learn about ${storeName}: our story, our values, and the people behind the linen.`;
 
 	return {
 		title: "About Us",
@@ -26,112 +27,92 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
+const values = [
+	{
+		title: "Considered choices",
+		body: "We work with linen and wool, chosen for the fibre, the weave and how they feel.",
+	},
+	{
+		title: "Timeless design",
+		body: "Plain hems, quiet colours and simple shapes that sit easily in any room.",
+	},
+	{
+		title: "Made for real life",
+		body: "Bedding, towels and table linen to use every day, not save for guests.",
+	},
+];
 
+/** The original's about page: a photo band with the centred title, then one white card on greige. */
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
-
-	const aboutJsonLd = {
-		"@context": "https://schema.org",
-		"@type": "AboutPage",
-		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
-	};
+	const identity = await getStoreIdentity();
+	const hero = EDITORIAL.aboutHero;
+	const story = EDITORIAL.aboutStory;
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={aboutJsonLd} />
+		<>
+			<section className="relative flex h-72 items-center justify-center overflow-hidden bg-ink md:h-[18rem]">
+				<YNSMedia src={hero.src} alt="" fill priority sizes="100vw" className="object-cover" />
+				<div className="absolute inset-0 bg-black/35" />
+				<h1 className="relative text-h4 text-white">About us</h1>
+			</section>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
+			<section className="bg-[#eeece8] px-5 py-8 md:py-16">
+				<div className="mx-auto max-w-[53rem] overflow-hidden rounded-lg bg-white">
+					<div className="relative aspect-[3/1]">
+						<YNSMedia
+							src={story.src}
+							alt=""
+							fill
+							sizes="(min-width: 860px) 848px, 100vw"
+							className="object-cover"
+						/>
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+					<div className="px-6 py-10 md:px-20">
+						<h2 className="text-[1.875rem] text-muted-foreground">{identity.name}</h2>
+						<div className="mt-4 space-y-4 text-[13px] leading-relaxed text-muted-foreground">
+							<p>
+								{identity.description ??
+									`It all began with a simple belief: that the linen you sleep in, dry off with and eat at should be a quiet pleasure.`}
 							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
+							<p>
+								What started as a few lengths of washed linen grew into {identity.name}: bedding, bath and
+								table linen chosen for good fibre, quiet colour and the way it softens with use.
 							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
+							<p>We make a small range and keep it simple: linen you will reach for every day.</p>
 						</div>
 					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+					<div id="contact" className="scroll-mt-28 border-t border-border px-6 py-10 md:px-20">
+						<h2 className="font-serif text-xl">What we care about</h2>
+						<ul className="mt-4 space-y-2 text-[13px] text-muted-foreground">
+							{values.map((value) => (
+								<li key={value.title}>
+									<span className="font-semibold text-foreground">{value.title}:</span> {value.body}
+								</li>
+							))}
+						</ul>
+						<h2 className="mt-8 font-serif text-xl">Get in touch</h2>
+						<p className="mt-2 text-[13px] text-muted-foreground">
+							Questions about a product, an order or trade enquiries? We are happy to help.
+						</p>
+						<div className="mt-5 flex flex-wrap gap-3">
+							{identity.contactEnabled && (
+								<Link href="/contact" className="btn btn-primary btn-sm">
+									Contact us
+								</Link>
+							)}
+							<Link href="/faq" className="btn btn-outline btn-sm">
+								Read the FAQ
+							</Link>
+							<a href="/account" className="btn btn-outline btn-sm">
+								Your orders
+							</a>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
+			</section>
+		</>
 	);
 }

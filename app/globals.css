@@ -9,12 +9,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-montserrat);
+	--font-serif: var(--font-belleza);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xs: 6px;
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 16px;
+	--radius-xl: 16px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,58 +35,305 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Maison's extra roles: the photo stage, the linen and sand bands, the
+	   topbar, the near-black footer, badge colours and the stepper/arrow chips. */
+	--color-stage: var(--stage);
+	--color-band: var(--band);
+	--color-chip: var(--chip);
+	--color-chip-hover: var(--chip-hover);
+	--color-topbar: var(--topbar);
+	--color-on-topbar: var(--on-topbar);
+	--color-ink: var(--ink);
+	--color-on-ink: var(--on-ink);
+	--color-ink-muted: var(--ink-muted);
+	--color-ink-line: var(--ink-line);
+	--color-sale: var(--sale);
+	--color-cream: var(--cream);
+	--breakpoint-xs: 26rem;
+	--color-line: var(--line);
+	--color-header: var(--header);
+	--color-on-header: var(--on-header);
+	--color-taupe: var(--taupe);
+	--color-on-taupe: var(--on-taupe);
+	--color-linen: var(--linen);
+	--color-ink-card: var(--ink-card);
+	--color-ink-field: var(--ink-field);
 }
 
+/* The original's fluid heading scale (h1 64px → 42px on phones, the rest as ratios of it),
+   under names that cannot collide with colour tokens. */
+@theme {
+	--text-h1: clamp(2.75rem, 2.1rem + 2.2vw, 3.75rem);
+	--text-h1--line-height: 1.2;
+	--text-h2: clamp(2.25rem, 1.8rem + 1.6vw, 3.125rem);
+	--text-h2--line-height: 1.2;
+	--text-h3: clamp(1.875rem, 1.55rem + 1.1vw, 2.625rem);
+	--text-h3--line-height: 1.2;
+	--text-h4: clamp(1.75rem, 1.5rem + 0.7vw, 2.1875rem);
+	--text-h4--line-height: 1.2;
+	--text-h5: clamp(1.375rem, 1.25rem + 0.45vw, 1.8125rem);
+	--text-h5--line-height: 1.25;
+}
+
+/* Light-only design (Belleza + Montserrat on white, greige and taupe); .dark mirrors :root so
+   the palette test still sees both blocks. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 1rem;
+	--background: #ffffff;
+	--foreground: #29231e;
+	--card: #ffffff;
+	--card-foreground: #29231e;
+	--popover: #ffffff;
+	--popover-foreground: #29231e;
+	--primary: #7a6d63;
+	--primary-foreground: #fbf9f7;
+	--secondary: #f0efed;
+	--secondary-foreground: #24211e;
+	--muted: #f1efeb;
+	--muted-foreground: #645a50;
+	--accent: #ebeae5;
+	--accent-foreground: #3c3428;
+	--destructive: #a8524b;
+	--border: #dbd7d1;
+	--input: #a79d95;
+	--ring: #7a6d63;
+	--stage: #f3f1ee;
+	--band: #f8f7f4;
+	--chip: #f0efed;
+	--chip-hover: #e2ded8;
+	--topbar: #615e58;
+	--on-topbar: #f1eae5;
+	--ink: #4e4c47;
+	--on-ink: #f1f1e6;
+	--ink-muted: #dbd7d1;
+	--ink-line: #6c675f;
+	--ink-card: #585247;
+	--ink-field: #2b2620;
+	--sale: #a8524b;
+	--cream: #f1f1e6;
+	--line: #a79d95;
+	--header: #ebeae5;
+	--on-header: #3c3428;
+	--taupe: #7a6d63;
+	--on-taupe: #fbf9f7;
+	--linen: #eeebe6;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 1rem;
+	--background: #ffffff;
+	--foreground: #29231e;
+	--card: #ffffff;
+	--card-foreground: #29231e;
+	--popover: #ffffff;
+	--popover-foreground: #29231e;
+	--primary: #7a6d63;
+	--primary-foreground: #fbf9f7;
+	--secondary: #f0efed;
+	--secondary-foreground: #24211e;
+	--muted: #f1efeb;
+	--muted-foreground: #645a50;
+	--accent: #ebeae5;
+	--accent-foreground: #3c3428;
+	--destructive: #a8524b;
+	--border: #dbd7d1;
+	--input: #a79d95;
+	--ring: #7a6d63;
+	--stage: #f3f1ee;
+	--band: #f8f7f4;
+	--chip: #f0efed;
+	--chip-hover: #e2ded8;
+	--topbar: #615e58;
+	--on-topbar: #f1eae5;
+	--ink: #4e4c47;
+	--on-ink: #f1f1e6;
+	--ink-muted: #dbd7d1;
+	--ink-line: #6c675f;
+	--ink-card: #585247;
+	--ink-field: #2b2620;
+	--sale: #a8524b;
+	--cream: #f1f1e6;
+	--line: #a79d95;
+	--header: #ebeae5;
+	--on-header: #3c3428;
+	--taupe: #7a6d63;
+	--on-taupe: #fbf9f7;
+	--linen: #eeebe6;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* next/font puts its variables on <body>, so the faces are set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+		font-size: 0.875rem;
+		line-height: 1.5;
+		letter-spacing: -0.0125em;
+	}
+	/* Headings: Belleza, regular, -0.025em (the original's heading base). */
+	h1,
+	h2,
+	h3,
+	h4,
+	h5 {
+		font-family: var(--font-belleza), Palatino, ui-serif, serif;
+		font-weight: 400;
+		letter-spacing: -0.025em;
+	}
+	button,
+	a {
+		cursor: pointer;
+	}
+	:focus-visible {
+		outline: 2px solid var(--foreground);
+		outline-offset: 2px;
+	}
+}
+
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 80rem;
+	padding-inline: 1.25rem;
+	@variant md {
+		padding-inline: 1.5rem;
+	}
+	@variant xl {
+		padding-inline: 2.5rem;
+	}
+}
+
+/* "View All →": the original's small link with an underline that redraws on hover. */
+@utility link-reveal {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8125rem;
+	background-image: linear-gradient(currentColor, currentColor);
+	background-size: 0% 1px;
+	background-position: 0 100%;
+	background-repeat: no-repeat;
+	transition: background-size 0.4s ease;
+	&:hover {
+		background-size: 100% 1px;
+	}
+}
+
+/* Maison buttons: 16px radius, 18px vertical padding, colours swap on hover. */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	white-space: nowrap;
+	border-radius: 16px;
+	border: 1px solid var(--btn-border, var(--btn-bg, transparent));
+	background: var(--btn-bg, transparent);
+	color: var(--btn-ink, currentColor);
+	padding: var(--btn-py, 1.125rem) var(--btn-px, 1.5rem);
+	font-size: var(--btn-size, 0.875rem);
+	line-height: 1;
+	transition:
+		background-color 0.2s,
+		color 0.2s,
+		border-color 0.2s;
+	&:hover {
+		background: var(--btn-bg-hover, var(--btn-ink));
+		color: var(--btn-ink-hover, var(--btn-bg));
+		border-color: var(--btn-border-hover, var(--btn-bg-hover, var(--btn-ink)));
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
+}
+@utility btn-primary {
+	--btn-bg: var(--taupe);
+	--btn-ink: var(--on-taupe);
+}
+@utility btn-secondary {
+	--btn-bg: var(--secondary);
+	--btn-ink: var(--secondary-foreground);
+}
+@utility btn-outline {
+	--btn-bg: transparent;
+	--btn-ink: #524b46;
+	--btn-border: var(--line);
+	--btn-bg-hover: #524b46;
+	--btn-ink-hover: #ffffff;
+}
+@utility btn-sm {
+	--btn-py: 0.75rem;
+	--btn-px: 1.25rem;
+}
+
+/* Underline that draws in from the left on hover (RevealUnderline). */
+@utility reveal-underline {
+	background-image: linear-gradient(currentColor, currentColor);
+	background-repeat: no-repeat;
+	background-position: left calc(1em + 3px);
+	background-size: 0% 1px;
+	transition: background-size 0.3s ease;
+}
+
+@utility scrollbar-none {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Shop-the-look hotspot: a white dot inside a soft ring that breathes. */
+@keyframes hotspot-pulse {
+	0% {
+		transform: scale(0.8);
+		opacity: 0.9;
+	}
+	100% {
+		transform: scale(1.6);
+		opacity: 0;
+	}
+}
+
+@utility hotspot-ring {
+	animation: hotspot-pulse 1.8s ease-out infinite;
+}
+
+@keyframes slide-progress {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+
+@utility marquee-track {
+	animation: marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+@keyframes marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
