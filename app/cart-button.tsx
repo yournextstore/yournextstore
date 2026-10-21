@@ -1,7 +1,7 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
+import { IconBasket } from "@/components/garden/icons";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
@@ -10,15 +10,12 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="icon-btn"
+			aria-label={itemCount > 0 ? `Open basket, ${itemCount} items` : "Open basket"}
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<IconBasket />
 			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
+				<span aria-live="polite" className="icon-btn__badge">
 					{itemCount}
 				</span>
 			) : null}

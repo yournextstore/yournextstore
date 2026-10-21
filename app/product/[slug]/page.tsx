@@ -7,19 +7,11 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
+import { CtaBand } from "@/components/garden/cta-band";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -29,30 +21,31 @@ import { cn } from "@/lib/utils";
 // MediaGallery and the purchase panel read useSearchParams (selected variant),
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
-	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
-		</div>
-	);
+	return <div className="photo animate-pulse" />;
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="buy space-y-4">
+			<Skeleton className="h-9 w-40 bg-[var(--paper-3)]" />
+			<Skeleton className="h-5 w-24 bg-[var(--paper-3)]" />
+			<Skeleton className="h-12 w-full rounded-full bg-[var(--paper-3)]" />
+			<Skeleton className="h-20 w-full bg-[var(--paper-3)]" />
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
+		<div className="wrap min-h-svh pt-[clamp(1.6rem,3.4vw,2.6rem)]">
+			<Skeleton className="mb-6 h-4 w-64 bg-[var(--paper-3)]" />
+			<div className="pdp__top">
+				<div className="pdp__media">
+					<GallerySkeleton />
+				</div>
+				<div className="pdp__intro space-y-4">
+					<Skeleton className="h-6 w-32 bg-[var(--paper-3)]" />
+					<Skeleton className="h-12 w-3/4 bg-[var(--paper-3)]" />
 					<PurchasePanelSkeleton />
 				</div>
 			</div>
@@ -182,124 +175,182 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
+	const firstVariant = variants[0];
+	const variantCount = variants.length;
+	const stock = variants.reduce<number | null>(
+		(sum, v) => (sum === null || v.stock === null ? null : sum + v.stock),
+		0,
+	);
+	const options = [
+		...new Set(variants.flatMap((v) => v.combinations.map((c) => c.variantValue.variantType.label))),
+	];
+	const specs = [
+		product.category ? { label: "Category", value: product.category.name } : null,
+		options.length > 0 ? { label: "Options", value: options.join(", ") } : null,
+		{ label: "Variants", value: variantCount === 1 ? "One size" : `${variantCount} versions` },
+		firstVariant?.sku && variantCount === 1 ? { label: "SKU", value: firstVariant.sku } : null,
+		{
+			label: "Availability",
+			value:
+				stock === null ? "In stock" : stock === 0 ? "Sold out" : stock <= 5 ? `${stock} left` : "In stock",
+		},
+	].filter((spec) => spec !== null);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<>
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={variants} />
-				</Suspense>
+			{firstVariant && <TrackProductView variant={firstVariant} name={product.name} />}
+			<div className="wrap pb-[clamp(3rem,7vw,5.5rem)]">
+				<nav aria-label="Breadcrumb" className="pt-[clamp(1.6rem,3.4vw,2.6rem)] pb-4">
+					<ol className="crumbs">
+						<li>
+							<Link href="/">Home</Link>
+						</li>
+						<li aria-hidden="true">/</li>
+						<li>
+							<Link href="/products">Shop</Link>
+						</li>
+						{product.category && (
+							<>
+								<li aria-hidden="true">/</li>
+								<li>
+									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
+								</li>
+							</>
+						)}
+						<li aria-hidden="true">/</li>
+						<li aria-current="page" className="text-[var(--ink-2)]">
+							{product.name}
+						</li>
+					</ol>
+				</nav>
+				<div className="pdp__top">
+					<div className="pdp__media min-w-0">
+						<Suspense fallback={<GallerySkeleton />}>
+							<MediaGallery images={allImages} productName={product.name} variants={variants} />
+						</Suspense>
+						<p className="pdp__plate">
+							<span className="hand">No. {String((product.name.length % 9) + 1).padStart(2, "0")}</span>
+							<span className="caption">A closer look, from every side we have.</span>
+						</p>
+					</div>
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
+					<div className="pdp__intro">
+						<span className="eyebrow-script with-line">{product.category?.name ?? "From the shop"}</span>
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="eyebrow mt-3 flex min-h-6 w-fit items-center transition-colors hover:text-[var(--ink)]"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
+						<h1>{product.name}</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
 							<a
 								href="#reviews"
-								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
+								className="mt-3 inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
 							>
 								<StarRow rating={reviewSummary.averageRating} />
 								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
-								<span className="text-muted-foreground underline-offset-4 hover:underline">
+								<span className="text-[var(--ink-3)] underline-offset-4 hover:underline">
 									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
 								</span>
 							</a>
 						)}
-					</div>
+						{product.summary && <p className="lede">{product.summary}</p>}
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
-					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder
-							bundleId={product.id}
-							bundle={product.bundle}
-							pricing={{
-								mode: product.bundlePriceMode,
-								fixedPriceAmount: product.bundleFixedPriceAmount,
-								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
-								amountOffAmount: product.bundleAmountOffAmount,
-								amountOffAmountGross: product.bundleAmountOffAmountGross,
-							}}
-						/>
-					) : (
-						<Suspense fallback={<PurchasePanelSkeleton />}>
-							<AddToCartButton
-								variants={variants}
-								product={{
-									id: product.id,
-									name: product.name,
-									slug: product.slug,
-									images: product.images,
-								}}
-								summary={product.summary}
-								volumePricingTiers={product.volumePricingTiers}
-								restockNotificationsEnabled={restockNotificationsEnabled}
-								subscriptionMode={product.subscriptionMode}
-								plans={plans}
-							/>
-						</Suspense>
-					)}
+						{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
+						    Renders only for bundle products, so it stays dormant for regular stores. */}
+						{product.type === "bundle" && product.bundle?.groups?.length ? (
+							<div className="buy">
+								<BundleBuilder
+									bundleId={product.id}
+									bundle={product.bundle}
+									pricing={{
+										mode: product.bundlePriceMode,
+										fixedPriceAmount: product.bundleFixedPriceAmount,
+										fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
+										amountOffAmount: product.bundleAmountOffAmount,
+										amountOffAmountGross: product.bundleAmountOffAmountGross,
+									}}
+								/>
+							</div>
+						) : (
+							<Suspense fallback={<PurchasePanelSkeleton />}>
+								<AddToCartButton
+									variants={variants}
+									product={{
+										id: product.id,
+										name: product.name,
+										slug: product.slug,
+										images: product.images,
+									}}
+									category={product.category?.name ?? null}
+									volumePricingTiers={product.volumePricingTiers}
+									restockNotificationsEnabled={restockNotificationsEnabled}
+									subscriptionMode={product.subscriptionMode}
+									plans={plans}
+								/>
+							</Suspense>
+						)}
+
+						<dl className="pdp__quick">
+							{specs
+								.filter((spec) => spec.label !== "Category")
+								.slice(0, 3)
+								.map((spec) => (
+									<div key={spec.label}>
+										<dt>{spec.label}</dt>
+										<dd>{spec.value}</dd>
+									</div>
+								))}
+						</dl>
+					</div>
 				</div>
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
+			<section className="section bg-[var(--paper-hand)]" aria-labelledby="about-piece">
+				<div className="wrap pdp__story">
+					<div>
+						<h2 id="about-piece" className="eyebrow-script with-line">
+							About this piece
+						</h2>
+						<div className="pdp__prose tiptap-content">
+							{product.content ? (
+								<TiptapRenderer content={product.content} />
+							) : (
+								<p>
+									{product.name} is one of the things we grow or use on our own benches. Questions about size,
+									light or looking after it? Our FAQ covers the basics, or simply ask us.
+								</p>
+							)}
+						</div>
 					</div>
-				</section>
+					<aside className="pdp__side" aria-labelledby="details-title">
+						<h2 id="details-title">Details</h2>
+						<dl className="pdp__specs">
+							{specs.map((spec) => (
+								<div key={spec.label}>
+									<dt>{spec.label}</dt>
+									<dd>{spec.value}</dd>
+								</div>
+							))}
+						</dl>
+					</aside>
+				</div>
+			</section>
+
+			{reviews && (
+				<div className="wrap">
+					<ProductReviews reviews={reviews} slug={slug} />
+				</div>
 			)}
 
-			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
-		</div>
+
+			<CtaBand />
+		</>
 	);
 };

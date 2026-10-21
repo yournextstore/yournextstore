@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./garden.css";
 @plugin "@tailwindcss/typography";
 
 /* Streamdown (store-chat markdown) ships its own Tailwind classes — Tailwind must scan them. */
@@ -9,7 +10,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-nunito);
+	--font-serif: var(--font-fraunces);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -36,47 +38,50 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.375rem;
+	/* Paper & ink (Emerald Garden): paper, cream card, sage wash. */
+	--background: #f4efe4;
+	--foreground: #2b2a20;
+	--card: #fbf8f0;
+	--card-foreground: #2b2a20;
+	--popover: #fbf8f0;
+	--popover-foreground: #2b2a20;
+	--primary: #24361f;
+	--primary-foreground: #fbf8f0;
+	--secondary: #ede5d5;
+	--secondary-foreground: #2b2a20;
+	--muted: #ede5d5;
+	/* The original's #6e6b58 is the tint; this lightness clears AA on --muted (#ede5d5). */
+	--muted-foreground: #5c5948;
+	--accent: #e2e5d5;
+	--accent-foreground: #24361f;
+	--destructive: #a65a3b;
+	--border: #ddd5c4;
+	--input: #cfc6b3;
+	--ring: #8b9c7c;
 }
 
+/* Light-only design: the dark block mirrors :root so forced light and the palette test agree. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.375rem;
+	--background: #f4efe4;
+	--foreground: #2b2a20;
+	--card: #fbf8f0;
+	--card-foreground: #2b2a20;
+	--popover: #fbf8f0;
+	--popover-foreground: #2b2a20;
+	--primary: #24361f;
+	--primary-foreground: #fbf8f0;
+	--secondary: #ede5d5;
+	--secondary-foreground: #2b2a20;
+	--muted: #ede5d5;
+	--muted-foreground: #5c5948;
+	--accent: #e2e5d5;
+	--accent-foreground: #24361f;
+	--destructive: #a65a3b;
+	--border: #ddd5c4;
+	--input: #cfc6b3;
+	--ring: #8b9c7c;
 }
 
 @layer base {

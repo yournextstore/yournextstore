@@ -88,8 +88,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className="grid gap-4">
+				<div className="photo flex items-center justify-center">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -102,10 +102,10 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="grid min-w-0 grid-cols-1 gap-4 outline-none"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="photo group relative">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -121,7 +121,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						src={displayImages[selectedIndex] ?? ""}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
+						sizes="(max-width: 1080px) 100vw, 55vw"
 						className={cn(
 							"object-cover transition-transform duration-500",
 							isZoomed && "scale-150 cursor-zoom-out",
@@ -138,7 +138,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-10 w-10 rounded-full bg-[var(--cream)] text-[var(--ink-2)] shadow-lg hover:bg-[var(--cream)]"
 							onClick={(e) => {
 								e.stopPropagation();
 								handlePrevious();
@@ -150,7 +150,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-10 w-10 rounded-full bg-[var(--cream)] text-[var(--ink-2)] shadow-lg hover:bg-[var(--cream)]"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleNext();
@@ -165,7 +165,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 				{/* Zoom Indicator (hidden for videos) */}
 				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
 					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+						<div className="flex items-center gap-2 rounded-full bg-[var(--cream)] px-3 py-1.5 text-xs font-medium text-[var(--ink-2)]">
 							<ZoomIn className="h-3.5 w-3.5" />
 							Click to zoom
 						</div>
@@ -174,7 +174,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 				{/* Image Counter */}
 				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+					<div className="absolute bottom-4 left-4 z-[1] rounded-full bg-[var(--cream)] px-3 py-1.5 text-xs font-medium text-[var(--ink)]">
 						{selectedIndex + 1} / {displayImages.length}
 					</div>
 				)}
@@ -182,16 +182,16 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="flex min-w-0 gap-3 overflow-x-auto p-2 -m-2">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 shrink-0 overflow-hidden border border-[var(--line-2)] bg-[var(--paper-3)] transition-all duration-200",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+									? "ring-2 ring-[var(--forest)] ring-offset-2 ring-offset-[var(--paper)]"
 									: "opacity-60 hover:opacity-100",
 							)}
 						>
