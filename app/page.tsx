@@ -1,38 +1,83 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
-import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
+import { CategoryCards } from "@/components/sections/category-cards";
+import { MembersBand } from "@/components/sections/members-band";
+import { ProductFeatures } from "@/components/sections/product-features";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { PromoBand } from "@/components/sections/promo-band";
+import {
+	getCatalogCategories,
+	getFeaturedCollection,
+	getHomeProducts,
+	getStoreIdentity,
+} from "@/lib/catalog";
+import { EDITORIAL } from "@/lib/editorial";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+export default async function Home() {
+	const [latest, categories, collection, identity] = await Promise.all([
+		getHomeProducts(),
+		getCatalogCategories(),
+		getFeaturedCollection(),
+		getStoreIdentity(),
+	]);
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<PromoBand
+				tall
+				priority
+				headingLevel={1}
+				title="New arrivals are here"
+				text={
+					identity.storeDescription ??
+					`Discover ${identity.storeName}: knitwear, shirts, trousers and coats in natural fibres, cut simply for every day.`
+				}
+				cta="Explore the shop"
+				href="/products"
+				images={EDITORIAL.hero}
+			/>
+
+			<CategoryCards categories={categories} />
+
+			<ProductGrid
+				title="New arrivals"
+				description="The latest pieces from the studio."
+				products={latest.slice(0, 4)}
+				viewAllHref="/products"
+				details
+				className="pt-0 sm:pt-0"
+			/>
+
+			<div className="container-ae py-8">
+				<PromoBand
+					rounded
+					title={collection?.name ?? "The full range"}
+					text={collection?.description ?? "Every knit, shirt, trouser and coat in one place."}
+					cta={collection ? "Explore the collection" : "Shop all products"}
+					href={collection ? `/collection/${collection.slug}` : "/products"}
+					images={EDITORIAL.collection}
+				/>
+			</div>
+
+			<ProductFeatures
+				title="Made to be worn"
+				lead="A small wardrobe of basics: what we look for in every piece we make."
+				heading="How we make clothes"
+				description="Every piece starts with the fabric: merino, lambswool, cotton, linen and wool flannel, cut in simple shapes that work together. Fewer clothes, worn more often."
+				points={[
+					"Fabric, weight and fit on every product page, so you know what you are buying.",
+					"A secure checkout with the payment methods you already use.",
+					"An order confirmation in your inbox as soon as you buy.",
+				]}
+				images={EDITORIAL.features}
+				href="/products"
+				cta="Browse the shop"
+			/>
+
+			<MembersBand image={EDITORIAL.members} />
 		</>
 	);
 }

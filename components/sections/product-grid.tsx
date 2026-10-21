@@ -3,75 +3,65 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
-import { commerce } from "@/lib/commerce";
+import { cn } from "@/lib/utils";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
-	title?: string;
+	title: string;
 	description?: string;
-	products?: (
+	products: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
 		| NonNullable<APIProductGetByIdResult>
 	)[];
-	limit?: number;
-	showViewAll?: boolean;
 	viewAllHref?: string;
+	details?: boolean;
+	small?: boolean;
+	/** Already inside a container (product page). */
+	bare?: boolean;
+	className?: string;
 };
 
-export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+/** "Product Lists": a left-set heading over a four-up row of product cards. */
+export function ProductGrid({
+	title,
+	description,
 	products,
-	limit = 6,
-	showViewAll = true,
-	viewAllHref = "/products",
+	viewAllHref,
+	details = false,
+	small = false,
+	bare = false,
+	className,
 }: ProductGridProps) {
-	"use cache";
-	cacheLife("minutes");
-
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
-
+	if (products.length === 0) return null;
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section className={cn(!bare && "container-ae", "py-12 sm:py-16", className)}>
+			<div className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					<h2 className={small ? "text-xl font-semibold" : "text-[1.75rem] font-bold sm:text-[1.875rem]"}>
+						{title}
+					</h2>
+					{description && <p className="mt-1">{description}</p>}
 				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+				{viewAllHref && (
+					<Link href={viewAllHref} className="text-sm font-semibold text-slate-ink hover:underline">
+						Browse all products &gt;
 					</Link>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+			{/* A swipe rail on phones; `sm:contents` hands the cards to the four-up grid above. */}
+			<div className="sm:grid sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+				<div className="-mx-3 flex snap-x snap-mandatory scroll-px-3 gap-4 overflow-x-auto px-3 pb-2 sm:contents">
+					{products.map((product) => (
+						<div key={product.id} className="w-[72%] shrink-0 snap-start sm:w-auto">
+							<ProductCard product={product} details={details} />
+						</div>
+					))}
 				</div>
-			)}
+			</div>
 		</section>
 	);
 }

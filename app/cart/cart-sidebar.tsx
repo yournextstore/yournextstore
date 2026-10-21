@@ -7,16 +7,8 @@ import { itemKey } from "@/app/cart/cart-math";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
@@ -32,72 +24,72 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
-					</SheetTitle>
-					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
+			<SheetContent className="flex flex-col gap-0 bg-white data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
+				<SheetHeader className="shrink-0 border-b border-slate-line px-5 pb-4 pt-6 sm:px-6">
+					<SheetTitle className="text-2xl font-bold text-slate-ink">Shopping Cart</SheetTitle>
+					<SheetDescription className="text-sm text-slate-body">
+						{itemCount > 0
+							? `${itemCount} ${itemCount === 1 ? "item" : "items"} in your cart`
+							: "Review items in your cart and proceed to checkout."}
 					</SheetDescription>
 				</SheetHeader>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+					<div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+						<span className="flex h-14 w-14 items-center justify-center rounded-md bg-slate-ink text-white">
+							<ShoppingBag className="h-6 w-6" aria-hidden />
+						</span>
+						<div>
+							<p className="text-lg font-semibold text-slate-ink">Your cart is empty</p>
+							<p className="mt-1 text-sm">Add a few products to get started.</p>
 						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
+						<button type="button" onClick={closeCart} className="btn-ae btn-ae-white">
 							Continue Shopping
-						</Button>
+						</button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="min-h-0 flex-1 px-5 sm:px-6">
+							<div className="divide-y divide-slate-line">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<DiscountCodeField />
-								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
-										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
-												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
+						{/* The original's Order Summary card: grey panel, ruled rows, dark Checkout over a white button. */}
+						<div className="shrink-0 border-t border-slate-line p-4 sm:p-5">
+							<div className="rounded-xl border border-slate-line bg-muted p-4 shadow-xs-ae sm:p-5">
+								<h3 className="mb-3 text-lg font-semibold">Order Summary</h3>
+								<div className="mb-4">
+									<DiscountCodeField />
+								</div>
+								<dl className="space-y-2 border-b border-slate-line pb-3 text-sm">
+									<div className="flex items-center justify-between">
+										<dt>Subtotal</dt>
+										<dd className="font-semibold text-slate-ink">
+											{formatMoney({ amount: subtotal, currency, locale })}
+										</dd>
 									</div>
-								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+									{discount ? (
+										<div className="flex items-center justify-between gap-3 text-[#0f7a4c]">
+											<dt>Discount</dt>
+											<dd className="font-semibold tabular-nums">
+												−{formatMoney({ amount: discount, currency, locale })}
+											</dd>
+										</div>
+									) : null}
+									<div className="flex items-center justify-between">
+										<dt>Shipping estimate</dt>
+										<dd>At checkout</dd>
+									</div>
+								</dl>
+								<div className="flex items-center justify-between py-3">
+									<span className="text-lg font-semibold text-slate-ink">Total</span>
+									<span className="text-lg font-semibold text-slate-ink">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
-								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
-								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
-									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
-								</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
 								    While a cart write is in flight, block the link: a full navigation now would
@@ -111,11 +103,7 @@ export function CartSidebar() {
 											e.preventDefault();
 										}
 									}}
-									className={cn(
-										buttonVariants(),
-										"w-full h-12 text-base font-medium",
-										isMutating && "pointer-events-none opacity-60",
-									)}
+									className={cn("btn-ae btn-ae-dark btn-ae-lg w-full", isMutating && "pointer-events-none")}
 								>
 									{isMutating ? (
 										<>
@@ -129,12 +117,19 @@ export function CartSidebar() {
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="btn-ae btn-ae-white btn-ae-lg mt-3 w-full"
 								>
 									Continue Shopping
 								</button>
+								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
+								    "calculate taxes at checkout" there would read as an extra charge to come. */}
+								<p className="mt-3 text-center text-sm">
+									{taxBehavior === "inclusive"
+										? "Tax included. Shipping calculated at checkout."
+										: "Shipping and taxes calculated at checkout."}
+								</p>
 							</div>
-						</SheetFooter>
+						</div>
 					</>
 				)}
 			</SheetContent>
