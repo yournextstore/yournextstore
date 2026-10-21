@@ -8,7 +8,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-instrument-sans);
+	--font-serif: var(--font-instrument-serif);
+	--font-display: var(--font-climate-crisis);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +34,127 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Munchies palette: the bright tomato is for fills, rules and display type (>= 24px);
+	   small text uses --foreground, a deeper tomato that clears AA on cream and on pink. */
+	--color-brand: var(--brand);
+	--color-blush: var(--blush);
+	--color-slab: var(--slab);
+	--color-paper: var(--paper);
+	--color-brand-tint: var(--brand-tint);
+
+	/* Munchies spacing scale (px names kept from the original). */
+	--spacing-xs: 8px;
+	--spacing-s: 16px;
+	--spacing-m: 20px;
+	--spacing-lg: 24px;
+	--spacing-xl: 32px;
+	--spacing-2xl: 40px;
+	--spacing-3xl: 44px;
+	--spacing-4xl: 48px;
+	--spacing-5xl: 50px;
+	--spacing-6xl: 64px;
+	--spacing-7xl: 72px;
+	--spacing-8xl: 80px;
+
+	--breakpoint-xs: 25rem;
+
+	--animate-marquee: munch-marquee var(--duration, 30s) linear infinite;
+}
+
+/* Type scale under its own names (base 16px + n): never collides with Tailwind's text-sm/base
+   or with a colour token. b = body/sans copy, d = serif display, l = label. */
+@theme {
+	--text-b-2xs: 10px;
+	--text-b-xs: 12px;
+	--text-b-sm: 14px;
+	--text-b-md: 16px;
+	--text-b-lg: 18px;
+	--text-b-xl: 20px;
+	--text-b-2xl: 24px;
+	--text-b-3xl: 28px;
+	--text-b-4xl: 32px;
+	--text-b-5xl: 36px;
+	--text-b-6xl: 40px;
+	--text-b-8xl: 48px;
+	--text-d-xs: 24px;
+	--text-d-sm: 28px;
+	--text-d-base: 32px;
+	--text-d-lg: 40px;
+	--text-d-xl: 48px;
+	--text-d-2xl: 56px;
+	--text-d-3xl: 64px;
+	--text-d-5xl: 80px;
+	--text-d-7xl: 96px;
+	--text-l-2xs: 10px;
+	--text-l-xs: 12px;
+	--text-l-sm: 14px;
+	--text-l-md: 16px;
+	--text-l-6xl: 40px;
+}
+
+@keyframes munch-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(calc(-100% - var(--gap, 5rem)));
+	}
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--header-h: 60px;
+	--brand: #ff5227;
+	--brand-tint: #ffd2c7;
+	--blush: #f9dff2;
+	--slab: #cc3a10;
+	--paper: #fff6e6;
+	--background: #fff6e6;
+	--foreground: #bf300a;
+	--card: #fff6e6;
+	--card-foreground: #bf300a;
+	--popover: #fff6e6;
+	--popover-foreground: #bf300a;
+	--primary: #bf300a;
+	--primary-foreground: #fff6e6;
+	--secondary: #f9dff2;
+	--secondary-foreground: #bf300a;
+	--muted: #f9dff2;
+	--muted-foreground: #b02c09;
+	--accent: #f9dff2;
+	--accent-foreground: #bf300a;
+	--destructive: #a3141c;
+	--border: #ff5227;
+	--input: #ff5227;
+	--ring: #ff5227;
 }
 
+@media (min-width: 64rem) {
+	:root {
+		--header-h: 76px;
+	}
+}
+
+/* Light-only design (forcedTheme="light"); the block stays so the palette test covers both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #fff6e6;
+	--foreground: #bf300a;
+	--card: #fff6e6;
+	--card-foreground: #bf300a;
+	--popover: #fff6e6;
+	--popover-foreground: #bf300a;
+	--primary: #bf300a;
+	--primary-foreground: #fff6e6;
+	--secondary: #f9dff2;
+	--secondary-foreground: #bf300a;
+	--muted: #f9dff2;
+	--muted-foreground: #b02c09;
+	--accent: #f9dff2;
+	--accent-foreground: #bf300a;
+	--destructive: #a3141c;
+	--border: #ff5227;
+	--input: #ff5227;
+	--ring: #ff5227;
 }
 
 @layer base {
@@ -84,11 +163,72 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+		font-weight: 500;
+	}
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
+	}
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--brand) #ff52273c;
+	}
+}
+
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 1440px;
+	padding-inline: 20px;
+	@media (width >= 64rem) {
+		padding-inline: 32px;
+	}
+}
+
+@utility font-serif-d {
+	font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+	font-weight: 400;
+}
+
+@utility font-display-d {
+	font-family: var(--font-climate-crisis), ui-sans-serif, system-ui, sans-serif;
+	font-weight: 400;
+	text-transform: uppercase;
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Header: a 1.5px tomato rule fades in once the page scrolls (toggled by HeaderScrollRule). */
+.site-header {
+	box-shadow: 0 1.5px 0 0 transparent;
+	transition: box-shadow 0.3s;
+}
+.site-header[data-scrolled="true"] {
+	box-shadow: 0 1.5px 0 0 var(--brand);
+}
+
+/* The product page's docked Add to cart bar (phones) would sit under the YNS badge / chat launcher. */
+@media (width < 64rem) {
+	body:has([data-sticky-atc="on"]) .yns-badge {
+		transform: translateY(-100px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee {
+		animation: none;
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: var(--foreground);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);
@@ -99,11 +239,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#f6e9d2 0%,
+		#fbf0dc 40%,
+		#fff6e6 50%,
+		#fbf0dc 60%,
+		#f6e9d2 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

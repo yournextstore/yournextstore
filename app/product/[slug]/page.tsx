@@ -7,19 +7,14 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
-import { RelatedProducts } from "@/app/product/[slug]/related-products";
+import { Addons, getCategoryProducts, RelatedProducts } from "@/app/product/[slug]/related-products";
+import { SpecAccordion } from "@/components/munch/accordion";
+import { headingSizes } from "@/components/munch/styles";
+import { MediaText } from "@/components/sections/home";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EDITORIAL, getAnnouncement, getStoreName } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
@@ -29,32 +24,35 @@ import { cn } from "@/lib/utils";
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
+		<div className="flex w-full gap-2 px-m lg:max-w-171 lg:px-0">
+			<div className="hidden w-21.25 shrink-0 flex-col gap-2 lg:flex">
+				<Skeleton className="size-21.25 rounded-lg bg-[#f4ebdb]" />
+			</div>
+			<Skeleton className="mt-1 aspect-square w-[86vw] rounded-2xl bg-[#f4ebdb] lg:mt-0 lg:w-full" />
 		</div>
 	);
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="flex flex-col gap-lg">
+			<Skeleton className="h-7 w-24 bg-[#f4ebdb]" />
+			<Skeleton className="h-20 w-full rounded-full bg-[#f4ebdb]" />
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+		<div className="min-h-svh">
+			<section className="mx-auto flex max-w-[1440px] flex-col items-start gap-s lg:flex-row lg:gap-xs lg:px-xl lg:py-m">
 				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
+				<div className="flex w-full flex-col gap-lg px-m pt-s pb-2xl lg:max-w-145">
+					<Skeleton className="h-5 w-48 bg-[#f4ebdb]" />
+					<Skeleton className="h-14 w-3/4 bg-[#f4ebdb] lg:h-20" />
 					<PurchasePanelSkeleton />
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }
@@ -64,10 +62,7 @@ function StarRow({ rating }: { rating: number }) {
 	return (
 		<span className="flex gap-0.5" aria-hidden>
 			{Array.from({ length: 5 }, (_, i) => (
-				<Star
-					key={i}
-					className={cn("h-4 w-4", i < rounded ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted")}
-				/>
+				<Star key={i} className={cn("h-4 w-4 text-brand", i < rounded ? "fill-brand" : "fill-transparent")} />
 			))}
 		</span>
 	);
@@ -124,7 +119,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default function ProductPage(props: { params: Promise<{ slug: string }> }) {
 	return (
 		<Suspense fallback={<ProductPageSkeleton />}>
-			<ProductDetails params={props.params} />
+			<div className="min-h-svh">
+				<ProductDetails params={props.params} />
+			</div>
 		</Suspense>
 	);
 }
@@ -162,62 +159,69 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	const productJsonLd = await buildProductJsonLd(product, reviews);
+	const [neighbours, storeName, me] = await Promise.all([
+		getCategoryProducts(product.category?.slug),
+		getStoreName(),
+		meGetCached().catch(() => null),
+	]);
+	const related = neighbours.filter((p) => p.id !== product.id);
+	const addons = related.filter((p) => p.variants.length > 0).slice(0, 2);
+	const tag = product.category?.name?.split(">").at(-1)?.trim() ?? null;
+	const storeDescription = me?.store.settings?.storeDescription?.trim() || null;
+	const shippingNote = await getAnnouncement();
+
+	const specs = [
+		...(product.content
+			? [
+					{
+						id: "description",
+						title: "Description",
+						content: (
+							<div className="prose prose-sm max-w-none text-foreground">
+								<TiptapRenderer content={product.content} />
+							</div>
+						),
+					},
+				]
+			: []),
+		{
+			id: "shipping",
+			title: "Shipping",
+			content: (
+				<p>{shippingNote ? `${shippingNote}. ` : ""}Shipping options and costs are shown at checkout.</p>
+			),
+		},
+	];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<>
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{product.variants[0] && <TrackProductView variant={product.variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/products">Products</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+			<section className="mx-auto flex max-w-[1440px] flex-col items-start gap-s lg:flex-row lg:gap-xs lg:px-xl lg:py-m">
 				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
+					<MediaGallery images={allImages} productName={product.name} variants={product.variants} tag={tag} />
 				</Suspense>
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
+				<div className="flex w-full min-w-0 flex-col gap-lg px-m pt-s pb-2xl lg:max-w-145">
+					<nav aria-label="Breadcrumb" className="-mb-1 text-b-sm leading-[1.5] lg:text-b-md">
+						<Link href="/">Home</Link>
+						{product.category && (
+							<>
+								{" / "}
+								<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
+							</>
+						)}
+						{" / "}
+						<span aria-current="page">{product.name}</span>
+					</nav>
+					<div className="flex flex-col gap-s">
+						<h1 className={cn(headingSizes.product, "text-balance")}>{product.name}</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
-							<a
-								href="#reviews"
-								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
-							>
+							<a href="#reviews" className="inline-flex items-center gap-2 text-b-sm">
 								<StarRow rating={reviewSummary.averageRating} />
-								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
-								<span className="text-muted-foreground underline-offset-4 hover:underline">
+								<span>{reviewSummary.averageRating.toFixed(1)}</span>
+								<span className="underline underline-offset-4">
 									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
 								</span>
 							</a>
@@ -254,27 +258,28 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							/>
 						</Suspense>
 					)}
-				</div>
-			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
+					<Addons products={addons} />
+					<SpecAccordion items={specs} />
+				</div>
+			</section>
+
+			{storeDescription && (
+				<MediaText
+					label={`About ${storeName}`}
+					text={storeDescription}
+					image={EDITORIAL.about}
+					imagePosition="left"
+				/>
 			)}
 
-			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
+			{reviews && (
+				<div className="shell">
+					<ProductReviews reviews={reviews} slug={slug} />
+				</div>
+			)}
 
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
-			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
-		</div>
+			<RelatedProducts products={related.slice(0, 8)} />
+		</>
 	);
 };

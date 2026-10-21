@@ -35,7 +35,7 @@ export function NewsletterConsent({
 				disabled={disabled}
 				className="mt-0.5 shrink-0"
 			/>
-			<span className="text-sm leading-snug opacity-80">
+			<span className="text-sm leading-snug">
 				I agree to receive marketing emails and accept the privacy policy. You can unsubscribe at any time.
 			</span>
 		</Label>

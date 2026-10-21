@@ -4,45 +4,54 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { Tag } from "@/components/munch/tag";
 import { formatMoney } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
+export type CardProduct = BrowseProduct | CollectionProduct | FullProduct;
 
+/** The tag the original prints on a card (its product type); here the product's category. */
+export function productTag(product: CardProduct): string | null {
+	const category = "category" in product ? product.category : null;
+	if (!category || typeof category !== "object" || !("name" in category)) return null;
+	return typeof category.name === "string" ? (category.name.split(">").at(-1)?.trim() ?? null) : null;
+}
+
+/**
+ * Munchies product card: a square rounded packshot with the type tag in its top-right corner,
+ * then the name and a "from" price centred underneath.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	className,
+	sizes = "(max-width: 1024px) 50vw, 33vw",
 }: {
-	product: BrowseProduct | CollectionProduct | FullProduct;
+	product: CardProduct;
 	priority?: boolean;
+	className?: string;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const { min: minPrice, max: maxPrice } =
 		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
-
-	const priceDisplay =
-		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
-			: minPrice
-				? formatMoney({ amount: minPrice, currency, locale })
-				: null;
+	const fromPrice = minPrice ? formatMoney({ amount: minPrice, currency, locale }) : null;
+	const isRange = Boolean(minPrice && maxPrice && minPrice !== maxPrice);
 
 	const allImages = [
 		...(product.images ?? []),
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
 			[]),
 	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const image = allImages.find((url) => !isVideoUrl(url)) ?? allImages[0];
+	const tag = productTag(product);
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -58,28 +67,16 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn("group relative flex flex-col items-center rounded-lg", className)}
+		>
+			<div className="relative aspect-square w-full overflow-hidden rounded-lg bg-[#f4ebdb]">
+				{image &&
+					(isVideoUrl(image) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
+							className="absolute inset-0 size-full object-cover"
+							src={image}
 							muted
 							loop
 							autoPlay
@@ -87,37 +84,24 @@ export async function ProductCard({
 						/>
 					) : (
 						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
+							src={image}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes={sizes}
+							className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
 							priority={priority}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{tag && <Tag text={tag} className="absolute top-3 right-4 max-w-[70%]" />}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-1 flex-col items-center gap-1 px-lg py-s text-center">
+				<span className="text-b-lg leading-[1.5] text-pretty lg:text-b-xl">{product.name}</span>
+				{fromPrice && (
+					<span className="text-b-sm leading-[1.5] lg:text-b-md">
+						{isRange ? "from " : ""}
+						{fromPrice}
+					</span>
+				)}
 			</div>
 		</Link>
 	);
