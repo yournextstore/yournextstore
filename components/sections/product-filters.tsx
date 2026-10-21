@@ -1,12 +1,11 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { FunnelIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -328,7 +327,7 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** The original's "Filter" toolbar action: funnel trigger + slide-over sheet, at every width. */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
@@ -336,17 +335,20 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
-					Filters
+				<button
+					type="button"
+					className="flex h-10 shrink-0 cursor-pointer items-center gap-2 text-base text-ink transition-colors hover:text-tangerine"
+				>
+					<FunnelIcon aria-hidden className="size-6" strokeWidth={2} />
+					Filter
 					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+						<span className="rounded-full bg-tangerine px-1.5 text-xs font-bold text-white">
 							{activeCount}
 						</span>
 					)}
-				</Button>
+				</button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
+			<SheetContent side="right" className="block w-[85vw] max-w-sm overflow-y-auto">
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>

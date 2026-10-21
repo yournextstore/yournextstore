@@ -8,12 +8,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-lato);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-pill: 30px;
+	--radius-tile: 20px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,50 +34,73 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Theme palette (Balloon toy-store original): brand orange, ink, slate surfaces, dark footer. */
+	--color-tangerine: var(--tangerine);
+	--color-tangerine-deep: var(--tangerine-deep);
+	--color-tangerine-bright: #ff6900;
+	--color-bubblegum: #ff2fa0;
+	--color-ink: var(--foreground);
+	--color-shell: #f8fafc;
+	--color-line: #b0bcce;
+	--color-hush: #5e6b80;
+	--color-footer: #4d4b4d;
+	--color-sticker-red: #e7000b;
+}
+
+/* Non-inline: emitted as variables so plain CSS rules below can read them. */
+@theme {
+	--breakpoint-xs: 30rem;
+	--breakpoint-xl: 77.5rem;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #ffffff;
+	--foreground: #4c4d56;
+	--card: #ffffff;
+	--card-foreground: #4c4d56;
+	--popover: #ffffff;
+	--popover-foreground: #4c4d56;
+	/* The original's #f97316 fails AA under white type: the same hue, deepened. */
+	--primary: #c94a05;
+	--primary-foreground: #ffffff;
+	--secondary: #f8fafc;
+	--secondary-foreground: #4c4d56;
+	--muted: #f6f7f9;
+	--muted-foreground: #5e6b80;
+	--accent: #fff1e8;
+	--accent-foreground: #4c4d56;
+	--destructive: #dc2626;
+	--border: #e2e8f0;
+	--input: #b0bcce;
+	--ring: #f97316;
+	--tangerine: #c94a05;
+	--tangerine-deep: #a83c00;
 }
 
+/* Light-only design: the dark block mirrors :root so the palette test and sonner stay consistent. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.75rem;
+	--background: #ffffff;
+	--foreground: #4c4d56;
+	--card: #ffffff;
+	--card-foreground: #4c4d56;
+	--popover: #ffffff;
+	--popover-foreground: #4c4d56;
+	--primary: #c94a05;
+	--primary-foreground: #ffffff;
+	--secondary: #f8fafc;
+	--secondary-foreground: #4c4d56;
+	--muted: #f6f7f9;
+	--muted-foreground: #5e6b80;
+	--accent: #fff1e8;
+	--accent-foreground: #4c4d56;
+	--destructive: #dc2626;
+	--border: #e2e8f0;
+	--input: #b0bcce;
+	--ring: #f97316;
+	--tangerine: #c94a05;
+	--tangerine-deep: #a83c00;
 }
 
 @layer base {
@@ -84,6 +109,71 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+	}
+}
+
+@layer components {
+	.font-display {
+		font-family: var(--font-baloo), var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+	}
+	/* Page frame: the original's max-w-(--breakpoint-xl) column with 20px gutters. */
+	.frame {
+		width: 100%;
+		max-width: calc(77.5rem + 2.5rem);
+		margin-inline: auto;
+		padding-inline: 1.25rem;
+	}
+	.pill {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		border-radius: 30px;
+		font-weight: 700;
+		text-transform: uppercase;
+		white-space: nowrap;
+		text-align: center;
+		transition:
+			background-color 0.3s,
+			color 0.3s,
+			border-color 0.3s;
+		cursor: pointer;
+	}
+	.pill-primary {
+		background: var(--tangerine);
+		border: 1px solid var(--tangerine);
+		color: #fff;
+	}
+	.pill-primary:hover {
+		background: var(--tangerine-deep);
+		border-color: var(--tangerine-deep);
+	}
+	.pill-outline {
+		border: 1px solid var(--tangerine);
+		color: var(--tangerine);
+		background: transparent;
+	}
+	.pill-outline:hover {
+		color: var(--tangerine-deep);
+		border-color: var(--tangerine-deep);
+	}
+	.pill-muted {
+		border: 1px solid #cbd5e1;
+		color: #5e6b80;
+		background: transparent;
+		cursor: not-allowed;
+	}
+	.pill:disabled {
+		opacity: 0.7;
+	}
+	/* Logo-style wordmark: brand gradient painted over a solid colour that clears AA. */
+	.wordmark {
+		color: var(--tangerine);
+		background-image: linear-gradient(100deg, #ff8a00 0%, #ff5a1f 45%, #ff2fa0 100%);
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
 	}
 }
 

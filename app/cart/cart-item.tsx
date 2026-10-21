@@ -104,7 +104,7 @@ export function CartItem({ item }: CartItemProps) {
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-shell"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</Link>
@@ -115,7 +115,7 @@ export function CartItem({ item }: CartItemProps) {
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 text-sm leading-tight text-ink hover:text-tangerine"
 					>
 						{product.name}
 					</Link>
@@ -134,7 +134,7 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex items-center rounded-full border border-line transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
@@ -158,7 +158,7 @@ export function CartItem({ item }: CartItemProps) {
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="text-base font-bold text-tangerine">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

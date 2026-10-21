@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -166,7 +172,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												className={cn(
 													"relative h-12 w-12 rounded-full transition-all duration-200",
 													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+														? "ring-2 ring-tangerine-bright ring-offset-2 ring-offset-background"
 														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
 												)}
 												style={{ backgroundColor: option.colorValue ?? "#fff" }}
@@ -196,13 +202,13 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 												type="button"
 												onClick={() => handleOptionSelect(group.label, option.id)}
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
+													"flex flex-col items-center rounded-full border px-5 py-2 uppercase transition-all duration-200",
 													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+														? "border-tangerine bg-tangerine text-white"
+														: "border-line bg-background text-ink hover:border-tangerine hover:text-tangerine",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
+												<span className="text-sm font-bold">{option.value}</span>
 											</button>
 										);
 									})}

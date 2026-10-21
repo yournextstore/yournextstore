@@ -39,7 +39,9 @@ export function StoreChatLauncher({ badge, ...config }: StoreChatConfig & { badg
 			{loaded && <ChatPanel config={config} open={open} onClose={() => setOpen(false)} />}
 			{/* Badge and launcher share one dock so they never overlap. The panel now
 			    occupies this corner while open, so the whole dock steps aside. */}
-			<div className={cn("fixed bottom-4 right-4 z-50 flex items-center gap-2", open && "hidden")}>
+			<div
+				className={cn("fixed bottom-20 right-4 z-50 flex items-center gap-2 md:bottom-4", open && "hidden")}
+			>
 				{badge}
 				<button
 					type="button"

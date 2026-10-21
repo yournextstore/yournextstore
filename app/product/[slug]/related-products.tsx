@@ -1,5 +1,4 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 
@@ -10,38 +9,49 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 11,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
+async function getFallbackProducts() {
+	"use cache";
+	cacheLife("minutes");
+	const { data } = await commerce.productBrowse({ active: true, limit: 11 });
+	return data;
 }
 
-async function RelatedProductsContent({
+/**
+ * The original's "Similar products" grid. Rendered without its own Suspense boundary: it streams with
+ * the product page, so it cannot land after the footer has painted and push it down.
+ */
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
 	productId: string;
 	categorySlug?: string;
 }) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const inCategory = (await getCategoryProducts(categorySlug)).filter((p) => p.id !== productId);
+	const related =
+		inCategory.length >= 5
+			? inCategory
+			: [
+					...inCategory,
+					...(await getFallbackProducts()).filter(
+						(p) => p.id !== productId && !inCategory.some((q) => q.id === p.id),
+					),
+				];
 
 	if (related.length === 0) return null;
 
 	return (
 		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
+			title="Similar products"
+			products={related.slice(0, 10)}
 			showViewAll={false}
+			className="frame pt-14 pb-6"
 		/>
 	);
 }

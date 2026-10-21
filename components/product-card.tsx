@@ -3,9 +3,10 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
+import { Percent } from "lucide-react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
+import { displayPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -15,6 +16,7 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+/** The original's catalogue card: soft slate tile, centred photo, name, orange price, pill action. */
 export async function ProductCard({
 	product,
 	priority = false,
@@ -29,10 +31,14 @@ export async function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `${formatMoney({ amount: minPrice, currency, locale })} – ${formatMoney({ amount: maxPrice, currency, locale })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
+
+	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const compareAt = onlyVariant ? displayPrice(onlyVariant, taxBehavior, "originalPrice") : null;
+	const onSale = !!compareAt && !!minPrice && BigInt(compareAt) > BigInt(minPrice);
 
 	const allImages = [
 		...(product.images ?? []),
@@ -40,12 +46,10 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const inStock = variants?.some((v) => v.stock !== 0) ?? true;
+	const singleVariant = onlyVariant && onlyVariant.stock !== 0 ? onlyVariant : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
@@ -56,11 +60,49 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
+		<article className="group relative flex size-full flex-col items-center rounded-[20px] bg-shell p-4 transition-shadow duration-500 hover:shadow-xl">
+			{onSale && (
+				<span className="absolute left-4 top-4 z-10 flex size-[26px] items-center justify-center rounded-full bg-black text-white">
+					<Percent aria-hidden className="size-4" strokeWidth={3} />
+					<span className="sr-only">On sale</span>
+				</span>
+			)}
+			<Link href={href} className="relative flex w-full flex-1 flex-col items-center text-center">
+				<div className="relative mx-auto mt-6 mb-5 aspect-square w-[78%] overflow-hidden rounded-2xl bg-muted">
+					{primaryImage &&
+						(isVideoUrl(primaryImage) ? (
+							<video
+								className="absolute inset-0 size-full object-cover"
+								src={primaryImage}
+								muted
+								loop
+								autoPlay
+								playsInline
+							/>
+						) : (
+							<YNSMedia
+								src={primaryImage}
+								alt=""
+								fill
+								sizes="(max-width: 480px) 70vw, (max-width: 1024px) 30vw, 200px"
+								className="object-cover transition-transform duration-500 group-hover:scale-105"
+								priority={priority}
+							/>
+						))}
+				</div>
+				<h2 className="line-clamp-2 min-h-10 text-sm leading-5 text-ink">{product.name}</h2>
+				<p className="mt-2 flex flex-wrap items-baseline justify-center gap-x-2.5">
+					<span className="text-xl font-bold text-tangerine">{priceDisplay}</span>
+					{onSale && compareAt && (
+						<s className="text-xs text-hush">{formatMoney({ amount: compareAt, currency, locale })}</s>
+					)}
+				</p>
+			</Link>
+			<div className="mt-4 flex w-full justify-center">
+				{singleVariant ? (
 					<QuickAddButton
 						variantId={singleVariant.id}
 						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
@@ -74,51 +116,18 @@ export async function ProductCard({
 							images: product.images ?? [],
 						}}
 					/>
+				) : inStock && variants && variants.length > 1 ? (
+					<Link
+						href={href}
+						aria-label={`Choose options, ${product.name}`}
+						className="pill pill-outline h-[42px] w-full max-w-40 px-4 text-base"
+					>
+						Options
+					</Link>
+				) : (
+					<span className="pill pill-muted h-[42px] w-full max-w-40 px-4 text-base">Out of stock</span>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+		</article>
 	);
 }
