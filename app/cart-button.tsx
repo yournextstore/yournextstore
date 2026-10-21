@@ -1,7 +1,7 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
+import { BagIcon } from "@/components/mandala/icons";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
@@ -10,14 +10,14 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="relative flex size-11 items-center justify-center text-ink-foreground transition-opacity hover:opacity-75"
+			aria-label={itemCount > 0 ? `Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : "Cart"}
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<BagIcon className="size-6" />
 			{itemCount > 0 ? (
 				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
+					aria-hidden
+					className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-indigo text-xs text-white"
 				>
 					{itemCount}
 				</span>

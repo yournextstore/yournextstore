@@ -8,6 +8,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Wide enough for the carousel arrows to sit outside the content column, as in the original. */
+@theme {
+	--breakpoint-wide: 88rem;
+}
+
 @theme inline {
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
@@ -33,50 +38,82 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-ink: var(--ink);
+	--color-ink-foreground: var(--ink-foreground);
+	--color-indigo: var(--indigo);
+	--color-indigo-hover: var(--indigo-hover);
+}
+
+/* The original's container: 1rem gutter on phones, 2rem from md, capped at 80rem (86rem at 2xl). */
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	padding-inline: 1rem;
+	@media (width >= 48rem) {
+		padding-inline: 2rem;
+	}
+	@media (width >= 80rem) {
+		max-width: 80rem;
+	}
+	@media (width >= 96rem) {
+		max-width: 86rem;
+	}
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	/* Mandala storefront: white page, pure black header and footer bars, slate ink,
+	   one indigo (Tailwind indigo-600) for buttons, badges and selected options. */
+	--radius: 0.375rem;
+	--ink: #000000;
+	--ink-foreground: #ffffff;
+	--indigo: #4f46e5;
+	--indigo-hover: #4338ca;
+	--background: #ffffff;
+	--foreground: #020817;
+	--card: #ffffff;
+	--card-foreground: #020817;
+	--popover: #ffffff;
+	--popover-foreground: #020817;
+	--primary: #4f46e5;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #0f172a;
+	--muted: #f4f4f5;
+	/* The original's slate-500 (#64748b) is 4.3:1 on its grey; same hue, darker step. */
+	--muted-foreground: #556070;
+	--accent: #f4f4f5;
+	--accent-foreground: #0f172a;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #6366f1;
 }
 
+/* Light-only design: the dark block mirrors :root so the palette test still sees both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.375rem;
+	--ink: #000000;
+	--ink-foreground: #ffffff;
+	--indigo: #4f46e5;
+	--indigo-hover: #4338ca;
+	--background: #ffffff;
+	--foreground: #020817;
+	--card: #ffffff;
+	--card-foreground: #020817;
+	--popover: #ffffff;
+	--popover-foreground: #020817;
+	--primary: #4f46e5;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #0f172a;
+	--muted: #f4f4f5;
+	--muted-foreground: #556070;
+	--accent: #f4f4f5;
+	--accent-foreground: #0f172a;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #6366f1;
 }
 
 @layer base {
@@ -85,6 +122,13 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variable on <body>; Tailwind never emits --default-font-family. */
+		font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+	}
+	h1,
+	h2,
+	h3 {
+		text-wrap: balance;
 	}
 }
 

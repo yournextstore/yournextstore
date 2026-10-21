@@ -1,42 +1,44 @@
-import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import heroImage from "@/public/images/pexels/hero-boutique-shelves.jpg";
 
+/**
+ * The original's high-impact hero: a full-bleed photograph under a dark wash, a two-line bold
+ * headline, one line of copy and a small white button, centred on desktop and left-aligned on
+ * phones.
+ */
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
+		<section className="relative isolate flex min-h-[30rem] items-center overflow-hidden bg-ink text-white lg:min-h-[80vh]">
+			<div aria-hidden className="absolute inset-0 -z-10">
+				<Image
+					src={heroImage}
+					alt=""
+					fill
+					priority
+					placeholder="blur"
+					sizes="100vw"
+					className="object-cover"
+				/>
+				<div className="absolute inset-0 bg-black/45" />
+			</div>
+			<div className="shell py-16">
+				<div className="mx-auto max-w-[36.5rem] md:text-center">
+					<h1 className="text-[2.125rem] font-extrabold leading-[1.1] tracking-tight md:text-[3.5rem]">
+						Step in the right <span className="md:block">direction</span>
+					</h1>
+					<p className="mt-5 text-base leading-7 text-white/90 md:mt-6">
+						Discover shoes that blend style with comfort. From casual sneakers and sturdy boots to elegant
+						dress shoes.
+					</p>
+					<Link
+						href="/products"
+						className="mt-6 inline-flex h-10 items-center rounded-sm bg-white px-4 text-sm font-medium text-[#111827] transition-colors hover:bg-white/90 md:mt-6 md:h-9 md:px-3"
+					>
+						Shop collection
+					</Link>
 				</div>
 			</div>
-			{/* Subtle decorative element */}
-			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
-			/>
 		</section>
 	);
 }

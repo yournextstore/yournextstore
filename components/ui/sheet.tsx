@@ -44,6 +44,7 @@ function SheetContent({
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left"
+  /** Off for panels that draw their own close button in a header row. */
   showCloseButton?: boolean
 }) {
   return (

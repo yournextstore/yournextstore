@@ -70,7 +70,13 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				className={cn(
+					"w-40 rounded-sm px-3 text-sm text-[#111827] shadow-none data-[size=default]:h-10 sm:w-48 sm:text-base",
+					className,
+				)}
+				aria-label="Sort products"
+			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="end">
