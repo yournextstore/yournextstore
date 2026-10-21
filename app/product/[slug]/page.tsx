@@ -7,20 +7,12 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
+import { type ProductTab, ProductTabs } from "@/app/product/[slug]/product-tabs";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
+import { Crumbs } from "@/components/listing";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
@@ -30,29 +22,30 @@ import { cn } from "@/lib/utils";
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
-		</div>
+		<div className="aspect-[29/34] max-h-[25rem] w-full animate-pulse bg-secondary md:aspect-[29/20] md:max-h-[33.75rem]" />
 	);
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="flex flex-col gap-y-6">
+			<div className="h-8 w-32 animate-pulse bg-secondary" />
+			<hr className="border-border" />
+			<div className="h-12 w-full animate-pulse rounded-3xl bg-secondary" />
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
+		<div className="shell flex min-h-svh flex-col gap-y-6 py-8 sm:gap-y-12">
+			<div className="h-6 w-64 animate-pulse bg-secondary" />
+			<div className="flex flex-col gap-y-6 large:flex-row large:items-start large:gap-x-16 wide:gap-x-[7.5rem]">
+				<div className="w-full">
+					<GallerySkeleton />
+				</div>
+				<div className="flex w-full flex-col gap-y-6 py-8 large:max-w-[27.5rem] large:py-0">
+					<div className="h-10 w-3/4 animate-pulse bg-secondary" />
 					<PurchasePanelSkeleton />
 				</div>
 			</div>
@@ -67,7 +60,10 @@ function StarRow({ rating }: { rating: number }) {
 			{Array.from({ length: 5 }, (_, i) => (
 				<Star
 					key={i}
-					className={cn("h-4 w-4", i < rounded ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted")}
+					className={cn(
+						"h-4 w-4",
+						i < rounded ? "fill-foreground text-foreground" : "fill-pressed text-pressed",
+					)}
 				/>
 			))}
 		</span>
@@ -182,124 +178,153 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
+	const crumbs = [
+		{ href: "/", label: "Home Page" },
+		...(product.category
+			? [{ href: `/category/${product.category.slug}`, label: product.category.name }]
+			: []),
+		{ label: product.name },
+	];
+
+	const tabs: ProductTab[] = [
+		...(product.summary || product.content
+			? [
+					{
+						label: "Description",
+						content: (
+							<div className="flex flex-col gap-3">
+								{product.summary && <p className="whitespace-pre-line">{product.summary}</p>}
+								{product.content && (
+									<div className="prose prose-sm max-w-none text-muted-foreground tiptap-content">
+										<TiptapRenderer content={product.content} />
+									</div>
+								)}
+							</div>
+						),
+					},
+				]
+			: []),
+		...(variants.some((variant) => variant.sku)
+			? [
+					{
+						label: "Details",
+						content: (
+							<p>
+								SKU:{" "}
+								{variants
+									.map((variant) => variant.sku)
+									.filter(Boolean)
+									.join(", ")}
+							</p>
+						),
+					},
+				]
+			: []),
+		{
+			label: "Shipping & Returns",
+			content: (
+				<p>
+					Shipping options and costs are shown at checkout before you pay. Return terms are set out in the
+					store&apos;s return policy; see our{" "}
+					<Link href="/faq" className="text-foreground underline underline-offset-4">
+						FAQ
+					</Link>{" "}
+					for details.
+				</p>
+			),
+		},
+	];
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<JsonLdScript data={productJsonLd} />
-			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
-			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={variants} />
-				</Suspense>
-
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						{brand && (
-							<Link
-								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
-							>
-								{brand.name}
-							</Link>
-						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						{reviewSummary && reviewSummary.reviewCount > 0 && (
-							<a
-								href="#reviews"
-								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
-							>
-								<StarRow rating={reviewSummary.averageRating} />
-								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
-								<span className="text-muted-foreground underline-offset-4 hover:underline">
-									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
-								</span>
-							</a>
-						)}
-					</div>
-
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
-					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder
-							bundleId={product.id}
-							bundle={product.bundle}
-							pricing={{
-								mode: product.bundlePriceMode,
-								fixedPriceAmount: product.bundleFixedPriceAmount,
-								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
-								amountOffAmount: product.bundleAmountOffAmount,
-								amountOffAmountGross: product.bundleAmountOffAmountGross,
-							}}
-						/>
-					) : (
-						<Suspense fallback={<PurchasePanelSkeleton />}>
-							<AddToCartButton
-								variants={variants}
-								product={{
-									id: product.id,
-									name: product.name,
-									slug: product.slug,
-									images: product.images,
-								}}
-								summary={product.summary}
-								volumePricingTiers={product.volumePricingTiers}
-								restockNotificationsEnabled={restockNotificationsEnabled}
-								subscriptionMode={product.subscriptionMode}
-								plans={plans}
-							/>
+		<>
+			<div className="shell relative flex min-h-svh flex-col gap-y-6 py-8 sm:gap-y-12">
+				<JsonLdScript data={productJsonLd} />
+				<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
+				{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
+				<Crumbs items={crumbs} />
+				<div className="relative flex flex-col gap-y-6 large:flex-row large:items-start large:gap-x-16 wide:gap-x-[7.5rem]">
+					<div className="relative block w-full">
+						<Suspense fallback={<GallerySkeleton />}>
+							<MediaGallery images={allImages} productName={product.name} variants={variants} />
 						</Suspense>
-					)}
+					</div>
+					<div className="flex w-full flex-col gap-y-6 py-8 large:sticky large:top-24 large:max-w-[27.5rem] large:py-0">
+						<div className="flex flex-col gap-y-1">
+							{(product.category || brand) && (
+								<div className="flex flex-wrap items-center gap-x-4">
+									{product.category && (
+										<Link
+											href={`/category/${product.category.slug}`}
+											className="w-max text-copy text-muted-foreground hover:text-foreground"
+										>
+											{product.category.name}
+										</Link>
+									)}
+									{brand && (
+										<Link
+											href={`/products?brand=${encodeURIComponent(brand.slug)}`}
+											className="inline-flex min-h-6 w-max items-center text-copy text-muted-foreground hover:text-foreground"
+										>
+											{brand.name}
+										</Link>
+									)}
+								</div>
+							)}
+							<h1 className="text-heading-sm sm:text-heading-md">{product.name}</h1>
+							{reviewSummary && reviewSummary.reviewCount > 0 && (
+								<a
+									href="#reviews"
+									className="mt-2 inline-flex items-center gap-2 text-copy transition-opacity hover:opacity-80"
+								>
+									<StarRow rating={reviewSummary.averageRating} />
+									<span>{reviewSummary.averageRating.toFixed(1)}</span>
+									<span className="text-muted-foreground">
+										({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
+									</span>
+								</a>
+							)}
+						</div>
+
+						{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
+						    Renders only for bundle products, so it stays dormant for regular stores. */}
+						{product.type === "bundle" && product.bundle?.groups?.length ? (
+							<BundleBuilder
+								bundleId={product.id}
+								bundle={product.bundle}
+								pricing={{
+									mode: product.bundlePriceMode,
+									fixedPriceAmount: product.bundleFixedPriceAmount,
+									fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
+									amountOffAmount: product.bundleAmountOffAmount,
+									amountOffAmountGross: product.bundleAmountOffAmountGross,
+								}}
+							/>
+						) : (
+							<Suspense fallback={<PurchasePanelSkeleton />}>
+								<AddToCartButton
+									variants={variants}
+									product={{
+										id: product.id,
+										name: product.name,
+										slug: product.slug,
+										images: product.images,
+									}}
+									volumePricingTiers={product.volumePricingTiers}
+									restockNotificationsEnabled={restockNotificationsEnabled}
+									subscriptionMode={product.subscriptionMode}
+									plans={plans}
+								/>
+							</Suspense>
+						)}
+
+						<ProductTabs tabs={tabs} />
+					</div>
 				</div>
+
+				{reviews && <ProductReviews reviews={reviews} slug={slug} />}
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
-			)}
-
-			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
-		</div>
+		</>
 	);
 };

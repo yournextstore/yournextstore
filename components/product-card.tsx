@@ -7,7 +7,7 @@ import Link from "next/link";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
@@ -18,9 +18,13 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	className,
+	sizes = "(min-width: 1440px) 440px, (min-width: 768px) 33vw, 100vw",
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	className?: string;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
@@ -55,9 +59,14 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	// Solace tile: a tall photograph (290px on phones, 504px from 640px) with the round black
+	// quick-add in its corner, then the name and price centred underneath.
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn("group flex h-full flex-col", className)}
+		>
+			<div className="relative h-[18.125rem] overflow-hidden bg-secondary sm:h-[31.5rem]">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -76,7 +85,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -88,7 +97,7 @@ export async function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes={sizes}
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
@@ -97,7 +106,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -107,16 +116,16 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes={sizes}
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-1 flex-col justify-between gap-4 p-4 text-center sm:p-5">
+				<h2 className="line-clamp-2 text-lead text-foreground">{product.name}</h2>
+				{priceDisplay && <span className="text-lead text-foreground">{priceDisplay}</span>}
 			</div>
 		</Link>
 	);

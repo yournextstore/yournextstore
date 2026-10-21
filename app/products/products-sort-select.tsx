@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -25,35 +24,10 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
+/**
+ * Solace sort control: a tonal "Sort" pill on phones, "Sort by:" and a square 200px select from
+ * 640px. Reads the current sort from the URL (client-side).
+ */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -69,17 +43,25 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<div className={cn("flex w-full items-center gap-4 sm:w-auto", className)}>
+			<span className="hidden text-copy text-muted-foreground sm:block" aria-hidden="true">
+				Sort by:
+			</span>
+			<Select value={current} onValueChange={onChange} items={options}>
+				<SelectTrigger
+					className="h-12! w-full rounded-3xl border-0 bg-tonal px-4 text-copy text-foreground shadow-none sm:w-[12.5rem] sm:rounded-none sm:border sm:border-border sm:bg-background sm:px-3 [&_svg:not([class*='text-'])]:text-foreground"
+					aria-label="Sort products"
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent align="end" className="rounded-none border-foreground">
+					{options.map((option) => (
+						<SelectItem key={option.value} value={option.value} className="rounded-none text-copy">
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
 	);
 }

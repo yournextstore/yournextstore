@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,58 +33,164 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Solace surfaces: hover/pressed greys, the tonal pill tint, the ink footer. */
+	--color-hover: var(--hover);
+	--color-pressed: var(--pressed);
+	--color-tonal: var(--tonal);
+	--color-tonal-hover: var(--tonal-hover);
+	--color-ink: var(--ink);
+	--color-ink-foreground: var(--ink-foreground);
+	--color-ink-muted: var(--ink-muted);
+	--color-ink-border: var(--ink-border);
+	--color-alert: var(--alert);
+}
+
+/* Solace breakpoints: "large" (900px) is where the desktop nav and the PDP columns appear,
+   "wide" (1100px) where the about/home grids open up. sm/md keep Tailwind's 640/768. */
+@theme {
+	--breakpoint-xs: 22.1875rem;
+	--breakpoint-large: 56.25rem;
+	--breakpoint-wide: 68.75rem;
+	--breakpoint-huge: 106.25rem;
+
+	/* Solace type scale (sm…5xl in the original), under names that cannot collide with
+	   Tailwind's own sizes or with any colour token. */
+	--text-caption: 0.75rem;
+	--text-caption--line-height: 1.25rem;
+	--text-copy: 0.875rem;
+	--text-copy--line-height: 1.375rem;
+	--text-lead: 1rem;
+	--text-lead--line-height: 1.5rem;
+	--text-heading-xs: 1.25rem;
+	--text-heading-xs--line-height: 1.75rem;
+	--text-heading-sm: 1.5rem;
+	--text-heading-sm--line-height: 2rem;
+	--text-heading-md: 2rem;
+	--text-heading-md--line-height: 2.5rem;
+	--text-heading-lg: 2.5rem;
+	--text-heading-lg--line-height: 3rem;
+	--text-heading-xl: 3rem;
+	--text-heading-xl--line-height: 3.5rem;
+}
+
+/* The original Container: 1328px of content, 16px gutters on phones, 56px from 640px. */
+@utility shell {
+	box-sizing: content-box;
+	max-width: 83rem;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (width >= 40rem) {
+		padding-inline: 3.5rem;
+	}
+}
+
+/* Section rhythm of the original Container (py-8, sm:py-16). */
+@utility section-y {
+	padding-block: 2rem;
+	@media (width >= 40rem) {
+		padding-block: 4rem;
+	}
+}
+
+/* Solace pill button: 48px, rounded-3xl, 14px label. Knobs are variables so modifier
+   utilities never fight the base declaration. */
+@utility pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	height: var(--pill-h, 3rem);
+	padding-inline: var(--pill-px, 1rem);
+	border-radius: 1.5rem;
+	font-size: 0.875rem;
+	line-height: 1.375rem;
+	white-space: nowrap;
+	transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+	background: var(--pill-bg, var(--foreground));
+	color: var(--pill-fg, var(--background));
+	&:hover {
+		background: var(--pill-bg-hover, #111111);
+	}
+}
+
+@utility pill-tonal {
+	--pill-bg: var(--tonal);
+	--pill-fg: var(--foreground);
+	--pill-bg-hover: var(--tonal-hover);
+}
+
+@utility pill-white {
+	--pill-bg: #ffffff;
+	--pill-fg: #090909;
+	--pill-bg-hover: #ededed;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0;
+	--background: #ffffff;
+	--foreground: #090909;
+	--card: #ffffff;
+	--card-foreground: #090909;
+	--popover: #ffffff;
+	--popover-foreground: #090909;
+	--primary: #090909;
+	--primary-foreground: #ffffff;
+	--secondary: #f9f9f9;
+	--secondary-foreground: #090909;
+	--muted: #f9f9f9;
+	/* Solace's content-secondary grey (#6c6c6c); clears AA on white and on the #f9f9f9 panels. */
+	--muted-foreground: #6c6c6c;
+	--accent: #ededed;
+	--accent-foreground: #090909;
+	--destructive: #d92d20;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #090909;
+	--hover: #ededed;
+	--pressed: #e5e5e5;
+	--tonal: #e6e6e6;
+	--tonal-hover: #cecece;
+	--ink: #090909;
+	--ink-foreground: #ffffff;
+	/* The footer's secondary links: the original #6c6c6c is 3.7:1 on ink, this keeps the grey at AA. */
+	--ink-muted: #8f8f8f;
+	--ink-border: #262626;
+	--alert: #d92d20;
 }
 
+/* Light-only theme (ThemeProvider forces light). The block mirrors the original's dark
+   palette so the contrast test still has both schemes to check. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #090909;
+	--foreground: #f9f9f9;
+	--card: #151515;
+	--card-foreground: #f9f9f9;
+	--popover: #151515;
+	--popover-foreground: #f9f9f9;
+	--primary: #f9f9f9;
+	--primary-foreground: #090909;
+	--secondary: #151515;
+	--secondary-foreground: #f9f9f9;
+	--muted: #151515;
+	--muted-foreground: #a5a5a5;
+	--accent: #464646;
+	--accent-foreground: #f9f9f9;
+	--destructive: #f97066;
+	--border: #262626;
+	--input: #262626;
+	--ring: #f9f9f9;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 	}
 }
 
@@ -168,4 +274,11 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
