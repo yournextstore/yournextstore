@@ -1,8 +1,9 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
 
+/** The original's basket glyph with a coral count bubble on its shoulder. */
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
 
@@ -10,18 +11,16 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className="relative inline-flex size-10 items-center justify-center text-ink transition-colors hover:text-coral-text"
+			aria-label={`Open basket, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
 		>
-			<ShoppingCart className="w-6 h-6" />
-			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
-					{itemCount}
-				</span>
-			) : null}
+			<ShoppingBasket className="size-6" strokeWidth={1.5} />
+			<span
+				aria-hidden="true"
+				className="absolute right-0 top-0.5 flex size-[19px] items-center justify-center rounded-full bg-coral-deep text-[0.62rem] font-bold text-white tabular-nums"
+			>
+				{itemCount}
+			</span>
 		</button>
 	);
 }

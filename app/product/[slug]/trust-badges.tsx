@@ -1,28 +1,25 @@
-import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
-
-type TrustBadge = {
-	icon: LucideIcon;
-	title: string;
-	description: string;
-};
-
-const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+// The home page's numbered value strip, stacked under the buy buttons.
+const PROMISES = [
+	{ title: "Seasonal stems", line: "Whatever is best this week" },
+	{ title: "Hand-tied", line: "Wrapped in kraft paper" },
+	{ title: "Secure checkout", line: "Delivery options at checkout" },
 ];
 
-export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
+export function TrustBadges() {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
-			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
+		<ul className="border-t border-line">
+			{PROMISES.map((promise, index) => (
+				<li key={promise.title} className="flex items-center gap-[18px] border-b border-line py-3.5">
+					<span aria-hidden="true" className="serif w-8 text-[1.5rem] font-semibold text-coral-text">
+						{String(index + 1).padStart(2, "0")}
+					</span>
+					<p className="text-[0.7rem] leading-[1.7] text-muted-foreground">
+						<b className="font-bold text-ink">{promise.title}</b>
+						<br />
+						{promise.line}
+					</p>
+				</li>
 			))}
-		</div>
+		</ul>
 	);
 }

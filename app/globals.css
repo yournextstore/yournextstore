@@ -8,12 +8,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-dm-sans), "DM Sans", Arial, sans-serif;
+	--font-heading: var(--font-playfair), "Playfair Display", Georgia, serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-tile: 26px;
+	--radius-thumb: 14px;
+	--radius-pill: 999px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,58 +36,203 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own names: ink, sage, cream, paper, coral (decorative), coral text, coral surface. */
+	--color-ink: var(--ink);
+	--color-sage: var(--sage);
+	--color-cream: var(--cream);
+	--color-paper: var(--paper);
+	--color-coral: var(--coral);
+	--color-coral-text: var(--coral-text);
+	--color-coral-deep: var(--coral-deep);
+	--color-line: var(--border);
+	--shadow-photo: 0 24px 45px rgb(22 30 27 / 0.08);
+	--shadow-float: 0 18px 36px rgb(18 22 20 / 0.18);
 }
 
+/*
+ * Light palette from the original's :root (ink, sage, cream, paper, coral, line). Its muted grey
+ * (#707b73) and coral (#d6664d) fail AA as small text, so text uses darkened twins; the bright
+ * coral stays on large italics, the flower mark and the badge.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.875rem;
+	--background: #fffdf9;
+	--foreground: #1d2a24;
+	--card: #f8f3ee;
+	--card-foreground: #1d2a24;
+	--popover: #fffdf9;
+	--popover-foreground: #1d2a24;
+	--primary: #1d2a24;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f3ee;
+	--secondary-foreground: #1d2a24;
+	--muted: #f8f3ee;
+	--muted-foreground: #5f6a62;
+	--accent: #e5efe3;
+	--accent-foreground: #1d2a24;
+	--destructive: #b13e2c;
+	--border: #e6e1d8;
+	--input: #e6e1d8;
+	--ring: #bd5442;
+	--ink: #1d2a24;
+	--sage: #e5efe3;
+	--cream: #f8f3ee;
+	--paper: #fffdf9;
+	--coral: #d6664d;
+	--coral-text: #b04e3c;
+	--coral-deep: #bd5442;
 }
 
+/* Light-only design: the same palette, so the forced light theme never flips. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.875rem;
+	--background: #fffdf9;
+	--foreground: #1d2a24;
+	--card: #f8f3ee;
+	--card-foreground: #1d2a24;
+	--popover: #fffdf9;
+	--popover-foreground: #1d2a24;
+	--primary: #1d2a24;
+	--primary-foreground: #ffffff;
+	--secondary: #f8f3ee;
+	--secondary-foreground: #1d2a24;
+	--muted: #f8f3ee;
+	--muted-foreground: #5f6a62;
+	--accent: #e5efe3;
+	--accent-foreground: #1d2a24;
+	--destructive: #b13e2c;
+	--border: #e6e1d8;
+	--input: #e6e1d8;
+	--ring: #bd5442;
+	--ink: #1d2a24;
+	--sage: #e5efe3;
+	--cream: #f8f3ee;
+	--paper: #fffdf9;
+	--coral: #d6664d;
+	--coral-text: #b04e3c;
+	--coral-deep: #bd5442;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
+	/* next/font puts its variables on <body>, so the faces are set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-dm-sans), "DM Sans", Arial, sans-serif;
+		line-height: 1.5;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+	}
+	p {
+		text-wrap: pretty;
+	}
+}
+
+/* Playfair at the original's tight display tracking; italic words inside turn coral. */
+@utility type-display {
+	font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+	font-weight: 600;
+	letter-spacing: -0.06em;
+	line-height: 0.95;
+	& i,
+	& em {
+		color: var(--coral);
+		font-style: italic;
+		padding-right: 0.06em;
+	}
+}
+
+@utility serif {
+	font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+@utility container-x {
+	width: 100%;
+	max-width: 1180px;
+	margin-inline: auto;
+	padding-inline: 1.25rem;
+}
+
+/* Small coral kicker above every section heading. */
+@utility eyebrow {
+	color: var(--coral-text);
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+/* Small uppercase label: nav links, tabs, buttons. */
+@utility caps {
+	font-size: 0.72rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+/* The original's pill button: ink, uppercase, coral on hover. */
+@utility btn-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	border-radius: 999px;
+	padding: 16px 26px;
+	background: var(--btn-bg, var(--ink));
+	color: var(--btn-fg, #fff);
+	font-size: 0.77rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	transition: background-color 0.2s ease;
+	&:hover {
+		background: var(--btn-hover, var(--coral-deep));
+	}
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+/* Coral underlined text link ("Get to know us →"). */
+@utility link-underline {
+	display: inline-flex;
+	gap: 12px;
+	border-bottom: 1px solid var(--coral);
+	color: var(--coral-text);
+	font-size: 0.74rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	padding-bottom: 8px;
+	text-transform: uppercase;
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
@@ -150,4 +299,17 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Shopper controls sitting on the coral band: white outlines, white text at full strength (AA). */
+.on-coral [data-slot="checkbox"] {
+	border-color: rgb(255 255 255 / 0.85);
+	background: transparent;
+}
+.on-coral [data-slot="checkbox"][data-state="checked"] {
+	background: #fff;
+	color: var(--coral-deep);
+}
+.on-coral label span {
+	opacity: 1;
 }
