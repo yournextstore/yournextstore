@@ -8,8 +8,17 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-inter);
+	--font-heading: var(--font-dm-serif);
+	--font-mono: var(--font-roboto-mono);
+	--color-lime: var(--lime);
+	--color-lime-highlight: var(--lime-highlight);
+	--color-lime-shadow: var(--lime-shadow);
+	--color-contrast-100: var(--contrast-100);
+	--color-contrast-200: var(--contrast-200);
+	--color-contrast-300: var(--contrast-300);
+	--color-contrast-400: var(--contrast-400);
+	--color-contrast-500: var(--contrast-500);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -35,47 +44,57 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	/* Soul palette (Catalyst): white page, near-black ink, lime accent, deep green band. */
+	--radius: 0.75rem;
+	--lime: #9dff5c;
+	--lime-highlight: #e6ffd6;
+	--lime-shadow: #102205;
+	--contrast-100: #ededed;
+	--contrast-200: #d1d1d1;
+	--contrast-300: #b3b3b3;
+	/* The original's #8a8a8a; darkened to clear 3:1 for the large count numerals. */
+	--contrast-400: #858585;
+	--contrast-500: #575757;
+	--background: #ffffff;
+	--foreground: #121212;
+	--card: #ffffff;
+	--card-foreground: #121212;
+	--popover: #ffffff;
+	--popover-foreground: #121212;
+	--primary: #121212;
+	--primary-foreground: #ffffff;
+	--secondary: #ededed;
+	--secondary-foreground: #121212;
+	--muted: #f4f4f4;
+	--muted-foreground: #575757;
+	--accent: #ededed;
+	--accent-foreground: #121212;
+	--destructive: #d61f1f;
+	--border: #ededed;
+	--input: #d1d1d1;
+	--ring: #121212;
 }
 
+/* Light-only design: the dark block mirrors :root so the palette test still sees both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #121212;
+	--card: #ffffff;
+	--card-foreground: #121212;
+	--popover: #ffffff;
+	--popover-foreground: #121212;
+	--primary: #121212;
+	--primary-foreground: #ffffff;
+	--secondary: #ededed;
+	--secondary-foreground: #121212;
+	--muted: #f4f4f4;
+	--muted-foreground: #575757;
+	--accent: #ededed;
+	--accent-foreground: #121212;
+	--destructive: #d61f1f;
+	--border: #ededed;
+	--input: #d1d1d1;
+	--ring: #121212;
 }
 
 @layer base {
@@ -83,12 +102,146 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground;
+	}
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-dm-serif), ui-serif, Georgia, serif;
+		font-weight: 400;
+	}
+}
+
+/* Soul type scale under its own names, so shadcn's text-sm/base stay untouched. */
+@theme {
+	--text-display: 3.75rem;
+	--text-display--line-height: 1;
+	--breakpoint-xs: 24rem;
+}
+
+@utility container-soul {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 96rem;
+	padding-inline: 1rem;
+	@media (width >= 36rem) {
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 56rem) {
+		padding-inline: 2rem;
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Pill buttons with the original's sliding fill on hover. */
+@utility btn-soul {
+	position: relative;
+	z-index: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	overflow: hidden;
+	border-radius: 9999px;
+	border-width: 1px;
+	font-weight: 600;
+	line-height: 1.5;
+	white-space: nowrap;
+	cursor: pointer;
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		background: var(--btn-hover);
+		transform: translateX(-105%);
+		transition: transform 300ms cubic-bezier(0, 0.25, 0, 1);
+	}
+	&:hover::after {
+		transform: translateX(0);
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		pointer-events: none;
+		opacity: 0.3;
+	}
+	&:focus-visible {
+		outline: none;
+		box-shadow:
+			0 0 0 2px var(--background),
+			0 0 0 4px var(--lime);
+	}
+}
+
+@utility btn-primary {
+	border-color: var(--lime);
+	background: var(--lime);
+	color: var(--foreground);
+	--btn-hover: var(--lime-highlight);
+}
+
+@utility btn-secondary {
+	border-color: var(--foreground);
+	background: var(--foreground);
+	color: var(--background);
+	--btn-hover: #3a3a3a;
+}
+
+@utility btn-tertiary {
+	border-color: var(--contrast-200);
+	background: var(--background);
+	color: var(--foreground);
+	--btn-hover: var(--contrast-100);
+}
+
+/* Header: sticks, slides away on scroll down, floats back as a rounded card on scroll up. */
+.site-header {
+	transition: transform 300ms ease;
+}
+.site-header[data-hidden="true"] {
+	transform: translateY(-110%);
+}
+.site-header .site-nav {
+	transition: box-shadow 200ms ease;
+}
+.site-header[data-floating="true"] .site-nav {
+	box-shadow:
+		0 20px 25px -5px rgb(0 0 0 / 0.1),
+		0 8px 10px -6px rgb(0 0 0 / 0.1),
+		0 0 0 1px rgb(18 18 18 / 0.1);
+}
+
+/* Animated underline used by the "See all" style links. */
+.link-underline {
+	background-image: linear-gradient(currentColor, currentColor);
+	background-size: 0% 1px;
+	background-position: 0 100%;
+	background-repeat: no-repeat;
+	transition: background-size 300ms ease;
+}
+.link-underline:hover,
+.group:hover .link-underline {
+	background-size: 100% 1px;
+}
+
+@keyframes slide-progress {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: var(--foreground);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);

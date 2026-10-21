@@ -11,7 +11,7 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg
 				<Star
 					key={i}
 					className={`${sizeClass} ${
-						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+						i < rating ? "fill-foreground text-foreground" : "fill-none text-foreground"
 					}`}
 				/>
 			))}
@@ -26,7 +26,7 @@ function ReviewSummary({ summary }: { summary: APIProductReviewsBrowseResult["su
 		<div className="flex items-center gap-3">
 			<StarRating rating={Math.round(summary.averageRating)} size="lg" />
 			<span className="text-lg font-medium">{summary.averageRating.toFixed(1)}</span>
-			<span className="text-muted-foreground">
+			<span className="text-contrast-500">
 				({summary.reviewCount} {summary.reviewCount === 1 ? "review" : "reviews"})
 			</span>
 		</div>
@@ -56,9 +56,9 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 
 export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBrowseResult; slug: string }) {
 	return (
-		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
+		<section id="reviews" className="mt-10 scroll-mt-24 border-t border-contrast-100 pt-10 lg:mt-14">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
+				<h2 className="text-2xl leading-none sm:text-3xl">Reviews</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
 			{reviews.data.length > 0 ? (

@@ -1,9 +1,9 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
+import { User } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Text, Inter, Roboto_Mono } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,6 +12,7 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
+import { HeaderScroll } from "@/app/header-scroll";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
@@ -19,21 +20,26 @@ import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const dmSerif = DM_Serif_Text({
+	variable: "--font-dm-serif",
 	subsets: ["latin"],
-	// Paints only inside chat and code spans, so it loads on use instead of blocking every first paint.
+	weight: "400",
+});
+
+const robotoMono = Roboto_Mono({
+	variable: "--font-roboto-mono",
+	subsets: ["latin"],
+	// Small labels only (filter headings, slide counter): loads on use, never blocks first paint.
 	preload: false,
 });
 
@@ -108,20 +114,29 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [categories, products, me] = await Promise.all([
+		commerce.categoriesBrowse({ active: true, limit: 50 }).catch(() => ({ data: [] })),
+		commerce.productBrowse({ active: true, limit: 100 }).catch(() => ({ data: [] })),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
+	// Like the original's "Shop All · Plants · Accessories": the catalog, then top-level categories
+	// that actually hold products.
+	const stocked = new Set(products.data.map((product) => product.category?.id).filter(Boolean));
 	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
+		{ href: "/products", label: "Shop All" },
+		...categories.data
+			.filter((category) => !category.parentId && stocked.has(category.id))
+			.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
 		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
+}
+
+async function getStoreName() {
+	"use cache";
+	cacheLife("hours");
+	const me = await meGetCached().catch(() => null);
+	return me?.store.name || "Your Next Store";
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,46 +146,53 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [links, storeConfig, storeName] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getStoreName(),
+	]);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<header id="site-header" className="site-header sticky top-0 z-50 p-2">
+						<div className="site-nav relative mx-auto flex w-full max-w-[96rem] items-center justify-between gap-1 rounded-2xl bg-background py-2 pr-2 pl-3 lg:pr-2.5 lg:pl-6">
+							<div className="flex min-w-0 items-center">
+								<Navbar links={links} storeName={storeName} />
+								<Link
+									href="/"
+									className="truncate rounded-lg py-1 font-heading text-2xl leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+								>
+									{storeName}
+								</Link>
+							</div>
+							<div className="flex shrink-0 items-center gap-0.5 lg:gap-1">
+								<Suspense>
+									<SearchInput />
+								</Suspense>
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={
+										storeConfig.language
+											? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+											: "/account"
+									}
+									className="rounded-lg p-1.5 transition-colors hover:bg-contrast-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+									aria-label="Account"
+								>
+									<User className="size-5" strokeWidth={1} />
+								</a>
+								<CartButton />
 							</div>
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<HeaderScroll />
+					<main id="main" className="flex-1">
+						{children}
+					</main>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -214,7 +236,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${inter.variable} ${dmSerif.variable} ${robotoMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,12 +244,12 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
 					</Suspense>
-					<Toaster richColors position="top-center" />
+					<Toaster position="top-right" />
 				</ThemeProvider>
 				{env === "development" && (
 					<>
