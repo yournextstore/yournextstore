@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useId } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,7 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 
 /** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
+	const labelId = useId();
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -66,17 +68,25 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<div className="flex items-center gap-2">
+			<span id={labelId} className="hidden text-sm font-medium sm:inline">
+				Sort by
+			</span>
+			<Select value={current} onValueChange={onChange}>
+				<SelectTrigger
+					className={cn("h-10 w-auto min-w-[10rem] rounded-md", className)}
+					aria-label="Sort products"
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent align="end">
+					{options.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
 	);
 }

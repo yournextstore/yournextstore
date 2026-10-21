@@ -1,30 +1,26 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { SortSelect } from "@/app/products/products-sort-select";
+import { ListingHeader, ListingToolbarSkeleton } from "@/components/listing-header";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
+import { autoGrid } from "@/lib/grid";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { sortOptions } from "@/lib/sort-options";
 
 const PRODUCTS_PER_PAGE = 12;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
 	page?: string;
+	sort?: string;
 	collection?: string;
 	brand?: string;
 	priceMin?: string;
@@ -101,9 +97,12 @@ async function CategoryProducts({
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 
+	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 	const result = await commerce.productBrowse({
 		active: true,
 		category: slug,
+		orderBy: sortOption.orderBy,
+		orderDirection: sortOption.orderDirection,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
 		collection: filters.collection,
@@ -125,9 +124,9 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={`${autoGrid} gap-y-8`}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={index < 4} />
 				))}
 			</div>
 			<ListingPagination
@@ -142,9 +141,14 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
+		<div className="shell min-h-svh">
+			<div className="border-b border-border pb-8">
+				<div className="mt-2 h-5 w-48 animate-pulse rounded bg-secondary" />
+				<div className="mx-auto mt-10 h-9 w-56 animate-pulse rounded bg-secondary" />
+			</div>
+			<div className="py-8">
+				<ListingToolbarSkeleton />
+			</div>
 			<ProductGridSkeleton />
 		</div>
 	);
@@ -205,59 +209,25 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const crumbs = hierarchy.map((crumb, index) => ({
+		href: `/category/${hierarchy
+			.slice(0, index + 1)
+			.map((c) => c.slug)
+			.join("/")}`,
+		label: crumb.name,
+	}));
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="shell min-h-svh">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+			<ListingHeader crumbs={crumbs} title={category.name} />
+			<div className="flex h-10 items-center justify-end gap-4 py-8 box-content">
+				<SortSelect options={sortOptions} />
+				{filtersAvailable && <ProductFiltersMobile facets={facets} showCategories={false} />}
 			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<Suspense fallback={<ProductGridSkeleton />}>
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+			</Suspense>
 		</div>
 	);
 };
