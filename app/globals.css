@@ -7,8 +7,38 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+	--breakpoint-xs: 23rem;
+	--animate-fade-up: fade-up 0.5s;
+}
+
+@keyframes fade-up {
+	0% {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	80% {
+		opacity: 0.7;
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* The original's page frame: max-w-7xl with an 8-unit gutter (a little tighter on phones). */
+@utility frame {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 80rem;
+	padding-inline: 1.25rem;
+	@media (width >= 40rem) {
+		padding-inline: 2rem;
+	}
+}
+
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -34,48 +64,50 @@
 	--color-ring: var(--ring);
 }
 
+/* The original's shadcn "zinc" palette (HSL tokens in the source), as hex. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #09090b;
+	--card: #ffffff;
+	--card-foreground: #09090b;
+	--popover: #ffffff;
+	--popover-foreground: #09090b;
+	--primary: #18181b;
+	--primary-foreground: #fafafa;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #18181b;
+	--muted: #f4f4f5;
+	/* The original's #71717a is 4.4:1 on the zinc-100 surfaces; one step darker clears AA. */
+	--muted-foreground: #66666f;
+	--accent: #f4f4f5;
+	--accent-foreground: #18181b;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #18181b;
 }
 
+/* Light-only design (forcedTheme="light"); the block mirrors :root for the palette test. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #09090b;
+	--card: #ffffff;
+	--card-foreground: #09090b;
+	--popover: #ffffff;
+	--popover-foreground: #09090b;
+	--primary: #18181b;
+	--primary-foreground: #fafafa;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #18181b;
+	--muted: #f4f4f5;
+	--muted-foreground: #66666f;
+	--accent: #f4f4f5;
+	--accent-foreground: #18181b;
+	--destructive: #dc2626;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #18181b;
 }
 
 @layer base {
@@ -84,6 +116,11 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts --font-inter on <body>, so the face is set here, not on <html>. */
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+		font-feature-settings:
+			"rlig" 1,
+			"calt" 1;
 	}
 }
 

@@ -4,17 +4,18 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { CardAddButton, CardShareButton, cardPillClass } from "@/components/product-card-actions";
 import { formatMoney } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+/** The original's shadcn card: bordered photo, one-line title and price, an outline pill and share. */
 export async function ProductCard({
 	product,
 	priority = false,
@@ -29,23 +30,22 @@ export async function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `From ${formatMoney({ amount: minPrice, currency, locale })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
 
-	const allImages = [
-		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+	const image =
+		getProductThumbnail(product.images ?? []) ??
+		getProductThumbnail(variants?.flatMap((variant) => variant.images ?? []) ?? []);
 
-	const singleVariant = variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const purchasable = onlyVariant && onlyVariant.stock !== 0 ? onlyVariant : null;
+	const soldOut = Boolean(
+		variants && variants.length > 0 && variants.every((variant) => variant.stock === 0),
+	);
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
@@ -56,17 +56,38 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
+		<div className="flex size-full flex-col overflow-hidden rounded-md border bg-card text-card-foreground shadow-sm transition-all duration-200 ease-in-out hover:bg-accent/30">
+			<Link
+				href={href}
+				aria-label={product.name}
+				className="relative block aspect-[4/5] border-b bg-secondary"
+			>
+				{image ? (
+					<YNSMedia
+						src={image}
+						alt=""
+						fill
+						sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+						className="object-cover"
+						priority={priority}
+					/>
+				) : null}
+			</Link>
+			<Link href={href} tabIndex={-1} className="block flex-1 space-y-1.5 p-3 sm:p-4">
+				<p className="line-clamp-2 min-h-[2lh] leading-tight font-semibold tracking-tight">{product.name}</p>
+				{priceDisplay ? <p className="line-clamp-1 text-sm text-muted-foreground">{priceDisplay}</p> : null}
+			</Link>
+			<div className="flex w-full items-center gap-2 p-3 pt-0 sm:gap-8 sm:p-4 sm:pt-1">
+				{purchasable ? (
+					<CardAddButton
+						variantId={purchasable.id}
+						variantSku={"sku" in purchasable ? purchasable.sku : null}
+						variantPrice={purchasable.price}
+						variantPriceGross={"priceGross" in purchasable ? purchasable.priceGross : null}
+						variantImages={purchasable.images}
 						product={{
 							id: product.id,
 							name: product.name,
@@ -74,51 +95,21 @@ export async function ProductCard({
 							images: product.images ?? [],
 						}}
 					/>
+				) : soldOut ? (
+					<span className={cardPillClass} aria-disabled="true">
+						Sold out
+					</span>
+				) : (
+					<Link href={href} className={cardPillClass} aria-label={`Choose options, ${product.name}`}>
+						Choose options
+					</Link>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				<CardShareButton
+					name={product.name}
+					path={`/product/${product.slug}`}
+					className="hidden sm:inline-flex"
+				/>
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+		</div>
 	);
 }

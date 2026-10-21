@@ -98,71 +98,64 @@ export function CartItem({ item }: CartItemProps) {
 		updateQuantity({ type: "DECREASE", variantId: productVariant.id }, quantity - 1);
 	};
 
-	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
-			<Link
-				href={`/product/${product.slug}`}
-				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
-			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
-			</Link>
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
+	const step =
+		"inline-flex size-8 shrink-0 items-center justify-center border border-input bg-transparent shadow-sm transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50";
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<Link
-						href={`/product/${product.slug}`}
-						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-					>
-						{product.name}
-					</Link>
+	return (
+		<div className="space-y-3">
+			<div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-4">
+				<div className="flex min-w-0 items-center gap-4">
+					<div className="relative size-16 shrink-0 overflow-hidden rounded bg-secondary">
+						{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="64px" />}
+					</div>
+					<div className="flex min-w-0 flex-col space-y-1 self-start">
+						<Link
+							href={`/product/${product.slug}`}
+							onClick={closeCart}
+							className="line-clamp-2 text-sm font-medium hover:underline"
+						>
+							{product.name}
+						</Link>
+						<span className="line-clamp-1 text-xs text-muted-foreground">
+							{fmt(price)} × {quantity} = {fmt(lineTotal)}
+						</span>
+					</div>
+				</div>
+				<div className={cn("flex shrink-0 items-center gap-2 transition-opacity", isPending && "opacity-70")}>
+					<div className="flex items-center">
+						<button
+							type="button"
+							onClick={handleDecrement}
+							className={`${step} rounded-l-md`}
+							aria-label={`Decrease quantity of ${product.name}`}
+						>
+							<Minus aria-hidden="true" className="size-3" />
+						</button>
+						<span className="flex h-8 w-10 items-center justify-center border-y border-input text-xs tabular-nums shadow-sm">
+							{quantity}
+						</span>
+						<button
+							type="button"
+							onClick={handleIncrement}
+							className={`${step} rounded-r-md`}
+							aria-label={`Increase quantity of ${product.name}`}
+						>
+							<Plus aria-hidden="true" className="size-3" />
+						</button>
+					</div>
 					<button
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className={`${step} rounded-md`}
+						aria-label={`Remove ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash2 aria-hidden="true" className="size-3" />
 					</button>
 				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
 			</div>
+			<div className="h-px w-full bg-border" />
 		</div>
 	);
 }
