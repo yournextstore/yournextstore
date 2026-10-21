@@ -39,7 +39,7 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="hidden rounded-full p-2 transition-colors hover:bg-secondary"
 				>
 					<Search className="h-6 w-6" strokeWidth={1.75} />
 				</PopoverTrigger>
@@ -97,19 +97,21 @@ export function SearchInput() {
 			</Popover>
 
 			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			<form onSubmit={handleSubmit} className="hidden md:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<PopoverAnchor asChild>
 						<div className="relative">
 							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
+								className="pointer-events-none absolute right-3.5 top-1/2 size-5 -translate-y-1/2 text-subtle"
+								strokeWidth={1.5}
+								aria-hidden
 							/>
 							<input
 								ref={inlineInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="Search for a product"
+								aria-label="Search for a product"
 								value={c.query}
 								onChange={(e) => {
 									c.setQuery(e.target.value);
@@ -128,7 +130,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 								autoComplete="off"
-								className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-10 w-56 rounded-full border border-slate-300 bg-background pl-5 pr-10 text-sm lg:w-[17rem] text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
 							/>
 						</div>
 					</PopoverAnchor>

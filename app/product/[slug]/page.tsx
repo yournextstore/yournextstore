@@ -1,57 +1,60 @@
-import { Star } from "lucide-react";
+import { Layers, PackageCheck, Star, Tag, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { faqCategories } from "@/app/faq/faq-data";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { summaryParagraphs } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
+import { sentenceCase } from "@/lib/display";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
-import { cn } from "@/lib/utils";
+import { isVideoUrl } from "@/lib/utils";
+import { YNSMedia } from "@/lib/yns-media";
 
 // MediaGallery and the purchase panel read useSearchParams (selected variant),
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
+		<div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+			<div className="order-last flex gap-4 lg:order-none lg:col-span-1 lg:flex-col">
+				{Array.from({ length: 3 }, (_, index) => (
+					<Skeleton key={index} className="h-28 w-20 rounded-lg lg:h-32 lg:w-full" />
+				))}
+			</div>
+			<Skeleton className="aspect-[2/3] w-full rounded-lg lg:col-span-4" />
 		</div>
 	);
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="flex w-full flex-col gap-8">
+			<Skeleton className="mx-auto h-[4.25rem] w-40 md:mx-0" />
+			<div className="flex flex-col gap-2.5">
+				<Skeleton className="h-12 w-full rounded-lg" />
+				<Skeleton className="h-12 w-full rounded-lg" />
+			</div>
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+		<div className="flex min-h-svh w-full justify-center py-6 sm:py-8 lg:py-12">
+			<div className="mx-8 grid w-full max-w-[1080px] items-start gap-8 md:grid-cols-2">
 				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
+				<div className="mx-auto flex w-full max-w-sm flex-col items-center gap-4 md:mx-0 md:items-start">
+					<Skeleton className="h-6 w-28" />
+					<Skeleton className="h-10 w-3/4" />
 					<PurchasePanelSkeleton />
 				</div>
 			</div>
@@ -59,17 +62,17 @@ function ProductPageSkeleton() {
 	);
 }
 
-function StarRow({ rating }: { rating: number }) {
-	const rounded = Math.round(rating);
+function RatingPill({ rating, count }: { rating: number; count: number }) {
 	return (
-		<span className="flex gap-0.5" aria-hidden>
-			{Array.from({ length: 5 }, (_, i) => (
-				<Star
-					key={i}
-					className={cn("h-4 w-4", i < rounded ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted")}
-				/>
-			))}
-		</span>
+		<a href="#reviews" className="mb-6 inline-flex items-center gap-3 md:mb-10">
+			<span className="flex h-7 items-center gap-1 rounded-full bg-sky px-2 text-sm text-ink">
+				{rating.toFixed(1)}
+				<Star className="size-4 fill-current" aria-hidden />
+			</span>
+			<span className="text-sm text-muted-foreground">
+				{count} {count === 1 ? "review" : "reviews"}
+			</span>
+		</a>
 	);
 }
 
@@ -160,121 +163,217 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 		...product.images,
 		...product.variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
+	const stillImages = allImages.filter((image) => !isVideoUrl(image));
+	const detailImage = stillImages[1] ?? stillImages[0] ?? null;
 
 	const productJsonLd = await buildProductJsonLd(product, reviews);
+	const paragraphs = summaryParagraphs(product.summary, product.name);
+	const category = product.category ? sentenceCase(product.category.name) : null;
+	const inStock = product.variants.some((variant) => variant.stock !== 0);
+	const optionLabels = [
+		...new Set(
+			product.variants.flatMap((variant) =>
+				variant.combinations.map((combination) => sentenceCase(combination.variantValue.variantType.label)),
+			),
+		),
+	];
+	const facts = [
+		{ icon: Tag, label: "Category", value: category ?? "Accessories" },
+		{
+			icon: Layers,
+			label: "Options",
+			value:
+				product.variants.length > 1
+					? `${product.variants.length} ${optionLabels[0] ? optionLabels[0].toLowerCase() : "options"} to choose from`
+					: "One of a kind",
+		},
+		{ icon: PackageCheck, label: "Availability", value: inStock ? "In stock" : "Sold out" },
+		{ icon: Truck, label: "Delivery", value: "Options shown at checkout" },
+	];
+	const questions = faqCategories
+		.flatMap((group) => group.questions)
+		// Only the neutral shipping answer: return terms belong on the store's own policy page.
+		.filter((entry) => entry.question === "What are your shipping options?");
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="min-h-svh">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{product.variants[0] && <TrackProductView variant={product.variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/products">Products</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link href={`/category/${product.category.slug}`}>{product.category.name}</Link>
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
-				</Suspense>
-
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
-							{product.name}
-						</h1>
-						{reviewSummary && reviewSummary.reviewCount > 0 && (
-							<a
-								href="#reviews"
-								className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
-							>
-								<StarRow rating={reviewSummary.averageRating} />
-								<span className="font-medium">{reviewSummary.averageRating.toFixed(1)}</span>
-								<span className="text-muted-foreground underline-offset-4 hover:underline">
-									({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
-								</span>
-							</a>
-						)}
+			<div className="flex w-full justify-center bg-white py-6 sm:py-8 lg:py-12">
+				<div className="mx-8 grid w-full max-w-[1080px] items-start gap-8 md:grid-cols-2 lg:gap-12">
+					<div className="min-w-0">
+						<Suspense fallback={<GallerySkeleton />}>
+							<MediaGallery images={allImages} productName={product.name} variants={product.variants} />
+						</Suspense>
 					</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
-					{product.type === "bundle" && product.bundle?.groups?.length ? (
-						<BundleBuilder
-							bundleId={product.id}
-							bundle={product.bundle}
-							pricing={{
-								mode: product.bundlePriceMode,
-								fixedPriceAmount: product.bundleFixedPriceAmount,
-								fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
-								amountOffAmount: product.bundleAmountOffAmount,
-								amountOffAmountGross: product.bundleAmountOffAmountGross,
-							}}
-						/>
-					) : (
-						<Suspense fallback={<PurchasePanelSkeleton />}>
-							<AddToCartButton
-								variants={product.variants}
-								product={{
-									id: product.id,
-									name: product.name,
-									slug: product.slug,
-									images: product.images,
+					<div className="mx-auto flex w-full max-w-sm flex-col items-center text-center md:mx-0 md:block md:text-left">
+						<div className="mb-2 md:mb-3">
+							{product.category && (
+								<Link
+									href={`/category/${product.category.slug}`}
+									className="mb-0.5 inline-block text-muted-foreground hover:underline"
+								>
+									{category}
+								</Link>
+							)}
+							<h1 className="text-2xl font-bold text-gray-800 wrap-break-word lg:text-3xl">{product.name}</h1>
+						</div>
+						{reviewSummary && reviewSummary.reviewCount > 0 ? (
+							<RatingPill rating={reviewSummary.averageRating} count={reviewSummary.reviewCount} />
+						) : (
+							<div className="mb-6 md:mb-10" />
+						)}
+
+						{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart. */}
+						{product.type === "bundle" && product.bundle?.groups?.length ? (
+							<BundleBuilder
+								bundleId={product.id}
+								bundle={product.bundle}
+								pricing={{
+									mode: product.bundlePriceMode,
+									fixedPriceAmount: product.bundleFixedPriceAmount,
+									fixedPriceAmountGross: product.bundleFixedPriceAmountGross,
+									amountOffAmount: product.bundleAmountOffAmount,
+									amountOffAmountGross: product.bundleAmountOffAmountGross,
 								}}
-								summary={product.summary}
-								volumePricingTiers={product.volumePricingTiers}
-								restockNotificationsEnabled={restockNotificationsEnabled}
 							/>
-						</Suspense>
-					)}
+						) : (
+							<Suspense fallback={<PurchasePanelSkeleton />}>
+								<AddToCartButton
+									variants={product.variants}
+									product={{
+										id: product.id,
+										name: product.name,
+										slug: product.slug,
+										images: product.images,
+									}}
+									volumePricingTiers={product.volumePricingTiers}
+									restockNotificationsEnabled={restockNotificationsEnabled}
+								/>
+							</Suspense>
+						)}
+						<p className="mt-6 flex items-center justify-center gap-2 text-muted-foreground md:justify-start">
+							<Truck className="size-6 shrink-0" strokeWidth={1.5} aria-hidden />
+							<span className="text-sm">Delivery options shown at checkout</span>
+						</p>
+					</div>
 				</div>
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-						<TiptapRenderer content={product.content} />
+			{(paragraphs.length > 0 || product.content) && (
+				<section aria-labelledby="description-heading" className="mx-auto max-w-3xl px-8 pb-8 sm:px-6">
+					<h2 id="description-heading" className="sr-only">
+						Description
+					</h2>
+					<div className="flex flex-col gap-3 leading-relaxed text-gray-600">
+						{paragraphs.map((paragraph) => (
+							<p key={paragraph}>{paragraph}</p>
+						))}
+					</div>
+					{product.content && (
+						<div className="prose prose-sm mt-4 max-w-none">
+							<TiptapRenderer content={product.content} />
+						</div>
+					)}
+				</section>
+			)}
+
+			{category || inStock ? (
+				<ul aria-label="Tags" className="mx-auto flex max-w-[56rem] flex-wrap justify-center gap-3 px-8 pb-8">
+					{[
+						category,
+						product.variants.length > 1 ? `${product.variants.length} options` : null,
+						inStock ? "Ready to ship" : null,
+					]
+						.filter((tag): tag is string => Boolean(tag))
+						.map((tag) => (
+							<li key={tag} className="rounded-full bg-sky px-4 py-1.5 text-sm font-medium text-ink">
+								{tag}
+							</li>
+						))}
+				</ul>
+			) : null}
+
+			{/* The original's spec panel: four icon facts and a captioned detail photograph. */}
+			<section aria-labelledby="details-heading" className="mx-auto max-w-[56rem] px-8 pb-8 sm:px-6">
+				<div className="grid items-center gap-6 rounded-lg border border-border bg-gray-50 p-6 md:grid-cols-[1fr_auto] md:p-4 md:pl-8">
+					<div>
+						<h2 id="details-heading" className="sr-only">
+							Details
+						</h2>
+						<dl className="grid gap-6 sm:grid-cols-2">
+							{facts.map(({ icon: Icon, label, value }) => (
+								<div key={label} className="flex items-center gap-4">
+									<dt className="flex items-center gap-4">
+										<span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-sky/40 text-ink">
+											<Icon className="size-5" strokeWidth={1.5} aria-hidden />
+										</span>
+										<span className="sr-only">{label}</span>
+									</dt>
+									<dd>
+										<span aria-hidden className="block text-sm font-semibold text-gray-700">
+											{label}
+										</span>
+										<span className="text-sm text-muted-foreground">{value}</span>
+									</dd>
+								</div>
+							))}
+						</dl>
+					</div>
+					{detailImage && (
+						<div className="mx-auto w-full max-w-[13rem] overflow-hidden rounded-lg border border-border bg-white">
+							<div className="relative h-40">
+								<YNSMedia src={detailImage} alt="" fill sizes="208px" className="object-cover" />
+							</div>
+							{product.category && (
+								<div className="flex items-center justify-between gap-2 p-3 text-sm text-gray-700">
+									<span className="truncate">{category}</span>
+									<Link
+										href={`/category/${product.category.slug}`}
+										className="rounded border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-sky-wash"
+									>
+										More
+									</Link>
+								</div>
+							)}
+						</div>
+					)}
+				</div>
+			</section>
+
+			{questions.length > 0 && (
+				<section aria-labelledby="questions-heading" className="mx-auto max-w-[56rem] px-8 pb-16 sm:px-6">
+					<h2 id="questions-heading" className="sr-only">
+						Questions
+					</h2>
+					<div className="grid gap-4 md:grid-cols-2">
+						{questions.map((entry) => (
+							<div key={entry.question} className="rounded-lg bg-gray-100 p-6">
+								<div className="flex items-start justify-between gap-4 border-b border-gray-300 pb-4">
+									<h3 className="text-lg font-semibold text-ink md:text-xl">{entry.question}</h3>
+									<span
+										aria-hidden
+										className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gray-500 text-sm font-bold text-white"
+									>
+										?
+									</span>
+								</div>
+								<p className="pt-4 text-sm text-muted-foreground md:text-base">{entry.answer}</p>
+							</div>
+						))}
 					</div>
 				</section>
 			)}
 
-			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
+
+			{reviews && (
+				<div className="mx-auto max-w-[56rem] px-8 pb-16 sm:px-6">
+					<ProductReviews reviews={reviews} slug={slug} />
+				</div>
+			)}
 		</div>
 	);
 };

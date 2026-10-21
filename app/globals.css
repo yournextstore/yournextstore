@@ -8,7 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,63 +32,180 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's named colours: navy ink for display type, sky for actions. */
+	--color-ink: var(--ink);
+	--color-sky: var(--sky);
+	--color-sky-deep: var(--sky-deep);
+	--color-sky-wash: var(--sky-wash);
+	--color-sale: var(--sale);
+	--color-panel: var(--panel);
+	--color-subtle: var(--subtle);
+}
+
+/* The original's breakpoints: xs 450, lg 992, xl 1200. */
+@theme {
+	--breakpoint-xs: 28.125rem;
+	--breakpoint-lg: 62rem;
+	--breakpoint-xl: 75rem;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #111827;
+	--card: #ffffff;
+	--card-foreground: #111827;
+	--popover: #ffffff;
+	--popover-foreground: #111827;
+	/* Sky blue actions; navy type on them instead of the original's white, which fails AA. */
+	--primary: #87ceeb;
+	--primary-foreground: #090e34;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #1f2937;
+	--muted: #f3f4f6;
+	/* Tailwind gray-500, a touch darker so it clears AA on gray-100 panels too. */
+	--muted-foreground: #5f6673;
+	--accent: #f3f4f6;
+	--accent-foreground: #1f2937;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #d1d5db;
+	--ring: #87ceeb;
+	--ink: #090e34;
+	--sky: #87ceeb;
+	--sky-deep: #6cc1e3;
+	--sky-wash: #f5fbfe;
+	--sale: #dc2626;
+	--panel: #f3f4f6;
+	--subtle: #9ca3af;
 }
 
+/* Light-only design (the ThemeProvider forces light); the block mirrors :root so the
+   palette test still checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #111827;
+	--card: #ffffff;
+	--card-foreground: #111827;
+	--popover: #ffffff;
+	--popover-foreground: #111827;
+	--primary: #87ceeb;
+	--primary-foreground: #090e34;
+	--secondary: #f3f4f6;
+	--secondary-foreground: #1f2937;
+	--muted: #f3f4f6;
+	--muted-foreground: #5f6673;
+	--accent: #f3f4f6;
+	--accent-foreground: #1f2937;
+	--destructive: #dc2626;
+	--border: #e5e7eb;
+	--input: #d1d5db;
+	--ring: #87ceeb;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* The next/font variable lives on <body>, so the face is set there. The original sets
+	   Inter with tracking-tight on the whole page. */
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground tracking-tight;
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	}
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
+
+/* The original's "font-display" headings: semibold, 30px, 36px from md. */
+@utility ds-heading {
+	font-weight: 600;
+	font-size: 1.875rem;
+	line-height: 2.25rem;
+	letter-spacing: -0.025em;
+	overflow-wrap: anywhere;
+	@media (width >= 48rem) {
+		font-size: 2.25rem;
+		line-height: 2.5rem;
+	}
+}
+
+/* Small uppercase pretitle ("YOUR ONE STOP SHOP"). */
+@utility ds-pretitle {
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: #374151;
+}
+
+/* Sky button: rounded-lg, 16px/32px padding, wide tracking. Knobs are variables so a plain
+   utility beside it never fights the class. */
+@utility ds-btn {
+	display: inline-flex;
+	min-height: var(--btn-h, 3.25rem);
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	border-radius: var(--btn-r, 0.5rem);
+	background: var(--btn-bg, var(--sky));
+	color: var(--btn-fg, var(--ink));
+	padding: 0 var(--btn-px, 2rem);
+	font-size: var(--btn-fs, 0.875rem);
+	font-weight: var(--btn-fw, 500);
+	letter-spacing: var(--btn-ls, 0.1em);
+	white-space: nowrap;
+	transition: background-color 150ms, color 150ms, transform 150ms;
+	&:hover {
+		background: var(--btn-hover-bg, var(--sky-deep));
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+		background: #e5e7eb;
+		color: #4b5563;
+	}
+}
+
+/* The grey "Buy now" twin of the product page. */
+@utility ds-btn-grey {
+	--btn-bg: #e5e7eb;
+	--btn-hover-bg: #d1d5db;
+	--btn-fg: #374151;
+}
+
+@utility ds-btn-wide {
+	--btn-ls: 0;
+	--btn-fs: 1rem;
+	--btn-h: 3rem;
+	--btn-fw: 600;
+}
+
+@utility ds-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 80rem;
+	padding-inline: 1rem;
+	@media (width >= 40rem) {
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 62rem) {
+		padding-inline: 2rem;
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: #374151;
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);

@@ -2,19 +2,22 @@ import { cn } from "@/lib/utils";
 
 export function ProductCardSkeleton() {
 	return (
-		<div>
-			<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-			<div className="space-y-2">
-				<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-				<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+		<div className="overflow-hidden rounded-lg shadow-lg">
+			<div className="aspect-[2/3] animate-pulse bg-gray-100" />
+			<div className="flex h-24 flex-col justify-center gap-2 bg-sky-wash p-4">
+				<div className="h-4 w-3/4 animate-pulse rounded bg-gray-200" />
+				<div className="h-4 w-1/3 animate-pulse rounded bg-gray-200" />
 			</div>
 		</div>
 	);
 }
 
-export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
+/** The original's listing grid: one card on phones, two from sm, three from md. */
+export const LISTING_GRID = "mx-auto grid max-w-[18rem] gap-6 sm:max-w-none sm:grid-cols-2 md:grid-cols-3";
+
+export function ProductGridSkeleton({ count = 9, className }: { count?: number; className?: string }) {
 	return (
-		<div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8", className)}>
+		<div className={cn(LISTING_GRID, className)}>
 			{Array.from({ length: count }).map((_, i) => (
 				<ProductCardSkeleton key={`skeleton-${i}`} />
 			))}

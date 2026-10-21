@@ -18,10 +18,7 @@ export default function NotFound() {
 			<p className="mt-2 text-sm text-muted-foreground">
 				This page doesn't exist or has been moved. But our store is still open!
 			</p>
-			<Link
-				href="/"
-				className="mt-8 inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
-			>
+			<Link href="/" className="ds-btn mt-8">
 				Continue Shopping
 			</Link>
 		</div>

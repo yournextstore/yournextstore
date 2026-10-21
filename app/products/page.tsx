@@ -2,21 +2,17 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingLayout, ListingSidebar } from "@/components/listing-sidebar";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { sortOptionFor } from "@/lib/sort-options";
 
 const PRODUCTS_PER_PAGE = 12;
 
-const sortOptions = [
-	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
-] as const;
+type Facets = Awaited<ReturnType<typeof getFilterFacets>>;
 
 type ProductFilterParams = {
 	page?: string;
@@ -62,7 +58,7 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
+	const sortOption = sortOptionFor(filters.sort);
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -90,9 +86,9 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={LISTING_GRID}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={index < 2} />
 				))}
 			</div>
 
@@ -100,23 +96,45 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 				basePath="/products"
 				currentPage={currentPage}
 				totalPages={totalPages}
+				totalCount={result.meta.count}
+				perPage={PRODUCTS_PER_PAGE}
 				filters={filters}
 			/>
 		</>
 	);
 }
 
-// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
-// stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
-async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
+// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell stays
+// prerenderable; `ProductList` remains cached, keyed on the resolved filters.
+async function ProductSection({
+	searchParams,
+	facets,
+	filtersAvailable,
+}: {
+	searchParams: Promise<ProductFilterParams>;
+	facets: Facets;
+	filtersAvailable: boolean;
+}) {
 	const filters = await searchParams;
-	return <ProductList filters={filters} />;
+	return (
+		<ListingLayout
+			sidebar={
+				<ListingSidebar
+					basePath="/products"
+					params={filters}
+					categories={facets.categories}
+					filters={filtersAvailable ? <ProductFiltersMobile facets={facets} /> : undefined}
+				/>
+			}
+		>
+			<ProductList filters={filters} />
+		</ListingLayout>
+	);
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
 	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
+	// shell without making the route blocking.
 	const facets = await getFilterFacets();
 	const filtersAvailable =
 		facets.categories.length > 0 ||
@@ -126,35 +144,19 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
+		<>
+			<h1 className="sr-only">All Products</h1>
+			<Suspense
+				fallback={
+					<ListingLayout
+						sidebar={<ListingSidebar basePath="/products" params={null} categories={facets.categories} />}
+					>
+						<ProductGridSkeleton count={12} />
+					</ListingLayout>
+				}
+			>
+				<ProductSection searchParams={searchParams} facets={facets} filtersAvailable={filtersAvailable} />
 			</Suspense>
-		</div>
+		</>
 	);
 }
