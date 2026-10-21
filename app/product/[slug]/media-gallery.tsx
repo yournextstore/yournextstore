@@ -4,7 +4,9 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
+import { Faceplate } from "@/components/rack/faceplate";
 import { Button } from "@/components/ui/button";
+import { plateName } from "@/lib/rack-display";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -89,7 +91,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	if (displayImages.length === 0) {
 		return (
 			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+				<div className="aspect-square bg-panel border border-line rounded-[14px] flex items-center justify-center">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -105,80 +107,82 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-						fetchPriority="high"
-					/>
-				)}
+			<Faceplate legend={plateName(productName)} size="page">
+				<div className="group absolute inset-0">
+					{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+						<video
+							className="absolute inset-0 w-full h-full object-cover"
+							src={displayImages[selectedIndex]}
+							muted
+							loop
+							autoPlay
+							playsInline
+							controls
+						/>
+					) : (
+						<YNSMedia
+							src={displayImages[selectedIndex] ?? ""}
+							alt={`${productName} - View ${selectedIndex + 1}`}
+							fill
+							sizes="(max-width: 1024px) 100vw, 50vw"
+							className={cn(
+								"object-cover transition-transform duration-500",
+								isZoomed && "scale-150 cursor-zoom-out",
+							)}
+							onClick={() => setIsZoomed(!isZoomed)}
+							priority
+							fetchPriority="high"
+						/>
+					)}
 
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
+					{/* Navigation Arrows */}
+					{displayImages.length > 1 && (
+						<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
+							<Button
+								variant="secondary"
+								size="icon"
+								className="h-10 w-10 rounded-full border border-line bg-page/85 text-ink backdrop-blur-sm hover:bg-page"
+								onClick={(e) => {
+									e.stopPropagation();
+									handlePrevious();
+								}}
+								aria-label="Previous image"
+							>
+								<ChevronLeft className="h-5 w-5" />
+							</Button>
+							<Button
+								variant="secondary"
+								size="icon"
+								className="h-10 w-10 rounded-full border border-line bg-page/85 text-ink backdrop-blur-sm hover:bg-page"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleNext();
+								}}
+								aria-label="Next image"
+							>
+								<ChevronRight className="h-5 w-5" />
+							</Button>
 						</div>
-					</div>
-				)}
+					)}
 
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
-				)}
-			</div>
+					{/* Zoom Indicator (hidden for videos) */}
+					{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
+						<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
+							<div className="font-plate flex items-center gap-2 rounded-full bg-page/90 px-3 py-1.5 text-[0.7rem] tracking-[0.06em] text-ink uppercase backdrop-blur-sm">
+								<ZoomIn className="h-3.5 w-3.5" />
+								Click to zoom
+							</div>
+						</div>
+					)}
+
+					{/* Image Counter */}
+					{displayImages.length > 1 && (
+						<div className="font-plate absolute top-4 left-4 rounded-full bg-page/90 px-3 py-1.5 text-[0.7rem] text-ink backdrop-blur-sm">
+							{selectedIndex + 1} / {displayImages.length}
+						</div>
+					)}
+				</div>
+			</Faceplate>
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
@@ -189,9 +193,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-[8px] border border-line bg-[#e9e8e4] transition-all duration-200",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+									? "ring-2 ring-signal ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
 							)}
 						>

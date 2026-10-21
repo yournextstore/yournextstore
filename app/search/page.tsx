@@ -213,7 +213,7 @@ const SearchContent = async ({
 								</h1>
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
+										{totalCount} {totalCount === 1 ? "result" : "results"}
 									</span>
 									<ActiveFilters categories={categories} activeCategory={category} />
 								</div>
