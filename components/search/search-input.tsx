@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useId, useRef, useState } from "react";
 import { Suggestions } from "@/components/search/suggestions";
@@ -10,133 +10,91 @@ import {
 	makeNavHandlers,
 	useSearchController,
 } from "@/components/search/use-search-controller";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent } from "@/components/ui/popover";
 
+const BAR = "relative flex h-11 items-center rounded-full border border-border bg-light/90 pl-4";
+const INPUT =
+	"h-full w-full min-w-0 bg-transparent pr-2 text-sm text-ink placeholder:text-soft-text focus:outline-none [&::-webkit-search-cancel-button]:hidden";
+const SUBMIT =
+	"m-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-ink text-background transition-opacity hover:opacity-85";
+
+/** Static twin of the bar for the Suspense fallback, so the header never shifts. */
+export function SearchBarFallback() {
+	return (
+		<div className={BAR}>
+			<span className="text-sm text-soft-text">Search for products</span>
+			<span aria-hidden className={`${SUBMIT} ml-auto`}>
+				<SearchIcon className="size-4" strokeWidth={2.5} />
+			</span>
+		</div>
+	);
+}
+
+/** The original's full-width pill search with a black round submit button. */
 export function SearchInput() {
 	const searchParams = useSearchParams();
 	const c = useSearchController(searchParams.get("q") ?? "");
-
-	const [iconOpen, setIconOpen] = useState(false);
-	const [inlineOpen, setInlineOpen] = useState(false);
-	const iconInputRef = useRef<HTMLInputElement>(null);
-	const inlineInputRef = useRef<HTMLInputElement>(null);
-	const inlineAnchorRef = useRef<HTMLDivElement>(null);
-	const iconListboxId = useId();
-	const inlineListboxId = useId();
+	const [open, setOpen] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const anchorRef = useRef<HTMLDivElement>(null);
+	const listboxId = useId();
 
 	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, () => {
-		setIconOpen(false);
-		setInlineOpen(false);
-		iconInputRef.current?.blur();
-		inlineInputRef.current?.blur();
+		setOpen(false);
+		inputRef.current?.blur();
 	});
 
-	const iconPanelOpen = iconOpen && c.enoughChars;
-	const inlinePanelOpen = inlineOpen && c.enoughChars;
+	const panelOpen = open && c.enoughChars;
 
 	return (
-		<>
-			{/* lg only — icon trigger opens popover with input inside */}
-			<Popover open={iconOpen} onOpenChange={setIconOpen}>
-				<PopoverTrigger
-					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
-				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
-				</PopoverTrigger>
-				<PopoverContent
-					align="end"
-					sideOffset={8}
-					initialFocus={iconInputRef}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
-				>
-					<form onSubmit={handleSubmit}>
-						<div className="relative">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
-							/>
-							<input
-								ref={iconInputRef}
-								type="search"
-								name="q"
-								placeholder="Search products"
-								value={c.query}
-								onChange={(e) => c.setQuery(e.target.value)}
-								onKeyDown={makeKeyHandler(
-									c,
-									iconPanelOpen,
-									() => setIconOpen(false),
-									() => goToSearch(c.query),
-								)}
-								role="combobox"
-								aria-expanded={iconPanelOpen}
-								aria-controls={iconListboxId}
-								aria-autocomplete="list"
-								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
-								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-							/>
-						</div>
-					</form>
-					{iconPanelOpen ? (
-						<div className="mt-2">
-							<Suggestions
-								listboxId={iconListboxId}
-								open={iconPanelOpen}
-								c={c}
-								onPick={goToProduct}
-								onSeeAll={() => goToSearch(c.query)}
-							/>
-						</div>
-					) : null}
-				</PopoverContent>
-			</Popover>
-
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
-				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
-					<div ref={inlineAnchorRef} className="relative">
-						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-							strokeWidth={1.75}
-						/>
+		<search>
+			<form onSubmit={handleSubmit}>
+				<Popover open={panelOpen} onOpenChange={setOpen}>
+					<div ref={anchorRef} className={BAR}>
+						<label htmlFor={`${listboxId}-input`} className="sr-only">
+							Search for products
+						</label>
 						<input
-							ref={inlineInputRef}
+							ref={inputRef}
+							id={`${listboxId}-input`}
 							type="search"
 							name="q"
-							placeholder="Search products"
+							placeholder="Search for products"
 							value={c.query}
 							onChange={(e) => {
 								c.setQuery(e.target.value);
-								setInlineOpen(true);
+								setOpen(true);
 							}}
-							onFocus={() => setInlineOpen(true)}
+							onFocus={() => setOpen(true)}
 							onKeyDown={makeKeyHandler(
 								c,
-								inlinePanelOpen,
-								() => setInlineOpen(false),
+								panelOpen,
+								() => setOpen(false),
 								() => goToSearch(c.query),
 							)}
 							role="combobox"
-							aria-expanded={inlinePanelOpen}
-							aria-controls={inlineListboxId}
+							aria-expanded={panelOpen}
+							aria-controls={listboxId}
 							aria-autocomplete="list"
-							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
+							aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
+							enterKeyHint="search"
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className={INPUT}
 						/>
+						<button type="submit" aria-label="Search" className={SUBMIT}>
+							<SearchIcon aria-hidden className="size-4" strokeWidth={2.5} />
+						</button>
 					</div>
 					<PopoverContent
-						align="end"
+						align="start"
 						sideOffset={8}
-						anchor={inlineAnchorRef}
+						anchor={anchorRef}
 						initialFocus={false}
-						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
+						className="w-(--anchor-width) min-w-72 rounded-md border-border bg-popover p-1.5 shadow-lg"
 					>
 						<Suggestions
-							listboxId={inlineListboxId}
-							open={inlinePanelOpen}
+							listboxId={listboxId}
+							open={panelOpen}
 							c={c}
 							onPick={goToProduct}
 							onSeeAll={() => goToSearch(c.query)}
@@ -144,6 +102,6 @@ export function SearchInput() {
 					</PopoverContent>
 				</Popover>
 			</form>
-		</>
+		</search>
 	);
 }

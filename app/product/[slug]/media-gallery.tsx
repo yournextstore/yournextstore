@@ -88,8 +88,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className="flex flex-col gap-6">
+				<div className="aspect-square bg-light rounded-md border border-border flex items-center justify-center">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -102,10 +102,10 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex flex-col gap-6 outline-none"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-square max-h-[623px] overflow-hidden rounded-md border border-border bg-light">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -138,7 +138,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-11 w-11 rounded-md bg-background shadow-sm hover:bg-background"
 							onClick={(e) => {
 								e.stopPropagation();
 								handlePrevious();
@@ -150,7 +150,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						<Button
 							variant="secondary"
 							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
+							className="h-11 w-11 rounded-md bg-background shadow-sm hover:bg-background"
 							onClick={(e) => {
 								e.stopPropagation();
 								handleNext();
@@ -182,17 +182,15 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="flex gap-4 overflow-x-auto">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+								"relative aspect-square w-24 shrink-0 overflow-hidden rounded-md border-2 bg-light transition-colors duration-200 md:w-[146px]",
+								selectedIndex === index ? "border-ink" : "border-border hover:border-soft-text",
 							)}
 						>
 							{isVideoUrl(image) ? (
@@ -205,9 +203,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 							) : (
 								<YNSMedia
 									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
+									alt={`Show image ${index + 1}`}
 									fill
-									sizes="80px"
+									sizes="146px"
 									className="object-cover"
 								/>
 							)}
