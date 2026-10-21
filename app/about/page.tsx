@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { HeroHeadline } from "@/components/sections/hero-headline";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -30,7 +31,7 @@ async function getStoreInfo() {
 	try {
 		const me = await meGetCached();
 		return {
-			storeName: me.store.name || "our store",
+			storeName: me.store.settings?.storeName || me.store.name || "our store",
 			storeDescription: me.store.settings?.storeDescription || null,
 			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
 		};
@@ -54,84 +55,69 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
+			{/* The home hero's fitted word, set in ink on the page instead of over a photograph. */}
+			<div className="border-b border-border pt-6 lg:pt-16">
+				<HeroHeadline className="text-foreground">About</HeroHeadline>
 			</div>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
+			<div className="page-container mt-10 grid grid-cols-12 gap-5 lg:mt-16 lg:gap-12">
+				<div className="col-span-12 lg:col-span-5 xl:col-span-4">
+					<p className="text-body">about us</p>
+					<h2 className="mt-4 text-heading font-semibold lg:text-heading-lg">{storeName}</h2>
+					{storeDescription && <p className="mt-4 text-body text-muted-foreground">{storeDescription}</p>}
+				</div>
 
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+				<div className="col-span-12 space-y-10 lg:col-span-7 xl:col-span-8">
+					<section>
+						<h2 className="text-title font-semibold">Our story</h2>
+						<div className="mt-3 max-w-2xl space-y-4 text-body text-muted-foreground">
+							<p>
+								We believe in the power of well-made things. Every piece in the store is chosen for the
+								quality of its making and for how long it will stay in your wardrobe and your days.
+							</p>
+							<p>
+								We work with makers who share our values: careful materials, honest production and designs
+								that outlast a season.
 							</p>
 						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
+					</section>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
+					<section>
+						<h2 className="text-title font-semibold">What we stand for</h2>
+						<ul className="mt-4 grid gap-4 sm:grid-cols-3">
+							{[
+								["Quality first", "Durable, well-made pieces we are proud to stand behind."],
+								["Considered design", "Details that make everyday moments better."],
+								["Honest service", "Real people, ready to help before and after your order."],
+							].map(([title, text]) => (
+								<li key={title} className="rounded-md bg-secondary px-4 pt-5 pb-6">
+									<h3 className="text-body font-semibold">{title}</h3>
+									<p className="mt-2 text-body text-muted-foreground">{text}</p>
+								</li>
+							))}
+						</ul>
+					</section>
+
+					<div className="flex flex-wrap gap-2">
 						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							href="/products"
+							className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-body font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
 						>
-							Contact us
+							Shop all
 						</Link>
-					)}
+						{contactFormEnabled && (
+							<Link
+								href="/contact"
+								className="inline-flex h-10 items-center rounded-md border border-input px-4 text-body font-semibold transition-colors hover:bg-accent"
+							>
+								Contact us
+							</Link>
+						)}
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

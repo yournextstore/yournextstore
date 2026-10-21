@@ -1,42 +1,23 @@
-import { ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import { getHeroData } from "@/lib/catalog";
+import { YNSMedia } from "@/lib/yns-media";
+import { HeroHeadline } from "./hero-headline";
 
-export function Hero() {
+export async function Hero() {
+	const { headline, image } = await getHeroData();
+
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-16 sm:py-20 lg:py-28">
-					<div className="max-w-2xl">
-						<h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-foreground">
-							Curated essentials for modern living
-						</h1>
-						<p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed">
-							Discover our thoughtfully designed collection of premium products, crafted with care and built
-							to last.
-						</p>
-						<div className="mt-10 flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#products"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-foreground text-background rounded-full text-base font-medium hover:bg-foreground/90 transition-colors"
-							>
-								Shop Collection
-								<ArrowRightIcon className="h-4 w-4" />
-							</Link>
-							<Link
-								href="#about"
-								className="inline-flex items-center justify-center gap-2 h-12 px-8 border border-border rounded-full text-base font-medium hover:bg-secondary transition-colors"
-							>
-								Our Story
-							</Link>
-						</div>
-					</div>
-				</div>
-			</div>
-			{/* Subtle decorative element */}
+		// data-hero: the header sits transparent and white over this section (globals.css).
+		<section data-hero className="relative h-[50svh] min-h-80 overflow-hidden bg-[#c8ced3] lg:h-[80svh]">
+			<YNSMedia src={image} alt="" fill sizes="100vw" priority className="object-cover object-[60%_top]" />
+			{/* The original sets white type straight on a studio photograph; a soft shade keeps the
+			    header and the word legible on the pale backdrop. */}
 			<div
-				aria-hidden="true"
-				className="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full bg-linear-to-l from-secondary/50 to-transparent pointer-events-none hidden lg:block"
+				aria-hidden
+				className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent via-25% to-black/35"
 			/>
+			<div className="pointer-events-none absolute inset-x-0 bottom-0">
+				<HeroHeadline>{headline}</HeroHeadline>
+			</div>
 		</section>
 	);
 }

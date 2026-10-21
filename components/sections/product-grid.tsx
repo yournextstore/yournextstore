@@ -3,17 +3,16 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
+import { ProductCard, productGridClass } from "@/components/product-card";
 import { commerce } from "@/lib/commerce";
+import { cn } from "@/lib/utils";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
 	title?: string;
-	description?: string;
 	products?: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
@@ -22,56 +21,49 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	gridClassName?: string;
 };
 
+// The home grid: photographed products first, so a product without images never leads the page.
+async function getPicturedFirst(limit: number) {
+	const { data } = await commerce.productBrowse({ active: true, limit: Math.max(limit * 3, 24) });
+	const hasImage = (p: Product) => p.images.length > 0 || p.variants.some((v) => v.images.length > 0);
+	return [...data.filter(hasImage), ...data.filter((p) => !hasImage(p))].slice(0, limit);
+}
+
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Trending now",
 	products,
 	limit = 6,
 	showViewAll = true,
 	viewAllHref = "/products",
+	gridClassName,
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
 
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	const displayProducts = products ?? (await getPicturedFirst(limit));
+
+	if (displayProducts.length === 0) return null;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
+		<section id="products" className="page-container mt-5 md:mt-9 lg:mt-16">
+			<div className="mb-3 flex items-baseline justify-between gap-4">
+				<h2 className="text-heading font-semibold lg:text-heading-lg">{title}</h2>
 				{showViewAll && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="shrink-0 text-body font-medium underline underline-offset-4 hover:text-primary"
 					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+						Shop all
 					</Link>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className={cn(productGridClass, gridClassName)}>
 				{displayProducts.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }
