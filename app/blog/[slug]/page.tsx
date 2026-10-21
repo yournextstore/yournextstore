@@ -61,7 +61,7 @@ function BlogPostSkeleton() {
 			<Skeleton className="h-5 w-48" />
 			<Skeleton className="mt-6 h-6 w-40" />
 			<Skeleton className="mt-4 h-10 w-3/4" />
-			<Skeleton className="mt-10 aspect-[3/2] rounded-2xl" />
+			<Skeleton className="mt-10 aspect-[3/2] rounded-lg" />
 		</article>
 	);
 }
@@ -151,12 +151,12 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 					)}
 					<time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
 				</div>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight text-balance">{post.title}</h1>
+				<h1 className="mt-4 text-2xl font-bold text-zinc-800 sm:text-4xl text-balance">{post.title}</h1>
 			</div>
 
 			{/* Cover image */}
 			{post.image && (
-				<div className="relative aspect-[3/2] bg-secondary rounded-2xl overflow-hidden mb-10">
+				<div className="relative aspect-[3/2] bg-secondary rounded-lg overflow-hidden mb-10">
 					<YNSMedia
 						src={post.image}
 						alt={post.title}

@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { photographedFirst } from "@/lib/editorial";
 import { getFilterFacets } from "@/lib/facets";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
@@ -91,7 +92,7 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	return (
 		<>
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+				{(filters.sort ? result.data : photographedFirst(result.data)).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -126,10 +127,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container py-12 sm:py-16">
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+				<h1 className="text-2xl font-bold text-zinc-800 sm:text-4xl">All Products</h1>
+				<p className="mt-2 text-gray-600">Everything in the shop, in one place.</p>
 			</div>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one

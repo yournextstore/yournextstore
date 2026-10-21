@@ -64,8 +64,8 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion>
+			<h2 className="text-2xl font-bold text-zinc-800 mb-4">{category.title}</h2>
+			<Accordion className="rounded-lg border-border">
 				{category.questions.map((item, index) => (
 					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
 						<AccordionTrigger>{item.question}</AccordionTrigger>
@@ -82,7 +82,7 @@ function FAQSection({ category }: { category: FAQCategory }) {
 function ContactCard() {
 	return (
 		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
+			<h2 className="text-2xl font-bold text-zinc-800">Still have questions?</h2>
 			<p className="mt-2 text-muted-foreground">
 				We're here to help. Reach out and we'll get back to you as soon as possible.
 			</p>
@@ -105,7 +105,7 @@ export default function FAQPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
+				<h1 className="mt-4 text-2xl font-bold text-zinc-800 sm:text-4xl">Frequently Asked Questions</h1>
 				<p className="mt-3 text-lg text-muted-foreground">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>

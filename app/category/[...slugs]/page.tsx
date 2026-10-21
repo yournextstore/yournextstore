@@ -17,6 +17,8 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { commerce } from "@/lib/commerce";
+import { richTextToPlain } from "@/lib/display";
+import { photographedFirst } from "@/lib/editorial";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
@@ -126,7 +128,7 @@ async function CategoryProducts({
 	return (
 		<>
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+				{photographedFirst(result.data).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -142,7 +144,7 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container py-12 sm:py-16">
 			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
 			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
 			<ProductGridSkeleton />
@@ -206,7 +208,7 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container py-12 sm:py-16">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
 			<Breadcrumb className="mb-6">
 				<BreadcrumbList>
@@ -236,7 +238,10 @@ const CategoryContent = async ({
 			</Breadcrumb>
 
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+				<h1 className="text-2xl font-bold text-zinc-800 sm:text-4xl">{category.name}</h1>
+				{richTextToPlain(category.description) ? (
+					<p className="mt-2 max-w-2xl text-gray-600">{richTextToPlain(category.description)}</p>
+				) : null}
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
