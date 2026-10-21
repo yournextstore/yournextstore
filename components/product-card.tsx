@@ -56,8 +56,8 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link href={`/product/${product.slug}${variantSearch}`} className="group block">
+			<div className="relative aspect-[4/5] overflow-hidden rounded-md bg-secondary">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -76,7 +76,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,9 +86,9 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 1024px) 50vw, 352px"
 							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
@@ -97,7 +97,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -107,17 +107,21 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+							sizes="(max-width: 1024px) 50vw, 352px"
 							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
+			{/* The original's tile is the photograph and its price; the name follows, quieter. */}
+			{priceDisplay && <p className="mt-3 text-body font-medium text-foreground">{priceDisplay}</p>}
+			<h2 className="mt-0.5 line-clamp-2 text-body font-normal text-muted-foreground group-hover:text-foreground">
+				{product.name}
+			</h2>
 		</Link>
 	);
 }
+
+/** The original's tile grid: two columns, three from lg with a wide gutter. */
+export const productGridClass = "grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3 lg:gap-x-24 lg:gap-y-10";

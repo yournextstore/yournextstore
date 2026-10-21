@@ -30,12 +30,7 @@ export function RestockNotify({
 	return (
 		<Dialog>
 			<DialogTrigger
-				render={
-					<Button
-						variant="outline"
-						className="h-14 w-full rounded-full text-base font-medium tracking-wide"
-					/>
-				}
+				render={<Button variant="outline" className="h-10 w-full rounded-md text-body font-semibold" />}
 			>
 				<BellRing className="h-5 w-5" />
 				Remind me when back in stock
@@ -57,7 +52,7 @@ export function RestockNotify({
 						</div>
 						<NewsletterConsent checked={marketingConsent} onCheckedChange={setMarketingConsent} />
 						{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-						<Button type="submit" disabled={isPending} className="h-11 w-full rounded-full">
+						<Button type="submit" disabled={isPending} className="h-10 w-full rounded-md">
 							{isPending ? "Submitting..." : "Notify me"}
 						</Button>
 					</form>

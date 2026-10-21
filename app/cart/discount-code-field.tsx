@@ -96,7 +96,7 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
+			<label htmlFor={inputId} className="text-caption font-semibold uppercase tracking-label">
 				Discount code
 			</label>
 			<div className="flex gap-2">

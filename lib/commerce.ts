@@ -39,7 +39,7 @@ export async function getStoreSeo() {
 		return { storeName: "Your Next Store", storeDescription: null };
 	}
 	return {
-		storeName: me.store.name || "Your Next Store",
+		storeName: me.store.settings?.storeName || me.store.name || "Your Next Store",
 		storeDescription: me.store.settings?.storeDescription || null,
 	};
 }

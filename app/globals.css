@@ -9,12 +9,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-space-grotesk);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 2px);
+	--radius-md: var(--radius);
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: calc(var(--radius) + 2px);
+	--radius-2xl: calc(var(--radius) + 4px);
+	/* The base-ui primitives (button, input, dialog, select, badge) round with 3xl/4xl: keep them square-ish. */
+	--radius-3xl: var(--radius);
+	--radius-4xl: var(--radius);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -23,6 +27,7 @@
 	--color-popover-foreground: var(--popover-foreground);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--primary-hover);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
@@ -35,48 +40,75 @@
 	--color-ring: var(--ring);
 }
 
+/* The original's type scale, under its own names so shadcn's text-sm/base/lg keep their sizes. */
+@theme {
+	--text-heading: 1.75rem;
+	--text-heading--line-height: 1.28571;
+	--text-heading-lg: 2.25rem;
+	--text-heading-lg--line-height: 1.33333;
+	--text-title: 1.25rem;
+	--text-title--line-height: 1.6;
+	--text-body: 0.875rem;
+	--text-body--line-height: 1.42857;
+	--text-caption: 0.75rem;
+	--text-caption--line-height: 1.33333;
+	--tracking-hero: -0.11em;
+	--tracking-label: 0.1rem;
+	--container-content: 80rem;
+}
+
+/* The original's centred column: 1280px with a 16px gutter on every screen. */
+@utility page-container {
+	width: 100%;
+	max-width: var(--container-content);
+	margin-inline: auto;
+	padding-inline: 1rem;
+}
+
+/* Light-only design (Forma 36 greys and blue); .dark carries the same palette for the contrast test. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.25rem;
+	--background: #ffffff;
+	--foreground: #1b273a;
+	--card: #ffffff;
+	--card-foreground: #1b273a;
+	--popover: #ffffff;
+	--popover-foreground: #1b273a;
+	--primary: #036fe3;
+	--primary-hover: #0059c8;
+	--primary-foreground: #ffffff;
+	--secondary: #f7f9fa;
+	--secondary-foreground: #1b273a;
+	--muted: #f7f9fa;
+	--muted-foreground: #414d63;
+	--accent: #e7ebee;
+	--accent-foreground: #1b273a;
+	--destructive: #bd002a;
+	--border: #e7ebee;
+	--input: #cfd9e0;
+	--ring: #036fe3;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #1b273a;
+	--card: #ffffff;
+	--card-foreground: #1b273a;
+	--popover: #ffffff;
+	--popover-foreground: #1b273a;
+	--primary: #036fe3;
+	--primary-hover: #0059c8;
+	--primary-foreground: #ffffff;
+	--secondary: #f7f9fa;
+	--secondary-foreground: #1b273a;
+	--muted: #f7f9fa;
+	--muted-foreground: #414d63;
+	--accent: #e7ebee;
+	--accent-foreground: #1b273a;
+	--destructive: #bd002a;
+	--border: #e7ebee;
+	--input: #cfd9e0;
+	--ring: #036fe3;
 }
 
 @layer base {
@@ -85,7 +117,29 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 	}
+}
+
+/* Header over the home hero: transparent with white type until the hero scrolls away
+   (the header is not sticky, so it simply leaves with it). */
+:root:has([data-hero]) .site-header {
+	position: absolute;
+	inset-inline: 0;
+	top: 0;
+	border-bottom-color: transparent;
+	background: transparent;
+	color: #ffffff;
+}
+
+/* The hero headline is scaled to the column width by HeroHeadline; it stays invisible until then. */
+.hero-headline {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.hero-headline[data-fitted] {
+	opacity: 1;
 }
 
 .prose {

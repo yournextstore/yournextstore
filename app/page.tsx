@@ -1,38 +1,30 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
+function TrendingSkeleton() {
+	return (
+		<section className="page-container mt-5 md:mt-9 lg:mt-16">
+			<div className="mb-3 h-9 w-48 animate-pulse rounded bg-secondary lg:h-12" />
+			<ProductGridSkeleton />
+		</section>
+	);
+}
+
+// The original's home is exactly two things: the fitted-word hero and a "Trending now" grid.
 export default function Home() {
 	return (
 		<>
 			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
+			<Suspense fallback={<TrendingSkeleton />}>
+				<ProductGrid title="Trending now" limit={6} />
 			</Suspense>
-			<About />
-			<Newsletter />
 		</>
 	);
 }
