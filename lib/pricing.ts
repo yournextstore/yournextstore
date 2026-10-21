@@ -98,7 +98,9 @@ export function priceRange(
 	const first = amounts[0] ?? BigInt(0);
 	return amounts.reduce(
 		(range, amount) => ({
+			// biome-ignore lint/complexity/useMathMinMax: amounts are bigint, which Math.min rejects
 			min: amount < range.min ? amount : range.min,
+			// biome-ignore lint/complexity/useMathMinMax: amounts are bigint, which Math.max rejects
 			max: amount > range.max ? amount : range.max,
 		}),
 		{ min: first, max: first },

@@ -44,7 +44,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		if (!firstVariantImage) return 0;
 
 		const index = images.indexOf(firstVariantImage);
-		return index >= 0 ? index : 0;
+		return Math.max(index, 0);
 	}, [selectedVariant, images]);
 
 	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
