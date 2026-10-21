@@ -54,84 +54,65 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={aboutJsonLd} />
 
 			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
+			<section className="mx-3 py-16 text-center text-ink-soft md:mx-10 lg:px-32 lg:py-20 lg:text-left">
+				<div className="grid gap-6 lg:grid-cols-2 xl:gap-12">
+					<h1 className="font-bold text-5xl tracking-tight md:text-6xl lg:text-right xl:text-7xl">
+						About us
+					</h1>
+					<div className="flex flex-col justify-center gap-4 text-[#4b5563] text-lg">
+						{storeDescription && <p>{storeDescription}</p>}
 						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
+							We keep the shop small on purpose. Every product is chosen for how it looks, how it works and
+							how long it lasts, and it stays only while we are happy to recommend it.
 						</p>
 					</div>
-				</section>
+				</div>
+			</section>
 
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
+			<section className="bg-band px-3 py-16 md:px-10">
+				<h2 className="pb-12 text-center font-extrabold text-4xl uppercase sm:text-5xl lg:text-6xl">
+					What we care about
+				</h2>
+				<div className="mx-auto grid max-w-6xl gap-10 text-center md:grid-cols-3">
+					<div>
+						<h3 className="font-bold text-xl uppercase">Good design</h3>
+						<p className="mt-3 text-muted-foreground">
+							Clean lines and honest materials that suit every day.
+						</p>
 					</div>
-				</section>
-			</div>
+					<div>
+						<h3 className="font-bold text-xl uppercase">Quality</h3>
+						<p className="mt-3 text-muted-foreground">Things we would happily use ourselves.</p>
+					</div>
+					<div>
+						<h3 className="font-bold text-xl uppercase">Simple shopping</h3>
+						<p className="mt-3 text-muted-foreground">
+							Clear prices, a short checkout and nothing in the way.
+						</p>
+					</div>
+				</div>
+			</section>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
+			<section className="px-3 py-20 text-center">
+				<p className="font-extrabold text-3xl uppercase md:text-5xl">Ready to look around?</p>
+				<div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+					<Link href="/products" className="btn-sun h-12 w-full max-w-xs px-8 uppercase">
+						Shop all products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex h-12 w-full max-w-xs items-center justify-center border-2 border-foreground px-8 font-bold uppercase hover:bg-foreground hover:text-background"
 						>
 							Contact us
 						</Link>
 					)}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

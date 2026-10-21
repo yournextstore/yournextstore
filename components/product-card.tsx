@@ -5,11 +5,10 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { displayPrice, listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
@@ -37,10 +36,16 @@ export async function ProductCard({
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
 
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	// One price, one strike-through: the original's red sale price beside the struck list price.
+	const listPrice = (() => {
+		if (variants?.length !== 1 || !listing) return null;
+		const only = variants[0];
+		if (!only || !("originalPrice" in only)) return null;
+		const original = displayPrice(only, taxBehavior, "originalPrice");
+		return original && BigInt(original) > listing.amount
+			? formatMoney({ amount: BigInt(original), currency, locale })
+			: null;
+	})();
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -56,27 +61,12 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
+		<Link href={`/product/${product.slug}${variantSearch}`} className="group flex flex-col items-center">
+			<div className="relative mb-5 aspect-square w-full overflow-hidden bg-tile sm:mb-6">
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -86,10 +76,10 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 1024px) 50vw, 25vw"
+							className={`object-cover ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
@@ -97,7 +87,7 @@ export async function ProductCard({
 				{secondaryImage &&
 					(isVideoUrl(secondaryImage) ? (
 						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100"
 							src={secondaryImage}
 							muted
 							loop
@@ -107,16 +97,27 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							sizes="(max-width: 1024px) 50vw, 25vw"
+							className="object-cover opacity-0 group-hover:opacity-100"
 						/>
 					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-col gap-1 text-center leading-tight">
+				<h2 className="group-hover:underline underline-offset-4">{product.name}</h2>
+				{priceDisplay && (
+					<span className="flex flex-wrap justify-center gap-x-3">
+						{listPrice ? (
+							<>
+								<span className="text-sale">{priceDisplay}</span>
+								<span className="text-muted-foreground line-through">{listPrice}</span>
+							</>
+						) : (
+							<span>{priceDisplay}</span>
+						)}
+					</span>
+				)}
 			</div>
 		</Link>
 	);

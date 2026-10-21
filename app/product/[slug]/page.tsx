@@ -7,19 +7,10 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -30,8 +21,8 @@ import { cn } from "@/lib/utils";
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
+		<div className="flex flex-col gap-5">
+			<Skeleton className="aspect-square rounded-none bg-tile" />
 		</div>
 	);
 }
@@ -39,26 +30,29 @@ function GallerySkeleton() {
 function PurchasePanelSkeleton() {
 	return (
 		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+			<Skeleton className="h-9 w-40 rounded-none" />
+			<Skeleton className="h-12 w-full rounded-none" />
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
+		<div className="min-h-svh">
+			<div className={PDP_ROW}>
+				<div className="lg:basis-1/2 sm:px-8">
+					<GallerySkeleton />
+				</div>
+				<div className="flex flex-col gap-8 sm:px-8 lg:basis-1/2">
+					<Skeleton className="mt-3 h-10 w-3/4 rounded-none" />
 					<PurchasePanelSkeleton />
 				</div>
 			</div>
 		</div>
 	);
 }
+
+const PDP_ROW = "mx-3 flex flex-col gap-5 py-10 lg:mx-10 lg:flex-row lg:gap-8";
 
 function StarRow({ rating }: { rating: number }) {
 	const rounded = Math.round(rating);
@@ -183,54 +177,28 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="min-h-svh">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
-				<Suspense fallback={<GallerySkeleton />}>
-					<MediaGallery images={allImages} productName={product.name} variants={variants} />
-				</Suspense>
+			<div className={PDP_ROW}>
+				<div className="sm:px-8 lg:basis-1/2">
+					<Suspense fallback={<GallerySkeleton />}>
+						<MediaGallery images={allImages} productName={product.name} variants={variants} />
+					</Suspense>
+				</div>
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
+				<div className="flex flex-col gap-8 sm:px-8 lg:basis-1/2">
 					<div className="space-y-3">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="mt-3 inline-flex min-h-6 items-center font-bold text-sm uppercase underline-offset-4 hover:underline"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className={cn("font-extrabold text-4xl wrap-break-word", !brand && "mt-3")}>
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -282,24 +250,26 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 				</div>
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
+			<div className="flex flex-col-reverse gap-20 px-3 pb-16 sm:px-10 lg:flex-row">
+				{product.content && (
+					<section aria-label="Product details" className="lg:basis-2/3">
+						<div className="prose max-w-none prose-headings:font-bold prose-headings:text-foreground text-foreground tiptap-content">
+							<TiptapRenderer content={product.content} />
+						</div>
+					</section>
+				)}
+				<RelatedProducts
+					productId={product.id}
+					categorySlug={product.category?.slug}
+					wide={!product.content}
+				/>
+			</div>
+
+			{reviews && (
+				<div className="px-3 pb-16 sm:px-10">
+					<ProductReviews reviews={reviews} slug={slug} />
+				</div>
 			)}
-
-			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
-
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
-			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);
 };

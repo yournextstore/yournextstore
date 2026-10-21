@@ -5,19 +5,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { ProductCard } from "@/components/product-card";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ShopStrip } from "@/components/shop-strip";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { plainText } from "@/lib/display";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { cn } from "@/lib/utils";
 import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -63,47 +58,41 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+	const description = plainText(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
+		<section className="relative bg-hero">
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
+				<YNSMedia
+					src={collection.image}
+					alt=""
+					fill
+					sizes="100vw"
+					priority
+					fetchPriority="high"
+					className="object-cover object-[100%_40%] md:object-[center_35%]"
+				/>
 			)}
+			<div
+				aria-hidden="true"
+				className="absolute inset-0 bg-linear-to-r from-hero via-hero/80 to-transparent md:via-hero/40"
+			/>
+			<div className="relative flex min-h-64 flex-col justify-center gap-3 px-4 py-12 md:mx-16 md:min-h-80 md:px-0">
+				<h1 className="max-w-3xl font-extrabold text-4xl text-bar uppercase leading-none wrap-break-word md:text-6xl">
+					{collection.name}
+				</h1>
+				{description && <p className="max-w-md text-[#374151] text-lg">{description}</p>}
+			</div>
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
+		<section className="min-h-svh px-3 py-8 md:px-20">
+			<div className="flex h-12 items-center pb-4">
+				<div className="h-5 w-24 animate-pulse bg-secondary" />
+			</div>
+			<ProductGridSkeleton className="lg:grid-cols-4" />
 		</section>
 	);
 }
@@ -160,30 +149,55 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
+async function getShopFallback() {
+	"use cache";
+	cacheLife("minutes");
+	const { data } = await commerce.productBrowse({ active: true, limit: 4 });
+	return data;
+}
+
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
+	if (products.length === 0) {
+		const fallback = await getShopFallback();
+		return (
+			<section className="min-h-svh px-3 pt-12 pb-16 md:px-20">
+				<div className="text-center">
+					<p className="font-bold text-2xl">Nothing here yet</p>
+					<p className="mt-2 text-muted-foreground">
+						This collection is still being put together.{" "}
+						<Link href="/products" className="text-foreground underline underline-offset-4">
+							Browse the whole shop
+						</Link>
+						.
+					</p>
+				</div>
+				<ProductGrid title="Meanwhile, in the shop" products={fallback} className="mx-0 md:mx-0" />
+			</section>
+		);
+	}
+
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<section className="min-h-svh px-3 py-8 md:px-20">
+			<p className="flex h-12 items-center pb-4">
+				{products.length} {products.length === 1 ? "product" : "products"}
+			</p>
+			<div className={cn(LISTING_GRID, "lg:grid-cols-4")}>
+				{products.map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index < 2} />
+				))}
+			</div>
+		</section>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
 		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
+			<section className="bg-hero">
+				<div className="flex min-h-64 flex-col justify-center px-4 py-12 md:mx-16 md:min-h-80 md:px-0">
+					<div className="h-10 w-72 animate-pulse bg-secondary" />
 				</div>
 			</section>
 			<CollectionProductsSkeleton />
@@ -195,9 +209,12 @@ function CollectionPageSkeleton() {
 // stays a sync shell and the params-dependent content streams inside Suspense.
 export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
 	return (
-		<Suspense fallback={<CollectionPageSkeleton />}>
-			<CollectionContent params={props.params} />
-		</Suspense>
+		<>
+			<ShopStrip />
+			<Suspense fallback={<CollectionPageSkeleton />}>
+				<CollectionContent params={props.params} />
+			</Suspense>
+		</>
 	);
 }
 
@@ -222,19 +239,6 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		<>
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<CollectionProductsSkeleton />}>
 				<CollectionProducts collection={collection} />
