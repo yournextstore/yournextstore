@@ -83,3 +83,45 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 		</Select>
 	);
 }
+
+/** The original's "Sort By" radio list, as links so each order has its own URL. */
+export function SortRadios({ options }: { options: readonly SortOption[] }) {
+	const searchParams = useSearchParams();
+	const pathname = usePathname();
+	const defaultValue = options[0]?.value;
+	const current = searchParams.get("sort") ?? defaultValue;
+
+	return (
+		<div>
+			<h3 className="mb-2 text-base font-medium">Sort by</h3>
+			<ul className="grid gap-2">
+				{options.map((option) => {
+					const isActive = option.value === current;
+					return (
+						<li key={option.value}>
+							<Link
+								href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
+								scroll={false}
+								aria-current={isActive ? "true" : undefined}
+								className="group flex items-center gap-2 text-sm leading-tight"
+							>
+								<span
+									aria-hidden="true"
+									className="flex size-4 shrink-0 items-center justify-center rounded-full border border-primary"
+								>
+									<span
+										className={cn(
+											"size-2 rounded-full bg-primary transition-opacity",
+											isActive ? "opacity-100" : "opacity-0 group-hover:opacity-30",
+										)}
+									/>
+								</span>
+								{option.label}
+							</Link>
+						</li>
+					);
+				})}
+			</ul>
+		</div>
+	);
+}

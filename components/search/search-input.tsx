@@ -36,13 +36,13 @@ export function SearchInput() {
 
 	return (
 		<>
-			{/* lg only — icon trigger opens popover with input inside */}
+			{/* below lg — icon trigger opens popover with input inside */}
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="inline-flex rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="size-6" strokeWidth={1.5} />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
@@ -93,16 +93,18 @@ export function SearchInput() {
 				</PopoverContent>
 			</Popover>
 
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			{/* lg+ — the original's grey pill search bar */}
+			<form onSubmit={handleSubmit} className="hidden lg:block">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							className="pointer-events-none absolute left-3 top-1/2 size-6 -translate-y-1/2 text-muted-foreground"
 							strokeWidth={1.75}
+							aria-hidden="true"
 						/>
 						<input
 							ref={inlineInputRef}
+							aria-label="Search products"
 							type="search"
 							name="q"
 							placeholder="Search products"
@@ -124,7 +126,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-11 w-56 rounded-full border-0 bg-secondary pl-11 pr-4 text-base font-medium text-foreground transition-colors placeholder:text-muted-foreground hover:bg-secondary-foreground/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 xl:w-64"
 						/>
 					</div>
 					<PopoverContent

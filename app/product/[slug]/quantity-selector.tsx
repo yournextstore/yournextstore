@@ -19,9 +19,9 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
+		<fieldset className="m-0 border-0 p-0">
+			<legend className="sr-only">Quantity</legend>
+			<div className="inline-flex items-center rounded-md border border-border">
 				<Button
 					variant="ghost"
 					size="icon"
@@ -32,7 +32,9 @@ export function QuantitySelector({
 				>
 					<Minus className="h-4 w-4" />
 				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
+				<span className="flex h-10 w-10 items-center justify-center text-sm font-medium tabular-nums">
+					{quantity}
+				</span>
 				<Button
 					variant="ghost"
 					size="icon"
@@ -44,6 +46,6 @@ export function QuantitySelector({
 					<Plus className="h-4 w-4" />
 				</Button>
 			</div>
-		</div>
+		</fieldset>
 	);
 }

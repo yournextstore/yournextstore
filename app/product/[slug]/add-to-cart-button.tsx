@@ -1,5 +1,6 @@
 "use client";
 
+import { ShoppingCart } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
@@ -8,7 +9,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -108,11 +108,8 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock, plan]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -216,71 +213,52 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+		<div className="flex flex-col">
+			{summary && <p className="mb-4 leading-relaxed text-muted-foreground">{summary}</p>}
 
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+			<div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+				<span className="text-lg font-semibold">{priceInfo.display}</span>
+				{priceInfo.compareAt && (
+					<span className="text-base text-muted-foreground line-through">{priceInfo.compareAt}</span>
 				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
+				{priceInfo.discountPercent ? (
+					<span className="rounded-md bg-main px-2 py-0.5 text-xs font-semibold text-white">
+						−{priceInfo.discountPercent}%
+					</span>
+				) : null}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
+			{omnibusPrice && (
+				<p className="-mt-1 mb-3 text-xs text-muted-foreground">
+					Lowest price in the last 30 days: {omnibusPrice}
+				</p>
+			)}
+
+			<p className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+				<span className={cn(stockStatus?.tone === "out" && "text-destructive")}>
+					{stockStatus ? stockStatus.label : "Select options to see availability"}
+				</span>
+				{selectedVariant?.sku && <span>SKU: {selectedVariant.sku}</span>}
+			</p>
+
+			{variants.length > 1 && (
+				<div className="mb-5">
+					<VariantSelector variants={variants} />
+				</div>
+			)}
 
 			{purchasable ? (
 				<>
 					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
+						<div className="mb-5">
+							<SubscriptionOptions
+								plans={plans}
+								value={planId}
+								onChange={setPlanId}
+								allowOneTime={allowOneTime}
+							/>
+						</div>
 					)}
-
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
 
 					<VolumePricingDisplay
 						tiers={resolvedTiers}
@@ -291,22 +269,32 @@ export function AddToCartButton({
 					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-4">
+							<QuantitySelector
+								quantity={effectiveQuantity}
+								onQuantityChange={setQuantity}
+								max={Math.max(1, Math.min(99, maxQuantity))}
+								disabled={isOutOfStock}
+							/>
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="shimmer inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{buttonText}
+								<ShoppingCart className="size-4" strokeWidth={1.5} aria-hidden="true" />
 							</button>
+							{totalPrice && effectiveQuantity > 1 ? (
+								<span className="text-sm text-muted-foreground">
+									{formatMoney({ amount: totalPrice, currency, locale })} total
+								</span>
+							) : null}
 						</form>
 					)}
 				</>
 			) : (
 				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }
