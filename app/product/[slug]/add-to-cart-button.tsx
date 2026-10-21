@@ -1,12 +1,12 @@
 "use client";
 
+import { ShoppingCart } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -93,9 +93,9 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -195,18 +195,18 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-6">
 			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
 
 			{/* Price & sale */}
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span className="text-2xl font-semibold text-black md:text-3xl">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
 						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+						<span className="rounded-md bg-violet-soft px-2.5 py-0.5 text-xs font-semibold text-violet">
 							Save {priceInfo.discountPercent}%
 						</span>
 					) : null}
@@ -224,8 +224,8 @@ export function AddToCartButton({
 								className={cn(
 									"inline-flex items-center gap-1.5 font-medium",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
+									stockStatus.tone === "low" && "text-amber-700",
+									stockStatus.tone === "in" && "text-green-700",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -259,14 +259,13 @@ export function AddToCartButton({
 					<button
 						type="submit"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="flex h-12 w-full items-center justify-center gap-2 rounded bg-zinc-900 px-8 text-base text-white shadow-sm shadow-zinc-500 transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
 					>
+						<ShoppingCart className="h-4 w-4" aria-hidden="true" />
 						{buttonText}
 					</button>
 				</form>
 			)}
-
-			<TrustBadges />
 		</div>
 	);
 }

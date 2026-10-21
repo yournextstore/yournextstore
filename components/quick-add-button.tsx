@@ -7,6 +7,7 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
+import { cn } from "@/lib/utils";
 
 type QuickAddButtonProps = {
 	variantId: string;
@@ -21,6 +22,7 @@ type QuickAddButtonProps = {
 		slug: string;
 		images: string[];
 	};
+	className?: string;
 };
 
 export function QuickAddButton({
@@ -30,6 +32,7 @@ export function QuickAddButton({
 	variantPriceGross,
 	variantImages,
 	product,
+	className,
 }: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -79,10 +82,13 @@ export function QuickAddButton({
 					<button
 						type="button"
 						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-						aria-label={`Add ${product.name} to cart`}
+						className={cn(
+							"flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-neutral-100 text-neutral-800 transition hover:bg-neutral-900 hover:text-white active:scale-95",
+							className,
+						)}
+						aria-label={`Add to cart, ${product.name}`}
 					>
-						<ShoppingBag className="h-3.5 w-3.5" />
+						<ShoppingBag className="h-4 w-4" />
 					</button>
 				</TooltipTrigger>
 				<TooltipContent side="top" className="text-xs">
