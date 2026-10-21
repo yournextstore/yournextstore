@@ -1,7 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useId } from "react";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** The original's plain number field under the option selects. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -18,32 +18,26 @@ export function QuantitySelector({
 	max = 99,
 	disabled = false,
 }: QuantitySelectorProps) {
+	const id = useId();
 	return (
 		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
-					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
-					disabled={disabled || quantity <= min}
-					aria-label="Decrease quantity"
-				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
-					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
-					disabled={disabled || quantity >= max}
-					aria-label="Increase quantity"
-				>
-					<Plus className="h-4 w-4" />
-				</Button>
-			</div>
+			<label htmlFor={id} className="sr-only">
+				Quantity
+			</label>
+			<input
+				id={id}
+				type="number"
+				inputMode="numeric"
+				min={min}
+				max={max}
+				value={quantity}
+				disabled={disabled}
+				onChange={(event) => {
+					const next = Number.parseInt(event.target.value, 10);
+					onQuantityChange(Number.isNaN(next) ? min : Math.min(max, Math.max(min, next)));
+				}}
+				className="h-10 w-full border border-black/30 bg-white indent-2 text-black/70 outline-none focus-visible:border-black disabled:opacity-50"
+			/>
 		</div>
 	);
 }

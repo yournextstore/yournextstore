@@ -9,7 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-merriweather);
+	--font-serif: var(--font-merriweather);
+	--color-taupe: var(--taupe);
+	--color-taupe-ink: var(--taupe-ink);
+	--color-summary: var(--summary);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -36,47 +40,55 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	/* The original's #8A8475 taupe, one step deeper so white button type clears AA (4.9:1). */
+	--taupe: #767061;
+	--taupe-ink: #6f6a5c;
+	--summary: #f9fafb;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #767061;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f2ef;
+	--secondary-foreground: #000000;
+	--muted: #f3f2ef;
+	--muted-foreground: #5f5b50;
+	--accent: #f3f2ef;
+	--accent-foreground: #000000;
+	--destructive: #b42318;
+	--border: #e5e7eb;
+	--input: rgba(0, 0, 0, 0.3);
+	--ring: #767061;
+	--background: #ffffff;
+	--foreground: #000000;
 }
 
+/* Light-only design: the same palette, so a forced theme never paints a dark surface. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0rem;
+	--taupe: #767061;
+	--taupe-ink: #6f6a5c;
+	--summary: #f9fafb;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #767061;
+	--primary-foreground: #ffffff;
+	--secondary: #f3f2ef;
+	--secondary-foreground: #000000;
+	--muted: #f3f2ef;
+	--muted-foreground: #5f5b50;
+	--accent: #f3f2ef;
+	--accent-foreground: #000000;
+	--destructive: #b42318;
+	--border: #e5e7eb;
+	--input: rgba(0, 0, 0, 0.3);
+	--ring: #767061;
+	--background: #ffffff;
+	--foreground: #000000;
 }
 
 @layer base {
@@ -85,6 +97,55 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-merriweather), Georgia, "Times New Roman", serif;
+		/* Hold the optical size at the face's default (18), the cut the design was drawn with. */
+		font-optical-sizing: none;
+	}
+}
+
+/* The original's two button modes: filled taupe and white with a soft outline. */
+@layer components {
+	.btn-taupe,
+	.btn-white,
+	.btn-ghost-white {
+		display: flex;
+		height: 3rem;
+		width: 100%;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		font-size: 1.125rem;
+		letter-spacing: 0.6px;
+		transition:
+			background-color 150ms,
+			color 150ms,
+			opacity 150ms;
+	}
+	.btn-taupe {
+		background: var(--taupe);
+		color: #fff;
+	}
+	.btn-taupe:hover {
+		background: #5f5a4d;
+	}
+	.btn-taupe:disabled {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+	.btn-white {
+		background: #fff;
+		color: #000;
+		border: 1px solid rgba(0, 0, 0, 0.25);
+	}
+	.btn-white:hover {
+		border-color: rgba(0, 0, 0, 0.6);
+	}
+	.btn-ghost-white {
+		color: #fff;
+		border: 2px solid #fff;
+	}
+	.btn-ghost-white:hover {
+		background: rgba(255, 255, 255, 0.12);
 	}
 }
 

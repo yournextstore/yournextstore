@@ -7,53 +7,58 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
+import { PaymentMethods } from "@/components/payment-methods";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Skeleton } from "@/components/ui/skeleton";
 import { commerce, meGetCached } from "@/lib/commerce";
+import { sentenceCase } from "@/lib/display";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
 import { cn } from "@/lib/utils";
+import { ProductDropdown } from "./product-dropdown";
 
 // MediaGallery and the purchase panel read useSearchParams (selected variant),
 // so they need a Suspense boundary to keep the rest of the page prerenderable.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
+		<div className="lg:col-span-2">
+			<div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+				<div className="aspect-[4/5] animate-pulse bg-secondary lg:aspect-[2/3]" />
+				<div className="aspect-[2/3] animate-pulse bg-secondary max-lg:hidden" />
+			</div>
+			<div className="mt-3 h-[104px]" />
 		</div>
 	);
 }
 
-function PurchasePanelSkeleton() {
+function PurchasePanelSkeleton({ options }: { options: number }) {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="flex flex-col gap-5">
+			<div className="h-6" />
+			<div className="flex flex-col gap-2">
+				{Array.from({ length: options }, (_, i) => (
+					<div key={`o-${i}`} className="h-[42px] border border-black/30" />
+				))}
+				<div className="h-10 border border-black/30" />
+			</div>
+			<div className="flex flex-col gap-3">
+				<div className="h-12 bg-taupe/80" />
+				<div className="h-5" />
+			</div>
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
+		<div className="mx-auto min-h-svh max-w-screen-2xl px-5 max-[400px]:px-3">
+			<div className="grid grid-cols-1 gap-x-8 lg:grid-cols-3">
 				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
-					<PurchasePanelSkeleton />
+				<div className="mt-9 flex flex-col gap-5">
+					<div className="h-10 w-3/4 animate-pulse bg-secondary" />
+					<PurchasePanelSkeleton options={0} />
 				</div>
 			</div>
 		</div>
@@ -182,55 +187,36 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
+	const optionGroups = new Set(
+		product.variants.flatMap((variant) =>
+			variant.combinations.map((combination) => combination.variantValue.variantType.label),
+		),
+	).size;
+	const category = product.category
+		? { name: sentenceCase(product.category.name), slug: product.category.slug }
+		: null;
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="mx-auto min-h-svh max-w-screen-2xl px-5 max-[400px]:px-3">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+			<div className="grid grid-cols-1 gap-x-8 lg:grid-cols-3">
 				<Suspense fallback={<GallerySkeleton />}>
 					<MediaGallery images={allImages} productName={product.name} variants={variants} />
 				</Suspense>
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
+				<div className="mt-9 flex w-full min-w-0 flex-col gap-5">
+					<div className="flex flex-col gap-2">
 						{brand && (
 							<Link
 								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+								className="inline-flex min-h-6 items-center self-start text-base tracking-wide text-taupe-ink hover:underline"
 							>
 								{brand.name}
 							</Link>
 						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+						<h1 className="text-4xl leading-tight [overflow-wrap:anywhere] max-sm:text-3xl">
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -247,8 +233,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
 					{product.type === "bundle" && product.bundle?.groups?.length ? (
 						<BundleBuilder
 							bundleId={product.id}
@@ -262,7 +246,9 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							}}
 						/>
 					) : (
-						<Suspense fallback={<PurchasePanelSkeleton />}>
+						<Suspense
+							fallback={<PurchasePanelSkeleton options={product.variants.length > 1 ? optionGroups : 0} />}
+						>
 							<AddToCartButton
 								variants={variants}
 								product={{
@@ -271,7 +257,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 									slug: product.slug,
 									images: product.images,
 								}}
-								summary={product.summary}
+								category={category}
 								volumePricingTiers={product.volumePricingTiers}
 								restockNotificationsEnabled={restockNotificationsEnabled}
 								subscriptionMode={product.subscriptionMode}
@@ -279,26 +265,31 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							/>
 						</Suspense>
 					)}
+
+					<div>
+						<h2 className="sr-only">Product information</h2>
+						{product.summary && (
+							<ProductDropdown title="Description">
+								<p className="whitespace-pre-line">{product.summary}</p>
+							</ProductDropdown>
+						)}
+						{product.content && (
+							<ProductDropdown title="Product Details">
+								<div className="prose prose-sm max-w-none tiptap-content">
+									<TiptapRenderer content={product.content} />
+								</div>
+							</ProductDropdown>
+						)}
+						<ProductDropdown title="Shipping & Payment">
+							<p>Shipping options and their costs for your address are shown at checkout, before you pay.</p>
+							<PaymentMethods className="mt-4" />
+						</ProductDropdown>
+					</div>
 				</div>
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
-			)}
-
-			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
 
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);

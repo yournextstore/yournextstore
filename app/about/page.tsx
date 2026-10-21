@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { getCatalogCategories, getStoreIdentity } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
+import aboutStudio from "@/public/images/pexels/about-khaki-studio.jpg";
+import aboutStairs from "@/public/images/pexels/about-trench-stairs.jpg";
+
+const frames = [aboutStairs, aboutStudio];
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -26,112 +32,90 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
-
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [{ storeName, storeDescription, contactFormEnabled }, categories] = await Promise.all([
+		getStoreIdentity(),
+		getCatalogCategories(),
+	]);
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+		description: storeDescription ?? `The story behind ${storeName}.`,
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="mx-auto max-w-screen-2xl px-5 pt-10 max-[400px]:px-3">
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
+			<div className="my-10 flex items-center justify-center bg-taupe px-4 py-10 text-white">
+				<h1 className="text-center text-3xl max-sm:text-2xl">About Us</h1>
 			</div>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
+			<div className="grid grid-cols-1 items-center gap-x-16 gap-y-12 lg:grid-cols-2">
+				<div className="grid grid-cols-2 gap-2">
+					{frames.map((frame, index) => (
+						<div key={frame.src} className="relative aspect-[2/3] overflow-hidden bg-secondary">
+							<Image
+								src={frame}
+								alt=""
+								fill
+								placeholder="blur"
+								sizes="(max-width: 1024px) 50vw, 25vw"
+								className="object-cover"
+								priority={index === 0}
+							/>
 						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
+					))}
+				</div>
+				<div className="flex flex-col gap-6">
+					<h2 className="text-5xl tracking-[1.56px] max-sm:text-4xl">Our Story</h2>
+					{storeDescription && <p className="text-xl leading-relaxed">{storeDescription}</p>}
+					<p className="text-lg leading-relaxed">
+						{storeName} brings together pieces chosen for their materials, their making and the way they fit
+						into everyday life. Every product in the shop is photographed and described with care, so you can
+						see exactly what you are choosing.
+					</p>
+					<p className="text-lg leading-relaxed">
+						Browse the collection by category, or get in touch if you would like to know more about a piece.
+					</p>
+					<div className="mt-2 flex w-full max-w-md flex-col gap-1 sm:flex-row sm:gap-3">
+						<Link href="/products" className="btn-taupe">
+							Shop Now
 						</Link>
-					)}
+						{contactFormEnabled ? (
+							<Link href="/contact" className="btn-white">
+								Contact Us
+							</Link>
+						) : (
+							<Link href="/faq" className="btn-white">
+								Read the FAQ
+							</Link>
+						)}
+					</div>
 				</div>
 			</div>
+
+			{categories.length > 0 && (
+				<section className="mt-24">
+					<h2 className="mb-8 text-center text-4xl max-sm:text-3xl">Shop by Category</h2>
+					<ul className="flex flex-wrap justify-center gap-3">
+						{categories.map((category) => (
+							<li key={category.slug}>
+								<Link
+									href={`/category/${category.slug}`}
+									className="block border border-taupe px-5 py-2 transition-colors hover:bg-taupe hover:text-white"
+								>
+									{category.name}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</section>
+			)}
 		</div>
 	);
 }
