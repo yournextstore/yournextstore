@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock3, Package, ShoppingBasket } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
@@ -8,7 +9,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -63,6 +63,8 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
+	/** The store's free-shipping threshold, formatted; the trust line only shows when it is set. */
+	freeShipping?: string | null;
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -75,6 +77,7 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 	subscriptionMode = "optional",
 	plans = [],
+	freeShipping = null,
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
@@ -109,9 +112,9 @@ export function AddToCartButton({
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to cart · ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to cart";
 	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -216,37 +219,36 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+		<div className="space-y-6">
+			{summary && <p className="text-base leading-relaxed whitespace-pre-line text-[#2b3440]">{summary}</p>}
 
 			{/* Price & sale */}
-			<div className="space-y-2">
+			<div className="space-y-1.5">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
+					<span className="text-[1.75rem] text-ink">{priceInfo.display}</span>
 					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
+						<span className="text-lg text-steel line-through">{priceInfo.compareAt}</span>
 					)}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
+						<span className="rounded bg-electric px-2 py-0.5 text-xs font-medium text-white uppercase">
+							-{priceInfo.discountPercent}% off
 						</span>
 					) : null}
 				</div>
 
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+					<p className="text-xs text-steel">Lowest price in the last 30 days: {omnibusPrice}</p>
 				)}
 
-				{/* SKU & stock availability */}
 				{(selectedVariant?.sku || stockStatus) && (
 					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
 						{stockStatus && (
 							<span
 								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
+									"inline-flex items-center gap-1.5",
 									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
+									stockStatus.tone === "low" && "text-amber-700",
+									stockStatus.tone === "in" && "text-green-700",
 								)}
 							>
 								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
@@ -254,8 +256,8 @@ export function AddToCartButton({
 							</span>
 						)}
 						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
+							<span className="text-steel">
+								SKU: <span className="text-ink">{selectedVariant.sku}</span>
 							</span>
 						)}
 					</div>
@@ -275,13 +277,6 @@ export function AddToCartButton({
 						/>
 					)}
 
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
-
 					<VolumePricingDisplay
 						tiers={resolvedTiers}
 						quantity={effectiveQuantity}
@@ -291,22 +286,43 @@ export function AddToCartButton({
 					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmit} className="flex gap-3">
+							<QuantitySelector
+								quantity={effectiveQuantity}
+								onQuantityChange={setQuantity}
+								max={Math.max(1, Math.min(99, maxQuantity))}
+								disabled={isOutOfStock}
+							/>
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="inline-flex h-12 min-w-0 flex-1 cursor-pointer items-center justify-center gap-3 rounded-md bg-main px-4 text-sm font-medium tracking-wide text-page uppercase transition-colors hover:bg-main-hover disabled:cursor-not-allowed disabled:opacity-50"
 							>
-								{buttonText}
+								<ShoppingBasket className="h-5 w-5 shrink-0" aria-hidden="true" />
+								<span className="truncate">{buttonText}</span>
 							</button>
 						</form>
 					)}
 				</>
 			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				<p className="text-sm text-steel">This subscription isn't available right now.</p>
 			)}
 
-			<TrustBadges />
+			<div className="space-y-2 text-sm text-ink">
+				<p className="text-xs">Secure checkout. Encrypted payments.</p>
+				<div className="flex flex-wrap gap-x-6 gap-y-2">
+					{freeShipping && (
+						<span className="inline-flex items-center gap-2">
+							<Package className="h-4 w-4" aria-hidden="true" />
+							Free shipping over {freeShipping}.
+						</span>
+					)}
+					<span className="inline-flex items-center gap-2">
+						<Clock3 className="h-4 w-4" aria-hidden="true" />
+						Delivery options shown at checkout.
+					</span>
+				</div>
+			</div>
 		</div>
 	);
 }

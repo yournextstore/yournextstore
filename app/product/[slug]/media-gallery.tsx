@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -89,8 +88,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	if (displayImages.length === 0) {
 		return (
 			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
+				<div className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card">
+					<p className="text-steel">No images available</p>
 				</div>
 			</div>
 		);
@@ -102,114 +101,90 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex min-w-0 flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-						fetchPriority="high"
-					/>
-				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
-						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
+			<div className="relative lg:px-0">
+				{/* Main image in the original's white rounded card */}
+				<div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
+					{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
+						<video
+							className="absolute inset-0 h-full w-full object-cover"
+							src={displayImages[selectedIndex]}
+							muted
+							loop
+							autoPlay
+							playsInline
+							controls
+						/>
+					) : (
+						<YNSMedia
+							src={displayImages[selectedIndex] ?? ""}
+							alt={`${productName} - View ${selectedIndex + 1}`}
+							fill
+							sizes="(max-width: 1024px) 100vw, 400px"
+							className={cn(
+								"cursor-zoom-in object-cover transition-transform duration-500",
+								isZoomed && "scale-150 cursor-zoom-out",
+							)}
+							onClick={() => setIsZoomed(!isZoomed)}
+							priority
+							fetchPriority="high"
+						/>
+					)}
+					{displayImages.length > 1 && (
+						<div className="absolute bottom-3 left-3 rounded bg-card/90 px-2 py-1 text-xs text-ink">
+							{selectedIndex + 1} / {displayImages.length}
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 
-				{/* Image Counter */}
+				{/* Chevrons sit outside the card on desktop, like the original's slick arrows */}
 				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
+					<>
+						<button
+							type="button"
+							onClick={handlePrevious}
+							aria-label="Previous image"
+							className="absolute top-1/2 left-2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-card/90 text-ink shadow lg:-left-12 lg:bg-transparent lg:shadow-none"
+						>
+							<ChevronLeft className="h-7 w-7" strokeWidth={1.5} />
+						</button>
+						<button
+							type="button"
+							onClick={handleNext}
+							aria-label="Next image"
+							className="absolute top-1/2 right-2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-card/90 text-ink shadow lg:-right-12 lg:bg-transparent lg:shadow-none"
+						>
+							<ChevronRight className="h-7 w-7" strokeWidth={1.5} />
+						</button>
+					</>
 				)}
 			</div>
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="flex gap-3 overflow-x-auto p-1 -m-1 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
+							aria-label={`Show image ${index + 1}`}
+							aria-current={selectedIndex === index}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-md bg-card transition-opacity sm:w-auto",
+								selectedIndex === index ? "ring-2 ring-main" : "opacity-70 hover:opacity-100",
 							)}
 						>
 							{isVideoUrl(image) ? (
 								<video
-									className="absolute inset-0 w-full h-full object-cover"
+									className="absolute inset-0 h-full w-full object-cover"
 									src={image}
 									muted
 									playsInline
 								/>
 							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
+								<YNSMedia src={image} alt="" fill sizes="100px" className="object-cover" />
 							)}
 						</button>
 					))}

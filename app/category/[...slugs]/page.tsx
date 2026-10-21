@@ -6,7 +6,7 @@ import { Fragment, Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
@@ -116,7 +116,7 @@ async function CategoryProducts({
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="text-lg text-steel">No products match these filters.</p>
 			</div>
 		);
 	}
@@ -125,7 +125,8 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<h2 className="sr-only">Products</h2>
+			<div className={LISTING_GRID}>
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -236,7 +237,7 @@ const CategoryContent = async ({
 			</Breadcrumb>
 
 			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
+				<h1 className="section-title text-[2rem] text-ink lg:text-heading-lg">{category.name}</h1>
 			</div>
 
 			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
