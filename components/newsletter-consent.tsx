@@ -27,15 +27,17 @@ export function NewsletterConsent({
 	className?: string;
 }) {
 	return (
-		<Label className={cn("flex cursor-pointer items-start gap-2 text-left font-normal", className)}>
+		<Label
+			className={cn("flex cursor-pointer items-start gap-2 text-left text-photon font-semibold", className)}
+		>
 			<Checkbox
 				name="marketingConsent"
 				checked={checked}
 				onCheckedChange={(value) => onCheckedChange(value === true)}
 				disabled={disabled}
-				className="mt-0.5 shrink-0"
+				className="mt-px shrink-0 rounded-none border-current shadow-none data-[state=checked]:border-current data-[state=checked]:bg-transparent data-[state=checked]:text-current"
 			/>
-			<span className="text-sm leading-snug opacity-80">
+			<span className="leading-snug">
 				I agree to receive marketing emails and accept the privacy policy. You can unsubscribe at any time.
 			</span>
 		</Label>

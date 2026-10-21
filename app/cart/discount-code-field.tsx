@@ -58,7 +58,7 @@ export function DiscountCodeField() {
 	};
 
 	const errorMessage = error ? (
-		<p id={messageId} role="alert" className="text-sm text-destructive">
+		<p id={messageId} role="alert" className="text-destructive">
 			{error}
 		</p>
 	) : null;
@@ -68,16 +68,16 @@ export function DiscountCodeField() {
 			<div className="grid gap-2">
 				<div
 					role="status"
-					className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-green-700/30 bg-green-50 pl-3 text-green-900"
+					className="flex min-h-10 items-center justify-between gap-3 border border-black pl-2"
 				>
-					<p className="min-w-0 py-2 text-sm">
+					<p className="min-w-0 py-2">
 						<span className="font-semibold break-all">{applied.code} applied</span>{" "}
 						<span className="whitespace-nowrap">{applied.label}</span>
 					</p>
 					<Button
 						type="button"
 						variant="ghost"
-						className="h-11 shrink-0 px-3 text-sm text-green-900 underline underline-offset-2 hover:bg-green-100 hover:text-green-950"
+						className="h-11 shrink-0 px-3 underline underline-offset-2"
 						aria-label={`Remove discount code ${applied.code}`}
 						aria-busy={isMutating || undefined}
 						onClick={() => {
@@ -96,9 +96,7 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
-				Discount code
-			</label>
+			<label htmlFor={inputId}>Discount code</label>
 			<div className="flex gap-2">
 				<Input
 					id={inputId}
@@ -108,7 +106,7 @@ export function DiscountCodeField() {
 					autoCorrect="off"
 					spellCheck={false}
 					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
+					className="h-10 min-w-0 flex-1 rounded-none border-black text-photon shadow-none md:text-photon"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? messageId : undefined}
 					value={code}
@@ -127,7 +125,7 @@ export function DiscountCodeField() {
 				<Button
 					type="button"
 					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="h-10 shrink-0 rounded-none px-4 text-photon"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

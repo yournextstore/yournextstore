@@ -1,12 +1,4 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import Link from "next/link";
 
 function getPageNumbers(currentPage: number, totalPages: number) {
 	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -32,7 +24,9 @@ function buildUrl(basePath: string, page: number, filters: Record<string, string
 	return params.size ? `${basePath}?${params}` : basePath;
 }
 
-/** Numbered pagination for product listing pages. Carries every active filter across page links. */
+const item = "inline-flex h-6 min-w-6 items-center justify-center";
+
+/** Numbered pagination in Photon's bare text style. Carries every active filter across page links. */
 export function ListingPagination({
 	basePath,
 	currentPage,
@@ -46,35 +40,41 @@ export function ListingPagination({
 }) {
 	if (totalPages <= 1) return null;
 
-	const pageNumbers = getPageNumbers(currentPage, totalPages);
-
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
+		<nav aria-label="Pagination" className="px-[var(--main-gap)] py-4">
+			<ul className="flex flex-wrap items-center justify-center gap-x-[var(--main-gap)]">
 				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
+					<li>
+						<Link href={buildUrl(basePath, currentPage - 1, filters)} className={item} rel="prev">
+							Previous
+						</Link>
+					</li>
 				)}
-				{pageNumbers.map((page, index) =>
+				{getPageNumbers(currentPage, totalPages).map((page, index) =>
 					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
+						<li key={`ellipsis-${index}`} aria-hidden className={item}>
+							…
+						</li>
 					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
+						<li key={page}>
+							<Link
+								href={buildUrl(basePath, page, filters)}
+								aria-current={page === currentPage ? "page" : undefined}
+								className={page === currentPage ? `${item} underline` : item}
+							>
 								{page}
-							</PaginationLink>
-						</PaginationItem>
+							</Link>
+						</li>
 					),
 				)}
 				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
+					<li>
+						<Link href={buildUrl(basePath, currentPage + 1, filters)} className={item} rel="next">
+							Next
+						</Link>
+					</li>
 				)}
-			</PaginationContent>
-		</Pagination>
+			</ul>
+		</nav>
 	);
 }

@@ -7,17 +7,10 @@ import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { cn } from "@/lib/utils";
 import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -37,9 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -62,48 +53,49 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+const BANDS = [
+	"bg-photon-yellow text-black",
+	"bg-photon-blue text-white",
+	"bg-photon-pink text-black",
+	"bg-photon-green text-white",
+] as const;
+
+/** Picks one of Photon's colour fields from the slug, so a collection keeps its colour. */
+function bandFor(slug: string) {
+	const hash = [...slug].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+	return BANDS[hash % BANDS.length] ?? BANDS[0];
+}
+
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
+		<section
+			className={cn(
+				"relative h-[45vh] min-h-64 overflow-hidden",
+				collection.image ? "bg-black text-white" : bandFor(collection.slug),
+			)}
+		>
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+				<>
 					<YNSMedia
 						src={collection.image}
-						alt={collection.name}
+						alt=""
 						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
+						sizes="100vw"
+						className="object-cover"
 						priority
 						fetchPriority="high"
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
+					<div aria-hidden className="absolute inset-0 bg-black/25" />
+				</>
 			)}
-		</section>
-	);
-}
-
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
+			<div className="absolute inset-x-0 top-1/2 max-w-[60rem] p-[var(--main-padding)]">
+				<h1 className="text-photon-title">{collection.name}</h1>
+				{description && <p>{description}</p>}
+				<p>
+					{count} {count === 1 ? "product" : "products"}
+				</p>
+			</div>
 		</section>
 	);
 }
@@ -160,34 +152,14 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh">
+			<div className="h-[45vh] min-h-64 bg-photon-wash" />
+			<div className="py-[var(--main-padding)]">
+				<ProductGridSkeleton count={3} />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -218,27 +190,26 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+
 	return (
-		<>
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<CollectionHeader collection={collection} count={products.length} />
+			{products.length > 0 ? (
+				<ProductGrid products={products} showViewAll={false} />
+			) : (
+				<p className="px-[var(--main-gap)] py-24 text-center">This collection is empty for now.</p>
+			)}
+			<nav aria-label="More" className="flex justify-between px-[var(--main-gap)] pb-[var(--main-padding)]">
+				<Link href="/collections" className="inline-flex h-6 items-center">
+					All Collections
+				</Link>
+				<Link href="/products" className="inline-flex h-6 items-center">
+					All Products ↗
+				</Link>
+			</nav>
+		</div>
 	);
 };

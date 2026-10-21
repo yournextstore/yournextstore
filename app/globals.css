@@ -9,8 +9,19 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: Arial, "Helvetica Neue", Helvetica, ui-sans-serif, system-ui, sans-serif;
 	--font-mono: var(--font-geist-mono);
+	/* Photon's type scale: everything is 12px bold Arial except the 24px titles. */
+	--text-photon: 12px;
+	--text-photon--line-height: 1.35;
+	--text-photon-title: 24px;
+	--text-photon-title--line-height: 1.1;
+	--color-photon-yellow: var(--photon-yellow);
+	--color-photon-green: var(--photon-green);
+	--color-photon-blue: var(--photon-blue);
+	--color-photon-pink: var(--photon-pink);
+	--color-photon-orange: var(--photon-orange);
+	--color-photon-wash: var(--photon-wash);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -36,56 +47,136 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	/* Photon: black ink on white paper; saturation comes from the photographs and colour blocks. */
+	--ink: #000000;
+	--paper: #ffffff;
+	--photon-yellow: #faff20;
+	--photon-green: #2f7d3b;
+	--photon-blue: #0175d4;
+	--photon-pink: #f6a1b5;
+	--photon-orange: #fe8e2d;
+	--photon-wash: #f2f2f1;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f2f2f1;
+	--secondary-foreground: #000000;
+	--muted: #f2f2f1;
+	/* The original's #878580 warm grey, darkened to clear AA on white and on the wash. */
+	--muted-foreground: #63615c;
+	--accent: #f2f2f1;
+	--accent-foreground: #000000;
+	--destructive: #c4161c;
+	--border: #000000;
+	--input: #000000;
+	--ring: #000000;
+	--background: #ffffff;
+	--foreground: #000000;
 }
 
+/* Light-only design (forcedTheme="light"); the block mirrors :root so the palette test covers both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f2f2f1;
+	--secondary-foreground: #000000;
+	--muted: #f2f2f1;
+	--muted-foreground: #63615c;
+	--accent: #f2f2f1;
+	--accent-foreground: #000000;
+	--destructive: #c4161c;
+	--border: #000000;
+	--input: #000000;
+	--ring: #000000;
+	--background: #ffffff;
+	--foreground: #000000;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		font-family: Arial, "Helvetica Neue", Helvetica, ui-sans-serif, system-ui, sans-serif;
+		text-size-adjust: 100%;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-size: 12px;
+		line-height: 1.35;
+		font-weight: 600;
+		-webkit-font-smoothing: antialiased;
 	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		text-wrap: balance;
+		overflow-wrap: break-word;
+	}
+	p {
+		text-wrap: pretty;
+	}
+	a:hover {
+		text-decoration: underline;
+		text-underline-offset: 1px;
+	}
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--muted-foreground);
+		opacity: 1;
+	}
+}
+
+/* The original's two spacing units: a 1ch gutter, and the inset matched to it so text lines up with the grid. */
+:root {
+	--main-gap: 1ch;
+	--main-padding: 1ch;
+}
+
+/* Edge-to-edge auto-fill grid: as many 25rem columns as fit, one column on phones. */
+@utility photon-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
+	gap: var(--main-gap);
+	padding-inline: var(--main-gap);
+	@media (max-width: 768px) {
+		grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+	}
+	@media (max-width: 480px) {
+		grid-template-columns: minmax(0, 1fr);
+		padding-inline: calc(var(--main-gap) / 2);
+	}
+}
+
+/* Full-bleed colour or photo block: 16:9, 4:3 on tablets, square on phones. */
+@utility photon-block {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	@media (max-width: 768px) {
+		aspect-ratio: 4 / 3;
+	}
+	@media (max-width: 480px) {
+		aspect-ratio: 1 / 1;
+	}
+}
+
+@utility photon-inset {
+	padding-inline: var(--main-padding);
+}
+
+@utility photon-gap {
+	gap: var(--main-gap);
 }
 
 .prose {

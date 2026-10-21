@@ -1,12 +1,10 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -338,18 +336,12 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
-				Filters
-				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
-				)}
+			<SheetTrigger className="inline-flex h-6 cursor-pointer items-center whitespace-nowrap hover:underline">
+				Filter{activeCount > 0 ? ` (${activeCount})` : ""}
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
 			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>
