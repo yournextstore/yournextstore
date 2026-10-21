@@ -101,76 +101,77 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<li className="flex items-start gap-4 py-4 md:py-6">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative aspect-square w-[100px] shrink-0 overflow-hidden rounded-lg bg-tile sm:w-[124px]"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && (
+					<YNSMedia
+						src={image}
+						alt={product.name}
+						fill
+						className="object-cover transition-transform duration-500 hover:scale-110"
+						sizes="124px"
+					/>
+				)}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+			<div className="flex min-w-0 flex-1 flex-col self-stretch">
 				<div className="flex items-start justify-between gap-2">
 					<div className="min-w-0 space-y-1">
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-2 text-base font-bold leading-tight hover:underline"
 						>
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						{options && <p className="text-sm text-muted-foreground">{options}</p>}
 						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+							<p className="text-sm text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
 						)}
 					</div>
 					<button
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="shrink-0 p-1 text-destructive transition-opacity hover:opacity-70 disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash2 className="size-5" strokeWidth={2.25} />
 					</button>
 				</div>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
+				<div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
+					<span className="text-xl font-bold">{formatMoney({ amount: lineTotal, currency, locale })}</span>
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"flex h-8 min-w-[105px] items-center justify-between rounded-full bg-pill px-3 transition-opacity md:h-10 md:px-5",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex size-5 items-center justify-center"
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							<Minus className="size-4" strokeWidth={2.5} />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="w-6 text-center text-sm font-medium tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex size-5 items-center justify-center"
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							<Plus className="size-4" strokeWidth={2.5} />
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
 				</div>
 			</div>
-		</div>
+		</li>
 	);
 }

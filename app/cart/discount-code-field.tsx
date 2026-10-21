@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Tag } from "lucide-react";
 import { useId, useState } from "react";
 import { applyDiscountCode, removeDiscountCode } from "@/app/cart/actions";
 import { type Cart, useCart } from "@/app/cart/cart-context";
@@ -96,38 +96,44 @@ export function DiscountCodeField() {
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium">
-				Discount code
+			<label htmlFor={inputId} className="sr-only">
+				Promo code
 			</label>
-			<div className="flex gap-2">
-				<Input
-					id={inputId}
-					name="discountCode"
-					type="text"
-					autoComplete="off"
-					autoCorrect="off"
-					spellCheck={false}
-					enterKeyHint="done"
-					className="h-11 min-w-0 flex-1 text-base md:text-base"
-					aria-invalid={error ? true : undefined}
-					aria-describedby={error ? messageId : undefined}
-					value={code}
-					readOnly={isMutating}
-					onChange={(e) => {
-						setCode(e.currentTarget.value);
-						setError(null);
-					}}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") {
-							e.preventDefault();
-							apply();
-						}
-					}}
-				/>
+			<div className="flex gap-3">
+				<div className="relative min-w-0 flex-1">
+					<Tag
+						className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-black/40"
+						aria-hidden
+					/>
+					<Input
+						id={inputId}
+						name="discountCode"
+						type="text"
+						autoComplete="off"
+						autoCorrect="off"
+						spellCheck={false}
+						enterKeyHint="done"
+						placeholder="Add promo code"
+						className="h-12 w-full rounded-full border-0 bg-pill pl-12 text-base shadow-none placeholder:text-muted-foreground md:text-base"
+						aria-invalid={error ? true : undefined}
+						aria-describedby={error ? messageId : undefined}
+						value={code}
+						readOnly={isMutating}
+						onChange={(e) => {
+							setCode(e.currentTarget.value);
+							setError(null);
+						}}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								e.preventDefault();
+								apply();
+							}
+						}}
+					/>
+				</div>
 				<Button
 					type="button"
-					variant="outline"
-					className="h-11 shrink-0 px-4 text-base"
+					className="h-12 w-[119px] shrink-0 rounded-full bg-black text-base text-white hover:bg-black/80"
 					aria-disabled={isMutating || !code.trim() || undefined}
 					aria-busy={isMutating || undefined}
 					onClick={apply}

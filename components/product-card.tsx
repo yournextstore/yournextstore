@@ -5,7 +5,7 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { listingPrice, priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -24,10 +24,21 @@ export async function ProductCard({
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
+	const { min: minPrice, max: maxPrice } =
+		variants && variants.length > 0 ? priceRange(variants, taxBehavior) : { min: null, max: null };
+
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const priceDisplay = listing ? `${listing.from ? "From " : ""}${fmt(listing.amount)}` : null;
+
+	// The original's struck-through list price and red "-20%" pill, for a single price on sale.
+	const listPrice =
+		variants && variants.length > 0 && minPrice === maxPrice
+			? priceRange(variants, taxBehavior, "originalPrice").max
+			: null;
+	const onSale = listPrice !== null && minPrice !== null && listPrice > minPrice;
+	const discountPercent =
+		onSale && minPrice !== null ? Math.round((Number(listPrice - minPrice) / Number(listPrice)) * 100) : 0;
 
 	const allImages = [
 		...(product.images ?? []),
@@ -56,8 +67,11 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative flex flex-col items-start"
+		>
+			<div className="relative mb-2.5 aspect-square w-full overflow-hidden rounded-[13px] bg-tile lg:rounded-[20px] xl:mb-4">
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -76,7 +90,7 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							src={primaryImage}
 							muted
 							loop
@@ -88,36 +102,38 @@ export async function ProductCard({
 							src={primaryImage}
 							alt={product.name}
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes="(max-width: 640px) 60vw, (max-width: 1024px) 33vw, 300px"
+							className={`object-cover transition-[opacity,scale] duration-500 group-hover:scale-110 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{secondaryImage && !isVideoUrl(secondaryImage) && (
+					<YNSMedia
+						src={secondaryImage}
+						alt=""
+						fill
+						sizes="(max-width: 640px) 60vw, (max-width: 1024px) 33vw, 300px"
+						className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+					/>
+				)}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
+			<span className="line-clamp-2 text-base font-bold text-black xl:text-xl">{product.name}</span>
+			{priceDisplay && (
+				<span className="mt-1 flex flex-wrap items-center gap-x-[5px] gap-y-1 xl:mt-2 xl:gap-x-2.5">
+					<span className="text-xl font-bold text-black xl:text-2xl">{priceDisplay}</span>
+					{onSale && listPrice !== null && (
+						<>
+							<span className="text-xl font-bold text-black/55 line-through xl:text-2xl">
+								{fmt(listPrice)}
+							</span>
+							<span className="rounded-full bg-[#ff3333]/10 px-3.5 py-1.5 text-[10px] font-medium text-sale xl:text-xs">
+								-{discountPercent}%
+							</span>
+						</>
+					)}
+				</span>
+			)}
 		</Link>
 	);
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +30,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +73,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +82,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -133,81 +140,72 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	}
 
 	return (
-		<div className="space-y-8">
-			{groupsWithChoices.map((group) => {
+		<div className="flex flex-col">
+			{groupsWithChoices.map((group, groupIndex) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
 					? optionsById.get(group.label)?.get(selectedOptionId)
 					: undefined;
 
 				return (
-					<fieldset key={group.label} className="border-0 p-0 m-0">
+					<fieldset
+						key={group.label}
+						className={cn("m-0 border-0 p-0", groupIndex > 0 && "mt-5 border-t border-black/10 pt-5")}
+					>
+						<legend className="mb-4 text-sm text-muted-foreground sm:text-base">
+							Select <span className="lowercase">{group.label}</span>
+							{group.type === "color" && selectedOption ? (
+								<span className="text-black">: {selectedOption.value}</span>
+							) : null}
+						</legend>
 						{group.type === "color" ? (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
-									)}
-								</div>
-								<div className="flex gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-										const isLightColor =
-											option.colorValue?.toUpperCase() === "#FFFFFF" ||
-											option.colorValue?.toUpperCase() === "#FFFFF0" ||
-											option.colorValue?.toUpperCase() === "#FFF";
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
-													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
-												)}
-												style={{ backgroundColor: option.colorValue ?? "#fff" }}
-												aria-label={option.value}
-												title={option.value}
-											>
-												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
-												)}
-											</button>
-										);
-									})}
-								</div>
-							</>
+							<div className="flex flex-wrap items-center gap-3 sm:gap-4">
+								{group.options.map((option) => {
+									const isSelected = selectedOptions[group.label] === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											className="flex size-9 items-center justify-center rounded-full border border-black/20 sm:size-10"
+											style={{ backgroundColor: option.colorValue ?? "#fff" }}
+											aria-label={option.value}
+											aria-pressed={isSelected}
+											title={option.value}
+										>
+											{isSelected && (
+												<Check
+													className="size-4 text-white mix-blend-difference"
+													strokeWidth={3}
+													aria-hidden
+												/>
+											)}
+										</button>
+									);
+								})}
+							</div>
 						) : (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
-													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
-												)}
-											>
-												<span className="text-sm font-medium">{option.value}</span>
-											</button>
-										);
-									})}
-								</div>
-							</>
+							<div className="flex flex-wrap items-center gap-2 lg:gap-3">
+								{group.options.map((option) => {
+									const isSelected = selectedOptions[group.label] === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											aria-pressed={isSelected}
+											className={cn(
+												"flex max-h-[46px] items-center justify-center rounded-full px-5 py-2.5 text-sm transition-colors lg:px-6 lg:py-3 lg:text-base",
+												isSelected
+													? "bg-black font-medium text-white"
+													: "bg-pill text-muted-foreground hover:text-black",
+											)}
+										>
+											{option.value}
+										</button>
+									);
+								})}
+							</div>
 						)}
 					</fieldset>
 				);

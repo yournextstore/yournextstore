@@ -9,7 +9,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-figtree);
+	--font-display: var(--font-archivo);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,29 +34,58 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own surfaces: hero band, product tiles, pill controls, sale and verified tints. */
+	--color-band: var(--band);
+	--color-tile: var(--tile);
+	--color-pill: var(--pill);
+	--color-sale: var(--sale);
+	--color-star: var(--star);
+	--color-verified: var(--verified);
+}
+
+/* Type scale and breakpoints of the original, under their own names so shadcn's text-sm/base keep their sizes. */
+@theme {
+	--breakpoint-xs: 23.4375rem;
+	--text-display-xl: 4rem;
+	--text-display-xl--line-height: 1;
+	--text-display-lg: 3rem;
+	--text-display-lg--line-height: 1.05;
+	--text-display-md: 2.5rem;
+	--text-display-md--line-height: 1.1;
+	--text-display-sm: 2rem;
+	--text-display-sm--line-height: 1.125;
+	--text-display-xs: 1.5rem;
+	--text-display-xs--line-height: 1.15;
 }
 
 :root {
 	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--background: #ffffff;
+	--foreground: #000000;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f0f0f0;
+	--secondary-foreground: #000000;
+	--muted: #f0f0f0;
+	/* black/60 of the original, held at a lightness that clears AA on the #f0f0f0 pills too. */
+	--muted-foreground: #5c5c5c;
+	--accent: #f0f0f0;
+	--accent-foreground: #000000;
+	--destructive: #d61f1f;
+	--border: #e6e6e6;
+	--input: #e6e6e6;
+	--ring: #000000;
+	--band: #f2f0f1;
+	--tile: #f0eeed;
+	--pill: #f0f0f0;
+	/* #ff3333 is the original's sale red; text uses this darker step so a 12px badge stays AA on its tint. */
+	--sale: #d11a1a;
+	--star: #ffc633;
+	--verified: #01ab31;
 }
 
 .dark {
@@ -85,6 +115,64 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+	}
+}
+
+@utility frame {
+	width: 100%;
+	max-width: 77.5rem;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (width >= 80rem) {
+		padding-inline: 0;
+	}
+}
+
+/* Integral CF stand-in: Archivo stretched to its widest and heaviest, always set in capitals. */
+@utility font-display {
+	font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+	font-weight: 800;
+	font-stretch: 125%;
+	text-transform: uppercase;
+	letter-spacing: -0.01em;
+}
+
+/* Lowercase catalogue names (categories) read as titles. */
+@utility capitalize-first {
+	&::first-letter {
+		text-transform: uppercase;
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+@keyframes star-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.star-spin {
+		animation: star-spin 4s linear infinite;
+	}
+	.star-spin-slow {
+		animation: star-spin 6s linear infinite;
+	}
+}
+
+/* The product page pins its buy bar to the bottom on phones: keep the footer and the chat dock clear of it. */
+@media (width < 48rem) {
+	body:has([data-buy-bar]) footer {
+		padding-bottom: 5.5rem;
+	}
+	body:has([data-buy-bar]) .fixed.bottom-4.right-4 {
+		bottom: 6rem !important;
 	}
 }
 

@@ -1,5 +1,15 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's display sizes (`text-display-*`) are font sizes, not colours: without this,
+// tailwind-merge drops `text-muted-foreground` next to them (or the other way round).
+const twMerge = extendTailwindMerge({
+	extend: {
+		classGroups: {
+			"font-size": [{ text: ["display-xl", "display-lg", "display-md", "display-sm", "display-xs"] }],
+		},
+	},
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
