@@ -9,7 +9,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-dm-sans);
+	--font-display: var(--font-forum);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +34,123 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's named palette, for the theme's own markup. */
+	--color-gold: var(--gold);
+	--color-silver: var(--silver);
+	--color-ink: var(--ink);
+	--color-smoky: var(--smoky);
+	--color-smoky-2: var(--smoky-2);
+	--color-smoky-3: var(--smoky-3);
+	--color-eerie: var(--eerie);
+	--color-eerie-2: var(--eerie-2);
+	--color-eerie-3: var(--eerie-3);
+	--color-eerie-4: var(--eerie-4);
+	--color-line: var(--line);
 }
 
+/* The original's type scale under its own names (html was 10px there, so 1.3rem → 0.8125rem):
+   overriding text-sm/base/lg would resize every shadcn component. */
+@theme {
+	--breakpoint-xs: 36rem;
+	--breakpoint-xl: 75rem;
+	--breakpoint-2xl: 87.5rem;
+
+	--text-display: calc(0.8125rem + 6.7vw);
+	--text-display--line-height: 1;
+	--text-headline-1: calc(1.25rem + 2.5vw);
+	--text-headline-1--line-height: 1.2;
+	--text-headline-2: calc(0.8125rem + 2.4vw);
+	--text-headline-2--line-height: 1.4;
+	--text-title-1: calc(1rem + 1.2vw);
+	--text-title-1--line-height: 1.2;
+	--text-title-2: 1.375rem;
+	--text-title-2--line-height: 1.2;
+	--text-title-3: 1.3125rem;
+	--text-title-3--line-height: 1.2;
+	--text-title-4: calc(1rem + 1.2vw);
+	--text-title-4--line-height: 1.2;
+	--text-body-1: 1.5rem;
+	--text-body-1--line-height: 1.4;
+	--text-body-2: 1rem;
+	--text-body-2--line-height: 1.6;
+	--text-body-3: 1.125rem;
+	--text-body-3--line-height: 1.85;
+	--text-body-4: 1rem;
+	--text-body-4--line-height: 1.85;
+	--text-label-1: 0.875rem;
+	--text-label-1--line-height: 1.85;
+	--text-label-2: 0.75rem;
+	--text-label-2--line-height: 1.85;
+
+	--tracking-1: 0.15em;
+	--tracking-2: 0.4em;
+	--tracking-3: 0.2em;
+	--tracking-4: 0.3em;
+	--tracking-5: 3px;
+}
+
+/* Grilli's palette: smoky blacks, eerie greys, gold crayola. Dark only, so :root and .dark match. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0px;
+	--gold: #e4c590;
+	--silver: #a6a6a6;
+	--ink: #ffffff;
+	--smoky: #0e0d0b;
+	--smoky-2: #0e0d0c;
+	--smoky-3: #121111;
+	--eerie: #161718;
+	--eerie-2: #1b1c1d;
+	--eerie-3: #141515;
+	--eerie-4: #212121;
+	--line: rgb(255 255 255 / 0.2);
+
+	--background: #161718;
+	--foreground: #ffffff;
+	--card: #0e0d0b;
+	--card-foreground: #ffffff;
+	--popover: #0e0d0b;
+	--popover-foreground: #ffffff;
+	--primary: #e4c590;
+	--primary-foreground: #0e0d0b;
+	--secondary: #1b1c1d;
+	--secondary-foreground: #ffffff;
+	--muted: #1b1c1d;
+	--muted-foreground: #a6a6a6;
+	--accent: #212121;
+	--accent-foreground: #ffffff;
+	--destructive: #f2836b;
+	--border: rgb(255 255 255 / 0.1);
+	--input: rgb(255 255 255 / 0.15);
+	--ring: #e4c590;
+	--header-offset: 130px;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #161718;
+	--foreground: #ffffff;
+	--card: #0e0d0b;
+	--card-foreground: #ffffff;
+	--popover: #0e0d0b;
+	--popover-foreground: #ffffff;
+	--primary: #e4c590;
+	--primary-foreground: #0e0d0b;
+	--secondary: #1b1c1d;
+	--secondary-foreground: #ffffff;
+	--muted: #1b1c1d;
+	--muted-foreground: #a6a6a6;
+	--accent: #212121;
+	--accent-foreground: #ffffff;
+	--destructive: #f2836b;
+	--border: rgb(255 255 255 / 0.1);
+	--input: rgb(255 255 255 / 0.15);
+	--ring: #e4c590;
+}
+
+@media (min-width: 36rem) {
+	:root {
+		/* The topbar (51px) sits above the header from 575px up. */
+		--header-offset: 181px;
+	}
 }
 
 @layer base {
@@ -84,7 +158,11 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground font-sans text-body-4;
+	}
+	::selection {
+		background: var(--gold);
+		color: var(--smoky);
 	}
 }
 
@@ -117,11 +195,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		#1b1c1d 0%,
+		#212121 40%,
+		#262626 50%,
+		#212121 60%,
+		#1b1c1d 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
@@ -168,4 +246,456 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* ───────────────────────── Grilli ───────────────────────── */
+
+@utility container-g {
+	width: 100%;
+	padding-inline: 16px;
+	@media (min-width: 75rem) {
+		max-width: 1200px;
+		margin-inline: auto;
+	}
+}
+
+@utility font-display {
+	font-family: var(--font-forum), serif;
+	font-weight: 400;
+}
+
+@layer components {
+	/* Gold uppercase kicker with the separator ornament under it. */
+	.section-subtitle {
+		position: relative;
+		color: var(--gold);
+		font-size: var(--text-label-2);
+		font-weight: 700;
+		line-height: 1.85;
+		text-transform: uppercase;
+		letter-spacing: 0.4em;
+		margin-block-end: 12px;
+	}
+	.section-subtitle::after {
+		content: "";
+		display: block;
+		width: 100px;
+		aspect-ratio: 97.1 / 12.7;
+		margin-inline: auto;
+		margin-block-start: 5px;
+		background: url("/images/separator.svg") center / contain no-repeat;
+	}
+	.section-subtitle[data-align="start"]::after {
+		margin-inline: 0;
+	}
+
+	/* The original's button: a gold frame whose label rolls up while a gold disc rises behind it. */
+	.btn-g {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 48px;
+		max-width: max-content;
+		padding: 12px 45px;
+		border: 2px solid var(--gold);
+		color: var(--gold);
+		font-size: var(--text-label-2);
+		font-weight: 700;
+		line-height: 1.85;
+		letter-spacing: 3px;
+		text-transform: uppercase;
+		overflow: hidden;
+		z-index: 1;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.btn-g::before {
+		content: "";
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 200%;
+		height: 200%;
+		border-radius: 50%;
+		background-color: var(--gold);
+		transition: bottom 500ms ease;
+		z-index: -1;
+	}
+	.btn-g .btn-label {
+		display: block;
+		transition: transform 250ms ease;
+	}
+	.btn-g .btn-label-2 {
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		min-width: max-content;
+		color: var(--smoky);
+		transition:
+			top 250ms ease,
+			transform 250ms ease;
+	}
+	.btn-g:is(:hover, :focus-visible)::before {
+		bottom: -50%;
+	}
+	.btn-g:is(:hover, :focus-visible) .btn-label:not(.btn-label-2) {
+		transform: translateY(-40px);
+	}
+	.btn-g:is(:hover, :focus-visible) .btn-label-2 {
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+	.btn-g[data-variant="solid"] {
+		background-color: var(--gold);
+		color: #000;
+	}
+	.btn-g[data-variant="solid"]::before {
+		background-color: var(--smoky);
+	}
+	.btn-g[data-variant="solid"] .btn-label-2 {
+		color: #fff;
+	}
+	.btn-g:is(:disabled, [aria-disabled="true"]) {
+		opacity: 0.55;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	/* Gold text link: uppercase, spaced, white on hover. */
+	.btn-text {
+		color: var(--gold);
+		font-size: var(--text-label-2);
+		font-weight: 700;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		padding-block-end: 4px;
+		transition: color 250ms ease;
+	}
+	.btn-text:is(:hover, :focus-visible) {
+		color: #fff;
+	}
+
+	/* Double gold rule that grows under a link on hover. */
+	.hover-underline {
+		position: relative;
+		max-width: max-content;
+	}
+	.hover-underline::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		height: 5px;
+		border-block: 1px solid var(--gold);
+		transform: scaleX(0.2);
+		opacity: 0;
+		transition: 500ms ease;
+	}
+	.hover-underline:is(:hover, :focus-visible, [aria-current])::after {
+		transform: scaleX(1);
+		opacity: 1;
+	}
+
+	.diamond {
+		display: block;
+		flex-shrink: 0;
+		width: 8px;
+		height: 8px;
+		border: 1px solid var(--gold);
+		transform: rotate(45deg);
+	}
+	.diamond-spin {
+		animation: grilli-rotate 15s linear infinite;
+	}
+
+	/* A gold lattice band peeking out above and below a photograph; it flips away on hover. */
+	.pattern-band {
+		position: relative;
+		display: block;
+		padding-block: 30px;
+		z-index: 1;
+	}
+	.pattern-band::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 140px;
+		height: 100%;
+		background: url("/images/img-pattern.svg") center / cover repeat;
+		transition: transform 500ms ease;
+		z-index: -1;
+		will-change: transform;
+	}
+	.group:is(:hover, :focus-within) .pattern-band::before,
+	.pattern-band:is(:hover, :focus-within)::before {
+		transform: rotateY(0.5turn) translateX(50%);
+		transition-delay: 300ms;
+	}
+
+	/* The diagonal shine sweeping across a card on hover. */
+	.shine {
+		position: relative;
+		overflow: hidden;
+	}
+	.shine::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 50%;
+		height: 100%;
+		background-image: linear-gradient(to right, transparent 0%, #fff6 100%);
+		transform: skewX(-0.08turn) translateX(-180%);
+		pointer-events: none;
+	}
+	.shine:is(:hover, :focus-within)::after,
+	.group:is(:hover, :focus-within) .shine::after {
+		transform: skewX(-0.08turn) translateX(275%);
+		transition: transform 1000ms ease;
+	}
+
+	/* Menu line: name, then a double rule running to the price. */
+	.menu-rule {
+		display: none;
+	}
+	@media (min-width: 36rem) {
+		.menu-rule {
+			display: block;
+			flex-grow: 1;
+			height: 6px;
+			border-block: 1px solid var(--line);
+		}
+	}
+
+	.field-g {
+		width: 100%;
+		height: 56px;
+		padding: 10px 20px;
+		background-color: var(--eerie-2);
+		color: #fff;
+		border: 1px solid rgb(255 255 255 / 0.1);
+		outline: none;
+		font-size: 1rem;
+		transition: border-color 500ms ease;
+	}
+	.field-g::placeholder {
+		color: var(--silver);
+	}
+	.field-g:focus,
+	.field-g:focus-visible {
+		border-color: var(--gold);
+	}
+
+	.move-anim {
+		animation: grilli-move 5s linear infinite;
+	}
+}
+
+@keyframes grilli-rotate {
+	from {
+		transform: rotate(0);
+	}
+	to {
+		transform: rotate(1turn);
+	}
+}
+
+@keyframes grilli-move {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(30px);
+	}
+}
+
+/* ── Topbar + header: fixed, transparent over a hero, solid once the page scrolls. ── */
+
+.topbar {
+	display: none;
+}
+@media (min-width: 36rem) {
+	.topbar {
+		display: block;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 51px;
+		border-block-end: 1px solid var(--line);
+		z-index: 41;
+		transition: transform 250ms ease;
+	}
+	:root:not(:has([data-hero])) .topbar {
+		background-color: var(--smoky);
+	}
+	.topbar:has(~ .site-header[data-sticky="true"]) {
+		transform: translateY(-100%);
+	}
+}
+
+.site-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	padding-block: 40px;
+	background-color: transparent;
+	border-block-end: 1px solid transparent;
+	z-index: 40;
+	transition:
+		padding 250ms ease,
+		background-color 250ms ease,
+		top 250ms ease,
+		transform 250ms ease;
+}
+@media (min-width: 36rem) {
+	.site-header {
+		top: 51px;
+	}
+}
+:root:not(:has([data-hero])) .site-header,
+.site-header[data-sticky="true"] {
+	padding-block: 20px;
+	background-color: var(--eerie-4);
+	border-color: rgb(0 0 0 / 0.15);
+}
+.site-header[data-sticky="true"] {
+	top: 0;
+}
+.site-header[data-sticky="true"][data-hidden="true"] {
+	transform: translateY(-100%);
+	transition-delay: 250ms;
+}
+
+/* Pages without a full-bleed hero start below the compact header. */
+.site-main {
+	padding-top: calc(var(--header-offset) - 40px);
+}
+:root:has([data-hero]) .site-main {
+	padding-top: 0;
+}
+
+/* ── Hero slider ── */
+
+.hero-slide {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-content: center;
+	padding-block-start: 100px;
+	padding-inline: 16px;
+	opacity: 0;
+	visibility: hidden;
+	transition:
+		opacity 1000ms ease,
+		visibility 1000ms ease;
+	z-index: 1;
+}
+.hero-slide[data-active="true"] {
+	opacity: 1;
+	visibility: visible;
+}
+.hero-slide-bg {
+	position: absolute;
+	inset: 0;
+	transform: scale(1.15);
+	pointer-events: none;
+	user-select: none;
+	z-index: -1;
+}
+.hero-slide[data-active="true"] .hero-slide-bg {
+	animation: grilli-smooth-scale 7s linear forwards;
+}
+.hero-reveal {
+	transform: translateY(30px);
+	opacity: 0;
+}
+.hero-slide[data-active="true"] .hero-reveal {
+	animation: grilli-reveal 1s ease forwards;
+}
+.hero-slide[data-active="true"] .hero-reveal:nth-child(2) {
+	animation-delay: 250ms;
+}
+.hero-slide[data-active="true"] .hero-reveal:nth-child(3) {
+	animation-delay: 500ms;
+}
+.hero-slide[data-active="true"] .hero-reveal:nth-child(4) {
+	animation-delay: 750ms;
+}
+/* The first paint shows the first slide's copy at once: no reveal to wait on for the LCP. */
+.hero-slide[data-first="true"] .hero-reveal {
+	transform: none;
+	opacity: 1;
+	animation: none;
+}
+
+@keyframes grilli-smooth-scale {
+	from {
+		transform: scale(1);
+	}
+	to {
+		transform: scale(1.15);
+	}
+}
+
+@keyframes grilli-reveal {
+	from {
+		transform: translateY(30px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+/* Rotating frame around the hero's corner badge. */
+.spin-frame::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border: 1px solid var(--gold);
+	animation: grilli-rotate 15s linear infinite;
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-slide[data-active="true"] .hero-slide-bg,
+	.hero-slide[data-active="true"] .hero-reveal,
+	.spin-frame::after,
+	.diamond-spin,
+	.move-anim {
+		animation: none;
+	}
+	.hero-reveal {
+		transform: none;
+		opacity: 1;
+	}
+}
+
+::-webkit-scrollbar {
+	width: 5px;
+}
+::-webkit-scrollbar-track {
+	background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background-color: var(--gold);
+}
+
+@keyframes grilli-menu {
+	from {
+		transform: scaleX(1);
+	}
+	to {
+		transform: scaleX(0.5);
+	}
 }

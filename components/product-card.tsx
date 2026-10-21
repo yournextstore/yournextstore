@@ -4,8 +4,9 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { badgeText } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { displayPrice, listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -15,6 +16,12 @@ type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+const SIZES = "(min-width: 1200px) 290px, (min-width: 768px) 45vw, 100vw";
+
+/**
+ * The original's service card as a product tile: a portrait photograph on the gold lattice band,
+ * the category as a gold kicker, the name in Forum and the price in gold.
+ */
 export async function ProductCard({
 	product,
 	priority = false,
@@ -24,10 +31,18 @@ export async function ProductCard({
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const minPrice = listing?.amount ?? null;
+
+	const priceDisplay = listing ? `${listing.from ? "from " : ""}${fmt(listing.amount)}` : null;
+	const cheapest =
+		variants && minPrice !== null
+			? variants.find((v) => BigInt(displayPrice(v, taxBehavior)) === minPrice)
+			: null;
+	const listPrice = cheapest ? displayPrice(cheapest, taxBehavior, "originalPrice") : null;
+	const compareAt =
+		listPrice && minPrice !== null && BigInt(listPrice) > minPrice ? fmt(BigInt(listPrice)) : null;
 
 	const allImages = [
 		...(product.images ?? []),
@@ -36,11 +51,14 @@ export async function ProductCard({
 	];
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
+	const category = "category" in product && product.category ? product.category.name : null;
+	const badge = "badge" in product ? badgeText(product.badge) : null;
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
 	const singleVariant =
 		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
+	const soldOut = Boolean(variants && variants.length > 0 && variants.every((v) => v.stock === 0));
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
 	const onlyVariant = variants?.length === 1 ? variants[0] : null;
@@ -54,10 +72,50 @@ export async function ProductCard({
 		}
 		return `?${params.toString()}`;
 	})();
+	const href = `/product/${product.slug}${variantSearch}`;
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<div className="group relative text-center">
+			<div className="pattern-band mb-5 py-[22px]">
+				<Link href={href} tabIndex={-1} aria-hidden="true" className="relative block">
+					<figure className="relative aspect-[285/336] overflow-hidden bg-eerie-4">
+						{primaryImage &&
+							(isVideoUrl(primaryImage) ? (
+								<video
+									className={`absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+									src={primaryImage}
+									muted
+									loop
+									autoPlay
+									playsInline
+								/>
+							) : (
+								<YNSMedia
+									src={primaryImage}
+									alt=""
+									fill
+									sizes={SIZES}
+									className={`object-cover transition duration-500 group-hover:scale-105 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+									priority={priority}
+									fetchPriority={priority ? "high" : undefined}
+								/>
+							))}
+						{secondaryImage && !isVideoUrl(secondaryImage) && (
+							<YNSMedia
+								src={secondaryImage}
+								alt=""
+								fill
+								sizes={SIZES}
+								className="object-cover opacity-0 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
+							/>
+						)}
+						{(badge || soldOut) && (
+							<span className="absolute top-4 left-4 bg-black px-2.5 py-[5px] text-label-2 leading-[14px] font-bold tracking-1 text-gold uppercase">
+								{soldOut ? "Sold out" : badge}
+							</span>
+						)}
+					</figure>
+				</Link>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -73,51 +131,24 @@ export async function ProductCard({
 						}}
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
-			</div>
-		</Link>
+			{category && <p className="mb-1 text-label-2 font-bold tracking-2 text-gold uppercase">{category}</p>}
+			<h3 className="font-display text-title-3 text-white">
+				<Link href={href} className="transition-colors hover:text-gold">
+					{product.name}
+				</Link>
+			</h3>
+			{priceDisplay && (
+				<p className="mt-2 flex items-baseline justify-center gap-3">
+					{compareAt && (
+						<del className="text-label-1 text-silver">
+							<span className="sr-only">Was </span>
+							{compareAt}
+						</del>
+					)}
+					<span className="text-body-3 leading-normal text-gold">{priceDisplay}</span>
+				</p>
+			)}
+		</div>
 	);
 }

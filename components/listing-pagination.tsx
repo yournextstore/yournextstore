@@ -49,11 +49,14 @@ export function ListingPagination({
 	const pageNumbers = getPageNumbers(currentPage, totalPages);
 
 	return (
-		<Pagination className="mt-12">
+		<Pagination className="mt-16">
 			<PaginationContent>
 				{currentPage > 1 && (
 					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
+						<PaginationPrevious
+							href={buildUrl(basePath, currentPage - 1, filters)}
+							className="h-11 text-label-2 font-bold tracking-3 text-gold uppercase"
+						/>
 					</PaginationItem>
 				)}
 				{pageNumbers.map((page, index) =>
@@ -63,7 +66,11 @@ export function ListingPagination({
 						</PaginationItem>
 					) : (
 						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
+							<PaginationLink
+								href={buildUrl(basePath, page, filters)}
+								isActive={page === currentPage}
+								className="size-11 border-line font-display text-lg data-[active=true]:border-gold data-[active=true]:bg-transparent data-[active=true]:text-gold"
+							>
 								{page}
 							</PaginationLink>
 						</PaginationItem>
@@ -71,7 +78,10 @@ export function ListingPagination({
 				)}
 				{currentPage < totalPages && (
 					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
+						<PaginationNext
+							href={buildUrl(basePath, currentPage + 1, filters)}
+							className="h-11 text-label-2 font-bold tracking-3 text-gold uppercase"
+						/>
 					</PaginationItem>
 				)}
 			</PaginationContent>
