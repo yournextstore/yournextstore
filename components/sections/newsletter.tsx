@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 import { NewsletterConsent } from "@/components/newsletter-consent";
@@ -15,54 +15,48 @@ export function Newsletter() {
 	}, [state]);
 
 	return (
-		<section className="bg-foreground text-background overflow-hidden">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-				<div className="max-w-2xl mx-auto text-center">
-					{state?.success ? (
-						<div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-							<div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-background/10">
-								<CheckIcon className="h-6 w-6" />
-							</div>
-							<h2 className="text-2xl sm:text-3xl font-medium tracking-tight">You&apos;re on the list</h2>
-							<p className="mt-3 text-background/60">{state.message}</p>
-						</div>
-					) : (
-						<>
-							<h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
-								Stay in the loop
-							</h2>
-							<p className="mt-4 text-lg leading-relaxed text-background/60 max-w-md mx-auto">
-								Be the first to know about new arrivals, exclusive offers, and stories from behind the scenes.
-							</p>
-							<form action={action} className="mx-auto mt-10 flex max-w-md flex-col gap-4">
-								<div className="flex flex-col gap-3 sm:flex-row">
-									<input
-										type="email"
-										name="email"
-										placeholder="your@email.com"
-										required
-										className="h-12 w-full flex-1 rounded-full border border-background/20 bg-background/10 px-5 text-background outline-none transition-all placeholder:text-background/30 focus:border-background/40 focus:ring-2 focus:ring-background/10"
-									/>
-									<button
-										type="submit"
-										disabled={isPending || !marketingConsent}
-										className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-background px-8 font-medium text-foreground transition-all hover:bg-background/90 disabled:opacity-50"
-									>
-										{isPending ? "Subscribing\u2026" : "Subscribe"}
-										{!isPending && <ArrowRightIcon className="h-4 w-4" />}
-									</button>
-								</div>
-								<NewsletterConsent
-									checked={marketingConsent}
-									onCheckedChange={setMarketingConsent}
-									disabled={isPending}
-								/>
-							</form>
-							{state?.error && <p className="mt-4 text-sm text-red-300">{state.error}</p>}
-						</>
-					)}
-				</div>
+		<section className="mx-4 my-28 flex flex-col items-center sm:my-36">
+			<div className="flex flex-col items-center text-center">
+				<h2 className="text-2xl font-semibold text-slate-800">Join Newsletter</h2>
+				<p className="mt-2 max-w-lg text-sm text-slate-600">
+					Subscribe to hear about new arrivals and updates from the shop, straight to your inbox.
+				</p>
 			</div>
+			{state?.success ? (
+				<div className="my-10 flex items-center gap-3 rounded-full bg-green-100 px-6 py-3 text-sm text-green-800">
+					<CheckIcon className="size-4" aria-hidden />
+					{state.message}
+				</div>
+			) : (
+				<form action={action} className="my-10 flex w-full max-w-xl flex-col items-center gap-4">
+					<div className="flex w-full rounded-full border-2 border-white bg-slate-100 p-1 text-sm ring ring-slate-200">
+						<label htmlFor="newsletter-email" className="sr-only">
+							Email address
+						</label>
+						<input
+							id="newsletter-email"
+							type="email"
+							name="email"
+							required
+							placeholder="Enter your email address"
+							className="min-w-0 flex-1 bg-transparent pl-5 text-slate-700 outline-none placeholder:text-slate-600"
+						/>
+						<button
+							type="submit"
+							disabled={isPending || !marketingConsent}
+							className="shrink-0 rounded-full bg-go-green-ink px-5 py-3 font-medium text-white transition hover:scale-[1.03] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 sm:px-7"
+						>
+							{isPending ? "Subscribing…" : "Get Updates"}
+						</button>
+					</div>
+					<NewsletterConsent
+						checked={marketingConsent}
+						onCheckedChange={setMarketingConsent}
+						disabled={isPending}
+					/>
+					{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
+				</form>
+			)}
 		</section>
 	);
 }

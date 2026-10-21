@@ -40,9 +40,9 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="hidden lg:inline-flex xl:hidden size-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="size-[18px]" strokeWidth={2} />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
@@ -124,7 +124,7 @@ export function SearchInput() {
 							aria-autocomplete="list"
 							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+							className="h-11 w-80 rounded-full bg-slate-100 pl-10 pr-4 text-sm text-slate-700 placeholder:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
 						/>
 					</div>
 					<PopoverContent

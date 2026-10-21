@@ -1,37 +1,47 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { CategoriesMarquee } from "@/components/sections/categories-marquee";
 import { Hero } from "@/components/sections/hero";
 import { Newsletter } from "@/components/sections/newsletter";
+import { OurSpecs } from "@/components/sections/our-specs";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { getHomeProducts, getMarqueeChips, getStoreInfo } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+const showing = (shown: number, total: number) => `Showing ${Math.min(shown, total)} of ${total} products`;
+
+export default async function Home() {
+	const [home, chips, info] = await Promise.all([getHomeProducts(), getMarqueeChips(), getStoreInfo()]);
+	const tile = (p: (typeof home)["tileA"]) => (p?.images[0] ? { name: p.name, image: p.images[0] } : null);
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
+			<Hero
+				startsFrom={home.startsFrom}
+				tileA={tile(home.tileA)}
+				tileB={tile(home.tileB)}
+				freeShipping={info.freeShipping}
+				marquee={<CategoriesMarquee chips={chips} />}
+			/>
+			{home.latest.length > 0 && (
+				<ProductGrid
+					title="Latest Products"
+					description={showing(home.latest.length, home.count)}
+					products={home.latest}
+					viewAllHref="/products?sort=newest"
+				/>
+			)}
+			{home.featured.length > 0 && (
+				<ProductGrid
+					title="Featured"
+					description={showing(home.featured.length, home.count)}
+					products={home.featured}
+					viewAllHref="/products"
+				/>
+			)}
+			<OurSpecs freeShipping={info.freeShipping} />
 			<Newsletter />
 		</>
 	);

@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { MobileSearchInput } from "@/components/search/mobile-search-input";
@@ -11,48 +11,56 @@ export type NavLink = {
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/** GoCart's plain row of links; slate text, no underline or pill. */
+export function DesktopNav({ links }: { links: NavLink[] }) {
+	return (
+		<nav aria-label="Main" className="hidden lg:flex items-center gap-6 xl:gap-8 text-slate-600">
+			{links.map((link) => (
+				<Link key={link.href} href={link.href} className="whitespace-nowrap transition hover:text-slate-900">
+					{link.label}
+				</Link>
+			))}
+		</nav>
+	);
+}
+
+export function MobileMenu({ links, accountHref }: { links: NavLink[]; accountHref: string }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="inline-flex size-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200 lg:hidden"
+			>
+				<Menu className="size-5" />
+			</SheetTrigger>
+			<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
+				<SheetTitle className="sr-only">Menu</SheetTitle>
+				<div className="mt-8">
+					<MobileSearchInput onNavigate={() => setOpen(false)} />
+				</div>
+				<nav aria-label="Mobile" className="mt-6 flex flex-col">
+					{links.map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							onClick={() => setOpen(false)}
+							className="border-b border-slate-100 py-3.5 text-base text-slate-700 transition hover:text-slate-900"
+						>
+							{link.label}
+						</Link>
+					))}
+				</nav>
+				{/* Plain <a>: /account is a proxied zone, a soft navigation would 500. */}
+				<a
+					href={accountHref}
+					className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-go-indigo px-8 py-2.5 text-white transition hover:bg-indigo-600"
 				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+					<UserRound className="size-4" aria-hidden />
+					Account
+				</a>
+			</SheetContent>
+		</Sheet>
 	);
 }

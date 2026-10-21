@@ -11,7 +11,7 @@ function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg
 				<Star
 					key={i}
 					className={`${sizeClass} ${
-						i < rating ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
+						i < rating ? "fill-go-green-bright text-go-green-bright" : "fill-gray-300 text-gray-300"
 					}`}
 				/>
 			))}

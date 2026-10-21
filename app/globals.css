@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-outfit);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -33,50 +33,84 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-go-green: var(--go-green);
+	--color-go-green-bright: var(--go-green-bright);
+	--color-go-green-ink: var(--go-green-ink);
+	--color-go-indigo: var(--go-indigo);
+	--color-go-slate: var(--go-slate);
+}
+
+@theme {
+	--animate-go-marquee: go-marquee 40s linear infinite;
+	--animate-go-marquee-fast: go-marquee 14s linear infinite;
+}
+
+@keyframes go-marquee {
+	0% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #1d293d;
+	--card: #ffffff;
+	--card-foreground: #1d293d;
+	--popover: #ffffff;
+	--popover-foreground: #1d293d;
+	--primary: #1d293d;
+	--primary-foreground: #ffffff;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #1d293d;
+	--muted: #f5f5f5;
+	/* GoCart's slate-500 copy, one step darker so it clears AA on the slate-100 pills. */
+	--muted-foreground: #45556c;
+	--accent: #f1f5f9;
+	--accent-foreground: #1d293d;
+	--destructive: #e7000b;
+	--border: #e2e8f0;
+	--input: #cad5e2;
+	--ring: #90a1b9;
+	/* Brand greens: -bright is decoration only (stars, dots), -ink carries text and buttons. */
+	--go-green: #00a63e;
+	--go-green-bright: #00c950;
+	--go-green-ink: #008236;
+	--go-indigo: #615fff;
+	--go-slate: #314158;
 }
 
+/* Light-only design: the dark block repeats the light palette (forcedTheme="light"). */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #1d293d;
+	--card: #ffffff;
+	--card-foreground: #1d293d;
+	--popover: #ffffff;
+	--popover-foreground: #1d293d;
+	--primary: #1d293d;
+	--primary-foreground: #ffffff;
+	--secondary: #f1f5f9;
+	--secondary-foreground: #1d293d;
+	--muted: #f5f5f5;
+	/* GoCart's slate-500 copy, one step darker so it clears AA on the slate-100 pills. */
+	--muted-foreground: #45556c;
+	--accent: #f1f5f9;
+	--accent-foreground: #1d293d;
+	--destructive: #e7000b;
+	--border: #e2e8f0;
+	--input: #cad5e2;
+	--ring: #90a1b9;
+	/* Brand greens: -bright is decoration only (stars, dots), -ink carries text and buttons. */
+	--go-green: #00a63e;
+	--go-green-bright: #00c950;
+	--go-green-ink: #008236;
+	--go-indigo: #615fff;
+	--go-slate: #314158;
 }
 
 @layer base {
@@ -85,6 +119,11 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts the variable on <body>, so the face is set here, not on html. */
+		font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+	}
+	button {
+		cursor: pointer;
 	}
 }
 
@@ -168,4 +207,19 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.no-scrollbar {
+	scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-go-marquee,
+	.animate-go-marquee-fast {
+		animation: none;
+	}
 }

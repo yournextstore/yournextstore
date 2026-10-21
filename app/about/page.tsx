@@ -53,83 +53,73 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const values = [
+		{
+			title: "Hand-picked finds",
+			text: "Every product earns its place: useful, well made and fairly priced. If we would not use it ourselves, it is not in the shop.",
+			className: "bg-orange-200",
+		},
+		{
+			title: "Prices you can trust",
+			text: "No inflated list prices and no countdown timers. What you see is what you pay, and every discount is a real one.",
+			className: "bg-blue-200",
+		},
+		{
+			title: "Clear terms",
+			text: "Shipping, delivery and return terms are written down on our policy pages, so you can read them before you order.",
+			className: "bg-violet-200",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="px-6">
 			<JsonLdScript data={aboutJsonLd} />
+			<div className="mx-auto my-10 max-w-7xl">
+				<div className="rounded-3xl bg-green-200 p-6 sm:p-16">
+					<p className="inline-flex items-center gap-3 rounded-full bg-green-300 p-1 pr-4 text-xs text-green-800 sm:text-sm">
+						<span className="rounded-full bg-go-green-ink px-3 py-1 text-xs text-white">ABOUT</span>
+						The story behind {storeName}
+					</p>
+					<h1 className="my-3 max-w-xl bg-linear-to-r from-slate-600 to-[#5fd12b] bg-clip-text text-3xl font-medium leading-[1.2] text-transparent sm:text-5xl">
+						Good things, simply sold.
+					</h1>
+					<p className="mt-4 max-w-2xl text-slate-700 sm:mt-8 sm:text-lg">
+						{storeDescription ??
+							`${storeName} started with a simple idea: shopping for everyday things should feel easy. We gather well-made pieces we love and sell them at honest prices.`}
+					</p>
+				</div>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
+				<div className="mt-20 flex flex-col items-center text-center">
+					<h2 className="text-2xl font-semibold text-slate-800">What we care about</h2>
+					<p className="mt-2 max-w-lg text-sm text-slate-600">Three ideas behind the shop.</p>
+				</div>
+				<div className="mt-12 grid gap-5 md:grid-cols-3">
+					{values.map((value) => (
+						<div key={value.title} className={`rounded-3xl p-8 ${value.className}`}>
+							<h3 className="text-2xl font-medium text-slate-800">{value.title}</h3>
+							<p className="mt-4 text-sm text-slate-700">{value.text}</p>
 						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
+					))}
+				</div>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
+				<div className="my-24 flex flex-col items-center gap-6 text-center">
+					<h2 className="text-2xl font-semibold text-slate-800">Ready to look around?</h2>
+					<div className="flex flex-wrap justify-center gap-4">
 						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							href="/products"
+							className="rounded-md bg-slate-800 px-10 py-3 text-sm text-white transition hover:bg-slate-900 active:scale-95"
 						>
-							Contact us
+							SHOP NOW
 						</Link>
-					)}
+						{contactFormEnabled && (
+							<Link
+								href="/contact"
+								className="rounded-md bg-slate-100 px-10 py-3 text-sm text-slate-700 transition hover:bg-slate-200"
+							>
+								CONTACT US
+							</Link>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>
