@@ -1,5 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's display sizes (text-hero, text-kicker…) would otherwise be read as colours and
+// silently dropped next to a text colour.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["hero", "statement", "manifesto", "kicker", "micro"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

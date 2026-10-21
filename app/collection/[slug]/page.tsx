@@ -7,14 +7,7 @@ import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { plainText, splitTitle } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -36,9 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		plainText(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -61,45 +52,53 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+function CollectionHeader({ collection, count }: { collection: APICollectionGetByIdResult; count: number }) {
+	const [lead, gilt] = splitTitle(collection.name);
+	const description = plainText(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
+		<section data-hero className="relative isolate overflow-hidden border-b border-hairline">
+			<div aria-hidden="true" className="stage-backdrop pointer-events-none absolute inset-0" />
+			<div className="container-stage relative grid grid-cols-1 items-center gap-14 pb-16 pt-28 md:pb-24 md:pt-36 lg:grid-cols-[minmax(0,40fr)_minmax(0,60fr)] lg:gap-x-12">
+				<div className="animate-rise">
+					<p className="text-kicker font-medium uppercase tracking-[0.42em] text-warm">Collection</p>
+					<h1 className="mt-5 break-words font-display text-[clamp(2.6rem,9vw,4.75rem)] font-light leading-[0.95] tracking-[-0.03em] text-ink">
+						{lead && <span>{lead} </span>}
+						<span className="title-gilt">{gilt}</span>
+					</h1>
+					{description && (
+						<p className="mt-6 max-w-md text-[15px] leading-[1.75] text-ink-soft md:text-lg">{description}</p>
+					)}
+					<p className="mt-8 text-[12px] text-muted-foreground">
+						{count} {count === 1 ? "product" : "products"}
+					</p>
+				</div>
+				{collection.image && (
+					<div className="relative min-w-0 lg:translate-x-8">
+						<div
+							aria-hidden="true"
+							className="absolute -inset-4 rounded-sm border border-hairline bg-gradient-to-br from-[var(--panel-from)] to-transparent md:-inset-6"
+						/>
+						<div className="frame relative aspect-[3/2] overflow-hidden rounded-sm">
+							<YNSMedia
+								src={collection.image}
+								alt={collection.name}
+								fill
+								sizes="(max-width: 1024px) 92vw, 56vw"
+								className="object-cover [filter:var(--photo-filter)]"
+								priority
+							/>
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
 	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+		<section className="container-wide py-20 sm:py-28">
+			<div className="mb-14 h-[5.5rem]" />
 			<ProductGridSkeleton className="lg:grid-cols-3" />
 		</section>
 	);
@@ -157,34 +156,22 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh">
+			<section data-hero className="relative overflow-hidden border-b border-hairline">
+				<div aria-hidden="true" className="stage-backdrop pointer-events-none absolute inset-0" />
+				<div className="container-stage relative grid grid-cols-1 items-center gap-14 pb-16 pt-28 md:pb-24 md:pt-36 lg:grid-cols-[minmax(0,40fr)_minmax(0,60fr)] lg:gap-x-12">
+					<div className="space-y-6">
+						<div className="h-4 w-28 animate-pulse rounded-sm bg-muted" />
+						<div className="h-16 w-72 max-w-full animate-pulse rounded-sm bg-muted" />
+						<div className="h-5 w-64 max-w-full animate-pulse rounded-sm bg-muted" />
 					</div>
+					<div className="frame aspect-[3/2] rounded-sm" />
 				</div>
 			</section>
 			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -215,29 +202,36 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+
 	return (
-		<>
+		<div className="min-h-svh">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<CollectionHeader collection={collection} count={products.length} />
+			{products.length > 0 ? (
+				<>
+					<ProductGrid
+						title="In this collection"
+						description={collection.name}
+						products={products}
+						showViewAll={false}
+					/>
+					<div className="container-wide -mt-8 pb-24">
+						<Link href="/products" className="btn-ghost-line btn-sm">
+							Shop the whole range
+						</Link>
+					</div>
+				</>
+			) : (
+				// An empty collection still reads as a stage being set, and points into the shop.
+				<ProductGrid
+					title="Meanwhile, in the shop"
+					description="This collection is still being lit"
+					limit={3}
+					viewAllHref="/products"
+				/>
+			)}
+		</div>
 	);
 };

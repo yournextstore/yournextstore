@@ -3,7 +3,6 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
@@ -38,40 +37,26 @@ export async function ProductGrid({
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
+		<section id="products" className="container-wide py-20 sm:py-28">
+			<div className="mb-14 flex flex-wrap items-end justify-between gap-6">
 				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
+					{description && <p className="kicker">{description}</p>}
+					<h2 className="mt-6 font-display text-4xl font-light tracking-[-0.02em] text-ink md:text-5xl">
+						{title}
+					</h2>
 				</div>
 				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
+					<Link href={viewAllHref} className="btn-ghost-line btn-sm">
 						View all
-						<ArrowRight className="h-4 w-4" />
 					</Link>
 				)}
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3">
 				{displayProducts.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }
