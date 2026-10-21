@@ -338,7 +338,7 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
+			<SheetTrigger render={<Button variant="outline" size="sm" className="rounded-full" />}>
 				<SlidersHorizontalIcon className="size-4" />
 				Filters
 				{activeCount > 0 && (

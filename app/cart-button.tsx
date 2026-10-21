@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
+import { headerIconButton } from "@/components/header/icon-button";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
@@ -10,18 +11,20 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className={headerIconButton}
+			aria-label={
+				itemCount > 0 ? `Open cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : "Open cart"
+			}
 		>
-			<ShoppingCart className="w-6 h-6" />
 			{itemCount > 0 ? (
 				<span
 					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
+					className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-secondary-foreground ring-1 ring-background"
 				>
 					{itemCount}
 				</span>
 			) : null}
+			<ShoppingCart aria-hidden="true" className="size-4" />
 		</button>
 	);
 }

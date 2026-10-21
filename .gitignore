@@ -42,3 +42,5 @@ next-env.d.ts
 .claude/*.local.*
 # next-agents-md (superseded by node_modules/next/dist/docs)
 .next-docs/
+
+/.reference/
