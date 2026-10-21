@@ -137,18 +137,19 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	const hasPrice = priceCeil > priceFloor;
 	// All groups that will render, in display order — only the first opens by default.
 	const accordionGroups = [
+		...(hasPrice ? ["price"] : []),
 		...(showCategories && facets.categories.length > 0 ? ["categories"] : []),
 		...(showCollections && facets.collections.length > 0 ? ["collections"] : []),
 		...facets.variantTypes.map((vt) => `vt-${vt.label}`),
 		...(facets.brands.length > 0 ? ["brands"] : []),
-		...(hasPrice ? ["price"] : []),
 	];
-	const accordionDefault = accordionGroups.slice(0, 1);
+	// The original shows every group open; long lists still collapse behind "Show more".
+	const accordionDefault = accordionGroups;
 
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+		<div className="space-y-2">
+			<div className={cn("flex items-center justify-between", !hasActiveFilters && "sr-only")}>
+				<h2 className="font-heading text-lg text-ink">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -161,9 +162,52 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 			</div>
 
 			<Accordion multiple defaultValue={accordionDefault} className="w-full">
+				{hasPrice && (
+					<AccordionItem value="price">
+						<AccordionTrigger className="font-heading text-lg font-normal text-ink hover:no-underline">
+							Filter by price
+						</AccordionTrigger>
+						<AccordionContent>
+							<div className="px-1 pt-2">
+								<Slider
+									value={priceRange}
+									min={priceFloor}
+									max={priceCeil}
+									step={1}
+									minStepsBetweenValues={1}
+									onValueChange={(value) => setPriceRange(value as [number, number])}
+									onValueCommitted={(value) => {
+										const [min, max] = value as [number, number];
+										commit((params) => {
+											if (min <= priceFloor) {
+												params.delete("priceMin");
+											} else {
+												params.set("priceMin", String(min));
+											}
+											if (max >= priceCeil) {
+												params.delete("priceMax");
+											} else {
+												params.set("priceMax", String(max));
+											}
+										});
+									}}
+								/>
+								<p className="mt-4 text-sm text-muted-foreground">
+									Price:{" "}
+									<span className="font-semibold text-ink">
+										{formatMoney({ amount: priceRange[0], currency, locale })} —{" "}
+										{formatMoney({ amount: priceRange[1], currency, locale })}
+									</span>
+								</p>
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+				)}
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="font-heading text-lg font-normal text-ink hover:no-underline">
+							Filter by category
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -176,8 +220,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full py-1.5 text-left text-sm transition-colors hover:text-pine",
+													isActive ? "font-semibold text-pine" : "text-muted-foreground",
 												)}
 											>
 												{category.name}
@@ -192,7 +236,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="font-heading text-lg font-normal text-ink hover:no-underline">
+							Filter by collection
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -205,8 +251,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full py-1.5 text-left text-sm transition-colors hover:text-pine",
+													isActive ? "font-semibold text-pine" : "text-muted-foreground",
 												)}
 											>
 												{collection.name}
@@ -223,7 +269,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="font-heading text-lg font-normal text-ink hover:no-underline">
+								Filter by {vt.label.toLowerCase()}
+							</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -254,7 +302,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="font-heading text-lg font-normal text-ink hover:no-underline">
+							Filter by brand
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -267,8 +317,8 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													"w-full py-1.5 text-left text-sm transition-colors hover:text-pine",
+													isActive ? "font-semibold text-pine" : "text-muted-foreground",
 												)}
 											>
 												{brand.name}
@@ -277,43 +327,6 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 									);
 								}}
 							/>
-						</AccordionContent>
-					</AccordionItem>
-				)}
-
-				{hasPrice && (
-					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
-						<AccordionContent>
-							<div className="px-1 pt-2">
-								<Slider
-									value={priceRange}
-									min={priceFloor}
-									max={priceCeil}
-									step={1}
-									minStepsBetweenValues={1}
-									onValueChange={(value) => setPriceRange(value as [number, number])}
-									onValueCommitted={(value) => {
-										const [min, max] = value as [number, number];
-										commit((params) => {
-											if (min <= priceFloor) {
-												params.delete("priceMin");
-											} else {
-												params.set("priceMin", String(min));
-											}
-											if (max >= priceCeil) {
-												params.delete("priceMax");
-											} else {
-												params.set("priceMax", String(max));
-											}
-										});
-									}}
-								/>
-								<div className="mt-3 flex justify-between text-xs text-muted-foreground">
-									<span>{formatMoney({ amount: priceRange[0], currency, locale })}</span>
-									<span>{formatMoney({ amount: priceRange[1], currency, locale })}</span>
-								</div>
-							</div>
 						</AccordionContent>
 					</AccordionItem>
 				)}

@@ -1,28 +1,27 @@
 import type { LucideIcon } from "lucide-react";
-import { RotateCcw, Shield, Truck } from "lucide-react";
+import { Check, HandHeart, Leaf } from "lucide-react";
 
 type TrustBadge = {
 	icon: LucideIcon;
 	title: string;
-	description: string;
 };
 
+// The original's three-up row under the buy buttons (leaf, hand, tick), with store-neutral labels.
 const defaultBadges: TrustBadge[] = [
-	{ icon: Truck, title: "Free Shipping", description: "Orders over $500" },
-	{ icon: Shield, title: "10-Year Warranty", description: "Full coverage" },
-	{ icon: RotateCcw, title: "30-Day Returns", description: "Hassle-free" },
+	{ icon: Leaf, title: "Chosen with care" },
+	{ icon: HandHeart, title: "Questions? Just ask" },
+	{ icon: Check, title: "Secure checkout" },
 ];
 
 export function TrustBadges({ badges = defaultBadges }: { badges?: TrustBadge[] }) {
 	return (
-		<div className="grid grid-cols-3 gap-4 rounded-xl bg-secondary/50 p-4">
+		<ul className="grid grid-cols-3 gap-4 border-t border-line pt-6">
 			{badges.map((badge) => (
-				<div key={badge.title} className="flex flex-col items-center text-center">
-					<badge.icon className="mb-2 h-5 w-5 text-muted-foreground" />
-					<span className="text-xs font-medium">{badge.title}</span>
-					<span className="text-[10px] text-muted-foreground">{badge.description}</span>
-				</div>
+				<li key={badge.title} className="flex flex-col items-center gap-2 text-center">
+					<badge.icon className="size-6 text-pine" strokeWidth={1.5} aria-hidden="true" />
+					<span className="text-sm text-muted-foreground">{badge.title}</span>
+				</li>
 			))}
-		</div>
+		</ul>
 	);
 }

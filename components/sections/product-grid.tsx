@@ -25,50 +25,40 @@ type ProductGridProps = {
 };
 
 export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+	title = "Featured products",
+	description = "Discover our new arrivals",
 	products,
 	limit = 6,
 	showViewAll = true,
 	viewAllHref = "/products",
-}: ProductGridProps) {
+	columns = "lg:grid-cols-5",
+}: ProductGridProps & { columns?: string }) {
 	"use cache";
 	cacheLife("minutes");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
-					<Link
-						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				)}
+		<section id="products" className="py-14 md:py-16">
+			<div className="mb-9 text-center">
+				<p className="eyebrow mb-2">{description}</p>
+				<h2 className="font-heading text-3xl font-semibold text-ink md:text-[2.4rem]">{title}</h2>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className={`grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 ${columns}`}>
+				{displayProducts.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
 
 			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
+				<div className="mt-12 text-center">
 					<Link
 						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 font-heading text-[15px] text-ink transition-colors hover:text-pine"
 					>
 						View all products
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="size-4" aria-hidden="true" />
 					</Link>
 				</div>
 			)}

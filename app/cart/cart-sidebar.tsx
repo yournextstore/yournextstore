@@ -32,12 +32,14 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
+			<SheetContent className="flex flex-col gap-0 bg-background data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+				<SheetHeader className="border-b border-line px-6 py-5">
+					<SheetTitle className="flex items-baseline gap-2 font-heading text-2xl font-semibold text-ink">
+						Your cart
 						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
+							<span className="font-sans text-sm font-normal text-muted-foreground">
+								({itemCount} {itemCount === 1 ? "item" : "items"})
+							</span>
 						)}
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -47,28 +49,31 @@ export function CartSidebar() {
 
 				{items.length === 0 ? (
 					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+						<div className="flex size-20 items-center justify-center rounded-full bg-card">
+							<ShoppingBag className="size-9 text-pine" strokeWidth={1.5} aria-hidden="true" />
 						</div>
 						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
+							<p className="font-heading text-xl text-ink">Your cart is empty</p>
+							<p className="mt-1 text-sm text-muted-foreground">Good things are waiting in the shop.</p>
 						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
+						<Button
+							onClick={closeCart}
+							className="h-11 rounded-form px-6 text-[13px] font-semibold hover:bg-primary-hover"
+						>
+							Continue shopping
 						</Button>
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
+						<ScrollArea className="min-h-0 flex-1 px-6">
+							<div className="divide-y divide-line">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
 								))}
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
+						<SheetFooter className="mt-auto border-t border-line bg-card px-6 py-5">
 							<div className="w-full space-y-4">
 								<DiscountCodeField />
 								{discount ? (
@@ -77,7 +82,7 @@ export function CartSidebar() {
 											<span>Subtotal</span>
 											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
+										<div className="flex items-center justify-between gap-3 text-sm font-medium text-pine">
 											<span>Discount</span>
 											<span className="tabular-nums">
 												−{formatMoney({ amount: discount, currency, locale })}
@@ -86,8 +91,8 @@ export function CartSidebar() {
 									</div>
 								) : null}
 								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
+									<span className="font-heading text-lg text-ink">{discount ? "Total" : "Subtotal"}</span>
+									<span className="font-heading text-lg font-semibold text-pine">
 										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
 									</span>
 								</div>
@@ -113,7 +118,7 @@ export function CartSidebar() {
 									}}
 									className={cn(
 										buttonVariants(),
-										"w-full h-12 text-base font-medium",
+										"h-12 w-full rounded-form text-[13px] font-semibold tracking-wide hover:bg-primary-hover",
 										isMutating && "pointer-events-none opacity-60",
 									)}
 								>
@@ -123,15 +128,15 @@ export function CartSidebar() {
 											Updating…
 										</>
 									) : (
-										"Checkout"
+										"Proceed to checkout"
 									)}
 								</a>
 								<button
 									type="button"
 									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+									className="w-full text-sm text-muted-foreground transition-colors hover:text-pine"
 								>
-									Continue Shopping
+									Continue shopping
 								</button>
 							</div>
 						</SheetFooter>
