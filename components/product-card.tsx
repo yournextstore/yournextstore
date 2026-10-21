@@ -5,29 +5,44 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { displayPrice, listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
-import { QuickAddButton } from "./quick-add-button";
 
 type BrowseProduct = APIProductsBrowseResult["data"][number];
 type CollectionProduct = APICollectionGetByIdResult["productCollections"][number]["product"];
 type FullProduct = NonNullable<APIProductGetByIdResult>;
 
+/**
+ * Soul's product card: a 5:6 rounded photograph on a light grey plate that zooms on hover,
+ * then the name in semibold and the price (struck-through list price when on sale).
+ */
 export async function ProductCard({
 	product,
 	priority = false,
+	sizes = "(min-width: 80rem) 20vw, (min-width: 64rem) 25vw, (min-width: 42rem) 33vw, (min-width: 24rem) 50vw, 100vw",
+	className,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	sizes?: string;
+	className?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const priceDisplay = listing ? `${listing.from ? "From " : ""}${fmt(listing.amount)}` : null;
+
+	// A single variant on sale shows its list price struck through, like the original's price label.
+	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const listPrice = (() => {
+		if (!onlyVariant || !("originalPrice" in onlyVariant)) return null;
+		const original = displayPrice(onlyVariant, taxBehavior, "originalPrice");
+		const current = displayPrice(onlyVariant, taxBehavior);
+		return original && BigInt(original) > BigInt(current) ? fmt(BigInt(original)) : null;
+	})();
 
 	const allImages = [
 		...(product.images ?? []),
@@ -35,15 +50,8 @@ export async function ProductCard({
 			[]),
 	];
 	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
-
-	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
-	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
-	const singleVariant =
-		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
@@ -56,27 +64,18 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
-				{singleVariant && (
-					<QuickAddButton
-						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
-						variantPrice={singleVariant.price}
-						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
-						variantImages={singleVariant.images}
-						product={{
-							id: product.id,
-							name: product.name,
-							slug: product.slug,
-							images: product.images ?? [],
-						}}
-					/>
-				)}
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className={cn(
+				"group flex min-w-0 flex-col gap-3 rounded-t-2xl rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime focus-visible:ring-offset-4",
+				className,
+			)}
+		>
+			<div className="relative aspect-[5/6] overflow-hidden rounded-xl bg-contrast-100 md:rounded-2xl">
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className="absolute inset-0 h-full w-full object-cover"
 							src={primaryImage}
 							muted
 							loop
@@ -86,37 +85,29 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							alt={product.name}
+							alt=""
 							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							sizes={sizes}
+							className="scale-100 object-cover transition-transform duration-500 ease-out select-none group-hover:scale-110"
 							priority={priority}
 							fetchPriority={priority ? "high" : undefined}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="mt-2 px-1 text-sm sm:mt-0 sm:text-base">
+				<span className="line-clamp-2 font-semibold">{product.name}</span>
+				{priceDisplay && (
+					<span className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5 font-medium">
+						{listPrice && (
+							<>
+								<span className="sr-only">Was</span>
+								<s className="font-normal text-contrast-500">{listPrice}</s>
+								<span className="sr-only">now</span>
+							</>
+						)}
+						<span>{priceDisplay}</span>
+					</span>
+				)}
 			</div>
 		</Link>
 	);

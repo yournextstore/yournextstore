@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
-import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { CountSkeleton, ListingShell } from "@/components/listing-shell";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -56,18 +56,18 @@ export async function generateMetadata({
 	};
 }
 
-async function ProductList({ filters }: { filters: ProductFilterParams }) {
+// One cached browse per filter set, shared by the heading's count and the grid.
+async function browseProducts(filters: ProductFilterParams) {
 	"use cache";
 	cacheLife("minutes");
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
-	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 
 	const result = await commerce.productBrowse({
 		active: true,
 		limit: PRODUCTS_PER_PAGE,
-		offset,
+		offset: (currentPage - 1) * PRODUCTS_PER_PAGE,
 		orderBy: sortOption.orderBy,
 		orderDirection: sortOption.orderDirection,
 		category: filters.category,
@@ -77,25 +77,33 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 		priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
 		vts: filters.vts,
 	});
+	return { result, currentPage };
+}
 
+async function ProductCount({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
+	const { result } = await browseProducts(await searchParams);
+	return <span className="text-contrast-400">{result.meta.count}</span>;
+}
+
+// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
+// stays prerenderable; the browse itself stays cached, keyed on the resolved filters.
+async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
+	const filters = await searchParams;
+	const { result, currentPage } = await browseProducts(filters);
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="font-heading text-3xl">No products found</p>
+				<p className="mt-2 text-contrast-500">Try removing a filter or browse the full catalog.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-
+			<ProductGrid products={result.data} />
 			<ListingPagination
 				basePath="/products"
 				currentPage={currentPage}
@@ -106,17 +114,10 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 	);
 }
 
-// Awaits `searchParams` (runtime data) inside a Suspense boundary so the page shell
-// stays prerenderable; `ProductList` remains cached, keyed on the resolved filters.
-async function ProductSection({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	const filters = await searchParams;
-	return <ProductList filters={filters} />;
-}
-
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
 	// `facets` is cached and independent of `searchParams`, so it can drive the layout
 	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
+	// Suspense boundaries below.
 	const facets = await getFilterFacets();
 	const filtersAvailable =
 		facets.categories.length > 0 ||
@@ -126,35 +127,22 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
-			</Suspense>
-		</div>
+		<ListingShell
+			title="Shop All"
+			count={
+				<Suspense fallback={<CountSkeleton />}>
+					<ProductCount searchParams={searchParams} />
+				</Suspense>
+			}
+			toolbar={
+				<>
+					<SortSelect options={sortOptions} />
+					{filtersAvailable && <ProductFiltersMobile facets={facets} />}
+				</>
+			}
+			sidebar={filtersAvailable ? <ProductFilters facets={facets} /> : null}
+		>
+			<ProductSection searchParams={searchParams} />
+		</ListingShell>
 	);
 }

@@ -1,12 +1,6 @@
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 function getPageNumbers(currentPage: number, totalPages: number) {
 	const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -32,7 +26,10 @@ function buildUrl(basePath: string, page: number, filters: Record<string, string
 	return params.size ? `${basePath}?${params}` : basePath;
 }
 
-/** Numbered pagination for product listing pages. Carries every active filter across page links. */
+const circle =
+	"flex size-12 items-center justify-center rounded-full border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime";
+
+/** Soul's round pagination arrows, with the page numbers between them. Carries every active filter. */
 export function ListingPagination({
 	basePath,
 	currentPage,
@@ -49,32 +46,56 @@ export function ListingPagination({
 	const pageNumbers = getPageNumbers(currentPage, totalPages);
 
 	return (
-		<Pagination className="mt-12">
-			<PaginationContent>
-				{currentPage > 1 && (
-					<PaginationItem>
-						<PaginationPrevious href={buildUrl(basePath, currentPage - 1, filters)} />
-					</PaginationItem>
-				)}
+		<nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-2 md:mt-14">
+			{currentPage > 1 ? (
+				<Link
+					href={buildUrl(basePath, currentPage - 1, filters)}
+					aria-label="Previous page"
+					className={cn(circle, "border-contrast-100 hover:bg-contrast-100")}
+				>
+					<ArrowLeft className="size-5" strokeWidth={1.5} />
+				</Link>
+			) : (
+				<span aria-hidden="true" className={cn(circle, "border-contrast-100 opacity-25")}>
+					<ArrowLeft className="size-5" strokeWidth={1.5} />
+				</span>
+			)}
+			<ul className="flex items-center gap-1">
 				{pageNumbers.map((page, index) =>
 					page === "ellipsis" ? (
-						<PaginationItem key={`ellipsis-${index}`}>
-							<PaginationEllipsis />
-						</PaginationItem>
+						<li key={`ellipsis-${index}`} aria-hidden="true" className="px-1 text-contrast-500">
+							…
+						</li>
 					) : (
-						<PaginationItem key={page}>
-							<PaginationLink href={buildUrl(basePath, page, filters)} isActive={page === currentPage}>
+						<li key={page}>
+							<Link
+								href={buildUrl(basePath, page, filters)}
+								aria-current={page === currentPage ? "page" : undefined}
+								className={cn(
+									circle,
+									"size-10 border-transparent",
+									page === currentPage ? "bg-foreground text-background" : "hover:bg-contrast-100",
+								)}
+							>
 								{page}
-							</PaginationLink>
-						</PaginationItem>
+							</Link>
+						</li>
 					),
 				)}
-				{currentPage < totalPages && (
-					<PaginationItem>
-						<PaginationNext href={buildUrl(basePath, currentPage + 1, filters)} />
-					</PaginationItem>
-				)}
-			</PaginationContent>
-		</Pagination>
+			</ul>
+			{currentPage < totalPages ? (
+				<Link
+					href={buildUrl(basePath, currentPage + 1, filters)}
+					aria-label="Next page"
+					className={cn(circle, "border-contrast-100 hover:bg-contrast-100")}
+				>
+					<ArrowRight className="size-5" strokeWidth={1.5} />
+				</Link>
+			) : (
+				<span aria-hidden="true" className={cn(circle, "border-contrast-100 opacity-25")}>
+					<ArrowRight className="size-5" strokeWidth={1.5} />
+				</span>
+			)}
+		</nav>
 	);
 }

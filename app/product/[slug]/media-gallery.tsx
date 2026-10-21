@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -50,7 +49,6 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
 	// the gallery, so a jump on change alone would land back on the first image.
 	const [selectedIndex, setSelectedIndex] = useState(variantImageIndex);
-	const [isZoomed, setIsZoomed] = useState(false);
 
 	// Jump to the selected variant's image when the variant changes (avoids useEffect). The previous
 	// key lives in state, not a ref: a variant change renders inside a transition, and a discarded
@@ -88,9 +86,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
+			<div className="flex flex-col gap-4 md:sticky md:top-24 md:self-start">
+				<div className="flex aspect-[4/5] items-center justify-center rounded-2xl bg-contrast-100">
+					<p className="text-contrast-500">No images available</p>
 				</div>
 			</div>
 		);
@@ -102,10 +100,10 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex flex-col gap-4 outline-none md:sticky md:top-24 md:self-start"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-contrast-100">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -121,12 +119,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						src={displayImages[selectedIndex] ?? ""}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
+						sizes="(min-width: 48rem) 50vw, 100vw"
+						className="object-cover"
 						priority
 						fetchPriority="high"
 					/>
@@ -134,65 +128,40 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 				{/* Navigation Arrows */}
 				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
+					<div className="absolute right-3 bottom-3 flex gap-1.5">
+						<button
+							type="button"
+							onClick={handlePrevious}
 							aria-label="Previous image"
+							className="flex size-10 items-center justify-center rounded-full bg-background/90 transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime"
 						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
+							<ArrowLeft className="size-5" strokeWidth={1.5} />
+						</button>
+						<button
+							type="button"
+							onClick={handleNext}
 							aria-label="Next image"
+							className="flex size-10 items-center justify-center rounded-full bg-background/90 transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime"
 						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
+							<ArrowRight className="size-5" strokeWidth={1.5} />
+						</button>
 					</div>
 				)}
 			</div>
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="-m-1 flex gap-2 overflow-x-auto p-1">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative size-12 shrink-0 overflow-hidden rounded-lg border-2 bg-contrast-100 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime md:size-16",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+									? "border-foreground"
+									: "border-transparent opacity-70 hover:opacity-100",
 							)}
 						>
 							{isVideoUrl(image) ? (
@@ -207,7 +176,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 									src={image}
 									alt={`${productName} thumbnail ${index + 1}`}
 									fill
-									sizes="80px"
+									sizes="64px"
 									className="object-cover"
 								/>
 							)}
