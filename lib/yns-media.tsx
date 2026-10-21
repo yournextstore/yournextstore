@@ -2,7 +2,7 @@
 
 import Image, { getImageProps } from "next/image";
 import { type ComponentProps, useEffect, useState } from "react";
-import { isVideoUrl } from "@/lib/utils";
+import { isOptimizableImage, isVideoUrl } from "@/lib/utils";
 
 type ImageProps = ComponentProps<typeof Image>;
 
@@ -75,6 +75,9 @@ export const YNSMedia = ({ autoPlay = true, controls = false, ...props }: YNSMed
 				controls={controls}
 			/>
 		);
+	}
+	if (!isOptimizableImage(src)) {
+		return <Image {...props} unoptimized />;
 	}
 	return <YNSImage {...props} />;
 };

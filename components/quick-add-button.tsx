@@ -1,11 +1,10 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { BagIcon } from "@/components/shapes";
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
@@ -72,19 +71,18 @@ export function QuickAddButton({
 		});
 	};
 
+	// The original's centred "Add to cart" block, revealed on hover or keyboard focus. Touch screens
+	// have no hover, so there it sits at the foot of the photograph instead.
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				delay={1000}
-				onClick={handleClick}
-				className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-				aria-label={`Add ${product.name} to cart`}
-			>
-				<ShoppingBag className="h-3.5 w-3.5" />
-			</TooltipTrigger>
-			<TooltipContent side="top" className="text-xs">
-				Add to cart
-			</TooltipContent>
-		</Tooltip>
+		<button
+			type="button"
+			onClick={handleClick}
+			className="btn-brut btn-brut-md absolute left-1/2 z-10 -translate-x-1/2 gap-2 text-sm normal-case opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:hover)]:top-1/2 [@media(hover:hover)]:-translate-y-1/2 [@media(hover:none)]:bottom-4 [@media(hover:none)]:opacity-100"
+		>
+			<BagIcon className="size-3.5" />
+			<span>
+				Add To Cart<span className="sr-only">: {product.name}</span>
+			</span>
+		</button>
 	);
 }

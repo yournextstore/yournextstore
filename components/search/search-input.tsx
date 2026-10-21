@@ -17,38 +17,31 @@ export function SearchInput() {
 	const c = useSearchController(searchParams.get("q") ?? "");
 
 	const [iconOpen, setIconOpen] = useState(false);
-	const [inlineOpen, setInlineOpen] = useState(false);
 	const iconInputRef = useRef<HTMLInputElement>(null);
-	const inlineInputRef = useRef<HTMLInputElement>(null);
-	const inlineAnchorRef = useRef<HTMLDivElement>(null);
 	const iconListboxId = useId();
-	const inlineListboxId = useId();
 
 	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, () => {
 		setIconOpen(false);
-		setInlineOpen(false);
 		iconInputRef.current?.blur();
-		inlineInputRef.current?.blur();
 	});
 
 	const iconPanelOpen = iconOpen && c.enoughChars;
-	const inlinePanelOpen = inlineOpen && c.enoughChars;
 
 	return (
 		<>
-			{/* lg only — icon trigger opens popover with input inside */}
+			{/* Desktop: an icon beside the links opens the search field; the mobile menu has its own. */}
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="ml-2 hidden p-2 transition-colors hover:text-tangerine-ink sp-lg:inline-flex"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
 					sideOffset={8}
 					initialFocus={iconInputRef}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
+					className="w-[min(24rem,calc(100vw-2rem))] rounded-none border-2 border-ink bg-popover p-3 shadow-brut"
 				>
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
@@ -75,7 +68,8 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								aria-label="Search products"
+								className="h-11 w-full border-2 border-ink bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
 							/>
 						</div>
 					</form>
@@ -92,58 +86,6 @@ export function SearchInput() {
 					) : null}
 				</PopoverContent>
 			</Popover>
-
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
-				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
-					<div ref={inlineAnchorRef} className="relative">
-						<Search
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-							strokeWidth={1.75}
-						/>
-						<input
-							ref={inlineInputRef}
-							type="search"
-							name="q"
-							placeholder="Search products"
-							value={c.query}
-							onChange={(e) => {
-								c.setQuery(e.target.value);
-								setInlineOpen(true);
-							}}
-							onFocus={() => setInlineOpen(true)}
-							onKeyDown={makeKeyHandler(
-								c,
-								inlinePanelOpen,
-								() => setInlineOpen(false),
-								() => goToSearch(c.query),
-							)}
-							role="combobox"
-							aria-expanded={inlinePanelOpen}
-							aria-controls={inlineListboxId}
-							aria-autocomplete="list"
-							aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
-							autoComplete="off"
-							className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-						/>
-					</div>
-					<PopoverContent
-						align="end"
-						sideOffset={8}
-						anchor={inlineAnchorRef}
-						initialFocus={false}
-						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
-					>
-						<Suggestions
-							listboxId={inlineListboxId}
-							open={inlinePanelOpen}
-							c={c}
-							onPick={goToProduct}
-							onSeeAll={() => goToSearch(c.query)}
-						/>
-					</PopoverContent>
-				</Popover>
-			</form>
 		</>
 	);
 }
