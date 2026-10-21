@@ -1,5 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's heading sizes (`text-h1` … `text-h5`) would otherwise read as colours to
+// tailwind-merge, and `cn("text-h2", "text-white")` would silently drop the size.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["h1", "h2", "h3", "h4", "h5"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

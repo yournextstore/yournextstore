@@ -1,30 +1,38 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { SortSelect } from "@/app/products/products-sort-select";
+import {
+	ListingBody,
+	ListingEmpty,
+	ListingHeader,
+	ListingSkeleton,
+	ListingToolbar,
+	listingGridClass,
+} from "@/components/listing";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { displayName, plainText } from "@/lib/theme";
+
+const sortOptions = [
+	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
+	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
+	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
+	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
+] as const;
 
 const PRODUCTS_PER_PAGE = 12;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
 	page?: string;
+	sort?: string;
 	collection?: string;
 	brand?: string;
 	priceMin?: string;
@@ -100,12 +108,15 @@ async function CategoryProducts({
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
 
 	const result = await commerce.productBrowse({
 		active: true,
 		category: slug,
 		limit: PRODUCTS_PER_PAGE,
 		offset,
+		orderBy: sortOption.orderBy,
+		orderDirection: sortOption.orderDirection,
 		collection: filters.collection,
 		brand: filters.brand,
 		priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
@@ -113,39 +124,39 @@ async function CategoryProducts({
 		vts: filters.vts,
 	});
 
-	if (result.data.length === 0) {
-		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
-		);
-	}
-
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
-				))}
-			</div>
-			<ListingPagination
-				basePath={`/category/${canonicalPath}`}
-				currentPage={currentPage}
-				totalPages={totalPages}
-				filters={filters}
-			/>
+			<ListingToolbar count={result.meta.count} sort={<SortSelect options={sortOptions} />} />
+			<ListingBody>
+				{result.data.length === 0 ? (
+					<ListingEmpty>No products match these filters.</ListingEmpty>
+				) : (
+					<ul className={listingGridClass}>
+						{result.data.map((product, index) => (
+							<li key={product.id}>
+								<ProductCard product={product} priority={index < 2} sizes="(min-width: 640px) 50vw, 100vw" />
+							</li>
+						))}
+					</ul>
+				)}
+				<ListingPagination
+					basePath={`/category/${canonicalPath}`}
+					currentPage={currentPage}
+					totalPages={totalPages}
+					filters={filters}
+				/>
+			</ListingBody>
 		</>
 	);
 }
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="shell min-h-svh" aria-hidden="true">
+			<ListingHeader title={"\u00a0"} />
+			<ListingSkeleton />
 		</div>
 	);
 }
@@ -205,55 +216,18 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const title = displayName(category.name);
+	const description = plainText(category.description);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="shell min-h-svh">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
-			</div>
+			<ListingHeader
+				title={title}
+				description={description || null}
+				filters={filtersAvailable ? <ProductFiltersMobile facets={facets} showCategories={false} /> : null}
+			/>
+			<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 		</div>
 	);
 };
