@@ -52,7 +52,7 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 				<a
 					key={category.id}
 					href={`#${category.id}`}
-					className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+					className="border border-border px-4 py-2.5 text-[14px] text-muted-foreground transition hover:border-foreground hover:text-foreground"
 				>
 					{category.title}
 				</a>
@@ -64,13 +64,19 @@ function CategoryNav({ categories }: { categories: FAQCategory[] }) {
 function FAQSection({ category }: { category: FAQCategory }) {
 	return (
 		<section id={category.id} className="scroll-mt-24">
-			<h2 className="text-2xl font-medium tracking-tight mb-4">{category.title}</h2>
-			<Accordion type="single" collapsible className="rounded-lg border border-border px-4">
+			<h2 className="mb-4 font-display text-[20px] font-semibold uppercase tracking-[0.08em]">
+				{category.title}
+			</h2>
+			<Accordion type="single" collapsible className="border border-border bg-card/40">
 				{category.questions.map((item, index) => (
-					<AccordionItem key={`${category.id}-${index}`} value={`${category.id}-${index}`}>
-						<AccordionTrigger>{item.question}</AccordionTrigger>
+					<AccordionItem
+						key={`${category.id}-${index}`}
+						value={`${category.id}-${index}`}
+						className="px-6 transition-colors data-[state=open]:bg-[#0a0a0a] data-[state=open]:text-white sm:px-8"
+					>
+						<AccordionTrigger className="text-[15px] font-semibold">{item.question}</AccordionTrigger>
 						<AccordionContent>
-							<p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+							<p className="max-w-[62ch] text-[14px] leading-relaxed text-white/75">{item.answer}</p>
 						</AccordionContent>
 					</AccordionItem>
 				))}
@@ -81,13 +87,15 @@ function FAQSection({ category }: { category: FAQCategory }) {
 
 function ContactCard() {
 	return (
-		<div className="rounded-lg border border-border bg-secondary/30 p-8 text-center">
-			<h2 className="text-2xl font-medium tracking-tight">Still have questions?</h2>
-			<p className="mt-2 text-muted-foreground">
+		<div className="bg-[#0a0a0a] p-8 text-center text-white">
+			<h2 className="font-display text-2xl font-semibold uppercase tracking-[0.04em]">
+				Still have questions?
+			</h2>
+			<p className="mt-2 text-white/75">
 				We're here to help. Reach out and we'll get back to you as soon as possible.
 			</p>
 			<div className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-				<Mail className="h-4 w-4" />
+				<Mail className="h-4 w-4" aria-hidden />
 				<span>Contact us via the details on our website</span>
 			</div>
 		</div>
@@ -96,36 +104,40 @@ function ContactCard() {
 
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
-				<p className="mt-3 text-lg text-muted-foreground">
-					Find answers to the most common questions about your orders, payments, shipping, and more.
-				</p>
-			</div>
+		<div className="light-section">
+			<div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
+				<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
+				{/* Header */}
+				<div className="mb-10">
+					<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+						Home
+					</Link>
+					<span className="mx-2 text-muted-foreground">/</span>
+					<span className="text-sm">FAQ</span>
+					<h1 className="mt-4 font-display text-[clamp(26px,5vw,52px)] font-semibold uppercase leading-tight tracking-[0.04em]">
+						Asked often
+					</h1>
+					<p className="mt-3 text-[16px] leading-relaxed text-muted-foreground">
+						Find answers to the most common questions about your orders, payments, shipping, and more.
+					</p>
+				</div>
 
-			{/* Category Navigation */}
-			<div className="mb-10">
-				<CategoryNav categories={faqCategories} />
-			</div>
+				{/* Category Navigation */}
+				<div className="mb-10">
+					<CategoryNav categories={faqCategories} />
+				</div>
 
-			{/* FAQ Sections */}
-			<div className="space-y-12">
-				{faqCategories.map((category) => (
-					<FAQSection key={category.id} category={category} />
-				))}
-			</div>
+				{/* FAQ Sections */}
+				<div className="space-y-12">
+					{faqCategories.map((category) => (
+						<FAQSection key={category.id} category={category} />
+					))}
+				</div>
 
-			{/* Contact Card */}
-			<div className="mt-16">
-				<ContactCard />
+				{/* Contact Card */}
+				<div className="mt-16">
+					<ContactCard />
+				</div>
 			</div>
 		</div>
 	);

@@ -8,12 +8,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-jost);
+	--font-display: var(--font-jost);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	/* The style-book's zero border-radius, everywhere. */
+	--radius-xs: 0px;
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+	--radius-2xl: 0px;
+	--radius-3xl: 0px;
+	--radius-4xl: 0px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,59 +38,205 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Original names: paper / tile / ink / line / brand, mapped from the shadcn tokens below. */
+	--color-paper: var(--background);
+	--color-tile: var(--card);
+	--color-ink: var(--foreground);
+	--color-line: var(--border);
+	--color-brand: var(--brand);
+	--color-brand-deep: var(--brand-deep);
+	--color-brand-soft: var(--brand-soft);
+	--color-on-brand: var(--on-brand);
+	--color-night: #050505;
 }
 
+/* Pure-monochrome dark luxury: near-black paper, white ink, hairline lines. The theme is dark
+   only, so :root and .dark carry the same palette (the palette test reads both blocks). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	--background: #0a0a0a;
+	--foreground: #ffffff;
+	--card: #141210;
+	--card-foreground: #ffffff;
+	--popover: #0a0a0a;
+	--popover-foreground: #ffffff;
+	--primary: #ffffff;
+	--primary-foreground: #0a0a0a;
+	--secondary: #1c1c1c;
+	--secondary-foreground: #ffffff;
+	--muted: #1c1c1c;
+	--muted-foreground: #9a9a9a;
+	--accent: #1c1c1c;
+	--accent-foreground: #ffffff;
+	--destructive: #ff8a7a;
+	--border: #262626;
+	--input: #3a3a3a;
+	--ring: #ffffff;
+	--brand: #ffffff;
+	--brand-deep: #d9d9d9;
+	--brand-soft: #1c1c1c;
+	--on-brand: #0a0a0a;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0rem;
+	--background: #0a0a0a;
+	--foreground: #ffffff;
+	--card: #141210;
+	--card-foreground: #ffffff;
+	--popover: #0a0a0a;
+	--popover-foreground: #ffffff;
+	--primary: #ffffff;
+	--primary-foreground: #0a0a0a;
+	--secondary: #1c1c1c;
+	--secondary-foreground: #ffffff;
+	--muted: #1c1c1c;
+	--muted-foreground: #9a9a9a;
+	--accent: #1c1c1c;
+	--accent-foreground: #ffffff;
+	--destructive: #ff8a7a;
+	--border: #262626;
+	--input: #3a3a3a;
+	--ring: #ffffff;
+	--brand: #ffffff;
+	--brand-deep: #d9d9d9;
+	--brand-soft: #1c1c1c;
+	--on-brand: #0a0a0a;
+}
+
+/* Light section: the style-book's contrast move. Content pages (product, about, FAQ) and the
+   cart card are white with black elements; a local token remap recolours everything inside. */
+.light-section,
+.dark .light-section {
+	--background: #ffffff;
+	--foreground: #0a0a0a;
+	--card: #f1f1f1;
+	--card-foreground: #0a0a0a;
+	--popover: #ffffff;
+	--popover-foreground: #0a0a0a;
+	--primary: #0a0a0a;
+	--primary-foreground: #ffffff;
+	--secondary: #ededed;
+	--secondary-foreground: #0a0a0a;
+	--muted: #f1f1f1;
+	--muted-foreground: #555555;
+	--accent: #ededed;
+	--accent-foreground: #0a0a0a;
+	--destructive: #b42318;
+	--border: #e3e3e3;
+	--input: #d5d5d5;
+	--ring: #0a0a0a;
+	--brand: #0a0a0a;
+	--brand-deep: #333333;
+	--brand-soft: #ededed;
+	--on-brand: #ffffff;
+	background: #ffffff;
+	color: #0a0a0a;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-jost), "Helvetica Neue", Helvetica, sans-serif;
 	}
+	button:not(:disabled),
+	[role="button"]:not(:disabled),
+	select,
+	summary {
+		cursor: pointer;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+/* Container used by every section: the original's max-w-6xl with a 20px gutter. */
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 72rem;
+	padding-inline: 1.25rem;
+}
+
+/* Header states. Solid near-black glass on ordinary pages; transparent and white over a hero
+   photograph ([data-hero] on the image section), blurred glass once the page scrolls. */
+.site-header {
+	background: color-mix(in srgb, var(--background) 94%, transparent);
+	border-bottom: 1px solid transparent;
+	backdrop-filter: blur(10px);
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease,
+		border-color 0.3s ease;
+}
+:root:has([data-hero]) .site-header:not([data-scrolled="true"]) {
+	color: #fff;
+	background: transparent;
+	backdrop-filter: none;
+}
+:root:has([data-hero]) .site-header[data-scrolled="true"] {
+	background: color-mix(in srgb, var(--background) 86%, transparent);
+	backdrop-filter: blur(14px);
+}
+/* The hero slides under the transparent header (76px bar). */
+:root:has([data-hero]) .site-main {
+	margin-top: -76px;
+}
+
+/* Footer: always the deepest black, with its own muted tone (local token remap). */
+.site-footer {
+	--background: #050505;
+	--card: #111111;
+	--foreground: #ffffff;
+	--muted-foreground: #8f8f8f;
+	--border: #222222;
+	background: #050505;
+	color: #ffffff;
+}
+
+/* Fullscreen menu links: a line grows from the left to 30% on hover; the current page keeps it. */
+.menu-link {
+	position: relative;
+}
+.menu-link::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 6px;
+	height: 2px;
+	width: 0;
+	background: currentColor;
+	transition: width 0.35s cubic-bezier(0.3, 0, 0.2, 1);
+}
+.menu-link:hover::after {
+	width: 30%;
+}
+.menu-link[aria-current="page"]::after {
+	width: 100%;
+}
+
+/* Touch devices have no hover: card actions stay visible. */
+@media (hover: none) {
+	.card-actions {
+		opacity: 1 !important;
+	}
+}
+
+/* Product shelves scroll sideways without a visible scrollbar. */
+.no-scrollbar {
+	scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
 }
 
 .prose {
@@ -99,11 +251,11 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--card) 0%,
+		var(--secondary) 40%,
+		var(--border) 50%,
+		var(--secondary) 60%,
+		var(--card) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

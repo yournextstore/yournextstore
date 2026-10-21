@@ -1,5 +1,4 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 
@@ -10,21 +9,17 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 5,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+/**
+ * "Pairs well with": four cards under the product. No Suspense of its own on purpose — it
+ * renders inside the product page's boundary, so it never lands after the footer has painted.
+ */
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
@@ -32,16 +27,16 @@ async function RelatedProductsContent({
 	categorySlug?: string;
 }) {
 	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const related = products.filter((p) => p.id !== productId).slice(0, 4);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
-			products={related}
-			showViewAll={false}
-		/>
+		<section aria-labelledby="related-heading" className="py-10 sm:py-14">
+			<h2 id="related-heading" className="font-display text-2xl font-bold tracking-tight">
+				Pairs well with
+			</h2>
+			<ProductGrid products={related} className="mt-6" />
+		</section>
 	);
 }
