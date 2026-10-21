@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { DisplayMedium } from "@/components/jam/display";
+import { getCategoryTiles } from "@/lib/catalog";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { PAGE, pluralize } from "@/lib/display";
 import { JsonLdScript } from "@/lib/json-ld";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
@@ -43,95 +46,86 @@ export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [{ storeName, storeDescription, contactFormEnabled }, tiles] = await Promise.all([
+		getStoreInfo(),
+		getCategoryTiles(),
+	]);
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+		description: storeDescription ?? `About ${storeName} and the pieces we carry.`,
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className={PAGE}>
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
+			<section className="flex flex-col gap-8 bg-sky p-6 pb-10 sm:p-12 lg:flex-row lg:items-end lg:justify-between">
+				<div className="max-w-2xl">
+					<div className="mb-10 border-l border-[#1a202c] px-3 pt-1">
+						<p className="text-xs leading-tight tracking-wider uppercase">About</p>
+						<p className="text-xs leading-tight tracking-wider">{storeName}</p>
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
+					<h1 className="text-4xl leading-[1.05] font-medium tracking-[0.12em] text-[#1f2933] xl:text-5xl">
+						Pieces for every day
+					</h1>
+					<p className="mt-6 max-w-xl leading-7 text-[#1f2933]">
+						{storeDescription ??
+							`${storeName} gathers everyday essentials and accessories, one considered piece at a time.`}
+					</p>
+				</div>
+				<div className="flex flex-col gap-3 sm:flex-row">
+					<Link href="/products" className="jam-btn">
+						Shop all
 					</Link>
 					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
+						<Link href="/contact" className="jam-btn">
 							Contact us
 						</Link>
 					)}
 				</div>
+			</section>
+
+			<div className="grid gap-10 py-14 md:grid-cols-3">
+				<div>
+					<h2 className="text-3xl font-light text-foreground">How we choose</h2>
+				</div>
+				<div className="space-y-4 leading-7 text-muted-foreground md:col-span-2">
+					<p>
+						Every piece in the shop is picked to work on its own and alongside the rest: simple shapes, honest
+						materials and details that suit everyday life rather than a showroom.
+					</p>
+					<p>
+						Browse by category below, or see everything at once in the full catalogue. Each product page lists
+						its price, options and availability, and checkout shows delivery choices for your address.
+					</p>
+				</div>
 			</div>
+
+			{tiles.length > 0 && (
+				<section aria-labelledby="categories-heading">
+					<h2 id="categories-heading" className="pb-8 text-4xl font-light text-foreground">
+						All categories
+					</h2>
+					{/* Three across only when the tiles fill whole rows; otherwise two, so no tile sits alone. */}
+					<div
+						className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${tiles.length % 3 === 0 ? "lg:grid-cols-3" : ""}`}
+					>
+						{tiles.map((tile) => (
+							<DisplayMedium
+								key={tile.href}
+								href={tile.href}
+								title={tile.title}
+								subtitle={pluralize(tile.count, "item")}
+								image={tile.image}
+								headingLevel="h3"
+							/>
+						))}
+					</div>
+				</section>
+			)}
 		</div>
 	);
 }

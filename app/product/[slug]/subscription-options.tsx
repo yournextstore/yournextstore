@@ -34,8 +34,8 @@ export function SubscriptionOptions({ plans, value, onChange, allowOneTime }: Su
 				<label
 					key={option.id ?? "one-time"}
 					className={cn(
-						"flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:border-foreground/40",
-						value === option.id && "border-foreground",
+						"flex cursor-pointer items-start gap-3 border-2 border-border p-4 transition-colors hover:border-[#111]",
+						value === option.id && "border-[#111]",
 					)}
 				>
 					<input

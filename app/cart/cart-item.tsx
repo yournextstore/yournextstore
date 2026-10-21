@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -10,6 +10,9 @@ import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
+
+const STEP =
+	"flex h-8 w-8 cursor-pointer items-center justify-center border border-border text-sm transition-colors hover:bg-[#111] hover:text-white";
 
 type CartItemProps = {
 	item: CartLineItem;
@@ -101,24 +104,23 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className="flex items-center gap-4 py-6 sm:gap-6">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative flex h-24 w-24 shrink-0 items-center justify-center bg-stage"
+				aria-label={product.name}
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="jam-packshot object-cover" sizes="96px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
+			<div className="flex min-w-0 flex-1 flex-col gap-3">
+				<div className="flex items-start justify-between gap-3">
 					<div className="min-w-0 space-y-1">
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-2 text-muted-foreground hover:text-foreground"
 						>
 							{product.name}
 						</Link>
@@ -131,42 +133,36 @@ export function CartItem({ item }: CartItemProps) {
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="-mt-2 -mr-2 flex h-9 w-9 shrink-0 items-center justify-center text-foreground transition-opacity hover:opacity-60 disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<X aria-hidden className="h-4 w-4" strokeWidth={2.5} />
 					</button>
 				</div>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+				<div className="flex items-center justify-between gap-3">
+					<div className={cn("flex items-center transition-opacity", isPending && "opacity-70")}>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
+							className={STEP}
+							aria-label={`Increase quantity of ${product.name}`}
 						>
-							<Plus className="h-3 w-3" />
+							+
+						</button>
+						<span className="flex h-8 w-8 items-center justify-center border-y border-border text-xs tabular-nums">
+							{quantity}
+						</span>
+						<button
+							type="button"
+							onClick={handleDecrement}
+							className={STEP}
+							aria-label={`Decrease quantity of ${product.name}`}
+						>
+							−
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="tracking-wider text-foreground tabular-nums">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>
