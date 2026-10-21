@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -55,7 +54,7 @@ type AddToCartButtonProps = {
 		slug: string;
 		images: string[];
 	};
-	summary?: string | null;
+	summary?: string[];
 	volumePricingTiers?: VolumeTier[];
 	/** Show a "remind me when back in stock" flow when out of stock (Restock Notifications module). */
 	restockNotificationsEnabled?: boolean;
@@ -76,7 +75,7 @@ export function AddToCartButton({
 	subscriptionMode = "optional",
 	plans = [],
 }: AddToCartButtonProps) {
-	const { currency, locale, taxBehavior } = useStoreConfig();
+	const { taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -101,53 +100,15 @@ export function AddToCartButton({
 		taxBehavior,
 	);
 
-	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
-	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
-
-	const buttonText = useMemo(() => {
-		if (!selectedVariant) return "Select options";
-		if (isOutOfStock) return "Out of stock";
-		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
-
-	// Headline price. For the selected variant we show its own price (and the struck-through
-	// list price when it's on sale). Before a variant is picked we fall back to a range.
-	const priceInfo = useMemo(() => {
-		const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
-
-		if (selectedVariant) {
-			const price = BigInt(displayPrice(selectedVariant, taxBehavior));
-			const listPrice = BigInt(
-				displayPrice(selectedVariant, taxBehavior, "originalPrice") ??
-					displayPrice(selectedVariant, taxBehavior),
-			);
-			const onSale = listPrice > price;
-			return {
-				display: fmt(price),
-				compareAt: onSale ? fmt(listPrice) : null,
-				discountPercent: onSale ? Math.round((Number(listPrice - price) / Number(listPrice)) * 100) : null,
-			};
-		}
-
-		const { min: minPrice, max: maxPrice } = priceRange(variants, taxBehavior);
-		return {
-			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
-			compareAt: null,
-			discountPercent: null,
-		};
-	}, [selectedVariant, variants, locale, currency, taxBehavior]);
-
-	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
-	const omnibusPrice = useMemo(() => {
-		if (!selectedVariant || !priceInfo.compareAt) return null;
-		const lowest = displayPrice(selectedVariant, taxBehavior, "omnibusPrice");
-		if (!lowest) return null;
-		return formatMoney({ amount: BigInt(lowest), currency, locale });
-	}, [selectedVariant, priceInfo.compareAt, locale, currency, taxBehavior]);
+	const buttonText = !selectedVariant
+		? "Select options"
+		: isOutOfStock
+			? "Out of stock"
+			: plan
+				? plan.discountPercent > 0
+					? `Subscribe & save ${plan.discountPercent}%`
+					: "Subscribe"
+				: "Add to cart";
 
 	// Stock availability. null stock means it isn't tracked (treated as in stock).
 	const stockStatus = useMemo(() => {
@@ -216,52 +177,7 @@ export function AddToCartButton({
 	};
 
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
-			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
-			</div>
-
+		<div className="flex flex-col gap-6">
 			{variants.length > 1 && <VariantSelector variants={variants} />}
 
 			{purchasable ? (
@@ -275,13 +191,6 @@ export function AddToCartButton({
 						/>
 					)}
 
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
-
 					<VolumePricingDisplay
 						tiers={resolvedTiers}
 						quantity={effectiveQuantity}
@@ -291,22 +200,90 @@ export function AddToCartButton({
 					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmit} className="flex gap-3">
+							<QuantitySelector
+								quantity={effectiveQuantity}
+								onQuantityChange={setQuantity}
+								max={Math.max(1, Math.min(99, maxQuantity))}
+								disabled={isOutOfStock}
+							/>
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="bp-btn min-w-0 flex-1"
 							>
-								{buttonText}
+								<span className="truncate">{buttonText}</span>
 							</button>
 						</form>
 					)}
 				</>
 			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
+				<p className="text-sm">This subscription isn't available right now.</p>
 			)}
 
-			<TrustBadges />
+			{stockStatus && stockStatus.tone !== "in" && (
+				<p
+					className={cn(
+						"-mt-3 text-sm font-medium",
+						stockStatus.tone === "out" ? "text-destructive" : "text-[#9a5b00]",
+					)}
+				>
+					{stockStatus.label}
+				</p>
+			)}
+
+			{summary && summary.length > 0 && (
+				<div className="flex flex-col gap-3 text-sm leading-6">
+					{summary.map((paragraph) => (
+						<p key={paragraph}>{paragraph}</p>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
+/** Headline price under the product title; follows the selected variant like the panel does. */
+export function ProductPrice({ variants }: { variants: Variant[] }) {
+	const { currency, locale, taxBehavior } = useStoreConfig();
+	const selectedVariant = useSelectedVariant(variants);
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
+
+	const priceInfo = (() => {
+		if (selectedVariant) {
+			const price = BigInt(displayPrice(selectedVariant, taxBehavior));
+			const listPrice = BigInt(
+				displayPrice(selectedVariant, taxBehavior, "originalPrice") ??
+					displayPrice(selectedVariant, taxBehavior),
+			);
+			return { display: fmt(price), compareAt: listPrice > price ? fmt(listPrice) : null };
+		}
+		const { min: minPrice, max: maxPrice } = priceRange(variants, taxBehavior);
+		return {
+			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} – ${fmt(maxPrice)}`,
+			compareAt: null,
+		};
+	})();
+
+	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
+	const lowest =
+		selectedVariant && priceInfo.compareAt
+			? displayPrice(selectedVariant, taxBehavior, "omnibusPrice")
+			: null;
+
+	return (
+		<div className="min-h-7">
+			<p className="flex flex-wrap items-baseline gap-x-3 text-lg">
+				<span className={priceInfo.compareAt ? "text-brand" : undefined}>{priceInfo.display}</span>
+				{priceInfo.compareAt && (
+					<span className="text-base text-muted-foreground line-through">{priceInfo.compareAt}</span>
+				)}
+			</p>
+			{lowest && (
+				<p className="mt-1 text-xs text-muted-foreground">
+					Lowest price in the last 30 days: {fmt(BigInt(lowest))}
+				</p>
+			)}
 		</div>
 	);
 }

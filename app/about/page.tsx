@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { HalfHero, ImageTiles, PhotoBand } from "@/components/sections/home";
+import { getCatalogCategories, getStoreIdentity } from "@/lib/catalog";
+import { getStoreSeo } from "@/lib/commerce";
+import { editorial } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
@@ -26,24 +29,12 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
-
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const [identity, categories] = await Promise.all([getStoreIdentity(), getCatalogCategories()]);
+	const { storeName, storeDescription, contactFormEnabled } = identity;
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
@@ -54,84 +45,58 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<>
 			<JsonLdScript data={aboutJsonLd} />
+			<PhotoBand frames={editorial.aboutBand} className="h-[22rem] md:h-[25rem]">
+				<p className="bp-superheading">Our story</p>
+				<h1 className="bp-h1 mt-3">About {storeName}</h1>
+			</PhotoBand>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
+			<section className="bp-container py-12 md:py-16">
+				<div className="mx-auto max-w-3xl text-center">
+					<h2 className="bp-h3">Welcome to {storeName}</h2>
+					<p className="mt-5 text-base leading-7">
+						{storeDescription ??
+							"Every layer we make is worn on real walks first: fabrics that feel good next to skin, details that hold up on rough paths, and fits you will wear all week."}
+					</p>
+					<p className="mt-4 text-base leading-7">
+						We work with makers who share our values and put quality before quantity, so what arrives at your
+						door is something worth keeping.
+					</p>
+				</div>
+			</section>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
+			<HalfHero
+				image={editorial.aboutHalf}
+				superheading="What we stand for"
+				heading="Made for Real Days Outside"
+				body="Quality first, thoughtful design and honest service: real people, ready to help before and after your order."
+				cta="Shop the collection"
+				href="/products"
+			/>
 
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
-						</div>
-					</div>
-				</section>
-			</div>
+			<ImageTiles categories={categories} />
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
+			<section className="bp-container py-12 text-center md:py-16">
+				<h2 className="bp-h3">Want to Learn More?</h2>
+				<p className="mx-auto mt-4 max-w-xl text-base">
+					Explore the full range, or get in touch: we would love to hear from you.
 				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
+				<div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+					<Link href="/products" className="bp-btn">
 						Shop products
 					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
+					{contactFormEnabled ? (
+						<Link href="/contact" className="bp-btn bp-btn-inverse-dark">
 							Contact us
+						</Link>
+					) : (
+						<Link href="/faq" className="bp-btn bp-btn-inverse-dark">
+							Read the FAQ
 						</Link>
 					)}
 				</div>
-			</div>
-		</div>
+			</section>
+		</>
 	);
 }

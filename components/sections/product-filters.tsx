@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -338,21 +337,19 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
+			<SheetTrigger className="flex h-11 w-full items-center justify-center gap-2 rounded border border-border bg-white px-4 text-sm sm:w-auto sm:justify-start">
+				<SlidersHorizontalIcon className="size-4" strokeWidth={1.5} aria-hidden />
 				Filters
 				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
+					<span className="ml-1 rounded bg-brand px-1.5 text-xs text-white">{activeCount}</span>
 				)}
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-[23.5rem] data-[side=left]:sm:max-w-[23.5rem]"
 			>
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+				<SheetHeader className="border-b border-border p-4">
+					<SheetTitle className="text-lg font-bold">Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">

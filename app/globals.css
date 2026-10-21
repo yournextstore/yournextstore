@@ -9,10 +9,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-poppins);
+	--font-heading: var(--font-poppins);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 2px);
+	--radius-md: var(--radius);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
 	--color-background: var(--background);
@@ -33,63 +34,292 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Blueprint's named palette, kept under its own names. */
+	--color-brand: var(--brand);
+	--color-brand-hover: var(--brand-hover);
+	--color-ink: var(--ink);
+	--color-neutral-darker: var(--neutral-darker);
+	--color-neutral-medium: var(--neutral-medium);
+	--color-neutral-lighter: var(--neutral-lighter);
+	--color-neutral-lightest: var(--neutral-lightest);
+	--color-star: var(--star);
+	/* Breakpoints of the original (xs 480). */
+	--breakpoint-xs: 30rem;
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.25rem;
+	--background: #ffffff;
+	--foreground: #000000;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	/* Blueprint's green: buttons, promo bar, accents. */
+	--primary: #008464;
+	--primary-foreground: #ffffff;
+	--secondary: #f9f9f9;
+	--secondary-foreground: #171717;
+	--muted: #f9f9f9;
+	/* The original's #737373 grey, a touch darker so it clears AA on the #f9f9f9 panels. */
+	--muted-foreground: #696969;
+	--accent: #f9f9f9;
+	--accent-foreground: #171717;
+	--destructive: #c4321f;
+	--border: #e8e8e8;
+	--input: #d4d4d4;
+	--ring: #000000;
+	--brand: #008464;
+	--brand-hover: #00694f;
+	--ink: #000000;
+	--neutral-darker: #404040;
+	--neutral-medium: #737373;
+	--neutral-lighter: #d4d4d4;
+	--neutral-lightest: #f9f9f9;
+	--star: #189cc5;
+	--header-height: 4.5rem;
+	--promobar-height: 3rem;
 }
 
+/* Blueprint is light-only (the ThemeProvider forces light); the block mirrors :root so the
+   palette test still checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #000000;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #008464;
+	--primary-foreground: #ffffff;
+	--secondary: #f9f9f9;
+	--secondary-foreground: #171717;
+	--muted: #f9f9f9;
+	--muted-foreground: #696969;
+	--accent: #f9f9f9;
+	--accent-foreground: #171717;
+	--destructive: #c4321f;
+	--border: #e8e8e8;
+	--input: #d4d4d4;
+	--ring: #000000;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* The next/font variable lives on <body>, so the face is set there (an html rule can't see it). */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+	}
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
+
+/* Blueprint's text styles: heavy Poppins headings that step up at md and xl. */
+@utility bp-h1 {
+	font-weight: 700;
+	font-size: 2.25rem;
+	line-height: 1.15;
+	overflow-wrap: anywhere;
+	@media (width >= 48rem) {
+		font-size: 3rem;
+	}
+	@media (width >= 80rem) {
+		font-size: 3.75rem;
+	}
+}
+
+@utility bp-h2 {
+	font-weight: 700;
+	font-size: 1.875rem;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+	@media (width >= 48rem) {
+		font-size: 2.25rem;
+	}
+	@media (width >= 80rem) {
+		font-size: 3rem;
+	}
+}
+
+@utility bp-h3 {
+	font-weight: 700;
+	font-size: 1.5rem;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+	@media (width >= 48rem) {
+		font-size: 1.875rem;
+	}
+	@media (width >= 80rem) {
+		font-size: 2.25rem;
+	}
+}
+
+@utility bp-h4 {
+	font-weight: 700;
+	font-size: 1.25rem;
+	line-height: 1.4;
+	overflow-wrap: anywhere;
+	@media (width >= 48rem) {
+		font-size: 1.5rem;
+	}
+	@media (width >= 80rem) {
+		font-size: 1.875rem;
+	}
+}
+
+@utility bp-h5 {
+	font-weight: 700;
+	font-size: 1rem;
+	line-height: 1.5rem;
+	@media (width >= 48rem) {
+		font-size: 1.125rem;
+		line-height: 1.75rem;
+	}
+}
+
+@utility bp-superheading {
+	font-size: 0.75rem;
+	line-height: 1rem;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+	@media (width >= 64rem) {
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+	}
+}
+
+@utility bp-nav {
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+}
+
+@utility bp-label {
+	font-size: 0.75rem;
+	line-height: 1rem;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+}
+
+/* Buttons: 50px tall, bold uppercase, 4px corners. Colours come in through variables so a
+   plain utility next to the class never fights it. */
+@utility bp-btn {
+	position: relative;
+	display: inline-flex;
+	height: var(--btn-h, 3.125rem);
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	overflow: hidden;
+	white-space: nowrap;
+	border-radius: 0.25rem;
+	border: 1px solid var(--btn-border, var(--brand));
+	background: var(--btn-bg, var(--brand));
+	color: var(--btn-fg, #ffffff);
+	padding: 0 var(--btn-px, 1.25rem);
+	font-size: var(--btn-fs, 1rem);
+	line-height: 1.5rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	transition: color 150ms, background-color 150ms, border-color 150ms;
+	&:disabled,
+	&[aria-disabled="true"] {
+		cursor: not-allowed;
+		border-color: var(--border);
+		background: var(--neutral-lighter);
+		color: #525252;
+	}
+	@media (width >= 48rem) {
+		&:not(:disabled):hover {
+			border-color: var(--btn-hover-border, var(--brand-hover));
+			background: var(--btn-hover-bg, var(--brand-hover));
+			color: var(--btn-hover-fg, #ffffff);
+		}
+	}
+}
+
+/* White-outline button over photographs. */
+@utility bp-btn-inverse-light {
+	--btn-bg: transparent;
+	--btn-border: #ffffff;
+	--btn-fg: #ffffff;
+	--btn-hover-bg: #ffffff;
+	--btn-hover-border: #ffffff;
+	--btn-hover-fg: #000000;
+}
+
+@utility bp-btn-inverse-dark {
+	--btn-bg: transparent;
+	--btn-border: #000000;
+	--btn-fg: #000000;
+	--btn-hover-bg: #000000;
+	--btn-hover-border: #000000;
+	--btn-hover-fg: #ffffff;
+}
+
+@utility bp-btn-sm {
+	--btn-h: 2.5rem;
+	--btn-px: 1rem;
+	--btn-fs: 0.875rem;
+}
+
+/* The original's link underline that wipes in on hover. */
+@utility hover-underline {
+	background-image: linear-gradient(currentColor, currentColor);
+	background-size: 0% 1px;
+	background-position: left bottom;
+	background-repeat: no-repeat;
+	transition: background-size 200ms;
+	&:hover,
+	&:focus-visible {
+		background-size: 100% 1px;
+	}
+}
+
+@utility main-underline {
+	background-image: linear-gradient(currentColor, currentColor);
+	background-size: 100% 2px;
+	background-position: right bottom;
+	background-repeat: no-repeat;
+	padding-bottom: 1px;
+	transition: background-size 200ms;
+	&:hover,
+	&:focus-visible {
+		background-size: 0% 2px;
+	}
+}
+
+@utility bp-container {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 96rem;
+	padding-inline: 1rem;
+	@media (width >= 48rem) {
+		padding-inline: 1.5rem;
+	}
+	@media (width >= 80rem) {
+		padding-inline: 3rem;
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
+	--tw-prose-body: var(--foreground);
 	--tw-prose-headings: var(--foreground);
 	--tw-prose-links: var(--foreground);
 	--tw-prose-bold: var(--foreground);

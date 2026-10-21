@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Poppins } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,22 +12,26 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { DesktopNav, type MenuProduct, MobileMenu, type NavLink, SearchDrawer } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getCatalogCategories, getHomeProducts, getStoreIdentity } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { formatMoney } from "@/lib/money";
+import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+// Blueprint sets everything in Poppins: 400 for copy, 500 for small labels, 700 for headings,
+// nav and buttons. latin-ext covers accented product names.
+const poppins = Poppins({
+	variable: "--font-poppins",
+	subsets: ["latin", "latin-ext"],
+	weight: ["400", "500", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -105,23 +109,38 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+async function getNavData() {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
+	const [identity, categories, { arrivals }, config] = await Promise.all([
+		getStoreIdentity(),
+		getCatalogCategories(),
+		getHomeProducts(),
+		getStoreConfig(),
 	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+	const links: NavLink[] = [
+		{ href: "/about", label: "About" },
+		{ href: "/faq", label: "FAQ" },
+		...(identity.blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
+	const products: MenuProduct[] = arrivals.slice(0, 4).map((product) => {
+		const { min } = priceRange(product.variants, config.taxBehavior);
+		return {
+			slug: product.slug,
+			name: product.name,
+			image: product.images[0] ?? null,
+			price:
+				product.variants.length > 0
+					? formatMoney({ amount: min, currency: config.currency, locale: config.locale })
+					: null,
+		};
+	});
+	return {
+		storeName: identity.storeName,
+		links,
+		categories: categories.map(({ name, slug, image }) => ({ name, slug, image })),
+		products,
+	};
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,42 +150,50 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [nav, storeConfig] = await Promise.all([getNavData(), getStoreConfig()]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<div className="flex min-h-[var(--promobar-height)] items-center justify-center bg-brand px-4 py-2 text-center text-xs text-white md:text-sm">
+						<p>
+							New trail layers have just arrived.{" "}
+							<Link href="/products" className="hover-underline">
+								Shop Now
+							</Link>
+						</p>
+					</div>
+					<header className="site-header sticky top-0 z-40 border-b border-border bg-background">
+						<div className="bp-container grid h-[var(--header-height)] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 lg:flex lg:justify-between lg:gap-4">
+							<div className="flex items-center gap-1 lg:hidden">
+								<MobileMenu {...nav} />
+								<SearchDrawer />
+							</div>
+							<div className="flex h-full min-w-0 items-center justify-center gap-10 lg:justify-start">
+								<Link href="/" className="truncate text-lg font-bold lowercase tracking-tight sm:text-xl">
+									{nav.storeName}
+								</Link>
+								<DesktopNav links={nav.links} categories={nav.categories} />
+							</div>
+							<div className="flex items-center justify-end gap-1">
+								<span className="hidden lg:contents">
+									<SearchDrawer />
+								</span>
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={accountHref}
+									className="flex size-10 items-center justify-center"
+									aria-label="Account"
+								>
+									<UserRound className="size-5" strokeWidth={1.75} aria-hidden />
+								</a>
+								<CartButton />
 							</div>
 						</div>
 					</header>
@@ -214,7 +241,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${poppins.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +249,8 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				{/* Blueprint is a light-only design; sonner still reads the theme. */}
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />

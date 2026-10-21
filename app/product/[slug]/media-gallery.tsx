@@ -1,10 +1,8 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useRef, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -27,32 +25,60 @@ type MediaGalleryProps = {
 	variants: Variant[];
 };
 
+function Media({
+	src,
+	alt,
+	sizes,
+	priority,
+}: {
+	src: string;
+	alt: string;
+	sizes: string;
+	priority?: boolean;
+}) {
+	if (isVideoUrl(src)) {
+		return (
+			<video
+				className="absolute inset-0 h-full w-full object-cover"
+				src={src}
+				muted
+				loop
+				autoPlay
+				playsInline
+			/>
+		);
+	}
+	return (
+		<YNSMedia
+			src={src}
+			alt={alt}
+			fill
+			sizes={sizes}
+			priority={priority}
+			fetchPriority={priority ? "high" : undefined}
+			className="object-cover"
+		/>
+	);
+}
+
+/**
+ * Blueprint's product gallery: a column of thumbnails beside one 3:4 photo on desktop, a swipe
+ * row with dots on phones. Selecting a variant jumps to that variant's first photo.
+ */
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useSearchParams();
-
-	// The gallery always shows the full image set (product + every variant image). When a
-	// variant is selected we don't filter the list — that would hide the other thumbnails —
-	// we just jump the active image to that variant's first photo within the full gallery.
-	const displayImages = images;
+	const rowRef = useRef<HTMLUListElement>(null);
 
 	const selectedVariant = useSelectedVariant(variants);
-
-	const variantImageIndex = useMemo(() => {
-		// Only variants with real combinations drive the gallery jump.
-		const firstVariantImage =
-			selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
-		if (!firstVariantImage) return 0;
-
-		const index = images.indexOf(firstVariantImage);
-		return Math.max(index, 0);
-	}, [selectedVariant, images]);
+	const firstVariantImage =
+		selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
+	const variantImageIndex = firstVariantImage ? Math.max(0, images.indexOf(firstVariantImage)) : 0;
 
 	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
 	// the gallery, so a jump on change alone would land back on the first image.
 	const [selectedIndex, setSelectedIndex] = useState(variantImageIndex);
-	const [isZoomed, setIsZoomed] = useState(false);
 
-	// Jump to the selected variant's image when the variant changes (avoids useEffect). The previous
+	// Jump to the selected variant's image when the variant changes (no effect needed). The previous
 	// key lives in state, not a ref: a variant change renders inside a transition, and a discarded
 	// render would move a ref while dropping the index update.
 	const searchParamsKey = searchParams.toString();
@@ -62,159 +88,112 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		setSelectedIndex(variantImageIndex);
 	}
 
-	const handlePrevious = useCallback(() => {
-		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
-	}, [displayImages.length]);
-
-	const handleNext = useCallback(() => {
-		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
-	}, [displayImages.length]);
-
-	// Keyboard navigation: ArrowLeft / ArrowRight (scoped to gallery container)
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			if (displayImages.length <= 1) return;
-
-			if (e.key === "ArrowLeft") {
-				e.preventDefault();
-				handlePrevious();
-			} else if (e.key === "ArrowRight") {
-				e.preventDefault();
-				handleNext();
-			}
-		},
-		[displayImages.length, handlePrevious, handleNext],
-	);
-
-	if (displayImages.length === 0) {
-		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
-					<p className="text-muted-foreground">No images available</p>
-				</div>
-			</div>
-		);
+	if (images.length === 0) {
+		return <div className="aspect-[3/4] bg-neutral-lightest" />;
 	}
 
+	const goTo = (index: number) => {
+		setSelectedIndex(index);
+		const row = rowRef.current;
+		if (row) row.scrollTo({ left: row.clientWidth * index, behavior: "smooth" });
+	};
+
+	const current = images[selectedIndex] ?? images[0] ?? "";
+
 	return (
-		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
 		<section
-			aria-roledescription="carousel"
-			aria-label="Product media gallery"
-			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			aria-label={`${productName} photos`}
+			className="md:sticky md:top-[calc(var(--header-height)+1.5rem)]"
 		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
-						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
-						priority
-						fetchPriority="high"
-					/>
-				)}
-
-				{/* Navigation Arrows */}
-				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
-							aria-label="Previous image"
+			{/* Phones: swipe row with dots. */}
+			<div className="relative -mx-4 md:hidden">
+				<ul
+					ref={rowRef}
+					onScroll={(event) => {
+						const row = event.currentTarget;
+						const index = Math.round(row.scrollLeft / row.clientWidth);
+						if (index !== selectedIndex) setSelectedIndex(index);
+					}}
+					className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto"
+				>
+					{images.map((image, index) => (
+						<li
+							key={`${image}-${index}`}
+							className="relative aspect-[3/4] w-full shrink-0 snap-start bg-neutral-lightest"
 						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
-							aria-label="Next image"
-						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
+							<Media
+								src={image}
+								alt={index === 0 ? productName : `${productName}, photo ${index + 1}`}
+								sizes="100vw"
+								priority={index === 0}
+							/>
+						</li>
+					))}
+				</ul>
+				{images.length > 8 && (
+					<p
+						aria-live="polite"
+						className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-xs tabular-nums"
+					>
+						{selectedIndex + 1} / {images.length}
+					</p>
 				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
+				{images.length > 1 && images.length <= 8 && (
+					<div className="absolute inset-x-0 bottom-2 flex justify-center">
+						{images.map((image, index) => (
+							<button
+								key={`dot-${image}-${index}`}
+								type="button"
+								onClick={() => goTo(index)}
+								aria-label={`Show photo ${index + 1}`}
+								aria-current={index === selectedIndex}
+								className="flex size-6 items-center justify-center"
+							>
+								<span
+									className={cn(
+										"size-2 rounded-full transition-colors",
+										index === selectedIndex ? "bg-black" : "bg-black/25",
+									)}
+								/>
+							</button>
+						))}
 					</div>
 				)}
 			</div>
 
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
-					{displayImages.map((image, index) => (
-						<button
-							key={`${image}-${index}`}
-							type="button"
-							onClick={() => setSelectedIndex(index)}
-							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
-							)}
-						>
-							{isVideoUrl(image) ? (
-								<video
-									className="absolute inset-0 w-full h-full object-cover"
-									src={image}
-									muted
-									playsInline
-								/>
-							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
-							)}
-						</button>
-					))}
+			{/* Tablet and up: thumbnails beside one photo. */}
+			<div className="hidden gap-4 md:flex">
+				{images.length > 1 && (
+					<ul className="no-scrollbar flex max-h-[min(80vh,46rem)] w-[4.5rem] shrink-0 flex-col gap-3 overflow-y-auto p-0.5 xl:w-20">
+						{images.map((image, index) => (
+							<li key={`thumb-${image}-${index}`}>
+								<button
+									type="button"
+									onClick={() => setSelectedIndex(index)}
+									aria-label={`Show photo ${index + 1}`}
+									aria-current={index === selectedIndex}
+									className={cn(
+										"relative block aspect-[3/4] w-full overflow-hidden rounded-sm border bg-neutral-lightest transition-colors",
+										index === selectedIndex
+											? "border-black"
+											: "border-transparent hover:border-neutral-lighter",
+									)}
+								>
+									<Media src={image} alt="" sizes="80px" />
+								</button>
+							</li>
+						))}
+					</ul>
+				)}
+				<div className="relative aspect-[3/4] flex-1 overflow-hidden bg-neutral-lightest">
+					<Media
+						src={current}
+						alt={selectedIndex === 0 ? productName : `${productName}, photo ${selectedIndex + 1}`}
+						sizes="(max-width: 1024px) 45vw, 38vw"
+						priority
+					/>
 				</div>
-			)}
+			</div>
 		</section>
 	);
 }
