@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Anton, Dancing_Script, Geist_Mono, Inter, Montserrat } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,22 +12,46 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar, type NavData } from "@/app/navbar";
+import { TopBar } from "@/app/top-bar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
+import { Wordmark } from "@/components/wordmark";
+import { getCollections, getStoreInfo } from "@/lib/catalog";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { formatMoney } from "@/lib/money";
+import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+const inter = Inter({
+	variable: "--font-inter",
+	subsets: ["latin", "latin-ext"],
+});
+
+const montserrat = Montserrat({
+	variable: "--font-montserrat-face",
+	subsets: ["latin", "latin-ext"],
+	weight: ["500", "700", "800", "900"],
+	style: ["normal", "italic"],
+});
+
+// The hero wordmark and banner headlines: the original's condensed poster capitals.
+const anton = Anton({
+	variable: "--font-anton-face",
+	subsets: ["latin", "latin-ext"],
+	weight: "400",
+});
+
+const dancingScript = Dancing_Script({
+	variable: "--font-script-face",
+	subsets: ["latin", "latin-ext"],
+	weight: ["500", "600"],
 });
 
 const geistMono = Geist_Mono({
@@ -105,23 +129,57 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+async function getNavData(): Promise<NavData> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
-		meGetCached().catch(() => null),
+	const [collections, categories, info] = await Promise.all([
+		getCollections(),
+		commerce.categoriesBrowse({ limit: 12 }).catch(() => ({ data: [] })),
+		getStoreInfo(),
 	]);
-	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
-	];
+	return {
+		storeName: info.storeName,
+		collections: collections.map((c) => ({ href: `/collection/${c.slug}`, label: c.name })),
+		categories: categories.data
+			.filter((c) => !c.parentId)
+			.map((c) => ({
+				href: `/category/${c.slug}`,
+				label: c.name.split(">").at(-1)?.trim() || c.name,
+			})),
+		blog: info.blog,
+	};
+}
+
+async function getCartSuggestions() {
+	"use cache";
+	cacheLife("minutes");
+	const [products, { currency, locale, taxBehavior }] = await Promise.all([
+		commerce.productBrowse({ active: true, limit: 24 }).catch(() => ({ data: [] })),
+		getStoreConfig(),
+	]);
+	return products.data
+		.filter((p) => p.variants.length === 1 && p.variants[0]?.stock !== 0 && Number(p.variants[0]?.price) > 0)
+		.slice(0, 4)
+		.flatMap((p) => {
+			const variant = p.variants[0];
+			if (!variant) return [];
+			return [
+				{
+					id: p.id,
+					name: p.name,
+					slug: p.slug,
+					images: p.images,
+					price: formatMoney({ amount: priceRange(p.variants, taxBehavior).min, currency, locale }),
+					variant: {
+						id: variant.id,
+						sku: variant.sku,
+						price: variant.price,
+						priceGross: "priceGross" in variant ? variant.priceGross : null,
+						images: variant.images,
+					},
+				},
+			];
+		});
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,49 +189,49 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [nav, storeConfig, suggestions, info] = await Promise.all([
+		getNavData(),
+		getStoreConfig(),
+		getCartSuggestions(),
+		getStoreInfo(),
+	]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
+					<TopBar />
+					<header className="sticky top-0 z-50 bg-page shadow-[0_2px_6px_rgb(4_38_80/0.08)]">
+						<div className="mx-auto flex h-16 max-w-7xl items-center gap-1 px-4 sm:gap-3 sm:px-6 lg:px-8">
+							<Link href="/" className="min-w-0 shrink" aria-label={`${nav.storeName} home`}>
+								<Wordmark name={nav.storeName} className="text-[1.75rem] sm:text-[2rem]" />
+							</Link>
+							<Navbar data={nav} accountHref={accountHref} />
+							<div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+								<Suspense>
+									<SearchInput />
+								</Suspense>
+								{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+								    Static on purpose: reading the session here would pull the header out of the
+								    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
+								<a
+									href={accountHref}
+									className="hidden rounded-full p-2 text-ink transition-colors hover:bg-secondary lg:inline-flex"
+									aria-label="Account"
+								>
+									<UserRound className="h-[1.375rem] w-[1.375rem]" strokeWidth={1.75} />
+								</a>
+								<CartButton />
 							</div>
 						</div>
 					</header>
 					<main className="flex-1">{children}</main>
 					<Footer />
 				</div>
-				<CartSidebar />
+				<CartSidebar suggestions={suggestions} freeShippingAmount={info.freeShippingAmount} />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
 			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
@@ -214,7 +272,9 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body
+				className={`${inter.variable} ${montserrat.variable} ${anton.variable} ${dancingScript.variable} ${geistMono.variable} antialiased`}
+			>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +282,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />

@@ -8,8 +8,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-inter);
 	--font-mono: var(--font-geist-mono);
+	--font-montserrat: var(--font-montserrat-face);
+	--font-anton: var(--font-anton-face);
+	--font-script: var(--font-script-face);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -35,47 +38,102 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	/* CoreX palette: page #f7faff, ink #010409, main blue #023e8a, navy band #0d1b2a. */
+	--background: #f7faff;
+	--foreground: #010409;
+	--card: #ffffff;
+	--card-foreground: #010409;
+	--popover: #ffffff;
+	--popover-foreground: #010409;
+	--primary: #023e8a;
+	--primary-foreground: #fafaf9;
+	--secondary: #e9eff8;
+	--secondary-foreground: #042650;
+	--muted: #eef2f8;
+	/* The original's #89949f grey fails AA on its page; same blue-grey, darker. */
+	--muted-foreground: #525d6a;
+	--accent: #e3ecfa;
+	--accent-foreground: #042650;
+	--destructive: #c8102e;
+	--border: #d7dfea;
+	--input: #c9d3e1;
+	--ring: #023e8a;
 }
 
+/* Light-only design: the same palette, so the forced light theme and the palette test agree. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #f7faff;
+	--foreground: #010409;
+	--card: #ffffff;
+	--card-foreground: #010409;
+	--popover: #ffffff;
+	--popover-foreground: #010409;
+	--primary: #023e8a;
+	--primary-foreground: #fafaf9;
+	--secondary: #e9eff8;
+	--secondary-foreground: #042650;
+	--muted: #eef2f8;
+	--muted-foreground: #525d6a;
+	--accent: #e3ecfa;
+	--accent-foreground: #042650;
+	--destructive: #c8102e;
+	--border: #d7dfea;
+	--input: #c9d3e1;
+	--ring: #023e8a;
+}
+
+/* Brand colours and the type scale (own names, so shadcn's text-sm/base keep their sizes). */
+@theme {
+	--color-page: #f7faff;
+	--color-ink: #010409;
+	--color-main: #023e8a;
+	--color-main-hover: #1054ab;
+	--color-deep: #042650;
+	--color-navy: #0d1b2a;
+	--color-midnight: #071827;
+	--color-hero: #17203b;
+	--color-electric: #0b61cd;
+	--color-sky: #a9c8f2;
+	--color-alert: #d10a11;
+	--color-coal: #171717;
+	--color-steel: #525d6a;
+	--color-tile: #e6e9ee;
+
+	--text-display-hero: 4rem;
+	--text-display-hero--line-height: 1;
+	--text-heading-xl: 3rem;
+	--text-heading-xl--line-height: 1.05;
+	--text-heading-lg: 2.25rem;
+	--text-heading-lg--line-height: 1.1;
+	--text-heading-md: 2rem;
+	--text-heading-md--line-height: 1.1;
+
+	--breakpoint-xs: 26rem;
+
+	--animate-fade-slide-up: fade-slide-up 0.8s ease-out 0.3s both;
+	--animate-marquee: marquee 38s linear infinite;
+	--animate-marquee-reverse: marquee 46s linear infinite reverse;
+
+	@keyframes fade-slide-up {
+		0% {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes marquee {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
+	}
 }
 
 @layer base {
@@ -84,6 +142,85 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font variables live on <body>, so the face is set here (not on html). */
+		font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	}
+}
+
+@layer components {
+	/* "Why CHOOSE …": the original's outlined word inside a section title. */
+	.stroke-word {
+		-webkit-text-fill-color: var(--color-page);
+		-webkit-text-stroke: 2px var(--color-ink);
+		paint-order: stroke fill;
+		color: var(--color-ink);
+	}
+	@media (min-width: 64rem) {
+		.stroke-word {
+			-webkit-text-stroke-width: 3px;
+		}
+	}
+
+	.section-title {
+		font-family: var(--font-montserrat-face), ui-sans-serif, sans-serif;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: -0.025em;
+		line-height: 1;
+	}
+
+	/* Hero dot grids ("+" and "·" patterns in the original's navy panel). */
+	.dot-grid {
+		background-image: radial-gradient(circle, rgb(120 140 255 / 0.75) 1.2px, transparent 1.6px);
+		background-size: 12px 12px;
+	}
+	.plus-grid {
+		background-image:
+			linear-gradient(rgb(120 140 255 / 0.7), rgb(120 140 255 / 0.7)),
+			linear-gradient(rgb(120 140 255 / 0.7), rgb(120 140 255 / 0.7));
+		background-size:
+			1px 7px,
+			7px 1px;
+		background-position:
+			3px 0,
+			0 3px;
+		background-repeat: no-repeat;
+		mask-image: none;
+	}
+
+	.brush-block {
+		clip-path: polygon(
+			2% 8%,
+			9% 2%,
+			22% 6%,
+			37% 0,
+			52% 5%,
+			68% 1%,
+			84% 6%,
+			97% 2%,
+			100% 18%,
+			97% 36%,
+			100% 55%,
+			96% 74%,
+			99% 93%,
+			86% 98%,
+			70% 94%,
+			53% 100%,
+			36% 95%,
+			20% 99%,
+			6% 94%,
+			0 80%,
+			3% 60%,
+			0 41%,
+			3% 22%
+		);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee,
+	.animate-marquee-reverse {
+		animation: none;
 	}
 }
 
@@ -150,4 +287,14 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Hero poster word: sized from its own length (--len) so "COREX" and long collection names both fit. */
+.hero-word {
+	font-size: min(calc(86vw / (var(--len) * 0.5)), 7.5rem);
+}
+@media (min-width: 64rem) {
+	.hero-word {
+		font-size: min(calc(40vw / (var(--len) * 0.5)), 11rem);
+	}
 }

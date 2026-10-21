@@ -39,9 +39,9 @@ export function SearchInput() {
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="inline-flex rounded-full p-2 text-ink transition-colors hover:bg-secondary"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="h-[1.375rem] w-[1.375rem]" strokeWidth={1.75} />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
@@ -97,7 +97,7 @@ export function SearchInput() {
 			</Popover>
 
 			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			<form onSubmit={handleSubmit} className="hidden">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<PopoverAnchor asChild>
 						<div className="relative">

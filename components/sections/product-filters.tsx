@@ -329,16 +329,19 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 }
 
 /** Mobile filters trigger + slide-over sheet (hidden on large screens). */
-export function ProductFiltersMobile(props: FilterControlsProps) {
+export function ProductFiltersMobile(
+	props: FilterControlsProps & { triggerClassName?: string; label?: string },
+) {
+	const { triggerClassName, label = "Filters", ...controls } = props;
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
+				<Button variant="outline" size="sm" className={triggerClassName ?? "lg:hidden"}>
+					{label}
 					<SlidersHorizontalIcon className="size-4" />
-					Filters
 					{activeCount > 0 && (
 						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
 							{activeCount}
@@ -352,7 +355,7 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">
-					<FilterControls {...props} />
+					<FilterControls {...controls} />
 				</div>
 			</SheetContent>
 		</Sheet>
