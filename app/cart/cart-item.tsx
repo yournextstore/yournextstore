@@ -99,12 +99,12 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
+		<div className="flex gap-4 py-5">
 			{/* Product Image */}
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md bg-subtle-2"
 			>
 				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
 			</Link>
@@ -115,7 +115,7 @@ export function CartItem({ item }: CartItemProps) {
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 text-[15px] font-semibold leading-tight text-foreground hover:underline"
 					>
 						{product.name}
 					</Link>
@@ -134,14 +134,14 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex h-9 items-center rounded-full border border-foreground/70 transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-l-full transition-colors hover:bg-secondary"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
@@ -150,7 +150,7 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-r-full transition-colors hover:bg-secondary"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
@@ -158,7 +158,7 @@ export function CartItem({ item }: CartItemProps) {
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="text-[15px] font-bold">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

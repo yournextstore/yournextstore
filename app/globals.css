@@ -8,7 +8,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-montserrat);
+	--font-heading: var(--font-belleza);
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -32,50 +33,122 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Naturelle surfaces and tints (theme settings of the original, AA-adjusted where text sits on them). */
+	--color-page: var(--background);
+	--color-surface: var(--card);
+	--color-subtle: var(--subtle);
+	--color-subtle-2: var(--subtle-2);
+	--color-plum: var(--plum);
+	--color-plum-foreground: var(--plum-foreground);
+	--color-blush: var(--blush);
+	--color-blush-foreground: var(--blush-foreground);
+	--color-sage: var(--sage);
+	--color-mint: var(--mint);
+	--color-mint-foreground: var(--mint-foreground);
+	--color-lavender: var(--lavender);
+	--color-lilac: var(--lilac);
+	--color-leaf: var(--leaf);
+	--color-hairline: var(--hairline);
 }
 
+/* The original's fluid type scale under its own names: overriding text-sm/base/lg would resize every shadcn component. */
+@theme {
+	--text-display: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+	--text-display--line-height: 1.1;
+	--text-title-xl: clamp(2rem, 1.55rem + 1.6vw, 2.75rem);
+	--text-title-xl--line-height: 1.15;
+	--text-title-lg: clamp(1.75rem, 1.4rem + 1.1vw, 2.25rem);
+	--text-title-lg--line-height: 1.2;
+	--text-title-md: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+	--text-title-md--line-height: 1.25;
+	--text-title-sm: 1.25rem;
+	--text-title-sm--line-height: 1.3;
+	--breakpoint-xs: 26.875rem;
+	--breakpoint-desktop: 60rem;
+	--container-page: 90rem;
+	--animate-marquee: marquee 40s linear infinite;
+
+	@keyframes marquee {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
+	}
+}
+
+/* Light-only design: :root and .dark carry the same palette (forcedTheme="light"). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #f4f4f4;
+	--foreground: #282123;
+	--card: #ffffff;
+	--card-foreground: #282123;
+	--popover: #ffffff;
+	--popover-foreground: #282123;
+	--primary: #251e20;
+	--primary-foreground: #f8f0ed;
+	--secondary: #f0eded;
+	--secondary-foreground: #3b2028;
+	--muted: #f0eded;
+	--muted-foreground: #5e5e5e;
+	--accent: #f0eded;
+	--accent-foreground: #3b2028;
+	--destructive: #b42318;
+	--border: #dcd8d6;
+	--input: #cacaca;
+	--ring: #703748;
+	--subtle: #f0eded;
+	--subtle-2: #e9e6e5;
+	--plum: #482f36;
+	--plum-foreground: #f5edea;
+	--blush: #f5edea;
+	--blush-foreground: #482f36;
+	/* The original's sage (#94ab92) deepened until white copy on it clears AA. */
+	--sage: #5f7a5d;
+	--mint: #d2ede2;
+	--mint-foreground: #6e5530;
+	--lavender: #b9bdd3;
+	--lilac: #e9dcef;
+	--leaf: #3d8a3a;
+	--hairline: #443e40;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.75rem;
+	--background: #f4f4f4;
+	--foreground: #282123;
+	--card: #ffffff;
+	--card-foreground: #282123;
+	--popover: #ffffff;
+	--popover-foreground: #282123;
+	--primary: #251e20;
+	--primary-foreground: #f8f0ed;
+	--secondary: #f0eded;
+	--secondary-foreground: #3b2028;
+	--muted: #f0eded;
+	--muted-foreground: #5e5e5e;
+	--accent: #f0eded;
+	--accent-foreground: #3b2028;
+	--destructive: #b42318;
+	--border: #dcd8d6;
+	--input: #cacaca;
+	--ring: #703748;
+	--subtle: #f0eded;
+	--subtle-2: #e9e6e5;
+	--plum: #482f36;
+	--plum-foreground: #f5edea;
+	--blush: #f5edea;
+	--blush-foreground: #482f36;
+	/* The original's sage (#94ab92) deepened until white copy on it clears AA. */
+	--sage: #5f7a5d;
+	--mint: #d2ede2;
+	--mint-foreground: #6e5530;
+	--lavender: #b9bdd3;
+	--lilac: #e9dcef;
+	--leaf: #3d8a3a;
+	--hairline: #443e40;
 }
 
 @layer base {
@@ -83,7 +156,47 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-belleza), ui-serif, Georgia, serif;
+		font-weight: 400;
+	}
+}
+
+@utility container-page {
+	width: 100%;
+	max-width: var(--container-page);
+	margin-inline: auto;
+	padding-inline: 1.25rem;
+	@variant md {
+		padding-inline: 2.5rem;
+	}
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Ghost-ellipse call to action: the original's hand-drawn oval around a short label. */
+.ellipse-link svg {
+	transition: transform 500ms ease;
+}
+.ellipse-link:hover svg {
+	transform: rotate(-11deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee {
+		animation: none;
 	}
 }
 

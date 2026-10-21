@@ -83,8 +83,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className="flex flex-col gap-4 lg:sticky lg:top-40 lg:self-start">
+				<div className="aspect-square bg-card rounded-xl flex items-center justify-center">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -94,13 +94,12 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
 		<section
-			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex flex-col gap-4 outline-none lg:sticky lg:top-40 lg:self-start"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-square overflow-hidden rounded-xl bg-card">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -176,17 +175,17 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 			{/* Thumbnails */}
 			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+				<div className="flex gap-2.5 overflow-x-auto p-1 -m-1">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-16 shrink-0 overflow-hidden rounded-lg border bg-card transition-all duration-200 md:w-[72px]",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+									? "border-foreground/60"
+									: "border-transparent opacity-60 hover:opacity-100",
 							)}
 						>
 							{isVideoUrl(image) ? (

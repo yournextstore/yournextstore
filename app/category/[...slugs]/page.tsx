@@ -7,7 +7,7 @@ import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { ProductFiltersMobile } from "@/components/sections/product-filters";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -16,6 +16,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { picturedFirst } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -115,8 +116,8 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="rounded-2xl bg-card py-24 text-center">
+				<p className="font-heading text-title-sm text-foreground">No products match these filters.</p>
 			</div>
 		);
 	}
@@ -125,8 +126,8 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+				{picturedFirst(result.data).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -142,7 +143,7 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container-page py-10 md:py-14">
 			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
 			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
 			<ProductGridSkeleton />
@@ -206,9 +207,9 @@ const CategoryContent = async ({
 	}
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="container-page py-10 md:py-14">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
+			<Breadcrumb className="mb-6 justify-center">
 				<BreadcrumbList>
 					<BreadcrumbItem>
 						<BreadcrumbLink asChild>
@@ -239,16 +240,12 @@ const CategoryContent = async ({
 				</BreadcrumbList>
 			</Breadcrumb>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
+			<h1 className="mb-8 text-center text-title-xl text-foreground md:mb-10">{category.name}</h1>
 
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
+			<div>
 				<div>
 					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
+						<div className="mb-6 flex">
 							<ProductFiltersMobile facets={facets} showCategories={false} />
 						</div>
 					)}
