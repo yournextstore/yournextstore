@@ -1,7 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MinusIcon, PlusIcon } from "@/components/icons";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** Minus, count, plus: the cart drawer's quantity row, reused where volume pricing needs it. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -19,30 +19,28 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
+		<div className="flex items-center gap-4">
+			<span className="font-semibold">Quantity</span>
+			<div className="flex items-center">
+				<button
+					type="button"
+					className="inline-flex size-6 items-center justify-center disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					<MinusIcon className="size-5" />
+				</button>
+				<span className="w-8 text-center tabular-nums">{quantity}</span>
+				<button
+					type="button"
+					className="inline-flex size-6 items-center justify-center disabled:opacity-40"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
 				>
-					<Plus className="h-4 w-4" />
-				</Button>
+					<PlusIcon className="size-5" />
+				</button>
 			</div>
 		</div>
 	);

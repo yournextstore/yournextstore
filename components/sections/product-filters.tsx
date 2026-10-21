@@ -329,14 +329,17 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 }
 
 /** Mobile filters trigger + slide-over sheet (hidden on large screens). */
-export function ProductFiltersMobile(props: FilterControlsProps) {
+export function ProductFiltersMobile({
+	triggerClassName = "lg:hidden",
+	...props
+}: FilterControlsProps & { triggerClassName?: string }) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
+				<Button variant="outline" size="sm" className={triggerClassName}>
 					<SlidersHorizontalIcon className="size-4" />
 					Filters
 					{activeCount > 0 && (

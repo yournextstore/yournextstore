@@ -1,164 +1,152 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { Fragment } from "react";
+import { NewsletterForm } from "@/components/newsletter-form";
 import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+type FooterLink = { href: string; label: string; external?: boolean };
+
+const SOCIAL_LABELS = {
+	instagram: "Instagram",
+	tiktok: "TikTok",
+	facebook: "Facebook",
+	x: "X",
+	youtube: "YouTube",
+	linkedin: "LinkedIn",
+} as const;
+
+// Everything the footer shows comes from one cached read, so the whole footer stays in the
+// prerendered shell. `new Date()` included: caching pins the year to the entry.
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
 
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
+	const [me, legal, socials, collections] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+		commerce.socialsGet().catch(() => null),
+		commerce.collectionBrowse({ limit: 10 }).catch(() => ({ data: [] })),
+	]);
+	const tools = me?.store.settings?.enabledTools;
 
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
+	const shop: FooterLink[] = [
+		{ href: "/products", label: "Shop" },
+		{ href: "/about", label: "About" },
+		{ href: "/faq", label: "FAQ" },
+		...(tools?.contactForm ? [{ href: "/contact", label: "Contact" }] : []),
+		...(tools?.blog ? [{ href: "/blog", label: "Journal" }] : []),
+	];
+
+	const socialLinks: FooterLink[] = socials
+		? Object.entries(SOCIAL_LABELS).flatMap(([key, label]) => {
+				const href = socials.socials[key as keyof typeof SOCIAL_LABELS];
+				return href ? [{ href, label, external: true }] : [];
+			})
+		: [];
+	const collectionLinks: FooterLink[] = collections.data
+		.filter(
+			(collection) =>
+				collection.active &&
+				(collection.productCollections.length > 0 || (collection.metafieldRules?.length ?? 0) > 0),
+		)
+		.slice(0, 4)
+		.map((collection) => ({ href: `/collection/${collection.slug}`, label: collection.name }));
+
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		year: new Date().getFullYear(),
+		shop,
+		// No social profiles configured: the middle column points into the catalog instead.
+		second:
+			socialLinks.length > 0
+				? { title: "Follow us", links: socialLinks }
+				: { title: "Collections", links: collectionLinks },
+		legal: legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+	};
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
+// The original sets each column's links in two short stacks side by side.
+function LinkColumns({ links }: { links: FooterLink[] }) {
+	const half = Math.ceil(links.length / 2);
+	const stacks = [links.slice(0, half), links.slice(half)].filter((stack) => stack.length > 0);
 	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
+		<div className="flex gap-x-12 text-ink-soft">
+			{stacks.map((stack) => (
+				<ul key={stack[0]?.href} className="flex flex-col gap-3">
+					{stack.map((link) => (
+						<li key={link.href}>
+							{link.external ? (
+								<a
+									href={link.href}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="transition-colors hover:text-foreground"
+								>
+									{link.label}
+								</a>
+							) : (
+								<Link href={link.href} className="transition-colors hover:text-foreground">
+									{link.label}
+								</Link>
+							)}
+						</li>
+					))}
+				</ul>
+			))}
 		</div>
 	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { storeName, year, shop, second, legal } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
-					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
+		<footer className="pt-12">
+			<div className="container-wide mb-12 py-12">
+				<div className="grid gap-y-12 sm:grid-cols-2 md:grid-cols-3 md:gap-x-4">
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
+						<p className="mb-6 font-serif text-display-1">{storeName}</p>
+						<LinkColumns links={shop} />
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					{second.links.length > 0 && (
+						<div>
+							<p className="mb-6 font-serif text-display-1">{second.title}</p>
+							<LinkColumns links={second.links} />
+						</div>
+					)}
+					<div className="sm:col-span-2 md:col-span-1">
+						<p className="mb-4 font-serif text-display-1">Newsletter</p>
+						<NewsletterForm />
+					</div>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
-					<PaymentMethods />
+			</div>
+			<div className="md:pt-12">
+				<div className="bg-tint">
+					<div className="container-wide flex flex-col items-center justify-between gap-4 py-6 md:flex-row md:py-4">
+						<ul className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-caption text-brand uppercase">
+							{legal.map((link, index) => (
+								<Fragment key={link.href}>
+									{index > 0 && (
+										<li aria-hidden="true" className="px-0.5">
+											-
+										</li>
+									)}
+									<li>
+										<Link href={link.href} className="hover:underline">
+											{link.label}
+										</Link>
+									</li>
+								</Fragment>
+							))}
+						</ul>
+						<div className="flex flex-col items-center gap-4 md:flex-row md:gap-6">
+							<PaymentMethods />
+							<p className="text-caption text-brand uppercase">
+								&copy; {year} {storeName}.
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</footer>

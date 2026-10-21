@@ -8,12 +8,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-poppins);
+	--font-serif: var(--font-playfair);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+	--radius-2xl: 0px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,59 +34,208 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-tint: var(--tint);
+	--color-brand: var(--brand);
+	--color-ink-soft: var(--ink-soft);
+	--color-hairline: var(--hairline);
 }
 
+/* The original's scale (Bootstrap 4 + its own utility sheet), under names that leave Tailwind's
+   text-sm/base/lg alone for the shadcn components. */
+@theme {
+	--text-tiny: 0.6875rem;
+	--text-tiny--line-height: 1rem;
+	--text-caption: 0.75rem;
+	--text-caption--line-height: 1.25rem;
+	--text-body: 0.875rem;
+	--text-body--line-height: 1.25rem;
+	--text-paragraph: 0.875rem;
+	--text-paragraph--line-height: 1.5rem;
+	--text-subheader: 1rem;
+	--text-subheader--line-height: 1.875rem;
+	--text-title: 1.25rem;
+	--text-title--line-height: 2rem;
+	--text-heading: 1.5rem;
+	--text-heading--line-height: 2.25rem;
+	--text-display-1: 1.75rem;
+	--text-display-1--line-height: 2.5rem;
+	--text-display-2: 2.125rem;
+	--text-display-2--line-height: 3rem;
+	--text-display-3: 2.5rem;
+	--text-display-3--line-height: 3.5rem;
+	--text-display-5: 4rem;
+	--text-display-5--line-height: 4.5rem;
+	--breakpoint-xs: 36rem;
+}
+
+/* Black ink on white, one pale blue-grey tint for every band (categories, explore banner, cart
+   footer, reviews), a teal for the small print and a charcoal mobile menu. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0px;
+	--tint: #f4fafb;
+	/* The original teal #3796b5 reads 3.2:1 on the tint; this keeps the hue and clears AA. */
+	--brand: #2a7690;
+	/* The original's #797979 / #a5a5a5 greys fail AA on white; its own #6c6c6c step clears it. */
+	--ink-soft: #6c6c6c;
+	--hairline: #d6d6d6;
+	--charcoal: #2b2b2b;
+	--background: #ffffff;
+	--foreground: #000000;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f4fafb;
+	--secondary-foreground: #000000;
+	--muted: #f4fafb;
+	--muted-foreground: #6c6c6c;
+	--accent: #f4fafb;
+	--accent-foreground: #000000;
+	--destructive: #c50901;
+	--border: #e2e2e2;
+	--input: #d6d6d6;
+	--ring: #c8c8c8;
 }
 
+/* Light only, like the original. The block stays so the palette test checks both. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--tint: #f4fafb;
+	--brand: #2a7690;
+	--ink-soft: #6c6c6c;
+	--hairline: #d6d6d6;
+	--charcoal: #2b2b2b;
+	--background: #ffffff;
+	--foreground: #000000;
+	--card: #ffffff;
+	--card-foreground: #000000;
+	--popover: #ffffff;
+	--popover-foreground: #000000;
+	--primary: #000000;
+	--primary-foreground: #ffffff;
+	--secondary: #f4fafb;
+	--secondary-foreground: #000000;
+	--muted: #f4fafb;
+	--muted-foreground: #6c6c6c;
+	--accent: #f4fafb;
+	--accent-foreground: #000000;
+	--destructive: #c50901;
+	--border: #e2e2e2;
+	--input: #d6d6d6;
+	--ring: #c8c8c8;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
-	body {
-		@apply bg-background text-foreground;
+	html {
+		font-size: 16px;
 	}
+	body {
+		@apply bg-background text-foreground font-sans text-body;
+	}
+	::selection {
+		background: #000;
+		color: #fff;
+	}
+	:focus-visible {
+		outline: 3px auto #c8c8c8;
+	}
+}
+
+/* The original's centred container: 1440px wide, 3rem gutters, 1.5rem below 576px. */
+@utility container-wide {
+	width: 100%;
+	max-width: 1440px;
+	margin-inline: auto;
+	padding-inline: 1.5rem;
+	@media (width >= 36rem) {
+		padding-inline: 3rem;
+	}
+}
+
+/* Fixed header: transparent with white ink over a hero photograph, white with a black rule
+   everywhere else and once the page scrolls. Driven by the DOM ([data-hero], data-sticky) so
+   the header never reads the pathname and stays in the prerendered shell. */
+.site-header {
+	position: fixed;
+	inset-inline: 0;
+	top: 0;
+	z-index: 40;
+	background: #fff;
+	color: #000;
+	border-bottom: 1px solid #000;
+	transition:
+		background-color 0.2s ease-in-out,
+		border-color 0.2s ease-in-out,
+		color 0.2s ease-in-out;
+}
+
+:root:has([data-hero]) .site-header:not([data-sticky="true"]) {
+	background: transparent;
+	color: #fff;
+	border-color: transparent;
+}
+
+.site-main {
+	padding-top: 4.5rem;
+	@media (width >= 40rem) {
+		padding-top: 5rem;
+	}
+}
+
+:root:has([data-hero]) .site-main {
+	padding-top: 0;
+}
+
+/* Sticky columns sit under the fixed header. */
+.below-header {
+	top: 6.5rem;
+}
+
+.hero-shadow {
+	text-shadow: 2px 2px 3px rgb(33 33 33 / 0.5);
+}
+
+/* Two-slide crossfade standing in for the original's Swiper fade (5s per slide, 1s fade). */
+@keyframes hero-fade {
+	0%,
+	45% {
+		opacity: 0;
+	}
+	55%,
+	95% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.hero-slide-2 {
+	opacity: 0;
+	animation: hero-fade 12s ease-in-out 1s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-slide-2 {
+		animation: none;
+		opacity: 0;
+	}
+}
+
+/* Underlined text link with a long arrow: the original's "Find out more →" pattern. */
+@utility arrow-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 1rem;
+	padding-block: 1rem;
+	border-bottom: 1px solid #000;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	color: #000;
 }
 
 .prose {
