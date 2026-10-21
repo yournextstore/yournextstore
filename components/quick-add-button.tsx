@@ -1,12 +1,10 @@
 "use client";
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
-import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
+import { cn } from "@/lib/utils";
 
 type QuickAddButtonProps = {
 	variantId: string;
@@ -21,6 +19,8 @@ type QuickAddButtonProps = {
 		slug: string;
 		images: string[];
 	};
+	className?: string;
+	label?: string;
 };
 
 export function QuickAddButton({
@@ -30,6 +30,8 @@ export function QuickAddButton({
 	variantPriceGross,
 	variantImages,
 	product,
+	className,
+	label = "Add to cart",
 }: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -73,22 +75,16 @@ export function QuickAddButton({
 	};
 
 	return (
-		<TooltipPrimitive.Provider delayDuration={1000}>
-			<TooltipPrimitive.Root>
-				<TooltipTrigger asChild>
-					<button
-						type="button"
-						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-						aria-label={`Add ${product.name} to cart`}
-					>
-						<ShoppingBag className="h-3.5 w-3.5" />
-					</button>
-				</TooltipTrigger>
-				<TooltipContent side="top" className="text-xs">
-					Add to cart
-				</TooltipContent>
-			</TooltipPrimitive.Root>
-		</TooltipPrimitive.Provider>
+		<button
+			type="button"
+			onClick={handleClick}
+			className={cn(
+				"h-10 cursor-pointer bg-swag-green px-4 font-sans text-t16 font-medium text-black hover:bg-black hover:text-swag-green",
+				className,
+			)}
+			aria-label={`${label}, ${product.name}`}
+		>
+			{label}
+		</button>
 	);
 }

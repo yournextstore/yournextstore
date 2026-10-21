@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
@@ -98,71 +98,49 @@ export function CartItem({ item }: CartItemProps) {
 		updateQuantity({ type: "DECREASE", variantId: productVariant.id }, quantity - 1);
 	};
 
+	// A tile in a cart bucket: the photograph at the bucket's height, a white quantity chip
+	// bottom-left and the black remove square bottom-right, as in the original.
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
-			<Link
-				href={`/product/${product.slug}`}
-				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
-			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+		<li
+			className={cn(
+				"relative aspect-[2/3] h-full min-w-[104px] shrink-0 bg-swag-paper",
+				isPending && "opacity-60",
+			)}
+		>
+			<Link href={`/product/${product.slug}`} onClick={closeCart} className="absolute inset-0">
+				<span className="sr-only">
+					{product.name}, {formatMoney({ amount: lineTotal, currency, locale })}
+				</span>
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="140px" />}
 			</Link>
-
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<Link
-						href={`/product/${product.slug}`}
-						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-					>
-						{product.name}
-					</Link>
-					<button
-						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
-					>
-						<Trash2 className="h-4 w-4" />
-					</button>
-				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
+			<div className="absolute bottom-1.5 left-1.5 z-10 flex items-stretch bg-white text-t14 text-black">
+				<button
+					type="button"
+					onClick={handleDecrement}
+					className="flex h-6 w-6 items-center justify-center hover:bg-swag-red hover:text-white"
+					aria-label={`Decrease quantity of ${product.name}`}
+				>
+					<Minus className="h-3 w-3" aria-hidden />
+				</button>
+				<span className="flex h-6 min-w-5 items-center justify-center tabular-nums">{quantity}</span>
+				<button
+					type="button"
+					onClick={handleIncrement}
+					className="flex h-6 w-6 items-center justify-center hover:bg-swag-red hover:text-white"
+					aria-label={`Increase quantity of ${product.name}`}
+				>
+					<Plus className="h-3 w-3" aria-hidden />
+				</button>
 			</div>
-		</div>
+			<button
+				type="button"
+				onClick={handleRemove}
+				disabled={isPending}
+				className="absolute top-0 right-0 z-10 flex h-[30px] w-[30px] items-center justify-center bg-black text-t14 text-white hover:bg-swag-red disabled:pointer-events-none"
+				aria-label={`Remove ${product.name}`}
+			>
+				x
+			</button>
+		</li>
 	);
 }
