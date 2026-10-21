@@ -1,100 +1,16 @@
+import { Heart } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { try_ } from "safe-try";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
+import { getShelves, getShopInfo } from "@/lib/shop";
 
-async function FooterBlogLink() {
+async function getLegalLinks() {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
+	const [error, pages] = await try_(commerce.legalPageBrowse());
+	return error ? [] : pages.data.map((page) => ({ href: `/legal${page.href}`, label: page.label }));
 }
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
@@ -106,59 +22,104 @@ async function getCopyrightYear() {
 	return new Date().getFullYear();
 }
 
+const linkClass = "link-dashed text-foreground/90 hover:text-foreground";
+
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [year, shop, shelves, legal] = await Promise.all([
+		getCopyrightYear(),
+		getShopInfo(),
+		getShelves(),
+		getLegalLinks(),
+	]);
+
+	const quickLinks = [
+		{ href: "/about", label: "About Us" },
+		...(shop.contactForm ? [{ href: "/contact", label: "Contact Us" }] : []),
+		{ href: "/faq", label: "FAQ" },
+		...(shop.blog ? [{ href: "/blog", label: "Blog" }] : []),
+		...legal,
+	];
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
+		<footer className="mt-auto">
+			<div className="border-t-2 border-muted bg-card">
+				<div className="shelf-container grid gap-y-8 py-10 md:grid-cols-[2fr_1fr_1fr] md:gap-x-10 md:py-12">
+					<div className="flex flex-col gap-y-4">
+						<h2 className="font-serif text-xl font-semibold">{shop.storeName}</h2>
+						<div className="max-w-md space-y-2 text-sm leading-relaxed">
+							<p>
+								{shop.description ||
+									"We are an independent bookshop with a carefully chosen selection of novels, non-fiction and children's books, plus a few good things to read with."}
+							</p>
+							<p>
+								We aim to make browsing feel like an afternoon among well-kept shelves: unhurried, friendly
+								and full of surprises.
+							</p>
+						</div>
+						{shop.socials.length > 0 ? (
+							<ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+								{shop.socials.map((social) => (
+									<li key={social.href}>
+										<a href={social.href} target="_blank" rel="noreferrer" className={linkClass}>
+											{social.label}
+										</a>
+									</li>
+								))}
+							</ul>
+						) : null}
 					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
+						<h2 className="mb-3 font-serif text-xl font-semibold">Quick Links</h2>
+						<ul className="flex flex-col gap-y-2">
+							{quickLinks.map((link) => (
+								<li key={link.href}>
+									<Link href={link.href} className={linkClass}>
+										{link.label}
+									</Link>
+								</li>
+							))}
 						</ul>
 					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					<div>
+						<h2 className="mb-3 font-serif text-xl font-semibold">Browse</h2>
+						<ul className="flex flex-col gap-y-2">
+							<li>
+								<Link href="/products" className={linkClass}>
+									All Products
+								</Link>
+							</li>
+							{shelves.categories.slice(0, 5).map((link) => (
+								<li key={link.href}>
+									<Link href={link.href} className={linkClass}>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+						{shop.email ? (
+							<p className="mt-5 text-sm">
+								<span className="block">Email:</span>
+								<a href={`mailto:${shop.email}`} className={linkClass}>
+									{shop.email}
+								</a>
+							</p>
+						) : null}
+					</div>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="shelf-container pb-6">
 					<PaymentMethods />
+				</div>
+			</div>
+			<div className="bg-primary text-primary-foreground">
+				<div className="shelf-container flex flex-col gap-1 py-2 text-sm sm:flex-row sm:items-center sm:justify-between md:text-base">
+					<p>
+						&copy; Copyright {year} - {shop.storeName}
+					</p>
+					<p className="flex items-center gap-x-2">
+						Crafted with
+						<Heart aria-label="love" className="h-4 w-4 fill-current" />
+						for curious minds
+					</p>
 				</div>
 			</div>
 		</footer>

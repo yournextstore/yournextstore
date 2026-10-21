@@ -1,20 +1,25 @@
 import { cn } from "@/lib/utils";
 
-export function ProductCardSkeleton() {
+export function ProductCardSkeleton({ className }: { className?: string }) {
 	return (
-		<div>
-			<div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
-			<div className="space-y-2">
-				<div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
-				<div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+		<div className={cn("flex flex-col gap-y-2 rounded shadow-sm", className)}>
+			<div className="rounded border-2 border-shelf bg-shelf p-4 sm:p-8 md:p-4 lg:p-8">
+				<div className="mx-auto h-44 aspect-[2/3] animate-pulse rounded bg-rule" />
+			</div>
+			<div className="space-y-2 px-4 pb-4">
+				<div className="h-10 pt-1">
+					<div className="h-4 w-3/4 animate-pulse rounded bg-shelf" />
+				</div>
+				<div className="h-6 w-1/3 animate-pulse rounded bg-shelf" />
+				<div className="h-9 w-full animate-pulse rounded bg-shelf" />
 			</div>
 		</div>
 	);
 }
 
-export function ProductGridSkeleton({ count = 6, className }: { count?: number; className?: string }) {
+export function ProductGridSkeleton({ count = 10, className }: { count?: number; className?: string }) {
 	return (
-		<div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8", className)}>
+		<div className={cn("shelf-grid", className)}>
 			{Array.from({ length: count }).map((_, i) => (
 				<ProductCardSkeleton key={`skeleton-${i}`} />
 			))}

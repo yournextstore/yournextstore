@@ -1,5 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's own type scale (`text-shelf-*`) would otherwise be read as a colour and dropped.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["shelf-hero", "shelf-title", "shelf-lede"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

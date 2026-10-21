@@ -9,11 +9,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-quicksand);
+	--font-serif: var(--font-fraunces);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
+	--radius-sm: calc(var(--radius) - 2px);
+	--radius-md: var(--radius);
+	--radius-lg: calc(var(--radius) + 2px);
 	--radius-xl: calc(var(--radius) + 4px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -33,59 +34,136 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-mint: var(--mint);
+	--color-mint-dark: var(--mint-dark);
+	--color-mint-ink: var(--mint-ink);
+	--color-shelf: var(--shelf);
+	--color-rule: var(--rule);
 }
 
+/* Shelf type scale: own names so shadcn's text-sm/base keep their sizes. */
+@theme {
+	--text-shelf-hero: 2.25rem;
+	--text-shelf-hero--line-height: 1.2;
+	--text-shelf-title: 1.5rem;
+	--text-shelf-title--line-height: 1.3;
+	--text-shelf-lede: 1rem;
+	--text-shelf-lede--line-height: 1.6;
+}
+
+/* Light-only bookshop palette (original "skin" tokens). The .dark block repeats it on purpose. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.25rem;
+	--background: #f9ffff;
+	--foreground: #363636;
+	--card: #f9ffff;
+	--card-foreground: #363636;
+	--popover: #f9ffff;
+	--popover-foreground: #363636;
+	--primary: #363636;
+	--primary-foreground: #f9ffff;
+	--secondary: #edf4f4;
+	--secondary-foreground: #363636;
+	--muted: #edf4f4;
+	/* The original greys its secondary text with opacity; this solid tone clears AA on --muted. */
+	--muted-foreground: #5b6463;
+	--accent: #edf4f4;
+	--accent-foreground: #363636;
+	--destructive: #c0392b;
+	--border: #d1dbd9;
+	--input: #d1dbd9;
+	--ring: #3caf9a;
+	--mint: #53cab5;
+	--mint-dark: #3caf9a;
+	/* Mint as text/badge fill needs a deeper step of the hue for AA. */
+	--mint-ink: #1d7a69;
+	--shelf: #edf4f4;
+	--rule: #e3eceb;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.25rem;
+	--background: #f9ffff;
+	--foreground: #363636;
+	--card: #f9ffff;
+	--card-foreground: #363636;
+	--popover: #f9ffff;
+	--popover-foreground: #363636;
+	--primary: #363636;
+	--primary-foreground: #f9ffff;
+	--secondary: #edf4f4;
+	--secondary-foreground: #363636;
+	--muted: #edf4f4;
+	--muted-foreground: #5b6463;
+	--accent: #edf4f4;
+	--accent-foreground: #363636;
+	--destructive: #c0392b;
+	--border: #d1dbd9;
+	--input: #d1dbd9;
+	--ring: #3caf9a;
+	--mint: #53cab5;
+	--mint-dark: #3caf9a;
+	--mint-ink: #1d7a69;
+	--shelf: #edf4f4;
+	--rule: #e3eceb;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-quicksand), ui-sans-serif, system-ui, sans-serif;
 	}
+	h1,
+	h2,
+	h3,
+	.font-serif {
+		font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+	}
+	a,
+	button {
+		outline-color: var(--mint);
+	}
+}
+
+@layer components {
+	/* Dark filled button (original .primary-btn-color). */
+	.btn-shelf {
+		@apply inline-flex items-center justify-center gap-2 rounded bg-primary font-semibold text-primary-foreground transition-colors hover:bg-primary/85 active:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70;
+	}
+	/* Outline button (original .outline-btn-color). */
+	.btn-outline-shelf {
+		@apply inline-flex items-center justify-center gap-2 rounded border border-foreground text-foreground transition-colors hover:bg-muted;
+	}
+	/* Dashed underline link (original .text-link). */
+	.link-dashed {
+		@apply underline decoration-dashed decoration-from-font underline-offset-2 hover:decoration-solid;
+	}
+	/* Mint underline that grows on hover (original .nav-menu). */
+	.nav-underline {
+		@apply relative after:absolute after:inset-x-0 after:-bottom-1 after:mx-auto after:block after:h-0.5 after:w-0 after:bg-mint after:opacity-0 after:transition-all after:duration-300 hover:after:w-full hover:after:opacity-100;
+	}
+	.nav-underline[data-state="open"] {
+		@apply after:w-full after:opacity-100;
+	}
+	/* Card row: 2 / 3 / 4 / 5 columns like the original's .cards-container. */
+	.shelf-grid {
+		@apply grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 md:gap-x-6 lg:grid-cols-5;
+	}
+	.shelf-container {
+		@apply mx-auto w-full max-w-6xl px-4 md:px-8;
+	}
+}
+
+.site-header[data-scrolled="true"] {
+	box-shadow:
+		0 1px 3px 0 rgb(0 0 0 / 0.1),
+		0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 .prose {

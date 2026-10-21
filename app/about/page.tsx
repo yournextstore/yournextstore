@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { Crumbs } from "@/components/crumbs";
+import { getStoreSeo } from "@/lib/commerce";
+import { ABOUT_BANNER, ABOUT_FRAMED } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
+import { getShopInfo } from "@/lib/shop";
+import { YNSMedia } from "@/lib/yns-media";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
 export const ensureStatic = "navigation";
@@ -26,110 +30,82 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-async function getStoreInfo() {
-	try {
-		const me = await meGetCached();
-		return {
-			storeName: me.store.name || "our store",
-			storeDescription: me.store.settings?.storeDescription || null,
-			contactFormEnabled: me.store.settings?.enabledTools?.contactForm ?? false,
-		};
-	} catch {
-		return { storeName: "our store", storeDescription: null, contactFormEnabled: false };
-	}
-}
-
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
 
-	const { storeName, storeDescription, contactFormEnabled } = await getStoreInfo();
+	const shop = await getShopInfo();
+	const { storeName, description: storeDescription, contactForm: contactFormEnabled } = shop;
+	const banner = ABOUT_BANNER;
+	const framed = ABOUT_FRAMED;
 
 	const aboutJsonLd = {
 		"@context": "https://schema.org",
 		"@type": "AboutPage",
 		name: `About ${storeName}`,
-		description:
-			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
+		description: storeDescription ?? "Learn about our story, our values, and the people behind the shop.",
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="min-h-svh">
 			<JsonLdScript data={aboutJsonLd} />
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
+			{/* Original About banner: a darkened photograph with the title centred on it. */}
+			<div className="relative flex h-40 items-center justify-center overflow-hidden bg-[#2b2b2b] md:h-64">
+				{banner ? (
+					<YNSMedia src={banner.src} alt="" fill priority sizes="100vw" className="object-cover opacity-35" />
+				) : null}
+				<h1 className="relative font-serif text-3xl font-semibold text-white">About Us</h1>
 			</div>
 
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+			<div className="mx-auto max-w-5xl px-4 py-6 md:px-8 md:py-8">
+				<Crumbs items={[{ label: "Home", href: "/" }, { label: "About Us" }]} />
+				<div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-6">
+					<div className="flex-1 space-y-8 md:text-lg">
+						<section>
+							<h2 className="mb-2 font-serif text-2xl font-semibold">Our Mission</h2>
+							<p className="leading-relaxed">
+								{storeDescription ??
+									`${storeName} exists to make finding the right book feel like browsing a well-loved shop: unhurried, personal and full of small discoveries.`}{" "}
+								Every item on our shelves is one we are glad to offer, shown plainly with its options and
+								price.
 							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
+						</section>
+						<section className="space-y-3">
+							<h2 className="mb-2 font-serif text-2xl font-semibold">What We Are</h2>
+							<p className="leading-relaxed">
+								We are a small independent bookshop: fiction, non-fiction and children's books, plus a few
+								reading goods. The shelves grow one considered addition at a time.
 							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
+							<p className="leading-relaxed">
+								Wander the shelves, follow whatever catches your eye and take your time. If you have a
+								question along the way, we would love to hear from you.
 							</p>
+						</section>
+						<div className="flex flex-wrap gap-4">
+							<Link href="/products" className="btn-shelf px-5 py-2 text-lg font-medium">
+								Browse the Shelves
+							</Link>
+							{contactFormEnabled ? (
+								<Link href="/contact" className="btn-outline-shelf border-2 px-5 py-2 text-lg font-medium">
+									Contact Us
+								</Link>
+							) : null}
 						</div>
 					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+					{framed ? (
+						<div className="mx-auto w-full max-w-sm bg-primary p-2 md:mx-0 md:w-96 md:shrink-0">
+							<div className="relative aspect-square">
+								<YNSMedia
+									src={framed.src}
+									alt={framed.alt}
+									fill
+									sizes="(min-width: 768px) 368px, 90vw"
+									className="object-cover"
+								/>
+							</div>
+						</div>
+					) : null}
 				</div>
 			</div>
 		</div>

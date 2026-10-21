@@ -1,11 +1,11 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
@@ -23,6 +23,7 @@ type QuickAddButtonProps = {
 	};
 };
 
+/** The card's dark "Add To Cart" button: adds one, confirms with a toast (as the original), cart stays closed. */
 export function QuickAddButton({
 	variantId,
 	variantSku,
@@ -32,18 +33,11 @@ export function QuickAddButton({
 	product,
 }: QuickAddButtonProps) {
 	const { openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
+	const [pending, startPending] = useTransition();
 
-	const handleClick = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-
+	const handleClick = () => {
 		trackAddToCart({ id: variantId, sku: variantSku, price: variantPrice }, product.name, 1);
 
-		openCart();
-
-		// Instant local feedback OUTSIDE the transition, then REPLACE with the
-		// server-returned cart (never refetch — cartGet reads a replica that can lag the
-		// write). The transition keeps Checkout disabled until the write lands.
 		dispatch({
 			type: "ADD_ITEM",
 			item: {
@@ -58,33 +52,33 @@ export function QuickAddButton({
 			},
 		});
 
-		startMutation(async () => {
-			// The server clamps to available stock and still returns the cart — surface
-			// the failure instead of letting the optimistic item silently vanish.
-			const result = await addToCart(variantId, 1);
-			const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(variantId));
-			if (result.success && result.cart && line) {
-				syncCart(result.cart);
-			} else {
-				await reconcile();
-				toast.error("This item is out of stock");
-			}
+		startPending(() => {
+			startMutation(async () => {
+				const result = await addToCart(variantId, 1);
+				const line = result.cart?.lineItems.find((item) => itemKey(item) === lineKey(variantId));
+				if (result.success && result.cart && line) {
+					syncCart(result.cart);
+					toast.success("Added to cart", {
+						description: product.name,
+						action: { label: "View cart", onClick: openCart },
+					});
+				} else {
+					await reconcile();
+					toast.error("This item is out of stock");
+				}
+			});
 		});
 	};
 
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				delay={1000}
-				onClick={handleClick}
-				className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-				aria-label={`Add ${product.name} to cart`}
-			>
-				<ShoppingBag className="h-3.5 w-3.5" />
-			</TooltipTrigger>
-			<TooltipContent side="top" className="text-xs">
-				Add to cart
-			</TooltipContent>
-		</Tooltip>
+		<button
+			type="button"
+			onClick={handleClick}
+			aria-label={`Add To Cart, ${product.name}`}
+			className="btn-shelf h-9 min-w-0 flex-1 whitespace-nowrap px-1 text-sm"
+		>
+			{pending ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : null}
+			Add To Cart
+		</button>
 	);
 }

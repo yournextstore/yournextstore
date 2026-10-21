@@ -1,12 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
-import { Button } from "@/components/ui/button";
-import { cn, isVideoUrl } from "@/lib/utils";
-import { YNSMedia } from "@/lib/yns-media";
+import { BookCover } from "@/components/book-cover";
+import { cn } from "@/lib/utils";
 
 type Variant = {
 	id: string;
@@ -50,7 +49,6 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
 	// the gallery, so a jump on change alone would land back on the first image.
 	const [selectedIndex, setSelectedIndex] = useState(variantImageIndex);
-	const [isZoomed, setIsZoomed] = useState(false);
 
 	// Jump to the selected variant's image when the variant changes (avoids useEffect). The previous
 	// key lives in state, not a ref: a variant change renders inside a transition, and a discarded
@@ -86,131 +84,74 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		[displayImages.length, handlePrevious, handleNext],
 	);
 
+	const wrapperClass = "mx-auto w-full max-w-[20rem] md:w-2/5 md:max-w-none md:shrink-0 md:self-start";
+
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className={wrapperClass}>
+				<div className="flex h-88 items-center justify-center rounded bg-muted p-8 md:h-96 lg:p-16 xl:h-[28rem]">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
 		);
 	}
 
+	const current = displayImages[selectedIndex] ?? "";
+
 	return (
 		// WAI-APG carousel: a named region; arrow keys bubble up from the focusable controls inside.
-		<section
-			aria-roledescription="carousel"
-			aria-label="Product media gallery"
-			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
-		>
-			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
-				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
-					<video
-						className="absolute inset-0 w-full h-full object-cover"
-						src={displayImages[selectedIndex]}
-						muted
-						loop
-						autoPlay
-						playsInline
-						controls
-					/>
-				) : (
-					<YNSMedia
-						src={displayImages[selectedIndex] ?? ""}
+		<section aria-label="Product media gallery" onKeyDown={handleKeyDown} className={wrapperClass}>
+			{/* Original image wrapper: muted panel, the cover grows a little on hover. */}
+			<div className="relative rounded bg-muted p-8 lg:p-16">
+				<div className="flex h-72 justify-center transition-transform duration-500 hover:scale-110 md:h-80 xl:h-96">
+					<BookCover
+						key={current}
+						src={current}
 						alt={`${productName} - View ${selectedIndex + 1}`}
-						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						className={cn(
-							"object-cover transition-transform duration-500",
-							isZoomed && "scale-150 cursor-zoom-out",
-						)}
-						onClick={() => setIsZoomed(!isZoomed)}
 						priority
-						fetchPriority="high"
+						sizes="(min-width: 1280px) 256px, (min-width: 768px) 214px, 192px"
 					/>
-				)}
-
-				{/* Navigation Arrows */}
+				</div>
 				{displayImages.length > 1 && (
-					<div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 justify-between opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handlePrevious();
-							}}
+					<>
+						<button
+							type="button"
+							onClick={handlePrevious}
 							aria-label="Previous image"
+							className="absolute top-1/2 left-1 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 shadow hover:bg-background"
 						>
-							<ChevronLeft className="h-5 w-5" />
-						</Button>
-						<Button
-							variant="secondary"
-							size="icon"
-							className="h-10 w-10 rounded-full bg-background/90 shadow-lg backdrop-blur-sm hover:bg-background"
-							onClick={(e) => {
-								e.stopPropagation();
-								handleNext();
-							}}
+							<ChevronLeft aria-hidden="true" className="h-5 w-5" />
+						</button>
+						<button
+							type="button"
+							onClick={handleNext}
 							aria-label="Next image"
+							className="absolute top-1/2 right-1 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 shadow hover:bg-background"
 						>
-							<ChevronRight className="h-5 w-5" />
-						</Button>
-					</div>
-				)}
-
-				{/* Zoom Indicator (hidden for videos) */}
-				{!isVideoUrl(displayImages[selectedIndex] ?? "") && (
-					<div className="absolute bottom-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-						<div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-							<ZoomIn className="h-3.5 w-3.5" />
-							Click to zoom
-						</div>
-					</div>
-				)}
-
-				{/* Image Counter */}
-				{displayImages.length > 1 && (
-					<div className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
-						{selectedIndex + 1} / {displayImages.length}
-					</div>
+							<ChevronRight aria-hidden="true" className="h-5 w-5" />
+						</button>
+						<p className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs tabular-nums">
+							{selectedIndex + 1} / {displayImages.length}
+						</p>
+					</>
 				)}
 			</div>
 
-			{/* Thumbnails */}
-			{displayImages.length > 1 && (
-				<div className="flex gap-3 overflow-x-auto p-2 -m-2">
+			{displayImages.length > 1 && displayImages.length <= 12 && (
+				<div className="mt-3 flex gap-3 overflow-x-auto p-1">
 					{displayImages.map((image, index) => (
 						<button
 							key={`${image}-${index}`}
 							type="button"
 							onClick={() => setSelectedIndex(index)}
+							aria-label={`Show image ${index + 1}`}
+							aria-current={selectedIndex === index}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
-								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-									: "opacity-60 hover:opacity-100",
+								"flex h-20 w-16 shrink-0 items-center justify-center rounded bg-muted p-1.5 transition-opacity",
+								selectedIndex === index ? "ring-2 ring-mint" : "opacity-70 hover:opacity-100",
 							)}
 						>
-							{isVideoUrl(image) ? (
-								<video
-									className="absolute inset-0 w-full h-full object-cover"
-									src={image}
-									muted
-									playsInline
-								/>
-							) : (
-								<YNSMedia
-									src={image}
-									alt={`${productName} thumbnail ${index + 1}`}
-									fill
-									sizes="80px"
-									className="object-cover"
-								/>
-							)}
+							<BookCover src={image} alt="" sizes="48px" />
 						</button>
 					))}
 				</div>

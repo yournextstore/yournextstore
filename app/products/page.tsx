@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
+import { Crumbs } from "@/components/crumbs";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { photographedFirst } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { getShelves } from "@/lib/shop";
+import { SortSelect } from "./products-sort-select";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 20;
 
 const sortOptions = [
 	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
@@ -90,9 +92,12 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<p className="mb-4 text-sm text-muted-foreground">
+				{result.meta.count} {result.meta.count === 1 ? "item" : "items"} on the shelves
+			</p>
+			<div className="shelf-grid">
+				{(filters.sort ? result.data : photographedFirst(result.data)).map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index < 2} />
 				))}
 			</div>
 
@@ -113,47 +118,50 @@ async function ProductSection({ searchParams }: { searchParams: Promise<ProductF
 	return <ProductList filters={filters} />;
 }
 
+function ToolbarFallback() {
+	return <div aria-hidden="true" className="h-8 w-[9rem] rounded-md border border-input" />;
+}
+
+function ListFallback() {
+	return (
+		<>
+			<div className="mb-4 h-5" />
+			<ProductGridSkeleton count={20} />
+		</>
+	);
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
-	const filtersAvailable =
-		facets.categories.length > 0 ||
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
+	const { categories } = await getShelves();
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="shelf-container min-h-svh py-6">
+			<Crumbs items={[{ label: "Home", href: "/" }, { label: "Products" }]} />
+			<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+				<h1 className="font-serif text-2xl font-semibold">All Products</h1>
+				{/* The sort control reads useSearchParams(), so it streams in behind its own boundary
+				    with a fallback of the same box. */}
+				<Suspense fallback={<ToolbarFallback />}>
+					<SortSelect options={sortOptions} />
+				</Suspense>
 			</div>
-
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
-
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
-				</div>
+			{categories.length > 0 ? (
+				<nav aria-label="Categories" className="mt-3 mb-6">
+					<ul className="flex flex-wrap gap-x-4 gap-y-1">
+						{categories.map((category) => (
+							<li key={category.href}>
+								<Link href={category.href} className="link-dashed text-foreground/90 hover:text-foreground">
+									{category.label}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</nav>
+			) : (
+				<div className="mb-6" />
+			)}
+			<Suspense fallback={<ListFallback />}>
+				<ProductSection searchParams={searchParams} />
 			</Suspense>
 		</div>
 	);
