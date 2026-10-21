@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -67,8 +68,18 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
+			<SelectTrigger
+				className={cn(
+					"h-10 w-auto gap-2 border-0 bg-transparent px-2.5 text-base shadow-none hover:bg-secondary focus-visible:ring-2 dark:bg-transparent [&>svg:last-child]:hidden",
+					className,
+				)}
+				aria-label="Sort products"
+			>
+				<ArrowUpDown aria-hidden="true" className="size-4 opacity-80" />
+				<span className="text-foreground">Sort by:</span>
+				<span className="font-semibold text-foreground">
+					<SelectValue />
+				</span>
 			</SelectTrigger>
 			<SelectContent align="end">
 				{options.map((option) => (

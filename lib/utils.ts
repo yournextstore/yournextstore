@@ -1,5 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's type-scale utilities (text-hero …) read as colours to tailwind-merge unless registered.
+const twMerge = extendTailwindMerge({
+	extend: { classGroups: { "font-size": [{ text: ["hero", "title", "section", "body", "caption"] }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

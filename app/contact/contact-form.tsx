@@ -50,7 +50,7 @@ export function ContactForm() {
 			<button
 				type="submit"
 				disabled={isPending}
-				className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90 disabled:opacity-50"
+				className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
 			>
 				{isPending ? "Sending…" : "Send message"}
 				{!isPending && <ArrowRightIcon className="h-4 w-4" />}

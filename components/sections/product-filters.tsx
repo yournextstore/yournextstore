@@ -328,7 +328,7 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** Fluid's listing filter: an icon button at the toolbar's start opening a slide-over sheet, at every width. */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
@@ -336,9 +336,9 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
-					Filters
+				<Button variant="ghost" className="h-10 gap-2 rounded-lg px-2.5 text-base font-normal">
+					<SlidersHorizontalIcon className="size-5" strokeWidth={1.75} />
+					Filter
 					{activeCount > 0 && (
 						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
 							{activeCount}
@@ -346,7 +346,7 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 					)}
 				</Button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
+			<SheetContent side="left" className="block w-[85vw] max-w-sm overflow-y-auto">
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
