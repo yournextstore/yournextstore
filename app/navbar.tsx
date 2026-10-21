@@ -1,58 +1,132 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { House, Info, Menu, Search, ShoppingBag, Store, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+const NAV_LINK =
+	"rounded-md font-serif text-heading-xl font-normal text-foreground transition-colors hover:text-brand-hover focus-visible:text-brand-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-hover";
+
+/** Desktop links in the header: Merriweather at 20px, no underline, burgundy on hover. */
+export function DesktopNav({ links }: { links: NavLink[] }) {
+	return (
+		<nav aria-label="Main" className="hidden items-center gap-10 lg:flex xl:gap-12">
+			{links.map((link) => (
+				<Link key={link.href} href={link.href} className={NAV_LINK}>
+					{link.label}
+				</Link>
+			))}
+		</nav>
+	);
+}
+
+/**
+ * The original's mobile menu: a 18rem burgundy panel from the right over a blurred page, the
+ * wordmark on top, icon rows divided by darker rules, the first row inked deeper.
+ */
+export function MobileMenu({
+	links,
+	categories,
+	storeName,
+	accountHref,
+}: {
+	links: NavLink[];
+	categories: NavLink[];
+	storeName: string;
+	accountHref: string;
+}) {
 	const [open, setOpen] = useState(false);
+	const close = () => setOpen(false);
+	const icons = [House, ShoppingBag, Store, Info];
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="relative z-10 -mr-2 rounded-md p-2 text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-hover lg:hidden"
+			>
+				<Menu aria-hidden="true" className="h-6 w-6" />
+			</SheetTrigger>
+			<SheetContent
+				side="right"
+				showCloseButton={false}
+				overlayClassName="bg-background/20 backdrop-blur-md"
+				className="block max-w-[calc(100vw-4rem)] gap-0 overflow-visible border-none bg-menu p-0 text-on-fill shadow-none data-[side=right]:w-72 data-[side=right]:sm:max-w-72"
+			>
+				<button
+					type="button"
+					onClick={close}
+					aria-label="Close menu"
+					className="absolute top-7 -left-14 rounded-md p-2 text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-hover"
 				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
+					<X aria-hidden="true" className="h-6 w-6" />
+				</button>
+				<div className="flex h-full flex-col justify-between overflow-y-auto">
+					<div className="flex justify-center px-6 py-8">
+						<SheetTitle
+							render={<Link href="/" onClick={close} />}
+							className="font-brand text-heading-2xl font-normal text-on-fill"
+						>
+							{storeName}.
+						</SheetTitle>
+						<SheetDescription className="sr-only">Site navigation</SheetDescription>
 					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
+					<nav aria-label="Mobile">
+						{links.map((link, index) => {
+							const Icon = icons[index] ?? Info;
+							return (
+								<div key={link.href}>
+									<Link
+										href={link.href}
+										onClick={close}
+										className="flex items-center gap-6 border-b border-brand p-6 font-serif text-heading-xl text-on-fill data-[first=true]:border-t data-[first=true]:bg-brand"
+										data-first={index === 0}
+									>
+										<Icon aria-hidden="true" className="h-6 w-6 text-background" />
+										{link.label}
+									</Link>
+									{link.href === "/products" && categories.length > 0 ? (
+										<ul className="border-b border-brand py-2">
+											{categories.map((category) => (
+												<li key={category.href}>
+													<Link
+														href={category.href}
+														onClick={close}
+														className="block py-2 pr-6 pl-[4.5rem] font-sans text-body-md text-on-fill/90 hover:text-on-fill hover:underline"
+													>
+														{category.label}
+													</Link>
+												</li>
+											))}
+										</ul>
+									) : null}
+								</div>
+							);
+						})}
+						<Link
+							href="/search"
+							onClick={close}
+							className="flex items-center gap-6 border-b border-brand p-6 font-serif text-heading-xl text-on-fill"
+						>
+							<Search aria-hidden="true" className="h-6 w-6 text-background" />
+							Search
+						</Link>
 					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+					<div className="flex justify-center px-6 py-8">
+						{/* Plain <a>: /account is a proxied zone. */}
+						<a href={accountHref} className="inline-flex items-center gap-2 font-sans text-on-fill underline">
+							<UserRound aria-hidden="true" className="h-4 w-4" />
+							Your account
+						</a>
+					</div>
+				</div>
+			</SheetContent>
+		</Sheet>
 	);
 }

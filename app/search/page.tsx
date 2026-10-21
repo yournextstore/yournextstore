@@ -60,7 +60,7 @@ async function searchProducts({
 
 function SearchResultsSkeleton() {
 	return (
-		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+		<div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
 			{[0, 1, 2, 3, 4, 5].map((i) => (
 				<div key={i} className="flex flex-col gap-3">
 					<div className="aspect-square w-full animate-pulse bg-secondary motion-reduce:animate-none" />
@@ -95,7 +95,7 @@ async function SearchResults({
 		return (
 			<div>
 				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
-				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+				<h2 className="mt-3 max-w-2xl font-serif text-heading-3xl font-bold text-foreground sm:text-heading-5xl">
 					Nothing matched &ldquo;{q}&rdquo;
 				</h2>
 				<p className="mt-6 max-w-md text-sm text-muted-foreground">
@@ -107,7 +107,7 @@ async function SearchResults({
 
 	return (
 		<div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+			<div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -127,7 +127,7 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 	return (
 		<div className="border-t border-border pt-12 sm:pt-20">
 			<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Search</p>
-			<h2 className="mt-3 max-w-3xl text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+			<h2 className="mt-3 max-w-3xl font-serif text-heading-4xl font-bold text-foreground sm:text-heading-5xl">
 				What are you looking for?
 			</h2>
 			{categories.length ? (
@@ -154,7 +154,7 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 
 function SearchPageSkeleton() {
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+		<section className="bake-container min-h-svh pb-24">
 			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
 				<div className="mx-auto max-w-3xl">
 					<div className="h-12 w-full animate-pulse bg-secondary motion-reduce:animate-none" />
@@ -195,7 +195,7 @@ const SearchContent = async ({
 	]);
 
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+		<section className="bake-container min-h-svh pb-24">
 			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
 				<div className="mx-auto max-w-3xl">
 					<SearchPageInput initialQuery={query} />
@@ -208,12 +208,12 @@ const SearchContent = async ({
 						<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
 							<div>
 								<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
-								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+								<h1 className="mt-3 max-w-[14ch] font-serif text-heading-4xl font-bold text-foreground lg:text-heading-5xl">
 									{query}
 								</h1>
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
+										{totalCount} {totalCount === 1 ? "item" : "items"}
 									</span>
 									<ActiveFilters categories={categories} activeCategory={category} />
 								</div>

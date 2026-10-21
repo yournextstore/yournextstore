@@ -101,14 +101,14 @@ export function CartItem({ item }: CartItemProps) {
 	};
 
 	return (
-		<div className="flex gap-3 py-4">
+		<div className="flex gap-4 py-5">
 			{/* Product Image */}
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md bg-surface shadow-soft"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="96px" />}
 			</Link>
 
 			{/* Product Details */}
@@ -118,13 +118,15 @@ export function CartItem({ item }: CartItemProps) {
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-2 font-serif text-body-md font-bold leading-tight text-brand hover:text-brand-hover hover:underline"
 						>
 							{product.name}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						{options && <p className="font-sans text-body-xs text-muted-foreground">{options}</p>}
 						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+							<p className="font-sans text-body-xs text-muted-foreground">
+								{planLabel(item.subscriptionPlan)}
+							</p>
 						)}
 					</div>
 					<button
@@ -132,7 +134,7 @@ export function CartItem({ item }: CartItemProps) {
 						onClick={handleRemove}
 						disabled={isPending}
 						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						aria-label={`Remove ${product.name}`}
 					>
 						<Trash2 className="h-4 w-4" />
 					</button>
@@ -142,23 +144,25 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex items-center rounded-md border border-line bg-surface transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex h-8 w-8 shrink-0 items-center justify-center rounded-l-md transition-colors hover:bg-line-soft"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="flex h-8 w-8 items-center justify-center font-sans text-body-sm tabular-nums">
+							{quantity}
+						</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex h-8 w-8 shrink-0 items-center justify-center rounded-r-md transition-colors hover:bg-line-soft"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
@@ -166,7 +170,7 @@ export function CartItem({ item }: CartItemProps) {
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="font-serif text-body-md font-bold tabular-nums">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>
