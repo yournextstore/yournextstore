@@ -8,6 +8,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +29,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +72,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +81,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -133,7 +139,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="flex flex-col gap-5">
 			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
@@ -141,73 +147,62 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 					: undefined;
 
 				return (
-					<fieldset key={group.label} className="border-0 p-0 m-0">
+					<fieldset key={group.label} className="m-0 min-w-0 border-0 p-0">
+						<legend className="mb-2 flex w-full items-center justify-between gap-3 border-t border-border pt-4">
+							<span className="font-semibold">{group.label}</span>
+							<span className="rounded-full bg-secondary px-2 py-0.5 text-label-sm font-semibold">
+								{selectedOption ? selectedOption.value : "Required"}
+							</span>
+						</legend>
 						{group.type === "color" ? (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
-									)}
-								</div>
-								<div className="flex gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-										const isLightColor =
-											option.colorValue?.toUpperCase() === "#FFFFFF" ||
-											option.colorValue?.toUpperCase() === "#FFFFF0" ||
-											option.colorValue?.toUpperCase() === "#FFF";
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
-													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
-												)}
-												style={{ backgroundColor: option.colorValue ?? "#fff" }}
-												aria-label={option.value}
-												title={option.value}
-											>
-												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
-												)}
-											</button>
-										);
-									})}
-								</div>
-							</>
+							<div className="flex flex-wrap gap-3 pt-1">
+								{group.options.map((option) => {
+									const isSelected = selectedOptions[group.label] === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											aria-pressed={isSelected}
+											className={cn(
+												"relative size-10 rounded-full border border-border transition-shadow",
+												isSelected
+													? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+													: "hover:ring-2 hover:ring-border-strong hover:ring-offset-2 hover:ring-offset-background",
+											)}
+											style={{ backgroundColor: option.colorValue ?? "#fff" }}
+											aria-label={option.value}
+											title={option.value}
+										/>
+									);
+								})}
+							</div>
 						) : (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
+							<div className="flex flex-col">
+								{group.options.map((option) => {
+									const isSelected = selectedOptions[group.label] === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											aria-pressed={isSelected}
+											className="flex min-h-11 items-center justify-between gap-4 border-b border-border py-2 text-left text-body-sm transition-colors last:border-b-0 hover:text-primary"
+										>
+											<span className={cn(isSelected && "font-semibold")}>{option.value}</span>
+											<span
+												aria-hidden="true"
 												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
-													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
+													"grid size-5 shrink-0 place-items-center rounded-full border",
+													isSelected ? "border-primary bg-primary" : "border-border-strong bg-card",
 												)}
 											>
-												<span className="text-sm font-medium">{option.value}</span>
-											</button>
-										);
-									})}
-								</div>
-							</>
+												{isSelected ? <span className="size-2 rounded-full bg-primary-foreground" /> : null}
+											</span>
+										</button>
+									);
+								})}
+							</div>
 						)}
 					</fieldset>
 				);

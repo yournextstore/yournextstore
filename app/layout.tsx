@@ -1,9 +1,8 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Gelasio, Hanken_Grotesk } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -16,18 +15,25 @@ import { Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
-import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
+import { getMenuCategories } from "@/lib/catalog";
+import { getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+// Body: Hanken Grotesk, the original's body and accent face.
+const hanken = Hanken_Grotesk({
+	variable: "--font-hanken",
+	subsets: ["latin", "latin-ext"],
+});
+
+// Display: the original preset sets its headings in Georgia; Gelasio is Georgia's metric twin.
+const gelasio = Gelasio({
+	variable: "--font-gelasio",
+	subsets: ["latin", "latin-ext"],
+	weight: ["400", "600"],
 });
 
 const geistMono = Geist_Mono({
@@ -105,23 +111,24 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+async function getHeaderData() {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [categories, me] = await Promise.all([
+		getMenuCategories().catch(() => []),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
-	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+	const links: NavLink[] = [
+		{ href: "/products", label: "Shop" },
+		...(blogEnabled ? [{ href: "/blog", label: "Journal" }] : []),
+		{ href: "/about", label: "Our story" },
 	];
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		links,
+		categories: categories.map((category) => ({ href: `/category/${category.path}`, label: category.name })),
+	};
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,43 +138,39 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [{ storeName, links, categories }, storeConfig] = await Promise.all([
+		getHeaderData(),
+		getStoreConfig(),
+	]);
+	// Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+					<header className="sticky top-0 z-40 h-12 border-b border-[#e5ddd1] bg-background lg:h-[49px]">
+						<div className="mx-auto grid h-full w-full max-w-[1280px] grid-cols-[44px_minmax(0,1fr)_44px] items-center px-1 lg:flex lg:gap-8 lg:px-10">
+							<Navbar links={links} categories={categories} storeName={storeName} accountHref={accountHref} />
+							<Link
+								href="/"
+								className="min-w-0 truncate text-center text-label-md font-semibold uppercase lg:mr-auto lg:text-left"
+							>
+								{storeName}
+							</Link>
+							<nav aria-label="Main" className="hidden items-center gap-8 text-label-md lg:flex">
+								{links.map((link) => (
+									<Link key={link.href} href={link.href} className="whitespace-nowrap hover:underline">
+										{link.label}
 									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
-							</div>
+								))}
+								<a href={accountHref} className="whitespace-nowrap hover:underline">
+									Account
+								</a>
+							</nav>
+							<CartButton />
 						</div>
 					</header>
 					<main className="flex-1">{children}</main>
@@ -214,7 +217,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${hanken.variable} ${gelasio.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,12 +225,12 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />
 					</Suspense>
-					<Toaster richColors position="top-center" />
+					<Toaster position="top-center" />
 				</ThemeProvider>
 				{env === "development" && (
 					<>

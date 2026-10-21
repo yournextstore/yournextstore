@@ -1,7 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MinusIcon, PlusIcon } from "lucide-react";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** The original's quantity row: label left, a small pill stepper right. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -19,30 +19,30 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
+		<div className="flex min-h-11 items-center justify-between gap-4 font-semibold">
+			<span>Quantity</span>
+			<div className="inline-grid grid-cols-[36px_36px_36px] items-center overflow-hidden rounded-full border border-border bg-card">
+				<button
+					type="button"
+					className="inline-flex h-9 items-center justify-center disabled:text-muted-foreground/60"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					<MinusIcon aria-hidden="true" className="size-4" />
+				</button>
+				<output aria-live="polite" className="text-center tabular-nums">
+					{quantity}
+				</output>
+				<button
+					type="button"
+					className="inline-flex h-9 items-center justify-center disabled:text-muted-foreground/60"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
 				>
-					<Plus className="h-4 w-4" />
-				</Button>
+					<PlusIcon aria-hidden="true" className="size-4" />
+				</button>
 			</div>
 		</div>
 	);
