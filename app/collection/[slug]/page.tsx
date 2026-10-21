@@ -5,24 +5,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { AccentName } from "@/components/brand/em";
+import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { getCollectionProducts, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
-
-// The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
-const SMART_COLLECTION_LIMIT = 100;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -62,129 +51,83 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
+		<section className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+			<div className="max-w-xl">
+				<p className="eyebrow">Collection</p>
+				<h1 className="mt-4 font-display text-title-xl md:text-[3.75rem] md:leading-[1.05]">
+					<AccentName name={collection.name} />
+				</h1>
+				{description && <p className="mt-5 text-lead text-ink/75">{description}</p>}
 			</div>
 			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+				<div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-line">
 					<YNSMedia
 						src={collection.image}
-						alt={collection.name}
+						alt=""
 						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
+						sizes="(min-width: 1024px) 50vw, 100vw"
+						className="object-cover"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+					<div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-page/50 to-transparent" />
 				</div>
 			)}
 		</section>
 	);
 }
 
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
-
-// Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
-// the smart filters are evaluated against the whole catalog when the storefront asks for them.
-// Re-expressing each one as the equivalent product browse is what keeps those collections from
-// rendering as an empty grid. Cached like the collection itself, which also pins the
-// `Date.now()` below to the cache entry.
-async function getCollectionProducts(collection: APICollectionGetByIdResult) {
-	"use cache";
-	cacheLife("minutes");
-	const { filter } = collection;
-
-	if (filter.type === "manual") {
-		const ids = collection.productCollections.map((pc) => pc.product.id);
-		// The SDK throws on a 404: one product deleted since it joined must not fail the page.
-		return (
-			await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id }).catch(() => null)))
-		).filter((product) => product !== null);
-	}
-
-	if (filter.type === "variantValues") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			vts: encodeVts(filter.values),
-		});
-		return data;
-	}
-
-	if (filter.type === "dynamicPrice") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			priceMin: filter.min ?? undefined,
-			priceMax: filter.max ?? undefined,
-		});
-		return data;
-	}
-
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: SMART_COLLECTION_LIMIT,
-		orderBy: "createdAt",
-		orderDirection: "desc",
-	});
-
-	// A rolling "new arrivals" window has no browse equivalent, so the age bound is applied here.
-	if (typeof filter.days !== "number") {
-		return data;
-	}
-	const cutoff = Date.now() - filter.days * MS_PER_DAY;
-	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
-}
-
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
 	const products = await getCollectionProducts(collection);
 
+	if (products.length === 0) {
+		return (
+			<div className="mt-16 max-w-md">
+				<p className="font-display text-title-sm">This collection is being prepared</p>
+				<p className="mt-3 text-muted-foreground">In the meantime, everything else is on the shelf.</p>
+				<Link href="/products" className="btn-line mt-8">
+					Shop everything
+				</Link>
+			</div>
+		);
+	}
+
 	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
+		<>
+			<p className="mt-16 text-sm text-muted-foreground">
+				{products.length} {products.length === 1 ? "product" : "products"}
+			</p>
+			<div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+				{products.map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index === 0} />
+				))}
+			</div>
+		</>
+	);
+}
+
+function CollectionProductsSkeleton() {
+	return (
+		<>
+			<div className="mt-16 h-5" />
+			<ProductGridSkeleton className="mt-8" />
+		</>
 	);
 }
 
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
+		<div className="container-page pb-20 pt-14 md:pb-28 md:pt-18">
+			<div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+				<div className="space-y-4">
+					<div className="h-4 w-24 animate-pulse rounded bg-surface" />
+					<div className="h-14 w-72 animate-pulse rounded bg-surface" />
 				</div>
-			</section>
+				<div className="aspect-[16/10] animate-pulse rounded-xl bg-surface" />
+			</div>
 			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -216,28 +159,13 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 	}
 
 	return (
-		<>
+		<div className="container-page pb-20 pt-14 md:pb-28 md:pt-18">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
 			<CollectionHeader collection={collection} />
 			<Suspense fallback={<CollectionProductsSkeleton />}>
 				<CollectionProducts collection={collection} />
 			</Suspense>
-		</>
+		</div>
 	);
 };

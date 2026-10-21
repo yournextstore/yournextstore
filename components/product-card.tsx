@@ -4,6 +4,9 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import Link from "next/link";
+import { FamilyDot } from "@/components/brand/family-dot";
+import { ArrowRightIcon } from "@/components/icons";
+import { getCategoryTones } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
 import { priceRange } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
@@ -29,7 +32,7 @@ export async function ProductCard({
 
 	const priceDisplay =
 		variants && variants.length > 1 && minPrice && maxPrice && minPrice !== maxPrice
-			? `${formatMoney({ amount: minPrice, currency, locale })} - ${formatMoney({ amount: maxPrice, currency, locale })}`
+			? `From ${formatMoney({ amount: minPrice, currency, locale })}`
 			: minPrice
 				? formatMoney({ amount: minPrice, currency, locale })
 				: null;
@@ -57,9 +60,59 @@ export async function ProductCard({
 		return `?${params.toString()}`;
 	})();
 
+	const tone =
+		"category" in product && product.category ? (await getCategoryTones())[product.category.id] : undefined;
+	const soldOut = variants !== null && variants.length > 0 && variants.every((v) => v.stock === 0);
+
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-line transition-colors hover:border-gold/60"
+		>
+			<div className="relative aspect-[4/5] overflow-hidden bg-surface">
+				{primaryImage &&
+					(isVideoUrl(primaryImage) ? (
+						<video
+							className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							src={primaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={primaryImage}
+							alt={product.name}
+							fill
+							sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+							className={`object-cover transition-[opacity,transform] duration-700 ease-[var(--ease-out-quart)] group-hover:scale-[1.03] ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							priority={priority}
+						/>
+					))}
+				{secondaryImage &&
+					(isVideoUrl(secondaryImage) ? (
+						<video
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+							src={secondaryImage}
+							muted
+							loop
+							autoPlay
+							playsInline
+						/>
+					) : (
+						<YNSMedia
+							src={secondaryImage}
+							alt=""
+							fill
+							sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+							className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+						/>
+					))}
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 bg-gradient-to-t from-page/85 via-transparent to-transparent"
+				/>
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -75,49 +128,20 @@ export async function ProductCard({
 						}}
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-base font-medium text-foreground">{product.name}</h3>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-1 items-end justify-between gap-4 p-5">
+				<div className="min-w-0">
+					<div className="flex items-baseline gap-2">
+						{tone !== undefined && <FamilyDot index={tone} className="relative -top-0.5" />}
+						<h2 className="font-display text-xl leading-tight">{product.name}</h2>
+					</div>
+					<p className="mt-1 text-sm text-ink/75">{soldOut ? "Sold out" : priceDisplay}</p>
+				</div>
+				<ArrowRightIcon
+					width={16}
+					height={16}
+					className="mb-1 shrink-0 text-gold transition-transform group-hover:translate-x-1"
+				/>
 			</div>
 		</Link>
 	);

@@ -1,38 +1,34 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { BestSellers } from "@/components/sections/best-sellers";
+import { Closing } from "@/components/sections/closing";
+import { Families } from "@/components/sections/families";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { Story } from "@/components/sections/story";
+import { getCategoryTiles, getCategoryTones, getHomeProducts } from "@/lib/catalog";
+import { meGetCached } from "@/lib/commerce";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+// Every read is cached, so the whole page prerenders into the shell with no Suspense boundary
+// to shift the layout when it resolves.
+export default async function Home() {
+	const [me, tiles, tones, { featured, bestSellers }] = await Promise.all([
+		meGetCached().catch(() => null),
+		getCategoryTiles(4),
+		getCategoryTones(),
+		getHomeProducts(),
+	]);
+	const categories = tiles.map((tile) => ({ ...tile, tone: tones[tile.id] ?? 0 }));
+
 	return (
 		<>
-			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<Hero storeName={me?.store.name || "Your Next Store"} featured={featured} categories={categories} />
+			<Story description={me?.store.settings?.storeDescription || ""} />
+			<Families tiles={categories} />
+			<BestSellers products={bestSellers} />
+			<Closing />
 		</>
 	);
 }
