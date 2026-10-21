@@ -1,11 +1,9 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
@@ -73,18 +71,13 @@ export function QuickAddButton({
 	};
 
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				delay={1000}
-				onClick={handleClick}
-				className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-				aria-label={`Add ${product.name} to cart`}
-			>
-				<ShoppingBag className="h-3.5 w-3.5" />
-			</TooltipTrigger>
-			<TooltipContent side="top" className="text-xs">
-				Add to cart
-			</TooltipContent>
-		</Tooltip>
+		<button
+			type="button"
+			onClick={handleClick}
+			className="caps absolute bottom-3.5 right-3.5 rounded-full bg-ink px-[18px] py-3 text-[0.7rem] font-bold text-white transition-[opacity,transform,background-color] duration-300 hover:bg-coral-deep focus-visible:translate-y-0 focus-visible:opacity-100 sm:translate-y-2.5 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+			aria-label={`Add to basket, ${product.name}`}
+		>
+			<span aria-hidden="true">+ </span>Add
+		</button>
 	);
 }

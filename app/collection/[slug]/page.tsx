@@ -5,17 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { ProductCard } from "@/components/product-card";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { EDITORIAL_IMAGES, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -37,9 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -62,50 +53,60 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/** The home hero's sage panel, retold for one collection: name and note beside its photograph and a coral count badge. */
+function CollectionHeader({
+	collection,
+	image,
+	count,
+}: {
+	collection: APICollectionGetByIdResult;
+	image: string | null;
+	count: number;
+}) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
-						{typeof collection.description === "string" ? (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">{collection.description}</p>
-						) : collection.description ? (
-							<div className="prose mt-4 max-w-none text-lg text-muted-foreground leading-relaxed tiptap-content">
-								<TiptapRenderer content={collection.description} />
-							</div>
-						) : null}
+		<section className="mx-auto grid max-w-[1280px] items-center gap-8 bg-[linear-gradient(90deg,#edf2e7_0%,#f1eae3_100%)] px-[22px] pb-[34px] pt-10 md:min-h-[460px] md:grid-cols-[1fr_1.1fr] md:px-12 md:py-14">
+			<div className="min-w-0 md:pl-8">
+				<p className="eyebrow mb-5">The collection</p>
+				<h1 className="type-display wrap-break-word text-[clamp(2.8rem,6vw,5.2rem)]">
+					<i>{collection.name}</i>
+				</h1>
+				{/* The API sends rich text (TipTap); older payloads sent a plain string. */}
+				{collection.description && typeof collection.description !== "string" && description ? (
+					<div className="prose mt-6 max-w-[380px] text-[1.03rem] leading-[1.7] text-muted-foreground tiptap-content">
+						<TiptapRenderer content={collection.description} />
 					</div>
-				</div>
+				) : (
+					<p className="mt-6 max-w-[380px] text-[1.03rem] leading-[1.7] text-muted-foreground">
+						{description || "A small edit of flowers and gifts, chosen to sit beautifully together."}
+					</p>
+				)}
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-						fetchPriority="high"
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
+			<div className="relative h-[300px] md:h-[380px]">
+				<div className="relative h-full overflow-hidden rounded-tile bg-cream shadow-photo">
+					{image && (
+						<YNSMedia
+							src={image}
+							alt=""
+							fill
+							sizes="(max-width: 768px) 100vw, 600px"
+							className="object-cover"
+							priority
+							fetchPriority="high"
+						/>
+					)}
 				</div>
-			)}
+				<p className="serif absolute -right-2 -top-4 flex size-[110px] rotate-[10deg] flex-col items-center justify-center rounded-full bg-coral-deep text-center italic leading-[1.1] text-white md:-right-[22px]">
+					<span className="text-[1.7rem] font-semibold not-italic">{count}</span>
+					{count === 1 ? "item" : "items"}
+				</p>
+			</div>
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+	return <ProductGridSkeleton />;
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -160,34 +161,14 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="min-h-svh pb-[100px]">
+			<div className="mx-auto h-[674px] max-w-[1280px] animate-pulse bg-sage md:h-[460px]" />
+			<div className="container-x mt-16">
+				<CollectionProductsSkeleton />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -218,27 +199,41 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+	const image = collection.image ?? EDITORIAL_IMAGES[3];
+
 	return (
-		<>
+		<div className="min-h-svh pb-[100px]">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
+			<CollectionHeader collection={collection} image={image} count={products.length} />
+			<div className="container-x">
+				{products.length > 0 ? (
+					<>
+						<div className="mb-10 mt-16 flex items-end justify-between gap-6 border-b border-line pb-4">
+							<h2 className="type-display text-[clamp(2rem,4vw,3rem)]">
+								In this <i>collection</i>
+							</h2>
+							<Link href="/products" className="link-underline shrink-0">
+								Shop all <span aria-hidden="true">→</span>
+							</Link>
+						</div>
+						<div className={LISTING_GRID}>
+							{products.map((product) => (
+								<ProductCard key={product.id} product={product} />
+							))}
+						</div>
+					</>
+				) : (
+					<p className="serif py-24 text-center text-[1.8rem] text-ink">
+						Nothing here just yet.{" "}
+						<Link href="/products" className="text-coral-text underline-offset-4 hover:underline">
+							Browse the whole shop
+						</Link>
+						.
+					</p>
+				)}
 			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+		</div>
 	);
 };
