@@ -9,12 +9,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-karla), "Karla", system-ui, sans-serif;
+	--font-heading: var(--font-bebas), "Bebas Neue", Impact, sans-serif;
+	--font-mono: var(--font-space-mono), "Space Mono", monospace;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-tile: 16px;
+	--radius-pill: 40px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,58 +36,318 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own names: sand, foam, ink, dim, faint, denim (+deep for small text), coral (+deep, +text). */
+	--color-sand: var(--sand);
+	--color-foam: var(--foam);
+	--color-ink: var(--ink);
+	--color-dim: var(--dim);
+	--color-faint: var(--faint);
+	--color-denim: var(--denim);
+	--color-denim-deep: var(--denim-deep);
+	--color-coral: var(--coral);
+	--color-coral-deep: var(--coral-deep);
+	--color-coral-text: var(--coral-text);
+	--color-line: var(--border);
+	--color-line-soft: var(--line-soft);
+	--shadow-card: 0 18px 40px -24px rgb(38 50 58 / 0.3);
+	--shadow-card-hover: 0 28px 54px -26px rgb(38 50 58 / 0.42);
+	--shadow-poster: 0 30px 70px -30px rgb(38 50 58 / 0.4), 0 2px 0 rgb(38 50 58 / 0.05);
+	--ease-ocean: cubic-bezier(0.24, 1.12, 0.36, 1);
 }
 
+/*
+ * "Beach at noon, not ocean at depth": the original's :root, mapped onto the shadcn names.
+ * Its own AA steps are kept: denim-deep for small denim text, coral-text for small coral text.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #efe7d8;
+	--foreground: #26323a;
+	--card: #f7f3ea;
+	--card-foreground: #26323a;
+	--popover: #f7f3ea;
+	--popover-foreground: #26323a;
+	--primary: #26323a;
+	--primary-foreground: #f7f3ea;
+	--secondary: #f7f3ea;
+	--secondary-foreground: #26323a;
+	--muted: #e8dfcd;
+	--muted-foreground: #46545d;
+	--accent: #e8dfcd;
+	--accent-foreground: #26323a;
+	--destructive: #a8492c;
+	--border: #d3cfc4;
+	--input: #c9c4b8;
+	--ring: #3f5578;
+	--sand: #efe7d8;
+	--foam: #f7f3ea;
+	--ink: #26323a;
+	--dim: #46545d;
+	--faint: #56636c;
+	--denim: #5877a0;
+	--denim-deep: #3f5578;
+	--coral: #e08d75;
+	--coral-deep: #c0624a;
+	--coral-text: #a8492c;
+	--line-soft: #e2ddd2;
 }
 
+/* Light-only design: the same palette, so the forced light theme never flips. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.75rem;
+	--background: #efe7d8;
+	--foreground: #26323a;
+	--card: #f7f3ea;
+	--card-foreground: #26323a;
+	--popover: #f7f3ea;
+	--popover-foreground: #26323a;
+	--primary: #26323a;
+	--primary-foreground: #f7f3ea;
+	--secondary: #f7f3ea;
+	--secondary-foreground: #26323a;
+	--muted: #e8dfcd;
+	--muted-foreground: #46545d;
+	--accent: #e8dfcd;
+	--accent-foreground: #26323a;
+	--destructive: #a8492c;
+	--border: #d3cfc4;
+	--input: #c9c4b8;
+	--ring: #3f5578;
+	--sand: #efe7d8;
+	--foam: #f7f3ea;
+	--ink: #26323a;
+	--dim: #46545d;
+	--faint: #56636c;
+	--denim: #5877a0;
+	--denim-deep: #3f5578;
+	--coral: #e08d75;
+	--coral-deep: #c0624a;
+	--coral-text: #a8492c;
+	--line-soft: #e2ddd2;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		overflow-x: clip;
+		scroll-behavior: smooth;
+		scroll-padding-top: 80px;
+	}
+	/* next/font puts its variables on <body>, so the faces are set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-karla), "Karla", system-ui, sans-serif;
+		line-height: 1.6;
+		overflow-x: clip;
+	}
+	::selection {
+		background: var(--denim);
+		color: var(--foam);
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+	}
+	p {
+		text-wrap: pretty;
+	}
+	:focus-visible {
+		outline: 2.5px solid var(--denim-deep);
+		outline-offset: 3px;
+	}
+}
+
+/* Bebas Neue, the original's tall condensed display: headings, prices on cards, big numbers. */
+@utility display {
+	font-family: var(--font-bebas), "Bebas Neue", Impact, sans-serif;
+	font-weight: 400;
+	letter-spacing: 0.015em;
+	line-height: 0.94;
+	& em {
+		font-style: normal;
+		color: var(--denim);
+	}
+}
+
+/* Space Mono, for sizes, prices and data. */
+@utility mono {
+	font-family: var(--font-space-mono), "Space Mono", monospace;
+}
+
+@utility shell {
+	width: 100%;
+	max-width: 1240px;
+	margin-inline: auto;
+	padding-inline: clamp(18px, 4vw, 44px);
+}
+
+/* "[ Conditions today ]": the mono kicker in denim-deep. */
+@utility kicker {
+	font-family: var(--font-space-mono), "Space Mono", monospace;
+	font-size: 0.72rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var(--denim-deep);
+}
+
+/* Small mono label: tile labels, captions, footnotes. */
+@utility label-mono {
+	font-family: var(--font-space-mono), "Space Mono", monospace;
+	font-size: 0.68rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+/* The original's pill buttons: ink (primary), outlined (ghost), coral; they lift 2px on hover. */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border-radius: 40px;
+	padding: var(--btn-py, 13px) var(--btn-px, 26px);
+	font-family: var(--font-karla), "Karla", sans-serif;
+	font-size: 0.94rem;
+	font-weight: 700;
+	line-height: 1.2;
+	border: 1.5px solid var(--btn-border, var(--ink));
+	background: var(--btn-bg, var(--ink));
+	color: var(--btn-fg, var(--foam));
+	cursor: pointer;
+	transition:
+		transform 0.5s var(--ease-ocean),
+		background-color 0.3s,
+		color 0.3s,
+		box-shadow 0.5s var(--ease-ocean);
+	&:hover {
+		transform: translateY(-2px);
+		background: var(--btn-hover-bg, var(--btn-bg, var(--ink)));
+		box-shadow: var(--btn-shadow, 0 14px 30px -14px rgb(38 50 58 / 0.55));
+	}
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+}
+
+@utility btn-ghost {
+	--btn-bg: transparent;
+	--btn-fg: var(--ink);
+	--btn-hover-bg: rgb(38 50 58 / 0.06);
+	--btn-shadow: none;
+}
+
+@utility btn-coral {
+	--btn-bg: var(--coral);
+	--btn-fg: var(--ink);
+	--btn-border: var(--coral);
+	--btn-hover-bg: #e9a189;
+	--btn-shadow: 0 14px 30px -14px rgb(224 141 117 / 0.7);
+}
+
+/* The faint outlined word behind a section ("SALT", "THE GOODS"). Stroke only, so contrast checks skip it. */
+@utility watermark {
+	position: absolute;
+	z-index: 0;
+	font-family: var(--font-bebas), "Bebas Neue", Impact, sans-serif;
+	font-size: clamp(7rem, 20vw, 17rem);
+	line-height: 1;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+	color: transparent;
+	-webkit-text-stroke: 1.5px rgb(38 50 58 / 0.09);
+	pointer-events: none;
+	user-select: none;
+}
+
+/* Mono chips under each card ("in stock", "low stock"). */
+@utility chip {
+	font-family: var(--font-space-mono), "Space Mono", monospace;
+	font-size: 0.62rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	border: 1px solid var(--chip-border, var(--border));
+	border-radius: 30px;
+	padding: 4px 10px;
+	color: var(--chip-fg, var(--dim));
+	background: var(--chip-bg, transparent);
+}
+
+@utility chip-ok {
+	--chip-fg: var(--denim-deep);
+	--chip-border: rgb(63 85 120 / 0.4);
+}
+
+@utility chip-low {
+	--chip-fg: var(--coral-text);
+	--chip-border: rgb(168 73 44 / 0.4);
+}
+
+@utility chip-soon {
+	--chip-fg: var(--coral-text);
+	--chip-border: rgb(168 73 44 / 0.4);
+	--chip-bg: rgb(224 141 117 / 0.12);
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Sun-bleached paper grain over everything (the original's CSS-only feTurbulence layer). */
+.grain {
+	position: fixed;
+	inset: -40px;
+	z-index: 70;
+	pointer-events: none;
+	opacity: 0.5;
+	mix-blend-mode: multiply;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+}
+
+/* The stamp badge's ring turns once every 36 seconds. */
+.badge-ring {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: badge-spin 36s linear infinite;
+}
+@keyframes badge-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Cards sit slightly askew on the shelf, alternately. */
+.tilt-card:nth-child(odd) {
+	rotate: 0.7deg;
+}
+.tilt-card:nth-child(even) {
+	rotate: -0.6deg;
+}
+
+/* Overexposed on purpose: the poster treatment on photographs. */
+.faded {
+	filter: brightness(1.06) contrast(0.94) saturate(0.82) sepia(0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
@@ -168,4 +431,18 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Shopper controls on the ink drop band: foam outlines (AA on ink). */
+.on-ink [data-slot="checkbox"] {
+	border-color: rgb(247 243 234 / 0.7);
+	background: transparent;
+}
+.on-ink [data-slot="checkbox"][data-state="checked"] {
+	background: var(--coral);
+	border-color: var(--coral);
+	color: var(--ink);
+}
+.on-ink label span {
+	opacity: 1;
 }

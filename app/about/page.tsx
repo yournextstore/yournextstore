@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
+import {
+	DropBand,
+	Poster,
+	SectionHead,
+	StampBadge,
+	StatsBand,
+	StoryBand,
+	Watermark,
+} from "@/components/sections/home";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 
@@ -39,6 +49,24 @@ async function getStoreInfo() {
 	}
 }
 
+const VALUES = [
+	{
+		label: "Small runs",
+		title: "Made in short batches.",
+		copy: "Short runs mean less waste and fewer things sitting in a warehouse. When it's gone, it's gone.",
+	},
+	{
+		label: "Honest pictures",
+		title: "Shown as it is.",
+		copy: "Every piece is photographed plainly, so what arrives is what you saw. No filters on the goods.",
+	},
+	{
+		label: "Plain prices",
+		title: "No surprises.",
+		copy: "The price on the card is the price at the till, with the sums done before you get there.",
+	},
+] as const;
+
 export default async function AboutPage() {
 	"use cache";
 	cacheLife("hours");
@@ -54,84 +82,84 @@ export default async function AboutPage() {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
-
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
+			<section className="relative overflow-hidden">
+				<Watermark className="-left-[2vw] top-1.5">The story</Watermark>
+				<div className="shell relative z-[1] grid items-center gap-12 pb-[clamp(56px,9vh,110px)] pt-[clamp(40px,8vh,90px)] md:grid-cols-[1.1fr_0.9fr]">
+					<div className="min-w-0">
+						<p className="kicker mb-4">[ The story ]</p>
+						<h1 className="display text-[clamp(3.6rem,10vw,8rem)] leading-[0.88]">
+							Small runs.
+							<br />
+							<em>No</em> hype.
+						</h1>
+						<p className="mt-6 max-w-[48ch] text-[clamp(1rem,1.3vw,1.14rem)] text-dim">
+							{storeDescription ??
+								`${storeName} is a small shop with a short list. We put things out when they're ready, in runs small enough to care about, and leave the noise to everyone else.`}
 						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
-					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
-							</p>
+						<div className="mt-8 flex flex-wrap gap-3.5">
+							<Link href="/products" className="btn">
+								See the goods
+							</Link>
+							<Link href={contactFormEnabled ? "/contact" : "/faq"} className="btn btn-ghost">
+								{contactFormEnabled ? "Write to us" : "Read the questions"} <span aria-hidden="true">→</span>
+							</Link>
 						</div>
 					</div>
-				</section>
-			</div>
-
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
+					<Poster
+						className="mx-auto w-full max-w-[400px]"
+						tilt="rotate-[1.4deg]"
+						caption={["Fig. 02 — on a quiet day", "as it is"]}
 					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
-						>
-							Contact us
-						</Link>
-					)}
+						<div className="relative aspect-[4/5] overflow-hidden rounded-[2px] bg-muted">
+							{/* Bundled editorial photograph (Pexels, free licence; credit in NOTICE.md). */}
+							<Image
+								src="/images/pexels/surf-rack.jpg"
+								alt="Surfboards resting on a wooden rack by the sea"
+								fill
+								sizes="(max-width: 768px) 90vw, 400px"
+								className="faded object-cover"
+								priority
+							/>
+						</div>
+						<StampBadge
+							name={storeName}
+							className="absolute -left-4 -top-8 w-[100px] -rotate-6 md:-left-12 md:w-[140px]"
+						/>
+					</Poster>
 				</div>
-			</div>
+			</section>
+
+			<section
+				aria-labelledby="values-title"
+				className="border-y border-line bg-foam py-[clamp(72px,11vh,130px)]"
+			>
+				<div className="shell">
+					<SectionHead
+						kicker="What we keep to"
+						title={<span id="values-title">Three rules. Zero&nbsp;exceptions.</span>}
+					/>
+					<ol className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-tile border border-line bg-line md:grid-cols-3">
+						{VALUES.map((value, index) => (
+							<li
+								key={value.title}
+								className="flex min-h-[200px] flex-col gap-2 bg-foam p-[clamp(18px,2.4vw,28px)]"
+							>
+								<span className="label-mono text-[0.66rem] tracking-[0.2em] text-denim-deep">
+									{String(index + 1).padStart(2, "0")} — {value.label}
+								</span>
+								<h3 className="display mt-1 text-[clamp(1.9rem,3vw,2.5rem)]">{value.title}</h3>
+								<p className="mt-auto text-[0.92rem] text-faint">{value.copy}</p>
+							</li>
+						))}
+					</ol>
+				</div>
+			</section>
+
+			<StoryBand cta={false} />
+			<DropBand />
+			<StatsBand />
 		</div>
 	);
 }

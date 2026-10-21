@@ -1,23 +1,15 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ListingPagination } from "@/components/listing-pagination";
+import { ListingTabs } from "@/components/listing-tabs";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { SectionHead, Watermark } from "@/components/sections/home";
+import { richTextToPlain, sentenceCase } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
-import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -116,7 +108,8 @@ async function CategoryProducts({
 	if (result.data.length === 0) {
 		return (
 			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+				<p className="display text-[2.4rem] text-ink">Nothing on the shelf. Yet.</p>
+				<p className="label-mono mt-2 text-faint">small runs sell through. check back soon</p>
 			</div>
 		);
 	}
@@ -125,9 +118,9 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={LISTING_GRID}>
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={index < 1} className="tilt-card" />
 				))}
 			</div>
 			<ListingPagination
@@ -142,10 +135,14 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="relative min-h-svh overflow-hidden pb-[clamp(72px,11vh,130px)] pt-[clamp(40px,8vh,80px)]">
+			<div className="shell">
+				<div className="h-3 w-28 animate-pulse rounded bg-muted" />
+				<div className="mt-4 h-[clamp(2.4rem,5.6vw,4.3rem)] w-2/3 max-w-md animate-pulse rounded bg-muted" />
+				<div className="mt-4 h-[3.4rem] max-w-[54ch] animate-pulse rounded bg-muted" />
+				<div className="mb-10 mt-10 h-[54px] border-b border-line" />
+				<ProductGridSkeleton />
+			</div>
 		</div>
 	);
 }
@@ -186,17 +183,10 @@ const CategoryContent = async ({
 		notFound();
 	}
 
-	// Both reads are cached and independent — fetch them in parallel.
-	const [category, facets] = await Promise.all([getCategoryData(slug), getFilterFacets()]);
+	const category = await getCategoryData(slug);
 	if (!category?.active) {
 		notFound();
 	}
-	// Category facet is hidden here (it's the page context), so don't count it.
-	const filtersAvailable =
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
 
 	const hierarchy = flattenParents(category as CategoryLike);
 	const canonicalPath = hierarchy.map((c) => c.slug).join("/");
@@ -205,54 +195,29 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richTextToPlain(category.description);
+	const top = hierarchy[0];
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="relative min-h-svh overflow-hidden pb-[clamp(72px,11vh,130px)] pt-[clamp(40px,8vh,80px)]">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink render={<Link href={`/category/${path}`} />}>{crumb.name}</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
-
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
+			<Watermark className="-left-[2vw] -top-2">{sentenceCase(category.name)}</Watermark>
+			<div className="shell relative z-[1]">
+				<SectionHead
+					as="h1"
+					kicker={
+						hierarchy.length > 1
+							? hierarchy
+									.slice(0, -1)
+									.map((c) => sentenceCase(c.name))
+									.join(" · ")
+							: "Section"
+					}
+					title={sentenceCase(category.name)}
+					lede={description || `Everything we have in ${category.name.toLowerCase()}, small runs first.`}
+				/>
+				<ListingTabs activeSlug={top?.slug} />
+				<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
 			</div>
 		</div>
 	);
