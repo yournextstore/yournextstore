@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/cart/cart-context";
+import { squareButton } from "@/components/bento/styles";
 
 export function CartButton() {
 	const { itemCount, openCart } = useCart();
@@ -10,15 +11,12 @@ export function CartButton() {
 		<button
 			type="button"
 			onClick={openCart}
-			className="p-2 hover:bg-secondary rounded-full transition-colors relative"
-			aria-label="Shopping cart"
+			className={squareButton}
+			aria-label={itemCount > 0 ? `Open cart, ${itemCount} items` : "Open cart"}
 		>
-			<ShoppingCart className="w-6 h-6" />
+			<ShoppingCart className="h-4 w-4 transition-all ease-in-out hover:scale-110" aria-hidden="true" />
 			{itemCount > 0 ? (
-				<span
-					aria-live="polite"
-					className="absolute -top-1 -right-1 bg-foreground text-background text-xs rounded-full w-5 h-5 flex items-center justify-center"
-				>
+				<span className="absolute top-0 right-0 -mt-2 -mr-2 flex h-4 min-w-4 items-center justify-center rounded-sm bg-blue-600 px-0.5 text-[11px] font-medium text-white">
 					{itemCount}
 				</span>
 			) : null}

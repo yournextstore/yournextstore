@@ -12,17 +12,19 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { MobileMenu, type NavLink } from "@/app/navbar";
+import { HeaderSearch, HeaderSearchSkeleton } from "@/components/bento/header-search";
+import { LogoMark } from "@/components/bento/logo-mark";
+import { squareButton } from "@/components/bento/styles";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { getStoreName } from "@/lib/listing";
 import { getStoreConfig } from "@/lib/store-config";
 
 const geistSans = Geist({
@@ -41,7 +43,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 	"use cache";
 	cacheLife("hours");
 	const me = await meGetCached();
-	const storeName = me.store.name || "Your Next Store";
+	const storeName = me.store.settings?.storeName || me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || "Your next e-commerce store";
 	const faviconUrl = getStoreFaviconUrl(me.store.settings) ?? "/logo.svg";
 	// The platform favicon is whatever was uploaded (here a 500x500 PNG). Route it through
@@ -108,18 +110,16 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [categories, me] = await Promise.all([
+		commerce.categoriesBrowse({ active: true, limit: 50 }).catch(() => ({ data: [] })),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
 	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
+		{ href: "/products", label: "All" },
+		...categories.data
+			.filter((category) => !category.parentId)
+			.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
 		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
 	];
 }
@@ -128,29 +128,55 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// Only cached reads here. Awaiting anything request-time (cookies, headers) would
 	// take the header, nav and footer out of the prerendered shell and leave the page
 	// blank until the server responds; CartProvider loads the cart in the browser. The
-	// other half of the rule: no
-	// <Suspense> around this component either — the boundary itself is what streams the
-	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	// other half of the rule: no <Suspense> around this component either — the boundary
+	// itself is what streams the chrome out of the shell.
+	const [links, storeConfig, storeName] = await Promise.all([
+		getNavLinks(),
+		getStoreConfig(),
+		getStoreName(),
+	]);
+	// The reference header carries three links; the rest live in the mobile menu and the listing sidebar.
+	const headerLinks = links.slice(0, 3);
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
+					<header>
+						<nav aria-label="Main" className="relative flex items-center justify-between p-4 lg:px-6">
+							<div className="block flex-none md:hidden">
+								<MobileMenu links={links} />
+							</div>
+							<div className="flex w-full items-center">
+								<div className="flex w-full md:w-1/3">
+									<Link
+										href="/"
+										className="mr-2 flex w-full min-w-0 items-center justify-center md:w-auto lg:mr-6"
+									>
+										<LogoMark name={storeName} />
+										<span className="ml-2 truncate text-sm font-medium uppercase md:hidden lg:block">
+											{storeName}
+										</span>
 									</Link>
-									<Navbar links={links} />
+									<ul className="hidden gap-6 text-sm md:flex md:items-center">
+										{headerLinks.map((link, index) => (
+											<li key={link.href} className={index > 1 ? "hidden xl:block" : undefined}>
+												<Link
+													href={link.href}
+													className="whitespace-nowrap text-muted-foreground underline-offset-4 hover:text-black hover:underline dark:hover:text-neutral-300"
+												>
+													{link.label}
+												</Link>
+											</li>
+										))}
+									</ul>
 								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
+								<div className="hidden justify-center md:flex md:w-1/3">
+									<Suspense fallback={<HeaderSearchSkeleton className="lg:w-80 xl:w-full" />}>
+										<HeaderSearch className="lg:w-80 xl:w-full" />
 									</Suspense>
-									<ThemeToggle />
+								</div>
+								<div className="flex justify-end gap-2 md:w-1/3">
 									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
 									    Static on purpose: reading the session here would pull the header out of the
 									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
@@ -160,15 +186,15 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
 												: "/account"
 										}
-										className="p-2 hover:bg-secondary transition-colors"
+										className={`${squareButton} hidden sm:flex`}
 										aria-label="Account"
 									>
-										<UserRound className="w-5 h-5" />
+										<UserRound className="h-4 w-4" aria-hidden="true" />
 									</a>
 									<CartButton />
 								</div>
 							</div>
-						</div>
+						</nav>
 					</header>
 					<main className="flex-1">{children}</main>
 					<Footer />
@@ -227,7 +253,7 @@ export default async function RootLayout({
 					<Suspense>
 						<NewsletterPopupSection />
 					</Suspense>
-					<Toaster richColors position="top-center" />
+					<Toaster richColors position="bottom-right" />
 				</ThemeProvider>
 				{env === "development" && (
 					<>
