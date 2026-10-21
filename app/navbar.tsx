@@ -1,61 +1,132 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { ChevronDownIcon, MenuIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Logo } from "@/components/logo";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export type NavLink = {
 	href: string;
 	label: string;
+	children?: NavLink[];
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+/**
+ * The original's "Pages ≡" side panel: one slide-in menu from the left, opened by a text
+ * trigger beside the logo on desktop and by a bordered hamburger on phones.
+ */
+export function Navbar({
+	links,
+	storeName,
+	variant,
+}: {
+	links: NavLink[];
+	storeName: string;
+	variant: "desktop" | "mobile";
+}) {
 	const [open, setOpen] = useState(false);
+	const [expanded, setExpanded] = useState<string | null>(null);
+	// Read on open instead of usePathname(): the header stays in the prerendered shell.
+	const [path, setPath] = useState("");
+
+	const onOpenChange = (next: boolean) => {
+		if (next) {
+			setPath(window.location.pathname);
+			setExpanded(null);
+		}
+		setOpen(next);
+	};
+
+	const linkClass = (href: string) =>
+		cn(
+			"block py-2.5 text-2xl font-bold transition-colors hover:text-ink",
+			path === href ? "text-ink" : "text-soft-text",
+		);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
+		<Sheet open={open} onOpenChange={onOpenChange}>
+			<SheetTrigger asChild>
+				{variant === "desktop" ? (
 					<button
 						type="button"
 						aria-label="Open menu"
-						className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
+						className="hidden items-center gap-2 font-medium text-ink md:flex"
 					>
-						<Menu className="h-6 w-6" />
+						Pages
+						<MenuIcon aria-hidden className="size-4" strokeWidth={2.5} />
 					</button>
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
-					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+				) : (
+					<button
+						type="button"
+						aria-label="Open menu"
+						className="flex size-9 items-center justify-center rounded-md border border-border text-ink md:hidden"
 					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+						<MenuIcon aria-hidden className="size-5" strokeWidth={2.25} />
+					</button>
+				)}
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				hideClose
+				className="block w-full gap-0 overflow-y-auto border-r-0 p-9 sm:max-w-none md:w-96"
+			>
+				<SheetTitle className="sr-only">Menu</SheetTitle>
+				<div className="mb-14 flex items-center justify-between gap-4">
+					<Logo name={storeName} />
+					<SheetClose className="p-2 text-ink" aria-label="Close menu">
+						<XIcon aria-hidden className="size-6" />
+					</SheetClose>
+				</div>
+				<ul className="space-y-2">
+					{links.map((link) =>
+						link.children ? (
+							<li key={link.label}>
+								<button
+									type="button"
+									onClick={() => setExpanded(expanded === link.label ? null : link.label)}
+									aria-expanded={expanded === link.label}
+									className={cn(
+										"flex items-center gap-2 py-2.5 text-2xl font-bold transition-colors hover:text-ink",
+										link.children.some((child) => child.href === path) ? "text-ink" : "text-soft-text",
+									)}
+								>
+									{link.label}
+									<ChevronDownIcon
+										aria-hidden
+										className={cn("size-6 transition-transform", expanded === link.label && "rotate-180")}
+									/>
+								</button>
+								{expanded === link.label ? (
+									<ul className="mt-1 mb-2 rounded-md bg-background p-4 shadow-md">
+										{link.children.map((child) => (
+											<li key={child.href} className="mb-2 last:mb-0">
+												<Link
+													href={child.href}
+													onClick={() => setOpen(false)}
+													className={cn(
+														"block py-1 text-xl font-medium transition-colors hover:text-ink",
+														path === child.href ? "text-ink" : "text-soft-text",
+													)}
+												>
+													{child.label}
+												</Link>
+											</li>
+										))}
+									</ul>
+								) : null}
+							</li>
+						) : (
+							<li key={link.href}>
+								<Link href={link.href} onClick={() => setOpen(false)} className={linkClass(link.href)}>
+									{link.label}
+								</Link>
+							</li>
+						),
+					)}
+				</ul>
+			</SheetContent>
+		</Sheet>
 	);
 }
