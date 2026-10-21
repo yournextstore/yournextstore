@@ -56,7 +56,7 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 						aria-activedescendant={getActiveId(listboxId, c, panelOpen)}
 						enterKeyHint="search"
 						autoComplete="off"
-						className="h-14 w-full border-0 bg-transparent pl-8 pr-2 text-2xl font-medium tracking-tight text-foreground placeholder:font-medium placeholder:text-foreground/40 focus:outline-none sm:text-3xl"
+						className="h-20 w-full border-0 bg-transparent pl-8 pr-2 font-display text-[44px] text-foreground placeholder:text-foreground/40 focus:outline-none sm:text-[64px]"
 					/>
 				</div>
 				{panelOpen ? (

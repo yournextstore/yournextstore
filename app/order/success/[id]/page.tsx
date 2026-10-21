@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 function OrderSkeleton() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<div className="max-w-3xl mx-auto py-12">
 			<div className="text-center mb-10 flex flex-col items-center">
 				<Skeleton className="h-16 w-16 rounded-full" />
 				<Skeleton className="mt-4 h-8 w-72" />
@@ -91,7 +91,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 			: subtotal + shippingCost + (taxAmount ?? BigInt(0));
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<div className="max-w-3xl mx-auto py-12">
 			{/* Success Header */}
 			<div className="text-center mb-10">
 				<div className="flex justify-center mb-4">

@@ -33,50 +33,146 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Chromatic surfaces: everything is mixed from the ground and the ink. */
+	--color-panel: var(--panel);
+	--color-field: var(--field);
+	--color-photo: var(--photo);
+	--color-glass: var(--glass);
+	--color-scrim: var(--scrim);
+	--color-line: var(--line);
+	--color-wash: var(--wash);
+	--color-ink-hover: var(--ink-hover);
 }
 
+/* Shapes, shadows and motion of the Chromatic canvas (see NOTICE.md). */
+@theme {
+	--breakpoint-xs: 22rem;
+	--radius-pill: 999px;
+	--radius-field: 16px;
+	--radius-chip: 20px;
+	--radius-photo: 24px;
+	--radius-photo-lg: 28px;
+	--radius-section: 32px;
+	--shadow-float: 0 10px 40px rgba(0, 0, 0, 0.12);
+	--shadow-lift: 0 20px 50px rgba(0, 0, 0, 0.2);
+	--shadow-hero: 0 40px 100px rgba(0, 0, 0, 0.28);
+	--shadow-drawer: -30px 0 80px rgba(0, 0, 0, 0.25);
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+	--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+	--animate-rise: rise 700ms var(--ease-out) both;
+	--animate-fade-scale: fade-scale 600ms var(--ease-out) both;
+	--animate-fade-in: fade-in 450ms var(--ease-out) both;
+	--animate-bump: bump 320ms var(--ease-out);
+	--animate-dwell: dwell linear both;
+
+	@keyframes rise {
+		from {
+			transform: translateY(105%);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+	@keyframes fade-scale {
+		from {
+			opacity: 0;
+			transform: scale(0.96);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@keyframes bump {
+		0% {
+			transform: scale(1);
+		}
+		40% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+	@keyframes dwell {
+		from {
+			stroke-dashoffset: 100;
+		}
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+}
+
+/* Cool ground and ink (light). Secondary surfaces are the ink at 8% over the ground,
+   lines at 20%, secondary text at 75%: written out as hex so the palette test can read them. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 1rem;
+	--background: #e4e7ea;
+	--foreground: #111214;
+	--card: #f6f7f8;
+	--card-foreground: #111214;
+	--popover: #f6f7f8;
+	--popover-foreground: #111214;
+	--primary: #111214;
+	--primary-foreground: #e4e7ea;
+	--secondary: #d3d6d9;
+	--secondary-foreground: #111214;
+	--muted: #d3d6d9;
+	--muted-foreground: #46474a;
+	--accent: #d3d6d9;
+	--accent-foreground: #111214;
+	--destructive: #b3261e;
+	--border: #babcbf;
+	--input: #babcbf;
+	--ring: #111214;
+	--panel: #f6f7f8;
+	--field: #f3f4f5;
+	--photo: #e4e7ea;
+	--glass: rgba(244, 245, 247, 0.78);
+	--scrim: rgba(0, 0, 0, 0.32);
+	--line: #babcbf;
+	--wash: #d3d6d9;
+	--ink-hover: #2e3034;
 }
 
+/* Night ground and ink (dark). */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #141516;
+	--foreground: #ecedee;
+	--card: #1c1d20;
+	--card-foreground: #ecedee;
+	--popover: #1c1d20;
+	--popover-foreground: #ecedee;
+	--primary: #ecedee;
+	--primary-foreground: #141516;
+	--secondary: #252627;
+	--secondary-foreground: #ecedee;
+	--muted: #252627;
+	--muted-foreground: #b6b7b8;
+	--accent: #252627;
+	--accent-foreground: #ecedee;
+	--destructive: #ff8d92;
+	--border: #3f4041;
+	--input: #3f4041;
+	--ring: #ecedee;
+	--panel: #1c1d20;
+	--field: #1c1d1f;
+	--photo: #e4e7ea;
+	--glass: rgba(46, 47, 50, 0.8);
+	--scrim: rgba(0, 0, 0, 0.5);
+	--line: #3f4041;
+	--wash: #252627;
+	--ink-hover: #c9cbce;
 }
 
 @layer base {
@@ -85,6 +181,71 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-geist-sans), system-ui, sans-serif;
+		font-size: 15px;
+		line-height: 1.5;
+		-webkit-font-smoothing: antialiased;
+	}
+	::selection {
+		background: var(--foreground);
+		color: var(--background);
+	}
+	:focus-visible {
+		outline: 2px solid var(--foreground);
+		outline-offset: 2px;
+	}
+	h1,
+	h2,
+	h3 {
+		text-wrap: balance;
+	}
+}
+
+/* Condensed display voice: Archivo at 62% width, black, uppercase. */
+@utility font-display {
+	font-family: var(--font-archivo), "Arial Narrow", sans-serif;
+	font-stretch: 62%;
+	font-variation-settings: "wdth" 62;
+	font-weight: 900;
+	text-transform: uppercase;
+}
+
+/* Semi-condensed: product names under a giant word. */
+@utility font-display-75 {
+	font-family: var(--font-archivo), "Arial Narrow", sans-serif;
+	font-stretch: 75%;
+	font-variation-settings: "wdth" 75;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+/* Press feedback for every pill (120ms). */
+@utility press {
+	transition: transform 120ms var(--ease-out);
+	&:active:not(:disabled) {
+		transform: scale(0.97);
+	}
+}
+
+/* Home hero on desktop: one screen tall under the floating navigation, 560-880px.
+   --hero-u is one canvas pixel at that height. */
+@media (min-width: 64rem) {
+	.hero {
+		--hero-h: clamp(560px, calc(100svh - 96px), 880px);
+		--hero-u: calc(var(--hero-h) / 880);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-rise,
+	.animate-bump {
+		animation: none;
+	}
+	.animate-fade-scale {
+		animation-name: fade-in;
+	}
+	.press:active:not(:disabled) {
+		transform: none;
 	}
 }
 
@@ -168,4 +329,19 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Theme switch: instant, nothing fades while every colour changes at once. */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+	transition: none !important;
+}
+
+/* Below desktop the product page's buy button holds to the bottom edge: lift the fixed
+   "Made with YNS" badge above it so it never covers the button. */
+@media (max-width: 63.999rem) {
+	body:has([data-sticky-buy]) a[href*="utm_source=yns-store"] {
+		transform: translateY(-76px);
+	}
 }

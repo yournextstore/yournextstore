@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Plus, Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
@@ -7,54 +7,48 @@ import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
-import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { sentenceCase, splitSummary } from "@/lib/catalog";
 import { commerce, meGetCached } from "@/lib/commerce";
+import { fitDisplayStep } from "@/lib/display-type";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
-// MediaGallery and the purchase panel read useSearchParams (selected variant),
-// so they need a Suspense boundary to keep the rest of the page prerenderable.
+// MediaGallery and the purchase panel read useSearchParams (selected variant), so they need a
+// Suspense boundary to keep the rest of the page prerenderable. Skeletons hold the real boxes.
 function GallerySkeleton() {
 	return (
-		<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-			<Skeleton className="aspect-square rounded-2xl" />
+		<div className="min-w-0">
+			<div className="-mx-4 aspect-square rounded-b-photo bg-photo lg:hidden" />
+			<div className="hidden grid-cols-2 gap-2 lg:grid">
+				<div className="col-span-2 aspect-[4/5] rounded-photo-lg bg-photo" />
+			</div>
 		</div>
 	);
 }
 
 function PurchasePanelSkeleton() {
 	return (
-		<div className="space-y-4">
-			<Skeleton className="h-9 w-40" />
-			<Skeleton className="h-12 w-full rounded-full" />
+		<div className="flex flex-col gap-6">
+			<Skeleton className="h-8 w-28 rounded-full bg-wash" />
+			<Skeleton className="h-16 w-full rounded-full bg-wash" />
 		</div>
 	);
 }
 
 function ProductPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<Skeleton className="mb-6 h-5 w-64" />
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				<GallerySkeleton />
-				<div className="mt-8 lg:mt-0 space-y-8">
-					<Skeleton className="h-12 w-3/4" />
-					<PurchasePanelSkeleton />
-				</div>
+		<div className="min-h-svh pt-0 lg:grid lg:grid-cols-[7fr_5fr] lg:gap-8 lg:pt-6">
+			<GallerySkeleton />
+			<div className="mt-6 flex flex-col gap-5 lg:mt-0">
+				<Skeleton className="h-4 w-40 rounded-full bg-wash" />
+				<Skeleton className="h-28 w-4/5 rounded-photo bg-wash" />
+				<PurchasePanelSkeleton />
 			</div>
 		</div>
 	);
@@ -181,56 +175,53 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 	];
 
 	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
+	const { prose, facts } = splitSummary(product.summary, product.name);
+	const reference = variants[0]?.sku || product.id.slice(-6).toUpperCase();
+	// A product name on its own page is giant when short and steps down as it grows.
+	const nameSize = {
+		"--name-m": `${fitDisplayStep(product.name, [64, 56, 48, 40, 34, 28], 343, 3)}px`,
+		"--name-d": `${fitDisplayStep(product.name, [104, 80, 64, 56, 44], 540, 3)}px`,
+	} as React.CSSProperties;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div className="min-h-svh">
 			<JsonLdScript data={productJsonLd} />
 			<JsonLdScript data={buildProductBreadcrumbJsonLd(product)} />
 			{variants[0] && <TrackProductView variant={variants[0]} name={product.name} />}
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
-					</BreadcrumbItem>
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbLink render={<Link href="/products" />}>Products</BreadcrumbLink>
-					</BreadcrumbItem>
-					{product.category && (
-						<>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbLink render={<Link href={`/category/${product.category.slug}`} />}>
-									{product.category.name}
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						</>
-					)}
-					<BreadcrumbSeparator />
-					<BreadcrumbItem>
-						<BreadcrumbPage>{product.name}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
-			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
-				{/* Left: Image Gallery (sticky on desktop) */}
+			<div className="lg:grid lg:grid-cols-[7fr_5fr] lg:gap-8 lg:pt-6">
 				<Suspense fallback={<GallerySkeleton />}>
 					<MediaGallery images={allImages} productName={product.name} variants={variants} />
 				</Suspense>
 
-				{/* Right: Product Details */}
-				<div className="mt-8 lg:mt-0 space-y-8">
-					{/* Title & reviews summary */}
-					<div className="space-y-3">
-						{brand && (
-							<Link
-								href={`/products?brand=${encodeURIComponent(brand.slug)}`}
-								className="inline-flex min-h-6 items-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
-							>
-								{brand.name}
-							</Link>
-						)}
-						<h1 className="text-4xl font-medium tracking-tight text-foreground lg:text-5xl text-balance">
+				<div className="mt-6 flex min-w-0 flex-col gap-6 lg:sticky lg:top-[100px] lg:mt-0 lg:self-start">
+					<div className="flex flex-col gap-3">
+						<p className="text-[13px]">
+							{product.category ? (
+								<Link href={`/category/${product.category.slug}`} className="hover:underline">
+									{sentenceCase(product.category.name)}
+								</Link>
+							) : (
+								<Link href="/products" className="hover:underline">
+									New arrivals
+								</Link>
+							)}
+							{brand ? (
+								<>
+									<span className="text-muted-foreground"> · </span>
+									<Link
+										href={`/products?brand=${encodeURIComponent(brand.slug)}`}
+										className="hover:underline"
+									>
+										{brand.name}
+									</Link>
+								</>
+							) : null}
+							<span className="text-muted-foreground"> · Ref. {reference}</span>
+						</p>
+						<h1
+							style={nameSize}
+							className="font-display text-[length:var(--name-m)] leading-[0.88] wrap-break-word lg:text-[length:var(--name-d)]"
+						>
 							{product.name}
 						</h1>
 						{reviewSummary && reviewSummary.reviewCount > 0 && (
@@ -247,8 +238,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 						)}
 					</div>
 
-					{/* Configurable bundle → group builder; otherwise the standard variant add-to-cart.
-					    Renders only for bundle products, so it stays dormant for regular stores. */}
 					{product.type === "bundle" && product.bundle?.groups?.length ? (
 						<BundleBuilder
 							bundleId={product.id}
@@ -271,7 +260,6 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 									slug: product.slug,
 									images: product.images,
 								}}
-								summary={product.summary}
 								volumePricingTiers={product.volumePricingTiers}
 								restockNotificationsEnabled={restockNotificationsEnabled}
 								subscriptionMode={product.subscriptionMode}
@@ -279,27 +267,70 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 							/>
 						</Suspense>
 					)}
+
+					{prose.length > 0 ? <ProductDescription paragraphs={prose} /> : null}
+
+					{facts.length > 0 || product.content ? (
+						<div>
+							<h2 className="sr-only">Details</h2>
+							<div className="border-t border-line">
+								{facts.map((fact) => (
+									<details key={fact.label} className="group border-b border-line">
+										<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-sm font-medium [&::-webkit-details-marker]:hidden">
+											{fact.label}
+											<Plus
+												className="size-4 shrink-0 transition-transform duration-200 group-open:rotate-45"
+												aria-hidden="true"
+											/>
+										</summary>
+										<p className="pb-4 text-sm leading-relaxed text-muted-foreground">{fact.text}</p>
+									</details>
+								))}
+								{product.content ? (
+									<details className="group border-b border-line">
+										<summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-sm font-medium [&::-webkit-details-marker]:hidden">
+											More about this piece
+											<Plus
+												className="size-4 shrink-0 transition-transform duration-200 group-open:rotate-45"
+												aria-hidden="true"
+											/>
+										</summary>
+										<div className="prose prose-sm max-w-none pb-4 dark:prose-invert tiptap-content">
+											<TiptapRenderer content={product.content} />
+										</div>
+									</details>
+								) : null}
+							</div>
+						</div>
+					) : null}
 				</div>
 			</div>
 
-			{/* Full description (below the fold, full width) */}
-			{product.content && (
-				<section className="mt-16 border-t border-border pt-12">
-					<h2 className="mb-6 text-2xl font-medium tracking-tight">Product details</h2>
-					<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground tiptap-content">
-						<TiptapRenderer content={product.content} />
-					</div>
-				</section>
-			)}
-
-			{/* Reviews Section */}
 			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
 
-			{/* Features Section (full width below) */}
-			<ProductFeatures />
-
-			{/* Related Products */}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</div>
 	);
 };
+
+/** The description in body type, its first lines open and the rest behind "Read more". */
+function ProductDescription({ paragraphs }: { paragraphs: string[] }) {
+	const [first, ...more] = paragraphs;
+	return (
+		<div className="max-w-[70ch] text-[15px] leading-relaxed text-muted-foreground">
+			<p>{first}</p>
+			{more.length > 0 ? (
+				<details className="group">
+					<summary className="mt-2 cursor-pointer list-none text-sm font-medium text-foreground underline underline-offset-[3px] group-open:hidden [&::-webkit-details-marker]:hidden">
+						Read more
+					</summary>
+					<div className="mt-3 flex flex-col gap-3">
+						{more.map((paragraph) => (
+							<p key={paragraph}>{paragraph}</p>
+						))}
+					</div>
+				</details>
+			) : null}
+		</div>
+	);
+}

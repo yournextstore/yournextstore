@@ -48,9 +48,13 @@ function PaginationLink({
 }: PaginationLinkProps) {
   return (
     <Button
-      variant={isActive ? "outline" : "ghost"}
+      variant="ghost"
       size={size}
-      className={cn(className)}
+      className={cn(
+        "h-10 min-w-10 rounded-full border border-line hover:border-foreground hover:bg-transparent",
+        isActive && "border-foreground bg-foreground text-background hover:bg-foreground hover:text-background",
+        className
+      )}
       nativeButton={false}
       render={
         <Link

@@ -1,4 +1,3 @@
-import { ShoppingCartIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -11,18 +10,16 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
 	return (
-		<div className="flex min-h-[90dvh] flex-1 flex-col items-center justify-center px-4 py-24 text-center">
-			<ShoppingCartIcon className="size-16 text-muted-foreground/50" strokeWidth={1.5} />
-			<h1 className="mt-6 text-7xl font-bold tracking-tight">404</h1>
-			<h2 className="mt-4 text-xl text-muted-foreground">Page not found</h2>
-			<p className="mt-2 text-sm text-muted-foreground">
-				This page doesn't exist or has been moved. But our store is still open!
+		<div className="flex min-h-[70dvh] flex-1 flex-col items-start justify-center gap-5 py-16">
+			<h1 className="font-display text-[min(300px,60vw)] leading-[0.8] lg:text-[min(420px,29vw)]">404</h1>
+			<p className="max-w-[40ch] text-lg">
+				This page doesn&apos;t exist or has been moved. The shop is still open.
 			</p>
 			<Link
-				href="/"
-				className="mt-8 inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
+				href="/products"
+				className="press flex h-14 items-center rounded-full bg-foreground px-[26px] font-semibold text-background transition-colors hover:bg-ink-hover"
 			>
-				Continue Shopping
+				See what&apos;s new
 			</Link>
 		</div>
 	);

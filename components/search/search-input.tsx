@@ -36,19 +36,19 @@ export function SearchInput() {
 
 	return (
 		<>
-			{/* lg only — icon trigger opens popover with input inside */}
+			{/* Icon trigger in the navigation pill; the field opens in a popover. */}
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
 				<PopoverTrigger
 					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
+					className="press grid size-11 place-items-center rounded-full text-foreground transition-colors hover:bg-wash"
 				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+					<Search className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
 					sideOffset={8}
 					initialFocus={iconInputRef}
-					className="w-[min(24rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-2 shadow-lg"
+					className="w-[min(24rem,calc(100vw-2rem))] rounded-[28px] border-border bg-popover p-2 shadow-lift"
 				>
 					<form onSubmit={handleSubmit}>
 						<div className="relative">
@@ -75,7 +75,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(iconListboxId, c, iconPanelOpen)}
 								autoComplete="off"
-								className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-12 w-full rounded-full border border-border bg-field pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
 							/>
 						</div>
 					</form>
@@ -94,7 +94,7 @@ export function SearchInput() {
 			</Popover>
 
 			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			<form onSubmit={handleSubmit} className="hidden">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<div ref={inlineAnchorRef} className="relative">
 						<Search
