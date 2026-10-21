@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 function OrderSkeleton() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<div className="pt-[30px] pb-6">
 			<div className="text-center mb-10 flex flex-col items-center">
 				<Skeleton className="h-16 w-16 rounded-full" />
 				<Skeleton className="mt-4 h-8 w-72" />
@@ -91,7 +91,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 			: subtotal + shippingCost + (taxAmount ?? BigInt(0));
 
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+		<div className="pt-[30px] pb-6">
 			{/* Success Header */}
 			<div className="text-center mb-10">
 				<div className="flex justify-center mb-4">
@@ -99,7 +99,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 						<CheckCircle className="h-8 w-8 text-green-600" />
 					</div>
 				</div>
-				<h1 className="text-3xl font-semibold tracking-tight">Thank you for your order!</h1>
+				<h1 className="text-gf-h2 font-bold">Thank you for your order!</h1>
 				<p className="text-muted-foreground mt-2">Order #{order.lookup} has been confirmed</p>
 				{customer?.email && (
 					<p className="text-sm text-muted-foreground mt-1">

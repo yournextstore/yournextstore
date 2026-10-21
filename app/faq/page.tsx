@@ -96,7 +96,7 @@ function ContactCard() {
 
 export default function FAQPage() {
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="pt-[30px] pb-6">
 			<JsonLdScript data={buildFaqJsonLd(faqCategories)} />
 			{/* Header */}
 			<div className="mb-10">
@@ -105,7 +105,7 @@ export default function FAQPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">FAQ</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">Frequently Asked Questions</h1>
+				<h1 className="mt-4 text-gf-h2 font-bold">Frequently Asked Questions</h1>
 				<p className="mt-3 text-lg text-muted-foreground">
 					Find answers to the most common questions about your orders, payments, shipping, and more.
 				</p>

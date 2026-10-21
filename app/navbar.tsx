@@ -1,58 +1,63 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { gfIconButton } from "@/lib/gf-styles";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+export type NavGroup = {
+	title: string;
+	links: NavLink[];
+};
+
+export function Navbar({ groups, storeName }: { groups: NavGroup[]; storeName: string }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
-						<MobileSearchInput onNavigate={() => setOpen(false)} />
-					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger aria-label="Open menu" className={gfIconButton}>
+				<Menu className="size-6" strokeWidth={1.75} />
+			</SheetTrigger>
+			<SheetContent
+				side="bottom"
+				showCloseButton={false}
+				className="mx-auto block max-h-[88svh] w-full max-w-[40rem] overflow-y-auto rounded-t-[30px] border-0 bg-background px-6 pt-6 pb-10 text-base text-foreground"
+			>
+				<div className="flex items-center justify-between gap-4">
+					<SheetTitle className="text-gf-h3 font-bold">{storeName}</SheetTitle>
+					<SheetClose className={gfIconButton} aria-label="Close menu">
+						<X className="size-5" />
+					</SheetClose>
+				</div>
+				<div className="mt-5">
+					<MobileSearchInput onNavigate={() => setOpen(false)} />
+				</div>
+				{groups.map((group) => (
+					<nav key={group.title} aria-label={group.title} className="mt-6">
+						<h2 className="text-gf-h5 font-bold">{group.title}</h2>
+						<ul className="mt-3 flex flex-wrap gap-2.5">
+							{group.links.map((link) => (
+								<li key={link.href}>
+									<Link
+										href={link.href}
+										onClick={() => setOpen(false)}
+										className="inline-flex min-h-11 items-center rounded-full bg-flash-white px-5 text-gf-h6 font-bold transition-colors hover:bg-light-silver"
+									>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
 					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
 				))}
-			</nav>
-		</>
+			</SheetContent>
+		</Sheet>
 	);
 }

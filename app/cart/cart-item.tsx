@@ -1,12 +1,14 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { itemKey, lineOptions, planLabel } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
+import { splitProductName } from "@/lib/display";
+import { gfStepButton } from "@/lib/gf-styles";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -100,75 +102,68 @@ export function CartItem({ item }: CartItemProps) {
 		updateQuantity({ type: "DECREASE", key: itemKey(item) }, quantity - 1);
 	};
 
+	const [title, descriptor] = splitProductName(product.name);
+
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<div className={cn("flex gap-2.5 rounded-[30px] bg-white p-4 gf-shadow", isPending && "opacity-80")}>
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				className="relative size-[88px] shrink-0 overflow-hidden rounded-[20px] bg-white gf-shadow"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && (
+					<YNSMedia src={image} alt={product.name} fill className="gf-photo object-cover" sizes="88px" />
+				)}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+			<div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
 				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
+					<div className="min-w-0">
 						<Link
 							href={`/product/${product.slug}`}
 							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+							className="line-clamp-2 text-gf-h5 font-bold hover:underline"
 						>
-							{product.name}
+							{title}
 						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						{descriptor && <p className="mt-1 line-clamp-1 text-gf-h6 text-muted-foreground">{descriptor}</p>}
+						{options && <p className="mt-1 line-clamp-1 text-gf-h6 text-muted-foreground">{options}</p>}
 						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
+							<p className="mt-1 text-gf-h6 text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
 						)}
 					</div>
 					<button
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						className="-mt-1 -mr-1 inline-flex size-8 shrink-0 items-center justify-center rounded-full hover:bg-flash-white disabled:pointer-events-none disabled:opacity-50"
+						aria-label={`Remove ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<X className="size-5" strokeWidth={1.5} />
 					</button>
 				</div>
 
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<span className="text-gf-h5 font-bold">{formatMoney({ amount: lineTotal, currency, locale })}</span>
+					<div className="flex items-center gap-2.5">
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className={gfStepButton}
 							aria-label="Decrease quantity"
 						>
-							<Minus className="h-3 w-3" />
+							<Minus className="size-3.5" />
 						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
+						<span className="min-w-4 text-center text-gf-h5 font-bold tabular-nums">{quantity}</span>
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className={gfStepButton}
 							aria-label="Increase quantity"
 						>
-							<Plus className="h-3 w-3" />
+							<Plus className="size-3.5" />
 						</button>
 					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
 				</div>
 			</div>
 		</div>

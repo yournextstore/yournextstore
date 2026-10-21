@@ -1,5 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The theme's type-scale tokens (`text-gf-h3`, …) read as colours to tailwind-merge
+// unless they are registered as font sizes.
+const twMerge = extendTailwindMerge({
+	extend: { theme: { text: ["gf-h2", "gf-h3", "gf-h4", "gf-h5", "gf-h6", "gf-sm", "gf-xs"] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

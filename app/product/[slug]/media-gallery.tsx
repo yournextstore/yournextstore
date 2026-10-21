@@ -88,8 +88,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 
 	if (displayImages.length === 0) {
 		return (
-			<div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-				<div className="aspect-square bg-secondary rounded-2xl flex items-center justify-center">
+			<div className="flex flex-col gap-4 ">
+				<div className="aspect-square bg-flash-white rounded-[20px] flex items-center justify-center">
 					<p className="text-muted-foreground">No images available</p>
 				</div>
 			</div>
@@ -102,10 +102,10 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 			aria-roledescription="carousel"
 			aria-label="Product media gallery"
 			onKeyDown={handleKeyDown}
-			className="flex flex-col gap-4 outline-none lg:sticky lg:top-24 lg:self-start"
+			className="flex min-w-0 flex-col gap-4 outline-none"
 		>
 			{/* Main Image */}
-			<div className="group relative aspect-square overflow-hidden rounded-2xl bg-secondary">
+			<div className="group relative aspect-square overflow-hidden rounded-[20px] bg-white sm:aspect-[4/3]">
 				{isVideoUrl(displayImages[selectedIndex] ?? "") ? (
 					<video
 						className="absolute inset-0 w-full h-full object-cover"
@@ -121,9 +121,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 						src={displayImages[selectedIndex] ?? ""}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
+						sizes="(max-width: 640px) 100vw, 560px"
 						className={cn(
-							"object-cover transition-transform duration-500",
+							"gf-photo object-cover transition-transform duration-500",
 							isZoomed && "scale-150 cursor-zoom-out",
 						)}
 						onClick={() => setIsZoomed(!isZoomed)}
@@ -189,9 +189,9 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 							type="button"
 							onClick={() => setSelectedIndex(index)}
 							className={cn(
-								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-lg transition-all duration-200",
+								"relative aspect-square w-20 shrink-0 overflow-hidden rounded-[16px] bg-white transition-all duration-200",
 								selectedIndex === index
-									? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+									? "ring-2 ring-green-500 ring-offset-2 ring-offset-background"
 									: "opacity-60 hover:opacity-100",
 							)}
 						>
@@ -208,7 +208,7 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 									alt={`${productName} thumbnail ${index + 1}`}
 									fill
 									sizes="80px"
-									className="object-cover"
+									className="gf-photo object-cover"
 								/>
 							)}
 						</button>

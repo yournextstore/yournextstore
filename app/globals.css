@@ -9,8 +9,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-jakarta);
 	--font-mono: var(--font-geist-mono);
+	--color-flash-white: var(--flash-white);
+	--color-light-silver: var(--light-silver);
+	--color-green-400: var(--green-400);
+	--color-green-500: var(--green-500);
+	--color-green-700: var(--green-700);
+	--color-green-800: var(--green-800);
+	--color-orange-500: var(--orange-500);
+	--color-orange-700: var(--orange-700);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -35,48 +43,58 @@
 	--color-ring: var(--ring);
 }
 
+/* Grofresh palette: white app surface, flash-white wells, one leafy green. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #ffffff;
+	--foreground: #171717;
+	--card: #ffffff;
+	--card-foreground: #171717;
+	--popover: #ffffff;
+	--popover-foreground: #171717;
+	--primary: #00824b;
+	--primary-foreground: #ffffff;
+	--secondary: #f0f0f0;
+	--secondary-foreground: #171717;
+	--muted: #f0f0f0;
+	--muted-foreground: #646464;
+	--accent: #f0f0f0;
+	--accent-foreground: #171717;
+	--destructive: #c62828;
+	--border: #e4e4e4;
+	--input: #d9d9d9;
+	--ring: #00824b;
+	--flash-white: #f0f0f0;
+	--light-silver: #d9d9d9;
+	--green-400: #339b6f;
+	--green-500: #00824b;
+	--green-700: #005c35;
+	--green-800: #004829;
+	--orange-500: #ed6c02;
+	--orange-700: #b84e00;
 }
 
+/* Light-only design: the same palette, so forced light and the palette test agree. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.75rem;
+	--background: #ffffff;
+	--foreground: #171717;
+	--card: #ffffff;
+	--card-foreground: #171717;
+	--popover: #ffffff;
+	--popover-foreground: #171717;
+	--primary: #00824b;
+	--primary-foreground: #ffffff;
+	--secondary: #f0f0f0;
+	--secondary-foreground: #171717;
+	--muted: #f0f0f0;
+	--muted-foreground: #646464;
+	--accent: #f0f0f0;
+	--accent-foreground: #171717;
+	--destructive: #c62828;
+	--border: #e4e4e4;
+	--input: #d9d9d9;
+	--ring: #00824b;
 }
 
 @layer base {
@@ -85,7 +103,50 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 	}
+}
+
+/* Grofresh type scale (px values from the original's utility classes). */
+@theme {
+	--text-gf-h2: 28px;
+	--text-gf-h2--line-height: 33px;
+	--text-gf-h3: 24px;
+	--text-gf-h3--line-height: 30px;
+	--text-gf-h4: 20px;
+	--text-gf-h4--line-height: 25px;
+	--text-gf-h5: 16px;
+	--text-gf-h5--line-height: 20px;
+	--text-gf-h6: 14px;
+	--text-gf-h6--line-height: 18px;
+	--text-gf-sm: 12px;
+	--text-gf-sm--line-height: 15px;
+	--text-gf-xs: 10px;
+	--text-gf-xs--line-height: 13px;
+}
+
+/* The original's one-column app frame: 640px wide, 24px gutters. */
+@utility app {
+	width: 100%;
+	max-width: 40rem;
+	margin-inline: auto;
+	padding-inline: 24px;
+}
+
+/* The soft, wide halo every Grofresh card and pill sits on. */
+@utility gf-shadow {
+	box-shadow: -1px -5px 61px rgba(139, 138, 138, 0.12);
+}
+
+/* Studio shots on warm paper: lift the backdrop to white so it melts into the card. */
+@utility gf-photo {
+	mix-blend-mode: multiply;
+	filter: brightness(1.1) contrast(1.05);
+}
+
+/* Subpages draw their own back/title/cart bar; the welcome header is the home page's. */
+:root:has([data-subpage]) .site-header {
+	display: none;
 }
 
 .prose {

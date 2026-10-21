@@ -58,7 +58,7 @@ export function ProductReviews({ reviews, slug }: { reviews: APIProductReviewsBr
 	return (
 		<section id="reviews" className="mt-20 border-t border-border pt-16 scroll-mt-24">
 			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
+				<h2 className="text-gf-h4 font-bold">Customer Reviews</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
 			{reviews.data.length > 0 ? (

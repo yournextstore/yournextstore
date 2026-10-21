@@ -1,6 +1,8 @@
-import { ShoppingCartIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EmptyBasket } from "@/components/gf/icons";
+import { gfGreenPill } from "@/lib/gf-styles";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
 	title: "Page Not Found",
@@ -11,18 +13,14 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
 	return (
-		<div className="flex min-h-[90dvh] flex-1 flex-col items-center justify-center px-4 py-24 text-center">
-			<ShoppingCartIcon className="size-16 text-muted-foreground/50" strokeWidth={1.5} />
-			<h1 className="mt-6 text-7xl font-bold tracking-tight">404</h1>
-			<h2 className="mt-4 text-xl text-muted-foreground">Page not found</h2>
-			<p className="mt-2 text-sm text-muted-foreground">
-				This page doesn't exist or has been moved. But our store is still open!
+		<div className="flex min-h-[70dvh] flex-col items-center justify-center py-16 text-center">
+			<EmptyBasket />
+			<h1 className="mt-6 text-gf-h2 font-bold">Page not found</h1>
+			<p className="mt-2 max-w-xs text-gf-h6 text-muted-foreground">
+				This page doesn&apos;t exist or has been moved. The shelves are still stocked, though.
 			</p>
-			<Link
-				href="/"
-				className="mt-8 inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
-			>
-				Continue Shopping
+			<Link href="/" className={cn(gfGreenPill, "mt-6 h-[50px] w-auto px-8")}>
+				Back to the catalog
 			</Link>
 		</div>
 	);

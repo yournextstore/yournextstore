@@ -1,9 +1,8 @@
 import "@/app/globals.css";
 
-import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ThemeProvider } from "next-themes";
@@ -12,22 +11,24 @@ import { CartProvider } from "@/app/cart/cart-context";
 import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
-import { Navbar, type NavLink } from "@/app/navbar";
+import { Navbar, type NavGroup } from "@/app/navbar";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
+import { BottomNav } from "@/components/gf/bottom-nav";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
-import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
+import { hasMembers } from "@/lib/catalog";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
 import { getStoreConfig } from "@/lib/store-config";
+import { YNSMedia } from "@/lib/yns-media";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+// The original's face; latin-ext carries the Polish catalogue names.
+const jakarta = Plus_Jakarta_Sans({
+	variable: "--font-jakarta",
+	subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
@@ -105,23 +106,57 @@ export async function generateMetadata(): Promise<Metadata> {
 	return { ...metadata, metadataBase: new URL(getCanonicalUrl()) };
 }
 
-async function getNavLinks(): Promise<NavLink[]> {
+async function getNavGroups(): Promise<NavGroup[]> {
 	"use cache";
 	cacheLife("hours");
-	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+	const [collections, categories, me] = await Promise.all([
+		commerce.collectionBrowse({ limit: 8 }).then(({ data }) => ({ data: data.filter(hasMembers) })),
+		commerce.categoriesBrowse({ active: true, limit: 20 }).catch(() => ({ data: [] })),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
 	return [
-		{ href: "/", label: "Home" },
-		{ href: "/products", label: "Products" },
-		...collections.data.map((collection) => ({
-			href: `/collection/${collection.slug}`,
-			label: collection.name,
-		})),
-		...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+		{
+			title: "Shop",
+			links: [
+				{ href: "/products", label: "All products" },
+				{ href: "/categories", label: "Categories" },
+				...categories.data
+					.filter((category) => !category.parentId)
+					.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
+			],
+		},
+		...(collections.data.length > 0
+			? [
+					{
+						title: "Collections",
+						links: collections.data.map((collection) => ({
+							href: `/collection/${collection.slug}`,
+							label: collection.name,
+						})),
+					},
+				]
+			: []),
+		{
+			title: "Store",
+			links: [
+				{ href: "/about", label: "About" },
+				{ href: "/faq", label: "FAQ" },
+				...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+			],
+		},
 	];
+}
+
+async function getHeaderBrand() {
+	"use cache";
+	cacheLife("hours");
+	const me = await meGetCached().catch(() => null);
+	const logo = me?.store.settings?.logo;
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		logoUrl: (typeof logo === "string" ? logo : logo?.imageUrl) ?? null,
+	};
 }
 
 async function CartProviderWrapper({ children }: { children: React.ReactNode }) {
@@ -131,46 +166,43 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	// other half of the rule: no
 	// <Suspense> around this component either — the boundary itself is what streams the
 	// chrome out of the shell, whether or not anything inside it is request-time.
-	const [links, storeConfig] = await Promise.all([getNavLinks(), getStoreConfig()]);
+	const [groups, storeConfig, brand] = await Promise.all([
+		getNavGroups(),
+		getStoreConfig(),
+		getHeaderBrand(),
+	]);
+	const accountHref = storeConfig.language
+		? `/account?lang=${encodeURIComponent(storeConfig.language)}`
+		: "/account";
 
 	return (
 		<StoreConfigProvider value={storeConfig}>
 			<CartProvider>
 				<div className="flex min-h-screen flex-col">
-					<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-						<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-							<div className="relative flex items-center justify-between h-16">
-								<div className="flex items-center gap-2">
-									<Link href="/" className="text-xl font-bold">
-										Your Next Store
-									</Link>
-									<Navbar links={links} />
-								</div>
-								<div className="flex items-center gap-2">
-									<Suspense>
-										<SearchInput />
-									</Suspense>
-									<ThemeToggle />
-									{/* Plain <a>: /account is a proxied zone — soft navigation 500s (see AGENTS.md).
-									    Static on purpose: reading the session here would pull the header out of the
-									    prerendered shell. Guests get the sign-in flow, shoppers land on the dashboard. */}
-									<a
-										href={
-											storeConfig.language
-												? `/account?lang=${encodeURIComponent(storeConfig.language)}`
-												: "/account"
-										}
-										className="p-2 hover:bg-secondary transition-colors"
-										aria-label="Account"
-									>
-										<UserRound className="w-5 h-5" />
-									</a>
-									<CartButton />
-								</div>
-							</div>
+					{/* The home page's "welcome" header; subpages draw their own back/title bar and hide it. */}
+					<header className="site-header app flex items-center justify-between gap-3 pt-[30px]">
+						<Link href="/" className="flex min-w-0 items-center gap-2.5 rounded-full">
+							<span className="relative flex size-[50px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-flash-white text-gf-h4 font-bold">
+								{brand.logoUrl ? (
+									<YNSMedia src={brand.logoUrl} alt="" fill sizes="50px" className="object-cover" />
+								) : (
+									brand.storeName.slice(0, 1)
+								)}
+							</span>
+							<span className="flex min-w-0 flex-col">
+								<span className="text-gf-h5">Welcome to</span>
+								<span className="truncate text-gf-h5 font-bold">{brand.storeName}</span>
+							</span>
+						</Link>
+						<div className="flex shrink-0 items-center gap-1.5">
+							<CartButton />
+							<Navbar groups={groups} storeName={brand.storeName} />
 						</div>
 					</header>
-					<main className="flex-1">{children}</main>
+					<main className="app flex-1 pb-6">{children}</main>
+					<div className="app">
+						<BottomNav accountHref={accountHref} />
+					</div>
 					<Footer />
 				</div>
 				<CartSidebar />
@@ -214,7 +246,7 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${jakarta.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
 				<Suspense>
 					<CookieConsent />
@@ -222,7 +254,7 @@ export default async function RootLayout({
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+				<ThemeProvider attribute="class" forcedTheme="light" disableTransitionOnChange>
 					<CartProviderWrapper>{children}</CartProviderWrapper>
 					<Suspense>
 						<NewsletterPopupSection />

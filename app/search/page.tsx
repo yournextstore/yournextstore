@@ -3,9 +3,10 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
+import { PRODUCT_GRID, ProductCardSkeleton } from "@/components/product-grid-skeleton";
 import { SearchPageInput } from "@/components/search/search-page-input";
 import { commerce } from "@/lib/commerce";
-import { ActiveFilters, CategorySidebar, MobileControls, SortSelect } from "./search-controls";
+import { ActiveFilters, MobileControls } from "./search-controls";
 import { SearchPagination } from "./search-pagination";
 import { getSortFromParams, sortToBrowseParams } from "./sort";
 
@@ -60,13 +61,9 @@ async function searchProducts({
 
 function SearchResultsSkeleton() {
 	return (
-		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+		<div className={PRODUCT_GRID}>
 			{[0, 1, 2, 3, 4, 5].map((i) => (
-				<div key={i} className="flex flex-col gap-3">
-					<div className="aspect-square w-full animate-pulse bg-secondary motion-reduce:animate-none" />
-					<div className="h-3 w-2/3 animate-pulse bg-secondary motion-reduce:animate-none" />
-					<div className="h-3 w-1/3 animate-pulse bg-secondary/60 motion-reduce:animate-none" />
-				</div>
+				<ProductCardSkeleton key={i} />
 			))}
 		</div>
 	);
@@ -95,9 +92,7 @@ async function SearchResults({
 		return (
 			<div>
 				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
-				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-					Nothing matched &ldquo;{q}&rdquo;
-				</h2>
+				<h2 className="mt-2 text-gf-h3 font-bold">Nothing matched &ldquo;{q}&rdquo;</h2>
 				<p className="mt-6 max-w-md text-sm text-muted-foreground">
 					Try a shorter spelling, a broader term, or remove a filter.
 				</p>
@@ -107,7 +102,8 @@ async function SearchResults({
 
 	return (
 		<div>
-			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+			<h2 className="sr-only">Results</h2>
+			<div className={PRODUCT_GRID}>
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -125,21 +121,19 @@ async function SearchResults({
 
 function EmptyQuery({ categories }: { categories: { id: string; slug: string; name: string }[] }) {
 	return (
-		<div className="border-t border-border pt-12 sm:pt-20">
+		<div className="pt-8">
 			<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Search</p>
-			<h2 className="mt-3 max-w-3xl text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-6xl">
-				What are you looking for?
-			</h2>
+			<h1 className="mt-2 text-gf-h2 font-bold">What are you looking for?</h1>
 			{categories.length ? (
 				<div className="mt-12">
 					<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Or browse</p>
-					<ul className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-lg">
+					<ul className="mt-4 flex flex-wrap gap-2.5">
 						{categories.slice(0, 8).map((c) => (
 							<li key={c.id}>
 								{/* A category alone shows nothing here (results need a query): browse its page. */}
 								<Link
 									href={`/category/${c.slug}`}
-									className="border-b border-foreground/30 pb-0.5 text-foreground transition-colors hover:border-foreground"
+									className="inline-flex min-h-11 items-center rounded-full bg-flash-white px-5 text-gf-h6 font-bold hover:bg-light-silver"
 								>
 									{c.name}
 								</Link>
@@ -154,9 +148,9 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 
 function SearchPageSkeleton() {
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
-				<div className="mx-auto max-w-3xl">
+		<section className="pb-6">
+			<div className="pt-[30px] pb-4">
+				<div>
 					<div className="h-12 w-full animate-pulse bg-secondary motion-reduce:animate-none" />
 				</div>
 			</div>
@@ -195,22 +189,20 @@ const SearchContent = async ({
 	]);
 
 	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
-				<div className="mx-auto max-w-3xl">
+		<section className="pb-6">
+			<div className="pt-[30px] pb-4">
+				<div>
 					<SearchPageInput initialQuery={query} />
 				</div>
 			</div>
 
 			{query ? (
 				<>
-					<header className="pt-10 pb-8 sm:pt-14 sm:pb-12">
+					<div className="pt-6 pb-6">
 						<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
 							<div>
 								<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
-								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-									{query}
-								</h1>
+								<h1 className="mt-2 text-gf-h2 font-bold break-words">{query}</h1>
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
 										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
@@ -218,11 +210,8 @@ const SearchContent = async ({
 									<ActiveFilters categories={categories} activeCategory={category} />
 								</div>
 							</div>
-							<div className="hidden sm:block">
-								<SortSelect value={sort} />
-							</div>
 						</div>
-					</header>
+					</div>
 
 					<MobileControls
 						categories={categories}
@@ -231,12 +220,7 @@ const SearchContent = async ({
 						totalCount={totalCount}
 					/>
 
-					<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
-						<aside className="hidden sm:block">
-							<div className="sticky top-24">
-								<CategorySidebar categories={categories} activeCategory={category} totalCount={totalCount} />
-							</div>
-						</aside>
+					<div className="pt-6">
 						<Suspense fallback={<SearchResultsSkeleton />}>
 							<SearchResults q={query} page={page} sort={sort} category={category} />
 						</Suspense>
