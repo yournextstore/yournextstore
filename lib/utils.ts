@@ -1,5 +1,15 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// The FreshCart type scale (text-fc-*) is unknown to tailwind-merge, which would read it as a
+// colour and drop either the size or the colour when both pass through cn().
+const twMerge = extendTailwindMerge({
+	extend: {
+		classGroups: {
+			"font-size": [{ "text-fc": ["sm", "base", "md", "lg", "xl", "2xl", "3xl", "5xl"] }],
+		},
+	},
+});
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

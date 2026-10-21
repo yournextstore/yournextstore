@@ -3,75 +3,43 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import { ArrowRight } from "lucide-react";
-import { cacheLife } from "next/cache";
+import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
-import { commerce } from "@/lib/commerce";
 
 export type Product = APIProductsBrowseResult["data"][number];
 
 type ProductGridProps = {
-	title?: string;
-	description?: string;
-	products?: (
+	title: string;
+	products: (
 		| Product
 		| APICollectionGetByIdResult["productCollections"][number]["product"]
 		| NonNullable<APIProductGetByIdResult>
 	)[];
-	limit?: number;
-	showViewAll?: boolean;
 	viewAllHref?: string;
 };
 
-export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
-	products,
-	limit = 6,
-	showViewAll = true,
-	viewAllHref = "/products",
-}: ProductGridProps) {
-	"use cache";
-	cacheLife("minutes");
-
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
-
+/** A titled row of FreshCart cards, five across on wide screens (the home page's "Popular Products"). */
+export function ProductGrid({ title, products, viewAllHref }: ProductGridProps) {
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
+		<section className="my-8 lg:my-14">
+			<div className="mb-6 flex items-center justify-between gap-4">
+				<h2 className="text-fc-lg">{title}</h2>
+				{viewAllHref ? (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex items-center gap-1 text-green-600 transition hover:text-green-700"
 					>
 						View all
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRightIcon className="size-3.5" aria-hidden />
 					</Link>
-				)}
+				) : null}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+				{products.map((product) => (
+					<ProductCard key={product.id} product={product} />
 				))}
 			</div>
-
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
 		</section>
 	);
 }

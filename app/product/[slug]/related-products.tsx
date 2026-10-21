@@ -1,5 +1,4 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 
@@ -10,21 +9,15 @@ async function getCategoryProducts(categorySlug?: string) {
 	cacheLife("minutes");
 	const { data } = await commerce.productBrowse({
 		active: true,
-		limit: 7,
+		limit: 6,
 		...(categorySlug ? { category: categorySlug } : {}),
 	});
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+// No Suspense boundary of its own: the browse is cached, so it lands together with the rest of
+// the product page instead of streaming in under the footer and pushing it (CLS).
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
@@ -32,16 +25,15 @@ async function RelatedProductsContent({
 	categorySlug?: string;
 }) {
 	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const related = products.filter((p) => p.id !== productId).slice(0, 5);
 
 	if (related.length === 0) return null;
 
 	return (
 		<ProductGrid
-			title="You might also like"
-			description="More products to explore"
+			title="Related Items"
 			products={related}
-			showViewAll={false}
+			viewAllHref={categorySlug ? `/category/${categorySlug}` : "/products"}
 		/>
 	);
 }

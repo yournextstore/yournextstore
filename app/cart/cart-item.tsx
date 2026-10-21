@@ -100,77 +100,77 @@ export function CartItem({ item }: CartItemProps) {
 		updateQuantity({ type: "DECREASE", key: itemKey(item) }, quantity - 1);
 	};
 
+	const spinnerButton =
+		"flex h-7 w-8 shrink-0 items-center justify-center text-gray-800 transition hover:bg-gray-100";
+
 	return (
-		<div className="flex gap-3 py-4">
-			{/* Product Image */}
+		<li className="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-x-3 gap-y-2 border-t border-gray-300 py-3 sm:grid-cols-[64px_minmax(0,1fr)_auto_5.5rem]">
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				tabIndex={-1}
+				aria-hidden
+				className="relative row-span-2 size-16 self-start overflow-hidden rounded-md bg-gray-50 sm:row-span-1 sm:self-center"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="64px" />}
 			</Link>
 
-			{/* Product Details */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0 space-y-1">
-						<Link
-							href={`/product/${product.slug}`}
-							onClick={closeCart}
-							className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
-						>
-							{product.name}
-						</Link>
-						{options && <p className="text-xs text-muted-foreground">{options}</p>}
-						{item.subscriptionPlan && (
-							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
-						)}
-					</div>
+			<div className="min-w-0">
+				<Link
+					href={`/product/${product.slug}`}
+					onClick={closeCart}
+					className="line-clamp-2 font-semibold text-gray-800 transition hover:text-green-600"
+				>
+					{product.name}
+				</Link>
+				{options && <p className="mt-0.5 text-fc-sm text-gray-500">{options}</p>}
+				{item.subscriptionPlan && (
+					<p className="mt-0.5 text-fc-sm text-gray-500">{planLabel(item.subscriptionPlan)}</p>
+				)}
+				<button
+					type="button"
+					onClick={handleRemove}
+					disabled={isPending}
+					className="mt-2 inline-flex items-center gap-1 text-fc-sm leading-none text-gray-500 transition hover:text-red-600 disabled:pointer-events-none disabled:opacity-50"
+					aria-label={`Remove ${product.name}`}
+				>
+					<Trash2 className="size-3.5 text-green-600" aria-hidden />
+					Remove
+				</button>
+			</div>
+
+			{/* Below sm the spinner and price share the text column's second row; above, their own columns. */}
+			<div className="col-start-2 flex items-center justify-between gap-3 sm:contents">
+				<div
+					className={cn(
+						"inline-flex items-center rounded-lg border border-gray-300 transition-opacity",
+						isPending && "opacity-70",
+					)}
+				>
 					<button
 						type="button"
-						onClick={handleRemove}
-						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
-						aria-label="Remove item"
+						onClick={handleDecrement}
+						className={cn(spinnerButton, "rounded-l-lg border-r border-gray-300")}
+						aria-label={`Decrease quantity of ${product.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Minus className="size-3" aria-hidden />
+					</button>
+					<span className="flex h-7 w-9 items-center justify-center text-gray-900 tabular-nums">
+						{quantity}
+					</span>
+					<button
+						type="button"
+						onClick={handleIncrement}
+						className={cn(spinnerButton, "rounded-r-lg border-l border-gray-300")}
+						aria-label={`Increase quantity of ${product.name}`}
+					>
+						<Plus className="size-3" aria-hidden />
 					</button>
 				</div>
-
-				<div className="flex items-center justify-between">
-					{/* Quantity Controls */}
-					<div
-						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
-							isPending && "opacity-70",
-						)}
-					>
-						<button
-							type="button"
-							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
-							aria-label="Decrease quantity"
-						>
-							<Minus className="h-3 w-3" />
-						</button>
-						<span className="flex h-7 w-8 items-center justify-center text-sm tabular-nums">{quantity}</span>
-						<button
-							type="button"
-							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
-							aria-label="Increase quantity"
-						>
-							<Plus className="h-3 w-3" />
-						</button>
-					</div>
-
-					{/* Price */}
-					<span className="text-sm font-semibold">
-						{formatMoney({ amount: lineTotal, currency, locale })}
-					</span>
-				</div>
+				<span className="text-right font-bold text-gray-800 tabular-nums">
+					{formatMoney({ amount: lineTotal, currency, locale })}
+				</span>
 			</div>
-		</div>
+		</li>
 	);
 }

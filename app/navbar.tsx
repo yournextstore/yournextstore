@@ -1,58 +1,157 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { ChevronDownIcon, LayoutGridIcon, MenuIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Logo } from "@/components/logo";
 import { MobileSearchInput } from "@/components/search/mobile-search-input";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export type NavLink = {
 	href: string;
 	label: string;
 };
 
-export function Navbar({ links }: { links: NavLink[] }) {
+export type DepartmentLink = NavLink & { child: boolean };
+
+/** Desktop "All Departments" dropdown: the store's categories, sub-categories indented. */
+export function DepartmentsMenu({ departments }: { departments: DepartmentLink[] }) {
+	return (
+		<DropdownMenu modal={false}>
+			<DropdownMenuTrigger className="fc-btn fc-btn-green mr-4">
+				<LayoutGridIcon className="size-4" aria-hidden />
+				All Departments
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start" sideOffset={6} className="min-w-[14rem] rounded-md p-1.5 shadow-lg">
+				<DropdownMenuItem
+					render={<Link href="/products" />}
+					className="rounded px-3 py-1.5 text-fc-base text-gray-800 focus:bg-gray-200"
+				>
+					All products
+				</DropdownMenuItem>
+				{departments.map((department) => (
+					<DropdownMenuItem
+						key={department.href}
+						render={<Link href={department.href} />}
+						className={cn(
+							"rounded px-3 py-1.5 text-fc-base text-gray-800 focus:bg-gray-200",
+							department.child && "pl-6 text-gray-600",
+						)}
+					>
+						{department.label}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
+/** The offcanvas menu below lg: wordmark and close, search, the departments toggle, then the nav list. */
+export function MobileMenu({
+	links,
+	departments,
+	storeName,
+}: {
+	links: NavLink[];
+	departments: DepartmentLink[];
+	storeName: string;
+}) {
 	const [open, setOpen] = useState(false);
+	const [departmentsOpen, setDepartmentsOpen] = useState(false);
 
 	return (
-		<>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger
-					aria-label="Open menu"
-					className="-order-1 rounded-full p-2 transition-colors hover:bg-secondary lg:hidden"
-				>
-					<Menu className="h-6 w-6" />
-				</SheetTrigger>
-				<SheetContent side="left" className="gap-0 overflow-y-auto p-6">
-					<SheetTitle className="sr-only">Menu</SheetTitle>
-					<div className="mt-6">
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger
+				aria-label="Open menu"
+				className="-m-2 inline-flex p-2 text-gray-800 transition hover:text-green-600 lg:hidden"
+			>
+				<MenuIcon className="size-6" strokeWidth={1.75} />
+			</SheetTrigger>
+			<SheetContent
+				side="left"
+				showCloseButton={false}
+				className="block gap-0 overflow-y-auto p-0 data-[side=left]:w-[85vw] data-[side=left]:border-r-0 data-[side=left]:max-w-sm"
+			>
+				<SheetTitle className="sr-only">Menu</SheetTitle>
+				<div className="flex items-center justify-between px-4 pt-4 pb-1">
+					<Logo name={storeName} onClick={() => setOpen(false)} />
+					<SheetClose
+						className="-m-2 p-2 text-gray-700 transition hover:text-gray-900"
+						aria-label="Close menu"
+					>
+						<XIcon className="size-6" />
+					</SheetClose>
+				</div>
+				<div className="p-4">
+					<div className="mb-4">
 						<MobileSearchInput onNavigate={() => setOpen(false)} />
 					</div>
-					<nav className="mt-4 flex flex-col gap-1">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={() => setOpen(false)}
-								className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-							>
-								{link.label}
-							</Link>
-						))}
+					<div className="mb-4">
+						<button
+							type="button"
+							aria-expanded={departmentsOpen}
+							onClick={() => setDepartmentsOpen((value) => !value)}
+							className="fc-btn fc-btn-green"
+						>
+							<LayoutGridIcon className="size-4" aria-hidden />
+							All Departments
+							<ChevronDownIcon
+								className={cn("size-4 transition", departmentsOpen && "rotate-180")}
+								aria-hidden
+							/>
+						</button>
+						{departmentsOpen ? (
+							<ul className="fc-card mt-2 p-2">
+								<li>
+									<Link
+										href="/products"
+										onClick={() => setOpen(false)}
+										className="flex rounded px-3 py-2 text-gray-800 hover:bg-gray-200"
+									>
+										All products
+									</Link>
+								</li>
+								{departments.map((department) => (
+									<li key={department.href}>
+										<Link
+											href={department.href}
+											onClick={() => setOpen(false)}
+											className={cn(
+												"flex rounded px-3 py-2 text-gray-800 hover:bg-gray-200",
+												department.child && "pl-6 text-gray-600",
+											)}
+										>
+											{department.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						) : null}
+					</div>
+					<nav aria-label="Main">
+						<ul>
+							{links.map((link) => (
+								<li key={link.href}>
+									<Link
+										href={link.href}
+										onClick={() => setOpen(false)}
+										className="flex border-b border-gray-300 px-2 py-2 leading-[1.8] font-medium text-gray-800 transition hover:text-green-600"
+									>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
 					</nav>
-				</SheetContent>
-			</Sheet>
-			<nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 items-center gap-6">
-				{links.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-					>
-						{link.label}
-					</Link>
-				))}
-			</nav>
-		</>
+				</div>
+			</SheetContent>
+		</Sheet>
 	);
 }
