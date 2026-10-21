@@ -68,7 +68,7 @@ export function AddToCartButton({
 	volumePricingTiers = [],
 	restockNotificationsEnabled = false,
 }: AddToCartButtonProps) {
-	const { currency, locale, taxBehavior } = useStoreConfig();
+	const { currency, locale, taxBehavior, language } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
 	const { items, openCart, dispatch, syncCart, reconcile, startMutation } = useCart();
 
@@ -93,9 +93,9 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+			return `Add to basket, ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
+		return "Add to basket";
 	}, [selectedVariant, isOutOfStock, totalPrice, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
@@ -144,8 +144,14 @@ export function AddToCartButton({
 		return { label: "In stock", tone: "in" as const };
 	}, [selectedVariant]);
 
-	const handleSubmit = (e: React.FormEvent) => {
+	// "Buy now" adds the line, then leaves for the hosted checkout once the write has landed.
+	// A full navigation on purpose: /checkout is a proxied zone (see AGENTS.md).
+	const checkoutUrl = language ? `/checkout?lang=${encodeURIComponent(language)}` : "/checkout";
+
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		const submitter = (e.nativeEvent as SubmitEvent).submitter;
+		const buyNow = submitter instanceof HTMLButtonElement && submitter.value === "buy-now";
 
 		if (!selectedVariant || isOutOfStock) return;
 
@@ -155,7 +161,7 @@ export function AddToCartButton({
 
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
-		openCart();
+		if (!buyNow) openCart();
 		setQuantity(1);
 
 		// Instant local feedback OUTSIDE the transition, then REPLACE with the
@@ -187,6 +193,7 @@ export function AddToCartButton({
 				if (line.quantity < previousQuantity + addedQuantity) {
 					toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
 				}
+				if (buyNow) window.location.assign(checkoutUrl);
 			} else {
 				await reconcile();
 				toast.error("This item is out of stock");
@@ -194,76 +201,69 @@ export function AddToCartButton({
 		});
 	};
 
-	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
+	const stockTone =
+		stockStatus?.tone === "out" ? "tag--order" : stockStatus?.tone === "low" ? "tag--batch" : "tag--stock";
 
-			{/* Price & sale */}
+	return (
+		<div className="space-y-6">
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
+					<strong className="font-display text-[1.9rem] font-[480] leading-none">{priceInfo.display}</strong>
+					{priceInfo.compareAt && <del className="mono text-[0.85rem] text-faint">{priceInfo.compareAt}</del>}
 					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
+						<span className="tag tag--order">save {priceInfo.discountPercent}%</span>
 					) : null}
 				</div>
-
 				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
-				)}
-
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
-								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-600 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-600 dark:text-green-500",
-								)}
-							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
+					<p className="mono text-[0.7rem] text-faint">Lowest price in the last 30 days: {omnibusPrice}</p>
 				)}
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
+			{summary && <p className="max-w-[46ch] whitespace-pre-line text-dim">{summary}</p>}
 
-			<QuantitySelector
-				quantity={effectiveQuantity}
-				onQuantityChange={setQuantity}
-				max={Math.max(1, Math.min(99, maxQuantity))}
-				disabled={isOutOfStock}
-			/>
+			{variants.length > 1 && <VariantSelector variants={variants} />}
 
 			<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 
 			{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 				<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 			) : (
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2.5">
+					<QuantitySelector
+						quantity={effectiveQuantity}
+						onQuantityChange={setQuantity}
+						max={Math.max(1, Math.min(99, maxQuantity))}
+						disabled={isOutOfStock}
+					/>
 					<button
 						type="submit"
+						value="add"
 						disabled={!selectedVariant || isOutOfStock}
-						className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						aria-label={totalPrice && !isOutOfStock ? buttonText : undefined}
+						className="btn btn-primary h-[2.9rem] min-w-40 flex-1"
 					>
-						{buttonText}
+						{selectedVariant && !isOutOfStock ? "Add to basket" : buttonText}
+					</button>
+					<button
+						type="submit"
+						value="buy-now"
+						disabled={!selectedVariant || isOutOfStock}
+						className="btn btn-ghost h-[2.9rem] min-w-40 flex-1 basis-full sm:basis-0"
+					>
+						Buy now <span aria-hidden="true">→</span>
 					</button>
 				</form>
+			)}
+
+			{(selectedVariant?.sku || stockStatus) && (
+				<div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-dashed border-line py-3">
+					{stockStatus && <span className={cn("tag", stockTone)}>{stockStatus.label}</span>}
+					{selectedVariant?.sku && (
+						<span className="mono text-[0.72rem] text-faint">
+							sku <span className="text-ink">{selectedVariant.sku}</span>
+						</span>
+					)}
+				</div>
 			)}
 
 			<TrustBadges />

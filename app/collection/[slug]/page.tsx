@@ -5,20 +5,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Notebook } from "@/components/notebook";
+import { ProductCard } from "@/components/product-card";
+import { LISTING_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { SectionHead } from "@/components/sections/home";
+import { pieces, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { shelfPhoto } from "@/lib/editorial";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
-import { YNSMedia } from "@/lib/yns-media";
 
 // The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
 const SMART_COLLECTION_LIMIT = 100;
@@ -36,9 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -61,48 +54,58 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/** The home hero, retold for one collection: name and note beside the notebook with its photograph pasted in. */
+function CollectionHeader({
+	collection,
+	image,
+	count,
+}: {
+	collection: APICollectionGetByIdResult;
+	image: string | null;
+	count: number;
+}) {
+	const description = richTextToPlain(collection.description);
+	const lede =
+		description && !/^\S+ collection$/i.test(description)
+			? description
+			: `A small shelf of pieces that sit well together — ${pieces(count)}, each with a page of its own.`;
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
+		<section className="wrap grid items-center gap-[clamp(1.6rem,4vw,3.6rem)] pb-[clamp(2.5rem,5vw,4rem)] pt-[clamp(2.5rem,6vw,4.5rem)] min-[920px]:grid-cols-[1.02fr_0.98fr]">
+			<div className="min-w-0">
+				<SectionHead
+					as="h1"
+					reveal={false}
+					kicker="Collection"
+					title={<em>{collection.name}</em>}
+					lede={lede}
+				/>
+				<dl className="mt-8 flex flex-wrap gap-x-8 gap-y-4 border-t border-line pt-5">
+					<div className="flex flex-col gap-1">
+						<dt className="label-mono text-[0.68rem] tracking-[0.16em]">On this shelf</dt>
+						<dd className="m-0 font-display text-[1.5rem] leading-tight">{pieces(count)}</dd>
 					</div>
-				</div>
+				</dl>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
-					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
-						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
-						priority
-					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
+			<Notebook
+				priority
+				image={image}
+				pages={[22, 23]}
+				note={
+					<>
+						filed under —
+						<br />
+						{collection.name.toLowerCase()}
+					</>
+				}
+				captionStart={<>The shelf — “{collection.name}”</>}
+				captionEnd={pieces(count)}
+			/>
 		</section>
 	);
 }
 
 function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+	return <ProductGridSkeleton />;
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,34 +160,21 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
+		<div className="min-h-svh pb-[clamp(4rem,9vw,7rem)]">
+			<div className="wrap grid items-center gap-[clamp(1.6rem,4vw,3.6rem)] pb-[clamp(2.5rem,5vw,4rem)] pt-[clamp(2.5rem,6vw,4.5rem)] min-[920px]:grid-cols-[1.02fr_0.98fr]">
+				<div className="space-y-4">
+					<div className="h-4 w-28 animate-pulse rounded bg-kraft-2" />
+					<div className="h-16 w-2/3 animate-pulse rounded bg-kraft-2" />
+					<div className="h-20 w-full animate-pulse rounded bg-kraft-2" />
 				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+				<div className="h-[clamp(260px,32vw,370px)] animate-pulse rounded-lg bg-kraft-2" />
+			</div>
+			<div className="wrap mt-6">
+				<CollectionProductsSkeleton />
+			</div>
+		</div>
 	);
 }
 
@@ -215,29 +205,40 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+	const image = shelfPhoto(collection.slug);
+
 	return (
-		<>
+		<div className="min-h-svh pb-[clamp(4rem,9vw,7rem)]">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
+			<CollectionHeader collection={collection} image={image} count={products.length} />
+			<div className="wrap">
+				{products.length > 0 ? (
+					<>
+						<div className="mb-8 flex items-end justify-between gap-6 border-b border-line pb-4">
+							<h2 className="text-[clamp(1.6rem,3vw,2.2rem)]">
+								On the <em className="swipe">shelf</em>
+							</h2>
+							<Link href="/products" className="btn btn-ghost shrink-0 py-2 text-[0.85rem]">
+								The whole range <span aria-hidden="true">→</span>
+							</Link>
+						</div>
+						<div className={LISTING_GRID}>
+							{products.map((product) => (
+								<ProductCard key={product.id} product={product} />
+							))}
+						</div>
+					</>
+				) : (
+					<div className="py-24 text-center">
+						<p className="font-display text-[1.8rem] text-ink">A blank page, for now.</p>
+						<Link href="/products" className="btn btn-ghost mt-5">
+							Browse the whole range <span aria-hidden="true">→</span>
+						</Link>
+					</div>
+				)}
 			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+		</div>
 	);
 };

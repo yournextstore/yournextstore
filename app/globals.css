@@ -8,8 +8,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-karla), "Karla", system-ui, sans-serif;
+	--font-heading: var(--font-fraunces), "Fraunces", Georgia, serif;
+	--font-mono: var(--font-space-mono), "Space Mono", ui-monospace, monospace;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -32,78 +33,888 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own names. */
+	--color-ink: var(--ink);
+	--color-dim: var(--dim);
+	--color-faint: var(--faint);
+	--color-kraft: var(--bg);
+	--color-kraft-2: var(--bg-2);
+	--color-panel: var(--panel);
+	--color-sheet: var(--page);
+	--color-line: var(--line);
+	--color-line-2: var(--line-2);
+	--color-ochre: var(--ochre);
+	--color-blue-ink: var(--blue);
+	--color-margin: var(--margin);
+	--color-hl: var(--hl);
+	--color-tag-ok: var(--tag-ok);
 }
 
+@theme {
+	--breakpoint-xs: 30rem;
+}
+
+/*
+ * Light = kraft paper on the counter; dark = ink-blue, the shop after hours (the original's two token
+ * sets). Its faint grey (#676c7a) and ochre (#7a5b06) dip under AA on the darker kraft, so both text
+ * tokens are a step darker; the highlighter never sets text.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.6875rem;
+	--background: #ece3d1;
+	--foreground: #14171f;
+	--card: #f4eddd;
+	--card-foreground: #14171f;
+	--popover: #f7f1e3;
+	--popover-foreground: #14171f;
+	--primary: #14171f;
+	--primary-foreground: #ece3d1;
+	--secondary: #e4d9c1;
+	--secondary-foreground: #14171f;
+	--muted: #e4d9c1;
+	--muted-foreground: #464c5c;
+	--accent: #e4d9c1;
+	--accent-foreground: #14171f;
+	--destructive: #a14a35;
+	--border: rgba(20, 23, 31, 0.16);
+	--input: rgba(20, 23, 31, 0.22);
+	--ring: #6e5105;
+	--bg: #ece3d1;
+	--bg-2: #e4d9c1;
+	--panel: #f4eddd;
+	--page: #f7f1e3;
+	--ink: #14171f;
+	--dim: #464c5c;
+	--faint: #585c6a;
+	--line: rgba(20, 23, 31, 0.16);
+	--line-2: rgba(20, 23, 31, 0.08);
+	--ochre: #6e5105;
+	--blue: #2b3a67;
+	--margin: #b8563f;
+	--margin-text: #a14a35;
+	--tag-ok: #47673d;
+	--hl: #f2c14e;
+	--swipe: rgba(242, 193, 78, 0.82);
+	--pen: #14171f;
+	--shadow: 0 26px 60px -32px rgba(43, 34, 18, 0.55);
+	--grain-blend: multiply;
+	--grain-opacity: 0.35;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.6875rem;
+	--background: #14171f;
+	--foreground: #ece3d1;
+	--card: #1b202b;
+	--card-foreground: #ece3d1;
+	--popover: #1e2430;
+	--popover-foreground: #ece3d1;
+	--primary: #ece3d1;
+	--primary-foreground: #14171f;
+	--secondary: #181c27;
+	--secondary-foreground: #ece3d1;
+	--muted: #181c27;
+	--muted-foreground: #b7b0a0;
+	--accent: #1e2430;
+	--accent-foreground: #ece3d1;
+	--destructive: #cd7a63;
+	--border: rgba(236, 227, 209, 0.14);
+	--input: rgba(236, 227, 209, 0.2);
+	--ring: #f2c14e;
+	--bg: #14171f;
+	--bg-2: #181c27;
+	--panel: #1b202b;
+	--page: #1e2430;
+	--ink: #ece3d1;
+	--dim: #b7b0a0;
+	--faint: #8f93a5;
+	--line: rgba(236, 227, 209, 0.14);
+	--line-2: rgba(236, 227, 209, 0.07);
+	--ochre: #f2c14e;
+	--blue: #9db1e3;
+	--margin: #cd7a63;
+	--margin-text: #cd7a63;
+	--tag-ok: #93bd88;
+	--hl: #f2c14e;
+	--swipe: rgba(242, 193, 78, 0.3);
+	--pen: #ece3d1;
+	--shadow: 0 26px 60px -30px rgba(0, 0, 0, 0.8);
+	--grain-blend: screen;
+	--grain-opacity: 0.06;
+}
+
+/* The four rulings — `data-paper` on <html>, set before paint by the inline script in the layout. */
+:root {
+	--rule: color-mix(in oklab, var(--ink) 11%, transparent);
+	--rule-soft: color-mix(in oklab, var(--ink) 8%, transparent);
+	--paper-img: radial-gradient(var(--rule) 1px, transparent 1.4px);
+	--paper-size: 22px 22px;
+	--margin-opacity: 0;
+	/* nib-lift — a slow press into the sheet, a light flick as the pen leaves */
+	--ease: cubic-bezier(0.3, 0.02, 0.18, 1.04);
+	--ease-firm: cubic-bezier(0.2, 0.6, 0.22, 1);
+}
+:root[data-paper="blank"] {
+	--paper-img: none;
+	--paper-size: auto;
+}
+:root[data-paper="ruled"] {
+	--paper-img: linear-gradient(to bottom, transparent calc(100% - 1px), var(--rule) calc(100% - 1px));
+	--paper-size: 100% 2rem;
+	--margin-opacity: 0.75;
+}
+:root[data-paper="graph"] {
+	--paper-img:
+		linear-gradient(to right, var(--rule-soft) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--rule-soft) 1px, transparent 1px);
+	--paper-size: 24px 24px;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+		-webkit-text-size-adjust: 100%;
+	}
+	/* next/font puts its variables on <body>, so the face stacks are declared here, not on :root. */
 	body {
-		@apply bg-background text-foreground;
+		--font-d: var(--font-fraunces), "Fraunces", Georgia, serif;
+		--font-b: var(--font-karla), "Karla", system-ui, sans-serif;
+		--font-m: var(--font-space-mono), "Space Mono", ui-monospace, monospace;
+		background: var(--bg);
+		color: var(--ink);
+		font-family: var(--font-b);
+		font-size: clamp(15px, 1vw + 13px, 17px);
+		line-height: 1.62;
+		overflow-x: clip;
+		transition:
+			background-color 0.5s var(--ease),
+			color 0.5s var(--ease);
+	}
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-d);
+		font-weight: 480;
+		line-height: 1.04;
+		letter-spacing: -0.015em;
+		text-wrap: balance;
+	}
+	p {
+		text-wrap: pretty;
+	}
+	::selection {
+		background: var(--hl);
+		color: #14171f;
+	}
+	:where(a, button, input, select, textarea, canvas, [role="radio"]):focus-visible {
+		outline: 2px solid var(--ochre);
+		outline-offset: 3px;
+	}
+}
+
+/* Display italics get a swipe of the highlighter, not italics alone. */
+@utility swipe {
+	font-style: italic;
+	background-image: linear-gradient(transparent 52%, var(--swipe) 52%, var(--swipe) 94%, transparent 94%);
+	background-repeat: no-repeat;
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
+@utility font-display {
+	font-family: var(--font-d);
+	font-weight: 480;
+	letter-spacing: -0.015em;
+}
+
+@utility mono {
+	font-family: var(--font-m);
+	font-variant-ligatures: none;
+}
+
+@utility wrap {
+	width: min(100% - 2.4rem, 1200px);
+	margin-inline: auto;
+}
+
+/* "[ The desk ]" — the ochre mono kicker above each heading. */
+@utility kicker {
+	font-family: var(--font-m);
+	color: var(--ochre);
+	font-size: 0.74rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+}
+
+/* Faint mono label: spec lines, captions, dt. */
+@utility label-mono {
+	font-family: var(--font-m);
+	color: var(--faint);
+	font-size: 0.7rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+@utility text-section {
+	font-size: clamp(2rem, 4vw, 3.1rem);
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+@utility lede {
+	color: var(--dim);
+	font-size: clamp(1rem, 1.4vw, 1.14rem);
+}
+
+/* Paper ruling on any surface: same pattern as the fixed substrate. */
+@utility paper {
+	background-image: var(--paper-img);
+	background-size: var(--paper-size);
+}
+
+@layer components {
+	/* ---------- fixed layers: the sheet under everything ---------- */
+	.substrate {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		background-image: var(--paper-img);
+		background-size: var(--paper-size);
+		opacity: 0.5;
+	}
+	.substrate::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(120% 90% at 82% -10%, color-mix(in oklab, var(--hl) 9%, transparent), transparent 62%),
+			radial-gradient(110% 110% at 8% 112%, var(--bg-2), transparent 68%);
+	}
+	.grain {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .24 0 0 0 0 .2 0 0 0 0 .13 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23g)'/%3E%3C/svg%3E");
+		background-size: 260px 260px;
+		mix-blend-mode: var(--grain-blend);
+		opacity: var(--grain-opacity);
+	}
+
+	/* The red margin — only when the sheet is ruled. */
+	.margin-line {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 1px;
+		background: var(--margin);
+		opacity: var(--margin-opacity);
+		transition: opacity 0.45s var(--ease);
+		pointer-events: none;
+	}
+
+	/* ---------- the floating nav bar ---------- */
+	.nav-bar {
+		border: 1px solid var(--line);
+		border-radius: 14px;
+		background: color-mix(in oklab, var(--bg) 74%, transparent);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+	}
+	.nav-link {
+		color: var(--dim);
+		font-size: 0.87rem;
+		padding: 0.45rem 0.7rem;
+		border-radius: 9px;
+		text-decoration: none;
+		white-space: nowrap;
+		transition:
+			color 0.25s,
+			background-color 0.25s;
+	}
+	.nav-link:hover {
+		color: var(--ink);
+		background: var(--line-2);
+	}
+	.nav-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: var(--ink);
+		border: 1px solid var(--line);
+		font-size: 0.87rem;
+		padding: 0.45rem 0.7rem;
+		border-radius: 9px;
+		white-space: nowrap;
+		transition:
+			color 0.25s,
+			background-color 0.25s,
+			border-color 0.25s;
+	}
+	.nav-cta:hover {
+		background: var(--hl);
+		color: #14171f;
+		border-color: transparent;
+	}
+	.icon-btn {
+		display: inline-grid;
+		place-items: center;
+		width: 34px;
+		height: 34px;
+		flex-shrink: 0;
+		border: 1px solid var(--line);
+		border-radius: 9px;
+		background: transparent;
+		color: var(--dim);
+		cursor: pointer;
+		transition:
+			color 0.25s,
+			border-color 0.25s,
+			transform 0.2s var(--ease-firm);
+	}
+	.icon-btn:hover {
+		color: var(--ink);
+		border-color: var(--ochre);
+	}
+	.icon-btn:active {
+		transform: scale(0.92);
+	}
+
+	/* ---------- buttons ---------- */
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4rem;
+		text-decoration: none;
+		padding: 0.72rem 1.2rem;
+		border-radius: 11px;
+		font-weight: 700;
+		font-size: 0.92rem;
+		line-height: 1.4;
+		border: 1px solid transparent;
+		cursor: pointer;
+		font-family: var(--font-b);
+		transition:
+			transform 0.25s var(--ease),
+			box-shadow 0.25s,
+			background-color 0.25s,
+			border-color 0.25s,
+			color 0.25s;
+	}
+	.btn:disabled,
+	.btn[aria-disabled="true"] {
+		opacity: 0.55;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: none;
+	}
+	.btn-primary {
+		background: var(--hl);
+		color: #14171f;
+	}
+	.btn-primary:not(:disabled):hover {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 26px -14px var(--hl);
+	}
+	.btn-ghost {
+		border-color: var(--line);
+		color: var(--ink);
+	}
+	.btn-ghost:not(:disabled):hover {
+		border-color: var(--ochre);
+		color: var(--ochre);
+	}
+
+	/* Mono chip: the ruling radios, filters, variant values. */
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.25rem;
+		padding: 0.48rem 0.85rem;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		font-family: var(--font-m);
+		font-size: 0.72rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--dim);
+		background: transparent;
+		cursor: pointer;
+		white-space: nowrap;
+		transition:
+			color 0.25s,
+			border-color 0.25s,
+			background-color 0.25s,
+			transform 0.25s var(--ease);
+	}
+	.chip:hover {
+		border-color: var(--ochre);
+		color: var(--ink);
+	}
+	.chip[aria-checked="true"],
+	.chip[aria-current="page"],
+	.chip[aria-pressed="true"] {
+		background: var(--ink);
+		color: var(--bg);
+		border-color: var(--ink);
+		transform: translateY(-1px);
+	}
+	.tool-btn {
+		padding: 0.5rem 0.9rem;
+		min-height: 2.25rem;
+		border: 1px solid var(--line);
+		border-radius: 10px;
+		background: transparent;
+		color: var(--dim);
+		font-family: var(--font-m);
+		font-size: 0.74rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition:
+			color 0.25s,
+			border-color 0.25s,
+			background-color 0.25s;
+	}
+	.tool-btn:hover {
+		color: var(--ink);
+		border-color: var(--ochre);
+	}
+	.tool-btn[aria-pressed="true"] {
+		background: var(--ink);
+		color: var(--bg);
+		border-color: var(--ink);
+	}
+	.tool-btn--hl[aria-pressed="true"] {
+		background: var(--hl);
+		color: #14171f;
+		border-color: var(--hl);
+	}
+
+	/* Status tag on a card: in stock / last few / sold out. */
+	.tag {
+		display: inline-block;
+		font-family: var(--font-m);
+		font-size: 0.66rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		padding: 0.22rem 0.6rem;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		color: var(--dim);
+	}
+	.tag--stock {
+		color: var(--tag-ok);
+		border-color: color-mix(in oklab, var(--tag-ok) 45%, var(--line));
+	}
+	.tag--batch {
+		color: var(--blue);
+		border-color: color-mix(in oklab, var(--blue) 45%, var(--line));
+	}
+	.tag--order {
+		color: var(--ochre);
+		border-color: color-mix(in oklab, var(--ochre) 45%, var(--line));
+	}
+
+	/* ---------- the open notebook ---------- */
+	.book {
+		position: relative;
+		margin: 0;
+		transform: rotate(-1.4deg);
+	}
+	.book-pages {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		border-radius: 6px 10px 10px 6px;
+		box-shadow: var(--shadow);
+	}
+	.book-page {
+		position: relative;
+		background-color: var(--page);
+		background-image: var(--paper-img);
+		background-size: var(--paper-size);
+		min-height: clamp(240px, 30vw, 340px);
+		padding: clamp(0.9rem, 2vw, 1.4rem);
+	}
+	.book-page--left {
+		border-radius: 6px 0 0 6px;
+		border: 1px solid var(--line);
+		border-right: 0;
+	}
+	.book-page--left::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		width: 18%;
+		background: linear-gradient(to right, transparent, rgba(20, 23, 31, 0.12));
+		pointer-events: none;
+	}
+	.book-page--right {
+		border-block: 1px solid var(--line);
+		clip-path: var(--deckle-edge);
+	}
+	.book-page--right::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		width: 16%;
+		background: linear-gradient(to left, transparent, rgba(20, 23, 31, 0.1));
+		pointer-events: none;
+	}
+	.book-page--right .margin-line {
+		left: clamp(2rem, 4vw, 2.8rem);
+	}
+	.stitch {
+		position: absolute;
+		left: 50%;
+		top: 4%;
+		bottom: 4%;
+		width: 0;
+		z-index: 1;
+		border-left: 2px dashed color-mix(in oklab, var(--ink) 32%, transparent);
+		transform: translateX(-1px);
+	}
+
+	/* A photograph pasted onto a page: white border, two strips of tape. */
+	.pasted {
+		position: relative;
+		background: #fbf8f1;
+		padding: 6px;
+		box-shadow: 0 10px 24px -14px rgba(20, 23, 31, 0.6);
+	}
+	.pasted::before,
+	.pasted::after {
+		content: "";
+		position: absolute;
+		width: 46px;
+		height: 16px;
+		background: color-mix(in oklab, var(--hl) 55%, transparent);
+		opacity: 0.85;
+		z-index: 1;
+	}
+	.pasted::before {
+		top: -7px;
+		left: 12%;
+		transform: rotate(-8deg);
+	}
+	.pasted::after {
+		bottom: -7px;
+		right: 10%;
+		transform: rotate(6deg);
+	}
+
+	/* ---------- range card ---------- */
+	.good {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		border: 1px solid var(--line);
+		border-radius: 16px;
+		background: var(--panel);
+		overflow: hidden;
+		transition:
+			transform 0.35s var(--ease),
+			border-color 0.3s,
+			box-shadow 0.35s var(--ease);
+	}
+	.good:hover {
+		transform: translateY(-4px) rotate(-0.3deg);
+		border-color: color-mix(in oklab, var(--ochre) 42%, var(--line));
+		box-shadow: var(--shadow);
+	}
+	.good-art {
+		position: relative;
+		aspect-ratio: 16 / 10;
+		background: linear-gradient(165deg, var(--page), var(--bg-2));
+		border-bottom: 1px solid var(--line);
+	}
+
+	/* ---------- a sheet panel (pad, gallery, index card) ---------- */
+	.sheet-panel {
+		position: relative;
+		border: 1px solid var(--line);
+		border-radius: 14px;
+		overflow: hidden;
+		background-color: var(--page);
+		background-image: var(--paper-img);
+		background-size: var(--paper-size);
+		box-shadow: var(--shadow);
+	}
+	.sheet-panel .margin-line {
+		left: clamp(2.2rem, 5vw, 3.4rem);
+	}
+	.index-card {
+		border: 1px solid var(--line);
+		border-radius: 16px;
+		background: var(--panel);
+		padding: 0.4rem 1.2rem;
+	}
+	.index-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.85rem 0;
+		border-bottom: 1px solid var(--line-2);
+	}
+	.index-row:last-child {
+		border-bottom: 0;
+	}
+
+	/* ---------- the receipt (till + basket) ---------- */
+	.receipt {
+		position: relative;
+		border: 1px solid var(--line);
+		border-radius: 14px 14px 0 0;
+		background: var(--page);
+		padding: 1.5rem 1.4rem 2rem;
+		box-shadow: var(--shadow);
+		font-family: var(--font-m);
+		clip-path: var(--torn-tail);
+	}
+	.receipt-head {
+		text-align: center;
+		font-size: 0.7rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--faint);
+		padding-bottom: 1rem;
+		border-bottom: 1px dashed var(--line);
+	}
+	.receipt-head strong {
+		display: block;
+		font-family: var(--font-d);
+		font-weight: 480;
+		font-size: 1.4rem;
+		letter-spacing: 0;
+		text-transform: none;
+		color: var(--ink);
+		margin-bottom: 0.2rem;
+	}
+	.field {
+		width: 100%;
+		min-height: 2.75rem;
+		padding: 0.6rem 0.8rem;
+		border: 1px solid var(--line);
+		border-radius: 10px;
+		background: var(--panel);
+		color: var(--ink);
+		font: inherit;
+		font-size: 0.88rem;
+	}
+	.stamp {
+		display: inline-block;
+		padding: 0.4rem 0.9rem;
+		border: 2px solid var(--margin);
+		border-radius: 6px;
+		color: var(--margin-text);
+		font-family: var(--font-m);
+		font-size: 0.74rem;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		transform: rotate(-4deg);
+	}
+	.arrow-list li {
+		position: relative;
+		padding-left: 1.3rem;
+		color: var(--dim);
+		font-size: 0.82rem;
+		font-family: var(--font-m);
+	}
+	.arrow-list li::before {
+		content: "→";
+		position: absolute;
+		left: 0;
+		color: var(--ochre);
+	}
+}
+
+/* Hand-jittered deckle edge (right side) and a receipt's torn tail, as clip-paths. */
+:root {
+	--deckle-edge: polygon(
+		0 0,
+		98.4% 0.8%,
+		99.3% 3.4%,
+		98.2% 6.5%,
+		99.6% 9.8%,
+		98.6% 13%,
+		99.1% 16.6%,
+		98% 20%,
+		99.5% 23.6%,
+		98.4% 27%,
+		99% 31%,
+		98.1% 34.6%,
+		99.6% 38%,
+		98.5% 42%,
+		99.2% 45.8%,
+		98.2% 49.4%,
+		99.5% 53%,
+		98.3% 57%,
+		99% 60.8%,
+		98% 64.4%,
+		99.4% 68%,
+		98.4% 71.8%,
+		99.1% 75.4%,
+		98.1% 79%,
+		99.5% 82.8%,
+		98.4% 86.4%,
+		99.2% 90%,
+		98.2% 93.4%,
+		99.4% 96.6%,
+		98.5% 100%,
+		0 100%
+	);
+	--deckle-left: polygon(
+		1.6% 0,
+		100% 0,
+		100% 100%,
+		1.5% 100%,
+		0.6% 96.6%,
+		1.8% 93.4%,
+		0.8% 90%,
+		1.6% 86.4%,
+		0.5% 82.8%,
+		1.9% 79%,
+		0.9% 75.4%,
+		1.6% 71.8%,
+		0.6% 68%,
+		2% 64.4%,
+		1% 60.8%,
+		1.7% 57%,
+		0.5% 53%,
+		1.8% 49.4%,
+		0.8% 45.8%,
+		1.5% 42%,
+		0.4% 38%,
+		1.9% 34.6%,
+		1% 31%,
+		1.6% 27%,
+		0.5% 23.6%,
+		2% 20%,
+		0.9% 16.6%,
+		1.4% 13%,
+		0.4% 9.8%,
+		1.8% 6.5%,
+		0.7% 3.4%
+	);
+	--torn-tail: polygon(
+		0 0,
+		100% 0,
+		100% calc(100% - 10px),
+		96% 100%,
+		92% calc(100% - 9px),
+		88% 100%,
+		84% calc(100% - 9px),
+		80% 100%,
+		76% calc(100% - 9px),
+		72% 100%,
+		68% calc(100% - 9px),
+		64% 100%,
+		60% calc(100% - 9px),
+		56% 100%,
+		52% calc(100% - 9px),
+		48% 100%,
+		44% calc(100% - 9px),
+		40% 100%,
+		36% calc(100% - 9px),
+		32% 100%,
+		28% calc(100% - 9px),
+		24% 100%,
+		20% calc(100% - 9px),
+		16% 100%,
+		12% calc(100% - 9px),
+		8% 100%,
+		4% calc(100% - 9px),
+		0 100%
+	);
+}
+
+/* Reveals, gated behind the `.js` class so nothing hides without scripts. */
+.js .reveal {
+	opacity: 0;
+	transform: translateY(22px);
+	transition:
+		opacity 0.9s var(--ease),
+		transform 0.9s var(--ease);
+	transition-delay: var(--d, 0s);
+}
+.js .reveal.is-in {
+	opacity: 1;
+	transform: none;
+}
+
+/* The hero title rises line by line. */
+.rise-line {
+	display: block;
+	overflow: hidden;
+	padding-bottom: 0.06em;
+	margin-bottom: -0.06em;
+}
+.rise-line > span {
+	display: block;
+	animation: rise 0.95s var(--ease) both;
+	animation-delay: var(--d, 0s);
+}
+@keyframes rise {
+	from {
+		transform: translateY(112%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	.js .reveal {
+		opacity: 1 !important;
+		transform: none !important;
+	}
+	.good:hover {
+		transform: none;
 	}
 }
 
 .prose {
-	--tw-prose-body: var(--muted-foreground);
-	--tw-prose-headings: var(--foreground);
-	--tw-prose-links: var(--foreground);
-	--tw-prose-bold: var(--foreground);
-	--tw-prose-bullets: var(--muted-foreground);
-	--tw-prose-counters: var(--muted-foreground);
+	--tw-prose-body: var(--dim);
+	--tw-prose-headings: var(--ink);
+	--tw-prose-links: var(--ink);
+	--tw-prose-bold: var(--ink);
+	--tw-prose-bullets: var(--faint);
+	--tw-prose-counters: var(--faint);
+	--tw-prose-hr: var(--line);
+	--tw-prose-quotes: var(--ink);
 }
 
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		color-mix(in oklab, var(--bg-2) 100%, transparent) 0%,
+		var(--panel) 50%,
+		var(--bg-2) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;

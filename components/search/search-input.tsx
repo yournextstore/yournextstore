@@ -35,13 +35,10 @@ export function SearchInput() {
 
 	return (
 		<>
-			{/* lg only — icon trigger opens popover with input inside */}
+			{/* The header's square icon button opens a popover with the input inside. */}
 			<Popover open={iconOpen} onOpenChange={setIconOpen}>
-				<PopoverTrigger
-					aria-label="Search"
-					className="hidden lg:inline-flex xl:hidden rounded-full p-2 transition-colors hover:bg-secondary"
-				>
-					<Search className="h-6 w-6" strokeWidth={1.75} />
+				<PopoverTrigger aria-label="Search" className="icon-btn">
+					<Search className="size-[17px]" strokeWidth={1.7} />
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
@@ -96,20 +93,21 @@ export function SearchInput() {
 				</PopoverContent>
 			</Popover>
 
-			{/* xl+ — inline input bar */}
-			<form onSubmit={handleSubmit} className="hidden xl:block">
+			{/* Inline field unused in this theme: the header keeps to icon buttons. */}
+			<form onSubmit={handleSubmit} className="hidden">
 				<Popover open={inlinePanelOpen} onOpenChange={setInlineOpen}>
 					<PopoverAnchor asChild>
 						<div className="relative">
 							<Search
-								className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-								strokeWidth={1.75}
+								className="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-ink"
+								strokeWidth={2}
 							/>
 							<input
 								ref={inlineInputRef}
 								type="search"
 								name="q"
-								placeholder="Search products"
+								placeholder="Search the shop"
+								aria-label="Search the shop"
 								value={c.query}
 								onChange={(e) => {
 									c.setQuery(e.target.value);
@@ -128,7 +126,7 @@ export function SearchInput() {
 								aria-autocomplete="list"
 								aria-activedescendant={getActiveId(inlineListboxId, c, inlinePanelOpen)}
 								autoComplete="off"
-								className="h-10 w-56 rounded-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+								className="h-9 w-44 border-0 border-b border-line bg-transparent pl-6 pr-1 text-[0.8rem] text-ink placeholder:text-muted-foreground focus:outline-none focus-visible:border-ochre xl:w-48"
 							/>
 						</div>
 					</PopoverAnchor>
