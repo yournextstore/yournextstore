@@ -8,7 +8,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
-import { TrustBadges } from "@/app/product/[slug]/trust-badges";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
@@ -63,6 +62,8 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
+	/** Fixed spec rows from the server (room, collection), shown above the variant rows. */
+	specs?: [string, string][];
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -75,6 +76,7 @@ export function AddToCartButton({
 	restockNotificationsEnabled = false,
 	subscriptionMode = "optional",
 	plans = [],
+	specs = [],
 }: AddToCartButtonProps) {
 	const { currency, locale, taxBehavior } = useStoreConfig();
 	const [quantity, setQuantity] = useState(1);
@@ -108,11 +110,11 @@ export function AddToCartButton({
 		if (!selectedVariant) return "Select options";
 		if (isOutOfStock) return "Out of stock";
 		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
+		if (totalPrice && effectiveQuantity > 1) {
+			return `Add to cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
 		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
+		return "Add to cart";
+	}, [selectedVariant, isOutOfStock, plan, totalPrice, effectiveQuantity, locale, currency]);
 
 	// Headline price. For the selected variant we show its own price (and the struck-through
 	// list price when it's on sale). Before a variant is picked we fall back to a range.
@@ -155,7 +157,7 @@ export function AddToCartButton({
 		const { stock } = selectedVariant;
 		if (stock === 0) return { label: "Out of stock", tone: "out" as const };
 		if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
-			return { label: `Only ${stock} left in stock`, tone: "low" as const };
+			return { label: `Only ${stock} left`, tone: "low" as const };
 		}
 		return { label: "In stock", tone: "in" as const };
 	}, [selectedVariant]);
@@ -215,98 +217,111 @@ export function AddToCartButton({
 		});
 	};
 
+	// Spec table: the server's fixed rows, then the selected variant's own values, SKU and stock.
+	const variantRows: [string, string][] = (selectedVariant?.combinations ?? []).map((c) => [
+		c.variantValue.variantType.label,
+		c.variantValue.value,
+	]);
+	const rows: [string, string][] = [
+		...specs,
+		...variantRows,
+		...(selectedVariant?.sku ? [["Reference", selectedVariant.sku] as [string, string]] : []),
+		...(stockStatus ? [["Availability", stockStatus.label] as [string, string]] : []),
+	];
+
 	return (
-		<div className="space-y-8">
-			{summary && <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{summary}</p>}
-
+		<div>
 			{/* Price & sale */}
-			<div className="space-y-2">
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span className="text-3xl font-semibold tracking-tight">{priceInfo.display}</span>
-					{priceInfo.compareAt && (
-						<span className="text-lg text-muted-foreground line-through">{priceInfo.compareAt}</span>
-					)}
-					{priceInfo.discountPercent ? (
-						<span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-							Save {priceInfo.discountPercent}%
-						</span>
-					) : null}
-				</div>
-
-				{omnibusPrice && (
-					<p className="text-xs text-muted-foreground">Lowest price in the last 30 days: {omnibusPrice}</p>
+			<div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+				<span className="mono text-xl">{priceInfo.display}</span>
+				{priceInfo.compareAt && (
+					<span className="mono text-[0.9375rem] text-muted-foreground line-through">
+						{priceInfo.compareAt}
+					</span>
 				)}
+				{priceInfo.discountPercent ? (
+					<span className="label text-walnut">Save {priceInfo.discountPercent}%</span>
+				) : null}
+			</div>
+			{omnibusPrice && (
+				<p className="mono mt-2 text-[0.6875rem] text-muted-foreground">
+					Lowest price in the last 30 days: {omnibusPrice}
+				</p>
+			)}
 
-				{/* SKU & stock availability */}
-				{(selectedVariant?.sku || stockStatus) && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-						{stockStatus && (
-							<span
+			{summary && <p className="type-body mt-8 max-w-[46ch] whitespace-pre-line">{summary}</p>}
+
+			{rows.length > 0 && (
+				<dl className="mono mt-10 border-t border-border text-[0.8125rem]">
+					{rows.map(([term, value]) => (
+						<div key={term} className="flex justify-between gap-6 border-b border-border py-3">
+							<dt className="text-muted-foreground">{term}</dt>
+							<dd
 								className={cn(
-									"inline-flex items-center gap-1.5 font-medium",
-									stockStatus.tone === "out" && "text-destructive",
-									stockStatus.tone === "low" && "text-amber-700 dark:text-amber-500",
-									stockStatus.tone === "in" && "text-green-700 dark:text-green-500",
+									"min-w-0 break-all text-right",
+									term === "Availability" && stockStatus?.tone === "out" && "text-destructive",
+									term === "Availability" && stockStatus?.tone === "low" && "text-walnut",
 								)}
 							>
-								<span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-								{stockStatus.label}
-							</span>
-						)}
-						{selectedVariant?.sku && (
-							<span className="text-muted-foreground">
-								SKU: <span className="font-medium text-foreground">{selectedVariant.sku}</span>
-							</span>
-						)}
-					</div>
-				)}
+								{value}
+							</dd>
+						</div>
+					))}
+				</dl>
+			)}
+
+			{variants.length > 1 && (
+				<div className="mt-10">
+					<VariantSelector variants={variants} />
+				</div>
+			)}
+
+			<div className="mt-10 space-y-3 [&:not(:empty)]:mb-6">
+				<VolumePricingDisplay tiers={resolvedTiers} quantity={effectiveQuantity} volumePrice={volumePrice} />
 			</div>
 
-			{variants.length > 1 && <VariantSelector variants={variants} />}
-
-			{purchasable ? (
+			{!purchasable ? (
+				<p className="type-body text-[0.9375rem] text-muted-foreground">
+					This subscription isn't available right now.
+				</p>
+			) : (
 				<>
 					{plans.length > 0 && (
-						<SubscriptionOptions
-							plans={plans}
-							value={planId}
-							onChange={setPlanId}
-							allowOneTime={allowOneTime}
-						/>
+						<div className="mb-6">
+							<SubscriptionOptions
+								plans={plans}
+								value={planId}
+								onChange={setPlanId}
+								allowOneTime={allowOneTime}
+							/>
+						</div>
 					)}
-
-					<QuantitySelector
-						quantity={effectiveQuantity}
-						onQuantityChange={setQuantity}
-						max={Math.max(1, Math.min(99, maxQuantity))}
-						disabled={isOutOfStock}
-					/>
-
-					<VolumePricingDisplay
-						tiers={resolvedTiers}
-						quantity={effectiveQuantity}
-						volumePrice={volumePrice}
-					/>
 
 					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmit} className="flex flex-wrap items-stretch gap-3">
+							<QuantitySelector
+								quantity={effectiveQuantity}
+								onQuantityChange={setQuantity}
+								max={Math.max(1, Math.min(99, maxQuantity))}
+								disabled={isOutOfStock}
+							/>
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
-								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="btn btn-primary min-w-[12rem] flex-1"
 							>
 								{buttonText}
 							</button>
 						</form>
 					)}
 				</>
-			) : (
-				<p className="text-sm text-muted-foreground">This subscription isn't available right now.</p>
 			)}
 
-			<TrustBadges />
+			<p className="mono mt-5 text-[0.6875rem] uppercase leading-relaxed tracking-[0.05em] text-muted-foreground">
+				Delivery calculated at checkout · secure payment
+			</p>
 		</div>
 	);
 }

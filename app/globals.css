@@ -8,13 +8,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+   Atelier: cool gallery greys, one tightly tracked grotesk, technical mono for
+   indices and spec data, a single oiled-walnut accent. Square everywhere.
+--------------------------------------------------------------------------- */
+
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--font-sans: var(--font-archivo), "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+	--radius-2xl: 0px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,58 +39,600 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-canvas: var(--background);
+	--color-surface: var(--surface);
+	--color-surface-strong: var(--surface-strong);
+	--color-ink: var(--foreground);
+	--color-walnut: var(--walnut);
+	--color-walnut-ink: var(--walnut-ink);
+	--color-line: var(--border);
+	--color-line-strong: var(--line-strong);
 }
 
+/* Light-only design: both blocks carry the same palette (the palette test reads each). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0px;
+	--background: #f4f4f2;
+	--foreground: #101010;
+	--surface: #eaeae7;
+	--surface-strong: #dededa;
+	--card: #f4f4f2;
+	--card-foreground: #101010;
+	--popover: #f4f4f2;
+	--popover-foreground: #101010;
+	--primary: #101010;
+	--primary-foreground: #f4f4f2;
+	--secondary: #eaeae7;
+	--secondary-foreground: #101010;
+	--muted: #eaeae7;
+	--muted-foreground: #5a5a56;
+	--accent: #eaeae7;
+	--accent-foreground: #101010;
+	/* Oiled walnut: 5.7:1 on canvas, 6.3:1 for white on walnut. */
+	--walnut: #8a5322;
+	--walnut-ink: #ffffff;
+	--destructive: #a3261b;
+	/* Hairlines: ink at 13% and 26% over the canvas, as solid values. */
+	--border: #d6d6d4;
+	--line-strong: #b8b8b5;
+	--input: #b8b8b5;
+	--ring: #8a5322;
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+	--header-h: 4.5rem;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0px;
+	--background: #f4f4f2;
+	--foreground: #101010;
+	--surface: #eaeae7;
+	--surface-strong: #dededa;
+	--card: #f4f4f2;
+	--card-foreground: #101010;
+	--popover: #f4f4f2;
+	--popover-foreground: #101010;
+	--primary: #101010;
+	--primary-foreground: #f4f4f2;
+	--secondary: #eaeae7;
+	--secondary-foreground: #101010;
+	--muted: #eaeae7;
+	--muted-foreground: #5a5a56;
+	--accent: #eaeae7;
+	--accent-foreground: #101010;
+	--walnut: #8a5322;
+	--walnut-ink: #ffffff;
+	--destructive: #a3261b;
+	--border: #d6d6d4;
+	--line-strong: #b8b8b5;
+	--input: #b8b8b5;
+	--ring: #8a5322;
 }
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
+	*,
+	*::before,
+	*::after {
+		border-color: var(--border);
 	}
+
+	html {
+		background-color: var(--background);
+		-webkit-text-size-adjust: 100%;
+	}
+
 	body {
-		@apply bg-background text-foreground;
+		min-height: 100svh;
+		background-color: var(--background);
+		color: var(--foreground);
+		/* The next/font variables sit on <body>, so the face is declared here, not on <html>. */
+		font-family: var(--font-archivo), "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-synthesis-weight: none;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	/* Paper grain. Purely decorative, never intercepts input. */
+	body::after {
+		content: "";
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		pointer-events: none;
+		opacity: 0.03;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+	}
+
+	::selection {
+		background: var(--walnut);
+		color: var(--walnut-ink);
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--walnut);
+		outline-offset: 3px;
+	}
+
+	button {
+		cursor: pointer;
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Type scale and component classes (plain classes, so tailwind-merge never
+   mistakes them for colours).
+--------------------------------------------------------------------------- */
+
+@layer components {
+	.type-hero {
+		font-size: clamp(2.75rem, 4.9vw, 4.5rem);
+		line-height: 0.95;
+		letter-spacing: -0.038em;
+		font-weight: 500;
+		text-wrap: balance;
+	}
+
+	.type-h1 {
+		font-size: clamp(2.75rem, 8vw, 6.5rem);
+		line-height: 0.88;
+		letter-spacing: -0.04em;
+		font-weight: 500;
+		text-wrap: balance;
+		overflow-wrap: break-word;
+	}
+
+	.type-h2 {
+		font-size: clamp(2rem, 4.6vw, 3.75rem);
+		line-height: 0.94;
+		letter-spacing: -0.035em;
+		font-weight: 500;
+		text-wrap: balance;
+		overflow-wrap: break-word;
+	}
+
+	.type-h3 {
+		font-size: clamp(1.375rem, 2.2vw, 1.875rem);
+		line-height: 1.06;
+		letter-spacing: -0.025em;
+		font-weight: 500;
+		text-wrap: balance;
+	}
+
+	.type-lead {
+		font-size: clamp(1.0625rem, 1.35vw, 1.375rem);
+		line-height: 1.5;
+		letter-spacing: -0.011em;
+		color: var(--muted-foreground);
+		text-wrap: pretty;
+	}
+
+	.type-body {
+		line-height: 1.65;
+		letter-spacing: -0.006em;
+		color: var(--muted-foreground);
+		text-wrap: pretty;
+	}
+
+	/* Technical caption for spec terms, form labels and column headings. */
+	.label {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.6em;
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-size: 0.6875rem;
+		line-height: 1;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--muted-foreground);
+	}
+
+	.mono {
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.01em;
+	}
+
+	.wordmark {
+		font-size: 0.9375rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: -0.01em;
+	}
+
+	/* ---- Controls ---------------------------------------------------------- */
+
+	.btn {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		overflow: hidden;
+		isolation: isolate;
+		padding: 1.0625rem 2rem;
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-size: 0.6875rem;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		transition: color 320ms var(--ease-out-quart);
+	}
+
+	/* Walnut panel wipes up from the baseline on hover. */
+	.btn::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: var(--walnut);
+		transform: scaleY(0);
+		transform-origin: bottom;
+		transition: transform 420ms var(--ease-out-expo);
+	}
+
+	.btn:hover::before,
+	.btn:focus-visible::before {
+		transform: scaleY(1);
+	}
+
+	.btn-primary {
+		background: var(--foreground);
+		color: var(--background);
+	}
+
+	.btn-primary:hover,
+	.btn-primary:focus-visible {
+		color: var(--walnut-ink);
+	}
+
+	.btn-outline {
+		color: var(--foreground);
+		box-shadow: inset 0 0 0 1px var(--line-strong);
+		transition:
+			color 320ms var(--ease-out-quart),
+			box-shadow 320ms var(--ease-out-quart);
+	}
+
+	.btn-outline:hover,
+	.btn-outline:focus-visible {
+		color: var(--walnut-ink);
+		box-shadow: inset 0 0 0 1px var(--walnut);
+	}
+
+	.btn:disabled,
+	.btn[aria-disabled="true"] {
+		opacity: 0.45;
+		pointer-events: none;
+	}
+
+	/* Text link with an underline that wipes in from the left. */
+	.link {
+		width: fit-content;
+		max-width: 100%;
+		background-image: linear-gradient(currentColor, currentColor);
+		background-repeat: no-repeat;
+		background-position: 0 100%;
+		background-size: 0% 1px;
+		transition:
+			background-size 380ms var(--ease-out-expo),
+			color 240ms ease;
+	}
+
+	.link:hover,
+	.link:focus-visible {
+		background-size: 100% 1px;
+		color: var(--walnut);
+	}
+
+	.link-mono {
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-size: 0.6875rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	/* Filter / toggle chip. */
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2rem;
+		padding: 0.5rem 0.9375rem;
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-size: 0.6875rem;
+		line-height: 1;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: var(--muted-foreground);
+		box-shadow: inset 0 0 0 1px var(--border);
+		transition:
+			color 220ms ease,
+			background-color 220ms ease,
+			box-shadow 220ms ease;
+	}
+
+	.chip:hover {
+		color: var(--foreground);
+		box-shadow: inset 0 0 0 1px var(--line-strong);
+	}
+
+	.chip[aria-current="page"],
+	.chip[aria-pressed="true"] {
+		background: var(--foreground);
+		color: var(--background);
+		box-shadow: inset 0 0 0 1px var(--foreground);
+	}
+
+	/* Underlined form field: no boxes, keeps the architectural line language. */
+	.field {
+		width: 100%;
+		padding: 0.75rem 0;
+		background: transparent;
+		border-bottom: 1px solid var(--line-strong);
+		border-radius: 0;
+		font-size: 0.9375rem;
+		color: var(--foreground);
+		transition: border-color 240ms ease;
+	}
+
+	.field::placeholder {
+		color: var(--muted-foreground);
+	}
+
+	.field:focus,
+	.field:focus-visible {
+		outline: none;
+		border-bottom-color: var(--walnut);
+	}
+
+	/* Spec band cell. */
+	.fact {
+		padding-block: 1.75rem;
+		padding-right: 1.5rem;
+	}
+
+	.fact:nth-child(n + 3) {
+		border-top: 1px solid var(--border);
+		padding-top: 1.5rem;
+	}
+
+	@media (min-width: 768px) {
+		.fact:nth-child(n + 3) {
+			border-top: 0;
+			padding-top: 1.75rem;
+		}
+	}
+
+	/* Quantity stepper, shared by the product page and every cart line. */
+	.qty {
+		display: inline-flex;
+		align-items: stretch;
+		box-shadow: inset 0 0 0 1px var(--line-strong);
+	}
+
+	.qty button {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-size: 0.875rem;
+		color: var(--foreground);
+		transition:
+			background-color 200ms ease,
+			color 200ms ease;
+	}
+
+	.qty button:hover {
+		background: var(--surface);
+		color: var(--walnut);
+	}
+
+	.qty button:disabled {
+		opacity: 0.35;
+		pointer-events: none;
+	}
+
+	.qty output {
+		display: grid;
+		place-items: center;
+		min-width: 2.75rem;
+		padding-block: 0.75rem;
+		font-family: var(--font-plex-mono), ui-monospace, monospace;
+		font-size: 0.8125rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.qty-sm button {
+		width: 2rem;
+	}
+
+	.qty-sm output {
+		min-width: 2.25rem;
+		padding-block: 0.4375rem;
+		font-size: 0.75rem;
+	}
+
+	/* Page shell. */
+	.shell {
+		width: 100%;
+		max-width: 96rem;
+		margin-inline: auto;
+		padding-inline: 1.5rem;
+	}
+
+	.rule {
+		height: 1px;
+		width: 100%;
+		background: var(--border);
+		transform-origin: left;
+	}
+
+	/* Sticky header: solid, never translucent. Where scroll-driven animation is supported it
+	   starts with no rule over the top of the page and settles in as the page moves. */
+	.site-header {
+		background-color: var(--background);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.nav-link {
+		display: inline-block;
+		color: var(--muted-foreground);
+		transition: color 240ms ease;
+	}
+
+	.nav-link:hover,
+	.nav-link[aria-current="page"] {
+		color: var(--foreground);
+	}
+
+	/* The active route is marked with a walnut rule, not colour alone. */
+	.nav-link::after {
+		content: "";
+		display: block;
+		height: 1px;
+		margin-top: 5px;
+		background: transparent;
+	}
+
+	.nav-link[aria-current="page"]::after {
+		background: var(--walnut);
+	}
+
+	/* Card meta rule turns walnut on hover: a quieter affordance than an arrow. */
+	.card-meta {
+		border-top: 1px solid var(--border);
+		transition: border-top-color 400ms var(--ease-out-quart);
+	}
+
+	.group:hover .card-meta,
+	.group:focus-visible .card-meta {
+		border-top-color: var(--walnut);
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Motion. `data-motion="on"` is set by an inline head script only when the
+   visitor has not asked for reduced motion; without it every reveal target
+   renders in its final state.
+--------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+	[data-motion="on"] [data-reveal] {
+		opacity: 0;
+		transform: translate3d(0, 1.75rem, 0);
+		transition:
+			opacity 850ms var(--ease-out-expo),
+			transform 850ms var(--ease-out-expo);
+		transition-delay: var(--reveal-delay, 0ms);
+	}
+
+	[data-motion="on"] [data-reveal="mask"] {
+		opacity: 1;
+		transform: none;
+	}
+
+	[data-motion="on"] [data-reveal="mask"] > * {
+		clip-path: inset(0 0 100% 0);
+		transition: clip-path 1100ms var(--ease-out-expo);
+		transition-delay: var(--reveal-delay, 0ms);
+	}
+
+	[data-motion="on"] [data-reveal="mask"].is-in > * {
+		clip-path: inset(0 0 0 0);
+	}
+
+	[data-motion="on"] [data-reveal="line"] {
+		opacity: 1;
+		transform: none;
+		background: transparent;
+	}
+
+	[data-motion="on"] [data-reveal="line"]::after {
+		content: "";
+		display: block;
+		height: 100%;
+		background: var(--border);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 1100ms var(--ease-out-expo);
+		transition-delay: var(--reveal-delay, 0ms);
+	}
+
+	[data-motion="on"] [data-reveal="line"].is-in::after {
+		transform: scaleX(1);
+	}
+
+	[data-motion="on"] [data-reveal].is-in {
+		opacity: 1;
+		transform: none;
+	}
+
+	.hero-in {
+		animation: hero-in 950ms var(--ease-out-expo) both;
+		animation-delay: var(--reveal-delay, 0ms);
+	}
+
+	@keyframes hero-in {
+		from {
+			opacity: 0;
+			transform: translate3d(0, 1.5rem, 0);
+		}
+	}
+
+	@supports (animation-timeline: view()) {
+		.parallax {
+			animation: parallax linear both;
+			animation-timeline: view();
+			animation-range: entry 0% exit 100%;
+		}
+
+		@keyframes parallax {
+			from {
+				transform: translate3d(0, -3.5%, 0) scale(1.1);
+			}
+			to {
+				transform: translate3d(0, 3.5%, 0) scale(1.1);
+			}
+		}
+	}
+
+	@supports (animation-timeline: scroll()) {
+		.site-header {
+			animation: header-settle linear both;
+			animation-timeline: scroll(root);
+			animation-range: 0 96px;
+		}
+
+		@keyframes header-settle {
+			from {
+				border-bottom-color: transparent;
+			}
+			to {
+				border-bottom-color: var(--border);
+			}
+		}
+	}
+
+	.menu-panel[data-open] {
+		animation: menu-in 320ms var(--ease-out-expo) both;
+	}
+
+	.menu-panel[data-open] .menu-item {
+		animation: menu-item-in 620ms var(--ease-out-expo) both;
+		animation-delay: calc(120ms + var(--i, 0) * 55ms);
+	}
+
+	@keyframes menu-in {
+		from {
+			opacity: 0;
+			clip-path: inset(0 0 100% 0);
+		}
+	}
+
+	@keyframes menu-item-in {
+		from {
+			opacity: 0;
+			transform: translate3d(0, 1.25rem, 0);
+		}
 	}
 }
 
@@ -115,14 +663,7 @@
 }
 
 .yns-image-shimmer {
-	background: linear-gradient(
-		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
-	);
+	background: linear-gradient(90deg, #eaeae7 0%, #efefec 40%, #f4f4f2 50%, #efefec 60%, #eaeae7 100%);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }

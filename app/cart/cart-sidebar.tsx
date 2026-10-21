@@ -1,24 +1,15 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
-import { cn } from "@/lib/utils";
+import { pad2 } from "@/lib/pad";
 
 export function CartSidebar() {
 	const { currency, locale, language, taxBehavior } = useStoreConfig();
@@ -32,110 +23,101 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
+			<SheetContent
+				showCloseButton={false}
+				className="gap-0 border-l border-border bg-background shadow-none duration-500 data-[side=right]:w-full data-[side=right]:sm:max-w-[27rem]"
+			>
+				<div className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-6 py-[1.375rem]">
+					<SheetTitle className="wordmark font-semibold">
+						Cart{" "}
+						<span className="mono text-[0.6875rem] font-normal text-muted-foreground">{pad2(itemCount)}</span>
 					</SheetTitle>
 					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
+						Review the pieces in your cart and check out.
 					</SheetDescription>
-				</SheetHeader>
+					<SheetClose className="relative z-10 -mr-2 inline-flex size-10 items-center justify-center transition-colors hover:text-walnut">
+						<span className="sr-only">Close cart</span>
+						<svg
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.25"
+							aria-hidden="true"
+						>
+							<path d="M5 5l14 14" />
+							<path d="M19 5L5 19" />
+						</svg>
+					</SheetClose>
+				</div>
 
-				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
+				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6">
+					{items.length === 0 ? (
+						<div className="py-14 text-center">
+							<p className="type-body text-[0.9375rem]">Nothing selected yet.</p>
+							<Link href="/products" onClick={closeCart} className="btn btn-outline mt-6 w-full">
+								Browse the catalogue
+							</Link>
 						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
-					</div>
-				) : (
-					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
-								{items.map((item) => (
-									<CartItem key={itemKey(item)} item={item} />
-								))}
-							</div>
-						</ScrollArea>
+					) : (
+						<ul>
+							{items.map((item) => (
+								<CartItem key={itemKey(item)} item={item} />
+							))}
+						</ul>
+					)}
+				</div>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<DiscountCodeField />
-								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
-										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
-												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
-									</div>
-								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
-										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
+				{items.length > 0 && (
+					<div className="shrink-0 border-t border-border px-6 py-[1.375rem]">
+						<DiscountCodeField />
+						{discount ? (
+							<div className="mono mt-5 space-y-1 text-[0.75rem]">
+								<div className="flex items-center justify-between text-muted-foreground">
+									<span>Subtotal</span>
+									<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
 								</div>
-								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
-								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
-									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
-								</p>
-								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
-								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
-								    While a cart write is in flight, block the link: a full navigation now would
-								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<a
-									href={checkoutUrl}
-									aria-disabled={isMutating}
-									tabIndex={isMutating ? -1 : undefined}
-									onClick={(e) => {
-										if (isMutating) {
-											e.preventDefault();
-										}
-									}}
-									className={cn(
-										buttonVariants(),
-										"w-full h-12 text-base font-medium",
-										isMutating && "pointer-events-none opacity-60",
-									)}
-								>
-									{isMutating ? (
-										<>
-											<Loader2 className="h-4 w-4 animate-spin" />
-											Updating…
-										</>
-									) : (
-										"Checkout"
-									)}
-								</a>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									Continue Shopping
-								</button>
+								<div className="flex items-center justify-between gap-3 text-walnut">
+									<span>Discount</span>
+									<span>−{formatMoney({ amount: discount, currency, locale })}</span>
+								</div>
 							</div>
-						</SheetFooter>
-					</>
+						) : null}
+						<div className="mt-5 flex items-baseline justify-between gap-4">
+							<span className="label">{discount ? "Total" : "Subtotal"}</span>
+							<span className="mono text-lg">
+								{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
+							</span>
+						</div>
+						{/* Tax is already inside the shown subtotal on an inclusive store. */}
+						<p className="mono mt-2 text-[0.625rem] uppercase tracking-[0.05em] text-muted-foreground">
+							{taxBehavior === "inclusive"
+								? "Delivery calculated at checkout"
+								: "Delivery and taxes calculated at checkout"}
+						</p>
+						{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
+						    different Next.js zone. While a cart write is in flight, block the link: a full
+						    navigation now would load /checkout before the item is committed server-side. */}
+						<a
+							href={checkoutUrl}
+							aria-disabled={isMutating}
+							tabIndex={isMutating ? -1 : undefined}
+							onClick={(e) => {
+								if (isMutating) e.preventDefault();
+							}}
+							className="btn btn-primary mt-5 w-full"
+						>
+							{isMutating ? "Updating…" : "Checkout"}
+						</a>
+						<button
+							type="button"
+							onClick={closeCart}
+							className="link link-mono mx-auto mt-4 block min-h-6 text-muted-foreground"
+						>
+							Continue browsing
+						</button>
+					</div>
 				)}
 			</SheetContent>
 		</Sheet>

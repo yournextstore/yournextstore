@@ -179,17 +179,17 @@ export function BundleBuilder({
 				return (
 					<section key={group.id} className="grid gap-3">
 						<div className="flex items-baseline justify-between gap-3">
-							<h3 className="font-semibold text-lg">
+							<h2 className="label text-foreground">
 								{group.name ?? (isForcedGroup ? "Included" : "Choose your items")}
-							</h3>
+							</h2>
 							{!isForcedGroup && group.maxQuantity != null && (
-								<span className="shrink-0 text-muted-foreground text-sm">
+								<span className="mono shrink-0 text-[0.6875rem] uppercase tracking-[0.05em] text-muted-foreground">
 									Selected {picked} of {group.maxQuantity}
 								</span>
 							)}
 						</div>
 
-						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 							{group.items.map((item) => {
 								const qty = inner[item.variantId] ?? 0;
 								const selected = qty > 0;
@@ -217,13 +217,15 @@ export function BundleBuilder({
 									<div
 										key={item.variantId}
 										className={cn(
-											"relative flex flex-col overflow-hidden rounded-xl border bg-card transition-colors",
-											selected ? "border-primary ring-1 ring-primary" : "border-border",
+											"relative flex flex-col overflow-hidden bg-background transition-shadow",
+											selected
+												? "shadow-[inset_0_0_0_2px_var(--walnut)]"
+												: "shadow-[inset_0_0_0_1px_var(--border)]",
 											outOfStock && "opacity-50",
 										)}
 									>
 										{selected && (
-											<span className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+											<span className="absolute left-2 top-2 z-10 flex size-6 items-center justify-center bg-walnut text-walnut-ink">
 												<CheckIcon className="size-4" />
 											</span>
 										)}
@@ -238,7 +240,7 @@ export function BundleBuilder({
 											}}
 											className="flex flex-1 flex-col gap-2 p-2 text-left disabled:cursor-not-allowed"
 										>
-											<div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+											<div className="aspect-square w-full overflow-hidden bg-surface">
 												{image ? (
 													<Image
 														src={image}
@@ -249,17 +251,17 @@ export function BundleBuilder({
 													/>
 												) : null}
 											</div>
-											<span className="flex items-center gap-1.5 font-medium text-sm">
+											<span className="flex items-center gap-1.5 text-[0.8125rem] font-medium tracking-[-0.01em]">
 												{swatchColor && (
 													<span
 														aria-hidden
-														className="inline-block size-3 shrink-0 rounded-full border border-border"
+														className="inline-block size-3 shrink-0 border border-border"
 														style={{ backgroundColor: swatchColor }}
 													/>
 												)}
 												<span className="line-clamp-2">{label}</span>
 											</span>
-											<span className="text-muted-foreground text-sm">
+											<span className="mono text-[0.75rem] text-muted-foreground">
 												{formatMoney({
 													amount: BigInt(displayPrice(item.variant, taxBehavior)),
 													currency,
@@ -306,24 +308,23 @@ export function BundleBuilder({
 				);
 			})}
 
-			<div className="sticky bottom-0 flex flex-col gap-3 border-t bg-background/95 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+			<div className="sticky bottom-0 flex flex-col gap-3 border-t border-border bg-background py-4 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex items-baseline gap-2">
 					{hasSavings && (
-						<span className="text-muted-foreground text-lg line-through">
+						<span className="mono text-[0.9375rem] text-muted-foreground line-through">
 							{formatMoney({ amount: originalTotal, currency, locale })}
 						</span>
 					)}
-					<span className="font-bold text-2xl">{formatMoney({ amount: total, currency, locale })}</span>
+					<span className="mono text-xl">{formatMoney({ amount: total, currency, locale })}</span>
 				</div>
-				<Button
+				<button
 					type="button"
-					size="lg"
-					className="rounded-4xl"
+					className="btn btn-primary"
 					disabled={!canAdd || isAdding}
 					onClick={handleAddToCart}
 				>
 					{isAdding ? "Adding…" : "Add to cart"}
-				</Button>
+				</button>
 			</div>
 		</div>
 	);
