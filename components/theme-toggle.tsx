@@ -1,30 +1,20 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Contrast } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
+/** The original's one-tap switch between the paper and the ink themes. */
 export function ThemeToggle() {
-	const { setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Change theme" />}>
-				{/* CSS-driven swap keeps server and client markup identical (no hydration flash). */}
-				<Sun className="size-5 dark:hidden" />
-				<Moon className="hidden size-5 dark:block" />
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+		<button
+			type="button"
+			aria-label="Theme"
+			onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+			className="grid size-11 place-items-center rounded-full transition-colors hover:bg-secondary"
+		>
+			<Contrast aria-hidden="true" className="size-5" strokeWidth={2} />
+		</button>
 	);
 }

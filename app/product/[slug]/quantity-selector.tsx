@@ -1,7 +1,6 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type QuantitySelectorProps = {
 	quantity: number;
@@ -11,6 +10,7 @@ type QuantitySelectorProps = {
 	disabled?: boolean;
 };
 
+/** How many, in a pill: fewer, the number, more. */
 export function QuantitySelector({
 	quantity,
 	onQuantityChange,
@@ -19,31 +19,31 @@ export function QuantitySelector({
 	disabled = false,
 }: QuantitySelectorProps) {
 	return (
-		<div>
-			<span className="mb-3 block text-sm font-medium">Quantity</span>
-			<div className="inline-flex items-center rounded-lg border border-border">
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-r-none"
+		<fieldset className="m-0 flex min-w-0 items-center justify-between gap-4 border-0 p-0 text-sm">
+			<legend className="float-left font-semibold">Quantity</legend>
+			<div className="inline-grid grid-cols-[2.5rem_minmax(2rem,auto)_2.5rem] items-center rounded-full border border-strong">
+				<button
+					type="button"
+					className="grid h-10 place-items-center rounded-full transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:text-faint disabled:hover:bg-transparent"
 					onClick={() => onQuantityChange(Math.max(min, quantity - 1))}
 					disabled={disabled || quantity <= min}
 					aria-label="Decrease quantity"
 				>
-					<Minus className="h-4 w-4" />
-				</Button>
-				<span className="flex h-10 w-14 items-center justify-center text-sm font-medium">{quantity}</span>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-10 w-10 rounded-l-none"
+					<Minus aria-hidden="true" className="size-4" />
+				</button>
+				<output aria-live="polite" className="text-center text-base font-semibold tabular-nums">
+					{quantity}
+				</output>
+				<button
+					type="button"
+					className="grid h-10 place-items-center rounded-full transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:text-faint disabled:hover:bg-transparent"
 					onClick={() => onQuantityChange(Math.min(max, quantity + 1))}
 					disabled={disabled || quantity >= max}
 					aria-label="Increase quantity"
 				>
-					<Plus className="h-4 w-4" />
-				</Button>
+					<Plus aria-hidden="true" className="size-4" />
+				</button>
 			</div>
-		</div>
+		</fieldset>
 	);
 }
