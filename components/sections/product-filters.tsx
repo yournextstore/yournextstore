@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Sheet,
@@ -148,7 +147,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="text-2xl text-foreground">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -163,7 +162,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 			<Accordion type="multiple" defaultValue={accordionDefault} className="w-full">
 				{showCategories && facets.categories.length > 0 && (
 					<AccordionItem value="categories">
-						<AccordionTrigger className="text-sm">Categories</AccordionTrigger>
+						<AccordionTrigger className="font-sans text-base font-normal first-letter:uppercase">
+							Categories
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.categories}
@@ -176,7 +177,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("category", category.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
+													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors first-letter:uppercase hover:bg-secondary",
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
@@ -192,7 +193,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{showCollections && facets.collections.length > 0 && (
 					<AccordionItem value="collections">
-						<AccordionTrigger className="text-sm">Collections</AccordionTrigger>
+						<AccordionTrigger className="font-sans text-base font-normal first-letter:uppercase">
+							Collections
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.collections}
@@ -205,7 +208,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("collection", collection.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
+													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors first-letter:uppercase hover:bg-secondary",
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
@@ -223,7 +226,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 					const selectedValues = optimisticVts[vt.label] ?? [];
 					return (
 						<AccordionItem key={vt.label} value={`vt-${vt.label}`}>
-							<AccordionTrigger className="text-sm">{vt.label}</AccordionTrigger>
+							<AccordionTrigger className="font-sans text-base font-normal first-letter:uppercase">
+								{vt.label}
+							</AccordionTrigger>
 							<AccordionContent>
 								<CollapsibleList
 									items={vt.values}
@@ -252,7 +257,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{facets.brands.length > 0 && (
 					<AccordionItem value="brands">
-						<AccordionTrigger className="text-sm">Brands</AccordionTrigger>
+						<AccordionTrigger className="font-sans text-base font-normal first-letter:uppercase">
+							Brands
+						</AccordionTrigger>
 						<AccordionContent>
 							<CollapsibleList
 								items={facets.brands}
@@ -265,7 +272,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 												type="button"
 												onClick={() => setSingle("brand", brand.slug)}
 												className={cn(
-													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-secondary",
+													"w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors first-letter:uppercase hover:bg-secondary",
 													isActive ? "font-medium text-foreground" : "text-muted-foreground",
 												)}
 											>
@@ -281,7 +288,9 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 
 				{hasPrice && (
 					<AccordionItem value="price">
-						<AccordionTrigger className="text-sm">Price</AccordionTrigger>
+						<AccordionTrigger className="font-sans text-base font-normal first-letter:uppercase">
+							Price
+						</AccordionTrigger>
 						<AccordionContent>
 							<div className="px-1 pt-2">
 								<Slider
@@ -336,19 +345,27 @@ export function ProductFiltersMobile(props: FilterControlsProps) {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
-					Filters
+				<button
+					type="button"
+					className="inline-flex h-12 items-center gap-2 rounded-xs border border-input px-5 text-[13px] font-medium tracking-[0.02em] uppercase transition-colors hover:bg-accent"
+				>
+					<SlidersHorizontalIcon aria-hidden="true" className="size-4" strokeWidth={1.25} />
+					Filter
 					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+						<span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
 							{activeCount}
 						</span>
 					)}
-				</Button>
+				</button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
+			<SheetContent
+				side="right"
+				className="block w-[calc(100vw-1.25rem)] max-w-sm overflow-y-auto rounded-l-xl border-0 bg-background"
+			>
 				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
+					<SheetTitle className="font-sans text-sm font-medium tracking-[0.02em] uppercase">
+						Filter
+					</SheetTitle>
 					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
 				</SheetHeader>
 				<div className="px-4 pb-8">

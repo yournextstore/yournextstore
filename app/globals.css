@@ -8,12 +8,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-dm-sans);
+	--font-serif: var(--font-tenor);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xs: 4px;
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 8px;
+	--radius-xl: 12px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,58 +34,223 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Aspen's extra roles: the grey photo stage behind packshots, the warm grey bands, the
+	   topbar, the near-black footer, badge colours and the stepper/arrow chips. */
+	--color-stage: var(--stage);
+	--color-band: var(--band);
+	--color-chip: var(--chip);
+	--color-chip-hover: var(--chip-hover);
+	--color-topbar: var(--topbar);
+	--color-on-topbar: var(--on-topbar);
+	--color-ink: var(--ink);
+	--color-on-ink: var(--on-ink);
+	--color-ink-muted: var(--ink-muted);
+	--color-ink-line: var(--ink-line);
+	--color-sale: var(--sale);
+	--color-cream: var(--cream);
+	--breakpoint-xs: 26rem;
 }
 
+/* The original's fluid heading scale (h1 64px → 42px on phones, the rest as ratios of it),
+   under names that cannot collide with colour tokens. */
+@theme {
+	--text-h1: clamp(2.625rem, 1.9rem + 2.4vw, 4rem);
+	--text-h1--line-height: 1.1;
+	--text-h2: clamp(2.125rem, 1.6rem + 1.8vw, 3.3125rem);
+	--text-h2--line-height: 1.1;
+	--text-h3: clamp(1.75rem, 1.4rem + 1.2vw, 2.75rem);
+	--text-h3--line-height: 1.15;
+	--text-h4: clamp(1.5rem, 1.25rem + 0.8vw, 2.3125rem);
+	--text-h4--line-height: 1.2;
+	--text-h5: clamp(1.25rem, 1.1rem + 0.5vw, 2rem);
+	--text-h5--line-height: 1.25;
+}
+
+/* Light-only design (Tenor Sans + DM Sans on white and warm greys); .dark mirrors :root so
+   the palette test still sees both blocks. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #343231;
+	--card: #ffffff;
+	--card-foreground: #343231;
+	--popover: #ffffff;
+	--popover-foreground: #343231;
+	--primary: #4d4946;
+	--primary-foreground: #f1eeea;
+	--secondary: #f0efed;
+	--secondary-foreground: #24211e;
+	--muted: #ededed;
+	--muted-foreground: #5b5450;
+	--accent: #e9e7e4;
+	--accent-foreground: #24211e;
+	--destructive: #b42318;
+	--border: #d8d8d8;
+	--input: #b1b0af;
+	--ring: #4d4946;
+	--stage: #f2f2f2;
+	--band: #f2f1ef;
+	--chip: #edeae6;
+	--chip-hover: #d8d2cb;
+	--topbar: #565656;
+	--on-topbar: #ededed;
+	--ink: #1b1b19;
+	--on-ink: #ededed;
+	--ink-muted: #b8b5b1;
+	--ink-line: #3a3936;
+	--sale: #573b3b;
+	--cream: #fef4eb;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.5rem;
+	--background: #ffffff;
+	--foreground: #343231;
+	--card: #ffffff;
+	--card-foreground: #343231;
+	--popover: #ffffff;
+	--popover-foreground: #343231;
+	--primary: #4d4946;
+	--primary-foreground: #f1eeea;
+	--secondary: #f0efed;
+	--secondary-foreground: #24211e;
+	--muted: #ededed;
+	--muted-foreground: #5b5450;
+	--accent: #e9e7e4;
+	--accent-foreground: #24211e;
+	--destructive: #b42318;
+	--border: #d8d8d8;
+	--input: #b1b0af;
+	--ring: #4d4946;
+	--stage: #f2f2f2;
+	--band: #f2f1ef;
+	--chip: #edeae6;
+	--chip-hover: #d8d2cb;
+	--topbar: #565656;
+	--on-topbar: #ededed;
+	--ink: #1b1b19;
+	--on-ink: #ededed;
+	--ink-muted: #b8b5b1;
+	--ink-line: #3a3936;
+	--sale: #573b3b;
+	--cream: #fef4eb;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* next/font puts its variables on <body>, so the faces are set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		letter-spacing: 0.01em;
+	}
+	/* Headings: Tenor Sans, regular, slightly tight (the original's heading base). */
+	h1,
+	h2,
+	h3,
+	h4,
+	h5 {
+		font-family: var(--font-tenor), ui-serif, Georgia, serif;
+		font-weight: 400;
+		letter-spacing: -0.01em;
+	}
+	button,
+	a {
+		cursor: pointer;
+	}
+	:focus-visible {
+		outline: 2px solid var(--foreground);
+		outline-offset: 2px;
+	}
+}
+
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 1440px;
+	padding-inline: 1.25rem;
+	@variant md {
+		padding-inline: 2.5rem;
+	}
+}
+
+/* "EXPLORE NOW →": the original's small uppercase link with an underline that redraws on hover. */
+@utility link-reveal {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	background-image: linear-gradient(currentColor, currentColor);
+	background-size: 0% 1px;
+	background-position: 0 100%;
+	background-repeat: no-repeat;
+	transition: background-size 0.4s ease;
+	&:hover {
+		background-size: 100% 1px;
+	}
+}
+
+@utility scrollbar-none {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Shop-the-look hotspot: a white dot inside a soft ring that breathes. */
+@keyframes hotspot-pulse {
+	0% {
+		transform: scale(0.8);
+		opacity: 0.9;
+	}
+	100% {
+		transform: scale(1.6);
+		opacity: 0;
+	}
+}
+
+@utility hotspot-ring {
+	animation: hotspot-pulse 1.8s ease-out infinite;
+}
+
+@keyframes slide-progress {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+
+@utility marquee-track {
+	animation: marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+@keyframes marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
@@ -150,4 +317,15 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+/* Listing density switch (components/listing-client.tsx). */
+:root[data-grid="compact"] .listing-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	@variant md {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	@variant xl {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
 }
