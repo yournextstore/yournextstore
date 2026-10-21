@@ -1,11 +1,9 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
@@ -72,19 +70,15 @@ export function QuickAddButton({
 		});
 	};
 
+	// The original's quick add: a paper bar that rises from the bottom of the photo on hover or focus.
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				delay={1000}
-				onClick={handleClick}
-				className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-				aria-label={`Add ${product.name} to cart`}
-			>
-				<ShoppingBag className="h-3.5 w-3.5" />
-			</TooltipTrigger>
-			<TooltipContent side="top" className="text-xs">
-				Add to cart
-			</TooltipContent>
-		</Tooltip>
+		<button
+			type="button"
+			onClick={handleClick}
+			className="absolute inset-x-3 bottom-3 z-10 translate-y-2 bg-paper/90 py-2.5 text-[14px] font-semibold text-ink opacity-0 shadow-sm backdrop-blur transition duration-200 hover:bg-brand hover:text-primary-foreground focus-visible:translate-y-0 focus-visible:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+			aria-label={`Add ${product.name} to bag`}
+		>
+			Add to bag
+		</button>
 	);
 }

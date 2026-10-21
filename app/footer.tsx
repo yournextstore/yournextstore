@@ -1,100 +1,16 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { getNavData } from "@/lib/catalog";
+import { commerce } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+const linkClass = "underline-offset-4 hover:text-ink hover:underline";
+
+async function getLegalPages() {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
-}
-
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
+	const pages = await commerce.legalPageBrowse().catch(() => ({ data: [] }));
+	return pages.data.map((page) => ({ href: `/legal${page.href}`, label: page.label }));
 }
 
 // `new Date()` is an unstable value: now that the footer is part of the prerendered
@@ -107,57 +23,53 @@ async function getCopyrightYear() {
 }
 
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const [nav, legal, year] = await Promise.all([getNavData(), getLegalPages(), getCopyrightYear()]);
+	const columns = [
+		{ title: "Shop", links: [{ href: "/products", label: "All pieces" }, ...nav.shelf.slice(0, 5)] },
+		{ title: "House", links: nav.pages },
+		...(legal.length > 0 ? [{ title: "Legal", links: legal }] : []),
+	];
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
-						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
+		<footer className="mt-12 w-full border-t border-line bg-tile/40">
+			<div className="mx-auto max-w-6xl">
+				<div className="grid gap-8 px-5 py-8 sm:grid-cols-[1.2fr_1fr] sm:gap-10 sm:px-10 sm:py-12">
+					<div>
+						<p className="flex items-center gap-2 font-display text-xl font-bold">
+							<span
+								aria-hidden
+								className="inline-flex size-7 items-center justify-center bg-ink font-display text-[16px] font-medium italic text-paper"
+							>
+								{nav.storeName.charAt(0).toUpperCase()}
+							</span>
+							{nav.storeName}
+						</p>
+						<p className="mt-3 max-w-[36ch] text-[14px] leading-relaxed text-muted-foreground">
+							{nav.storeDescription ??
+								"Pieces chosen slowly and made to be worn for years. Browse the collection, keep what you love."}
 						</p>
 					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+					<nav aria-label="Footer" className="grid grid-cols-2 gap-8 text-[14px] sm:grid-cols-3">
+						{columns.map((column) => (
+							<div key={column.title}>
+								<p className="font-semibold">{column.title}</p>
+								<ul className="mt-3 space-y-2 text-muted-foreground">
+									{column.links.map((link) => (
+										<li key={link.href}>
+											<Link href={link.href} className={linkClass}>
+												{link.label}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+						))}
+					</nav>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="flex flex-col-reverse items-center gap-y-4 border-t border-line px-5 py-4 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-x-8 sm:px-10 sm:py-5">
+					<p className="text-small text-muted-foreground">
+						&copy; {year} {nav.storeName}
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>

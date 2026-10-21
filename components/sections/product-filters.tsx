@@ -331,25 +331,29 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 	);
 }
 
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
+/** Filters trigger + slide-over sheet, at every width (the theme has no sidebar). */
 export function ProductFiltersMobile(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
 		<Sheet>
-			<SheetTrigger render={<Button variant="outline" size="sm" className="lg:hidden" />}>
-				<SlidersHorizontalIcon className="size-4" />
+			<SheetTrigger
+				render={
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-9 border-line bg-transparent px-3.5 text-[13px] font-normal shadow-none hover:border-ink hover:bg-transparent"
+					/>
+				}
+			>
+				<SlidersHorizontalIcon aria-hidden className="size-4" />
 				Filters
-				{activeCount > 0 && (
-					<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
-						{activeCount}
-					</span>
-				)}
+				{activeCount > 0 && <span className="ml-1 bg-ink px-1.5 text-xs text-paper">{activeCount}</span>}
 			</SheetTrigger>
 			<SheetContent
 				side="left"
-				className="overflow-y-auto data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
+				className="block overflow-y-auto bg-paper data-[side=left]:w-[85vw] data-[side=left]:max-w-sm"
 			>
 				<SheetHeader>
 					<SheetTitle>Filters</SheetTitle>

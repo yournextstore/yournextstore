@@ -5,9 +5,9 @@ import type {
 } from "commerce-kit";
 import Link from "next/link";
 import { formatMoney } from "@/lib/money";
-import { listingPrice } from "@/lib/pricing";
+import { displayPrice, listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
-import { isVideoUrl } from "@/lib/utils";
+import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 import { QuickAddButton } from "./quick-add-button";
 
@@ -18,24 +18,29 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	sizes = "(max-width: 768px) 50vw, 270px",
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	sizes?: string;
 }) {
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
+	const minPrice = listing?.amount ?? null;
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
+	const priceDisplay = listing ? `${listing.from ? "from " : ""}${fmt(listing.amount)}` : null;
 
-	const allImages = [
-		...(product.images ?? []),
-		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
-			[]),
-	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+	// A single variant on sale shows its list price struck through, as the original's cards do.
+	const onlyVariant = variants?.length === 1 ? variants[0] : null;
+	const listPrice =
+		onlyVariant && "originalPrice" in onlyVariant
+			? displayPrice(onlyVariant, taxBehavior, "originalPrice")
+			: null;
+	const compareAt = listPrice && minPrice && BigInt(listPrice) > minPrice ? fmt(BigInt(listPrice)) : null;
+
+	const primaryImage =
+		(product.images ?? []).find((image) => !isVideoUrl(image)) ?? variants?.[0]?.images?.[0];
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
@@ -43,7 +48,6 @@ export async function ProductCard({
 		oneTimeAllowed && variants?.length === 1 && variants[0]?.stock !== 0 ? variants[0] : null;
 
 	// A single-variant card deep-links to that variant; a bare link would show the product's default.
-	const onlyVariant = variants?.length === 1 ? variants[0] : null;
 	const variantSearch = (() => {
 		if (!onlyVariant || !("combinations" in onlyVariant) || onlyVariant.combinations.length === 0) {
 			return "";
@@ -56,8 +60,27 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
-			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
+		<Link
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group relative block min-w-0 transition hover:bg-tile/60"
+		>
+			<div className="relative aspect-[3/4] overflow-hidden bg-tile">
+				{primaryImage && (
+					<YNSMedia
+						src={primaryImage}
+						alt=""
+						fill
+						sizes={sizes}
+						className="object-cover transition duration-300 group-hover:scale-[1.03]"
+						priority={priority}
+						fetchPriority={priority ? "high" : undefined}
+					/>
+				)}
+				{compareAt && (
+					<span className="absolute left-3 top-3 bg-ink px-2.5 py-1 text-[12px] font-semibold text-paper">
+						Sale
+					</span>
+				)}
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
@@ -73,50 +96,15 @@ export async function ProductCard({
 						}}
 					/>
 				)}
-				{primaryImage &&
-					(isVideoUrl(primaryImage) ? (
-						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							src={primaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={primaryImage}
-							alt={product.name}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className={`object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
-							priority={priority}
-							fetchPriority={priority ? "high" : undefined}
-						/>
-					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
 			</div>
-			<div className="space-y-1">
-				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+			<div className="flex flex-col items-center justify-center gap-2 px-3 py-3 text-center sm:px-4">
+				<p className="line-clamp-2 font-display text-piece underline-offset-4 group-hover:underline">
+					{product.name}
+				</p>
+				<p className="text-body tracking-wide text-muted-foreground">
+					{compareAt && <s className="mr-1.5 text-small">{compareAt}</s>}
+					<span className={cn(compareAt && "font-semibold text-brand-ink")}>{priceDisplay}</span>
+				</p>
 			</div>
 		</Link>
 	);

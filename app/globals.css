@@ -9,12 +9,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-karla);
+	--font-display: var(--font-fraunces);
 	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	/* Editorial: the original flattens every radius token. */
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+	--radius-2xl: 0px;
+	--radius-full: 0px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,50 +37,124 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The boutique's own names, as in the original's @theme. */
+	--color-paper: var(--background);
+	--color-tile: var(--secondary);
+	--color-ink: var(--foreground);
+	--color-line: var(--border);
+	--color-brand: var(--primary);
+	--color-brand-deep: var(--brand-deep);
+	--color-brand-soft: var(--accent);
+	--color-brand-ink: var(--brand-ink);
+	--color-announce: var(--announce);
+	--color-announce-foreground: var(--announce-foreground);
+
+	/* Type scale (new names; Tailwind's text-sm/base/lg stay untouched for shadcn). */
+	--text-hero: clamp(40px, 6.5vw, 80px);
+	--text-hero--line-height: 1.02;
+	--text-page: clamp(32px, 5vw, 52px);
+	--text-page--line-height: 1.1;
+	--text-pdp: clamp(28px, 4vw, 40px);
+	--text-pdp--line-height: 1.15;
+	--text-section: 30px;
+	--text-section--line-height: 1.2;
+	--text-quote: clamp(22px, 3vw, 30px);
+	--text-quote--line-height: 1.35;
+	--text-piece: 17px;
+	--text-piece--line-height: 1.35;
+	--text-body: 15px;
+	--text-body--line-height: 1.6;
+	--text-small: 13px;
+	--text-small--line-height: 1.5;
 }
 
+/* Ivory paper, warm ink, oxblood accent (njX Boutique tokens). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0rem;
+	--background: #f8f5ef;
+	--foreground: #1c1613;
+	--card: #f8f5ef;
+	--card-foreground: #1c1613;
+	--popover: #f8f5ef;
+	--popover-foreground: #1c1613;
+	--primary: #6d1f2c;
+	--primary-foreground: #ffffff;
+	--brand-deep: #521721;
+	--brand-ink: #6d1f2c;
+	--secondary: #efe9df;
+	--secondary-foreground: #1c1613;
+	--muted: #efe9df;
+	/* The original's #7c7267 misses AA on paper/tile; same hue, darker. */
+	--muted-foreground: #6e655b;
+	--accent: #f2e4e2;
+	--accent-foreground: #1c1613;
+	--destructive: #b3261e;
+	--border: #e2dacd;
+	--input: #e2dacd;
+	--ring: #6d1f2c;
+	--announce: #6d1f2c;
+	--announce-foreground: #f2e4e2;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #17110e;
+	--foreground: #f0e8dc;
+	--card: #17110e;
+	--card-foreground: #f0e8dc;
+	--popover: #221a16;
+	--popover-foreground: #f0e8dc;
+	/* The original's #b25a68 can't carry white text at AA; buttons use its deep tone. */
+	--primary: #9d4553;
+	--primary-foreground: #ffffff;
+	--brand-deep: #8a3a47;
+	--brand-ink: #c97a86;
+	--secondary: #221a16;
+	--secondary-foreground: #f0e8dc;
+	--muted: #221a16;
+	--muted-foreground: #a3968a;
+	--accent: #2c1c1d;
+	--accent-foreground: #f0e8dc;
+	--destructive: #e5736b;
+	--border: #3a2f28;
+	--input: #3a2f28;
+	--ring: #c97a86;
+	--announce: #8a3a47;
+	--announce-foreground: #ffffff;
+}
+
+.dark img {
+	filter: brightness(0.92);
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+button:not(:disabled),
+[role="button"]:not(:disabled),
+select,
+summary {
+	cursor: pointer;
+}
+
+@utility shell {
+	margin-inline: auto;
+	width: 100%;
+	max-width: 72rem;
+	padding-inline: 1.25rem;
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 @layer base {
@@ -84,7 +162,13 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground;
+	}
+	h1,
+	h2,
+	h3 {
+		/* @theme inline tokens are not emitted as variables: point at the next/font variable. */
+		font-family: var(--font-fraunces), Georgia, serif;
 	}
 }
 
@@ -117,11 +201,9 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--secondary) 0%,
+		var(--background) 50%,
+		var(--secondary) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
