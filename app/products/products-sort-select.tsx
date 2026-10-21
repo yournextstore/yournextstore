@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -25,34 +24,6 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const defaultValue = options[0]?.value;
-	const current = searchParams.get("sort") ?? defaultValue;
-
-	return (
-		<>
-			{options.map((option) => {
-				const isActive = option.value === current;
-				return (
-					<Link
-						key={option.value}
-						href={buildSortHref(searchParams, pathname, option.value, defaultValue)}
-						className={cn(
-							"text-sm transition-colors",
-							isActive ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
-						)}
-					>
-						{option.label}
-					</Link>
-				);
-			})}
-		</>
-	);
-}
-
 /** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
@@ -70,7 +41,13 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 
 	return (
 		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
+			<SelectTrigger
+				className={cn(
+					"h-11 w-auto min-w-[13rem] gap-2 rounded-xl border-2 border-ink bg-cream px-4 text-base font-bold text-ink shadow-none data-[size=default]:h-11 dark:bg-cream",
+					className,
+				)}
+				aria-label="Sort products"
+			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent align="end">
@@ -82,4 +59,9 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 			</SelectContent>
 		</Select>
 	);
+}
+
+/** The sort control's box, for Suspense fallbacks (the real one reads the URL). */
+export function SortPlaceholder() {
+	return <div aria-hidden="true" className="h-11 w-[13rem] rounded-xl border-2 border-ink bg-cream" />;
 }

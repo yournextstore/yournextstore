@@ -9,8 +9,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--font-sans: var(--font-spartan), "League Spartan", system-ui, sans-serif;
+	--font-heading: var(--font-spartan), "League Spartan", system-ui, sans-serif;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -33,58 +33,336 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's flavour palette: sunshine yellow page, lime and sky panels, deep-sea ink,
+	   orange buttons and headlines, the tangerine/lemon pair of the big-type band and footer. */
+	--color-sun: var(--sun);
+	--color-lime: var(--lime);
+	--color-sky: var(--sky);
+	--color-blush: var(--blush);
+	--color-lilac: var(--lilac);
+	--color-cream: var(--cream);
+	--color-ink: var(--ink);
+	--color-ink-soft: var(--ink-soft);
+	--color-orange: var(--orange);
+	--color-orange-hover: var(--orange-hover);
+	--color-flame: var(--flame);
+	--color-tangerine: var(--tangerine);
+	--color-lemon: var(--lemon);
+	--color-line: var(--border);
+	--shadow-float: 0 40px 50px -30px rgb(8 47 73 / 0.45);
+	--shadow-card: 0 18px 34px -22px rgb(8 47 73 / 0.35);
+	--ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* The original's type scale under its own names (Tailwind's text-sm/lg stay untouched for shadcn). */
+@theme {
+	--text-hero: clamp(4.5rem, 15vw, 13rem);
+	--text-hero--line-height: 0.8;
+	--text-side: clamp(3.4rem, 7vw, 6rem);
+	--text-side--line-height: 0.92;
+	--text-section: clamp(2.6rem, 5vw, 3.75rem);
+	--text-section--line-height: 1;
+	--text-lede: clamp(1.15rem, 1.6vw, 1.5rem);
+	--text-lede--line-height: 1.45;
+}
+
+/*
+ * Sunshine yellow with deep-sea ink. Orange is the original's orange-500/600 darkened just enough
+ * for AA: flame (#d4460f) for display type on the yellow, orange (#c2410c) under white button text.
+ */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.75rem;
+	--background: #fde047;
+	--foreground: #082f49;
+	--card: #fffcfa;
+	--card-foreground: #082f49;
+	--popover: #fffcfa;
+	--popover-foreground: #082f49;
+	--primary: #c2410c;
+	--primary-foreground: #ffffff;
+	--secondary: #fffcfa;
+	--secondary-foreground: #082f49;
+	--muted: #fef3a3;
+	--muted-foreground: #2d4a5c;
+	--accent: #d9f99d;
+	--accent-foreground: #082f49;
+	--destructive: #9f1d1d;
+	--border: #082f4933;
+	--input: #082f4966;
+	--ring: #082f49;
+	--sun: #fde047;
+	--lime: #d9f99d;
+	--sky: #c3edf5;
+	--blush: #f5d5da;
+	--lilac: #e9d5ff;
+	--cream: #fffcfa;
+	--ink: #082f49;
+	--ink-soft: #2d4a5c;
+	--orange: #c2410c;
+	--orange-hover: #9a3412;
+	--flame: #d4460f;
+	--tangerine: #fe6334;
+	--lemon: #fee832;
 }
 
+/* Light-only design: the same palette, so the forced light theme never flips. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--radius: 0.75rem;
+	--background: #fde047;
+	--foreground: #082f49;
+	--card: #fffcfa;
+	--card-foreground: #082f49;
+	--popover: #fffcfa;
+	--popover-foreground: #082f49;
+	--primary: #c2410c;
+	--primary-foreground: #ffffff;
+	--secondary: #fffcfa;
+	--secondary-foreground: #082f49;
+	--muted: #fef3a3;
+	--muted-foreground: #2d4a5c;
+	--accent: #d9f99d;
+	--accent-foreground: #082f49;
+	--destructive: #9f1d1d;
+	--border: #082f4933;
+	--input: #082f4966;
+	--ring: #082f49;
+	--sun: #fde047;
+	--lime: #d9f99d;
+	--sky: #c3edf5;
+	--blush: #f5d5da;
+	--lilac: #e9d5ff;
+	--cream: #fffcfa;
+	--ink: #082f49;
+	--ink-soft: #2d4a5c;
+	--orange: #c2410c;
+	--orange-hover: #9a3412;
+	--flame: #d4460f;
+	--tangerine: #fe6334;
+	--lemon: #fee832;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		overflow-x: clip;
+		scroll-padding-top: 90px;
+	}
+	/* next/font puts its variables on <body>, so the face is set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-spartan), "League Spartan", system-ui, sans-serif;
+		line-height: 1.5;
+		overflow-x: clip;
+	}
+	::selection {
+		background: var(--ink);
+		color: var(--sun);
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+	}
+	p {
+		text-wrap: pretty;
+	}
+	:focus-visible {
+		outline: 3px solid var(--ink);
+		outline-offset: 3px;
+	}
+}
+
+/* The heavy, tight, uppercase display of "LIVE GUTSY" and "TRY ALL FIVE FLAVORS". */
+@utility display {
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: -0.01em;
+	line-height: 0.88;
+}
+
+@utility shell {
+	width: 100%;
+	max-width: 80rem;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (width >= 48rem) {
+		padding-inline: 1.5rem;
+	}
+}
+
+/* The original's one button: chunky orange slab, bold uppercase, rounded-xl. */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	border-radius: 0.75rem;
+	padding: var(--btn-py, 0.9rem) var(--btn-px, 1.25rem) calc(var(--btn-py, 0.9rem) - 0.12rem);
+	font-size: var(--btn-size, 1.15rem);
+	font-weight: 700;
+	line-height: 1.1;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	text-align: center;
+	background: var(--btn-bg, var(--orange));
+	color: var(--btn-fg, #fff);
+	border: 2px solid var(--btn-border, transparent);
+	cursor: pointer;
+	transition:
+		background-color 0.15s,
+		color 0.15s,
+		transform 0.3s var(--ease-pop);
+	&:hover {
+		background: var(--btn-hover-bg, var(--orange-hover));
+		color: var(--btn-hover-fg, var(--btn-fg, #fff));
+	}
+	&:active {
+		transform: scale(0.97);
+	}
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+@utility btn-ink {
+	--btn-bg: var(--ink);
+	--btn-hover-bg: #0c4a6e;
+}
+
+@utility btn-ghost {
+	--btn-bg: transparent;
+	--btn-fg: var(--ink);
+	--btn-border: var(--ink);
+	--btn-hover-bg: var(--ink);
+	--btn-hover-fg: var(--sun);
+}
+
+@utility btn-sm {
+	--btn-py: 0.6rem;
+	--btn-px: 0.95rem;
+	--btn-size: 0.95rem;
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/*
+ * The 3D cans, rendered statically: catalogue studio shots are off-white, so multiplying them onto
+ * the coloured panel drops the backdrop and leaves the product floating on yellow/lime/sky.
+ */
+.float-photo {
+	mix-blend-mode: multiply;
+}
+/* Lift the warm grey backdrop to white so the multiply leaves no visible square. */
+.float-photo img {
+	filter: brightness(1.07) contrast(1.06);
+}
+/* Floating products also fade out at the edges, where the studio light falls off. */
+.float-soft {
+	mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+}
+.bob {
+	animation: bob 6s ease-in-out infinite;
+	animation-delay: var(--bob-delay, 0s);
+}
+@keyframes bob {
+	0%,
+	100% {
+		translate: 0 0;
+		rotate: var(--tilt, 0deg);
+	}
+	50% {
+		translate: 0 -14px;
+		rotate: calc(var(--tilt, 0deg) + 3deg);
+	}
+}
+
+/* The fizz: a field of soft bubbles drifting up behind the hero (the original's 300 instanced spheres). */
+.bubbles {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+.bubbles span {
+	position: absolute;
+	bottom: -40px;
+	border-radius: 9999px;
+	background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.25) 60%, transparent 72%);
+	animation: rise var(--d, 14s) linear infinite;
+	animation-delay: var(--delay, 0s);
+}
+@keyframes rise {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(calc(-100vh - 120px));
+	}
+}
+
+/* Clouds for the sky-dive panel: blurred white and pink puffs. */
+.clouds {
+	background:
+		radial-gradient(40% 30% at 20% 30%, rgb(255 255 255 / 0.85), transparent 70%),
+		radial-gradient(35% 28% at 75% 22%, rgb(249 198 212 / 0.8), transparent 70%),
+		radial-gradient(45% 30% at 85% 80%, rgb(255 255 255 / 0.75), transparent 70%),
+		radial-gradient(38% 26% at 15% 85%, rgb(249 198 212 / 0.65), transparent 70%),
+		var(--sky);
+}
+
+/* The wavy circles behind the flavour picker turn in opposite directions. */
+.wavy-outer,
+.wavy-inner {
+	transform-box: fill-box;
+	transform-origin: center;
+}
+.wavy-outer {
+	animation: spin 22s linear infinite reverse;
+}
+.wavy-inner {
+	animation: spin 16s linear infinite;
+}
+.spin-slow {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: spin 6s linear infinite;
+}
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* The slide-left marquee from the original's tailwind config. */
+@keyframes slide-left {
+	to {
+		transform: translateX(-50%);
+	}
+}
+.marquee {
+	animation: slide-left 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 
@@ -168,4 +446,28 @@
 
 .chat-markdown [data-streamdown="link"] {
 	@apply font-medium underline decoration-border underline-offset-2 hover:decoration-foreground;
+}
+
+
+/* Small uppercase label: legends, captions, counters. */
+@utility eyebrow {
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--ink);
+}
+
+/* A small ink pill ("Save 20%", "In stock"). */
+@utility tag {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 9999px;
+	background: var(--ink);
+	color: var(--sun);
+	padding: 0.3rem 0.75rem 0.2rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
 }
