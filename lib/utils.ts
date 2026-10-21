@@ -18,3 +18,9 @@ export function isVideoUrl(url: string): boolean {
 export const getProductThumbnail = (urls: string[]): string | undefined => {
 	return urls.find((url) => !isVideoUrl(url));
 };
+
+/** Catalogue names are often lower case ("summer bags"); labels read best in sentence case. */
+export function sentenceCase(value: string) {
+	const trimmed = value.trim();
+	return trimmed.charAt(0).toLocaleUpperCase() + trimmed.slice(1);
+}

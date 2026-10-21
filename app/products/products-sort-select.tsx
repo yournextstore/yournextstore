@@ -53,7 +53,7 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	);
 }
 
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
+/** "Sort by" label plus a bordered select, as on the original toolbar. Reads the current sort from the URL. */
 export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -69,17 +69,23 @@ export function SortSelect({ options, className }: { options: readonly SortOptio
 	};
 
 	return (
-		<Select value={current} onValueChange={onChange} items={options}>
-			<SelectTrigger size="sm" className={cn("w-auto min-w-[9rem]", className)} aria-label="Sort products">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent align="end">
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		<div className={cn("flex items-center gap-2", className)}>
+			<span className="hidden text-sm text-muted-foreground sm:inline">Sort by</span>
+			<Select value={current} onValueChange={onChange} items={options}>
+				<SelectTrigger
+					aria-label="Sort products"
+					className="h-10 w-[172px] rounded-md border-border bg-background data-[size=default]:h-10"
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent align="end">
+					{options.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
 	);
 }
