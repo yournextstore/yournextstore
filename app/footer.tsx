@@ -3,161 +3,62 @@ import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
 import { commerce, meGetCached } from "@/lib/commerce";
 
-async function FooterBlogLink() {
+type FooterLink = { href: string; label: string };
+
+// One cached read for every link the footer shows: the platform pages that exist for this
+// store (contact, blog, legal) sit beside the catalogue and About.
+async function getFooterData() {
 	"use cache";
 	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.blog) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Blog
-			</Link>
-		</li>
-	);
+	const [me, legal] = await Promise.all([
+		meGetCached().catch(() => null),
+		commerce.legalPageBrowse().catch(() => ({ data: [] })),
+	]);
+	const tools = me?.store.settings?.enabledTools;
+	const links: FooterLink[] = [
+		{ href: "/products", label: "All products" },
+		{ href: "/about", label: "About us" },
+		{ href: "/faq", label: "FAQ" },
+		...(tools?.contactForm ? [{ href: "/contact", label: "Contact us" }] : []),
+		...(tools?.blog ? [{ href: "/blog", label: "Journal" }] : []),
+		...legal.data.map((page) => ({ href: `/legal${page.href}`, label: page.label })),
+	];
+	return {
+		storeName: me?.store.name || "Your Next Store",
+		description: me?.store.settings?.storeDescription || null,
+		links,
+		year: new Date().getFullYear(),
+	};
 }
 
-async function FooterContactLink() {
-	"use cache";
-	cacheLife("hours");
-
-	const me = await meGetCached().catch(() => null);
-	if (!me?.store.settings?.enabledTools?.contactForm) {
-		return null;
-	}
-
-	return (
-		<li>
-			<Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-				Contact Us
-			</Link>
-		</li>
-	);
-}
-
-async function FooterCollections() {
-	"use cache";
-	cacheLife("hours");
-
-	const collections = await commerce.collectionBrowse({ limit: 5 });
-
-	if (collections.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Collections</h3>
-			<ul className="mt-4 space-y-3">
-				{collections.data.map((collection) => (
-					<li key={collection.id}>
-						<Link
-							href={`/collection/${collection.slug}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{collection.name}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-async function FooterLegalPages() {
-	"use cache";
-	cacheLife("hours");
-
-	const pages = await commerce.legalPageBrowse();
-
-	if (pages.data.length === 0) {
-		return null;
-	}
-
-	return (
-		<div>
-			<h3 className="text-sm font-semibold text-foreground">Legal</h3>
-			<ul className="mt-4 space-y-3">
-				{pages.data.map((page) => (
-					<li key={page.id}>
-						<Link
-							href={`/legal${page.href}`}
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							{page.label}
-						</Link>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-// `new Date()` is an unstable value: now that the footer is part of the prerendered
-// shell, reading it during the prerender is an error. Caching pins it to the entry.
-async function getCopyrightYear() {
-	"use cache";
-	cacheLife("days");
-
-	return new Date().getFullYear();
-}
-
+/** The original's peach card, overlapping whatever closes the page by its rounded corners. */
 export async function Footer() {
-	const year = await getCopyrightYear();
+	const { storeName, description, links, year } = await getFooterData();
 
 	return (
-		<footer className="border-t border-border bg-background">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-8 sm:gap-16">
-					{/* Brand */}
-					<div className="sm:max-w-xs">
-						<Link href="/" className="text-xl font-bold text-foreground">
-							Your Next Store
+		<footer className="relative z-10 -mt-5">
+			<div className="relative overflow-hidden rounded-xl bg-peach px-4 py-8 md:px-8 md:py-10">
+				<div className="flex flex-col justify-between md:flex-row">
+					<div className="pb-4">
+						<Link href="/" className="text-ui-lg font-bold tracking-[0.18em] uppercase">
+							{storeName}
 						</Link>
-						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-							Curated essentials for modern living. Quality products, thoughtfully designed.
-						</p>
+						{description && <p className="mt-4 max-w-xs leading-paragraph text-[#5e5e5e]">{description}</p>}
 					</div>
-
-					{/* Collections */}
-					<FooterCollections />
-
-					{/* Support */}
-					<div>
-						<h3 className="text-sm font-semibold text-foreground">Support</h3>
-						<ul className="mt-4 space-y-3">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									About Us
+					<ul className="my-16 w-full max-w-[22rem] columns-2 gap-x-8 self-start text-ui-md font-bold md:my-0 md:max-w-[27rem]">
+						{links.map((link) => (
+							<li key={link.href} className="mb-6 break-inside-avoid">
+								<Link href={link.href} className="link-underline">
+									{link.label}
 								</Link>
 							</li>
-							<FooterContactLink />
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-							<FooterBlogLink />
-						</ul>
-					</div>
-
-					{/* Legal */}
-					<FooterLegalPages />
+						))}
+					</ul>
 				</div>
-
-				{/* Bottom bar */}
-				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+				<div className="flex flex-col gap-4 text-ui-sm text-[#5e5e5e] sm:flex-row sm:items-end sm:justify-between">
+					<p>
+						&copy; {year} {storeName}. All rights reserved.
+					</p>
 					<PaymentMethods />
 				</div>
 			</div>
