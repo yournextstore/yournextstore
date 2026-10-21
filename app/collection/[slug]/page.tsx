@@ -5,16 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { Crumbs } from "@/components/crumbs";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { firstStill, richTextToPlain } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -36,9 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		richTextToPlain(collection.description) || `Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {
@@ -61,48 +53,45 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function CollectionHeader({ collection }: { collection: APICollectionGetByIdResult }) {
+/** The original's cream "Made to match" card, reused as the collection's banner. */
+function CollectionHeader({
+	collection,
+	image,
+	count,
+}: {
+	collection: APICollectionGetByIdResult;
+	image: string | null;
+	count: number;
+}) {
+	const description = richTextToPlain(collection.description);
 	return (
-		<section className="relative overflow-hidden bg-secondary/30">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="py-12 sm:py-16 lg:py-20">
-					<div className="max-w-2xl">
-						<h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-foreground">
-							{collection.name}
-						</h1>
-						{collection.description && (
-							<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-								{typeof collection.description === "string"
-									? collection.description
-									: "Explore our curated collection"}
-							</p>
-						)}
-					</div>
-				</div>
+		<div className="grid items-stretch gap-6 rounded-[18px] bg-card p-5 shadow-card md:grid-cols-2 md:p-9">
+			<div className="flex flex-col justify-center md:order-first">
+				<p className="eyebrow mb-2">The collection</p>
+				<h1 className="font-heading text-3xl text-ink wrap-break-word md:text-5xl">{collection.name}</h1>
+				{description && <p className="mt-3 max-w-md text-muted-foreground">{description}</p>}
+				<p className="mt-5 text-sm text-muted-foreground">
+					{count} {count === 1 ? "piece" : "pieces"}
+				</p>
 			</div>
-			{collection.image && (
-				<div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
+			<div className="relative min-h-[240px] overflow-hidden rounded-form bg-muted md:min-h-[320px]">
+				{image && (
 					<YNSMedia
-						src={collection.image}
-						alt={collection.name}
+						src={image}
+						alt=""
 						fill
-						sizes="50vw"
-						className="object-cover opacity-30"
+						sizes="(max-width: 768px) 100vw, 560px"
+						className="object-cover"
 						priority
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-secondary/30 to-transparent" />
-				</div>
-			)}
-		</section>
+				)}
+			</div>
+		</div>
 	);
 }
 
 function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
+	return <ProductGridSkeleton />;
 }
 
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
@@ -157,34 +146,15 @@ async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
 }
 
-async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {
-	const products = await getCollectionProducts(collection);
-
-	return (
-		<ProductGrid
-			title={`${collection.name} Collection`}
-			description={`${products.length} products`}
-			products={products}
-			showViewAll={false}
-		/>
-	);
-}
-
 function CollectionPageSkeleton() {
 	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
+		<div className="container-x min-h-svh pb-16 pt-8">
+			<div className="mb-8 h-5 w-48 animate-pulse rounded bg-muted" />
+			<div className="h-[420px] animate-pulse rounded-[18px] bg-card md:h-[398px]" />
+			<div className="mt-14">
+				<CollectionProductsSkeleton />
 			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
+		</div>
 	);
 }
 
@@ -215,29 +185,39 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 		notFound();
 	}
 
+	const products = await getCollectionProducts(collection);
+	const image = collection.image ?? firstStill(products[0]?.images);
+
 	return (
-		<>
+		<div className="container-x min-h-svh pb-16 pt-8">
 			<JsonLdScript data={buildCollectionJsonLd(collection)} />
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<Breadcrumb>
-					<BreadcrumbList>
-						<BreadcrumbItem>
-							<BreadcrumbLink asChild>
-								<Link href="/">Home</Link>
-							</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator />
-						<BreadcrumbItem>
-							<BreadcrumbPage>{collection.name}</BreadcrumbPage>
-						</BreadcrumbItem>
-					</BreadcrumbList>
-				</Breadcrumb>
-			</div>
-			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
-		</>
+			<Crumbs
+				className="mb-8"
+				items={[
+					{ label: "Home", href: "/" },
+					{ label: "Shop", href: "/products" },
+					{ label: collection.name },
+				]}
+			/>
+			<CollectionHeader collection={collection} image={image} count={products.length} />
+			{products.length > 0 ? (
+				<ProductGrid
+					title="In this collection"
+					description="Made to match"
+					products={products}
+					showViewAll={false}
+					columns="lg:grid-cols-4"
+				/>
+			) : (
+				<p className="py-24 text-center font-heading text-xl text-ink">
+					Nothing here yet —{" "}
+					<Link href="/products" className="text-pine underline-offset-4 hover:underline">
+						browse the whole shop
+					</Link>
+					.
+				</p>
+			)}
+		</div>
 	);
 };

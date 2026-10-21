@@ -8,12 +8,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: var(--font-cabin), "Cabin", Arial, sans-serif;
+	--font-heading: var(--font-fraunces), "Fraunces", Georgia, serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-form: var(--radius);
+	--radius-pill: 999px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -22,6 +25,7 @@
 	--color-popover-foreground: var(--popover-foreground);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--primary-hover);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
@@ -32,58 +36,143 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The original's own colour names (announce bar, white header surface, footer, badges, CTA). */
+	--color-surface: var(--surface);
+	--color-ink: var(--foreground);
+	--color-link: var(--link);
+	--color-pine: var(--pine);
+	--color-announce: var(--announce);
+	--color-footerbg: var(--footer);
+	--color-badge-new: var(--badge-new);
+	--color-badge-hot: var(--badge-hot);
+	--color-cta-buy: var(--cta-buy);
+	--color-line: var(--border);
+	--shadow-card: 0 12px 32px -14px rgb(58 42 30 / 0.28);
+	--shadow-header: 0 6px 24px -14px rgb(43 39 35 / 0.22);
 }
 
+/* Light palette, converted from the original's hex tokens (cream page, pine CTA, terracotta). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.5rem;
+	--background: #fdfbf8;
+	--foreground: #2b2723;
+	--card: #f3ebe3;
+	--card-foreground: #2b2723;
+	--popover: #ffffff;
+	--popover-foreground: #2b2723;
+	--primary: #2f6b5e;
+	--primary-hover: #24544a;
+	--primary-foreground: #ffffff;
+	--secondary: #f1e9e1;
+	--secondary-foreground: #2b2723;
+	--muted: #f1e9e1;
+	--muted-foreground: #6a615a;
+	--accent: #f1e9e1;
+	--accent-foreground: #2b2723;
+	--destructive: #b13e2c;
+	--border: #e9e1d9;
+	--input: #e2d8ce;
+	--ring: #2f6b5e;
+	--surface: #ffffff;
+	--link: #46403a;
+	--pine: #2f6b5e;
+	--announce: #a1583a;
+	--footer: #f6f0ea;
+	--badge-new: #5f7a54;
+	--badge-hot: #a95a3b;
+	/* The original's #b5613f, darkened to clear AA under white button text. */
+	--cta-buy: #a95a3b;
 }
 
+/* The original ships a working dark mode (warm near-black, brighter pine for text). */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #15120f;
+	--foreground: #f2ede7;
+	--card: #211c17;
+	--card-foreground: #f2ede7;
+	--popover: #221d18;
+	--popover-foreground: #f2ede7;
+	--primary: #2f6b5e;
+	--primary-hover: #24544a;
+	--primary-foreground: #ffffff;
+	--secondary: #1d1811;
+	--secondary-foreground: #f2ede7;
+	--muted: #1d1811;
+	--muted-foreground: #b0a79f;
+	--accent: #2a241e;
+	--accent-foreground: #f2ede7;
+	--destructive: #d9705e;
+	--border: #322b24;
+	--input: #3b332b;
+	--ring: #6fb6a4;
+	--surface: #221d18;
+	--link: #e4ded7;
+	--pine: #6fb6a4;
+	--announce: #a1583a;
+	--footer: #171310;
+	--badge-new: #5f7a54;
+	--badge-hot: #a95a3b;
+	--cta-buy: #a95a3b;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		scroll-behavior: smooth;
+	}
+	/* next/font puts its variables on <body>, so the face is set here, not on <html>. */
 	body {
 		@apply bg-background text-foreground;
+		font-family: var(--font-cabin), "Cabin", Arial, sans-serif;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-fraunces), "Fraunces", Georgia, serif;
+		letter-spacing: -0.015em;
+		text-wrap: balance;
+	}
+	p {
+		text-wrap: pretty;
+	}
+}
+
+@utility container-x {
+	width: 100%;
+	max-width: 1230px;
+	margin-inline: auto;
+	padding-inline: 1.25rem;
+}
+
+/* Small pine kicker above every section heading. */
+@utility eyebrow {
+	color: var(--pine);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+
+@utility no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 

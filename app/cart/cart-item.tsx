@@ -104,9 +104,11 @@ export function CartItem({ item }: CartItemProps) {
 			<Link
 				href={`/product/${product.slug}`}
 				onClick={closeCart}
-				className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary"
+				tabIndex={-1}
+				aria-hidden="true"
+				className="relative h-24 w-20 shrink-0 overflow-hidden rounded-form bg-card"
 			>
-				{image && <YNSMedia src={image} alt={product.name} fill className="object-cover" sizes="96px" />}
+				{image && <YNSMedia src={image} alt="" fill className="object-cover" sizes="80px" />}
 			</Link>
 
 			{/* Product Details */}
@@ -115,7 +117,7 @@ export function CartItem({ item }: CartItemProps) {
 					<Link
 						href={`/product/${product.slug}`}
 						onClick={closeCart}
-						className="text-sm font-medium leading-tight text-foreground hover:underline line-clamp-2"
+						className="line-clamp-2 font-heading text-[15px] leading-snug text-ink transition-colors hover:text-pine"
 					>
 						{product.name}
 					</Link>
@@ -123,7 +125,7 @@ export function CartItem({ item }: CartItemProps) {
 						type="button"
 						onClick={handleRemove}
 						disabled={isPending}
-						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
+						className="inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-destructive disabled:pointer-events-none disabled:opacity-50"
 						aria-label="Remove item"
 					>
 						<Trash2 className="h-4 w-4" />
@@ -134,14 +136,14 @@ export function CartItem({ item }: CartItemProps) {
 					{/* Quantity Controls */}
 					<div
 						className={cn(
-							"inline-flex items-center rounded-full border border-border transition-opacity",
+							"inline-flex items-center rounded-form border border-input bg-surface transition-opacity",
 							isPending && "opacity-70",
 						)}
 					>
 						<button
 							type="button"
 							onClick={handleDecrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
+							className="flex size-8 shrink-0 items-center justify-center transition-colors hover:text-pine"
 							aria-label="Decrease quantity"
 						>
 							<Minus className="h-3 w-3" />
@@ -150,7 +152,7 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleIncrement}
-							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-r-full hover:bg-secondary transition-colors"
+							className="flex size-8 shrink-0 items-center justify-center transition-colors hover:text-pine"
 							aria-label="Increase quantity"
 						>
 							<Plus className="h-3 w-3" />
@@ -158,7 +160,7 @@ export function CartItem({ item }: CartItemProps) {
 					</div>
 
 					{/* Price */}
-					<span className="text-sm font-semibold">
+					<span className="text-sm font-semibold text-pine">
 						{formatMoney({ amount: lineTotal, currency, locale })}
 					</span>
 				</div>

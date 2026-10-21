@@ -1,11 +1,9 @@
 "use client";
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
-import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
@@ -73,22 +71,15 @@ export function QuickAddButton({
 	};
 
 	return (
-		<TooltipPrimitive.Provider delayDuration={1000}>
-			<TooltipPrimitive.Root>
-				<TooltipTrigger asChild>
-					<button
-						type="button"
-						onClick={handleClick}
-						className="absolute bottom-3 left-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-background hover:scale-110 active:scale-95"
-						aria-label={`Add ${product.name} to cart`}
-					>
-						<ShoppingBag className="h-3.5 w-3.5" />
-					</button>
-				</TooltipTrigger>
-				<TooltipContent side="top" className="text-xs">
-					Add to cart
-				</TooltipContent>
-			</TooltipPrimitive.Root>
-		</TooltipPrimitive.Provider>
+		<div className="absolute inset-x-0 bottom-0 translate-y-full p-3 transition-transform duration-300 group-focus-within:translate-y-0 group-hover:translate-y-0">
+			<button
+				type="button"
+				onClick={handleClick}
+				className="flex w-full items-center justify-center gap-2 rounded-form bg-foreground py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-primary hover:text-primary-foreground"
+				aria-label={`Add to cart, ${product.name}`}
+			>
+				<ShoppingBag className="size-4" aria-hidden="true" /> Add to cart
+			</button>
+		</div>
 	);
 }
