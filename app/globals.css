@@ -8,7 +8,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
+	--font-sans: Helvetica, "Helvetica Neue", Arial, Verdana, sans-serif;
 	--font-mono: var(--font-geist-mono);
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -35,47 +35,89 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 0.125rem;
+	/* Ink, paper and the FRNTR pastels (buttonBg1/2, the lavender/mint attribute chips). */
+	--background: #ffffff;
+	--foreground: #080708;
+	--card: #ffffff;
+	--card-foreground: #080708;
+	--popover: #ffffff;
+	--popover-foreground: #080708;
+	--primary: #080708;
+	--primary-foreground: #ffffff;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #080708;
+	--muted: #f5f5f5;
+	/* The original's body grey (#4c505b) clears AA on white and on the #f5f5f5 tiles. */
+	--muted-foreground: #4c505b;
+	--accent: #fbdcce;
+	--accent-foreground: #080708;
+	--destructive: #c23a3a;
+	--border: #dfdfdf;
+	--input: #dfdfdf;
+	--ring: #080708;
+	--peach: #fbdcce;
+	--pink: #fad2e1;
+	--lavender: #dcd7ea;
+	--lavender-ink: #4f4c58;
+	--mint: #daf5cb;
+	--mint-ink: #2f4a32;
+	/* #ee6969 in the original; darkened so white type on it and red prices clear AA. */
+	--sale: #c23a3a;
+	--stock: #4fd1c5;
 }
 
+/* Light-only design: the dark block repeats the light palette (forcedTheme="light"). */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #ffffff;
+	--foreground: #080708;
+	--card: #ffffff;
+	--card-foreground: #080708;
+	--popover: #ffffff;
+	--popover-foreground: #080708;
+	--primary: #080708;
+	--primary-foreground: #ffffff;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #080708;
+	--muted: #f5f5f5;
+	--muted-foreground: #4c505b;
+	--accent: #fbdcce;
+	--accent-foreground: #080708;
+	--destructive: #c23a3a;
+	--border: #dfdfdf;
+	--input: #dfdfdf;
+	--ring: #080708;
+}
+
+@theme inline {
+	--color-peach: var(--peach);
+	--color-pink: var(--pink);
+	--color-lavender: var(--lavender);
+	--color-lavender-ink: var(--lavender-ink);
+	--color-mint: var(--mint);
+	--color-mint-ink: var(--mint-ink);
+	--color-sale: var(--sale);
+	--color-stock: var(--stock);
+}
+
+/* The page frame of the original: 1232px of content centred, 16px gutters on phones. */
+@utility frame {
+	width: 100%;
+	max-width: 1264px;
+	margin-inline: auto;
+	padding-inline: 1rem;
+}
+
+@utility font-nav {
+	font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+	letter-spacing: 1px;
+}
+
+@utility no-scrollbar {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 @layer base {
@@ -84,6 +126,8 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		/* The original sets no webfont: Helvetica, falling back to Arial. */
+		font-family: Helvetica, "Helvetica Neue", Arial, Verdana, sans-serif;
 	}
 }
 

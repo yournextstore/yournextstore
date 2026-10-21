@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import { ChipLinks, ListingSkeleton, ListingToolbar, ResultCount } from "@/components/listing";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
+import { CARD_GRID } from "@/components/product-grid-skeleton";
+import { Banner } from "@/components/sections/frntr";
+import { EDITORIAL, getCategories, getCollections, picturedFirst } from "@/lib/catalog";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
-import { SortLinks, SortSelect } from "./products-sort-select";
+import { sortFor } from "@/lib/sort";
 
-const PRODUCTS_PER_PAGE = 12;
-
-const sortOptions = [
-	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
-	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
-	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },
-	{ value: "name", label: "Name: A–Z", orderBy: "name", orderDirection: "asc" },
-] as const;
+const PRODUCTS_PER_PAGE = 16;
 
 type ProductFilterParams = {
 	page?: string;
@@ -62,7 +57,7 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-	const sortOption = sortOptions.find((s) => s.value === filters.sort) ?? sortOptions[0];
+	const sortOption = sortFor(filters.sort);
 
 	const result = await commerce.productBrowse({
 		active: true,
@@ -82,16 +77,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
+			<>
+				<ResultCount count={0} />
+				<p className="py-24 text-center text-lg text-muted-foreground">No products match these filters.</p>
+			</>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<ResultCount count={result.meta.count} />
+			<div className={CARD_GRID}>
+				{(filters.sort ? result.data : picturedFirst(result.data)).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -114,47 +111,52 @@ async function ProductSection({ searchParams }: { searchParams: Promise<ProductF
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<ProductFilterParams> }) {
-	// `facets` is cached and independent of `searchParams`, so it can drive the layout
-	// shell without making the route blocking. Runtime `searchParams` is read inside the
-	// Suspense boundary below (see `ProductSection`).
-	const facets = await getFilterFacets();
-	const filtersAvailable =
-		facets.categories.length > 0 ||
-		facets.collections.length > 0 ||
-		facets.brands.length > 0 ||
-		facets.variantTypes.length > 0 ||
-		facets.priceBounds.max > 0;
+	// Everything above the grid is cached and independent of `searchParams`, so it prerenders;
+	// the toolbar (useSearchParams) and the list stream in behind one same-height boundary.
+	const [facets, categories, collections] = await Promise.all([
+		getFilterFacets(),
+		getCategories(),
+		getCollections(),
+	]);
+	const banner = collections[0];
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="frame pt-6 lg:pt-10">
+			<div className="max-w-[600px]">
+				<h1 className="text-[28px] leading-tight font-semibold sm:text-[32px]">Shop</h1>
+				<p className="mt-3 text-base leading-[1.9] text-muted-foreground sm:text-lg">
+					Everything in the shop in one place. Filter, sort and find the pieces that fit the way you live.
+				</p>
 			</div>
+			<ChipLinks
+				links={[
+					...categories.map((category) => ({ href: `/category/${category.slug}`, label: category.name })),
+					...collections.map((collection) => ({
+						href: `/collection/${collection.slug}`,
+						label: collection.name,
+					})),
+				]}
+			/>
 
-			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
-			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
+			{banner && (
+				<Banner
+					className="mt-16 lg:mt-20"
+					image={EDITORIAL.shop}
+					title={`${banner.name}: colour your every day`}
+					text={banner.description || null}
+					href={`/collection/${banner.slug}`}
+					cta={`See all ${banner.name.toLowerCase()}`}
+				/>
+			)}
 
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
-						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
+			<div className="mt-16 lg:mt-24">
+				<Suspense fallback={<ListingSkeleton />}>
+					<div className="min-h-svh">
+						<ListingToolbar facets={facets} />
 						<ProductSection searchParams={searchParams} />
 					</div>
-				</div>
-			</Suspense>
+				</Suspense>
+			</div>
 		</div>
 	);
 }

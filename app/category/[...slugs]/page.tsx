@@ -1,26 +1,20 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { ListingSkeleton, ListingToolbar, ResultCount } from "@/components/listing";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CARD_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { Banner } from "@/components/sections/frntr";
+import { EDITORIAL, picturedFirst } from "@/lib/catalog";
 import { commerce } from "@/lib/commerce";
+import { richToText, sentence } from "@/lib/display";
 import { getFilterFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 16;
 
 // Filters that apply on top of the path-locked category.
 type CategoryFilterParams = {
@@ -115,9 +109,10 @@ async function CategoryProducts({
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
-			</div>
+			<>
+				<ResultCount count={0} />
+				<p className="py-24 text-center text-lg text-muted-foreground">No products match these filters.</p>
+			</>
 		);
 	}
 
@@ -125,8 +120,9 @@ async function CategoryProducts({
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
+			<ResultCount count={result.meta.count} />
+			<div className={CARD_GRID}>
+				{picturedFirst(result.data).map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
 			</div>
@@ -142,10 +138,12 @@ async function CategoryProducts({
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-6 h-5 w-64 bg-secondary rounded animate-pulse" />
-			<div className="mb-10 h-10 w-72 bg-secondary rounded animate-pulse" />
-			<ProductGridSkeleton />
+		<div className="frame pt-6 lg:pt-10">
+			<div className="h-10 w-48 bg-secondary" />
+			<div data-banner className="mt-6 min-h-[350px] bg-secondary sm:min-h-[460px] lg:min-h-[600px]" />
+			<div className="mt-16 lg:mt-24">
+				<ListingSkeleton />
+			</div>
 		</div>
 	);
 }
@@ -205,58 +203,29 @@ const CategoryContent = async ({
 		permanentRedirect(`/category/${canonicalPath}`);
 	}
 
+	const description = richToText(category.description);
+
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div className="frame pt-6 lg:pt-10">
 			<JsonLdScript data={buildCategoryBreadcrumbJsonLd(hierarchy)} />
-			<Breadcrumb className="mb-6">
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbLink asChild>
-							<Link href="/">Home</Link>
-						</BreadcrumbLink>
-					</BreadcrumbItem>
-					{hierarchy.map((crumb, index) => {
-						const path = hierarchy
-							.slice(0, index + 1)
-							.map((c) => c.slug)
-							.join("/");
-						const isLast = index === hierarchy.length - 1;
-						return (
-							<Fragment key={crumb.slug}>
-								<BreadcrumbSeparator />
-								<BreadcrumbItem>
-									{isLast ? (
-										<BreadcrumbPage>{crumb.name}</BreadcrumbPage>
-									) : (
-										<BreadcrumbLink asChild>
-											<Link href={`/category/${path}`}>{crumb.name}</Link>
-										</BreadcrumbLink>
-									)}
-								</BreadcrumbItem>
-							</Fragment>
-						);
-					})}
-				</BreadcrumbList>
-			</Breadcrumb>
+			<h1 className="text-[28px] leading-tight font-semibold sm:text-[32px]">{category.name}</h1>
+			<Banner
+				className="mt-6"
+				priority
+				image={category.image ?? EDITORIAL.banner}
+				title={`Check out our hand picked selection of ${category.name.toLowerCase()}`}
+				text={
+					description
+						? `${sentence(description)} Find exactly the model, shape or colour that suits you and your style best.`
+						: "Find exactly the model, shape or colour that suits you and your style best."
+				}
+			/>
 
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">{category.name}</h1>
-			</div>
-
-			<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-				{filtersAvailable && <ProductFilters facets={facets} showCategories={false} />}
-
-				<div>
-					{filtersAvailable && (
-						<div className="mb-8 flex justify-end lg:hidden">
-							<ProductFiltersMobile facets={facets} showCategories={false} />
-						</div>
-					)}
-
-					<Suspense fallback={<ProductGridSkeleton />}>
-						<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
-					</Suspense>
-				</div>
+			<div className="mt-16 min-h-svh lg:mt-24">
+				{filtersAvailable ? <ListingToolbar facets={facets} showCategories={false} sortable={false} /> : null}
+				<Suspense fallback={<ProductGridSkeleton className="mt-16" />}>
+					<CategoryProducts slug={slug} canonicalPath={canonicalPath} filters={filters} />
+				</Suspense>
 			</div>
 		</div>
 	);

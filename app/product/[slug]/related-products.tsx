@@ -1,6 +1,5 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
-import { ProductGrid } from "@/components/sections/product-grid";
+import { RailSection } from "@/components/sections/frntr";
 import { commerce } from "@/lib/commerce";
 
 // Cached per category, not per product: every product page in a category shares one
@@ -8,23 +7,18 @@ import { commerce } from "@/lib/commerce";
 async function getCategoryProducts(categorySlug?: string) {
 	"use cache";
 	cacheLife("minutes");
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: 7,
-		...(categorySlug ? { category: categorySlug } : {}),
-	});
-	return data;
+	const [inCategory, latest] = await Promise.all([
+		categorySlug
+			? commerce.productBrowse({ active: true, limit: 10, category: categorySlug })
+			: Promise.resolve({ data: [] }),
+		commerce.productBrowse({ active: true, limit: 10 }),
+	]);
+	return [...inCategory.data, ...latest.data];
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({
+// No Suspense of its own: it renders inside the page's boundary, so it cannot stream in after
+// the footer has painted and push it down.
+export async function RelatedProducts({
 	productId,
 	categorySlug,
 }: {
@@ -32,16 +26,18 @@ async function RelatedProductsContent({
 	categorySlug?: string;
 }) {
 	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+	const related = products
+		.filter((p, index, list) => p.id !== productId && list.findIndex((q) => q.id === p.id) === index)
+		.slice(0, 9);
 
 	if (related.length === 0) return null;
 
 	return (
-		<ProductGrid
+		<RailSection
+			framed={false}
 			title="You might also like"
-			description="More products to explore"
+			text="More pieces that look good together."
 			products={related}
-			showViewAll={false}
 		/>
 	);
 }
