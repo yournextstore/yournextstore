@@ -4,9 +4,11 @@ import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { PageHead } from "@/components/rack/page-head";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
+import { isVideoUrl } from "@/lib/utils";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -37,7 +39,7 @@ export async function generateMetadata({
 	const { page } = await searchParams;
 	const pageNum = Math.max(1, Number(page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+	const title = pageNum > 1 ? `The Line — Page ${pageNum}` : "The Line";
 	const { storeName, storeDescription } = await getStoreSeo();
 	const description = storeDescription
 		? `Browse the complete ${storeName} collection. ${storeDescription}`
@@ -54,6 +56,16 @@ export async function generateMetadata({
 			url: canonical,
 		},
 	};
+}
+
+// On the default order, photographed pieces lead the page so it never opens on an empty frame.
+function picturedFirst<
+	T extends { images?: readonly string[] | null; variants?: readonly { price: string }[] | null },
+>(products: T[]): T[] {
+	const pictured = (p: T) =>
+		(p.images?.some((image) => !isVideoUrl(image)) ? 0 : 2) +
+		(p.variants?.some((v) => Number(v.price) > 0) ? 0 : 1);
+	return [...products].sort((a, b) => pictured(a) - pictured(b));
 }
 
 async function ProductList({ filters }: { filters: ProductFilterParams }) {
@@ -82,17 +94,18 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="panel-card px-6 py-24 text-center">
+				<p className="kicker mb-3">No signal</p>
+				<p className="text-lg text-dim">Nothing in the line matches these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 gap-[1.1rem] xs:grid-cols-2 xl:grid-cols-3">
+				{(filters.sort ? result.data : picturedFirst(result.data)).map((product, index) => (
+					<ProductCard key={product.id} product={product} priority={index === 0} index={offset + index} />
 				))}
 			</div>
 
@@ -126,35 +139,57 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div className="min-h-svh pb-[clamp(4rem,9vw,6.5rem)]">
+			<PageHead
+				kicker="The line"
+				title="The whole rack."
+				lead="Every module, case and cable, each with its own spec line. Filter by collection or price, sort by what matters tonight."
+				watermark="OUT"
+			/>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
 			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
+			<div className="section-x pt-[clamp(2rem,4vw,2.8rem)]">
+				<div className="frame">
+					<Suspense fallback={<ListingFallback filters={filtersAvailable} />}>
+						<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10" : ""}>
+							{filtersAvailable && <ProductFilters facets={facets} />}
 
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
+							<div>
+								{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
+								<div className="mb-8 flex h-8 items-center justify-between gap-3 lg:hidden">
+									{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+									<SortSelect options={sortOptions} />
+								</div>
+
+								{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
+								<div className="mb-8 hidden min-h-9 flex-wrap items-center gap-2 lg:flex">
+									<span className="plate-label mr-1">Sort</span>
+									<SortLinks options={sortOptions} />
+								</div>
+
+								<ProductSection searchParams={searchParams} />
+							</div>
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
-					</div>
+					</Suspense>
 				</div>
-			</Suspense>
+			</div>
+		</div>
+	);
+}
+
+function ListingFallback({ filters }: { filters: boolean }) {
+	return (
+		<div className={filters ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			{filters && <div className="hidden h-96 lg:block" />}
+			<div>
+				<div className="mb-8 flex h-8 items-center justify-between gap-3 lg:hidden">
+					<div className="h-8 w-24 rounded-full border border-line" />
+					<div className="h-8 w-36 rounded-full border border-line" />
+				</div>
+				<div className="mb-8 hidden min-h-9 lg:block" />
+				<ProductGridSkeleton count={6} className="sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3" />
+			</div>
 		</div>
 	);
 }

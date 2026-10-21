@@ -8,12 +8,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--font-sans: var(--font-inter);
+	--font-mono: var(--font-jetbrains);
+	--font-display: var(--font-space-grotesk);
+	--radius-sm: 6px;
+	--radius-md: 8px;
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: 16px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -32,60 +33,709 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* The rack palette under its own names */
+	--color-page: var(--rk-bg);
+	--color-page-2: var(--rk-bg-2);
+	--color-panel: var(--rk-panel);
+	--color-ink: var(--rk-ink);
+	--color-dim: var(--rk-dim);
+	--color-faint: var(--rk-faint);
+	--color-signal: var(--rk-accent);
+	--color-led: var(--rk-led-amber);
+	--color-led-green: var(--rk-led-green);
+	--color-led-ink: var(--rk-accent-ink);
+	--color-ok: var(--rk-ok);
+	--color-line: var(--rk-line);
+	--color-line-2: var(--rk-line-2);
+	--color-face: var(--rk-face);
+	--color-face-2: var(--rk-face-2);
+	--color-knob: var(--rk-knob);
+	--color-plate: var(--rk-plate-text);
 }
 
+/* The original's breakpoints (580 / 820 / 900 / 940) sit close to sm / md / lg; one extra for the header. */
+@theme {
+	--breakpoint-xs: 36.25rem;
+}
+
+/* Light: panel silver on the bench. */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 10px;
+	--header-h: 72px;
+	--rk-ease: cubic-bezier(0.16, 0.84, 0.28, 1);
+	/* "jack-click": a plug seating home with a little overshoot */
+	--rk-ease-snap: cubic-bezier(0.34, 1.56, 0.42, 1);
+	/* LED paint: physical, identical in both themes */
+	--rk-led-amber: #ffb020;
+	--rk-led-green: #4fd06a;
+	--rk-accent-ink: #1c1206;
+	--rk-bg: #e6e4df;
+	--rk-bg-2: #eceae5;
+	--rk-panel: #f2f0eb;
+	--rk-ink: #17181c;
+	--rk-dim: #4b5157;
+	--rk-faint: #595f66;
+	--rk-line: rgba(23, 24, 28, 0.16);
+	--rk-line-2: rgba(23, 24, 28, 0.07);
+	--rk-accent: #7d5200;
+	--rk-ok: #1f7a38;
+	--rk-shadow: 0 26px 60px -34px rgba(40, 40, 46, 0.4);
+	--rk-face: #f4f2ec;
+	--rk-face-2: #eae7e0;
+	--rk-rail: #d8d5ce;
+	--rk-plate-text: #3a3f45;
+	--rk-screw: #8b8680;
+	--rk-nut: #c2beb5;
+	--rk-nut-ring: #6d747d;
+	--rk-knob: #2a2d33;
+	--rk-mark: #f2f0eb;
+	--rk-cable-a: #c47b00;
+	--rk-cable-b: #2b8f47;
+	--rk-cable-c: #5c6670;
+	--rk-glow: rgba(196, 123, 0, 0.18);
+	--rk-header: rgba(230, 228, 223, 0.74);
+	--background: #e6e4df;
+	--foreground: #17181c;
+	--card: #f2f0eb;
+	--card-foreground: #17181c;
+	--popover: #f2f0eb;
+	--popover-foreground: #17181c;
+	--primary: #ffb020;
+	--primary-foreground: #1c1206;
+	--secondary: #eceae5;
+	--secondary-foreground: #17181c;
+	--muted: #eceae5;
+	--muted-foreground: #4b5157;
+	--accent: #eceae5;
+	--accent-foreground: #17181c;
+	--destructive: #b42318;
+	--border: rgba(23, 24, 28, 0.16);
+	--input: rgba(23, 24, 28, 0.2);
+	--ring: #7d5200;
 }
 
+/* Dark (default): the rack at night. */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--rk-bg: #131417;
+	--rk-bg-2: #17181d;
+	--rk-panel: #1b1d23;
+	--rk-ink: #dfe2e6;
+	--rk-dim: #9aa1ab;
+	--rk-faint: #858d98;
+	--rk-line: rgba(223, 226, 230, 0.12);
+	--rk-line-2: rgba(223, 226, 230, 0.055);
+	--rk-accent: #ffb020;
+	--rk-ok: #4fd06a;
+	--rk-shadow: 0 26px 60px -30px rgba(0, 0, 0, 0.8);
+	--rk-face: #1d2026;
+	--rk-face-2: #181b20;
+	--rk-rail: #24272e;
+	--rk-plate-text: #c9cdd3;
+	--rk-screw: #565d66;
+	--rk-nut: #343a42;
+	--rk-nut-ring: #7a838d;
+	--rk-knob: #101216;
+	--rk-mark: #dfe2e6;
+	--rk-cable-a: #ffb020;
+	--rk-cable-b: #4fd06a;
+	--rk-cable-c: #8f98a3;
+	--rk-glow: rgba(255, 176, 32, 0.22);
+	--rk-header: rgba(19, 20, 23, 0.74);
+	--background: #131417;
+	--foreground: #dfe2e6;
+	--card: #1b1d23;
+	--card-foreground: #dfe2e6;
+	--popover: #1b1d23;
+	--popover-foreground: #dfe2e6;
+	--primary: #ffb020;
+	--primary-foreground: #1c1206;
+	--secondary: #17181d;
+	--secondary-foreground: #dfe2e6;
+	--muted: #17181d;
+	--muted-foreground: #9aa1ab;
+	--accent: #17181d;
+	--accent-foreground: #dfe2e6;
+	--destructive: #ff7a6b;
+	--border: rgba(223, 226, 230, 0.12);
+	--input: rgba(223, 226, 230, 0.18);
+	--ring: #ffb020;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		color-scheme: light;
+		scroll-behavior: smooth;
+		-webkit-text-size-adjust: 100%;
+	}
+	html.dark {
+		color-scheme: dark;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts its variables on <body>, so the stacks are declared here, not on :root. */
+		font-family: var(--font-inter), system-ui, sans-serif;
+		font-size: clamp(15px, 1vw + 13px, 17px);
+		line-height: 1.6;
+		overflow-x: clip;
+	}
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-space-grotesk), system-ui, sans-serif;
+		font-weight: 700;
+		line-height: 1.04;
+		letter-spacing: -0.02em;
+	}
+	::selection {
+		background: var(--rk-led-amber);
+		color: var(--rk-accent-ink);
+	}
+	:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+		outline: 2px solid var(--rk-accent);
+		outline-offset: 3px;
+		border-radius: 4px;
 	}
 }
+
+/* ---------- layered fixed background: amber wash, rack-column stripes, solder-dot grid ---------- */
+.film {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(110% 70% at 85% -12%, color-mix(in oklab, var(--rk-led-amber) 9%, transparent), transparent 62%),
+		radial-gradient(90% 90% at 8% 112%, var(--rk-bg-2), transparent 70%);
+}
+.film::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(90deg, var(--rk-line-2) 0 1px, transparent 1px 122px);
+	opacity: 0.5;
+}
+.film::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(circle at 1px 1px, var(--rk-line-2) 1px, transparent 0);
+	background-size: 5px 5px;
+	opacity: 0.55;
+}
+
+/* ---------- shared rack pieces ---------- */
+@utility font-display {
+	font-family: var(--font-space-grotesk), system-ui, sans-serif;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.04;
+}
+@utility font-plate {
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-variant-ligatures: none;
+}
+/* "[ The modules ]": the original's bracketed faceplate kicker */
+@utility kicker {
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-variant-ligatures: none;
+	font-size: 0.74rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var(--rk-accent);
+	&::before {
+		content: "[ ";
+	}
+	&::after {
+		content: " ]";
+	}
+}
+@utility plate-label {
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-variant-ligatures: none;
+	font-size: 0.68rem;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--rk-faint);
+}
+@utility section-x {
+	padding-inline: 1.2rem;
+}
+@utility section-y {
+	padding-block: clamp(4rem, 9vw, 6.5rem);
+}
+@utility frame {
+	max-width: 1200px;
+	margin-inline: auto;
+	width: 100%;
+}
+@utility title-section {
+	font-size: clamp(1.9rem, 4vw, 3rem);
+}
+@utility title-hero {
+	font-size: clamp(2.6rem, 7.4vw, 5.2rem);
+}
+@utility lead {
+	color: var(--rk-dim);
+	font-size: clamp(1rem, 1.4vw, 1.13rem);
+}
+/* a full-width tinted band between hairlines (modules, specs) */
+@utility band {
+	background: var(--rk-bg-2);
+	border-block: 1px solid var(--rk-line);
+}
+@utility panel-card {
+	border: 1px solid var(--rk-line);
+	border-radius: 16px;
+	background: var(--rk-panel);
+}
+@utility lift {
+	transition:
+		transform 0.3s var(--rk-ease),
+		border-color 0.3s;
+	&:hover {
+		transform: translateY(-4px);
+		border-color: color-mix(in oklab, var(--rk-led-amber) 40%, var(--rk-line));
+	}
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		&:hover {
+			transform: none;
+		}
+	}
+}
+/* giant faded watermark ("±12V") behind a section */
+@utility watermark {
+	position: absolute;
+	top: 4%;
+	right: -2%;
+	z-index: 0;
+	pointer-events: none;
+	user-select: none;
+	font-family: var(--font-space-grotesk), system-ui, sans-serif;
+	font-weight: 700;
+	font-size: clamp(5rem, 17vw, 14rem);
+	line-height: 1;
+	color: var(--rk-ink);
+	opacity: 0.035;
+	letter-spacing: 0.02em;
+}
+
+/* buttons: knobs through variables so a modifier never fights the utility */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	cursor: pointer;
+	text-decoration: none;
+	font-family: var(--font-inter), system-ui, sans-serif;
+	font-weight: 600;
+	font-size: 0.92rem;
+	line-height: 1.3;
+	padding: var(--btn-py, 0.72rem) var(--btn-px, 1.15rem);
+	border: 1px solid transparent;
+	border-radius: 10px;
+	transition:
+		transform 0.25s var(--rk-ease-snap),
+		background 0.25s,
+		border-color 0.25s,
+		color 0.25s,
+		box-shadow 0.25s;
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.55;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: none;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
+@utility btn-primary {
+	background: var(--rk-led-amber);
+	color: var(--rk-accent-ink);
+	&:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 26px -14px var(--rk-led-amber);
+	}
+}
+@utility btn-ghost {
+	color: var(--rk-ink);
+	border-color: var(--rk-line);
+	background: transparent;
+	&:hover {
+		border-color: var(--rk-accent);
+		color: var(--rk-accent);
+	}
+}
+/* small mono toolbar chips (patch panel, sort, filters) */
+@utility chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	cursor: pointer;
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-variant-ligatures: none;
+	font-size: 0.72rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	padding: 0.48rem 0.8rem;
+	border-radius: 999px;
+	border: 1px solid var(--rk-line);
+	background: transparent;
+	color: var(--rk-dim);
+	transition:
+		color 0.25s,
+		border-color 0.25s,
+		transform 0.25s var(--rk-ease-snap);
+	&:hover {
+		color: var(--rk-ink);
+		border-color: var(--rk-accent);
+	}
+	&:active {
+		transform: scale(0.95);
+	}
+	&[aria-pressed="true"],
+	&[aria-current="true"],
+	&[data-active="true"] {
+		background: var(--rk-led-amber);
+		color: var(--rk-accent-ink);
+		border-color: transparent;
+	}
+}
+/* stock tags on module cards */
+@utility tag {
+	display: inline-block;
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-variant-ligatures: none;
+	font-size: 0.68rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	padding: 0.2rem 0.55rem;
+	border-radius: 999px;
+	border: 1px solid var(--rk-line);
+	color: var(--rk-dim);
+}
+@utility tag-ok {
+	color: var(--rk-ok);
+	border-color: color-mix(in oklab, var(--rk-ok) 40%, var(--rk-line));
+}
+@utility tag-soon {
+	color: var(--rk-accent);
+	border-color: color-mix(in oklab, var(--rk-accent) 40%, var(--rk-line));
+}
+
+/* ---------- header: a floating, blurred rack rail ---------- */
+.site-header {
+	background: var(--rk-header);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+}
+
+/* ---------- hero headline: lines rise into place ---------- */
+.rise-line {
+	display: block;
+	overflow: hidden;
+	padding-bottom: 0.06em;
+}
+.rise-line > span {
+	display: block;
+	animation: rk-rise 0.9s var(--rk-ease) both;
+}
+.rise-line:nth-child(2) > span {
+	animation-delay: 0.09s;
+}
+.rise-line:nth-child(3) > span {
+	animation-delay: 0.18s;
+}
+@keyframes rk-rise {
+	from {
+		transform: translateY(110%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+/* ---------- LEDs ---------- */
+.led {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--rk-line);
+	border: 1px solid var(--rk-line);
+}
+.led--amber {
+	background: var(--rk-led-amber);
+	border-color: transparent;
+	box-shadow: 0 0 8px var(--rk-glow);
+}
+.led--green {
+	background: var(--rk-led-green);
+	border-color: transparent;
+}
+.led--blink {
+	animation: rk-ledblink 2.8s steps(1) infinite;
+}
+@keyframes rk-ledblink {
+	0%,
+	62% {
+		opacity: 1;
+	}
+	63%,
+	70% {
+		opacity: 0.25;
+	}
+	71%,
+	100% {
+		opacity: 1;
+	}
+}
+
+/* a knob drawn in CSS (scope row, faceplates) */
+.knob-ui {
+	position: relative;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: var(--rk-knob);
+	border: 1px solid var(--rk-line);
+}
+.knob-ui::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 3px;
+	width: 2px;
+	height: 9px;
+	background: var(--rk-mark);
+	transform: translateX(-50%) rotate(var(--turn, 0deg));
+	transform-origin: 50% 12px;
+	border-radius: 2px;
+}
+.jack-ui {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	border-radius: 50%;
+	background: radial-gradient(circle, #0c0d10 0 2.6px, var(--rk-nut) 3px);
+	border: 1.2px solid var(--rk-nut-ring);
+}
+.screw-ui {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	border: 1.2px solid var(--rk-screw);
+	background: linear-gradient(var(--rk-tilt, 35deg), transparent 44%, var(--rk-screw) 44% 58%, transparent 58%);
+}
+
+/* the scope screen stays a CRT in both themes */
+.scope-screen {
+	position: relative;
+	aspect-ratio: 16 / 9;
+	border-radius: 8px;
+	overflow: hidden;
+	background: #0d0e11;
+	border: 1px solid rgba(223, 226, 230, 0.14);
+	box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- the patch panel (SVG built by components/rack/patch-panel.tsx) ---------- */
+.pb-bgplate {
+	fill: var(--rk-face-2);
+}
+.pb-rail {
+	fill: var(--rk-rail);
+}
+.pb-screw {
+	fill: none;
+	stroke: var(--rk-screw);
+	stroke-width: 1.2;
+}
+.pb-screw-slot {
+	stroke: var(--rk-screw);
+	stroke-width: 1;
+}
+.pb-face {
+	fill: var(--rk-face);
+	stroke: var(--rk-line);
+}
+.pb-label {
+	fill: var(--rk-plate-text);
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-size: 9px;
+	letter-spacing: 0.12em;
+	text-anchor: middle;
+	pointer-events: none;
+	user-select: none;
+}
+.pb-label--name {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.18em;
+}
+.pb-hp {
+	font-size: 7.5px;
+	opacity: 0.65;
+	letter-spacing: 0.2em;
+}
+.pb-knob {
+	fill: var(--rk-knob);
+	stroke: var(--rk-nut-ring);
+	stroke-width: 1;
+}
+.pb-mark {
+	stroke: var(--rk-mark);
+	stroke-width: 2.4;
+	stroke-linecap: round;
+}
+.pb-led {
+	fill: var(--rk-line);
+	transition: fill 0.3s;
+}
+.pb-led.lit {
+	fill: var(--rk-led-amber);
+}
+.pb-led.lit--green {
+	fill: var(--rk-led-green);
+}
+.singing .pb-led.lit,
+.singing .pb-led.lit--green {
+	animation: rk-ledsing 1.1s ease-in-out infinite;
+}
+@keyframes rk-ledsing {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.35;
+	}
+}
+.pb-blink {
+	animation: rk-ledblink 1.8s steps(1) infinite;
+}
+/* the lamp on the output module: dark glass until the chain is complete */
+.pb-bulb {
+	fill: var(--rk-face-2);
+	stroke: var(--rk-nut-ring);
+	stroke-width: 1.2;
+	transition:
+		fill 0.5s,
+		filter 0.5s;
+}
+.pb-bulb-glow {
+	fill: var(--rk-led-amber);
+	opacity: 0;
+	transition: opacity 0.6s;
+}
+.singing .pb-bulb {
+	fill: #ffd27a;
+}
+.singing .pb-bulb-glow {
+	opacity: 0.35;
+}
+.pb-nut {
+	fill: var(--rk-nut);
+	stroke: var(--rk-nut-ring);
+	stroke-width: 1.4;
+}
+.pb-hole {
+	fill: #0c0d10;
+}
+.pb-out-ring {
+	fill: none;
+	stroke: var(--rk-nut-ring);
+	stroke-width: 1;
+	opacity: 0.8;
+}
+.pb-hit {
+	fill: transparent;
+	cursor: grab;
+}
+.pb-jack,
+.pb-cable-hit {
+	touch-action: none;
+}
+.pb-halo {
+	fill: none;
+	stroke: var(--rk-accent);
+	stroke-width: 2;
+	opacity: 0;
+	transition: opacity 0.2s;
+	pointer-events: none;
+}
+g[data-jack]:focus-visible {
+	outline: none;
+}
+g[data-jack]:focus-visible .pb-halo {
+	opacity: 1;
+	stroke-dasharray: 4 3;
+}
+g[data-jack]:hover .pb-halo {
+	opacity: 0.55;
+}
+svg.pb--from-out g[data-jack][data-dir="in"] .pb-halo,
+svg.pb--from-in g[data-jack][data-dir="out"] .pb-halo {
+	opacity: 0.45;
+}
+g[data-jack].pb-pending .pb-halo {
+	opacity: 1;
+}
+.pb-cable-shadow {
+	fill: none;
+	stroke: rgba(0, 0, 0, 0.38);
+	stroke-width: 7;
+	stroke-linecap: round;
+}
+.pb-cable {
+	fill: none;
+	stroke-width: 4.5;
+	stroke-linecap: round;
+}
+.pb-cable--a {
+	stroke: var(--rk-cable-a);
+}
+.pb-cable--b {
+	stroke: var(--rk-cable-b);
+}
+.pb-cable--c {
+	stroke: var(--rk-cable-c);
+}
+.pb-cable-hit {
+	fill: none;
+	stroke: transparent;
+	stroke-width: 16;
+	cursor: pointer;
+	pointer-events: stroke;
+}
+.pb-plug {
+	fill: #0c0d10;
+	stroke: var(--rk-nut-ring);
+	stroke-width: 1.2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rise-line > span,
+	.led--blink,
+	.pb-blink,
+	.singing .pb-led.lit,
+	.singing .pb-led.lit--green {
+		animation: none !important;
+	}
+}
+
 
 .prose {
 	--tw-prose-body: var(--muted-foreground);
@@ -99,16 +749,15 @@
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
+		var(--rk-face-2) 0%,
+		var(--rk-face) 40%,
+		var(--rk-panel) 50%,
+		var(--rk-face) 60%,
+		var(--rk-face-2) 100%
 	);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }
-
 @keyframes yns-image-shimmer {
 	0% {
 		background-position: 200% 0;
