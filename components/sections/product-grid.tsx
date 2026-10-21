@@ -1,77 +1,66 @@
-import type {
-	APICollectionGetByIdResult,
-	APIProductGetByIdResult,
-	APIProductsBrowseResult,
-} from "commerce-kit";
-import { ArrowRight } from "lucide-react";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
-import { commerce } from "@/lib/commerce";
+import { type CardProduct, DISPLAY_GRID, DisplayCard } from "@/components/product-card";
+import { cn } from "@/lib/utils";
 
-export type Product = APIProductsBrowseResult["data"][number];
-
-type ProductGridProps = {
-	title?: string;
-	description?: string;
-	products?: (
-		| Product
-		| APICollectionGetByIdResult["productCollections"][number]["product"]
-		| NonNullable<APIProductGetByIdResult>
-	)[];
-	limit?: number;
-	showViewAll?: boolean;
-	viewAllHref?: string;
-};
-
-export async function ProductGrid({
-	title = "Featured Products",
-	description = "Handpicked favorites from our collection",
+/** The original's "display" block: big heading, underlined "See All", three-up showcase grid. */
+export function ProductGrid({
+	title,
 	products,
-	limit = 6,
-	showViewAll = true,
-	viewAllHref = "/products",
-}: ProductGridProps) {
-	"use cache";
-	cacheLife("minutes");
-
-	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
+	viewAllHref,
+	viewAllLabel = "See All",
+	className,
+	priorityFirst = false,
+}: {
+	title: string;
+	products: CardProduct[];
+	viewAllHref?: string;
+	viewAllLabel?: string;
+	className?: string;
+	priorityFirst?: boolean;
+}) {
+	if (products.length === 0) return null;
 
 	return (
-		<section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<h2 className="text-2xl sm:text-3xl font-medium text-foreground">{title}</h2>
-					<p className="mt-2 text-muted-foreground">{description}</p>
-				</div>
-				{showViewAll && (
+		<section className={cn("mt-14 md:mx-0 md:mt-24 lg:mx-[50px]", className)}>
+			<div className="mb-5 flex items-center justify-between gap-4">
+				<h2 className="text-[1.625rem] font-medium leading-tight sm:text-sal-xl">{title}</h2>
+				{viewAllHref && (
 					<Link
 						href={viewAllHref}
-						className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						className="shrink-0 text-[1.125rem] font-bold underline underline-offset-2"
 					>
-						View all
-						<ArrowRight className="h-4 w-4" />
+						{viewAllLabel}
+						<span className="sr-only"> {title}</span>
 					</Link>
 				)}
 			</div>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className={DISPLAY_GRID}>
+				{products.map((product, index) => (
+					<DisplayCard key={product.id} product={product} priority={priorityFirst && index === 0} />
 				))}
 			</div>
+		</section>
+	);
+}
 
-			{showViewAll && (
-				<div className="mt-12 text-center sm:hidden">
-					<Link
-						href={viewAllHref}
-						className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-					>
-						View all products
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</div>
-			)}
+export function ProductGridSkeletonSection({ count = 6 }: { count?: number }) {
+	return (
+		<section className="mt-14 md:mt-24 lg:mx-[50px]">
+			<div className="mb-5 flex items-center justify-between">
+				<div className="h-9 w-64 animate-pulse bg-secondary" />
+				<div className="h-6 w-16 animate-pulse bg-secondary" />
+			</div>
+			<div className={DISPLAY_GRID}>
+				{Array.from({ length: count }, (_, i) => (
+					<div key={`s-${i}`} className="border border-border">
+						<div className="h-[200px] animate-pulse bg-tile" />
+						<div className="p-5">
+							<div className="h-[30px] w-1/2 animate-pulse bg-secondary" />
+							<div className="mt-1 h-[21px] w-1/3 animate-pulse bg-secondary" />
+						</div>
+					</div>
+				))}
+			</div>
 		</section>
 	);
 }

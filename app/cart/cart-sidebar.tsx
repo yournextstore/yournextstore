@@ -1,27 +1,32 @@
 "use client";
 
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { setCartQuantity } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { cartDiscountOf } from "@/app/cart/discount-code";
 import { DiscountCodeField } from "@/app/cart/discount-code-field";
 import { useStoreConfig } from "@/components/store-config-provider";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 export function CartSidebar() {
 	const { currency, locale, language, taxBehavior } = useStoreConfig();
-	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
+	const {
+		cart,
+		isOpen,
+		closeCart,
+		items,
+		itemCount,
+		subtotal,
+		isMutating,
+		dispatch,
+		startMutation,
+		syncCart,
+		reconcile,
+	} = useCart();
 	const discount = cartDiscountOf(cart, taxBehavior);
 
 	// `?lang=` tells the platform which language version the shopper is leaving from, so the hosted
@@ -29,111 +34,111 @@ export function CartSidebar() {
 	// language was recorded.
 	const checkoutUrl = language ? `/checkout?lang=${encodeURIComponent(language)}` : "/checkout";
 
+	const clearBasket = () => {
+		const ids = items.map((item) => item.productVariant.id);
+		for (const variantId of ids) {
+			dispatch({ type: "REMOVE", variantId });
+		}
+		startMutation(async () => {
+			const results = [];
+			for (const variantId of ids) {
+				results.push(await setCartQuantity(variantId, 0));
+			}
+			const last = results.at(-1);
+			if (results.every((r) => r.success) && last?.cart) {
+				syncCart(last.cart);
+			} else {
+				await reconcile();
+			}
+		});
+	};
+
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col w-full sm:max-w-lg">
-				<SheetHeader className="border-b border-border pb-4">
-					<SheetTitle className="flex items-center gap-2">
-						Your Cart
-						{itemCount > 0 && (
-							<span className="text-sm font-normal text-muted-foreground">({itemCount} items)</span>
-						)}
+			<SheetContent
+				hideClose
+				className="flex w-full flex-col gap-0 border-l-0 bg-white p-0 shadow-[0_10px_15px_rgba(0,0,0,0.08)] sm:max-w-[600px]"
+			>
+				<div className="flex items-center gap-2 px-4 pt-4 pb-3">
+					<SheetTitle className="grow text-[1.17rem] font-bold text-foreground">
+						My Basket{" "}
+						<span className="text-sal-sm font-bold text-paragraph">
+							({itemCount} {itemCount === 1 ? "item" : "items"})
+						</span>
 					</SheetTitle>
-					<SheetDescription className="sr-only">
-						Review items in your cart and proceed to checkout.
-					</SheetDescription>
-				</SheetHeader>
+					<SheetDescription className="sr-only">Review items in your basket and check out.</SheetDescription>
+					<SheetClose className="sal-btn sal-btn-border text-[0.6875rem]">Close</SheetClose>
+					<button
+						type="button"
+						onClick={clearBasket}
+						disabled={items.length === 0}
+						className="sal-btn sal-btn-border text-[0.6875rem]"
+					>
+						Clear Basket
+					</button>
+				</div>
 
 				{items.length === 0 ? (
-					<div className="flex-1 flex flex-col items-center justify-center gap-4 py-12">
-						<div className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-							<ShoppingBag className="h-10 w-10 text-muted-foreground" />
-						</div>
-						<div className="text-center">
-							<p className="text-lg font-medium">Your cart is empty</p>
-							<p className="text-sm text-muted-foreground mt-1">Add some products to get started</p>
-						</div>
-						<Button variant="outline" onClick={closeCart}>
-							Continue Shopping
-						</Button>
+					<div className="flex flex-1 items-center justify-center p-4">
+						<p className="text-sal-base text-muted-foreground">Your basket is empty</p>
 					</div>
 				) : (
-					<>
-						<ScrollArea className="flex-1 px-4">
-							<div className="divide-y divide-border">
-								{items.map((item) => (
-									<CartItem key={item.productVariant.id} item={item} />
-								))}
-							</div>
-						</ScrollArea>
-
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
-							<div className="w-full space-y-4">
-								<DiscountCodeField />
-								{discount ? (
-									<div className="space-y-1">
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span>Subtotal</span>
-											<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
-										</div>
-										<div className="flex items-center justify-between gap-3 text-sm font-medium text-green-700">
-											<span>Discount</span>
-											<span className="tabular-nums">
-												−{formatMoney({ amount: discount, currency, locale })}
-											</span>
-										</div>
-									</div>
-								) : null}
-								<div className="flex items-center justify-between text-base">
-									<span className="font-medium">{discount ? "Total" : "Subtotal"}</span>
-									<span className="font-semibold">
-										{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
-									</span>
-								</div>
-								{/* Tax is already inside the shown subtotal on an inclusive store — promising to
-								    "calculate taxes at checkout" there would read as an extra charge to come. */}
-								<p className="text-xs text-muted-foreground">
-									{taxBehavior === "inclusive"
-										? "Shipping calculated at checkout"
-										: "Shipping and taxes calculated at checkout"}
-								</p>
-								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
-								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
-								    While a cart write is in flight, block the link: a full navigation now would
-								    load /checkout before the item is committed server-side and show an empty cart. */}
-								<Button asChild className="w-full h-12 text-base font-medium">
-									<a
-										href={checkoutUrl}
-										aria-disabled={isMutating}
-										tabIndex={isMutating ? -1 : undefined}
-										onClick={(e) => {
-											if (isMutating) {
-												e.preventDefault();
-											}
-										}}
-										className={cn(isMutating && "pointer-events-none opacity-60")}
-									>
-										{isMutating ? (
-											<>
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Updating…
-											</>
-										) : (
-											"Checkout"
-										)}
-									</a>
-								</Button>
-								<button
-									type="button"
-									onClick={closeCart}
-									className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-								>
-									Continue Shopping
-								</button>
-							</div>
-						</SheetFooter>
-					</>
+					<ScrollArea className="min-h-0 flex-1">
+						<div className="flex flex-col gap-3 px-4 pt-1 pb-4">
+							{items.map((item) => (
+								<CartItem key={item.productVariant.id} item={item} />
+							))}
+						</div>
+					</ScrollArea>
 				)}
+
+				<div className="relative bg-white p-4 before:absolute before:inset-x-0 before:top-0 before:mx-auto before:h-px before:w-[93%] before:bg-border">
+					{items.length > 0 && (
+						<div className="mb-4">
+							<DiscountCodeField />
+						</div>
+					)}
+					<div className="flex items-center justify-between gap-4">
+						<div>
+							<p className="text-sal-sm font-bold text-paragraph">
+								{discount ? "Total after discount:" : "Subtotal Amount:"}
+							</p>
+							<p className="mt-3 text-[1.5rem] font-bold leading-none text-foreground">
+								{formatMoney({ amount: subtotal - (discount ?? 0n), currency, locale })}
+							</p>
+							<p className="mt-2 text-sal-xs font-bold text-muted-foreground">
+								{taxBehavior === "inclusive"
+									? "Shipping calculated at checkout"
+									: "Shipping and taxes calculated at checkout"}
+							</p>
+						</div>
+						{/* Plain <a>, never <Link>: /checkout is a proxied zone (see AGENTS.md). Blocked while a
+						    cart write is in flight, so checkout never opens on a cart that lacks the new item. */}
+						<a
+							href={checkoutUrl}
+							aria-disabled={isMutating || items.length === 0}
+							tabIndex={isMutating || items.length === 0 ? -1 : undefined}
+							onClick={(e) => {
+								if (isMutating || items.length === 0) {
+									e.preventDefault();
+								}
+							}}
+							className={cn(
+								"sal-btn sal-btn-lg shrink-0 px-8 uppercase",
+								(isMutating || items.length === 0) && "pointer-events-none opacity-50",
+							)}
+						>
+							{isMutating ? (
+								<>
+									<Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+									Updating
+								</>
+							) : (
+								"Check Out"
+							)}
+						</a>
+					</div>
+				</div>
 			</SheetContent>
 		</Sheet>
 	);

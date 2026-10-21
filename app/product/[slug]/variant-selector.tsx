@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,7 @@ type VariantValue = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position?: number | null;
 	variantType: {
 		id: string;
 		type: "string" | "color";
@@ -28,6 +30,7 @@ type VariantOption = {
 	id: string;
 	value: string;
 	colorValue: string | null;
+	position: number;
 };
 
 type VariantGroup = {
@@ -70,6 +73,7 @@ function processVariants(variants: Variant[]) {
 					id: variantValue.id,
 					value: variantValue.value,
 					colorValue: variantValue.colorValue,
+					position: variantValue.position ?? 0,
 				});
 			}
 
@@ -78,7 +82,10 @@ function processVariants(variants: Variant[]) {
 		{} as Record<string, VariantGroup>,
 	);
 
-	return Object.values(groupedByLabel);
+	return Object.values(groupedByLabel).map((group) => ({
+		...group,
+		options: [...group.options].sort((a, b) => a.position - b.position),
+	}));
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
@@ -126,92 +133,110 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 	}, [variants, searchParams.size, pathname]);
 
-	const groupsWithChoices = variantGroups.filter((group) => group.options.length > 1);
+	// Size-like selects first, then the colour dots, as in the original.
+	const groupsWithChoices = variantGroups
+		.filter((group) => group.options.length > 1)
+		.toSorted((a, b) => Number(a.type === "color") - Number(b.type === "color"));
 
 	if (groupsWithChoices.length === 0) {
 		return null;
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-6">
 			{groupsWithChoices.map((group) => {
 				const selectedOptionId = selectedOptions[group.label];
 				const selectedOption = selectedOptionId
 					? optionsById.get(group.label)?.get(selectedOptionId)
 					: undefined;
 
+				if (group.type === "color") {
+					return (
+						<fieldset key={group.label} className="m-0 border-0 p-0">
+							<legend className="mb-4 text-sal-sm font-bold text-muted-foreground">
+								Choose {group.label.toLowerCase()}
+								{selectedOption && <span className="text-foreground">: {selectedOption.value}</span>}
+							</legend>
+							<div className="flex flex-wrap gap-x-5 gap-y-3 pl-2.5">
+								{group.options.map((option) => {
+									const isSelected = selectedOptionId === option.id;
+									const light = isLightColor(option.colorValue);
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => handleOptionSelect(group.label, option.id)}
+											aria-label={option.value}
+											aria-pressed={isSelected}
+											title={option.value}
+											className={cn(
+												"relative h-[30px] w-[30px] shrink-0 rounded-full transition-transform duration-200 hover:border-2 hover:border-[#f1f1f1]",
+												isSelected && "scale-120 border-2 border-[#f1f1f1]",
+												light && !isSelected && "border border-border",
+											)}
+											style={{ backgroundColor: option.colorValue ?? "#fff" }}
+										>
+											{isSelected && (
+												<span
+													aria-hidden="true"
+													className={cn(
+														"absolute inset-0 flex items-center justify-center text-sal-sm",
+														light ? "text-foreground" : "text-white",
+													)}
+												>
+													✓
+												</span>
+											)}
+										</button>
+									);
+								})}
+							</div>
+						</fieldset>
+					);
+				}
+
+				const selectId = `variant-${group.label.replace(/\W+/g, "-").toLowerCase()}`;
 				return (
-					<fieldset key={group.label} className="border-0 p-0 m-0">
-						{group.type === "color" ? (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-									{selectedOption && (
-										<span className="text-sm text-muted-foreground">{selectedOption.value}</span>
-									)}
-								</div>
-								<div className="flex gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-										const isLightColor =
-											option.colorValue?.toUpperCase() === "#FFFFFF" ||
-											option.colorValue?.toUpperCase() === "#FFFFF0" ||
-											option.colorValue?.toUpperCase() === "#FFF";
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"relative h-12 w-12 rounded-full transition-all duration-200",
-													isSelected
-														? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
-														: "hover:ring-2 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background",
-												)}
-												style={{ backgroundColor: option.colorValue ?? "#fff" }}
-												aria-label={option.value}
-												title={option.value}
-											>
-												{isLightColor && (
-													<span className="absolute inset-0 rounded-full border border-border" />
-												)}
-											</button>
-										);
-									})}
-								</div>
-							</>
-						) : (
-							<>
-								<div className="mb-3 flex items-center justify-between">
-									<legend className="text-sm font-medium">{group.label}</legend>
-								</div>
-								<div className="flex flex-wrap gap-3">
-									{group.options.map((option) => {
-										const isSelected = selectedOptions[group.label] === option.id;
-
-										return (
-											<button
-												key={option.id}
-												type="button"
-												onClick={() => handleOptionSelect(group.label, option.id)}
-												className={cn(
-													"flex flex-col items-center rounded-lg border-2 px-6 py-3 transition-all duration-200",
-													isSelected
-														? "border-foreground bg-foreground text-background"
-														: "border-border bg-background hover:border-muted-foreground",
-												)}
-											>
-												<span className="text-sm font-medium">{option.value}</span>
-											</button>
-										);
-									})}
-								</div>
-							</>
-						)}
-					</fieldset>
+					<div key={group.label}>
+						<label htmlFor={selectId} className="mb-4 block text-sal-sm font-bold text-muted-foreground">
+							{group.label}
+						</label>
+						<div className="relative">
+							<select
+								id={selectId}
+								value={selectedOptionId ?? ""}
+								onChange={(e) => handleOptionSelect(group.label, e.target.value)}
+								className="h-[38px] w-full appearance-none rounded-[4px] border border-[#ccc] bg-white pr-12 pl-2.5 text-base font-normal text-foreground focus:border-[#2684ff] focus:outline-none focus:ring-1 focus:ring-[#2684ff]"
+							>
+								{!selectedOptionId && <option value="">--Select {group.label}--</option>}
+								{group.options.map((option) => (
+									<option key={option.id} value={option.id}>
+										{option.value}
+									</option>
+								))}
+							</select>
+							<span
+								aria-hidden="true"
+								className="pointer-events-none absolute inset-y-2 right-0 flex items-center border-l border-[#ccc] px-2 text-[#999]"
+							>
+								<ChevronDown className="h-5 w-5" strokeWidth={1.75} />
+							</span>
+						</div>
+					</div>
 				);
 			})}
 		</div>
 	);
+}
+
+function isLightColor(hex: string | null) {
+	if (!hex) return true;
+	const value = hex.replace("#", "");
+	const full = value.length === 3 ? [...value].map((c) => c + c).join("") : value;
+	const n = Number.parseInt(full.slice(0, 6), 16);
+	if (Number.isNaN(n)) return true;
+	const r = (n >> 16) & 255;
+	const g = (n >> 8) & 255;
+	const b = n & 255;
+	return 0.299 * r + 0.587 * g + 0.114 * b > 186;
 }

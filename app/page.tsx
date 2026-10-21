@@ -1,38 +1,32 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { getShelves, picturedFirst } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+const SHELF_SIZE = 6;
+
+// Cached reads only, so the home page prerenders whole: banner, then the two showcase shelves.
+export default async function Home() {
+	const { featured, recommended } = await getShelves();
+	// The recommended shelf keeps its own picks; the featured shelf shows what that one does not,
+	// topped up from the rest only when the catalogue is too small for two distinct rows.
+	const recommendedProducts = picturedFirst([...recommended.products]).slice(0, SHELF_SIZE);
+	const taken = new Set(recommendedProducts.map((p) => p.id));
+	const featuredAll = picturedFirst([...featured.products]);
+	const featuredProducts = [
+		...featuredAll.filter((p) => !taken.has(p.id)),
+		...featuredAll.filter((p) => taken.has(p.id)),
+	].slice(0, SHELF_SIZE);
+
 	return (
-		<>
+		<div className="px-4 pt-4 pb-12 md:px-8 lg:px-[100px] lg:pt-5 lg:pb-[100px]">
 			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
-		</>
+			<ProductGrid title={featured.title} products={featuredProducts} viewAllHref={featured.href} />
+			<ProductGrid title={recommended.title} products={recommendedProducts} viewAllHref={recommended.href} />
+		</div>
 	);
 }

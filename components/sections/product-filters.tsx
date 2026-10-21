@@ -1,21 +1,20 @@
 "use client";
 
 import type { APIProductFiltersResult } from "commerce-kit";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { FilterIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from "@/components/ui/sheet";
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -148,7 +147,7 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-sm font-medium text-foreground">Filters</h2>
+				<h2 className="text-sal-sm font-bold text-foreground">Filters</h2>
 				{hasActiveFilters && (
 					<button
 						type="button"
@@ -319,42 +318,30 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 	);
 }
 
-/** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
-export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
-	return (
-		<aside className={cn("hidden lg:block", className)}>
-			<FilterControls {...props} />
-		</aside>
-	);
-}
-
-/** Mobile filters trigger + slide-over sheet (hidden on large screens). */
-export function ProductFiltersMobile(props: FilterControlsProps) {
+/** The original's "Filters" button: a muted square button that opens a centred white modal. */
+export function ProductFiltersDialog(props: FilterControlsProps) {
 	const searchParams = useSearchParams();
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (
-		<Sheet>
-			<SheetTrigger asChild>
-				<Button variant="outline" size="sm" className="lg:hidden">
-					<SlidersHorizontalIcon className="size-4" />
+		<Dialog>
+			<DialogTrigger asChild>
+				<button type="button" className="sal-btn sal-btn-muted h-9 py-0">
 					Filters
 					{activeCount > 0 && (
-						<span className="ml-1 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+						<span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">
 							{activeCount}
 						</span>
 					)}
-				</Button>
-			</SheetTrigger>
-			<SheetContent side="left" className="w-[85vw] max-w-sm overflow-y-auto">
-				<SheetHeader>
-					<SheetTitle>Filters</SheetTitle>
-					<SheetDescription className="sr-only">Refine the product list</SheetDescription>
-				</SheetHeader>
-				<div className="px-4 pb-8">
-					<FilterControls {...props} />
-				</div>
-			</SheetContent>
-		</Sheet>
+					<FilterIcon aria-hidden="true" className="h-3.5 w-3.5" />
+				</button>
+			</DialogTrigger>
+			<DialogContent className="max-h-[85svh] overflow-y-auto rounded-none border-border bg-white p-8 shadow-[0_10px_15px_rgba(0,0,0,0.08)] sm:max-w-md">
+				<DialogTitle className="sr-only">Filters</DialogTitle>
+				<DialogDescription className="sr-only">Refine the product list</DialogDescription>
+				<FilterControls {...props} />
+				<DialogClose className="sal-btn mt-6 w-full">Show results</DialogClose>
+			</DialogContent>
+		</Dialog>
 	);
 }
