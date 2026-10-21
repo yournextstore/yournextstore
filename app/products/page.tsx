@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
+import { SectionHead } from "@/components/brew/section-head";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
+import { isVideoUrl } from "@/lib/utils";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -37,7 +39,7 @@ export async function generateMetadata({
 	const { page } = await searchParams;
 	const pageNum = Math.max(1, Number(page) || 1);
 	const canonical = pageNum > 1 ? `/products?page=${pageNum}` : "/products";
-	const title = pageNum > 1 ? `All Products — Page ${pageNum}` : "All Products";
+	const title = pageNum > 1 ? `Shop all — Page ${pageNum}` : "Shop all";
 	const { storeName, storeDescription } = await getStoreSeo();
 	const description = storeDescription
 		? `Browse the complete ${storeName} collection. ${storeDescription}`
@@ -54,6 +56,16 @@ export async function generateMetadata({
 			url: canonical,
 		},
 	};
+}
+
+// On the default order, photographed, priced pieces lead the page so it never opens on an empty frame or a $0 entry.
+function picturedFirst<
+	T extends { images?: readonly string[] | null; variants?: readonly { price: string }[] | null },
+>(products: T[]): T[] {
+	const rank = (p: T) =>
+		(p.images?.some((image) => !isVideoUrl(image)) ? 0 : 2) +
+		(p.variants?.some((v) => Number(v.price) > 0) ? 0 : 1);
+	return [...products].sort((a, b) => rank(a) - rank(b));
 }
 
 async function ProductList({ filters }: { filters: ProductFilterParams }) {
@@ -82,17 +94,24 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	if (result.data.length === 0) {
 		return (
-			<div className="py-24 text-center">
-				<p className="text-lg text-muted-foreground">No products match these filters.</p>
+			<div className="rounded-[4px] border border-line px-6 py-24 text-center">
+				<p className="eyebrow mb-3 justify-center">No readout</p>
+				<p className="text-lg text-dim">Nothing matches these filters.</p>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+			<div className="grid grid-cols-1 gap-4 xs:grid-cols-2 xl:grid-cols-3 lg:gap-5">
+				{(filters.sort ? result.data : picturedFirst(result.data)).map((product, index) => (
+					<ProductCard
+						key={product.id}
+						product={product}
+						priority={index === 0}
+						index={offset + index}
+						sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 300px"
+					/>
 				))}
 			</div>
 
@@ -126,35 +145,60 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
-			</div>
+		<div className="section-x min-h-svh pt-[clamp(48px,8vh,88px)] pb-[clamp(72px,11vh,132px)]">
+			<SectionHead
+				as="h1"
+				eyebrow="The full counter"
+				title={
+					<>
+						Everything, <em>measured.</em>
+					</>
+				}
+				lead="Every machine, grinder and tool, each with its readout. Filter by collection or price, sort by what matters today."
+				className="mb-10"
+			/>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
 			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
-				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
-					{filtersAvailable && <ProductFilters facets={facets} />}
+			<div className="frame">
+				<Suspense fallback={<ListingFallback filters={filtersAvailable} />}>
+					<div className={filtersAvailable ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10" : ""}>
+						{filtersAvailable && <ProductFilters facets={facets} />}
 
-					<div>
-						{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
-						<div className="mb-8 flex items-center justify-between gap-3 lg:hidden">
-							{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
-							<SortSelect options={sortOptions} />
+						<div>
+							{/* Mobile/tablet toolbar: Filters button + compact Sort dropdown (sidebar is hidden below lg). */}
+							<div className="mb-8 flex h-8 items-center justify-between gap-3 lg:hidden">
+								{filtersAvailable ? <ProductFiltersMobile facets={facets} /> : <span />}
+								<SortSelect options={sortOptions} />
+							</div>
+
+							{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
+							<div className="font-readout mb-8 hidden h-8 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-3 text-[0.74rem] tracking-[0.06em] uppercase lg:flex">
+								<span className="text-faint">Sort {/*  */}</span>
+								<SortLinks options={sortOptions} />
+							</div>
+
+							<ProductSection searchParams={searchParams} />
 						</div>
-
-						{/* Desktop toolbar: inline sort links (filters live in the sidebar). */}
-						<div className="mb-8 hidden flex-wrap items-center gap-3 lg:flex">
-							<span className="text-sm text-muted-foreground">Sort by:</span>
-							<SortLinks options={sortOptions} />
-						</div>
-
-						<ProductSection searchParams={searchParams} />
 					</div>
+				</Suspense>
+			</div>
+		</div>
+	);
+}
+
+function ListingFallback({ filters }: { filters: boolean }) {
+	return (
+		<div className={filters ? "lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10" : ""}>
+			{filters && <div className="hidden h-96 lg:block" />}
+			<div>
+				<div className="mb-8 flex h-8 items-center justify-between gap-3 lg:hidden">
+					<div className="h-8 w-24 border border-line" />
+					<div className="h-8 w-36 border border-line" />
 				</div>
-			</Suspense>
+				<div className="mb-8 hidden h-8 border-b border-line lg:block" />
+				<ProductGridSkeleton count={6} className="lg:grid-cols-2 xl:grid-cols-3" />
+			</div>
 		</div>
 	);
 }

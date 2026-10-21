@@ -9,12 +9,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--font-sans: var(--font-archivo);
+	--font-mono: var(--font-plex-mono);
+	--font-serif: var(--font-instrument);
+	--radius-sm: 2px;
+	--radius-md: 3px;
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: 4px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -33,58 +34,355 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	/* Machined-metal palette under its own names */
+	--color-page: var(--md-bg);
+	--color-panel: var(--md-panel);
+	--color-panel-2: var(--md-panel-2);
+	--color-ink: var(--md-ink);
+	--color-dim: var(--md-dim);
+	--color-faint: var(--md-faint);
+	--color-copper: var(--md-accent);
+	--color-hot: var(--md-hot);
+	--color-oxide: var(--md-oxide);
+	--color-line: var(--md-line);
+	--color-line-2: var(--md-line-2);
 }
 
+/* The original's 520 / 640 / 720 / 820 / 860 steps map onto sm/md/lg; one extra for the 560 stat strip. */
+@theme {
+	--breakpoint-xs: 35rem;
+}
+
+/* Dark-only theme: :root and .dark carry the same palette (palette.test.ts parses both blocks). */
 :root {
-	--radius: 0.625rem;
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	/* The tint is the design; this lightness clears AA on --muted/--secondary (oklch(0.97)). */
-	--muted-foreground: oklch(0.52 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
+	--radius: 4px;
+	--md-bg: #0b0908;
+	--md-panel: #151110;
+	--md-panel-2: #1b1512;
+	--md-ink: #f4ede4;
+	--md-dim: #a99e90;
+	/* The original's #6E6458 is decorative grey; lifted for AA where it carries labels. */
+	--md-faint: #8b8072;
+	--md-accent: #c8622c;
+	--md-hot: #e98a4b;
+	--md-oxide: #71351a;
+	--md-line: rgba(244, 237, 228, 0.1);
+	--md-line-2: rgba(244, 237, 228, 0.055);
+	--md-ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--md-ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--header-h: 64px;
+	--background: #0b0908;
+	--foreground: #f4ede4;
+	--card: #151110;
+	--card-foreground: #f4ede4;
+	--popover: #151110;
+	--popover-foreground: #f4ede4;
+	--primary: #c8622c;
+	--primary-foreground: #120a05;
+	--secondary: #1b1512;
+	--secondary-foreground: #f4ede4;
+	--muted: #1b1512;
+	--muted-foreground: #a99e90;
+	--accent: #1b1512;
+	--accent-foreground: #f4ede4;
+	--destructive: #ef6a4c;
+	--border: rgba(244, 237, 228, 0.1);
+	--input: rgba(244, 237, 228, 0.16);
+	--ring: #c8622c;
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--background: #0b0908;
+	--foreground: #f4ede4;
+	--card: #151110;
+	--card-foreground: #f4ede4;
+	--popover: #151110;
+	--popover-foreground: #f4ede4;
+	--primary: #c8622c;
+	--primary-foreground: #120a05;
+	--secondary: #1b1512;
+	--secondary-foreground: #f4ede4;
+	--muted: #1b1512;
+	--muted-foreground: #a99e90;
+	--accent: #1b1512;
+	--accent-foreground: #f4ede4;
+	--destructive: #ef6a4c;
+	--border: rgba(244, 237, 228, 0.1);
+	--input: rgba(244, 237, 228, 0.16);
+	--ring: #c8622c;
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		color-scheme: dark;
+		scroll-behavior: smooth;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
 	body {
 		@apply bg-background text-foreground;
+		/* next/font puts its variables on <body>, so the stacks are declared here, not on :root. */
+		font-family: var(--font-archivo), system-ui, -apple-system, sans-serif;
+		line-height: 1.6;
+		overflow-x: clip;
+		text-rendering: optimizeLegibility;
+	}
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-instrument), Georgia, "Times New Roman", serif;
+		font-weight: 400;
+		letter-spacing: -0.01em;
+		line-height: 1.02;
+	}
+	h1 em,
+	h2 em,
+	h3 em {
+		color: var(--md-accent);
+		font-style: italic;
+	}
+	::selection {
+		background: var(--md-accent);
+		color: #120a05;
+	}
+	a:focus-visible,
+	button:focus-visible,
+	[tabindex]:focus-visible {
+		outline: 2px solid var(--md-accent);
+		outline-offset: 3px;
+		border-radius: 4px;
+	}
+}
+
+/* ---------- shared machined pieces ---------- */
+@utility font-display {
+	font-family: var(--font-instrument), Georgia, "Times New Roman", serif;
+	font-weight: 400;
+	letter-spacing: -0.01em;
+	line-height: 1.02;
+}
+@utility font-readout {
+	font-family: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, monospace;
+}
+/* leading copper rule + mono label */
+@utility eyebrow {
+	font-family: var(--font-plex-mono), ui-monospace, monospace;
+	font-size: 0.72rem;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.18em;
+	color: var(--md-accent);
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	&::before {
+		content: "";
+		width: 34px;
+		height: 1px;
+		background: var(--md-accent);
+		flex: none;
+		opacity: 0.85;
+	}
+}
+@utility section-x {
+	padding-inline: clamp(16px, 4vw, 44px);
+}
+@utility section-y {
+	padding-block: clamp(64px, 10vh, 120px);
+}
+@utility frame {
+	max-width: 1200px;
+	margin-inline: auto;
+	width: 100%;
+}
+@utility title-section {
+	font-size: clamp(2.2rem, 5.2vw, 3.6rem);
+}
+@utility title-hero {
+	font-size: clamp(3.2rem, 8.2vw, 6.5rem);
+	line-height: 0.98;
+}
+@utility lead {
+	max-width: 58ch;
+	color: var(--md-dim);
+	font-size: clamp(1rem, 1.2vw, 1.1rem);
+}
+@utility tabular {
+	font-variant-numeric: tabular-nums;
+}
+
+/* machined ruler divider: hairline with a tick every 80px */
+@utility ruler {
+	position: relative;
+	height: 14px;
+	max-width: 1200px;
+	margin-inline: auto;
+	&::after,
+	&::before {
+		content: "";
+		position: absolute;
+		inset-inline: 0;
+		bottom: 0;
+	}
+	&::after {
+		height: 1px;
+		background: var(--md-line);
+	}
+	&::before {
+		height: 7px;
+		background-image: repeating-linear-gradient(90deg, var(--md-line) 0 1px, transparent 1px 80px);
+	}
+}
+
+/* buttons: knobs through variables so a modifier never fights the utility (playbook 014) */
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	cursor: pointer;
+	font-family: var(--font-plex-mono), ui-monospace, monospace;
+	font-weight: 500;
+	font-size: 0.82rem;
+	letter-spacing: 0.04em;
+	padding: var(--btn-py, 13px) var(--btn-px, 22px);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	transition:
+		transform 0.3s var(--md-ease),
+		background 0.25s var(--md-ease-out),
+		border-color 0.25s var(--md-ease-out),
+		color 0.25s;
+	&:active:not(:disabled) {
+		transform: translateY(1px);
+	}
+	&:disabled,
+	&[aria-disabled="true"] {
+		opacity: 0.55;
+		cursor: not-allowed;
+		transform: none;
+	}
+}
+@utility btn-primary {
+	background: var(--md-accent);
+	color: #120a05;
+	border-color: var(--md-accent);
+	&:hover:not(:disabled) {
+		background: var(--md-hot);
+		border-color: var(--md-hot);
+	}
+}
+@utility btn-ghost {
+	color: var(--md-ink);
+	border-color: var(--md-line);
+	&:hover {
+		border-color: var(--md-dim);
+		background: rgba(244, 237, 228, 0.03);
+	}
+}
+
+/* ---------- header: transparent over the hero, blurred once scrolled ---------- */
+.site-header {
+	transition:
+		background 0.35s var(--md-ease-out),
+		border-color 0.35s var(--md-ease-out);
+	border-bottom: 1px solid transparent;
+}
+.site-header[data-scrolled="true"],
+:root:not(:has([data-hero])) .site-header {
+	background: rgba(11, 9, 8, 0.82);
+	backdrop-filter: blur(14px) saturate(1.1);
+	-webkit-backdrop-filter: blur(14px) saturate(1.1);
+	border-bottom-color: var(--md-line);
+}
+main {
+	padding-top: var(--header-h);
+}
+:root:has([data-hero]) main {
+	padding-top: 0;
+}
+
+/* ---------- hero scrim (the original's three-layer wash) ---------- */
+.hero-scrim {
+	background:
+		linear-gradient(
+			180deg,
+			rgba(11, 9, 8, 0.72) 0%,
+			rgba(11, 9, 8, 0.42) 34%,
+			rgba(11, 9, 8, 0.64) 72%,
+			var(--md-bg) 100%
+		),
+		linear-gradient(90deg, rgba(11, 9, 8, 0.78) 0%, rgba(11, 9, 8, 0.52) 34%, transparent 66%),
+		radial-gradient(120% 78% at 22% 34%, transparent 24%, rgba(11, 9, 8, 0.55) 100%);
+}
+@media (max-width: 860px) {
+	.hero-scrim {
+		background: linear-gradient(
+			180deg,
+			rgba(11, 9, 8, 0.7) 0%,
+			rgba(11, 9, 8, 0.62) 45%,
+			rgba(11, 9, 8, 0.72) 80%,
+			var(--md-bg) 100%
+		);
+	}
+}
+
+/* ---------- odometer digits ---------- */
+.odo {
+	display: inline-flex;
+	align-items: flex-end;
+	line-height: 1;
+}
+.odo-col {
+	position: relative;
+	display: inline-block;
+	height: 1em;
+	overflow: hidden;
+	vertical-align: bottom;
+}
+.odo-reel {
+	display: flex;
+	flex-direction: column;
+	transform: translateY(calc(var(--d, 0) * -1em));
+	transition: transform 0.9s var(--md-ease);
+}
+.odo-d {
+	height: 1em;
+	line-height: 1;
+	display: block;
+}
+.odo-fixed {
+	display: inline-block;
+	white-space: pre;
+}
+@media (prefers-reduced-motion: reduce) {
+	.odo-reel {
+		transition: none;
+	}
+}
+
+/* catalogue packshots (pale studio backdrops) sit in the dark panels as warm, slightly dimmed prints */
+.packshot {
+	filter: brightness(0.86) sepia(0.12) saturate(0.95);
+	transition:
+		filter 0.5s var(--md-ease-out),
+		transform 0.5s var(--md-ease);
+}
+.group:hover .packshot {
+	filter: brightness(0.96) sepia(0.04) saturate(1.08);
+	transform: scale(1.02);
+}
+@media (prefers-reduced-motion: reduce) {
+	.packshot,
+	.group:hover .packshot {
+		transition: none;
+		transform: none;
 	}
 }
 
@@ -115,14 +413,7 @@
 }
 
 .yns-image-shimmer {
-	background: linear-gradient(
-		90deg,
-		oklch(0.9 0 0) 0%,
-		oklch(0.95 0 0) 40%,
-		oklch(1 0 0) 50%,
-		oklch(0.95 0 0) 60%,
-		oklch(0.9 0 0) 100%
-	);
+	background: linear-gradient(90deg, #151110 0%, #1b1512 40%, #231b17 50%, #1b1512 60%, #151110 100%);
 	background-size: 200% 100%;
 	animation: yns-image-shimmer 1.2s ease-in-out infinite;
 }

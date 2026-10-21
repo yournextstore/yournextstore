@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
+import { PageBanner } from "@/components/brew/page-banner";
 import { getStoreSeo, meGetCached } from "@/lib/commerce";
+import { ABOUT_BANNER, ABOUT_INLINE } from "@/lib/editorial";
 import { JsonLdScript } from "@/lib/json-ld";
 
 // `next dev` and `next build` fail if anything on this route renders per request (AGENTS.md).
@@ -53,85 +56,109 @@ export default async function AboutPage() {
 			storeDescription ?? "Learn about our story, our values, and the people behind the products we make.",
 	};
 
+	const principles = [
+		{
+			code: "01",
+			title: "Measured, not guessed",
+			body: "Price, options and stock are written down for every piece, so what you read on the page is what reaches the basket.",
+		},
+		{
+			code: "02",
+			title: "Honest readouts",
+			body: "Every item carries the numbers that matter: what it is, what it costs, how many are left. No adjectives standing in for data.",
+		},
+		{
+			code: "03",
+			title: "One plain checkout",
+			body: "One basket, one total and one secure checkout page. Delivery and taxes are worked out there, before you pay.",
+		},
+	];
+
 	return (
-		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+		<div>
 			<JsonLdScript data={aboutJsonLd} />
+			<PageBanner
+				image={ABOUT_BANNER.src}
+				eyebrow="About the shop"
+				title={
+					<>
+						Held to <em>a standard.</em>
+					</>
+				}
+				lead={
+					storeDescription ??
+					`${storeName} keeps a short line of everyday things and prints the numbers on every one, so each order lands the way you expected.`
+				}
+			/>
 
-			{/* Header */}
-			<div className="mb-10">
-				<Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-					Home
-				</Link>
-				<span className="mx-2 text-muted-foreground">/</span>
-				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
-			</div>
-
-			{/* Story */}
-			<div className="space-y-12">
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">Our Story</h2>
-					<div className="space-y-4 text-muted-foreground leading-relaxed">
-						<p>
-							We believe in the power of thoughtful design. Every product in our collection is carefully
-							selected to bring quality, beauty, and functionality into your everyday life.
-						</p>
-						<p>
-							Our commitment to craftsmanship means we partner with makers who share our values — those who
-							prioritize sustainable materials, ethical production, and timeless design over fleeting trends.
-						</p>
+			<section className="section-x section-y">
+				<div className="frame grid items-center gap-[clamp(24px,4vw,56px)] md:grid-cols-2">
+					<div className="relative aspect-[4/3] overflow-hidden rounded-[4px] border border-line bg-panel">
+						<Image
+							src={ABOUT_INLINE.src}
+							alt={ABOUT_INLINE.alt}
+							fill
+							sizes="(max-width: 768px) 100vw, 600px"
+							className="object-cover"
+						/>
 					</div>
-				</section>
-
-				<section>
-					<h2 className="text-2xl font-medium tracking-tight mb-4">What We Stand For</h2>
-					<div className="grid gap-6 sm:grid-cols-3">
-						<div>
-							<h3 className="text-base font-medium text-foreground">Quality first</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Durable, well-made products we are proud to stand behind.
+					<div>
+						<p className="eyebrow mb-[1.4rem]">Our story</p>
+						<h2 className="title-section mb-6 text-ink">
+							Weigh it <em>first.</em>
+						</h2>
+						<div className="space-y-4 text-[1.02rem] text-dim">
+							<p>
+								{storeName} started with a simple rule: if it can be measured, measure it. Every piece gets
+								its price, its options and its stock printed plainly on its own page.
 							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Thoughtful design</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Considered details that make everyday moments better.
-							</p>
-						</div>
-						<div>
-							<h3 className="text-base font-medium text-foreground">Honest service</h3>
-							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-								Real people, ready to help before and after your order.
+							<p>
+								We keep the readouts plain and the line short, so it is easy to find the one you will come
+								back to.
 							</p>
 						</div>
 					</div>
-				</section>
+				</div>
+			</section>
+
+			<div aria-hidden="true" className="section-x">
+				<div className="ruler" />
 			</div>
 
-			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
-				<p className="mt-2 text-muted-foreground">
-					Explore our products or get in touch — we would love to hear from you.
-				</p>
-				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
-						Shop products
-					</Link>
-					{contactFormEnabled && (
-						<Link
-							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+			<section className="section-x section-y">
+				<div className="frame mb-[clamp(36px,5vh,60px)]">
+					<p className="eyebrow mb-[1.4rem]">House rules</p>
+					<h2 className="title-section text-ink">
+						Three rules, <em>no exceptions.</em>
+					</h2>
+				</div>
+				<div className="frame grid overflow-hidden rounded-[4px] border border-line md:grid-cols-3">
+					{principles.map((p) => (
+						<article
+							key={p.code}
+							className="border-line p-[clamp(22px,2.6vw,32px)] not-first:border-t md:not-first:border-t-0 md:not-first:border-l"
 						>
-							Contact us
+							<p className="font-readout text-[1.5rem] leading-none font-medium text-copper">{p.code}</p>
+							<h3 className="mt-2.5 mb-2.5 text-[1.7rem] text-ink">{p.title}</h3>
+							<p className="max-w-[34ch] text-[0.9rem] leading-normal text-dim">{p.body}</p>
+						</article>
+					))}
+				</div>
+				<div className="frame mt-7 flex flex-wrap gap-3.5">
+					<Link href="/products" className="btn btn-primary">
+						Shop the counter
+					</Link>
+					{contactFormEnabled ? (
+						<Link href="/contact" className="btn btn-ghost">
+							Talk to the counter
+						</Link>
+					) : (
+						<Link href="/faq" className="btn btn-ghost">
+							Read the FAQ
 						</Link>
 					)}
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }
