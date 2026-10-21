@@ -1,38 +1,38 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
-import { About } from "@/components/sections/about";
+import { cacheLife } from "next/cache";
+import { CategoryGrid } from "@/components/sections/category-grid";
 import { Hero } from "@/components/sections/hero";
-import { Newsletter } from "@/components/sections/newsletter";
-import { ProductGrid } from "@/components/sections/product-grid";
-
-function FeaturedProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<div className="flex items-end justify-between mb-12">
-				<div>
-					<div className="h-8 w-48 bg-secondary rounded animate-pulse" />
-					<div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
-				</div>
-			</div>
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
+import { FeatureList, HelpCallout, HomeFaq } from "@/components/sections/home-content";
+import { ProductMarquee } from "@/components/sections/product-grid";
+import { commerce } from "@/lib/commerce";
 
 export const metadata: Metadata = {
 	alternates: { canonical: "/" },
 };
 
-export default function Home() {
+async function getBestSellers() {
+	"use cache";
+	cacheLife("minutes");
+	const { data } = await commerce.productBrowse({ active: true, limit: 24 });
+	// Pictured, priced products first: the marquee should never open on an empty frame or a zero price.
+	const lead = (p: (typeof data)[number]) =>
+		p.images.length > 0 && p.variants.some((v) => BigInt(v.price) > 0n);
+	return [...data.filter(lead), ...data.filter((p) => !lead(p))].slice(0, 12);
+}
+
+// Every section is cached and rendered without its own Suspense boundary, so the whole
+// page lands in the prerendered shell (no streamed segment shifting the layout).
+export default async function Home() {
+	const bestSellers = await getBestSellers();
+
 	return (
 		<>
 			<Hero />
-			<Suspense fallback={<FeaturedProductsSkeleton />}>
-				<ProductGrid title="Featured Products" limit={6} />
-			</Suspense>
-			<About />
-			<Newsletter />
+			<CategoryGrid />
+			<FeatureList />
+			<HelpCallout />
+			<ProductMarquee title="Featured products" products={bestSellers} />
+			<HomeFaq />
 		</>
 	);
 }

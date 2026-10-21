@@ -64,8 +64,10 @@ export default async function AboutPage() {
 				</Link>
 				<span className="mx-2 text-muted-foreground">/</span>
 				<span className="text-sm">About Us</span>
-				<h1 className="mt-4 text-4xl font-medium tracking-tight">About Us</h1>
-				{storeDescription && <p className="mt-3 text-lg text-muted-foreground">{storeDescription}</p>}
+				<h1 className="mt-6 text-center text-4xl font-semibold tracking-tight">About us</h1>
+				{storeDescription && (
+					<p className="mt-3 text-center text-[1.125rem] text-muted-foreground">{storeDescription}</p>
+				)}
 			</div>
 
 			{/* Story */}
@@ -110,22 +112,19 @@ export default async function AboutPage() {
 			</div>
 
 			{/* CTA */}
-			<div className="mt-16 rounded-lg border border-border bg-secondary/30 p-8 text-center">
-				<h2 className="text-2xl font-medium tracking-tight">Want to learn more?</h2>
+			<div className="mt-16 rounded-2xl border border-border bg-(--surface) px-4 py-6 text-center sm:rounded-3xl sm:px-10">
+				<h2 className="text-xl tracking-tight">Want to learn more?</h2>
 				<p className="mt-2 text-muted-foreground">
 					Explore our products or get in touch — we would love to hear from you.
 				</p>
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/products"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-8 font-medium text-background transition-all hover:bg-foreground/90"
-					>
+					<Link href="/products" className="btn-rose">
 						Shop products
 					</Link>
 					{contactFormEnabled && (
 						<Link
 							href="/contact"
-							className="inline-flex h-11 items-center justify-center rounded-full border border-border px-8 font-medium text-foreground transition-colors hover:bg-secondary"
+							className="inline-flex h-9 items-center justify-center rounded-md border border-[#be123c] bg-(--rose-tint) px-4 text-sm font-medium text-[#881337] transition-colors hover:bg-[#ffe4e6] dark:border-[#fb7185] dark:text-[#fecdd3]"
 						>
 							Contact us
 						</Link>

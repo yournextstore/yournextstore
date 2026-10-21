@@ -3,10 +3,11 @@ import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
+import { CARD_GRID, ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductFilters, ProductFiltersMobile } from "@/components/sections/product-filters";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets } from "@/lib/facets";
+import { cn } from "@/lib/utils";
 import { SortLinks, SortSelect } from "./products-sort-select";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -90,7 +91,7 @@ async function ProductList({ filters }: { filters: ProductFilterParams }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+			<div className={cn(CARD_GRID, "lg:grid-cols-3")}>
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />
 				))}
@@ -126,15 +127,17 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 		facets.priceBounds.max > 0;
 
 	return (
-		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<div className="mb-10">
-				<h1 className="text-3xl sm:text-4xl font-medium tracking-tight">All Products</h1>
-				<p className="mt-2 text-muted-foreground">Browse our complete collection</p>
+		<div className="mx-auto min-h-svh max-w-[82rem] px-4 py-10 sm:py-12">
+			<div className="mb-8 text-center">
+				<h1 className="text-4xl font-semibold tracking-tight">All products</h1>
+				<p className="mt-2 text-[1.125rem] leading-relaxed text-muted-foreground">
+					Everything in the shop, in one place.
+				</p>
 			</div>
 
 			{/* The filter and sort controls read useSearchParams(), so they stream in behind one
 			    boundary with the grid while the chrome and the heading above prerender. */}
-			<Suspense fallback={<ProductGridSkeleton />}>
+			<Suspense fallback={<ProductGridSkeleton className="lg:grid-cols-3" />}>
 				<div className={filtersAvailable ? "lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" : ""}>
 					{filtersAvailable && <ProductFilters facets={facets} />}
 
