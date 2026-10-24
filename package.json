@@ -16,7 +16,7 @@
     "audit": "bash scripts/audit.sh"
   },
   "dependencies": {
-    "@ai-sdk/react": "4.0.152",
+    "@ai-sdk/react": "4.0.156",
     "@base-ui/react": "1.9.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-image": "3.32.0",
@@ -25,12 +25,12 @@
     "@tiptap/extension-youtube": "3.32.0",
     "@tiptap/starter-kit": "3.32.0",
     "@tiptap/static-renderer": "3.32.0",
-    "ai": "7.0.148",
+    "ai": "7.0.152",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "commerce-kit": "0.72.0",
     "lucide-react": "1.61.0",
-    "next": "16.4.2",
+    "next": "16.4.3",
     "next-themes": "0.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.6.2",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/bun": "1.4.3",
+    "@types/bun": "1.4.4",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
