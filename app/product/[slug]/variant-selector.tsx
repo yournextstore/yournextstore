@@ -1,7 +1,8 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { setUrlQuery, useUrlQuery } from "@/lib/url-query";
 import { cn } from "@/lib/utils";
 
 type VariantValue = {
@@ -82,8 +83,7 @@ function processVariants(variants: Variant[]) {
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
-	const router = useRouter();
-	const searchParams = useSearchParams();
+	const searchParams = useUrlQuery();
 	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
@@ -110,7 +110,8 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 			}
 			return acc;
 		}, new URLSearchParams());
-		router.push(`${pathname}?${params.toString()}`, { scroll: false });
+		// History API instead of router.push: the page doesn't depend on the query, so no server round trip.
+		setUrlQuery(`${pathname}?${params.toString()}`);
 	};
 
 	// Auto-redirect to first variant when no URL params exist (for multi-variant products)
@@ -123,7 +124,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 		firstVariant.combinations.forEach((c) => {
 			params.set(c.variantValue.variantType.label, c.variantValue.value);
 		});
-		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+		setUrlQuery(`${pathname}?${params.toString()}`, { replace: true });
 	}, [variants, searchParams.size, pathname]);
 
 	const groupsWithChoices = variantGroups.filter((group) => group.options.length > 1);

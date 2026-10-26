@@ -1,10 +1,11 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { Button } from "@/components/ui/button";
+import type { BlurPreview } from "@/lib/blur-placeholder";
+import { useUrlQuery } from "@/lib/url-query";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -25,10 +26,12 @@ type MediaGalleryProps = {
 	images: string[];
 	productName: string;
 	variants: Variant[];
+	/** Blurred preview of the first image (lib/blur-placeholder.ts), shown until the photo loads. */
+	preview?: BlurPreview | null;
 };
 
-export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
-	const searchParams = useSearchParams();
+export function MediaGallery({ images, productName, variants, preview = null }: MediaGalleryProps) {
+	const searchParams = useUrlQuery();
 
 	// The gallery always shows the full image set (product + every variant image). When a
 	// variant is selected we don't filter the list — that would hide the other thumbnails —
@@ -47,14 +50,13 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 		return Math.max(index, 0);
 	}, [selectedVariant, images]);
 
-	// Start on the selected variant's photo: choosing a variant navigates, and the page can remount
-	// the gallery, so a jump on change alone would land back on the first image.
+	// Start on the selected variant's photo when the query is already known (a client navigation into the page);
+	// after a full load the query arrives with hydration and the jump below picks it up.
 	const [selectedIndex, setSelectedIndex] = useState(variantImageIndex);
 	const [isZoomed, setIsZoomed] = useState(false);
 
-	// Jump to the selected variant's image when the variant changes (avoids useEffect). The previous
-	// key lives in state, not a ref: a variant change renders inside a transition, and a discarded
-	// render would move a ref while dropping the index update.
+	// Jump to the selected variant's image when the query changes (avoids useEffect). The previous key lives in
+	// state, not a ref, so a render React discards can't move it without the index update.
 	const searchParamsKey = searchParams.toString();
 	const [prevSearchParamsKey, setPrevSearchParamsKey] = useState(searchParamsKey);
 	if (prevSearchParamsKey !== searchParamsKey) {
@@ -119,9 +121,11 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 				) : (
 					<YNSMedia
 						src={displayImages[selectedIndex] ?? ""}
+						preview={preview}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
-						sizes="(max-width: 1024px) 100vw, 50vw"
+						// Half of the max-w-7xl (1280 px) container on desktop, not half of any viewport width.
+						sizes="(max-width: 1024px) 100vw, min(50vw, 640px)"
 						className={cn(
 							"object-cover transition-transform duration-500",
 							isZoomed && "scale-150 cursor-zoom-out",
