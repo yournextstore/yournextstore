@@ -2,7 +2,7 @@
 
 import type { APIProductFiltersResult } from "commerce-kit";
 import { SlidersHorizontalIcon } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, startTransition, useOptimistic, useState } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -17,12 +17,12 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { FILTER_KEYS, toSearchParams } from "@/lib/listing-routes";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { encodeVts, parseVts } from "@/lib/vts";
 
 // Search params owned by the filters, cleared by "Clear all".
-const FILTER_KEYS = ["category", "collection", "brand", "priceMin", "priceMax", "vts"] as const;
 
 // Max entries shown per filter group before collapsing the rest behind "Show more".
 const VISIBLE_ENTRY_LIMIT = 10;
@@ -65,11 +65,23 @@ type FilterControlsProps = {
 	showCollections?: boolean;
 };
 
-function FilterControls({ facets, showCategories = true, showCollections = true }: FilterControlsProps) {
+/**
+ * The listing's active filters come from the server (empty on the static default view, the query on the
+ * `…-filtered` routes, lib/listing-routes.ts), not from the browser address: the controls stay in the prerendered
+ * shell without `useSearchParams()`.
+ */
+type ActiveFilters = { active: Record<string, string | undefined> };
+
+function FilterControls({
+	facets,
+	showCategories = true,
+	showCollections = true,
+	active,
+}: FilterControlsProps & ActiveFilters) {
 	const { currency, locale } = useStoreConfig();
 	const router = useRouter();
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
+	const searchParams = toSearchParams(active);
 
 	const selectedVts = parseVts(searchParams.get("vts"));
 	const [optimisticVts, setOptimisticVts] = useOptimistic(selectedVts);
@@ -323,7 +335,10 @@ function FilterControls({ facets, showCategories = true, showCollections = true 
 }
 
 /** Desktop sidebar filters (hidden on small screens — use `ProductFiltersMobile` there). */
-export function ProductFilters({ className, ...props }: FilterControlsProps & { className?: string }) {
+export function ProductFilters({
+	className,
+	...props
+}: FilterControlsProps & ActiveFilters & { className?: string }) {
 	return (
 		<aside className={cn("hidden lg:block", className)}>
 			<FilterControls {...props} />
@@ -332,8 +347,8 @@ export function ProductFilters({ className, ...props }: FilterControlsProps & { 
 }
 
 /** Mobile filters trigger + slide-over sheet (hidden on large screens). */
-export function ProductFiltersMobile(props: FilterControlsProps) {
-	const searchParams = useSearchParams();
+export function ProductFiltersMobile(props: FilterControlsProps & ActiveFilters) {
+	const searchParams = toSearchParams(props.active);
 	const activeCount = FILTER_KEYS.filter((key) => searchParams.has(key)).length;
 
 	return (

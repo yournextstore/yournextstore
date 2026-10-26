@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { type ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toSearchParams } from "@/lib/listing-routes";
 import { cn } from "@/lib/utils";
 
 type SortOption = { value: string; label: string };
 
 // Build a sort href that preserves every active filter and resets to the first page.
 function buildSortHref(
-	searchParams: ReadonlyURLSearchParams,
+	searchParams: URLSearchParams,
 	pathname: string,
 	value: string,
 	defaultValue: string | undefined,
@@ -25,9 +26,15 @@ function buildSortHref(
 	return params.size ? `${pathname}?${params}` : pathname;
 }
 
-/** Inline sort links for desktop. Reads the current sort from the URL (client-side). */
-export function SortLinks({ options }: { options: readonly SortOption[] }) {
-	const searchParams = useSearchParams();
+/** The active sort comes from the server (`active`), like the filters (lib/listing-routes.ts). */
+export function SortLinks({
+	options,
+	active,
+}: {
+	options: readonly SortOption[];
+	active: Record<string, string | undefined>;
+}) {
+	const searchParams = toSearchParams(active);
 	const pathname = usePathname();
 	const defaultValue = options[0]?.value;
 	const current = searchParams.get("sort") ?? defaultValue;
@@ -53,11 +60,19 @@ export function SortLinks({ options }: { options: readonly SortOption[] }) {
 	);
 }
 
-/** Compact sort dropdown for small screens. Reads the current sort from the URL (client-side). */
-export function SortSelect({ options, className }: { options: readonly SortOption[]; className?: string }) {
+/** Compact sort dropdown for small screens. The active sort comes from the server (`active`), like `SortLinks`. */
+export function SortSelect({
+	options,
+	className,
+	active,
+}: {
+	options: readonly SortOption[];
+	className?: string;
+	active: Record<string, string | undefined>;
+}) {
 	const router = useRouter();
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
+	const searchParams = toSearchParams(active);
 	const defaultValue = options[0]?.value;
 	const current = searchParams.get("sort") ?? defaultValue;
 

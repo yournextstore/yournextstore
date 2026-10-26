@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { listingRewrites } from "./lib/listing-routes";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -17,6 +18,9 @@ const nextConfig: NextConfig = {
 		serverComponentsHmrCache: false,
 	},
 	images: {
+		// Blob media URLs carry a random suffix, so a new photo is a new URL: optimized copies can live a year instead
+		// of being regenerated (a first visit to a page without a ready copy waited ~0.3 s per image).
+		minimumCacheTTL: 31536000,
 		// Store media lives on Vercel Blob (per-store subdomain) and the YNS platform hosts.
 		// A "**" wildcard would make the image optimizer an open proxy for any https URL.
 		remotePatterns: [
@@ -26,6 +30,11 @@ const nextConfig: NextConfig = {
 			{ protocol: "https", hostname: "yns.cx" },
 			{ protocol: "https", hostname: "**.yns.cx" },
 		],
+	},
+	// Filtered, sorted and paginated listings render per request on their own routes, so the default views stay
+	// static (lib/listing-routes.ts).
+	async rewrites() {
+		return { beforeFiles: listingRewrites(), afterFiles: [], fallback: [] };
 	},
 	async headers() {
 		if (isProd) return [];

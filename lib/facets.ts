@@ -19,3 +19,14 @@ export async function getFilterFacets() {
 		return EMPTY_FACETS;
 	}
 }
+
+/** Whether a listing has anything to filter by; a category page hides the category facet itself. */
+export const hasFacets = (
+	facets: Awaited<ReturnType<typeof getFilterFacets>>,
+	{ categories = true }: { categories?: boolean } = {},
+) =>
+	(categories && facets.categories.length > 0) ||
+	facets.collections.length > 0 ||
+	facets.brands.length > 0 ||
+	facets.variantTypes.length > 0 ||
+	facets.priceBounds.max > 0;
