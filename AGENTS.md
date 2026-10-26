@@ -95,9 +95,41 @@ Two corollaries, one for the chrome and one for listings:
   children: the boundary itself is what streams the chrome out, whether or not anything inside it is
   request-time. The link primitive in particular must not read `usePathname()` — active styling goes
   in a small client component with its own boundary inside the nav.
-- Listing controls that read `useSearchParams()` share the grid's boundary instead of sitting above
-  it (`app/products/page.tsx`, `CategoryContent`): one skeleton for filters, sort and grid together,
-  with the heading outside so it prerenders. Controls outside any boundary fail the build.
+- Listing controls never read `useSearchParams()`. The server hands them the active selection
+  (`active`, via `activeParams` in `lib/listing-routes.ts`): empty on the static default view, the
+  query on the `…-filtered` routes (see below).
+
+### Prerendered catalog pages: no loading states
+
+Every page a shopper can land on renders without a skeleton or spinner. Four rules keep it that way:
+
+- **No `loading.tsx`, no route skeletons.** Product, category, collection, blog and legal pages list
+  their known addresses with `generateStaticParams` (helpers in `lib/catalog-paths.ts`, shared with
+  `app/sitemap.ts`) and await `params` at the top of the page, so every listed address prerenders
+  in full. An address added after the build renders on its first request (chrome first) and is
+  cached from then on. Only URL-safe slugs are listed (`isStaticSlug`): Next writes the path into a
+  header while prerendering, and a space or non-ASCII letter fails the whole build.
+- **No `<Suspense>` around cached data.** A `"use cache"` component inside a boundary still ships its
+  fallback first and its content later in the same HTML (a late segment swapped in by `$RC`), so
+  the shopper sees the skeleton while the document downloads. Render cached sections directly; keep
+  boundaries for request-time reads.
+- **The URL query is read in the browser.** Client components that need it (selected variant,
+  gallery) use `useUrlQuery()` from `lib/url-query.ts` instead of `useSearchParams()`, and write it
+  with `setUrlQuery()`. The prerendered page renders the default and switches after hydration;
+  `useSearchParams()` would turn the component into a per-request render behind a fallback.
+- **Listings: static default view, filtered views on their own route.** `/products` and
+  `/category/…` never read the query, so they prerender. When a listing parameter (filter, sort,
+  page) is present, `next.config.ts` rewrites the request (`listingRewrites()` in
+  `lib/listing-routes.ts`, `beforeFiles`) to `/products-filtered` or `/category-filtered/…`, which
+  render per request. The public URL never changes, and tracking parameters (`utm_*`, `gclid`) keep
+  the static view. `proxy.ts` is platform-managed, which is why this lives in the config. The default
+  views keep a `SearchParamsProbe` so the client router asks the server for a new query instead of
+  reusing the static view.
+
+Pages that only make sense per request (search, the `…-filtered` listings, an order's thank-you
+page) export `instant = false` and render in full per request: a navigation keeps the current page
+on screen until the new one is ready, with no skeleton in between. Their prerendered `.html` is
+empty, which `scripts/check-shell.sh` skips.
 
 ### Fully static routes
 
@@ -128,7 +160,13 @@ store. Keep them when you touch the chrome, the tokens or a `<head>` asset.
   loads on use instead of blocking every first paint. `Geist` stays preloaded.
 - **Images.** `priority` only on the LCP image, never on something the viewport may not show.
   Never `unoptimized` on platform media: pass `sizes` matching the box it renders into and let the
-  optimizer resize.
+  optimizer resize. Product cards and the gallery's first image get a blurred preview
+  (`blurPreview` in `lib/blur-placeholder.ts`, about 300 B inlined, computed once per image under
+  `"use cache"`), so a photo fades in instead of popping onto an empty box on slower connections.
+  `images.minimumCacheTTL` is a year: Blob URLs carry a random suffix, so a new photo is a new URL.
+- **Prefetch on intent.** Product cards link with `IntentLink` (`components/intent-link.tsx`,
+  adapted from vercel/shop): the shared App Shell by default, the full page once the shopper hovers,
+  focuses or stops scrolling near the link, so the click shows content.
 - **Contrast.** `app/palette.test.ts` asserts every text/surface token pair in `:root` and `.dark`
   clears WCAG AA (4.5:1), and an unparseable value fails rather than skips. When it trips, move the
   *text* token's lightness away from its surface's — darker on a light surface, lighter on a dark one
@@ -192,7 +230,6 @@ const cart = await commerce.cartGet({ cartId });
 ```tsx
 // app/search/page.tsx
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { commerce } from "@/lib/commerce";
 import { SearchResults } from "./search-results";
 
@@ -203,19 +240,32 @@ async function searchProducts(q: string) {
   return commerce.productBrowse({ query: q, active: true });
 }
 
-async function Results({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
+// Results depend on the query, so the page renders in full per request: no skeleton, and a
+// navigation keeps the current page until the results are ready.
+export const instant = false;
+
+export default async function SearchPage(props: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await props.searchParams;
   const products = q ? await searchProducts(q) : { data: [] };
   return <SearchResults products={products.data} query={q} />;
 }
+```
 
-// The page stays sync so its shell prerenders; the searchParams part streams in Suspense.
-export default function SearchPage(props: { searchParams: Promise<{ q?: string }> }) {
-  return (
-    <Suspense>
-      <Results searchParams={props.searchParams} />
-    </Suspense>
-  );
+### Catalog page (prerendered per address)
+```tsx
+// app/collection/[slug]/page.tsx
+import { getAllCollections, slugParams } from "@/lib/catalog-paths";
+
+export async function generateStaticParams() {
+  const collections = await getAllCollections().catch(() => []);
+  return slugParams(collections.map((collection) => collection.slug));
+}
+
+// `params` awaited at the top: every listed collection prerenders in full, no skeleton.
+export default async function CollectionPage(props: PageProps<"/collection/[slug]">) {
+  const { slug } = await props.params;
+  const collection = await getCollection(slug); // "use cache"
+  // …
 }
 ```
 
