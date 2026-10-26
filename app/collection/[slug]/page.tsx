@@ -3,9 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { try_ } from "safe-try";
-import { ProductGridSkeleton } from "@/components/product-grid-skeleton";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
@@ -16,6 +14,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { encodeVts } from "@/lib/vts";
@@ -100,14 +99,6 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 	);
 }
 
-function CollectionProductsSkeleton() {
-	return (
-		<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-			<ProductGridSkeleton className="lg:grid-cols-3" />
-		</section>
-	);
-}
-
 // Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
 // the smart filters are evaluated against the whole catalog when the storefront asks for them.
 // Re-expressing each one as the equivalent product browse is what keeps those collections from
@@ -173,33 +164,8 @@ async function CollectionProducts({ collection }: { collection: APICollectionGet
 	);
 }
 
-function CollectionPageSkeleton() {
-	return (
-		<>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-				<div className="h-5 w-48 bg-secondary rounded animate-pulse" />
-			</div>
-			<section className="bg-secondary/30">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="py-12 sm:py-16 lg:py-20">
-						<div className="h-12 w-72 bg-secondary rounded animate-pulse" />
-					</div>
-				</div>
-			</section>
-			<CollectionProductsSkeleton />
-		</>
-	);
-}
-
-// Awaiting params at the top of the page blocks the static shell — the page
-// stays a sync shell and the params-dependent content streams inside Suspense.
-export default function CollectionPage(props: PageProps<"/collection/[slug]">) {
-	return (
-		<Suspense fallback={<CollectionPageSkeleton />}>
-			<CollectionContent params={props.params} />
-		</Suspense>
-	);
-}
+// Every known address prerenders in full; one added later renders on its first visit (lib/catalog-paths.ts).
+export const generateStaticParams = () => slugParams(getAllCollections(), (collection) => collection.slug);
 
 // The SDK throws on a 404 despite its `| null` type. Without the null, the `!collection`
 // branches never run and an unknown slug answers 200 with the error page.
@@ -210,7 +176,11 @@ const getCollectionData = async (slug: string) => {
 	return error ? null : collection;
 };
 
-const CollectionContent = async ({ params }: { params: PageProps<"/collection/[slug]">["params"] }) => {
+export default async function CollectionPage({
+	params,
+}: {
+	params: PageProps<"/collection/[slug]">["params"];
+}) {
 	const { slug } = await params;
 	const collection = await getCollectionData(slug);
 
@@ -236,9 +206,7 @@ const CollectionContent = async ({ params }: { params: PageProps<"/collection/[s
 				</Breadcrumb>
 			</div>
 			<CollectionHeader collection={collection} />
-			<Suspense fallback={<CollectionProductsSkeleton />}>
-				<CollectionProducts collection={collection} />
-			</Suspense>
+			<CollectionProducts collection={collection} />
 		</>
 	);
-};
+}

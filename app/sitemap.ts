@@ -1,33 +1,13 @@
 import type { MetadataRoute } from "next";
 import { cacheLife } from "next/cache";
-import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
-
-const PAGE_SIZE = 100;
-const MAX_PAGES = 50;
-
-async function getAllProducts() {
-	const products: { slug: string; updatedAt: string; images: string[] }[] = [];
-	for (let page = 0; page < MAX_PAGES; page++) {
-		const result = await commerce.productBrowse({
-			active: true,
-			limit: PAGE_SIZE,
-			offset: page * PAGE_SIZE,
-		});
-		products.push(...result.data.map((p) => ({ slug: p.slug, updatedAt: p.updatedAt, images: p.images })));
-		if (result.data.length < PAGE_SIZE) break;
-	}
-	return products;
-}
-
-async function getAllCollections() {
-	const result = await commerce.collectionBrowse({ active: true, limit: 200 });
-	return result.data.map((c) => ({ slug: c.slug, lastModified: c.createdAt }));
-}
-
-async function getAllLegalPages() {
-	const result = await commerce.legalPageBrowse();
-	return result.data.map((p) => ({ path: p.href, updatedAt: p.updatedAt }));
-}
+import {
+	getAllCategories,
+	getAllCollections,
+	getAllLegalPages,
+	getAllPosts,
+	getAllProducts,
+} from "@/lib/catalog-paths";
+import { getCanonicalUrl, meGetCached } from "@/lib/commerce";
 
 async function getContactFormEnabled() {
 	const me = await meGetCached().catch(() => null);
@@ -39,16 +19,11 @@ async function getBlogState() {
 	if (!me?.store.settings?.enabledTools?.blog) {
 		return { enabled: false, posts: [] as { slug: string; lastModified: string }[] };
 	}
-	const result = await commerce.postBrowse({ active: true, limit: 200 }).catch(() => ({ data: [] }));
-	return {
-		enabled: true,
-		posts: result.data.map((p) => ({ slug: p.slug, lastModified: p.publishedAt ?? p.createdAt })),
-	};
+	return { enabled: true, posts: await getAllPosts().catch(() => []) };
 }
 
-// Cached, so the sitemap is prerendered and refreshed hourly instead of walking the whole
-// catalog (up to 50 sequential product pages) on every crawl. `now` is read inside the
-// cache scope, which is what lets it prerender.
+// Cached, so the sitemap is prerendered and refreshed hourly instead of walking the whole catalog on every crawl
+// (the lists come from lib/catalog-paths.ts). `now` is read inside the cache scope, which is what lets it prerender.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	"use cache";
 	cacheLife("hours");
@@ -63,9 +38,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		{ url: `${baseUrl}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
 	];
 
-	const [products, collections, legalPages, blog, contactFormEnabled] = await Promise.all([
+	const [products, collections, categories, legalPages, blog, contactFormEnabled] = await Promise.all([
 		getAllProducts().catch(() => []),
 		getAllCollections().catch(() => []),
+		getAllCategories().catch(() => []),
 		getAllLegalPages().catch(() => []),
 		getBlogState().catch(() => ({ enabled: false, posts: [] })),
 		getContactFormEnabled().catch(() => false),
@@ -95,6 +71,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		priority: 0.7,
 	}));
 
+	const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
+		url: `${baseUrl}/category/${c.path}`,
+		lastModified: new Date(c.lastModified),
+		changeFrequency: "weekly",
+		priority: 0.7,
+	}));
+
 	const legalRoutes: MetadataRoute.Sitemap = legalPages.map((p) => ({
 		url: `${baseUrl}/legal${p.path}`,
 		lastModified: new Date(p.updatedAt),
@@ -114,5 +97,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			]
 		: [];
 
-	return [...staticRoutes, ...productRoutes, ...collectionRoutes, ...legalRoutes, ...blogRoutes];
+	return [
+		...staticRoutes,
+		...productRoutes,
+		...collectionRoutes,
+		...categoryRoutes,
+		...legalRoutes,
+		...blogRoutes,
+	];
 }

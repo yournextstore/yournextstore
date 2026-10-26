@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
@@ -13,7 +12,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Skeleton } from "@/components/ui/skeleton";
+import { getAllPosts, slugParams } from "@/lib/catalog-paths";
 import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
@@ -55,26 +54,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	};
 }
 
-function BlogPostSkeleton() {
-	return (
-		<article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<Skeleton className="h-5 w-48" />
-			<Skeleton className="mt-6 h-6 w-40" />
-			<Skeleton className="mt-4 h-10 w-3/4" />
-			<Skeleton className="mt-10 aspect-[3/2] rounded-2xl" />
-		</article>
-	);
-}
-
-// Awaiting params at the top of the page blocks the static shell — the page
-// stays a sync shell and the params-dependent content streams inside Suspense.
-export default function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
-	return (
-		<Suspense fallback={<BlogPostSkeleton />}>
-			<BlogPostContent params={props.params} />
-		</Suspense>
-	);
-}
+// Every known address prerenders in full; one added later renders on its first visit (lib/catalog-paths.ts).
+export const generateStaticParams = () => slugParams(getAllPosts(), (post) => post.slug);
 
 // The SDK throws on a 404 despite its `| null` type. Without the null, the `!post`
 // branches never run and an unknown slug answers 200 with the error page.
@@ -89,7 +70,7 @@ const getBlogPostData = async (slug: string) => {
 	return error ? null : post;
 };
 
-const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }) => {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
 	const post = await getBlogPostData(slug);
 
@@ -185,4 +166,4 @@ const BlogPostContent = async ({ params }: { params: Promise<{ slug: string }> }
 			</div>
 		</article>
 	);
-};
+}

@@ -76,6 +76,23 @@ for TARGET in ${TARGETS+"${TARGETS[@]}"}; do
 		continue
 	fi
 
+	# An empty file is not a shell, so nothing serves it, but only two kinds are meant to be empty: a `[param].html`
+	# whose route awaits `params` above any Suspense boundary and lists its known addresses in generateStaticParams
+	# (lib/catalog-paths.ts), so those prerender in full and an unlisted one renders on its first request; and a route
+	# whose page exports `instant = false` (search, the `…-filtered` listings) and renders in full per request. Both send
+	# the chrome first at request time. Any other empty shell is the regression this check exists for.
+	if [ ! -s "$FILE" ]; then
+		ROUTE="${LABEL%.html}"
+		PAGE="$(find app -path "*/${ROUTE}/page.tsx" 2>/dev/null | head -n1)"
+		if [[ "$ROUTE" == *"["* ]]; then
+			printf 'skip  %s  no fallback shell (unlisted params render on request)\n' "$LABEL"
+			continue
+		elif [ -n "$PAGE" ] && grep -q 'export const instant = false' "$PAGE"; then
+			printf 'skip  %s  instant = false (renders in full per request)\n' "$LABEL"
+			continue
+		fi
+	fi
+
 	CHECKED=$((CHECKED + 1))
 	# One document is often a single line, so -m1 alone still yields every match on it.
 	HEADER_AT="$(grep -b -o -m1 -E '<header|role="banner"' "$FILE" | cut -d: -f1 | head -n1 || true)"

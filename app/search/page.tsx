@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
 import { SearchPageInput } from "@/components/search/search-page-input";
 import { commerce } from "@/lib/commerce";
@@ -56,20 +55,6 @@ async function searchProducts({
 		...sortToBrowseParams(sort),
 		...(category ? { category } : {}),
 	});
-}
-
-function SearchResultsSkeleton() {
-	return (
-		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
-			{[0, 1, 2, 3, 4, 5].map((i) => (
-				<div key={i} className="flex flex-col gap-3">
-					<div className="aspect-square w-full animate-pulse bg-secondary motion-reduce:animate-none" />
-					<div className="h-3 w-2/3 animate-pulse bg-secondary motion-reduce:animate-none" />
-					<div className="h-3 w-1/3 animate-pulse bg-secondary/60 motion-reduce:animate-none" />
-				</div>
-			))}
-		</div>
-	);
 }
 
 async function SearchResults({
@@ -152,31 +137,14 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 	);
 }
 
-function SearchPageSkeleton() {
-	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
-				<div className="mx-auto max-w-3xl">
-					<div className="h-12 w-full animate-pulse bg-secondary motion-reduce:animate-none" />
-				</div>
-			</div>
-			<div className="pt-10">
-				<SearchResultsSkeleton />
-			</div>
-		</section>
-	);
-}
+// Results depend on the query, so the page renders in full per request: a navigation keeps the current view until
+// the results are ready, with no skeleton.
+export const instant = false;
 
-// Awaiting searchParams at the top of the page blocks the static shell — the
-// page stays a sync shell and the query-dependent content streams inside Suspense.
 export default function SearchPage(props: {
 	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
 }) {
-	return (
-		<Suspense fallback={<SearchPageSkeleton />}>
-			<SearchContent searchParams={props.searchParams} />
-		</Suspense>
-	);
+	return <SearchContent searchParams={props.searchParams} />;
 }
 
 const SearchContent = async ({
@@ -237,9 +205,7 @@ const SearchContent = async ({
 								<CategorySidebar categories={categories} activeCategory={category} totalCount={totalCount} />
 							</div>
 						</aside>
-						<Suspense fallback={<SearchResultsSkeleton />}>
-							<SearchResults q={query} page={page} sort={sort} category={category} />
-						</Suspense>
+						<SearchResults q={query} page={page} sort={sort} category={category} />
 					</div>
 				</>
 			) : (
