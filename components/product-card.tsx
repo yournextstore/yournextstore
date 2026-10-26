@@ -3,7 +3,8 @@ import type {
 	APIProductGetByIdResult,
 	APIProductsBrowseResult,
 } from "commerce-kit";
-import Link from "next/link";
+import { IntentLink } from "@/components/intent-link";
+import { blurPreview } from "@/lib/blur-placeholder";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
@@ -22,13 +23,7 @@ export async function ProductCard({
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
 }) {
-	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const variants = "variants" in product ? product.variants : null;
-	const listing = variants ? listingPrice(variants, taxBehavior) : null;
-	const priceDisplay = listing
-		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
-		: null;
-
 	const allImages = [
 		...(product.images ?? []),
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
@@ -36,6 +31,14 @@ export async function ProductCard({
 	];
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
+	const [{ currency, locale, taxBehavior }, preview] = await Promise.all([
+		getStoreConfig(),
+		blurPreview(primaryImage),
+	]);
+	const listing = variants ? listingPrice(variants, taxBehavior) : null;
+	const priceDisplay = listing
+		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
+		: null;
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
@@ -56,7 +59,7 @@ export async function ProductCard({
 	})();
 
 	return (
-		<Link href={`/product/${product.slug}${variantSearch}`} className="group">
+		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
 			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 				{singleVariant && (
 					<QuickAddButton
@@ -86,6 +89,7 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
+							preview={preview}
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -118,6 +122,6 @@ export async function ProductCard({
 				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
 				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
 			</div>
-		</Link>
+		</IntentLink>
 	);
 }
