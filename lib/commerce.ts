@@ -13,9 +13,37 @@ invariant(
 	"Missing YNS_API_KEY environment variable. Add it to .env.local (see .env.example).",
 );
 
-export const commerce = Commerce({
+const client = Commerce({
 	token: process.env.YNS_API_KEY,
 	endpoint,
+});
+
+/**
+ * A full catalogue page (100 products) is a multi-megabyte response, and during a build hundreds of prerenders fetch
+ * at once; a body can arrive corrupted (`SyntaxError: Bad control character` while the API's own response is clean).
+ * Callers turn an error into an empty list, which "use cache" then keeps in a static page for hours, so a browse
+ * read retries twice on a parse or network error first.
+ */
+const RETRIES = 2;
+
+async function withRetry<T>(request: () => Promise<T>, attempt = 0): Promise<T> {
+	try {
+		return await request();
+	} catch (error) {
+		// A corrupted body (SyntaxError) or a dropped connection (undici's TypeError "fetch failed"), never a code bug.
+		const transient =
+			error instanceof SyntaxError ||
+			(error instanceof TypeError && /fetch failed|terminated|network/i.test(error.message));
+		if (!transient || attempt >= RETRIES) throw error;
+		await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)));
+		return withRetry(request, attempt + 1);
+	}
+}
+
+const browse = client.productBrowse.bind(client);
+
+export const commerce = Object.assign(client, {
+	productBrowse: (...args: Parameters<typeof browse>) => withRetry(() => browse(...args)),
 });
 
 // Plain "use cache" (not "remote") so store settings can be part of the static
