@@ -129,13 +129,18 @@ export function buildCollectionJsonLd(collection: APICollectionGetByIdResult): R
 		description:
 			typeof collection.description === "string" ? collection.description : `${collection.name} collection`,
 		image: collection.image ?? undefined,
-		numberOfItems: collection.productCollections.length,
-		hasPart: collection.productCollections.map((pc) => ({
-			"@type": "Product",
-			name: pc.product.name,
-			url: `${baseUrl}/product/${pc.product.slug}`,
-			image: pc.product.images[0],
-		})),
+		// Plain links, not Product: Google rejects a Product snippet without offers, and the
+		// product page carries the full Product.
+		mainEntity: {
+			"@type": "ItemList",
+			numberOfItems: collection.productCollections.length,
+			itemListElement: collection.productCollections.map((pc, index) => ({
+				"@type": "ListItem",
+				position: index + 1,
+				name: pc.product.name,
+				url: `${baseUrl}/product/${pc.product.slug}`,
+			})),
+		},
 	};
 }
 
