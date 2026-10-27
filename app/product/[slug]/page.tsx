@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { blurPreview } from "@/lib/blur-placeholder";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
-import { commerce, meGetCached } from "@/lib/commerce";
+import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { TrackProductView } from "@/lib/track";
 import { cn } from "@/lib/utils";
@@ -40,25 +40,11 @@ function StarRow({ rating }: { rating: number }) {
 	);
 }
 
-// `productGet` resolves the API error rather than null for a missing slug, so the
-// `!product` branches below are unreachable without this: the throw escapes the
-// page render as an error instead of answering 404.
-// Cached on its own, so the page metadata and the page body share one product read.
-async function safeProductGet(slug: string) {
-	"use cache";
-	cacheLife("minutes");
-	try {
-		return await commerce.productGet({ idOrSlug: slug });
-	} catch {
-		return null;
-	}
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
 	cacheLife("minutes");
 	const { slug } = await params;
-	const product = await safeProductGet(slug);
+	const product = await productGetCached(slug);
 
 	if (!product) {
 		return { title: "Product Not Found", robots: { index: false, follow: true } };
@@ -100,7 +86,7 @@ const getProductPageData = async (slug: string) => {
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;
 	const restockNotificationsEnabled = me?.store.settings?.enabledTools?.restockNotifications ?? false;
 	const [product, reviews] = await Promise.all([
-		safeProductGet(slug),
+		productGetCached(slug),
 		reviewsEnabled
 			? commerce.productReviewsBrowse({ idOrSlug: slug }, { limit: 20 }).catch(() => null)
 			: Promise.resolve(null),
@@ -254,7 +240,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 			)}
 
 			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
+			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />

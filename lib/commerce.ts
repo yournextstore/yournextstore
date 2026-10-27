@@ -56,6 +56,15 @@ export const meGetCached = async (token?: string) => {
 	return commerce.meGet();
 };
 
+// `productGet` throws the API error rather than resolving null for a missing product; null here
+// lets a page answer 404. Cached on its own, so a page's metadata and body share one read.
+export const productGetCached = async (idOrSlug: string) => {
+	"use cache";
+	cacheLife("minutes");
+	const [error, product] = await try_(commerce.productGet({ idOrSlug }));
+	return error ? null : product;
+};
+
 // Store name + description for page-level metadata. Same cache posture as the
 // root layout's getStoreMetadata so it stays in the static shell.
 export async function getStoreSeo() {
