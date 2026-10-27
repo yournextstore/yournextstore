@@ -6,7 +6,9 @@ import { getStoreSeo } from "@/lib/commerce";
 import { getFilterFacets, hasFacets } from "@/lib/facets";
 import type { ProductListingParams } from "@/lib/listing-routes";
 
+// "Featured" follows the sort order the merchant set on the store's `all` collection (newest first without one).
 const sortOptions = [
+	{ value: "featured", label: "Featured", orderBy: "featured", orderDirection: "desc" },
 	{ value: "newest", label: "Newest", orderBy: "createdAt", orderDirection: "desc" },
 	{ value: "price-asc", label: "Price: Low to High", orderBy: "price", orderDirection: "asc" },
 	{ value: "price-desc", label: "Price: High to Low", orderBy: "price", orderDirection: "desc" },

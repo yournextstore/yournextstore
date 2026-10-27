@@ -1,4 +1,4 @@
-import type { APICollectionGetByIdResult } from "commerce-kit";
+import type { APICollectionGetByIdResult, APIProductsBrowseResult } from "commerce-kit";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
@@ -17,12 +17,9 @@ import {
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { encodeVts } from "@/lib/vts";
 import { YNSMedia } from "@/lib/yns-media";
 
-// The page has no pagination, so a smart collection renders one browse page. 100 is the API's max.
-const SMART_COLLECTION_LIMIT = 100;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const COLLECTION_PRODUCTS_LIMIT = 100;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
@@ -99,56 +96,16 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 	);
 }
 
-// Only a `manual` collection keeps its members in the join table that `collectionGet` returns —
-// the smart filters are evaluated against the whole catalog when the storefront asks for them.
-// Re-expressing each one as the equivalent product browse is what keeps those collections from
-// rendering as an empty grid. Cached like the collection itself, which also pins the
-// `Date.now()` below to the cache entry.
+// The platform resolves the collection: a hand-picked one from its members, an automatic one from its rule, both in
+// the sort order the merchant set on it. The page has no pagination, so it renders one page; 100 is the API's max.
 async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	"use cache";
 	cacheLife("minutes");
-	const { filter } = collection;
-
-	if (filter.type === "manual") {
-		const ids = collection.productCollections.map((pc) => pc.product.id);
-		// The SDK throws on a 404: one product deleted since it joined must not fail the page.
-		return (
-			await Promise.all(ids.map((id) => commerce.productGet({ idOrSlug: id }).catch(() => null)))
-		).filter((product) => product !== null);
-	}
-
-	if (filter.type === "variantValues") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			vts: encodeVts(filter.values),
-		});
-		return data;
-	}
-
-	if (filter.type === "dynamicPrice") {
-		const { data } = await commerce.productBrowse({
-			active: true,
-			limit: SMART_COLLECTION_LIMIT,
-			priceMin: filter.min ?? undefined,
-			priceMax: filter.max ?? undefined,
-		});
-		return data;
-	}
-
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: SMART_COLLECTION_LIMIT,
-		orderBy: "createdAt",
-		orderDirection: "desc",
-	});
-
-	// A rolling "new arrivals" window has no browse equivalent, so the age bound is applied here.
-	if (typeof filter.days !== "number") {
-		return data;
-	}
-	const cutoff = Date.now() - filter.days * MS_PER_DAY;
-	return data.filter((product) => new Date(product.createdAt).getTime() >= cutoff);
+	const { data } = await commerce.request<APIProductsBrowseResult>(
+		`/collections/${encodeURIComponent(collection.slug)}/products`,
+		{ query: { limit: COLLECTION_PRODUCTS_LIMIT } },
+	);
+	return data;
 }
 
 async function CollectionProducts({ collection }: { collection: APICollectionGetByIdResult }) {

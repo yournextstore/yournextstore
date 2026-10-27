@@ -10,7 +10,7 @@ type ListingQuery = {
 	filters: ProductListingParams;
 	/** Fixed category of a category page; on `/products` it comes from the filters. */
 	category?: string;
-	order?: { orderBy: "createdAt" | "price" | "name"; orderDirection: "asc" | "desc" };
+	order?: { orderBy: "createdAt" | "price" | "name" | "featured"; orderDirection: "asc" | "desc" };
 };
 
 /** One page of a listing. Cached, so a view can start it alongside its facets and the grid reads the same entry. */
