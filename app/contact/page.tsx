@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ContactForm } from "@/app/contact/contact-form";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
@@ -34,7 +35,18 @@ const contactJsonLd = {
 	description: "Get in touch with our team. Questions about orders, products, or anything else.",
 };
 
-export default async function ContactPage() {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function ContactPage() {
+	return (
+		<Suspense fallback={null}>
+			<ContactPageContent />
+		</Suspense>
+	);
+}
+
+async function ContactPageContent() {
 	"use cache";
 	cacheLife("minutes");
 

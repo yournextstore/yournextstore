@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -38,7 +39,18 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-export default async function BlogPage() {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function BlogPage() {
+	return (
+		<Suspense fallback={null}>
+			<BlogPageContent />
+		</Suspense>
+	);
+}
+
+async function BlogPageContent() {
 	"use cache";
 	cacheLife("minutes");
 
