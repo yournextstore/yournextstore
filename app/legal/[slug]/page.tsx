@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { getAllLegalPages, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
@@ -43,7 +44,18 @@ const getLegalPage = async (slug: string) => {
 	return error ? null : page;
 };
 
-export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function LegalPage(props: Parameters<typeof LegalPageContent>[0]) {
+	return (
+		<Suspense fallback={null}>
+			<LegalPageContent {...props} />
+		</Suspense>
+	);
+}
+
+async function LegalPageContent({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
 	const page = await getLegalPage(slug);
 

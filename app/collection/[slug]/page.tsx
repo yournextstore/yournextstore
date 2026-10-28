@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
@@ -133,11 +134,18 @@ const getCollectionData = async (slug: string) => {
 	return error ? null : collection;
 };
 
-export default async function CollectionPage({
-	params,
-}: {
-	params: PageProps<"/collection/[slug]">["params"];
-}) {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function CollectionPage(props: Parameters<typeof CollectionPageContent>[0]) {
+	return (
+		<Suspense fallback={null}>
+			<CollectionPageContent {...props} />
+		</Suspense>
+	);
+}
+
+async function CollectionPageContent({ params }: { params: PageProps<"/collection/[slug]">["params"] }) {
 	const { slug } = await params;
 	const collection = await getCollectionData(slug);
 

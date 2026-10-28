@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
@@ -104,7 +105,18 @@ const getProductPageData = async (slug: string) => {
 	};
 };
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function ProductPage(props: Parameters<typeof ProductPageContent>[0]) {
+	return (
+		<Suspense fallback={null}>
+			<ProductPageContent {...props} />
+		</Suspense>
+	);
+}
+
+async function ProductPageContent({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
 	const { product, reviews, restockNotificationsEnabled, brand } = await getProductPageData(slug);
 

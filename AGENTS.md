@@ -105,10 +105,14 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
 
 - **No `loading.tsx`, no route skeletons.** Product, category, collection, blog and legal pages list
   their known addresses with `generateStaticParams` (helpers in `lib/catalog-paths.ts`, shared with
-  `app/sitemap.ts`) and await `params` at the top of the page, so every listed address prerenders
-  in full. An address added after the build renders on its first request (chrome first) and is
-  cached from then on. Only URL-safe slugs are listed (`isStaticSlug`): Next writes the path into a
-  header while prerendering, and a space or non-ASCII letter fails the whole build.
+  `app/sitemap.ts`), so every listed address prerenders in full. The page's default export is a
+  sync wrapper that renders the async body inside one `<Suspense fallback={null}>`: a listed address
+  resolves it at build time (no fallback ever shows), and an address added after the build streams
+  in behind the prerendered chrome on its first request and is cached from then on. Awaiting
+  `params` above that boundary leaves unlisted addresses without a shell, and `notFound()` for one
+  then serves a bare error document with no header or footer. Only URL-safe slugs are listed
+  (`isStaticSlug`): Next writes the path into a header while prerendering, and a space or non-ASCII
+  letter fails the whole build.
 - **No `<Suspense>` around cached data.** A `"use cache"` component inside a boundary still ships its
   fallback first and its content later in the same HTML (a late segment swapped in by `$RC`), so
   the shopper sees the skeleton while the document downloads. Render cached sections directly; keep

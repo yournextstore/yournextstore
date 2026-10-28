@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { CategoryView, categoryMetadata } from "@/app/category/[...slugs]/category-view";
 import { SearchParamsProbe } from "@/components/search-params-probe";
 import { getAllCategories, isStaticSlug, PLACEHOLDER_SLUG, withPlaceholder } from "@/lib/catalog-paths";
@@ -17,7 +18,18 @@ export async function generateMetadata(props: PageProps<"/category/[...slugs]">)
 	return categoryMetadata(slugs);
 }
 
-export default async function CategoryPage(props: PageProps<"/category/[...slugs]">) {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function CategoryPage(props: Parameters<typeof CategoryPageContent>[0]) {
+	return (
+		<Suspense fallback={null}>
+			<CategoryPageContent {...props} />
+		</Suspense>
+	);
+}
+
+async function CategoryPageContent(props: PageProps<"/category/[...slugs]">) {
 	const { slugs } = await props.params;
 	return (
 		<>

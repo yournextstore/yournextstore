@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { try_ } from "safe-try";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
@@ -70,7 +71,18 @@ const getBlogPostData = async (slug: string) => {
 	return error ? null : post;
 };
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
+// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
+// layout instead of a bare error document.
+export default function BlogPostPage(props: Parameters<typeof BlogPostPageContent>[0]) {
+	return (
+		<Suspense fallback={null}>
+			<BlogPostPageContent {...props} />
+		</Suspense>
+	);
+}
+
+async function BlogPostPageContent({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
 	const post = await getBlogPostData(slug);
 
