@@ -218,7 +218,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 			</Dialog>
 
 			{showTeaser && !isTeaserHidden && (
-				<div className="fixed bottom-4 left-4 z-50 flex items-center gap-2">
+				<div className="fixed bottom-4 left-4 z-40 flex items-center gap-2">
 					<button
 						type="button"
 						onClick={handleTeaserOpen}
