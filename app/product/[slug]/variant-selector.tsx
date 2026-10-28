@@ -114,9 +114,10 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 		setUrlQuery(`${pathname}?${params.toString()}`);
 	};
 
-	// Auto-redirect to first variant when no URL params exist (for multi-variant products)
+	// Auto-redirect to first variant when no URL params exist (for multi-variant products). Checks the live address:
+	// the hydration render reads an empty query, and this effect runs before the re-render that sees the real one.
 	useEffect(() => {
-		if (variants.length <= 1 || searchParams.size > 0) return;
+		if (variants.length <= 1 || searchParams.size > 0 || window.location.search.length > 1) return;
 
 		const firstVariant = variants[0];
 		if (!firstVariant) return;
