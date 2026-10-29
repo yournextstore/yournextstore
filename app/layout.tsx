@@ -184,13 +184,10 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 	);
 }
 
+// The shop's language, as the platform decides it: the default language once it is switched on, else the store's own.
 async function getHtmlLang(): Promise<string> {
-	try {
-		const me = await meGetCached();
-		return me.store.settings?.defaultLanguage?.split("-")[0] ?? "en";
-	} catch {
-		return "en";
-	}
+	const { locale } = await getStoreConfig();
+	return locale.split("-")[0] || "en";
 }
 
 async function NewsletterPopupSection() {
