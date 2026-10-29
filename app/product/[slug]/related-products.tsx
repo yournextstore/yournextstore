@@ -3,20 +3,16 @@ import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { commerce } from "@/lib/commerce";
 
-// Cached per category, not per product: every product page in a category shares one
-// browse, and the current product is filtered out afterwards.
-async function getCategoryProducts(categorySlug?: string) {
+// The merchant's suggested products first, then the same category. The platform picks the
+// order and leaves out the product itself and anything a shopper can't buy right now.
+async function getRelatedProducts(productId: string) {
 	"use cache";
 	cacheLife("minutes");
-	const { data } = await commerce.productBrowse({
-		active: true,
-		limit: 7,
-		...(categorySlug ? { category: categorySlug } : {}),
-	});
+	const { data } = await commerce.productRelated({ idOrSlug: productId, limit: 6 });
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string; categorySlug?: string }) {
+export function RelatedProducts(props: { productId: string }) {
 	return (
 		<Suspense>
 			<RelatedProductsContent {...props} />
@@ -24,15 +20,8 @@ export function RelatedProducts(props: { productId: string; categorySlug?: strin
 	);
 }
 
-async function RelatedProductsContent({
-	productId,
-	categorySlug,
-}: {
-	productId: string;
-	categorySlug?: string;
-}) {
-	const products = await getCategoryProducts(categorySlug);
-	const related = products.filter((p) => p.id !== productId).slice(0, 6);
+async function RelatedProductsContent({ productId }: { productId: string }) {
+	const related = await getRelatedProducts(productId);
 
 	if (related.length === 0) return null;
 

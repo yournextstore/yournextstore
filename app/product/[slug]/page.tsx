@@ -258,7 +258,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 			<ProductFeatures />
 
 			{/* Related Products */}
-			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
+			<RelatedProducts productId={product.id} />
 		</div>
 	);
 }
