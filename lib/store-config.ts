@@ -20,8 +20,11 @@ export async function getStoreConfig() {
 	}
 	// The storefront's default language is what shoppers read here: it formats prices and is
 	// reported to the platform on every cart and newsletter signup, so checkout, the account and
-	// every email speak it too. `store.locale` is the merchant's admin language and only a last resort.
-	const language = me.store.settings?.defaultLanguage ?? null;
+	// every email speak it too. It only counts once the merchant has switched it on, the same rule the
+	// platform's checkout follows; otherwise the store's own language (`store.locale`) is the shop's.
+	const defaultLanguage = me.store.settings?.defaultLanguage ?? null;
+	const language =
+		defaultLanguage && me.store.settings?.enabledLanguages?.[defaultLanguage] ? defaultLanguage : null;
 	return {
 		currency: me.store.currency || CURRENCY,
 		locale: language || me.store.locale || LOCALE,
