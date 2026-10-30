@@ -114,6 +114,33 @@
 	overflow: hidden;
 }
 
+/* A wide table scrolls in its own wrapper so the page never does. */
+.tiptap-content .tableWrapper {
+	margin-block: 1.5rem;
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+.tiptap-content table {
+	margin: 0;
+}
+
+.tiptap-content th,
+.tiptap-content td {
+	border: 1px solid var(--tw-prose-td-borders, var(--border));
+	padding: 0.5rem 0.75rem;
+	vertical-align: top;
+}
+
+.tiptap-content th {
+	background: color-mix(in oklab, currentColor 5%, transparent);
+	font-weight: 600;
+}
+
+.tiptap-content :is(th, td) > p {
+	margin-block: 0;
+}
+
 .yns-image-shimmer {
 	background: linear-gradient(
 		90deg,

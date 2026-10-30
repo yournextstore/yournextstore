@@ -6,7 +6,7 @@ import { Youtube } from "@tiptap/extension-youtube";
 import { StarterKit } from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer";
 import type { JSONContent } from "commerce-kit";
-import type { ReactNode } from "react";
+import { Children, type ReactNode } from "react";
 import { BlogProductEmbed } from "@/components/blog-product-embed";
 
 // The admin editor writes images as `imageResize`. Alias it onto Image rather than pull the
@@ -25,6 +25,16 @@ const ProductEmbed = TiptapNode.create({
 	parseHTML: () => [{ tag: "div[data-type='product-embed']" }],
 	renderHTML: () => ["div", { "data-type": "product-embed" }],
 });
+
+// The admin editor's table nodes, declared for the same reason as the image alias.
+const Table = TiptapNode.create({ name: "table", group: "block", content: "tableRow+" });
+const TableRow = TiptapNode.create({ name: "tableRow", content: "(tableCell | tableHeader)+" });
+const TableCell = TiptapNode.create({
+	name: "tableCell",
+	content: "block+",
+	addAttributes: () => ({ colspan: { default: 1 }, rowspan: { default: 1 } }),
+});
+const TableHeader = TableCell.extend({ name: "tableHeader" });
 
 const extensions = [
 	StarterKit.configure({
@@ -49,6 +59,10 @@ const extensions = [
 	Image.configure({ allowBase64: false, inline: true }),
 	ImageResize.configure({ allowBase64: false, inline: true }),
 	ProductEmbed,
+	Table,
+	TableRow,
+	TableCell,
+	TableHeader,
 ];
 
 type Node = TiptapJSONContent;
@@ -173,6 +187,22 @@ function stripPastedTypography(nodes: Node[]): Node[] {
 	});
 }
 
+const headerRow = (row: Node): Node => ({
+	...row,
+	content: row.content?.map((cell) => ({ ...cell, type: "tableHeader" })),
+});
+
+/** A table's first row heads its columns: imported tables store it as plain cells, with no header at all. */
+function promoteHeaderRows(nodes: Node[]): Node[] {
+	return nodes.map((node) => {
+		const content = node.content && promoteHeaderRows(node.content);
+		if (!content) return node;
+		if (node.type !== "table") return { ...node, content };
+		const [first, ...rows] = content;
+		return { ...node, content: first ? [headerRow(first), ...rows] : content };
+	});
+}
+
 // Passed as `unhandledNode`/`unhandledMark`: without them a node or mark with no matching
 // extension makes the whole render throw and the article comes out blank.
 function passThrough({ children }: { children?: ReactNode | ReactNode[] }): ReactNode {
@@ -185,7 +215,9 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 	const children = root.content;
 	if (!Array.isArray(children) || children.length === 0) return null;
 
-	const prunedChildren = pruneEmptyNodes(liftNestedBlocks(stripPastedTypography(children)));
+	const prunedChildren = promoteHeaderRows(
+		pruneEmptyNodes(liftNestedBlocks(stripPastedTypography(children))),
+	);
 	if (prunedChildren.length === 0) return null;
 	const pruned: TiptapJSONContent = { ...root, content: prunedChildren };
 
@@ -213,6 +245,28 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 								/>
 							) : null;
 						},
+						table: ({ children }) => {
+							const [header, ...rows] = Children.toArray(children);
+							return (
+								<div className="tableWrapper">
+									<table>
+										<thead>{header}</thead>
+										<tbody>{rows}</tbody>
+									</table>
+								</div>
+							);
+						},
+						tableRow: ({ children }) => <tr>{children}</tr>,
+						tableHeader: ({ node, children }) => (
+							<th colSpan={node.attrs.colspan} rowSpan={node.attrs.rowspan}>
+								{children}
+							</th>
+						),
+						tableCell: ({ node, children }) => (
+							<td colSpan={node.attrs.colspan} rowSpan={node.attrs.rowspan}>
+								{children}
+							</td>
+						),
 					},
 					unhandledNode: passThrough,
 					unhandledMark: passThrough,
