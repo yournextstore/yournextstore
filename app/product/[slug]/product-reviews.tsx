@@ -1,5 +1,5 @@
 import type { APIProductReviewsBrowseResult } from "commerce-kit";
-import { Star } from "lucide-react";
+import { BadgeCheck, Star } from "lucide-react";
 import { WriteReview } from "@/app/product/[slug]/review-form";
 
 function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) {
@@ -37,9 +37,15 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 	return (
 		<div className="space-y-2 border-b border-border pb-6 last:border-0">
 			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-3">
+				<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
 					<StarRating rating={review.rating} />
 					<span className="font-medium">{review.author}</span>
+					{review.verified && (
+						<span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+							<BadgeCheck className="h-3.5 w-3.5" aria-hidden />
+							Verified purchase
+						</span>
+					)}
 				</div>
 				<time className="text-sm text-muted-foreground" dateTime={review.createdAt}>
 					{new Date(review.createdAt).toLocaleDateString(undefined, {
@@ -67,6 +73,11 @@ export function ProductReviews({
 				<h2 className="text-3xl font-medium tracking-tight">Customer Reviews</h2>
 				<ReviewSummary summary={reviews.summary} />
 			</div>
+			{/* How reviews are checked (EU Omnibus): shown wherever reviews are. */}
+			<p className="-mt-4 mb-8 text-sm text-muted-foreground">
+				Only customers who bought a product can review it. Reviews marked "Verified purchase" come from a
+				confirmed order.
+			</p>
 			{reviews.data.length > 0 ? (
 				<div className="space-y-6">
 					{reviews.data.map((review) => (
@@ -74,7 +85,7 @@ export function ProductReviews({
 					))}
 				</div>
 			) : (
-				<p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
+				<p className="text-muted-foreground">No reviews yet.</p>
 			)}
 			<div className="mt-10">
 				<WriteReview productId={productId} />

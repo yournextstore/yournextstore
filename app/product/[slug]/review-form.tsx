@@ -51,10 +51,15 @@ async function fetchReviewToken(productId: string): Promise<TokenAnswer> {
 	return answer ?? { status: "failed" };
 }
 
+// A buyer who checked out as a guest, or under another email, can only review from the link in
+// their delivery email.
+const BUYERS_ONLY =
+	"Only customers who bought this product can review it. Bought it? Use the review link in your delivery email.";
+
 const NOTES: Record<Exclude<TokenAnswer["status"], "ok">, string> = {
 	failed: "Reviews can't be written right now.",
-	sign_in: "Only customers who bought this product can review it.",
-	not_bought: "Only customers who bought this product can review it.",
+	sign_in: BUYERS_ONLY,
+	not_bought: BUYERS_ONLY,
 	already_reviewed: "You've already reviewed this product.",
 };
 
