@@ -43,7 +43,7 @@ async function FooterCollections() {
 	"use cache";
 	cacheLife("hours");
 
-	const collections = await commerce.collectionBrowse({ limit: 5 });
+	const collections = await commerce.collectionBrowse({ active: true, limit: 5 });
 
 	if (collections.data.length === 0) {
 		return null;

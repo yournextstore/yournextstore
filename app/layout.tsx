@@ -109,7 +109,7 @@ async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
 	cacheLife("hours");
 	const [collections, me] = await Promise.all([
-		commerce.collectionBrowse({ limit: 5 }),
+		commerce.collectionBrowse({ active: true, limit: 5 }),
 		meGetCached().catch(() => null),
 	]);
 	const blogEnabled = me?.store.settings?.enabledTools?.blog ?? false;
