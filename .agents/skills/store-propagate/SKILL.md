@@ -26,8 +26,12 @@ fails, record it and move on to the next.
   **`yns-store-tenants`** (production, yns.store). Use `gh`.
 - They share no history with the template: a new store is a copy made with GitHub's "create from
   template" (the platform's `src/lib/store/tenant-project.ts`).
-- Pushing to a store's `main` redeploys that storefront. It is safe for open Design sessions: their
-  catch-up moves onto the new `main` and keeps the edits they haven't published.
+- Pushing to a store's `main` doesn't deploy it: tenant projects ignore git builds. The store picks
+  the change up on its next publish; to ship it now, publish it yourself (Deploy main on the
+  superadmin store page, or `POST /api/v1/publish` with the store's key, which a store checkout's
+  `bun run publish:store` sends).
+- Pushing is safe for open Design sessions: their catch-up moves onto the new `main` and keeps the
+  edits they haven't published.
 - `.env*` files are per-store secrets. Never read, change or commit them.
 
 ## Inputs
@@ -53,12 +57,12 @@ fails, record it and move on to the next.
 
 ## Fleet and report
 
-Run a few stores at a time, each in its own temp dir: every push redeploys a store. End with one
-table: store · files changed · pushed, current or error.
+Run a few stores at a time, each in its own temp dir, and publish a few at a time too: every publish
+builds a store. End with one table: store · files changed · pushed, published, current or error.
 
 ## Live spot-check (optional, when the invoker names expectations)
 
-After the redeploy, check what the change promises with
+After the publish, check what the change promises with
 `curl -sI https://<subdomain>.<yns.cx|yns.store><path>` (e.g. a newly forwarded path now answering
 from the platform instead of the storefront's 404). Tenant 404s stream with HTTP 200: check content
 or headers, not only the status code.
