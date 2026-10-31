@@ -96,10 +96,27 @@ bun run api POST /products '{"name":"Tee","price":29.99}'
 
 `scripts/publish.sh` deploys the tenant repo's **remote `main`** — push your commits first. `scripts/api.sh` is a thin wrapper around `curl` that handles auth, base-URL resolution, and pretty JSON output for every `/api/v1/*` endpoint (see the [API documentation](https://yns.store/manage/settings/api)).
 
-## Syncing a store with the template
+## Updating a store to the template
 
-Stores are seeded from a snapshot of this repo and share no commits with it, so a plain merge has no
-base. See [docs/sync.md](docs/sync.md) for the graft-and-merge procedure and why merge beats rebase here.
+A YNS store is a copy of this repo with no shared history, so it never picks up template changes on
+its own. Stores update through the **Upgrade** button in Design: Elliot's `upgrade-storefront` skill
+(in the YNS platform repo, `agent/skills/upgrade-storefront`) brings in each template change file by
+file, keeps the store's look, and records the template commit it reached in `.yns/template.json`.
+The same script runs on a store checkout:
+
+```bash
+UPGRADE=<platform>/agent/skills/upgrade-storefront/scripts/upgrade.ts
+bun $UPGRADE --store <store dir>           # plan: what would change
+bun $UPGRADE --store <store dir> --apply   # apply everything safe; conflicts are left for you
+bun $UPGRADE --store <store dir> --record  # after a full refresh: write .yns/template.json
+```
+
+Don't merge or rebase a store onto the template. Its `main` is published, and Design's version
+history restores published versions by their commit.
+
+The three platform-managed files (`proxy.ts`, `lib/track.tsx`, `instrumentation-client.ts`) are the
+exception: every publish restores them from the store's own `main`, so a change to them goes out to
+every store with the [`store-propagate`](.agents/skills/store-propagate/SKILL.md) skill.
 
 ## Contributing
 

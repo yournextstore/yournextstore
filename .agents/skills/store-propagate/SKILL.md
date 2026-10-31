@@ -1,146 +1,64 @@
 ---
 name: store-propagate
-description: Propagate the template's current main into forked AI-store repos (yns-store-* in the tenants org), updating every file the store never customized and reporting the rest. Content-level reconcile — store repos share NO git history with the template. Use for "template rebase", "propagate template", "sync store repos", after landing template changes that existing stores must pick up. Takes an optional list of store subdomains; defaults to every builder store.
+description: Push the template's three platform-managed files (proxy.ts, lib/track.tsx, instrumentation-client.ts) to the store repos (yns-store-* in the tenants orgs). Publishing restores those files from each store's own main, so a commit there is the only way a change to them reaches existing stores. Use for "propagate proxy.ts", "update the managed files in every store", "roll out a proxy change", after landing a template change to one of those files. Every other template change reaches a store through the Upgrade button (the platform's upgrade-storefront skill), not this skill. Takes an optional list of store subdomains; defaults to every builder store.
 ---
 
-# Propagate template main into forked store repos
+# Push the platform-managed files to store repos
 
-You may be running autonomously across many repos. Do not ask questions — decide, act, and
-report. If one store fails, record it and move on to the next.
+You may be running across many repos. Do not ask questions: decide, act and report. If one store
+fails, record it and move on to the next.
 
-## Architecture facts (do not rediscover these)
+## What this is for, and what it isn't
 
-- Store repos are `yns-store-<subdomain>` in the GitHub org **`yns-cx-tenants`** (staging /
-  yns.cx) or **`yns-store-tenants`** (production / yns.store). Access via `gh`.
-- **Store repos share no git history with this template.** Provisioning copies template files
-  into a fresh repo without upstream parents (see the platform's
-  `src/lib/sandbox/fork-builder.ts`). Never attempt `git rebase`/`git merge` against the
-  template — this skill reconciles *content*, file by file.
-- Stores may have been seeded from a `theme-*` branch, and Elliot edits files freely
-  afterwards. The only files Elliot cannot touch are the **managed paths**
-  (`proxy.ts`, `lib/track.tsx`, `instrumentation-client.ts` — the platform's
-  `MANAGED_STOREFRONT_PATHS`): the platform's commit script restores those from the store
-  repo's own `origin/main` on every save, so *landing the template's version on the store's
-  main IS the propagation mechanism* for them.
-- Pushing to a store repo's `main` triggers a production redeploy of that tenant storefront,
-  and it is safe with respect to live builder sandboxes: their save script fetches and
-  rebases onto `FETCH_HEAD`, aborting cleanly on conflict.
-- `.env*` files are per-store secrets. Never read, modify, or commit them.
+- Three files in every store are platform-managed: `proxy.ts`, `lib/track.tsx` and
+  `instrumentation-client.ts` (the platform's `MANAGED_STOREFRONT_PATHS`). Every publish puts them
+  back to the store repo's own `main`, so neither Elliot nor the Upgrade button can change them. A
+  commit on the store's `main` is the only way, and this skill makes it.
+- Every other template change reaches a store through the **Upgrade** button in Design: Elliot's
+  `upgrade-storefront` skill in the platform repo (`agent/skills/upgrade-storefront`). It brings
+  the changes in file by file, keeps the store's look and records the template commit in
+  `.yns/template.json`. Don't copy other files from here, and never merge or rebase a store onto
+  the template (README, "Updating a store to the template").
+
+## Facts
+
+- Store repos are `yns-store-<subdomain>` in **`yns-cx-tenants`** (staging, yns.cx) or
+  **`yns-store-tenants`** (production, yns.store). Use `gh`.
+- They share no history with the template: a new store is a copy made with GitHub's "create from
+  template" (the platform's `src/lib/store/tenant-project.ts`).
+- Pushing to a store's `main` redeploys that storefront. It is safe for open Design sessions: their
+  catch-up moves onto the new `main` and keeps the edits they haven't published.
+- `.env*` files are per-store secrets. Never read, change or commit them.
 
 ## Inputs
 
-- Optional: a list of store subdomains (e.g. `base celeste`) and/or the org to target.
-  Default: staging org, all builder stores.
-- Enumerate builder stores from the platform DB when available (source of truth):
-  `SELECT subdomain FROM stores WHERE builder_config IS NOT NULL;` — otherwise
+- Optional: store subdomains (e.g. `base celeste`) and/or the org. Default: the staging org, every
+  builder store.
+- List builder stores from the platform DB when you can:
+  `SELECT subdomain FROM stores WHERE builder_config IS NOT NULL;`. Otherwise
   `gh repo list <org> --limit 200 --json name` and strip the `yns-store-` prefix.
 
-## Per-store algorithm
+## Per store
 
-Work from a checkout of this template repo with full history and all branches fetched
-(`git fetch origin "+refs/heads/*:refs/remotes/origin/*"`). Clone each store repo into a
-temp dir (`gh repo clone <org>/yns-store-<subdomain> <tmp> -- --depth=1`).
+1. Clone into a temp dir: `gh repo clone <org>/yns-store-<subdomain> <tmp> -- --depth=1`.
+2. Copy the three files from this repo's `origin/main` over the store's copies. A store that lacks
+   one gets it.
+3. Nothing differs: skip the store and report it as `current`.
+4. `bun install`, `bun next typegen`, then `bun tsc --noEmit`. A failure means **don't push**:
+   report the store with the error. It usually means the store's own code and the new file
+   disagree, and that store needs the Upgrade button first.
+5. Commit as `chore: update the platform-managed files to template <short sha>`, with a body
+   naming the files that changed and the driving issue if you were given one. Plain push to
+   `main`, **never force**.
 
-The decision rule for every path is **"has the store ever customized this file?"**, answered
-by blob-hash comparison against the template `origin/main` history:
+## Fleet and report
 
-```
-# all historical blob hashes of a path on template main (cache per path):
-git -C <template> log origin/main --format=%H -- <path> \
-  | while read sha; do git -C <template> rev-parse -q --verify "$sha:<path>"; done | sort -u
-# the store's current blob:
-git -C <store> hash-object <path>
-```
-
-Matching only a `theme-*` blob (not any main-history blob) counts as **customized** — theme
-identity must never be flattened onto main's look.
-
-Then, per path:
-
-1. **Managed paths** (`proxy.ts`, `lib/track.tsx`, `instrumentation-client.ts`): overwrite
-   with template main's version unconditionally.
-2. **Path exists in template main** and the store's copy differs: if the store blob matches
-   some main-history blob → replace with template main's version. Otherwise → leave it,
-   record as `skipped (customized)`.
-3. **Path exists in the store but not in template main** (template deleted it): if the store
-   blob matches some main-history blob → delete it. Otherwise → leave, record as
-   `skipped (customized, template deleted)`.
-4. **Store-created paths** (never existed on template main): untouched, not reported.
-5. **Special cases** — never blanket-copied:
-   - `package.json`: reconcile dependencies with `jq` — for every key in the template's
-     `dependencies`/`devDependencies`, set the template's version; drop store keys absent
-     from template main whose version spec matches some main-history spec (i.e. the template
-     removed them); keep store-added deps. Leave `scripts` and the rest to the same
-     rule-2/rule-3 judgement at the whole-file level only if the file was never customized.
-   - `bun.lock`: never copied — regenerate with `bun install` after the reconcile.
-   - `.env*`, `deploy_key.pem`: never touched.
-
-## Targeted edits for the shell rollout
-
-The performance/accessibility pass on template main (prerendered chrome, optimizer-served favicon,
-AA colour tokens) is mostly self-propagating, but three paths need help:
-
-- **New files land on their own** under rule 4 — `scripts/check-shell.sh`, `scripts/audit.sh`,
-  `lib/contrast.ts`, `lib/contrast.test.ts`, `app/palette.test.ts`, `lint-staged.config.mjs`.
-  Nothing to do.
-- **`package.json` `scripts.build`** must be ported even when the file counts as customized,
-  because the build gate is the whole point of the change:
-  ```
-  jq '.scripts.build = "bun next build && bash scripts/check-shell.sh"' package.json | sponge package.json
-  ```
-  Add `.scripts.audit = "bash scripts/audit.sh"` the same way. Everything else in `scripts` stays as
-  the store has it.
-- **`app/layout.tsx`** is ~52 commits of churn on main and will almost always come back as
-  `skipped (customized)`. Do not merge it, with one exception: when `app/cart/cart-context.tsx`
-  was updated to main's version, `CartProvider` takes only `children` (it loads the cart in the
-  browser) and `tsc` fails until the layout stops passing it a cart. Then delete the server-side
-  cart read in this run: `getInitialCart` and its `await`, or the `CartBootstrapper` block with its
-  `<Suspense>`, plus the `initialCart`/`initialCartId`/`bootstrap` props and the imports left
-  unused. Put the rest in the "needs manual follow-up" list with these three targeted edits spelled
-  out, so a follow-up run (or a human) can apply them:
-  1. remove the `<Suspense>` around the children/chrome wrapper **if** everything it awaits is a
-     cached read — the boundary alone streams the chrome out of the prerendered shell;
-  2. replace the `icons` block in the metadata with the optimizer version — one `icon` entry built
-     with `getImageProps` and **no** `type`, `apple` left on the original URL, no `shortcut`;
-  3. `Geist_Mono({ …, preload: false })`.
-
-  After such a follow-up, `bun run build` in the store repo is the check that says it worked.
-- **`components/cookie-consent.tsx` and `components/cookie-consent-banner.tsx`** change as a
-  pair. The server file now always renders the banner, and the banner hides itself by reading the
-  consent cookie in the browser (`use(browser())` inside its own `<Suspense>`). One old file next
-  to one new file still type-checks but breaks consent: either the banner shows to every visitor,
-  or the consent script lands in a client-rendered boundary and never runs. If either file is
-  customized, leave both and list them for follow-up.
-
-## Verify, commit, push
-
-In each store repo, in order — a failure at any step means **do not push**; report instead:
-
-1. `bun install`
-2. `bun next typegen` (regenerates the route-type globals; deleted routes otherwise leave
-   stale validators)
-3. `bun tsc --noEmit`
-4. `bun run lint` if the script exists (biome, auto-fix mode is fine)
-
-Commit everything applied as one commit — subject
-`chore: propagate template <short-sha of template main>`, body listing counts
-(updated/deleted/skipped) and the driving issue refs if the invoker supplied them. Plain
-push to `main`, **never force**. Remember each push redeploys that tenant — when running
-across a fleet, process a handful at a time rather than pushing dozens simultaneously.
-
-## Scale + report
-
-One store = one agent task; run a few in parallel, each in its own temp dir. At the end,
-produce a single table: store · updated · deleted · skipped(customized) · pushed?/error.
-Anything `skipped (customized)` for a file the invoker's change actually needs (e.g. an
-edit inside a customized `app/layout.tsx`) belongs in a "needs manual follow-up" list with
-the store name and path — do not attempt semantic merges of customized files unless the
-invoker explicitly described the targeted edit to make (e.g. "remove the `AuthButton`
-import and its render line if present").
+Run a few stores at a time, each in its own temp dir: every push redeploys a store. End with one
+table: store · files changed · pushed, current or error.
 
 ## Live spot-check (optional, when the invoker names expectations)
 
-After a store's push + redeploy, `curl -sI https://<subdomain>.<yns.cx|yns.store><path>`
-against whatever the propagated change promises (e.g. a proxied path now answering with a
-platform redirect instead of the template 404). Remember tenant 404s stream with HTTP 200 —
-check content or headers, not just the status code.
+After the redeploy, check what the change promises with
+`curl -sI https://<subdomain>.<yns.cx|yns.store><path>` (e.g. a newly forwarded path now answering
+from the platform instead of the storefront's 404). Tenant 404s stream with HTTP 200: check content
+or headers, not only the status code.
