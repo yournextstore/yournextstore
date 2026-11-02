@@ -132,3 +132,24 @@ export function cartDisplaySubtotal(
 	const sided = taxBehavior === "inclusive" ? cart.subtotalGross : cart.subtotalNet;
 	return sided ?? cart.subtotal ?? null;
 }
+
+type ShippingSource = {
+	readonly shipping: { readonly price: string; readonly priceGross?: string | null } | null;
+	readonly shippingGross?: number | null;
+};
+
+/**
+ * The delivery cost an order charged, in the basis the shopper should see. The order's
+ * `shippingGross` is what was charged: 0 when a free-delivery threshold or coupon applied,
+ * even though the chosen rate still lists its regular price.
+ */
+export function orderDisplayShipping(order: ShippingSource, taxBehavior: TaxBehavior): bigint {
+	const { shipping, shippingGross } = order;
+	if (!shipping || shippingGross === 0) {
+		return BigInt(0);
+	}
+	if (taxBehavior === "inclusive" && shippingGross !== null && shippingGross !== undefined) {
+		return BigInt(Math.round(shippingGross));
+	}
+	return BigInt(displayAmount(shipping.price, shipping.priceGross, taxBehavior) ?? shipping.price);
+}

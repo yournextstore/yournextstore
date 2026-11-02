@@ -8,7 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
 import { formatMoney } from "@/lib/money";
-import { cartDisplaySubtotal, displayAmount, displayPrice } from "@/lib/pricing";
+import { cartDisplaySubtotal, displayPrice, orderDisplayShipping } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -65,11 +65,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 					BigInt(0),
 				);
 
-	// The shipping rate carries its own gross twin, so the row shows what the customer paid for
-	// delivery in the same basis as every other price on the page.
-	const shippingCost = shipping
-		? BigInt(displayAmount(shipping.price, shipping.priceGross, taxBehavior) ?? shipping.price)
-		: BigInt(0);
+	const shippingCost = orderDisplayShipping(order.orderData, taxBehavior);
 
 	// An inclusive store's prices already hold the tax, so it is stated rather than added.
 	const includedTax =
