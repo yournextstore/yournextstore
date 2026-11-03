@@ -12,13 +12,10 @@ function getBaseUrl(): string {
 	return getCanonicalUrl();
 }
 
+// A plain child, no dangerouslySetInnerHTML: React escapes `<script` and `</script` inside a script's text when it
+// renders on the server (as `<script`), so a product name can't end the tag or trap its closing one.
 export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
-	return (
-		<script
-			type="application/ld+json"
-			dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
-		/>
-	);
+	return <script type="application/ld+json">{JSON.stringify(data)}</script>;
 }
 
 export async function buildProductJsonLd(
@@ -34,7 +31,7 @@ export async function buildProductJsonLd(
 	// Minor units per the currency's decimals: 1999 is ¥1999, not ¥19.99.
 	const lowPrice = minorUnitsToMajor({ amount: min, currency });
 	const highPrice = minorUnitsToMajor({ amount: max, currency });
-	const baseUrl = getBaseUrl();
+	const url = `${getBaseUrl()}/product/${product.slug}`;
 	// `stock: null` means the variant doesn't track inventory.
 	const availability = product.variants.some((variant) => variant.stock === null || (variant.stock ?? 0) > 0)
 		? "https://schema.org/InStock"
@@ -48,17 +45,20 @@ export async function buildProductJsonLd(
 		image: product.images,
 		sku: product.variants[0]?.sku ?? product.id,
 		brand: brandName ? { "@type": "Brand", name: brandName } : undefined,
+		// One price is one Offer, however many variants share it (sizes of the same shirt): Google's merchant listings
+		// read `price`, and an AggregateOffer with lowPrice equal to highPrice says less.
 		offers:
-			product.variants.length === 1
+			min === max
 				? {
 						"@type": "Offer",
-						url: `${baseUrl}/product/${product.slug}`,
+						url,
 						priceCurrency: currency,
 						price: lowPrice,
 						availability,
 					}
 				: {
 						"@type": "AggregateOffer",
+						url,
 						lowPrice,
 						highPrice,
 						priceCurrency: currency,

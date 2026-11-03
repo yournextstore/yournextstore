@@ -1,5 +1,6 @@
 import { expect, mock, test } from "bun:test";
 import type { APIProductGetByIdResult } from "commerce-kit";
+import { renderToString } from "react-dom/server";
 
 // lib/commerce asserts YNS_API_KEY at import time — stub it before the dynamic import.
 process.env.YNS_API_KEY ??= "test-key";
@@ -7,7 +8,7 @@ process.env.YNS_API_KEY ??= "test-key";
 const storeConfig = { currency: "usd", locale: "en-US", taxBehavior: "exclusive" as const };
 mock.module("@/lib/store-config", () => ({ getStoreConfig: async () => storeConfig }));
 
-const { buildProductBreadcrumbJsonLd, buildProductJsonLd } = await import("@/lib/json-ld");
+const { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } = await import("@/lib/json-ld");
 
 const product = (variants: Array<{ price: string; stock: number | null }>) =>
 	({
@@ -57,6 +58,43 @@ test("aggregate offer reads availability from the variants", async () => {
 	);
 	expect(soldOut.offers).toMatchObject({ availability: "https://schema.org/OutOfStock" });
 	expect(soldOut.brand).toBeUndefined();
+});
+
+test("variants that share one price make a single Offer", async () => {
+	storeConfig.currency = "usd";
+	const jsonLd = await buildProductJsonLd(
+		product([
+			{ price: "1999", stock: 2 },
+			{ price: "1999", stock: 0 },
+			{ price: "1999", stock: null },
+		]),
+		null,
+		null,
+	);
+	expect(jsonLd.offers).toMatchObject({ "@type": "Offer", price: 19.99 });
+	expect((jsonLd.offers as { url: string }).url).toEndWith("/product/sneaker");
+});
+
+test("aggregate offer links the product page", async () => {
+	storeConfig.currency = "usd";
+	const jsonLd = await buildProductJsonLd(
+		product([
+			{ price: "1999", stock: 1 },
+			{ price: "2500", stock: 1 },
+		]),
+		null,
+		null,
+	);
+	expect(jsonLd.offers).toMatchObject({ "@type": "AggregateOffer", offerCount: 2 });
+	expect((jsonLd.offers as { url: string }).url).toEndWith("/product/sneaker");
+});
+
+test("a product name can't end the JSON-LD script tag", () => {
+	const html = renderToString(<JsonLdScript data={{ name: "</script><!--<script>alert(1)" }} />);
+	expect(html.match(/<script/gi)).toHaveLength(1);
+	expect(html.match(/<\/script/gi)).toHaveLength(1);
+	const json = html.replace(/^<script[^>]*>/, "").replace(/<\/script>$/, "");
+	expect(JSON.parse(json)).toEqual({ name: "</script><!--<script>alert(1)" });
 });
 
 test("product names its brand, not its category", async () => {
