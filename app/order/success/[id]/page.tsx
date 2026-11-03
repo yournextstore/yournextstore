@@ -52,6 +52,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 	}
 
 	const { lineItems, shippingAddress, shipping, customer } = order.orderData;
+	const courses = order.courses ?? [];
 
 	// The order's own totals are authoritative — they are what the customer was charged,
 	// already net or gross per the store's tax behaviour. Fall back to a line-item sum
@@ -103,6 +104,26 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 					</p>
 				)}
 			</div>
+
+			{/* Courses (dormant: only an order that grants a course has any). Older platform versions
+			    don't send the field, so it may be missing at runtime. */}
+			{courses.length > 0 && (
+				<div className="mb-10 rounded-lg border border-border p-6 text-center">
+					<h2 className="font-medium">
+						{courses.length === 1 ? "Your course is ready" : "Your courses are ready"}
+					</h2>
+					<p className="text-sm text-muted-foreground mt-1">
+						Sign in to your account with {customer?.email ?? "the email you ordered with"} to open it.
+					</p>
+					<div className="mt-4 flex flex-wrap justify-center gap-2">
+						{courses.map((course) => (
+							<a key={course.url} href={course.url} className={buttonVariants()}>
+								{courses.length === 1 ? "Go to course" : course.title}
+							</a>
+						))}
+					</div>
+				</div>
+			)}
 
 			{/* Order Items */}
 			<div className="border border-border rounded-lg overflow-hidden">
