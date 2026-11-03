@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 
 // `getSubdomainPublicUrl` reads this at call time, so setting it here is enough to keep
@@ -8,7 +9,7 @@ process.env.NEXT_PUBLIC_YNS_API_TENANT = "https://acme.yns.cx";
 // `lib/commerce` asserts this at import time, and bun skips `.env.local` under NODE_ENV=test.
 process.env.YNS_API_KEY ||= "test-key";
 
-const { proxy } = await import("./proxy");
+const { config, proxy } = await import("./proxy");
 
 const checkoutRequest = (headers: Record<string, string>) =>
 	proxy(new NextRequest("https://acme.example/checkout/payment", { method: "POST", headers }));
@@ -127,4 +128,28 @@ test("keeps serving HTML to browsers", async () => {
 test("leaves pages without a Markdown version alone", async () => {
 	const cart = await withAccept("/cart", "text/markdown");
 	expect(cart.headers.get("x-middleware-rewrite")).toBeNull();
+});
+
+const BROWSER = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8";
+
+test("runs only for agents on page addresses, so browsers' page views skip the proxy", () => {
+	const runs = (url: string, accept: string) =>
+		unstable_doesMiddlewareMatch({ config, url, headers: { accept } });
+
+	expect(runs("/product/blue-mug", BROWSER)).toBe(false);
+	expect(runs("/", BROWSER)).toBe(false);
+	expect(runs("/collection/summer", "*/*")).toBe(false);
+
+	expect(runs("/product/blue-mug", "text/markdown")).toBe(true);
+	expect(runs("/", "text/plain")).toBe(true);
+	expect(runs("/search", "text/markdown, text/html")).toBe(true);
+
+	expect(runs("/product/blue-mug.md", BROWSER)).toBe(true);
+	expect(runs("/collection/summer.md", BROWSER)).toBe(true);
+	expect(runs("/index.md", BROWSER)).toBe(true);
+	expect(runs("/search.md", BROWSER)).toBe(true);
+
+	expect(runs("/about-us", "text/markdown")).toBe(false);
+	expect(runs("/logo.svg", "text/plain")).toBe(false);
+	expect(runs("/checkout", BROWSER)).toBe(true);
 });

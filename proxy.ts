@@ -113,7 +113,7 @@ export async function proxy(request: NextRequest) {
 	const markdownRoute = markdownRewritePath(request);
 	if (markdownRoute) {
 		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
-		return NextResponse.rewrite(new URL(`/${subdomain}${markdownRoute}${search}`, publicUrl));
+		return NextResponse.rewrite(new URL(`/${subdomain}${markdownRoute}`, publicUrl));
 	}
 
 	return NextResponse.next();
@@ -140,12 +140,20 @@ export const config = {
 		"/account/:path*",
 		"/_public/:path*",
 		"/gr_sw_main.js",
-		// Pages with a Markdown version (lib/markdown.ts), with and without `.md`.
-		"/",
+		// Pages with a Markdown version (lib/markdown.ts). A `.md` address always asks for Markdown.
 		"/index.md",
-		"/search",
 		"/search.md",
-		"/product/:slug",
-		"/collection/:slug",
+		"/:kind(product|collection)/:file(.+\\.md)",
+		// The page's own address only when the Accept header mentions Markdown, so a browser's page
+		// view never runs this proxy and stays a cache hit. `prefersMarkdown` makes the final call.
+		{ source: "/", has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }] },
+		{
+			source: "/search",
+			has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }],
+		},
+		{
+			source: "/:kind(product|collection)/:slug",
+			has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }],
+		},
 	],
 };
