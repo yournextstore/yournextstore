@@ -3,7 +3,7 @@
 import type { APIProductGetByIdResult } from "commerce-kit";
 import { CheckIcon, MinusIcon, PlusIcon } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { addBundleToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -91,12 +91,9 @@ export function BundleBuilder({
 	const [selections, setSelections] = useState<GroupSelections>(() => initialSelections(groups));
 	const [isAdding, setIsAdding] = useState(false);
 
-	const itemByVariant = useMemo(() => {
-		const map = new Map<string, GroupItem>();
-		for (const group of groups)
-			for (const item of group.items) map.set(`${group.id}:${item.variantId}`, item);
-		return map;
-	}, [groups]);
+	const itemByVariant = new Map<string, GroupItem>(
+		groups.flatMap((group) => group.items.map((item) => [`${group.id}:${item.variantId}`, item] as const)),
+	);
 
 	const setQuantity = (groupId: string, variantId: string, next: number) => {
 		setSelections((prev) => {
@@ -115,18 +112,15 @@ export function BundleBuilder({
 	// Preview only — the cart response is authoritative for the final (taxed) price. Component
 	// prices and the fixed/amount-off pricing fields both carry gross twins, so an inclusive store
 	// previews the bundle inc-tax throughout.
-	const { total, originalTotal } = useMemo(() => {
-		let sum = 0n;
-		for (const group of groups) {
-			const inner = selections[group.id] ?? {};
-			for (const [variantId, quantity] of Object.entries(inner)) {
-				if (quantity <= 0) continue;
-				const item = itemByVariant.get(`${group.id}:${variantId}`);
-				if (item) sum += BigInt(displayPrice(item.variant, taxBehavior)) * BigInt(quantity);
-			}
-		}
-		return { total: priceTotal(sum, pricing, discountPercentage, taxBehavior), originalTotal: sum };
-	}, [groups, selections, itemByVariant, discountPercentage, pricing, taxBehavior]);
+	const originalTotal = groups
+		.flatMap((group) =>
+			Object.entries(selections[group.id] ?? {}).map(([variantId, quantity]) => {
+				const item = quantity > 0 ? itemByVariant.get(`${group.id}:${variantId}`) : undefined;
+				return item ? BigInt(displayPrice(item.variant, taxBehavior)) * BigInt(quantity) : 0n;
+			}),
+		)
+		.reduce((sum, line) => sum + line, 0n);
+	const total = priceTotal(originalTotal, pricing, discountPercentage, taxBehavior);
 
 	const hasSavings = total < originalTotal;
 

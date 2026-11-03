@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { Button } from "@/components/ui/button";
 import type { BlurPreview } from "@/lib/blur-placeholder";
@@ -40,15 +40,10 @@ export function MediaGallery({ images, productName, variants, preview = null }: 
 
 	const selectedVariant = useSelectedVariant(variants);
 
-	const variantImageIndex = useMemo(() => {
-		// Only variants with real combinations drive the gallery jump.
-		const firstVariantImage =
-			selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
-		if (!firstVariantImage) return 0;
-
-		const index = images.indexOf(firstVariantImage);
-		return Math.max(index, 0);
-	}, [selectedVariant, images]);
+	// Only variants with real combinations drive the gallery jump.
+	const firstVariantImage =
+		selectedVariant && selectedVariant.combinations.length > 0 ? selectedVariant.images[0] : undefined;
+	const variantImageIndex = firstVariantImage ? Math.max(images.indexOf(firstVariantImage), 0) : 0;
 
 	// Start on the selected variant's photo when the query is already known (a client navigation into the page);
 	// after a full load the query arrives with hydration and the jump below picks it up.
@@ -64,29 +59,26 @@ export function MediaGallery({ images, productName, variants, preview = null }: 
 		setSelectedIndex(variantImageIndex);
 	}
 
-	const handlePrevious = useCallback(() => {
+	const handlePrevious = () => {
 		setSelectedIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
-	}, [displayImages.length]);
+	};
 
-	const handleNext = useCallback(() => {
+	const handleNext = () => {
 		setSelectedIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
-	}, [displayImages.length]);
+	};
 
 	// Keyboard navigation: ArrowLeft / ArrowRight (scoped to gallery container)
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			if (displayImages.length <= 1) return;
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (displayImages.length <= 1) return;
 
-			if (e.key === "ArrowLeft") {
-				e.preventDefault();
-				handlePrevious();
-			} else if (e.key === "ArrowRight") {
-				e.preventDefault();
-				handleNext();
-			}
-		},
-		[displayImages.length, handlePrevious, handleNext],
-	);
+		if (e.key === "ArrowLeft") {
+			e.preventDefault();
+			handlePrevious();
+		} else if (e.key === "ArrowRight") {
+			e.preventDefault();
+			handleNext();
+		}
+	};
 
 	if (displayImages.length === 0) {
 		return (

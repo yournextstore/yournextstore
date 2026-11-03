@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
@@ -14,7 +14,7 @@ import { VariantSelector } from "@/app/product/[slug]/variant-selector";
 import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/product/[slug]/volume-pricing";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
-import { displayPrice, priceRange } from "@/lib/pricing";
+import { displayPrice, priceRange, type TaxBehavior } from "@/lib/pricing";
 import { trackAddToCart } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +67,58 @@ type AddToCartButtonProps = {
 
 const LOW_STOCK_THRESHOLD = 5;
 
+function buttonLabel(
+	variant: Variant | undefined,
+	isOutOfStock: boolean,
+	plan: SubscriptionPlan | null,
+	formattedTotal: string | null,
+) {
+	if (!variant) return "Select options";
+	if (isOutOfStock) return "Out of stock";
+	if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
+	return formattedTotal ? `Add to Cart — ${formattedTotal}` : "Add to Cart";
+}
+
+// Headline price. For the selected variant we show its own price (and the struck-through
+// list price when it's on sale). Before a variant is picked we fall back to a range.
+function headlinePrice(
+	variants: Variant[],
+	variant: Variant | undefined,
+	taxBehavior: TaxBehavior,
+	fmt: (amount: bigint) => string,
+) {
+	if (variant) {
+		const price = BigInt(displayPrice(variant, taxBehavior));
+		const listPrice = BigInt(
+			displayPrice(variant, taxBehavior, "originalPrice") ?? displayPrice(variant, taxBehavior),
+		);
+		const onSale = listPrice > price;
+		return {
+			display: fmt(price),
+			compareAt: onSale ? fmt(listPrice) : null,
+			discountPercent: onSale ? Math.round((Number(listPrice - price) / Number(listPrice)) * 100) : null,
+		};
+	}
+
+	const { min: minPrice, max: maxPrice } = priceRange(variants, taxBehavior);
+	return {
+		display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
+		compareAt: null,
+		discountPercent: null,
+	};
+}
+
+// Stock availability. null stock means it isn't tracked (treated as in stock).
+function stockStatusOf(variant: Variant | undefined) {
+	if (!variant) return null;
+	const { stock } = variant;
+	if (stock === 0) return { label: "Out of stock", tone: "out" as const };
+	if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
+		return { label: `Only ${stock} left in stock`, tone: "low" as const };
+	}
+	return { label: "In stock", tone: "in" as const };
+}
+
 export function AddToCartButton({
 	variants,
 	product,
@@ -104,61 +156,18 @@ export function AddToCartButton({
 	const unitPrice = volumePrice ?? (selectedVariant ? displayPrice(selectedVariant, taxBehavior) : null);
 	const totalPrice = unitPrice ? BigInt(unitPrice) * BigInt(effectiveQuantity) : null;
 
-	const buttonText = useMemo(() => {
-		if (!selectedVariant) return "Select options";
-		if (isOutOfStock) return "Out of stock";
-		if (plan) return plan.discountPercent > 0 ? `Subscribe & save ${plan.discountPercent}%` : "Subscribe";
-		if (totalPrice) {
-			return `Add to Cart — ${formatMoney({ amount: totalPrice, currency, locale })}`;
-		}
-		return "Add to Cart";
-	}, [selectedVariant, isOutOfStock, plan, totalPrice, locale, currency]);
-
-	// Headline price. For the selected variant we show its own price (and the struck-through
-	// list price when it's on sale). Before a variant is picked we fall back to a range.
-	const priceInfo = useMemo(() => {
-		const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
-
-		if (selectedVariant) {
-			const price = BigInt(displayPrice(selectedVariant, taxBehavior));
-			const listPrice = BigInt(
-				displayPrice(selectedVariant, taxBehavior, "originalPrice") ??
-					displayPrice(selectedVariant, taxBehavior),
-			);
-			const onSale = listPrice > price;
-			return {
-				display: fmt(price),
-				compareAt: onSale ? fmt(listPrice) : null,
-				discountPercent: onSale ? Math.round((Number(listPrice - price) / Number(listPrice)) * 100) : null,
-			};
-		}
-
-		const { min: minPrice, max: maxPrice } = priceRange(variants, taxBehavior);
-		return {
-			display: minPrice === maxPrice ? fmt(minPrice) : `${fmt(minPrice)} - ${fmt(maxPrice)}`,
-			compareAt: null,
-			discountPercent: null,
-		};
-	}, [selectedVariant, variants, locale, currency, taxBehavior]);
+	const fmt = (amount: bigint) => formatMoney({ amount, currency, locale });
+	const buttonText = buttonLabel(selectedVariant, isOutOfStock, plan, totalPrice ? fmt(totalPrice) : null);
+	const priceInfo = headlinePrice(variants, selectedVariant, taxBehavior, fmt);
 
 	// EU Omnibus: when the variant is discounted, show the lowest price recorded in the last 30 days.
-	const omnibusPrice = useMemo(() => {
-		if (!selectedVariant || !priceInfo.compareAt) return null;
-		const lowest = displayPrice(selectedVariant, taxBehavior, "omnibusPrice");
-		if (!lowest) return null;
-		return formatMoney({ amount: BigInt(lowest), currency, locale });
-	}, [selectedVariant, priceInfo.compareAt, locale, currency, taxBehavior]);
+	const lowestPrice =
+		selectedVariant && priceInfo.compareAt
+			? displayPrice(selectedVariant, taxBehavior, "omnibusPrice")
+			: null;
+	const omnibusPrice = lowestPrice ? fmt(BigInt(lowestPrice)) : null;
 
-	// Stock availability. null stock means it isn't tracked (treated as in stock).
-	const stockStatus = useMemo(() => {
-		if (!selectedVariant) return null;
-		const { stock } = selectedVariant;
-		if (stock === 0) return { label: "Out of stock", tone: "out" as const };
-		if (stock !== null && stock <= LOW_STOCK_THRESHOLD) {
-			return { label: `Only ${stock} left in stock`, tone: "low" as const };
-		}
-		return { label: "In stock", tone: "in" as const };
-	}, [selectedVariant]);
+	const stockStatus = stockStatusOf(selectedVariant);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();

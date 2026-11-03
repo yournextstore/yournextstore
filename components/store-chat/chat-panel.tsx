@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { ArrowUp, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { StoreChatConfig } from "./chat-launcher";
 import { ChatMarkdown } from "./chat-markdown";
@@ -31,6 +31,9 @@ function productsFromPart(part: UIMessage["parts"][number]): ChatProduct[] {
 	return Array.isArray(output.products) ? output.products.filter(isChatProduct) : [];
 }
 
+// One transport for the module: it only holds the endpoint, and useChat needs the same instance on every render.
+const transport = new DefaultChatTransport({ api: "/api/chat" });
+
 export function ChatPanel({
 	config,
 	open,
@@ -40,7 +43,6 @@ export function ChatPanel({
 	open: boolean;
 	onClose: () => void;
 }) {
-	const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
 	const { messages, sendMessage, status, error } = useChat({ transport });
 	const [input, setInput] = useState("");
 	const [expanded, setExpanded] = useState(false);

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayTierPrice, type TaxBehavior } from "@/lib/pricing";
@@ -19,30 +18,19 @@ export function useVolumePricing(
 	quantity: number,
 	taxBehavior: TaxBehavior,
 ) {
-	const resolvedTiers = useMemo(() => {
-		if (tiers.length === 0 || !selectedVariantId) return [];
-		const variantTiers = tiers.filter((t) => t.productVariantId === selectedVariantId);
-		const productTiers = tiers.filter((t) => !t.productVariantId);
-		return (variantTiers.length > 0 ? variantTiers : productTiers).sort(
-			(a, b) => a.minQuantity - b.minQuantity,
-		);
-	}, [tiers, selectedVariantId]);
+	// A variant's own tiers win over the product-wide ones.
+	const variantTiers = tiers.filter((t) => t.productVariantId === selectedVariantId);
+	const resolvedTiers = selectedVariantId
+		? (variantTiers.length > 0 ? variantTiers : tiers.filter((t) => !t.productVariantId)).toSorted(
+				(a, b) => a.minQuantity - b.minQuantity,
+			)
+		: [];
 
-	const volumePrice = useMemo(() => {
-		for (let i = resolvedTiers.length - 1; i >= 0; i--) {
-			const tier = resolvedTiers[i];
-			if (
-				tier &&
-				quantity >= tier.minQuantity &&
-				(tier.maxQuantity === null || quantity <= tier.maxQuantity)
-			) {
-				return displayTierPrice(tier, taxBehavior);
-			}
-		}
-		return null;
-	}, [resolvedTiers, quantity, taxBehavior]);
+	const tier = resolvedTiers.findLast(
+		(t) => quantity >= t.minQuantity && (t.maxQuantity === null || quantity <= t.maxQuantity),
+	);
 
-	return { resolvedTiers, volumePrice };
+	return { resolvedTiers, volumePrice: tier ? displayTierPrice(tier, taxBehavior) : null };
 }
 
 export function VolumePricingDisplay({

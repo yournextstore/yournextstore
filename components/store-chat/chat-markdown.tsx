@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { defaultUrlTransform, Streamdown, type UrlTransform } from "streamdown";
 import { cn } from "@/lib/utils";
 
@@ -19,28 +19,24 @@ import { cn } from "@/lib/utils";
  * Streamdown's incomplete-markdown parsing matters here: replies stream and can
  * be cut off mid-`**` by the output-token cap without flashing raw markers.
  */
-const useStorefrontUrlTransform = (): UrlTransform =>
-	useCallback<UrlTransform>((url, key, node) => {
-		const safe = defaultUrlTransform(url, key, node);
-		if (safe == null) return safe;
-		if (key !== "href") return null;
-		if (safe.startsWith("/") || safe.startsWith("#")) return safe;
-		try {
-			return new URL(safe).origin === window.location.origin ? safe : null;
-		} catch {
-			return null;
-		}
-	}, []);
+const storefrontUrlTransform: UrlTransform = (url, key, node) => {
+	const safe = defaultUrlTransform(url, key, node);
+	if (safe == null) return safe;
+	if (key !== "href") return null;
+	if (safe.startsWith("/") || safe.startsWith("#")) return safe;
+	try {
+		return new URL(safe).origin === window.location.origin ? safe : null;
+	} catch {
+		return null;
+	}
+};
 
 export const ChatMarkdown = memo(
-	({ children, className }: { children: string; className?: string }) => {
-		const urlTransform = useStorefrontUrlTransform();
-		return (
-			<Streamdown className={cn("chat-markdown", className)} urlTransform={urlTransform}>
-				{children}
-			</Streamdown>
-		);
-	},
+	({ children, className }: { children: string; className?: string }) => (
+		<Streamdown className={cn("chat-markdown", className)} urlTransform={storefrontUrlTransform}>
+			{children}
+		</Streamdown>
+	),
 	(prev, next) => prev.children === next.children && prev.className === next.className,
 );
 ChatMarkdown.displayName = "ChatMarkdown";
