@@ -109,7 +109,7 @@ export async function proxy(request: NextRequest) {
 	}
 
 	// An AI agent asking a page for Markdown gets the platform's Markdown version of it, at the
-	// page's own address. See lib/markdown.ts.
+	// page's own address, in the page's language. See lib/markdown.ts.
 	const markdownRoute = markdownRewritePath(request);
 	if (markdownRoute) {
 		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
@@ -140,19 +140,25 @@ export const config = {
 		"/account/:path*",
 		"/_public/:path*",
 		"/gr_sw_main.js",
-		// Pages with a Markdown version (lib/markdown.ts). A `.md` address always asks for Markdown.
+		// Pages with a Markdown version (lib/markdown.ts), optionally under a language prefix (`/de`).
+		// A `.md` address always asks for Markdown.
 		"/index.md",
-		"/search.md",
-		"/:kind(product|collection)/:file(.+\\.md)",
+		"/:lang([a-z]{2})/index.md",
+		"/:lang([a-z]{2})?/search.md",
+		"/:lang([a-z]{2})?/:kind(product|collection|blog)/:file(.+\\.md)",
 		// The page's own address only when the Accept header mentions Markdown, so a browser's page
 		// view never runs this proxy and stays a cache hit. `prefersMarkdown` makes the final call.
 		{ source: "/", has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }] },
 		{
-			source: "/search",
+			source: "/:lang([a-z]{2})",
 			has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }],
 		},
 		{
-			source: "/:kind(product|collection)/:slug",
+			source: "/:lang([a-z]{2})?/search",
+			has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }],
+		},
+		{
+			source: "/:lang([a-z]{2})?/:kind(product|collection|blog)/:slug",
 			has: [{ type: "header", key: "accept", value: ".*text/(?:markdown|plain).*" }],
 		},
 	],

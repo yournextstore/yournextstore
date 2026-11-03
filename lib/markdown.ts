@@ -3,8 +3,10 @@
  * `Accept: text/markdown` (or `text/plain`) or by adding `.md` to the address; the proxy then
  * rewrites the request to the platform's `/<subdomain>/md/…` route for that page.
  *
- * The platform owns these pages' content (products, collections, search). Pages that live only in
- * this app (about, FAQ, …) have no Markdown version unless the store adds its own rewrite.
+ * The platform owns these pages' content (products, collections, blog posts, search) in every
+ * language the store offers. A page in another language lives under a `/xx/` prefix, which reaches
+ * the platform as `?lang=xx`; the platform checks it against the store's languages. Pages that live
+ * only in this app (about, FAQ, …) have no Markdown version unless the store adds its own rewrite.
  */
 
 type AcceptEntry = { range: string; quality: number; position: number; specificity: number };
@@ -48,17 +50,26 @@ export const prefersMarkdown = (accept: string | null) => {
 	return !!markdown && ranksFirst(markdown, preference(entries, "text/html"));
 };
 
+const LANGUAGE_PREFIX = /^\/([a-z]{2})(?=\/|$)/;
+
 const pageRoute = (page: string) => {
 	if (page === "/") return "/md";
 	if (page === "/search") return "/md/search";
-	if (/^\/(product|collection)\/[^/]+$/.test(page)) return `/md${page}`;
+	if (/^\/(product|collection|blog)\/[^/]+$/.test(page)) return `/md${page}`;
 	return null;
 };
 
-/** The platform's Markdown route for a page (`/product/x` → `/md/product/x`), or null when the page has no Markdown version. */
-export const markdownPath = (pathname: string) => pageRoute(pathname);
+/**
+ * The platform's Markdown route for a page, or null when the page has no Markdown version:
+ * `/product/x` → `/md/product/x`, `/de/blog/x` → `/md/blog/x?lang=de`.
+ */
+export const markdownPath = (pathname: string) => {
+	const lang = LANGUAGE_PREFIX.exec(pathname)?.[1];
+	const route = pageRoute(lang ? pathname.slice(lang.length + 1) || "/" : pathname);
+	return route && lang ? `${route}?lang=${lang}` : route;
+};
 
-/** `/product/x.md` → the Markdown route for `/product/x`; `/index.md` is the home page. */
+/** `/product/x.md` → the Markdown route for `/product/x`; `/index.md` (or `/de/index.md`) is the home page. */
 const markdownMirrorPath = (pathname: string) => {
 	if (!pathname.endsWith(".md")) return null;
 	const page = pathname.slice(0, -".md".length).replace(/\/index$/, "");

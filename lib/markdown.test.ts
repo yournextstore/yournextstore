@@ -30,11 +30,20 @@ describe("markdownPath", () => {
 		expect(markdownPath("/search")).toBe("/md/search");
 		expect(markdownPath("/product/blue-mug")).toBe("/md/product/blue-mug");
 		expect(markdownPath("/collection/summer")).toBe("/md/collection/summer");
+		expect(markdownPath("/blog/brewing")).toBe("/md/blog/brewing");
+	});
+
+	test("passes a language prefix on as ?lang", () => {
+		expect(markdownPath("/de")).toBe("/md?lang=de");
+		expect(markdownPath("/de/product/blaue-tasse")).toBe("/md/product/blaue-tasse?lang=de");
+		expect(markdownPath("/fr/blog/infusion")).toBe("/md/blog/infusion?lang=fr");
+		expect(markdownPath("/en/search")).toBe("/md/search?lang=en");
 	});
 
 	test("has no Markdown version for pages that live only in the storefront", () => {
 		expect(markdownPath("/cart")).toBeNull();
 		expect(markdownPath("/about-us")).toBeNull();
+		expect(markdownPath("/de/about-us")).toBeNull();
 		expect(markdownPath("/product/a/b")).toBeNull();
 	});
 });

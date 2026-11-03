@@ -47,11 +47,14 @@ live on the platform domain, not here — never add `/unsubscribe`, `/confirm-su
 `/digital-assets` or `*-webhook` routes. `proxy.ts` only forwards the old addresses that were
 already emailed or registered on this domain.
 
-The home, product, collection and search pages also answer AI agents in Markdown: `proxy.ts`
+The home, product, collection, blog post and search pages also answer AI agents in Markdown, in
+every language the store offers (a `/de/…` prefix reaches the platform as `?lang=de`): `proxy.ts`
 rewrites a request that prefers `text/markdown` or `text/plain` (or adds `.md` to the address) to
 the platform's Markdown version of the page (`lib/markdown.ts`). Never add local `.md` routes for
-these pages. Keep the page entries in the proxy matcher behind their `Accept` condition, so a
-browser's page view never runs the proxy.
+these pages. A page that lives only in this app (about, FAQ, …) has no Markdown version; a store
+that wants one adds its own `beforeFiles` rewrite and route for those paths, never in `proxy.ts`.
+Keep the page entries in the proxy matcher behind their `Accept` condition, so a browser's page
+view never runs the proxy.
 
 ## Project Patterns
 

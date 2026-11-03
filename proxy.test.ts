@@ -130,6 +130,22 @@ test("leaves pages without a Markdown version alone", async () => {
 	expect(cart.headers.get("x-middleware-rewrite")).toBeNull();
 });
 
+test("answers blog posts and pages in other languages in Markdown", async () => {
+	const post = await withAccept("/blog/brewing", "text/markdown");
+	expect(post.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md/blog/brewing");
+
+	const german = await withAccept("/de/product/blaue-tasse?variant=v1", "text/plain");
+	expect(german.headers.get("x-middleware-rewrite")).toBe(
+		"https://yns.cx/acme/md/product/blaue-tasse?variant=v1&lang=de",
+	);
+
+	const frenchPost = await get("/fr/blog/infusion.md");
+	expect(frenchPost.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md/blog/infusion?lang=fr");
+
+	const germanHome = await get("/de/index.md");
+	expect(germanHome.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md?lang=de");
+});
+
 const BROWSER = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8";
 
 test("runs only for agents on page addresses, so browsers' page views skip the proxy", () => {
@@ -138,15 +154,18 @@ test("runs only for agents on page addresses, so browsers' page views skip the p
 
 	expect(runs("/product/blue-mug", BROWSER)).toBe(false);
 	expect(runs("/", BROWSER)).toBe(false);
-	expect(runs("/collection/summer", "*/*")).toBe(false);
+	expect(runs("/de/blog/x", "*/*")).toBe(false);
 
 	expect(runs("/product/blue-mug", "text/markdown")).toBe(true);
 	expect(runs("/", "text/plain")).toBe(true);
-	expect(runs("/search", "text/markdown, text/html")).toBe(true);
+	expect(runs("/de", "text/markdown")).toBe(true);
+	expect(runs("/de/blog/x", "text/markdown, text/html")).toBe(true);
+	expect(runs("/fr/search", "text/markdown")).toBe(true);
 
 	expect(runs("/product/blue-mug.md", BROWSER)).toBe(true);
-	expect(runs("/collection/summer.md", BROWSER)).toBe(true);
+	expect(runs("/de/collection/sommer.md", BROWSER)).toBe(true);
 	expect(runs("/index.md", BROWSER)).toBe(true);
+	expect(runs("/it/index.md", BROWSER)).toBe(true);
 	expect(runs("/search.md", BROWSER)).toBe(true);
 
 	expect(runs("/about-us", "text/markdown")).toBe(false);
