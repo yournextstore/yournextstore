@@ -39,6 +39,9 @@ export async function ProductCard({
 	const priceDisplay = listing
 		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
 		: null;
+	const compareAtDisplay = listing?.compareAt
+		? formatMoney({ amount: listing.compareAt, currency, locale })
+		: null;
 
 	// Quick-add buys once, so it's only offered where a one-time purchase is allowed.
 	const oneTimeAllowed = !("subscriptionMode" in product) || product.subscriptionMode === "optional";
@@ -120,7 +123,12 @@ export async function ProductCard({
 			</div>
 			<div className="space-y-1">
 				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
-				<p className="text-base font-semibold text-foreground">{priceDisplay}</p>
+				<p className="flex flex-wrap items-baseline gap-2">
+					<span className="text-base font-semibold text-foreground">{priceDisplay}</span>
+					{compareAtDisplay && (
+						<span className="text-sm text-muted-foreground line-through">{compareAtDisplay}</span>
+					)}
+				</p>
 			</div>
 		</IntentLink>
 	);

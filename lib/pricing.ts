@@ -108,13 +108,17 @@ export function priceRange(
 /**
  * A listing's price: the lowest variant price, marked `from` when the variants are priced
  * differently, so a card never shows the cheapest size as the price of all of them.
+ * `compareAt` is that variant's price before a promotion, to strike through; null when not on sale.
  */
 export function listingPrice(variants: readonly PricedVariant[], taxBehavior: TaxBehavior) {
 	if (variants.length === 0) {
 		return null;
 	}
 	const { min, max } = priceRange(variants, taxBehavior);
-	return { amount: min, from: min !== max };
+	const cheapest = variants.find((variant) => BigInt(displayPrice(variant, taxBehavior)) === min);
+	const original = cheapest ? displayPrice(cheapest, taxBehavior, "originalPrice") : null;
+	const compareAt = original !== null && BigInt(original) > min ? BigInt(original) : null;
+	return { amount: min, from: min !== max, compareAt };
 }
 
 /**

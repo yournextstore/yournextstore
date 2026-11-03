@@ -113,12 +113,39 @@ test("listingPrice marks the lowest price as a starting price only when variants
 	expect(listingPrice([{ price: "1400" }, { price: "1400" }], "exclusive")).toEqual({
 		amount: 1400n,
 		from: false,
+		compareAt: null,
 	});
 	expect(listingPrice([{ price: "2400" }, { price: "1400" }], "exclusive")).toEqual({
 		amount: 1400n,
 		from: true,
+		compareAt: null,
 	});
-	expect(listingPrice([{ price: "0" }], "exclusive")).toEqual({ amount: 0n, from: false });
+	expect(listingPrice([{ price: "0" }], "exclusive")).toEqual({ amount: 0n, from: false, compareAt: null });
+});
+
+test("listingPrice strikes through the cheapest variant's price before a promotion", () => {
+	expect(
+		listingPrice(
+			[{ price: "17999", originalPrice: "25713", priceGross: "22139", originalPriceGross: "31627" }],
+			"exclusive",
+		),
+	).toEqual({ amount: 17999n, from: false, compareAt: 25713n });
+	expect(
+		listingPrice(
+			[{ price: "17999", originalPrice: "25713", priceGross: "22139", originalPriceGross: "31627" }],
+			"inclusive",
+		),
+	).toEqual({ amount: 22139n, from: false, compareAt: 31627n });
+	expect(
+		listingPrice(
+			[
+				{ price: "9000", originalPrice: "9000" },
+				{ price: "8000", originalPrice: "10000" },
+			],
+			"exclusive",
+		),
+	).toEqual({ amount: 8000n, from: true, compareAt: 10000n });
+	expect(listingPrice([{ price: "1400", originalPrice: "1400" }], "exclusive")?.compareAt).toBeNull();
 });
 
 test("orderDisplayShipping shows free delivery as 0 even though the rate lists a price", () => {
