@@ -13,9 +13,30 @@ invariant(
 	"Missing YNS_API_KEY environment variable. Add it to .env.local (see .env.example).",
 );
 
+// DEBUG_COMMERCE=1 logs every Store API call on the server: method, path, status and the time until the response
+// headers arrived (a retry is its own line). Unset, the SDK uses the global fetch and nothing is logged.
+// `performance.now()` is telemetry to Next, so timing inside a "use cache" scope or a prerender is allowed.
+const fetchWithTimings = process.env.DEBUG_COMMERCE
+	? async (url: string, init: RequestInit) => {
+			const start = performance.now();
+			const { pathname, search } = new URL(url);
+			const call = `[commerce] ${init.method ?? "GET"} ${pathname}${search}`;
+			const elapsed = () => `${Math.round(performance.now() - start)}ms`;
+			try {
+				const response = await fetch(url, init);
+				console.log(`${call} ${response.status} ${elapsed()}`);
+				return response;
+			} catch (error) {
+				console.log(`${call} failed ${elapsed()}`);
+				throw error;
+			}
+		}
+	: undefined;
+
 const client = Commerce({
 	token: process.env.YNS_API_KEY,
 	endpoint,
+	fetch: fetchWithTimings,
 });
 
 /**
@@ -52,7 +73,7 @@ export const commerce = Object.assign(client, {
 export const meGetCached = async (token?: string) => {
 	"use cache";
 
-	const commerce = Commerce({ token, endpoint });
+	const commerce = Commerce({ token, endpoint, fetch: fetchWithTimings });
 	return commerce.meGet();
 };
 

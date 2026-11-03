@@ -343,6 +343,7 @@ Required env: `YNS_API_KEY`
 | `Missing env.YNS_API_KEY` | Env not loaded | Create `.env.local`, restart dev server |
 | `noDefaultExport` | Default export in non-special file | Use named export |
 | `BigInt literal syntax` | Using `0n` with ES2020 | Use `BigInt(0)` |
+| A build or page is slow | Unknown which Store API call | Run with `DEBUG_COMMERCE=1` (`bun dev` or `bun run build`): every call logs `[commerce] GET /path status 84ms` on the server |
 
 ## Agent Workflow Notes
 
