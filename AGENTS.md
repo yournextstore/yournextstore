@@ -47,6 +47,10 @@ live on the platform domain, not here — never add `/unsubscribe`, `/confirm-su
 `/digital-assets` or `*-webhook` routes. `proxy.ts` only forwards the old addresses that were
 already emailed or registered on this domain.
 
+The home, product, collection and search pages also answer AI agents in Markdown: `proxy.ts`
+rewrites a request that asks for `text/markdown` (or adds `.md` to the address) to the platform's
+Markdown version of the page (`lib/markdown.ts`). Never add local `.md` routes for these pages.
+
 ## Project Patterns
 
 - Use `safe-try` for error handling: `const [error, result] = await try_(...)`

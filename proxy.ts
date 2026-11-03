@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getSubdomainPublicUrl } from "./lib/commerce";
+import { markdownRewritePath } from "./lib/markdown";
 
 // /account is the platform-rendered shopper account area (unified sign-in); the platform
 // handles unauthenticated access itself, so it is proxied like /checkout, never guarded here.
@@ -107,6 +108,14 @@ export async function proxy(request: NextRequest) {
 		});
 	}
 
+	// An AI agent asking a page for Markdown gets the platform's Markdown version of it, at the
+	// page's own address. See lib/markdown.ts.
+	const markdownRoute = markdownRewritePath(request);
+	if (markdownRoute) {
+		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
+		return NextResponse.rewrite(new URL(`/${subdomain}${markdownRoute}${search}`, publicUrl));
+	}
+
 	return NextResponse.next();
 }
 
@@ -131,5 +140,12 @@ export const config = {
 		"/account/:path*",
 		"/_public/:path*",
 		"/gr_sw_main.js",
+		// Pages with a Markdown version (lib/markdown.ts), with and without `.md`.
+		"/",
+		"/index.md",
+		"/search",
+		"/search.md",
+		"/product/:slug",
+		"/collection/:slug",
 	],
 };

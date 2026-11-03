@@ -87,3 +87,44 @@ test("serves the IndexNow key from the platform, which holds it", async () => {
 
 	expect(response.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/api/indexnow");
 });
+
+const withAccept = (path: string, accept: string) =>
+	proxy(new NextRequest(`https://acme.example${path}`, { headers: { accept } }));
+
+test("sends an agent asking a page for Markdown to the platform's Markdown version", async () => {
+	const product = await withAccept("/product/blue-mug", "text/markdown");
+	expect(product.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md/product/blue-mug");
+
+	const home = await withAccept("/", "text/plain");
+	expect(home.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md");
+
+	const search = await withAccept("/search?q=mug", "text/markdown, text/html;q=0.9");
+	expect(search.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md/search?q=mug");
+});
+
+test("answers `.md` addresses in Markdown whatever the Accept header says", async () => {
+	const product = await withAccept("/product/blue-mug.md", "text/html");
+	expect(product.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md/product/blue-mug");
+
+	const collection = await get("/collection/summer.md");
+	expect(collection.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md/collection/summer");
+
+	const home = await get("/index.md");
+	expect(home.headers.get("x-middleware-rewrite")).toBe("https://yns.cx/acme/md");
+});
+
+test("keeps serving HTML to browsers", async () => {
+	const browser = await withAccept(
+		"/product/blue-mug",
+		"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+	);
+	expect(browser.headers.get("x-middleware-rewrite")).toBeNull();
+
+	const anything = await withAccept("/collection/summer", "*/*");
+	expect(anything.headers.get("x-middleware-rewrite")).toBeNull();
+});
+
+test("leaves pages without a Markdown version alone", async () => {
+	const cart = await withAccept("/cart", "text/markdown");
+	expect(cart.headers.get("x-middleware-rewrite")).toBeNull();
+});
