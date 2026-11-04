@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState, useTransition } from "react";
-import { getCart } from "@/app/cart/actions";
 import {
 	type Cart,
 	type CartAction,
@@ -36,6 +35,18 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
+
+// A GET, not a server action: the router runs a page's actions one at a time, so an action
+// read would hold back the shopper's first add to cart. `no-store` here AND the route's
+// `Cache-Control: private, no-store`: Back after a checkout must never restore the paid cart.
+// Rejects on a failed or non-OK response, so every caller keeps the cart it has.
+async function fetchCart() {
+	const response = await fetch("/api/cart", { cache: "no-store" });
+	if (!response.ok) {
+		throw new Error(`cart: GET /api/cart answered ${response.status}`);
+	}
+	return (await response.json()) as Cart | null;
+}
 
 type CartProviderProps = {
 	children: ReactNode;
@@ -72,17 +83,20 @@ export function CartProvider({ children }: CartProviderProps) {
 	};
 	const reconcile = async () => {
 		written.current = true;
-		setCart((await getCart()) as Cart | null);
+		// Keep showing the current cart if the refetch fails — never an unhandled rejection.
+		await fetchCart()
+			.then(setCart)
+			.catch(() => undefined);
 	};
 
 	useEffect(() => {
 		// One read per full page load; soft navigations keep this provider mounted. A write
 		// that lands first wins, and a failed load leaves the cart empty, never an unhandled
 		// rejection.
-		void getCart()
+		void fetchCart()
 			.then((initial) => {
 				if (!written.current) {
-					setCart(initial as Cart | null);
+					setCart(initial);
 				}
 			})
 			.catch(() => undefined);
@@ -96,8 +110,8 @@ export function CartProvider({ children }: CartProviderProps) {
 			if (event.persisted) {
 				written.current = true;
 				// Keep showing the current cart if the refetch fails — never an unhandled rejection.
-				void getCart()
-					.then((next) => setCart(next as Cart | null))
+				void fetchCart()
+					.then(setCart)
 					.catch(() => undefined);
 			}
 		};
