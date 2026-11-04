@@ -43,7 +43,7 @@ START from the theme branch (theirs) code — copy it as-is. Then carefully port
 **`app/layout.tsx`**
 Keep the theme's chrome — its header markup, nav, footer, classNames, fonts — but the resolved file MUST match main's data flow, because main now gates the build on it (`scripts/check-shell.sh`, see AGENTS.md "The prerendered shell"). Three things are non-negotiable, and every theme today violates the first:
 
-- **The layout reads no cookie.** Main's `CartProvider` takes only `children` and loads the cart in the browser through the `getCart` action. Themes still read it on the server, either `await getInitialCart()` inside `CartProviderWrapper` or a `CartBootstrapper` block. Delete that read: `getInitialCart`, `CartBootstrapper` with its `<Suspense>`, the `initialCart`/`initialCartId`/`bootstrap` props, and the imports left unused (`getCartCookieJson` stays in `lib/cookies.ts` for the cart actions).
+- **The layout reads no cookie.** Main's `CartProvider` takes only `children` and loads the cart in the browser from `GET /api/cart`. Themes still read it on the server, either `await getInitialCart()` inside `CartProviderWrapper` or a `CartBootstrapper` block. Delete that read: `getInitialCart`, `CartBootstrapper` with its `<Suspense>`, the `initialCart`/`initialCartId`/`bootstrap` props, and the imports left unused (`getCartCookieJson` stays in `lib/cookies.ts` for the cart actions).
 - **No `<Suspense>` around `CartProviderWrapper` or around the layout's `children`.** The boundary alone streams the chrome out of the prerendered shell, even when everything inside it is cached. Delete it if the theme side has one.
 - `getNavLinks` (and any other read the wrapper awaits) stays `"use cache"`.
 
