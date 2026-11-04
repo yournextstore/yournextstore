@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { CategoryView, categoryMetadata } from "@/app/category/[...slugs]/category-view";
-import { SearchParamsProbe } from "@/components/search-params-probe";
 import { getAllCategories, isStaticSlug, PLACEHOLDER_SLUG, withPlaceholder } from "@/lib/catalog-paths";
 
 // Known categories prerender in full (lib/catalog-paths.ts). This route never reads the query: filters and pages go
@@ -18,9 +17,12 @@ export async function generateMetadata(props: PageProps<"/category/[...slugs]">)
 	return categoryMetadata(slugs);
 }
 
-// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
-// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
-// layout instead of a bare error document.
+// An address added after the build renders in full on its first request before anything is sent, so a missing one
+// answers 404 with the not-found page inside the layout, not a 200 behind an already-sent shell (AGENTS.md). It also
+// rules out reading the query here; a client-side visit to a filtered or paged URL still reaches the server.
+export const ensureStatic = "navigation";
+
+// Listed addresses prerender in full: the boundary resolves at build time, so no fallback ever shows.
 export default function CategoryPage(props: Parameters<typeof CategoryPageContent>[0]) {
 	return (
 		<Suspense fallback={null}>
@@ -31,10 +33,5 @@ export default function CategoryPage(props: Parameters<typeof CategoryPageConten
 
 async function CategoryPageContent(props: PageProps<"/category/[...slugs]">) {
 	const { slugs } = await props.params;
-	return (
-		<>
-			<SearchParamsProbe searchParams={props.searchParams} />
-			<CategoryView slugs={slugs} filters={{}} />
-		</>
-	);
+	return <CategoryView slugs={slugs} filters={{}} />;
 }
