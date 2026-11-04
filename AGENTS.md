@@ -123,11 +123,12 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
 
   A missing page must answer 404, not 200. Next sends the status with the first byte, so a
   `notFound()` that runs after a shell went out keeps the 200 (a soft 404). Product, blog post,
-  legal and collection pages therefore export `ensureStatic = "navigation"`: an address added after
-  the build renders in full on its first request before anything is sent (and is cached from then
-  on), so a missing one answers 404 with the not-found page inside the layout. The export also
-  makes `next build` fail on any request-time read on those routes. The category page still reads
-  the query (`SearchParamsProbe`), so a missing category answers 200. Check with
+  legal, collection and category pages therefore export `ensureStatic = "navigation"`: an address
+  added after the build renders in full on its first request before anything is sent (and is
+  cached from then on), so a missing one answers 404 with the not-found page inside the layout. The
+  export also makes `next build` fail on any request-time read on those routes, so the category
+  page has no `SearchParamsProbe`: a client-side visit to a filtered or paged category URL still
+  reaches the server and its `/category-filtered` rewrite. Check with
   `curl -s -o /dev/null -w '%{http_code}' <store>/product/does-not-exist` (must print `404`).
 - **No `<Suspense>` around cached data.** A `"use cache"` component inside a boundary still ships its
   fallback first and its content later in the same HTML (a late segment swapped in by `$RC`), so
@@ -142,9 +143,10 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
   page) is present, `next.config.ts` rewrites the request (`listingRewrites()` in
   `lib/listing-routes.ts`, `beforeFiles`) to `/products-filtered` or `/category-filtered/…`, which
   render per request. The public URL never changes, and tracking parameters (`utm_*`, `gclid`) keep
-  the static view. `proxy.ts` is platform-managed, which is why this lives in the config. The default
-  views keep a `SearchParamsProbe` so the client router asks the server for a new query instead of
-  reusing the static view.
+  the static view. `proxy.ts` is platform-managed, which is why this lives in the config. `/products`
+  keeps a `SearchParamsProbe` so the client router asks the server for a new query instead of
+  reusing the static view; the category page can't (it is `ensureStatic = "navigation"`, see
+  above), and a filtered or paged category URL reaches the server without it.
 
 Pages that only make sense per request (search, the `…-filtered` listings, an order's thank-you
 page) export `instant = false` and render in full per request: a navigation keeps the current page
