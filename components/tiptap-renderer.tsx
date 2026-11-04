@@ -12,6 +12,7 @@ import { BlogProductEmbed } from "@/components/blog-product-embed";
 // The admin editor writes images as `imageResize`. Alias it onto Image rather than pull the
 // editor-only dependency into the storefront.
 const ImageResize = Image.extend({ name: "imageResize" });
+const BODY_IMAGE_ATTRIBUTES = { loading: "lazy", decoding: "async" };
 
 // The admin editor's featured-products block, declared for the same reason as the image alias.
 // A leaf: rendered from `productIds` (+ optional `variantIds` productId → variantId map), no children.
@@ -56,8 +57,9 @@ const extensions = [
 	}),
 	FontSize,
 	Youtube.configure({}),
-	Image.configure({ allowBase64: false, inline: true }),
-	ImageResize.configure({ allowBase64: false, inline: true }),
+	// Body images sit below the fold and come without dimensions, so they load lazily and decode off the main thread.
+	Image.configure({ allowBase64: false, inline: true, HTMLAttributes: BODY_IMAGE_ATTRIBUTES }),
+	ImageResize.configure({ allowBase64: false, inline: true, HTMLAttributes: BODY_IMAGE_ATTRIBUTES }),
 	ProductEmbed,
 	Table,
 	TableRow,

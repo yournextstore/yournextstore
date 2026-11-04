@@ -22,6 +22,8 @@ type ProductGridProps = {
 	limit?: number;
 	showViewAll?: boolean;
 	viewAllHref?: string;
+	/** Load the first card's image eagerly. Off for grids below the fold (related products). */
+	eagerFirstImage?: boolean;
 };
 
 export async function ProductGrid({
@@ -31,6 +33,7 @@ export async function ProductGrid({
 	limit = 6,
 	showViewAll = true,
 	viewAllHref = "/products",
+	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
 	cacheLife("minutes");
@@ -57,7 +60,7 @@ export async function ProductGrid({
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 				{displayProducts.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard key={product.id} product={product} priority={eagerFirstImage && index === 0} />
 				))}
 			</div>
 

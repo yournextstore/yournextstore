@@ -31,6 +31,7 @@ async function RelatedProductsContent({ productId }: { productId: string }) {
 			description="More products to explore"
 			products={related}
 			showViewAll={false}
+			eagerFirstImage={false}
 		/>
 	);
 }
