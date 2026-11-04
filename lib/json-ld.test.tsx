@@ -8,7 +8,12 @@ process.env.YNS_API_KEY ??= "test-key";
 const storeConfig = { currency: "usd", locale: "en-US", taxBehavior: "exclusive" as const };
 mock.module("@/lib/store-config", () => ({ getStoreConfig: async () => storeConfig }));
 
-const { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } = await import("@/lib/json-ld");
+const commerceModule = await import("@/lib/commerce");
+const me = { store: { name: "Acme", settings: { logo: { imageUrl: "https://cdn.example/logo.png" } } } };
+mock.module("@/lib/commerce", () => ({ ...commerceModule, meGetCached: async () => me }));
+
+const { buildBlogPostingJsonLd, buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } =
+	await import("@/lib/json-ld");
 
 const product = (variants: Array<{ price: string; stock: number | null }>) =>
 	({
@@ -109,4 +114,26 @@ test("product breadcrumb links the category page", () => {
 	};
 	expect(itemListElement[1]?.name).toBe("Shoes");
 	expect(itemListElement[1]?.item).toEndWith("/category/shoes");
+});
+
+test("blog posting names the store as author and publisher", async () => {
+	const post = {
+		slug: "hello",
+		title: "Hello",
+		image: null,
+		createdAt: "2026-01-01T00:00:00.000Z",
+		updatedAt: "2026-01-02T00:00:00.000Z",
+		publishedAt: null,
+		seo: null,
+	} as unknown as Parameters<typeof buildBlogPostingJsonLd>[0];
+	const jsonLd = await buildBlogPostingJsonLd(post);
+	const organization = { "@type": "Organization", name: "Acme", logo: "https://cdn.example/logo.png" };
+	expect(jsonLd).toMatchObject({
+		"@type": "BlogPosting",
+		datePublished: "2026-01-01T00:00:00.000Z",
+		author: organization,
+		publisher: organization,
+	});
+	expect(jsonLd.mainEntityOfPage).toMatchObject({ "@type": "WebPage", "@id": jsonLd.url });
+	expect(jsonLd.image).toBeUndefined();
 });

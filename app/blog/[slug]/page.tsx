@@ -16,7 +16,7 @@ import {
 import { getAllPosts, slugParams } from "@/lib/catalog-paths";
 import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
-import { JsonLdScript } from "@/lib/json-ld";
+import { buildBlogPostingJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -92,17 +92,7 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 
 	const baseUrl = getCanonicalUrl();
 	const publishedAt = post.publishedAt ?? post.createdAt;
-
-	const articleJsonLd = {
-		"@context": "https://schema.org",
-		"@type": "BlogPosting",
-		headline: post.title,
-		url: `${baseUrl}/blog/${post.slug}`,
-		datePublished: publishedAt,
-		dateModified: post.updatedAt,
-		...(post.image ? { image: post.image } : {}),
-		...(post.seo?.description ? { description: post.seo.description } : {}),
-	};
+	const articleJsonLd = await buildBlogPostingJsonLd(post);
 
 	const breadcrumbJsonLd = {
 		"@context": "https://schema.org",

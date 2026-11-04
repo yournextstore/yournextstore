@@ -1,5 +1,6 @@
 import type {
 	APICollectionGetByIdResult,
+	APIPostGetByIdResult,
 	APIProductGetByIdResult,
 	APIProductReviewsBrowseResult,
 } from "commerce-kit";
@@ -183,22 +184,51 @@ export function buildCategoryBreadcrumbJsonLd(
 	};
 }
 
+async function getStoreOrganization() {
+	const me = await meGetCached();
+	const logo =
+		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
+	const ogImage = me.store.settings?.ogimage || undefined;
+	return {
+		"@type": "Organization",
+		name: me.store.name || "Your Next Store",
+		url: getBaseUrl(),
+		...(logo ? { logo } : {}),
+		...(ogImage ? { image: ogImage } : {}),
+	};
+}
+
+// Posts carry no author, so the store stands in as both author and publisher.
+export async function buildBlogPostingJsonLd(
+	post: NonNullable<APIPostGetByIdResult>,
+): Promise<Record<string, unknown>> {
+	const organization = await getStoreOrganization();
+	const url = `${getBaseUrl()}/blog/${post.slug}`;
+	return {
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		headline: post.title,
+		url,
+		mainEntityOfPage: { "@type": "WebPage", "@id": url },
+		datePublished: post.publishedAt ?? post.createdAt,
+		dateModified: post.updatedAt,
+		author: organization,
+		publisher: organization,
+		...(post.image ? { image: post.image } : {}),
+		...(post.seo?.description ? { description: post.seo.description } : {}),
+	};
+}
+
 export async function StoreJsonLd() {
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
 	const storeDescription = me.store.settings?.storeDescription || undefined;
 	const baseUrl = getBaseUrl();
 	const ogImage = me.store.settings?.ogimage || undefined;
-	const logo =
-		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
 
 	const organization = {
 		"@context": "https://schema.org",
-		"@type": "Organization",
-		name: storeName,
-		url: baseUrl,
-		...(logo ? { logo } : {}),
-		...(ogImage ? { image: ogImage } : {}),
+		...(await getStoreOrganization()),
 	};
 
 	const website = {
