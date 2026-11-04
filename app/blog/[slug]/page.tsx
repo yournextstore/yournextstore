@@ -71,9 +71,11 @@ const getBlogPostData = async (slug: string) => {
 	return error ? null : post;
 };
 
-// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
-// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
-// layout instead of a bare error document.
+// An address added after the build renders in full on its first request before anything is sent, so a missing one
+// answers 404 with the not-found page inside the layout, not a 200 behind an already-sent shell (AGENTS.md).
+export const ensureStatic = "navigation";
+
+// Listed addresses prerender in full: the boundary resolves at build time, so no fallback ever shows.
 export default function BlogPostPage(props: Parameters<typeof BlogPostPageContent>[0]) {
 	return (
 		<Suspense fallback={null}>
