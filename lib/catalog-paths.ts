@@ -31,6 +31,8 @@ async function browseAll<T>(
 	return [first.data, ...rest].flat();
 }
 
+const later = (date: string, other: string) => (Date.parse(other) > Date.parse(date) ? other : date);
+
 export async function getAllProducts() {
 	"use cache";
 	cacheLife("hours");
@@ -42,7 +44,7 @@ export async function getAllCollections() {
 	"use cache";
 	cacheLife("hours");
 	const collections = await browseAll((page) => commerce.collectionBrowse({ active: true, ...page }));
-	return collections.map((c) => ({ slug: c.slug, lastModified: c.createdAt }));
+	return collections.map((c) => ({ slug: c.slug, lastModified: c.updatedAt }));
 }
 
 export async function getAllCategories() {
@@ -71,7 +73,8 @@ export async function getAllPosts() {
 	"use cache";
 	cacheLife("hours");
 	const posts = await browseAll((page) => commerce.postBrowse({ active: true, ...page }));
-	return posts.map((p) => ({ slug: p.slug, lastModified: p.publishedAt ?? p.createdAt }));
+	// A scheduled post is saved before it goes live, so its last change is the later of the two.
+	return posts.map((p) => ({ slug: p.slug, lastModified: later(p.publishedAt ?? p.createdAt, p.updatedAt) }));
 }
 
 /**
