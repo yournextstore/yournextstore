@@ -26,10 +26,22 @@ type TrackedItem = {
 	currency: string;
 };
 
+/** A placed order as the trackers receive it: major units in the order's own currency. */
+export type TrackedPurchase = {
+	orderId: string;
+	/** ISO time the order was placed; the kit ignores orders older than a day (a revisit). */
+	createdAt: string;
+	currency: string;
+	value: number;
+	items: { id: string; name: string; price: number; quantity: number }[];
+	email?: string | null;
+};
+
 type QueueItem =
 	| ({ event: "ViewContent" | "AddToCart" } & TrackedItem)
 	| { event: "ConsentChanged" }
-	| { event: "Identify"; email: string };
+	| { event: "Identify"; email: string }
+	| ({ event: "Purchase" } & TrackedPurchase);
 
 declare global {
 	interface Window {
@@ -71,5 +83,17 @@ export function TrackProductView({ variant, name }: { variant: TrackedVariant; n
 	useEffect(() => {
 		publish({ event: "ViewContent", ...toItem(variant, name) });
 	}, [itemId]);
+	return null;
+}
+
+/**
+ * Fire-once purchase — mount on the order confirmation page. The kit sends it to GTM and every
+ * pixel once per order and browser, so a reload or a later visit does not count the sale again.
+ */
+export function TrackPurchase({ purchase }: { purchase: TrackedPurchase }) {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: fire once per order, not per render
+	useEffect(() => {
+		publish({ event: "Purchase", ...purchase });
+	}, [purchase.orderId]);
 	return null;
 }

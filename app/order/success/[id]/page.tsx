@@ -7,9 +7,10 @@ import { Suspense } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, minorUnitsToMajor } from "@/lib/money";
 import { cartDisplaySubtotal, displayPrice, orderDisplayShipping } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
+import { TrackPurchase } from "@/lib/track";
 import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -89,6 +90,27 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 
 	return (
 		<div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			{order.status !== "cancelled" && (
+				<TrackPurchase
+					purchase={{
+						orderId: order.id,
+						createdAt: order.createdAt,
+						currency,
+						value: minorUnitsToMajor({ amount: total, currency }),
+						// Gross unit prices and `sku || variant id`, as in the product feeds and the ad funnel.
+						items: lineItems.map((item) => ({
+							id: item.productVariant.sku || item.productVariant.id,
+							name: item.productVariant.product.name,
+							price: minorUnitsToMajor({
+								amount: displayPrice(item.productVariant, "inclusive"),
+								currency,
+							}),
+							quantity: item.quantity,
+						})),
+						email: customer?.email,
+					}}
+				/>
+			)}
 			{/* Success Header */}
 			<div className="text-center mb-10">
 				<div className="flex justify-center mb-4">
