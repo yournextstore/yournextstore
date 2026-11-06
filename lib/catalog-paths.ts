@@ -35,21 +35,21 @@ const later = (date: string, other: string) => (Date.parse(other) > Date.parse(d
 
 export async function getAllProducts() {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("minutes");
 	const products = await browseAll((page) => commerce.productBrowse({ active: true, ...page }));
 	return products.map((p) => ({ slug: p.slug, updatedAt: p.updatedAt, images: p.images }));
 }
 
 export async function getAllCollections() {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("minutes");
 	const collections = await browseAll((page) => commerce.collectionBrowse({ active: true, ...page }));
 	return collections.map((c) => ({ slug: c.slug, lastModified: c.updatedAt }));
 }
 
 export async function getAllCategories() {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("minutes");
 	const categories = await browseAll((page) => commerce.categoriesBrowse({ active: true, ...page }));
 	const byId = new Map(categories.map((c) => [c.id, c] as const));
 	// Same path as the category canonical: ancestors from the root, at most 3 segments (app/category/[...slugs]).
@@ -64,14 +64,14 @@ export async function getAllCategories() {
 
 export async function getAllLegalPages() {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("minutes");
 	const result = await commerce.legalPageBrowse();
 	return result.data.map((p) => ({ path: p.href, updatedAt: p.updatedAt }));
 }
 
 export async function getAllPosts() {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("minutes");
 	const posts = await browseAll((page) => commerce.postBrowse({ active: true, ...page }));
 	// A scheduled post is saved before it goes live, so its last change is the later of the two.
 	return posts.map((p) => ({ slug: p.slug, lastModified: later(p.publishedAt ?? p.createdAt, p.updatedAt) }));

@@ -28,13 +28,14 @@ function newest(dates: string[]) {
 	return times.length > 0 ? new Date(Math.max(...times)) : undefined;
 }
 
-// Cached, so the sitemap is prerendered and refreshed hourly instead of walking the whole catalog on every crawl
-// (the lists come from lib/catalog-paths.ts). Every <lastmod> is a real date: a listing takes its newest entry's,
+// Cached, so the sitemap is prerendered and refreshed every minute or so instead of walking the whole catalog on every
+// crawl (the lists come from lib/catalog-paths.ts, which keep the same lifetime: a renamed product must not keep its
+// old address here for an hour). Every <lastmod> is a real date: a listing takes its newest entry's,
 // and a page with no date of its own (about, FAQ, contact) has none. Google trusts lastmod only on a site where it's
 // consistently accurate, so a page that claims to change on every regeneration costs the real dates too.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("minutes");
 
 	const baseUrl = getCanonicalUrl();
 
