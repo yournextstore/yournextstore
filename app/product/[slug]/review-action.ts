@@ -10,22 +10,22 @@ type ReviewState = {
 } | null;
 
 export async function submitReview(_prev: ReviewState, formData: FormData): Promise<ReviewState> {
-	const slug = formData.get("slug");
+	const product = formData.get("product");
+	const token = formData.get("token");
 	const author = formData.get("author");
-	const email = formData.get("email");
 	const content = formData.get("content");
 	const rating = formData.get("rating");
 
-	if (!slug || typeof slug !== "string") {
+	if (!product || typeof product !== "string") {
 		return { success: false, message: "", error: "Product not found." };
+	}
+
+	if (!token || typeof token !== "string") {
+		return { success: false, message: "", error: "Only customers who bought this product can review it." };
 	}
 
 	if (!author || typeof author !== "string" || !author.trim()) {
 		return { success: false, message: "", error: "Please enter your name." };
-	}
-
-	if (!email || typeof email !== "string") {
-		return { success: false, message: "", error: "Please enter a valid email." };
 	}
 
 	if (!content || typeof content !== "string" || !content.trim()) {
@@ -37,15 +37,22 @@ export async function submitReview(_prev: ReviewState, formData: FormData): Prom
 		return { success: false, message: "", error: "Please select a rating." };
 	}
 
+	// The platform takes the reviewer's email from the order the token names, and refuses a
+	// token whose order no longer counts as a purchase or was already reviewed.
 	const [error] = await try_(
 		commerce.productReviewCreate(
-			{ idOrSlug: slug },
-			{ author: author.trim(), email, content: content.trim(), rating: ratingNum },
+			{ idOrSlug: product },
+			{ token, author: author.trim(), content: content.trim(), rating: ratingNum },
 		),
 	);
 	if (error) {
-		console.error("review: productReviewCreate failed", { slug, error });
-		return { success: false, message: "", error: "Something went wrong. Please try again." };
+		console.error("review: productReviewCreate failed", { product, error });
+		return {
+			success: false,
+			message: "",
+			error:
+				"We couldn't post your review. This purchase may already be reviewed, or the order no longer counts.",
+		};
 	}
 
 	return { success: true, message: "Thanks for your review! It will appear once approved." };
