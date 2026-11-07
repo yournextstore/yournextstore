@@ -96,6 +96,7 @@ function buildDemoProduct(input: DemoInput): DemoProduct {
 		bundleAmountOffAmount: null,
 		bundleAmountOffAmountGross: null,
 		bundleGroups: [],
+		relatedProductIds: [],
 	} satisfies DemoProduct;
 }
 

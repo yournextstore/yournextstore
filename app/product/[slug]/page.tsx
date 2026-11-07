@@ -178,7 +178,7 @@ const ProductDetails = async ({
 			)}
 
 			{/* Reviews Section */}
-			{!preview && reviews && <ProductReviews reviews={reviews} slug={slug} />}
+			{!preview && reviews && <ProductReviews reviews={reviews} productId={product.id} />}
 
 			<ProductFeatures />
 
