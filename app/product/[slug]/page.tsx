@@ -176,7 +176,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			</section>
 
 			<ProductFeatures />
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
+			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}
 			<RelatedProducts productId={product.id} categorySlug={product.category?.slug} />
 		</main>
 	);

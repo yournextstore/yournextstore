@@ -1,8 +1,13 @@
 "use client";
 
+import type { APIReviewTokenResult } from "commerce-kit";
 import { Star } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useActionState, useState } from "react";
 import { submitReview } from "@/app/product/[slug]/review-action";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function StarInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
 	const [hovered, setHovered] = useState(0);
@@ -11,7 +16,6 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 		<div className="flex gap-1">
 			{Array.from({ length: 5 }, (_, i) => {
 				const starValue = i + 1;
-				const filled = starValue <= (hovered || value);
 				return (
 					<button
 						key={starValue}
@@ -19,14 +23,13 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 						onMouseEnter={() => setHovered(starValue)}
 						onMouseLeave={() => setHovered(0)}
 						onClick={() => onChange(starValue)}
+						aria-label={`${starValue} ${starValue === 1 ? "star" : "stars"}`}
+						aria-pressed={starValue === value}
 						className="transition-transform hover:scale-110"
-						aria-label={`Rate ${starValue} of 5`}
 					>
 						<Star
-							className={`h-7 w-7 ${
-								filled
-									? "fill-foreground text-foreground"
-									: "fill-[var(--color-surface-variant)] text-[var(--color-surface-variant)]"
+							className={`h-6 w-6 ${
+								starValue <= (hovered || value) ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"
 							}`}
 						/>
 					</button>
@@ -36,91 +39,118 @@ function StarInput({ value, onChange }: { value: number; onChange: (v: number) =
 	);
 }
 
-export function ReviewForm({ slug }: { slug: string }) {
+type TokenAnswer = APIReviewTokenResult | { status: "failed" };
+
+// Asked only when the shopper clicks, so the product page stays cached. Same-origin under the
+// proxied /checkout, so the browser sends the shopper's session cookie.
+async function fetchReviewToken(productId: string): Promise<TokenAnswer> {
+	const response = await fetch(`/checkout/api/review-token?product=${encodeURIComponent(productId)}`).catch(
+		() => null,
+	);
+	const answer: APIReviewTokenResult | null = response?.ok ? await response.json().catch(() => null) : null;
+	return answer ?? { status: "failed" };
+}
+
+// A buyer who checked out as a guest, or under another email, can only review from the link in
+// their delivery email.
+const BUYERS_ONLY =
+	"Only customers who bought this product can review it. Bought it? Use the review link in your delivery email.";
+
+const NOTES: Record<Exclude<TokenAnswer["status"], "ok">, string> = {
+	failed: "Reviews can't be written right now.",
+	sign_in: BUYERS_ONLY,
+	not_bought: BUYERS_ONLY,
+	already_reviewed: "You've already reviewed this product.",
+};
+
+export function WriteReview({ productId }: { productId: string }) {
+	const pathname = usePathname();
+	const [answer, setAnswer] = useState<TokenAnswer | null>(null);
+	const [checking, setChecking] = useState(false);
+
+	if (answer?.status === "ok") {
+		return <ReviewForm productId={productId} token={answer.token} />;
+	}
+
+	return (
+		<div className="space-y-3">
+			<Button
+				variant="outline"
+				// Only a failed check is worth repeating; the other answers hold until the shopper navigates.
+				disabled={checking || (answer !== null && answer.status !== "failed")}
+				onClick={async () => {
+					setChecking(true);
+					setAnswer(await fetchReviewToken(productId));
+					setChecking(false);
+				}}
+			>
+				{checking ? "Checking..." : "Write a Review"}
+			</Button>
+			{answer && (
+				<p className="text-sm text-muted-foreground">
+					{NOTES[answer.status]}{" "}
+					{answer.status === "sign_in" && answer.canSignIn && (
+						<a
+							href={`/checkout/account/login?return_to=${encodeURIComponent(pathname)}`}
+							className="font-medium text-foreground underline underline-offset-4"
+						>
+							Sign in to review
+						</a>
+					)}
+				</p>
+			)}
+		</div>
+	);
+}
+
+/** Posts a review with the token that proves the purchase: from WriteReview or the delivered-order email link. */
+export function ReviewForm({ productId, token }: { productId: string; token: string }) {
 	const [state, action, isPending] = useActionState(submitReview, null);
 	const [rating, setRating] = useState(0);
 
 	if (state?.success) {
 		return (
-			<div className="neo-border bg-[var(--color-tertiary-container)] text-[var(--color-on-tertiary-container)] p-6 text-center">
-				<p className="font-serif text-xl">{state.message}</p>
+			<div className="rounded-lg border border-border bg-secondary/50 p-6 text-center">
+				<p className="font-medium">{state.message}</p>
 			</div>
 		);
 	}
 
-	const inputCls =
-		"w-full neo-border bg-[var(--color-surface-container-lowest)] px-3 py-2 text-sm focus:outline-none focus:neo-shadow-sm transition-shadow";
-
 	return (
-		<form
-			action={action}
-			className="neo-border bg-[var(--color-surface-container-lowest)] p-6 space-y-5 md:sticky md:top-32"
-		>
-			<div>
-				<span className="label-caps">Write a Review</span>
-				<h3 className="font-serif text-2xl mt-1">Share your experience</h3>
-			</div>
+		<form action={action} className="space-y-4 rounded-lg border border-border p-6">
+			<h3 className="text-lg font-medium">Write a Review</h3>
 
-			<input type="hidden" name="slug" value={slug} />
+			<input type="hidden" name="product" value={productId} />
+			<input type="hidden" name="token" value={token} />
 			<input type="hidden" name="rating" value={rating} />
 
 			<div>
-				<label className="label-caps mb-2 block">Rating</label>
+				<span className="mb-1.5 block text-sm font-medium">Rating</span>
 				<StarInput value={rating} onChange={setRating} />
 			</div>
 
-			<div className="grid gap-3">
-				<div>
-					<label htmlFor="review-author" className="label-caps mb-2 block">
-						Name
-					</label>
-					<input
-						id="review-author"
-						name="author"
-						type="text"
-						required
-						className={inputCls}
-						placeholder="Your name"
-					/>
-				</div>
-				<div>
-					<label htmlFor="review-email" className="label-caps mb-2 block">
-						Email
-					</label>
-					<input
-						id="review-email"
-						name="email"
-						type="email"
-						required
-						className={inputCls}
-						placeholder="you@email.com"
-					/>
-				</div>
+			<div className="space-y-1.5">
+				<Label htmlFor="review-author">Name</Label>
+				<Input id="review-author" name="author" type="text" required placeholder="Your name" />
 			</div>
 
-			<div>
-				<label htmlFor="review-content" className="label-caps mb-2 block">
-					Review
-				</label>
+			<div className="space-y-1.5">
+				<Label htmlFor="review-content">Review</Label>
 				<textarea
 					id="review-content"
 					name="content"
 					required
 					rows={4}
-					className={`${inputCls} resize-none`}
-					placeholder="What did you think?"
+					className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+					placeholder="Share your experience with this product..."
 				/>
 			</div>
 
 			{state?.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-			<button
-				type="submit"
-				disabled={isPending || rating === 0}
-				className="w-full label-caps neo-border bg-foreground text-background h-12 transition-all hover:bg-[var(--color-secondary-container)] hover:text-[var(--color-on-secondary-container)] hover:neo-shadow active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:hover:bg-foreground disabled:hover:text-background disabled:hover:shadow-none"
-			>
-				{isPending ? "Submitting…" : "Submit Review"}
-			</button>
+			<Button type="submit" disabled={isPending || rating === 0}>
+				{isPending ? "Submitting..." : "Submit Review"}
+			</Button>
 		</form>
 	);
 }
