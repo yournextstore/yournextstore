@@ -1,6 +1,6 @@
 import type { APIProductReviewsBrowseResult } from "commerce-kit";
 import { Star } from "lucide-react";
-import { ReviewForm } from "@/app/product/[slug]/review-form";
+import { WriteReview } from "@/app/product/[slug]/review-form";
 
 function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) {
 	const sizeClass = size === "lg" ? "h-5 w-5" : "h-4 w-4";
@@ -56,10 +56,10 @@ function ReviewCard({ review }: { review: APIProductReviewsBrowseResult["data"][
 
 export function ProductReviews({
 	reviews,
-	slug,
+	productId,
 }: {
 	reviews: APIProductReviewsBrowseResult | null;
-	slug: string;
+	productId: string;
 }) {
 	if (!reviews) return null;
 	return (
@@ -80,7 +80,7 @@ export function ProductReviews({
 				<p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
 			)}
 			<div className="mt-10">
-				<ReviewForm slug={slug} />
+				<WriteReview productId={productId} />
 			</div>
 		</section>
 	);
