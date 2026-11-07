@@ -182,7 +182,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ slug: string }> })
 			)}
 
 			{/* Reviews Section */}
-			{reviews && <ProductReviews reviews={reviews} slug={slug} />}
+			{reviews && <ProductReviews reviews={reviews} productId={product.id} />}
 
 			{/* Features Section (full width below) */}
 			<ProductFeatures />
