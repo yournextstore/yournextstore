@@ -54,6 +54,7 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 
 	const { lineItems, shippingAddress, shipping, customer } = order.orderData;
 	const courses = order.courses ?? [];
+	const invoice = orderInvoice(order);
 
 	// The order's own totals are authoritative — they are what the customer was charged,
 	// already net or gross per the store's tax behaviour. Fall back to a line-item sum
@@ -189,6 +190,21 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 				</div>
 			</div>
 
+			{/* Invoice (YNS-5560): the store's own invoice once it is issued, usually once the order is
+			    paid. Older platform versions don't send the field. The link is a signed download on the
+			    platform domain, so it is a plain <a>. */}
+			{invoice && (
+				<div className="border border-border rounded-lg mt-6 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+					<div className="text-sm">
+						<h2 className="font-medium">Invoice</h2>
+						<p className="text-muted-foreground mt-1 break-all">{invoice.number}</p>
+					</div>
+					<a href={invoice.downloadUrl} className={buttonVariants({ variant: "outline", size: "sm" })}>
+						Download PDF
+					</a>
+				</div>
+			)}
+
 			{/* Shipping Address */}
 			{shippingAddress && (
 				<div className="border border-border rounded-lg overflow-hidden mt-6">
@@ -218,6 +234,18 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 		</div>
 	);
 };
+
+/**
+ * The order's invoice as the platform sends it (`invoice: { number, issuedAt, downloadUrl } | null`).
+ * Read defensively: commerce-kit types and older platform versions don't have the field yet.
+ */
+function orderInvoice(order: object) {
+	const invoice = "invoice" in order ? order.invoice : null;
+	if (typeof invoice !== "object" || invoice === null) return null;
+	const number = "number" in invoice ? invoice.number : null;
+	const downloadUrl = "downloadUrl" in invoice ? invoice.downloadUrl : null;
+	return typeof number === "string" && typeof downloadUrl === "string" ? { number, downloadUrl } : null;
+}
 
 // Taken from the API type rather than restated: the line item's variant carries the gross twins
 // (`priceGross`, `calculatedPriceGross`, …) that `displayPrice` picks from.
