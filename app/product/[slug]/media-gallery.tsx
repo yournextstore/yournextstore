@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { Button } from "@/components/ui/button";
-import type { BlurPreview } from "@/lib/blur-placeholder";
 import { useUrlQuery } from "@/lib/url-query";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -26,11 +25,9 @@ type MediaGalleryProps = {
 	images: string[];
 	productName: string;
 	variants: Variant[];
-	/** Blurred preview of the first image (lib/blur-placeholder.ts), shown until the photo loads. */
-	preview?: BlurPreview | null;
 };
 
-export function MediaGallery({ images, productName, variants, preview = null }: MediaGalleryProps) {
+export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
 	const searchParams = useUrlQuery();
 
 	// The gallery always shows the full image set (product + every variant image). When a
@@ -113,7 +110,6 @@ export function MediaGallery({ images, productName, variants, preview = null }: 
 				) : (
 					<YNSMedia
 						src={displayImages[selectedIndex] ?? ""}
-						preview={preview}
 						alt={`${productName} - View ${selectedIndex + 1}`}
 						fill
 						// Half of the max-w-7xl (1280 px) container on desktop, not half of any viewport width.

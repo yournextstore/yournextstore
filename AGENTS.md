@@ -182,9 +182,10 @@ store. Keep them when you touch the chrome, the tokens or a `<head>` asset.
   loads on use instead of blocking every first paint. `Geist` stays preloaded.
 - **Images.** `priority` only on the LCP image, never on something the viewport may not show.
   Never `unoptimized` on platform media: pass `sizes` matching the box it renders into and let the
-  optimizer resize. Product cards and the gallery's first image get a blurred preview
-  (`blurPreview` in `lib/blur-placeholder.ts`, about 300 B inlined, computed once per image under
-  `"use cache"`), so a photo fades in instead of popping onto an empty box on slower connections.
+  optimizer resize. While a photo loads, its frame shows the `bg-secondary` box it sits in. Never
+  fetch a store photo on the server (for a per-photo blur, a dominant colour, …): only the
+  optimizer reads originals from Blob, once per size. A server fetch repeats on every instance and
+  revalidation, and each one downloads the full original (YNS-5812).
   `images.minimumCacheTTL` is a year: Blob URLs carry a random suffix, so a new photo is a new URL.
 - **Prefetch on intent.** Product cards link with `IntentLink` (`components/intent-link.tsx`,
   adapted from vercel/shop): the shared App Shell by default, the full page once the shopper hovers,

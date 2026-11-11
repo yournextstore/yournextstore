@@ -4,7 +4,6 @@ import type {
 	APIProductsBrowseResult,
 } from "commerce-kit";
 import { IntentLink } from "@/components/intent-link";
-import { blurPreview } from "@/lib/blur-placeholder";
 import { formatMoney } from "@/lib/money";
 import { listingPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
@@ -31,10 +30,7 @@ export async function ProductCard({
 	];
 	const primaryImage = allImages[0];
 	const secondaryImage = allImages[1];
-	const [{ currency, locale, taxBehavior }, preview] = await Promise.all([
-		getStoreConfig(),
-		blurPreview(primaryImage),
-	]);
+	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
 	const priceDisplay = listing
 		? `${listing.from ? "From " : ""}${formatMoney({ amount: listing.amount, currency, locale })}`
@@ -92,7 +88,6 @@ export async function ProductCard({
 					) : (
 						<YNSMedia
 							src={primaryImage}
-							preview={preview}
 							alt={product.name}
 							fill
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

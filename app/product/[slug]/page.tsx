@@ -20,7 +20,6 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { blurPreview } from "@/lib/blur-placeholder";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -142,10 +141,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 		...variants.flatMap((v) => v.images).filter((img) => !product.images.includes(img)),
 	];
 
-	const [productJsonLd, preview] = await Promise.all([
-		buildProductJsonLd(product, reviews, brand?.name ?? null),
-		blurPreview(allImages[0]),
-	]);
+	const productJsonLd = await buildProductJsonLd(product, reviews, brand?.name ?? null);
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -179,7 +175,7 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 			</Breadcrumb>
 			<div className="lg:grid lg:grid-cols-2 lg:gap-16">
 				{/* Left: Image Gallery (sticky on desktop) */}
-				<MediaGallery images={allImages} productName={product.name} variants={variants} preview={preview} />
+				<MediaGallery images={allImages} productName={product.name} variants={variants} />
 
 				{/* Right: Product Details */}
 				<div className="mt-8 lg:mt-0 space-y-8">
