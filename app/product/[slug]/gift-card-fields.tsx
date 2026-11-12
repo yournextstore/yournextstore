@@ -1,22 +1,57 @@
 "use client";
 
+// Platform behaviour for gift card products, not storefront design. The platform reads these four
+// line properties and refuses the add with a 400 when one breaks its rules: `recipient_email` an
+// email, `recipient_name` up to 255 characters, `message` up to 200, `send_on` local midnight with
+// the buyer's offset, from today up to 90 days ahead. Restyle the markup freely; keep the field
+// names and what giftCardProperties sends.
+
+import type { APICartCreateBody } from "commerce-kit";
 import { useState } from "react";
-import {
-	GIFT_MESSAGE_MAX,
-	GIFT_NAME_MAX,
-	GIFT_SEND_WINDOW_DAYS,
-	localDateString,
-} from "@/app/product/[slug]/gift-card-properties";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-/** "Send as a gift" toggle for a gift card; its fields sit inside the add-to-cart form. */
+const NAME_MAX = 255;
+const MESSAGE_MAX = 200;
+const SEND_WINDOW_DAYS = 90;
+
+const pad = (value: number) => String(value).padStart(2, "0");
+
+const localDateString = (date: Date) =>
+	`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
+const sendOnValue = (day: string) => {
+	const midnight = `${day}T00:00:00`;
+	const east = -new Date(midnight).getTimezoneOffset();
+	const minutes = Math.abs(east);
+	return `${midnight}${east < 0 ? "-" : "+"}${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
+};
+
+const field = (formData: FormData, name: string) => {
+	const value = formData.get(name);
+	return typeof value === "string" ? value.trim() : "";
+};
+
+/** The add-to-cart form's gift properties; undefined unless "Send as a gift" is ticked, so the card goes to the buyer. */
+export function giftCardProperties(formData: FormData): APICartCreateBody["properties"] {
+	if (!formData.has("recipient_email")) return undefined;
+	const sendOn = field(formData, "send_on");
+	return [
+		{ key: "recipient_email", label: "Recipient email", value: field(formData, "recipient_email") },
+		{ key: "recipient_name", label: "Recipient name", value: field(formData, "recipient_name") },
+		{ key: "message", label: "Message", value: field(formData, "message") },
+		{ key: "send_on", label: "Send on", value: sendOn ? sendOnValue(sendOn) : "" },
+	]
+		.filter(({ value }) => value !== "")
+		.map((entry) => ({ ...entry, type: "text" as const }));
+}
+
 export function GiftCardFields() {
 	const [isGift, setIsGift] = useState(false);
 
 	return (
-		<div className="space-y-4">
+		<div className="mb-6 space-y-4">
 			<Label className="flex cursor-pointer items-center gap-2">
 				<Checkbox checked={isGift} onCheckedChange={(value) => setIsGift(value === true)} />
 				Send as a gift
@@ -26,12 +61,11 @@ export function GiftCardFields() {
 	);
 }
 
-// Mounted only once the shopper ticks the box, so "today" is the browser's own day and never
-// part of the prerendered page.
+// Mounted only once the box is ticked, so "today" is the browser's day and never prerendered.
 function RecipientFields() {
 	const [message, setMessage] = useState("");
 	const today = new Date();
-	const lastDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + GIFT_SEND_WINDOW_DAYS);
+	const lastDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + SEND_WINDOW_DAYS);
 
 	return (
 		<div className="space-y-4 rounded-2xl border border-border p-4">
@@ -52,7 +86,7 @@ function RecipientFields() {
 					id="gift-recipient-name"
 					name="recipient_name"
 					type="text"
-					maxLength={GIFT_NAME_MAX}
+					maxLength={NAME_MAX}
 					autoComplete="off"
 				/>
 			</div>
@@ -60,14 +94,14 @@ function RecipientFields() {
 				<div className="flex items-baseline justify-between gap-2">
 					<Label htmlFor="gift-message">Message (optional)</Label>
 					<span id="gift-message-count" className="text-xs text-muted-foreground">
-						{message.length}/{GIFT_MESSAGE_MAX}
+						{message.length}/{MESSAGE_MAX}
 					</span>
 				</div>
 				<textarea
 					id="gift-message"
 					name="message"
 					rows={3}
-					maxLength={GIFT_MESSAGE_MAX}
+					maxLength={MESSAGE_MAX}
 					value={message}
 					onChange={(event) => setMessage(event.target.value)}
 					aria-describedby="gift-message-count"

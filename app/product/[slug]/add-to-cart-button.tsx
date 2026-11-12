@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
-import { GiftCardFields } from "@/app/product/[slug]/gift-card-fields";
-import { giftCardProperties } from "@/app/product/[slug]/gift-card-properties";
+import { GiftCardFields, giftCardProperties } from "@/app/product/[slug]/gift-card-fields";
 import { QuantitySelector } from "@/app/product/[slug]/quantity-selector";
 import { RestockNotify } from "@/app/product/[slug]/restock-notify";
 import { SubscriptionOptions, type SubscriptionPlan } from "@/app/product/[slug]/subscription-options";
@@ -65,7 +64,6 @@ type AddToCartButtonProps = {
 	subscriptionMode?: "optional" | "only" | "rolling";
 	/** Active plans, in display order. */
 	plans?: SubscriptionPlan[];
-	/** A gift card: its variants are the card values, and it can be sent to a recipient. */
 	isGiftCard?: boolean;
 };
 
@@ -179,12 +177,11 @@ export function AddToCartButton({
 
 		if (!selectedVariant || isOutOfStock) return;
 
-		const properties = isGiftCard ? giftCardProperties(new FormData(e.currentTarget)) : undefined;
-
 		const variantId = selectedVariant.id;
 		const addedQuantity = effectiveQuantity;
-		const previousQuantity =
-			items.find((item) => itemKey(item) === lineKey(variantId, planId, properties))?.quantity ?? 0;
+		const properties = giftCardProperties(new FormData(e.currentTarget));
+		const key = lineKey(variantId, planId, properties);
+		const previousQuantity = items.find((item) => itemKey(item) === key)?.quantity ?? 0;
 
 		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
@@ -200,7 +197,6 @@ export function AddToCartButton({
 				quantity: addedQuantity,
 				subscriptionPlanId: planId,
 				subscriptionPlan: plan,
-				// So a gift to another recipient shows as a line of its own at once.
 				properties,
 				productVariant: {
 					id: variantId,
@@ -220,13 +216,10 @@ export function AddToCartButton({
 			// The server clamps line quantities to available stock and still responds
 			// with the updated cart — sync from the RETURNED cart; reconcile only on failure.
 			const result = await addToCart(variantId, addedQuantity, planId, properties);
-			const line = result.cart?.lineItems.find(
-				(item) => itemKey(item) === lineKey(variantId, planId, properties),
-			);
+			const line = result.cart?.lineItems.find((item) => itemKey(item) === key);
 			if (result.success && result.cart && line) {
 				syncCart(result.cart);
-				// A gift line has no stock, and each recipient is a line of its own beside the variant's others.
-				if (!properties && line.quantity < previousQuantity + addedQuantity) {
+				if (line.quantity < previousQuantity + addedQuantity) {
 					toast.warning(`Only ${line.quantity} in stock — quantity adjusted`);
 				}
 			} else {
@@ -312,7 +305,7 @@ export function AddToCartButton({
 					{isOutOfStock && restockNotificationsEnabled && selectedVariant ? (
 						<RestockNotify productVariantId={selectedVariant.id} productName={product.name} />
 					) : (
-						<form onSubmit={handleSubmit} className="space-y-6">
+						<form onSubmit={handleSubmit}>
 							{isGiftCard && <GiftCardFields />}
 							<button
 								type="submit"
