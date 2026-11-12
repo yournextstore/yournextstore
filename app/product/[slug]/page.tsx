@@ -234,6 +234,8 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 							restockNotificationsEnabled={restockNotificationsEnabled}
 							subscriptionMode={product.subscriptionMode}
 							plans={plans}
+							// Not in the pinned commerce-kit types yet; older platform answers leave it out.
+							isGiftCard={"isGiftCard" in product && product.isGiftCard === true}
 						/>
 					)}
 				</div>
