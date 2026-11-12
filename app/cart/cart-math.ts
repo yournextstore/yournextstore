@@ -1,12 +1,9 @@
 import type { APICartCreateBody } from "commerce-kit";
 import { cartDisplaySubtotal, displayPrice, type TaxBehavior } from "@/lib/pricing";
 
-/** Shopper personalisation on a line, e.g. a gift card's recipient. */
 export type LineItemProperty = NonNullable<APICartCreateBody["properties"]>[number];
 
 export type CartLineItem = {
-	/** The platform's line id; absent on optimistic lines built before the server replies. */
-	id?: string;
 	quantity: number;
 	/** Part of the line's identity: one variant with different properties sits on separate lines. */
 	properties?: LineItemProperty[] | null;
@@ -81,32 +78,20 @@ export const planLabel = (plan: SubscriptionPlanLabel) =>
 	plan.discountPercent > 0 ? `${plan.name} · Save ${plan.discountPercent}%` : plan.name;
 
 /**
- * The properties as the platform compares them: sorted by key, label left out. `""` without any,
- * so a plain line keeps its old key.
- */
-const propertiesKey = (properties?: readonly LineItemProperty[] | null) =>
-	properties?.length
-		? JSON.stringify(
-				properties
-					.toSorted((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
-					.map(({ key, type, value }) => [key, type, value]),
-			)
-		: "";
-
-/**
- * A cart line is one variant on one plan with one set of properties: the API keeps a one-time line
- * and a subscription line of the same variant apart, and two gift cards of one value to different
- * recipients too, so the variant id alone doesn't identify a line. The platform's unique line index
- * is this same triple, and the key also holds for an optimistic line that has no `id` yet.
+ * A cart line is one variant on one plan with one set of properties, as the platform keeps them:
+ * a one-time and a subscription line of one variant stay apart, and so do two gift cards to
+ * different recipients. Properties compare sorted by key without their label, because the platform
+ * returns them sorted and an optimistic line keeps the form's order.
  */
 export const lineKey = (
 	variantId: string,
 	subscriptionPlanId?: string | null,
-	properties?: readonly LineItemProperty[] | null,
+	properties?: LineItemProperty[] | null,
 ) => {
 	const base = `${variantId}:${subscriptionPlanId ?? ""}`;
-	const personalised = propertiesKey(properties);
-	return personalised ? `${base}:${personalised}` : base;
+	if (!properties?.length) return base;
+	const sorted = properties.toSorted((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+	return `${base}:${JSON.stringify(sorted.map(({ key, type, value }) => [key, type, value]))}`;
 };
 
 export const itemKey = (item: CartLineItem) =>
@@ -116,22 +101,17 @@ export const itemKey = (item: CartLineItem) =>
 export const lineOptions = (item: CartLineItem) =>
 	(item.productVariant.combinations ?? []).map(({ variantValue }) => variantValue.value).join(" / ");
 
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})T/;
-
 /**
- * "Recipient email: ana@example.com": the text properties that tell two lines of one variant
- * apart. A date-time (a gift card's `send_on`, local midnight with the buyer's offset) shows as
- * the calendar day it names.
+ * "Recipient email: ana@example.com": a line's text properties. A date-time (a gift card's
+ * `send_on`, midnight in the buyer's offset) shows as the calendar day it names.
  */
 export const lineProperties = (item: CartLineItem, locale: string) =>
 	(item.properties ?? [])
 		.filter((property) => property.type === "text")
 		.map(({ key, label, value }) => {
-			const date = ISO_DATE.exec(value);
-			const shown = date
-				? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(
-						Date.UTC(Number(date[1]), Number(date[2]) - 1, Number(date[3])),
-					)
+			const day = /^\d{4}-\d{2}-\d{2}(?=T)/.exec(value)?.[0];
+			const shown = day
+				? new Date(day).toLocaleDateString(locale, { dateStyle: "medium", timeZone: "UTC" })
 				: value;
 			return `${label ?? key}: ${shown}`;
 		});

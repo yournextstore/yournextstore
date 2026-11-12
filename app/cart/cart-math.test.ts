@@ -193,7 +193,7 @@ test("lineKey of a line without properties keeps its old shape", () => {
 	expect(lineKey("v-1")).toBe("v-1:");
 	expect(lineKey("v-1", "plan-1", null)).toBe("v-1:plan-1");
 	expect(lineKey("v-1", null, [])).toBe("v-1:");
-	expect(itemKey(lineItem({}, { id: "line-1", properties: null }))).toBe("v-1:");
+	expect(itemKey(lineItem({}, { properties: null }))).toBe("v-1:");
 });
 
 test("lineKey tells apart lines of one variant with different properties, whatever their order", () => {
@@ -208,15 +208,15 @@ test("lineKey tells apart lines of one variant with different properties, whatev
 });
 
 test("cartReducer keeps two gift cards of one value to different recipients apart", () => {
-	const ana = lineItem({}, { id: "line-ana", properties: recipient("ana@example.com") });
-	const bo = lineItem({}, { id: "line-bo", properties: recipient("bo@example.com") });
+	const ana = lineItem({}, { properties: recipient("ana@example.com") });
+	const bo = lineItem({}, { properties: recipient("bo@example.com") });
 	const state: Cart = { id: "c-1", lineItems: [lineItem(), ana, bo] };
 
 	const increased = cartReducer(state, { type: "INCREASE", key: itemKey(bo) });
 	expect(increased?.lineItems.map((item) => item.quantity)).toEqual([1, 1, 2]);
 
 	const decreased = cartReducer(state, { type: "DECREASE", key: itemKey(ana) });
-	expect(decreased?.lineItems.map((item) => item.id)).toEqual([undefined, "line-bo"]);
+	expect(decreased?.lineItems).toEqual([lineItem(), bo]);
 
 	const removed = cartReducer(state, { type: "REMOVE", key: itemKey(bo) });
 	expect(removed?.lineItems).toEqual([lineItem(), ana]);
@@ -226,10 +226,10 @@ test("cartReducer keeps two gift cards of one value to different recipients apar
 });
 
 test("cartReducer ADD_ITEM stacks the same recipient and adds a new one as its own line", () => {
-	const ana = lineItem({}, { id: "line-ana", properties: recipient("ana@example.com") });
+	const ana = lineItem({}, { properties: recipient("ana@example.com") });
 	const state: Cart = { id: "c-1", lineItems: [lineItem(), ana] };
 
-	// The optimistic line has no id yet and carries the form's property order.
+	// The optimistic line carries the form's property order.
 	const again = cartReducer(state, {
 		type: "ADD_ITEM",
 		item: lineItem({}, { properties: recipient("ana@example.com").toReversed() }),

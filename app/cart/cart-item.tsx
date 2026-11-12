@@ -55,7 +55,6 @@ export function CartItem({ item }: CartItemProps) {
 						return; // newest value already sent
 					}
 					targetQuantityRef.current = null;
-					// The line's own properties pick it out among the variant's other lines.
 					const res = await setCartQuantity(
 						productVariant.id,
 						latest,

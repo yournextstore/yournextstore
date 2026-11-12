@@ -99,9 +99,7 @@ export async function addBundleToCart(
 	return { success: true as const, cart };
 }
 
-// Set the absolute quantity of one line: a variant on a plan, or the one-time line when there is no plan.
-// A personalised line (a gift card's recipient, say) is found by its own `properties`, so the write
-// never touches the variant's other lines; quantity 0 removes only that line.
+// Set the absolute quantity of one line: a variant on a plan (none for one-time) with its own properties.
 export async function setCartQuantity(
 	variantId: string,
 	quantity: number,
