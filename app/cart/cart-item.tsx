@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { setCartQuantity } from "@/app/cart/actions";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
-import { itemKey, lineOptions, planLabel } from "@/app/cart/cart-math";
+import { itemKey, lineOptions, lineProperties, planLabel } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { cn, getProductThumbnail } from "@/lib/utils";
@@ -23,6 +23,7 @@ export function CartItem({ item }: CartItemProps) {
 	const { productVariant, quantity } = item;
 	const { product } = productVariant;
 	const options = lineOptions(item);
+	const properties = lineProperties(item, locale);
 
 	const image = getProductThumbnail(productVariant.images) ?? getProductThumbnail(product.images);
 	const price = getLineItemUnitPrice(item, taxBehavior);
@@ -54,7 +55,13 @@ export function CartItem({ item }: CartItemProps) {
 						return; // newest value already sent
 					}
 					targetQuantityRef.current = null;
-					const res = await setCartQuantity(productVariant.id, latest, item.subscriptionPlanId);
+					// The line's own properties pick it out among the variant's other lines.
+					const res = await setCartQuantity(
+						productVariant.id,
+						latest,
+						item.subscriptionPlanId,
+						item.properties ?? undefined,
+					);
 					// Remember the newest server-returned cart so we can sync from it (never
 					// refetch — cartGet hits a read replica and can rebase stale).
 					if (res.success && res.cart) {
@@ -123,6 +130,11 @@ export function CartItem({ item }: CartItemProps) {
 							{product.name}
 						</Link>
 						{options && <p className="text-xs text-muted-foreground">{options}</p>}
+						{properties.map((property) => (
+							<p key={property} className="text-xs text-muted-foreground break-words">
+								{property}
+							</p>
+						))}
 						{item.subscriptionPlan && (
 							<p className="text-xs text-muted-foreground">{planLabel(item.subscriptionPlan)}</p>
 						)}

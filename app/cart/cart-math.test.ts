@@ -5,8 +5,11 @@ import {
 	cartReducer,
 	getCartDisplaySubtotal,
 	getLineItemUnitPrice,
+	itemKey,
+	type LineItemProperty,
 	lineKey,
 	lineOptions,
+	lineProperties,
 	planLabel,
 } from "@/app/cart/cart-math";
 
@@ -179,6 +182,84 @@ test("cartReducer keeps a one-time line and a plan line of the same variant apar
 
 	const removed = cartReducer(state, { type: "REMOVE", key: lineKey("v-1") });
 	expect(removed?.lineItems).toEqual([plan]);
+});
+
+const recipient = (email: string): LineItemProperty[] => [
+	{ key: "recipient_email", label: "Recipient email", type: "text", value: email },
+	{ key: "message", label: "Message", type: "text", value: "Happy birthday" },
+];
+
+test("lineKey of a line without properties keeps its old shape", () => {
+	expect(lineKey("v-1")).toBe("v-1:");
+	expect(lineKey("v-1", "plan-1", null)).toBe("v-1:plan-1");
+	expect(lineKey("v-1", null, [])).toBe("v-1:");
+	expect(itemKey(lineItem({}, { id: "line-1", properties: null }))).toBe("v-1:");
+});
+
+test("lineKey tells apart lines of one variant with different properties, whatever their order", () => {
+	const ana = recipient("ana@example.com");
+	expect(lineKey("v-1", null, ana)).not.toBe(lineKey("v-1"));
+	expect(lineKey("v-1", null, ana)).not.toBe(lineKey("v-1", null, recipient("bo@example.com")));
+	// The platform stores properties sorted by key; an optimistic line keeps the form's order.
+	expect(lineKey("v-1", null, ana.toReversed())).toBe(lineKey("v-1", null, ana));
+	// The label is not part of what the line is.
+	const unlabelled = ana.map(({ key, type, value }) => ({ key, type, value }));
+	expect(lineKey("v-1", null, unlabelled)).toBe(lineKey("v-1", null, ana));
+});
+
+test("cartReducer keeps two gift cards of one value to different recipients apart", () => {
+	const ana = lineItem({}, { id: "line-ana", properties: recipient("ana@example.com") });
+	const bo = lineItem({}, { id: "line-bo", properties: recipient("bo@example.com") });
+	const state: Cart = { id: "c-1", lineItems: [lineItem(), ana, bo] };
+
+	const increased = cartReducer(state, { type: "INCREASE", key: itemKey(bo) });
+	expect(increased?.lineItems.map((item) => item.quantity)).toEqual([1, 1, 2]);
+
+	const decreased = cartReducer(state, { type: "DECREASE", key: itemKey(ana) });
+	expect(decreased?.lineItems.map((item) => item.id)).toEqual([undefined, "line-bo"]);
+
+	const removed = cartReducer(state, { type: "REMOVE", key: itemKey(bo) });
+	expect(removed?.lineItems).toEqual([lineItem(), ana]);
+
+	const removedPlain = cartReducer(state, { type: "REMOVE", key: lineKey("v-1") });
+	expect(removedPlain?.lineItems).toEqual([ana, bo]);
+});
+
+test("cartReducer ADD_ITEM stacks the same recipient and adds a new one as its own line", () => {
+	const ana = lineItem({}, { id: "line-ana", properties: recipient("ana@example.com") });
+	const state: Cart = { id: "c-1", lineItems: [lineItem(), ana] };
+
+	// The optimistic line has no id yet and carries the form's property order.
+	const again = cartReducer(state, {
+		type: "ADD_ITEM",
+		item: lineItem({}, { properties: recipient("ana@example.com").toReversed() }),
+	});
+	expect(again?.lineItems.map((item) => item.quantity)).toEqual([1, 2]);
+
+	const other = cartReducer(state, {
+		type: "ADD_ITEM",
+		item: lineItem({}, { properties: recipient("bo@example.com") }),
+	});
+	expect(other?.lineItems.map((item) => item.quantity)).toEqual([1, 1, 1]);
+});
+
+test("lineProperties names a line's text properties and shows a send date as its day", () => {
+	const item = lineItem(
+		{},
+		{
+			properties: [
+				...recipient("ana@example.com"),
+				{ key: "send_on", label: "Send on", type: "text", value: "2026-12-24T00:00:00+01:00" },
+				{ key: "photo", label: "Photo", type: "file", value: "upload-1" },
+			],
+		},
+	);
+	expect(lineProperties(item, "en-US")).toEqual([
+		"Recipient email: ana@example.com",
+		"Message: Happy birthday",
+		"Send on: Dec 24, 2026",
+	]);
+	expect(lineProperties(lineItem(), "en-US")).toEqual([]);
 });
 
 test("planLabel names the plan and its saving", () => {

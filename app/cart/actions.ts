@@ -1,12 +1,18 @@
 "use server";
 
+import { type APICartCreateBody, YNSAPIError } from "commerce-kit";
 import { try_ } from "safe-try";
 import { refusedCodeMessage } from "@/app/cart/discount-code";
 import { commerce } from "@/lib/commerce";
 import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
 import { getStoreConfig } from "@/lib/store-config";
 
-export async function addToCart(variantId: string, quantity = 1, subscriptionPlanId?: string | null) {
+export async function addToCart(
+	variantId: string,
+	quantity = 1,
+	subscriptionPlanId?: string | null,
+	properties?: APICartCreateBody["properties"],
+) {
 	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
 	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
 	// the order and its emails speak it. Omitted when the store never set a default language.
@@ -18,10 +24,24 @@ export async function addToCart(variantId: string, quantity = 1, subscriptionPla
 	// client syncs from this action's returned cart (cartGet hits a read replica and
 	// can return the pre-write cart, dropping the just-added line).
 	let [error, cart] = await try_(
-		commerce.cartUpsert({ cartId: cartCookie?.id, variantId, quantity, subscriptionPlanId, locale }),
+		commerce.cartUpsert({
+			cartId: cartCookie?.id,
+			variantId,
+			quantity,
+			subscriptionPlanId,
+			locale,
+			properties,
+		}),
 	);
+	// The platform refuses bad line properties (a gift card's recipient, say) with a 400 whose
+	// message is written for the shopper; a fresh cart would be refused the same way.
+	if (properties && error instanceof YNSAPIError && error.status === 400) {
+		return { success: false, cart: null, error: error.message };
+	}
 	if (error) {
-		[error, cart] = await try_(commerce.cartUpsert({ variantId, quantity, subscriptionPlanId, locale }));
+		[error, cart] = await try_(
+			commerce.cartUpsert({ variantId, quantity, subscriptionPlanId, locale, properties }),
+		);
 		if (error) {
 			console.error("cart: addToCart failed after fresh-cart retry", {
 				variantId,
@@ -80,10 +100,13 @@ export async function addBundleToCart(
 }
 
 // Set the absolute quantity of one line: a variant on a plan, or the one-time line when there is no plan.
+// A personalised line (a gift card's recipient, say) is found by its own `properties`, so the write
+// never touches the variant's other lines; quantity 0 removes only that line.
 export async function setCartQuantity(
 	variantId: string,
 	quantity: number,
 	subscriptionPlanId?: string | null,
+	properties?: APICartCreateBody["properties"],
 ) {
 	const cartCookie = await getCartCookieJson();
 
@@ -99,6 +122,7 @@ export async function setCartQuantity(
 			quantity: Math.max(quantity, 0),
 			subscriptionPlanId,
 			mode: "set",
+			properties,
 		}),
 	);
 	if (error) {
