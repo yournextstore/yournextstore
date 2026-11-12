@@ -191,6 +191,8 @@ export function MediaGallery({ images, productName, variants }: MediaGalleryProp
 								<video
 									className="absolute inset-0 w-full h-full object-cover"
 									src={image}
+									// A thumbnail needs one frame, not the clip (YNS-5823).
+									preload="metadata"
 									muted
 									playsInline
 								/>

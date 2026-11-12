@@ -28,8 +28,11 @@ export async function ProductCard({
 		...(variants?.flatMap((v) => v.images ?? []).filter((img) => !(product.images ?? []).includes(img)) ??
 			[]),
 	];
-	const primaryImage = allImages[0];
-	const secondaryImage = allImages[1];
+	// A card shows photos. A video on a card was downloaded in full by every browser that rendered the listing,
+	// watched or not (YNS-5823), so it is left for the product page. A product with only videos shows a still frame.
+	const photos = allImages.filter((media) => !isVideoUrl(media));
+	const primaryImage = photos[0] ?? allImages[0];
+	const secondaryImage = photos[1];
 	const { currency, locale, taxBehavior } = await getStoreConfig();
 	const listing = variants ? listingPrice(variants, taxBehavior) : null;
 	const priceDisplay = listing
@@ -78,11 +81,11 @@ export async function ProductCard({
 				{primaryImage &&
 					(isVideoUrl(primaryImage) ? (
 						<video
-							className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${secondaryImage ? "group-hover:opacity-0" : ""}`}
+							className="absolute inset-0 w-full h-full object-cover"
 							src={primaryImage}
+							// The first frame only: `metadata` stops the browser from fetching the whole clip.
+							preload="metadata"
 							muted
-							loop
-							autoPlay
 							playsInline
 						/>
 					) : (
@@ -96,25 +99,15 @@ export async function ProductCard({
 							fetchPriority={priority ? "high" : undefined}
 						/>
 					))}
-				{secondaryImage &&
-					(isVideoUrl(secondaryImage) ? (
-						<video
-							className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-							src={secondaryImage}
-							muted
-							loop
-							autoPlay
-							playsInline
-						/>
-					) : (
-						<YNSMedia
-							src={secondaryImage}
-							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-						/>
-					))}
+				{secondaryImage && (
+					<YNSMedia
+						src={secondaryImage}
+						alt={`${product.name} - alternate view`}
+						fill
+						sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+						className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+					/>
+				)}
 			</div>
 			<div className="space-y-1">
 				<h2 className="text-base font-medium text-foreground">{product.name}</h2>
