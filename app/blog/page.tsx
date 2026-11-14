@@ -11,6 +11,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce, getCanonicalUrl, getStoreSeo } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
 import { JsonLdScript } from "@/lib/json-ld";
@@ -52,7 +53,8 @@ export default function BlogPage() {
 
 async function BlogPageContent() {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("post");
+	cacheLife("hours");
 
 	if (!(await isStoreToolEnabled("blog"))) {
 		notFound();

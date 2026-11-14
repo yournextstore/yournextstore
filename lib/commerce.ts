@@ -1,6 +1,7 @@
 import { Commerce } from "commerce-kit";
 import { cacheLife } from "next/cache";
 import { try_ } from "safe-try";
+import { tagKinds } from "@/lib/cache-tags";
 import { invariant } from "@/lib/invariant";
 
 // Override the API host (defaults to yns.store / yns.cx by key prefix). Useful for
@@ -72,6 +73,8 @@ export const commerce = Object.assign(client, {
 // for everything that depends on them (metadata, <html lang>, nav links).
 export const meGetCached = async (token?: string) => {
 	"use cache";
+	tagKinds("store");
+	cacheLife("hours");
 
 	const commerce = Commerce({ token, endpoint, fetch: fetchWithTimings });
 	return commerce.meGet();
@@ -81,7 +84,8 @@ export const meGetCached = async (token?: string) => {
 // lets a page answer 404. Cached on its own, so a page's metadata and body share one read.
 export const productGetCached = async (idOrSlug: string) => {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 	const [error, product] = await try_(commerce.productGet({ idOrSlug }));
 	return error ? null : product;
 };
@@ -90,6 +94,7 @@ export const productGetCached = async (idOrSlug: string) => {
 // root layout's getStoreMetadata so it stays in the static shell.
 export async function getStoreSeo() {
 	"use cache";
+	tagKinds("store");
 	cacheLife("hours");
 
 	const [error, me] = await try_(meGetCached());

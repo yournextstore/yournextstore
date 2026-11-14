@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 
 const EMPTY_FACETS = {
@@ -11,7 +12,8 @@ const EMPTY_FACETS = {
 
 export async function getFilterFacets() {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 	// Filters are an enhancement — never let a facets failure take down the product list.
 	try {
 		return await commerce.productFilters();

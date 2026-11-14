@@ -3,6 +3,7 @@ import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { SearchPageInput } from "@/components/search/search-page-input";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import { ActiveFilters, CategorySidebar, MobileControls, SortSelect } from "./search-controls";
 import { SearchPagination } from "./search-pagination";
@@ -26,6 +27,7 @@ export async function generateMetadata({
 
 async function getActiveCategories() {
 	"use cache";
+	tagKinds("category");
 	cacheLife("hours");
 	const { data } = await commerce.categoriesBrowse({ active: true, limit: 50 });
 	return data.filter((c) => !c.parentId).map((c) => ({ id: c.id, slug: c.slug, name: c.name }));
@@ -45,6 +47,7 @@ async function searchProducts({
 	category?: string;
 }) {
 	"use cache";
+	tagKinds("product");
 	cacheLife("minutes");
 	const currentPage = Math.max(1, Number(page) || 1);
 	return commerce.productBrowse({
@@ -69,6 +72,7 @@ async function SearchResults({
 	category?: string;
 }) {
 	"use cache";
+	tagKinds("product");
 	cacheLife("minutes");
 
 	const currentPage = Math.max(1, Number(page) || 1);

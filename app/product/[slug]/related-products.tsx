@@ -1,13 +1,15 @@
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 
 // The merchant's suggested products first, then the same category. The platform picks the
 // order and leaves out the product itself and anything a shopper can't buy right now.
 async function getRelatedProducts(productId: string) {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 	const { data } = await commerce.productRelated({ idOrSlug: productId, limit: 6 });
 	return data;
 }

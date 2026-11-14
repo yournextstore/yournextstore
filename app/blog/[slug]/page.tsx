@@ -13,6 +13,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { tagKinds } from "@/lib/cache-tags";
 import { getAllPosts, slugParams } from "@/lib/catalog-paths";
 import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
@@ -22,7 +23,8 @@ import { YNSMedia } from "@/lib/yns-media";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("post");
+	cacheLife("hours");
 	const { slug } = await params;
 	const post = await getBlogPostData(slug);
 
@@ -62,7 +64,8 @@ export const generateStaticParams = () => slugParams(getAllPosts(), (post) => po
 // branches never run and an unknown slug answers 200 with the error page.
 const getBlogPostData = async (slug: string) => {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("post");
+	cacheLife("hours");
 
 	if (!(await isStoreToolEnabled("blog"))) {
 		return null;

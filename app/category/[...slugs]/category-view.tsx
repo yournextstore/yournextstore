@@ -14,6 +14,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets, hasFacets } from "@/lib/facets";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -70,7 +71,8 @@ export async function categoryMetadata(slugs: string[]): Promise<Metadata> {
 // branches never run and an unknown slug answers 200 with the error page.
 const getCategoryData = async (slug: string) => {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("category", "product");
+	cacheLife("hours");
 	const [error, category] = await try_(commerce.categoryGet({ idOrSlug: slug }));
 	return error ? null : category;
 };

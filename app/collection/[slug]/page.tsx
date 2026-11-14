@@ -15,6 +15,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { tagKinds } from "@/lib/cache-tags";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -24,7 +25,8 @@ const COLLECTION_PRODUCTS_LIMIT = 100;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("store", "collection");
+	cacheLife("hours");
 	const { slug } = await params;
 	const collection = await getCollectionData(slug);
 
@@ -101,7 +103,8 @@ function CollectionHeader({ collection }: { collection: APICollectionGetByIdResu
 // the sort order the merchant set on it. The page has no pagination, so it renders one page; 100 is the API's max.
 async function getCollectionProducts(collection: APICollectionGetByIdResult) {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("collection", "product");
+	cacheLife("hours");
 	const { data } = await commerce.request<APIProductsBrowseResult>(
 		`/collections/${encodeURIComponent(collection.slug)}/products`,
 		{ query: { limit: COLLECTION_PRODUCTS_LIMIT } },
@@ -129,7 +132,8 @@ export const generateStaticParams = () => slugParams(getAllCollections(), (colle
 // branches never run and an unknown slug answers 200 with the error page.
 const getCollectionData = async (slug: string) => {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("collection");
+	cacheLife("hours");
 	const [error, collection] = await try_(commerce.collectionGet({ idOrSlug: slug }));
 	return error ? null : collection;
 };

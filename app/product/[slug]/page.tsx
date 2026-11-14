@@ -20,6 +20,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { tagKinds } from "@/lib/cache-tags";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -42,7 +43,8 @@ function StarRow({ rating }: { rating: number }) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 	const { slug } = await params;
 	const product = await productGetCached(slug);
 
@@ -80,7 +82,8 @@ export const generateStaticParams = () => slugParams(getAllProducts(), (product)
 
 const getProductPageData = async (slug: string) => {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("store", "product", "review", "brand");
+	cacheLife("hours");
 
 	const me = await meGetCached().catch(() => null);
 	const reviewsEnabled = me?.store.settings?.enabledTools?.reviews ?? false;

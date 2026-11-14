@@ -48,7 +48,7 @@ export default function ContactPage() {
 
 async function ContactPageContent() {
 	"use cache";
-	cacheLife("minutes");
+	cacheLife("hours");
 
 	if (!(await isStoreToolEnabled("contactForm"))) {
 		notFound();

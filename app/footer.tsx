@@ -1,10 +1,12 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { PaymentMethods } from "@/components/payment-methods";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce, meGetCached } from "@/lib/commerce";
 
 async function FooterBlogLink() {
 	"use cache";
+	tagKinds("store");
 	cacheLife("hours");
 
 	const me = await meGetCached().catch(() => null);
@@ -23,6 +25,7 @@ async function FooterBlogLink() {
 
 async function FooterContactLink() {
 	"use cache";
+	tagKinds("store");
 	cacheLife("hours");
 
 	const me = await meGetCached().catch(() => null);
@@ -41,6 +44,7 @@ async function FooterContactLink() {
 
 async function FooterCollections() {
 	"use cache";
+	tagKinds("collection");
 	cacheLife("hours");
 
 	const collections = await commerce.collectionBrowse({ active: true, limit: 5 });
@@ -70,6 +74,7 @@ async function FooterCollections() {
 
 async function FooterLegalPages() {
 	"use cache";
+	tagKinds("legal");
 	cacheLife("hours");
 
 	const pages = await commerce.legalPageBrowse();

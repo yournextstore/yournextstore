@@ -1,6 +1,7 @@
 import type { APIProductGetByIdResult } from "commerce-kit";
 import { cacheLife } from "next/cache";
 import { ProductCard } from "@/components/product-card";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 
 type FullProduct = NonNullable<APIProductGetByIdResult>;
@@ -20,7 +21,8 @@ export async function BlogProductEmbed({
 	variantIds?: Record<string, string>;
 }) {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 
 	const products = (await Promise.all(productIds.map((id) => commerce.productGet({ idOrSlug: id }))))
 		.filter((product): product is FullProduct => product !== null && product.status === "published")

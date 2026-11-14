@@ -3,11 +3,13 @@ import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { tagKinds } from "@/lib/cache-tags";
 import { getAllLegalPages, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
+	tagKinds("store", "legal");
 	cacheLife("hours");
 	const { slug } = await params;
 	const page = await getLegalPage(slug);
@@ -39,6 +41,7 @@ export const generateStaticParams = () =>
 // unknown slug answers 200 with the error page.
 const getLegalPage = async (slug: string) => {
 	"use cache";
+	tagKinds("legal");
 	cacheLife("hours");
 	const [error, page] = await try_(commerce.legalPageGet(slug));
 	return error ? null : page;

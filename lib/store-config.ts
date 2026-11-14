@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import { try_ } from "safe-try";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import { CURRENCY, LOCALE } from "@/lib/constants";
 import type { TaxBehavior } from "@/lib/pricing";
@@ -12,7 +13,8 @@ import type { TaxBehavior } from "@/lib/pricing";
 // default lifetime keeps serving the old settings for up to 15 minutes.
 export async function getStoreConfig() {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("store");
+	cacheLife("hours");
 
 	const [error, me] = await try_(commerce.meGet());
 	if (error) {

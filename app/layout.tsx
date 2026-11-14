@@ -1,3 +1,4 @@
+import { tagKinds } from "@/lib/cache-tags";
 import "@/app/globals.css";
 
 import { UserRound } from "lucide-react";
@@ -39,6 +40,7 @@ const geistMono = Geist_Mono({
 
 async function getStoreMetadata(): Promise<Metadata> {
 	"use cache";
+	tagKinds("store");
 	cacheLife("hours");
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
@@ -107,6 +109,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getNavLinks(): Promise<NavLink[]> {
 	"use cache";
+	tagKinds("store", "collection");
 	cacheLife("hours");
 	const [collections, me] = await Promise.all([
 		commerce.collectionBrowse({ active: true, limit: 5 }),

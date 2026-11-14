@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { cacheLife } from "next/cache";
+import { tagKinds } from "@/lib/cache-tags";
 import {
 	getAllCategories,
 	getAllCollections,
@@ -35,7 +36,8 @@ function newest(dates: string[]) {
 // consistently accurate, so a page that claims to change on every regeneration costs the real dates too.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product", "collection", "category", "legal", "post");
+	cacheLife("hours");
 
 	const baseUrl = getCanonicalUrl();
 

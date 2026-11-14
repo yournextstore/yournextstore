@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import type { ProductListingParams } from "@/lib/listing-routes";
 
@@ -16,7 +17,8 @@ type ListingQuery = {
 /** One page of a listing. Cached, so a view can start it alongside its facets and the grid reads the same entry. */
 export async function getListingPage({ filters, category, order }: ListingQuery) {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 	const currentPage = Math.max(1, Number(filters.page) || 1);
 	const result = await commerce.productBrowse({
 		active: true,

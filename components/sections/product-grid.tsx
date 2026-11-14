@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 
 export type Product = APIProductsBrowseResult["data"][number];
@@ -36,7 +37,8 @@ export async function ProductGrid({
 	eagerFirstImage = true,
 }: ProductGridProps) {
 	"use cache";
-	cacheLife("minutes");
+	tagKinds("product");
+	cacheLife("hours");
 
 	const displayProducts = products ?? (await commerce.productBrowse({ active: true, limit })).data;
 

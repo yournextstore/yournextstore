@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { tagKinds } from "@/lib/cache-tags";
 import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
 
 const FEATURED_PRODUCTS = 30;
@@ -18,6 +19,7 @@ export async function GET() {
 // entry can't hold a Response, so this returns the text and GET wraps it.
 async function getLlmsTxt() {
 	"use cache";
+	tagKinds("store", "collection", "legal", "post");
 	cacheLife("hours");
 
 	const baseUrl = getCanonicalUrl();
