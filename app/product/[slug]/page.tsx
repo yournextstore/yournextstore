@@ -22,6 +22,7 @@ import {
 import { tagKinds } from "@/lib/cache-tags";
 import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
+import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, buildProductBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		title: seoTitle,
 		description: seoDescription,
 		alternates: { canonical },
+		...hiddenFromSearchMetadata(product),
 		openGraph: {
 			type: "website",
 			title: seoTitle,

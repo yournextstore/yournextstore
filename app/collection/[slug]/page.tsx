@@ -17,6 +17,7 @@ import {
 import { tagKinds } from "@/lib/cache-tags";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
+import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, buildCollectionBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		title: collection.name,
 		description,
 		alternates: { canonical },
+		...hiddenFromSearchMetadata(collection),
 		openGraph: {
 			type: "website",
 			title: collection.name,

@@ -17,6 +17,7 @@ import {
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import { getFilterFacets, hasFacets } from "@/lib/facets";
+import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { buildCategoryBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import type { CategoryListingParams } from "@/lib/listing-routes";
 
@@ -51,6 +52,7 @@ export async function categoryMetadata(slugs: string[]): Promise<Metadata> {
 		title,
 		description,
 		alternates: { canonical },
+		...hiddenFromSearchMetadata(category),
 		openGraph: {
 			type: "website",
 			title,

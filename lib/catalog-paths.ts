@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
+import { isHiddenFromSearch } from "@/lib/hidden-from-search";
 
 // Every catalog address, for app/sitemap.ts and for `generateStaticParams`: known pages prerender completely
 // (no loading states), and an address added later renders on its first visit and is cached from then on.
@@ -39,7 +40,12 @@ export async function getAllProducts() {
 	tagKinds("product");
 	cacheLife("hours");
 	const products = await browseAll((page) => commerce.productBrowse({ active: true, ...page }));
-	return products.map((p) => ({ slug: p.slug, updatedAt: p.updatedAt, images: p.images }));
+	return products.map((p) => ({
+		slug: p.slug,
+		updatedAt: p.updatedAt,
+		images: p.images,
+		hidden: isHiddenFromSearch(p),
+	}));
 }
 
 export async function getAllCollections() {
@@ -47,7 +53,7 @@ export async function getAllCollections() {
 	tagKinds("collection");
 	cacheLife("hours");
 	const collections = await browseAll((page) => commerce.collectionBrowse({ active: true, ...page }));
-	return collections.map((c) => ({ slug: c.slug, lastModified: c.updatedAt }));
+	return collections.map((c) => ({ slug: c.slug, lastModified: c.updatedAt, hidden: isHiddenFromSearch(c) }));
 }
 
 export async function getAllCategories() {
@@ -63,7 +69,11 @@ export async function getAllCategories() {
 		const parents = category.parentId && depth < 2 ? pathOf(category.parentId, depth + 1) : [];
 		return [...parents, category.slug];
 	};
-	return categories.map((c) => ({ path: pathOf(c.id).join("/"), lastModified: c.updatedAt ?? c.createdAt }));
+	return categories.map((c) => ({
+		path: pathOf(c.id).join("/"),
+		lastModified: c.updatedAt ?? c.createdAt,
+		hidden: isHiddenFromSearch(c),
+	}));
 }
 
 export async function getAllLegalPages() {
@@ -80,7 +90,11 @@ export async function getAllPosts() {
 	cacheLife("hours");
 	const posts = await browseAll((page) => commerce.postBrowse({ active: true, ...page }));
 	// A scheduled post is saved before it goes live, so its last change is the later of the two.
-	return posts.map((p) => ({ slug: p.slug, lastModified: later(p.publishedAt ?? p.createdAt, p.updatedAt) }));
+	return posts.map((p) => ({
+		slug: p.slug,
+		lastModified: later(p.publishedAt ?? p.createdAt, p.updatedAt),
+		hidden: isHiddenFromSearch(p),
+	}));
 }
 
 /**

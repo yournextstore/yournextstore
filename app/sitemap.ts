@@ -18,13 +18,17 @@ async function getContactFormEnabled() {
 async function getBlogState() {
 	const me = await meGetCached().catch(() => null);
 	if (!me?.store.settings?.enabledTools?.blog) {
-		return { enabled: false, posts: [] as { slug: string; lastModified: string }[] };
+		return { enabled: false, posts: [] as { slug: string; lastModified: string; hidden: boolean }[] };
 	}
 	return { enabled: true, posts: await getAllPosts().catch(() => []) };
 }
 
 // A product's first images are its main ones. Listing every image made a 1,000-product catalogue's sitemap 10 MB.
 const MAX_IMAGES_PER_PRODUCT = 5;
+
+// A page the merchant hid from search engines (the switch in its SEO tab) is left out of the sitemap. It still
+// prerenders and opens by its link; the page itself carries `noindex` (lib/hidden-from-search.ts).
+const listed = <T extends { hidden: boolean }>(items: T[]) => items.filter((item) => !item.hidden);
 
 // The newest of a list's dates, or undefined for an empty list (the entry then has no <lastmod>).
 function newest(dates: string[]) {
@@ -65,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			: []),
 	];
 
-	const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
+	const productRoutes: MetadataRoute.Sitemap = listed(products).map((p) => ({
 		url: `${baseUrl}/product/${p.slug}`,
 		lastModified: new Date(p.updatedAt),
 		changeFrequency: "weekly",
@@ -73,14 +77,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		images: p.images.length > 0 ? p.images.slice(0, MAX_IMAGES_PER_PRODUCT) : undefined,
 	}));
 
-	const collectionRoutes: MetadataRoute.Sitemap = collections.map((c) => ({
+	const collectionRoutes: MetadataRoute.Sitemap = listed(collections).map((c) => ({
 		url: `${baseUrl}/collection/${c.slug}`,
 		lastModified: new Date(c.lastModified),
 		changeFrequency: "weekly",
 		priority: 0.7,
 	}));
 
-	const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
+	const categoryRoutes: MetadataRoute.Sitemap = listed(categories).map((c) => ({
 		url: `${baseUrl}/category/${c.path}`,
 		lastModified: new Date(c.lastModified),
 		changeFrequency: "weekly",
@@ -102,7 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 					changeFrequency: "weekly",
 					priority: 0.6,
 				},
-				...blog.posts.map((p) => ({
+				...listed(blog.posts).map((p) => ({
 					url: `${baseUrl}/blog/${p.slug}`,
 					lastModified: new Date(p.lastModified),
 					changeFrequency: "monthly" as const,

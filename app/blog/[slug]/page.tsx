@@ -16,6 +16,7 @@ import { tagKinds } from "@/lib/cache-tags";
 import { getAllPosts, slugParams } from "@/lib/catalog-paths";
 import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
+import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
@@ -39,6 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		title: seoTitle,
 		description: seoDescription,
 		alternates: { canonical },
+		...hiddenFromSearchMetadata(post),
 		openGraph: {
 			type: "article",
 			title: seoTitle,
