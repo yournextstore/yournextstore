@@ -23,9 +23,6 @@ async function getBlogState() {
 	return { enabled: true, posts: await getAllPosts().catch(() => []) };
 }
 
-// A product's first images are its main ones. Listing every image made a 1,000-product catalogue's sitemap 10 MB.
-const MAX_IMAGES_PER_PRODUCT = 5;
-
 // A page the merchant hid from search engines (the switch in its SEO tab) is left out of the sitemap. It still
 // prerenders and opens by its link; the page itself carries `noindex` (lib/hidden-from-search.ts).
 const listed = <T extends { hidden: boolean }>(items: T[]) => items.filter((item) => !item.hidden);
@@ -74,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		lastModified: new Date(p.updatedAt),
 		changeFrequency: "weekly",
 		priority: 0.8,
-		images: p.images.length > 0 ? p.images.slice(0, MAX_IMAGES_PER_PRODUCT) : undefined,
+		images: p.images.length > 0 ? p.images : undefined,
 	}));
 
 	const collectionRoutes: MetadataRoute.Sitemap = listed(collections).map((c) => ({
