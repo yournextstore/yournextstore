@@ -3,8 +3,7 @@ import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 
 // `getSubdomainPublicUrl` reads this at call time, so setting it here is enough to keep
-// the proxy off the network — no module mock, which would leak to every other test file
-// importing `lib/commerce`.
+// the proxy off the network. The other branch, asking the API, is in proxy-address.test.ts.
 process.env.NEXT_PUBLIC_YNS_API_TENANT = "https://acme.yns.cx";
 // `lib/commerce` asserts this at import time, and bun skips `.env.local` under NODE_ENV=test.
 process.env.YNS_API_KEY ||= "test-key";

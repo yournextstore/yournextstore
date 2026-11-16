@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getSubdomainPublicUrl } from "./lib/commerce";
 import { markdownRewritePath } from "./lib/markdown";
+import { getSubdomainPublicUrl } from "./lib/platform-address";
 
 // /account is the platform-rendered shopper account area (unified sign-in); the platform
 // handles unauthenticated access itself, so it is proxied like /checkout, never guarded here.
