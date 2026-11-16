@@ -90,6 +90,9 @@ grep -b -o -m1 '<header' .next/server/app/index.html | cut -d: -f1             #
 grep -b -o -m1 '<div hidden id="S:' .next/server/app/index.html | cut -d: -f1  # must be larger (or empty)
 ```
 
+The check also covers the page's own content: a document's first `<h1>` must not come after
+`</main>` or inside a streamed segment (see "Prerendered catalog pages" below for what moves it).
+
 The same rule holds for a deployed store, because the static shell is the first flush of the live
 response too: `bash scripts/check-shell.sh https://<store>/`. `YNS_SHELL_CHECK=warn` prints the
 failures and exits 0 (the release valve when a store must ship anyway), `YNS_SHELL_CHECK=off` skips
@@ -114,12 +117,22 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
 
 - **No `loading.tsx`, no route skeletons.** Product, category, collection, blog and legal pages list
   their known addresses with `generateStaticParams` (helpers in `lib/catalog-paths.ts`, shared with
-  `app/sitemap.ts`), so every listed address prerenders in full. The page's default export is a
-  sync wrapper that renders the async body inside one `<Suspense fallback={null}>`: a listed address
-  resolves it at build time (no fallback ever shows). Awaiting `params` above that boundary leaves
-  unlisted addresses without a shell, and `notFound()` for one then serves a bare error document
-  with no header or footer. Only URL-safe slugs are listed (`isStaticSlug`): Next writes the path
-  into a header while prerendering, and a space or non-ASCII letter fails the whole build.
+  `app/sitemap.ts`), so every listed address prerenders in full. Only URL-safe slugs are listed
+  (`isStaticSlug`): Next writes the path into a header while prerendering, and a space or non-ASCII
+  letter fails the whole build.
+
+  The page's default export is a sync wrapper that renders two siblings: `NotFoundGuard`
+  (`components/not-found-guard.tsx`) and the async body. **The body is never inside a `<Suspense>`.**
+  React moves a resolved boundary out of place, into a hidden `<div hidden id="S:…">` at the end of
+  the HTML that a script puts back, once the bytes sent so far plus the boundary pass 12,800
+  (`progressiveChunkSize`). Any page body is larger than that, so a boundary around it leaves
+  `<main>` empty, with the `<h1>` after the footer, for every crawler that runs no scripts — even
+  when the boundary resolved at build time. The guard is the one thing that does sit in a boundary:
+  `notFound()` thrown above every boundary replaces the whole document with a bare error page
+  (`<html id="__next_error__">`, no header or footer in the HTML), while thrown inside one it keeps
+  the layout. The guard renders nothing, so React leaves it in place. The body returns `null` for a
+  missing address instead of throwing; both read the same cached data. `scripts/check-shell.sh`
+  fails the build when a document's first `<h1>` comes after `</main>` or inside a streamed segment.
 
   A missing page must answer 404, not 200. Next sends the status with the first byte, so a
   `notFound()` that runs after a shell went out keeps the 200 (a soft 404). Product, blog post,
@@ -132,8 +145,10 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
   `curl -s -o /dev/null -w '%{http_code}' <store>/product/does-not-exist` (must print `404`).
 - **No `<Suspense>` around cached data.** A `"use cache"` component inside a boundary still ships its
   fallback first and its content later in the same HTML (a late segment swapped in by `$RC`), so
-  the shopper sees the skeleton while the document downloads. Render cached sections directly; keep
-  boundaries for request-time reads.
+  the shopper sees the skeleton while the document downloads, and a crawler finds the content
+  outside `<main>`. It happens to a boundary that resolved at build time too, once the document
+  passes 12,800 bytes (see above). Render cached sections directly, the way the related products on
+  a product page do; keep boundaries for request-time reads.
 - **The URL query is read in the browser.** Client components that need it (selected variant,
   gallery) use `useUrlQuery()` from `lib/url-query.ts` instead of `useSearchParams()`, and write it
   with `setUrlQuery()`. The prerendered page renders the default and switches after hydration;
