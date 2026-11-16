@@ -2,6 +2,7 @@ import { Commerce } from "commerce-kit";
 import { cacheLife } from "next/cache";
 import { try_ } from "safe-try";
 import { tagKinds } from "@/lib/cache-tags";
+import { createRetryingFetch } from "@/lib/commerce-fetch";
 import { invariant } from "@/lib/invariant";
 
 // Override the API host (defaults to yns.store / yns.cx by key prefix). Useful for
@@ -34,17 +35,21 @@ const fetchWithTimings = process.env.DEBUG_COMMERCE
 		}
 	: undefined;
 
+// Every read retries a short Store API failure (429, 5xx, a dropped connection) before the SDK sees it.
+const commerceFetch = createRetryingFetch(fetchWithTimings ?? ((url, init) => fetch(url, init)));
+
 const client = Commerce({
 	token: process.env.YNS_API_KEY,
 	endpoint,
-	fetch: fetchWithTimings,
+	fetch: commerceFetch,
 });
 
 /**
  * A full catalogue page (100 products) is a multi-megabyte response, and during a build hundreds of prerenders fetch
  * at once; a body can arrive corrupted (`SyntaxError: Bad control character` while the API's own response is clean).
  * Callers turn an error into an empty list, which "use cache" then keeps in a static page for hours, so a browse
- * read retries twice on a parse or network error first.
+ * read retries twice on a parse or network error first. `commerceFetch` retries a failed request; this also covers a
+ * body that breaks off while the SDK reads it.
  */
 const RETRIES = 2;
 
@@ -76,7 +81,7 @@ export const meGetCached = async (token?: string) => {
 	tagKinds("store");
 	cacheLife("hours");
 
-	const commerce = Commerce({ token, endpoint, fetch: fetchWithTimings });
+	const commerce = Commerce({ token, endpoint, fetch: commerceFetch });
 	return commerce.meGet();
 };
 
