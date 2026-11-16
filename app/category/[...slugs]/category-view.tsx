@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { Fragment } from "react";
 import { try_ } from "safe-try";
 import { getListingPage, ListingProducts } from "@/components/listing-products";
@@ -77,14 +77,21 @@ const getCategoryData = async (slug: string) => {
 	return error ? null : category;
 };
 
+/** Whether a category address leads nowhere: the check NotFoundGuard runs, while the view below renders nothing. */
+export async function categoryMissing(slugs: string[]) {
+	const slug = slugs.at(-1);
+	return !slug || !(await getCategoryData(slug))?.active;
+}
+
 /**
  * A category with or without filters. The default view (`/category/…` without a query) prerenders in full; a filter
  * or page number is rewritten to `/category-filtered/…`, which renders per request (lib/listing-routes.ts).
  */
 export async function CategoryView({ slugs, filters }: { slugs: string[]; filters: CategoryListingParams }) {
 	const slug = slugs.at(-1);
+	// NotFoundGuard answers the 404 (categoryMissing); throwing here, above any boundary, would drop the header and footer.
 	if (!slug) {
-		notFound();
+		return null;
 	}
 
 	// All cached and independent: the category, its facets and the listing page start together.
@@ -94,7 +101,7 @@ export async function CategoryView({ slugs, filters }: { slugs: string[]; filter
 		getListingPage({ filters, category: slug }),
 	]);
 	if (!category?.active) {
-		notFound();
+		return null;
 	}
 	// Category facet is hidden here (it's the page context), so don't count it.
 	const filtersAvailable = hasFacets(facets, { categories: false });

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { ContactForm } from "@/app/contact/contact-form";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import { getStoreSeo } from "@/lib/commerce";
 import { JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
@@ -35,14 +34,14 @@ const contactJsonLd = {
 	description: "Get in touch with our team. Questions about orders, products, or anything else.",
 };
 
-// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
-// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
-// layout instead of a bare error document.
+// The body renders straight into <main>; only the 404 check (the tool is switched off) sits in a boundary
+// (components/not-found-guard.tsx).
 export default function ContactPage() {
 	return (
-		<Suspense fallback={null}>
+		<>
+			<NotFoundGuard missing={isStoreToolEnabled("contactForm").then((enabled) => !enabled)} />
 			<ContactPageContent />
-		</Suspense>
+		</>
 	);
 }
 
@@ -50,8 +49,9 @@ async function ContactPageContent() {
 	"use cache";
 	cacheLife("hours");
 
+	// NotFoundGuard answers the 404; throwing here, above any boundary, would drop the header and footer.
 	if (!(await isStoreToolEnabled("contactForm"))) {
-		notFound();
+		return null;
 	}
 
 	return (

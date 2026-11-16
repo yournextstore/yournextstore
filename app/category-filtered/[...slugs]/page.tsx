@@ -1,4 +1,5 @@
-import { CategoryView, categoryMetadata } from "@/app/category/[...slugs]/category-view";
+import { CategoryView, categoryMetadata, categoryMissing } from "@/app/category/[...slugs]/category-view";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import { activeParams, CATEGORY_LISTING_PARAMS } from "@/lib/listing-routes";
 
 // `/category/…?…` with a filter or page number is rewritten here (lib/listing-routes.ts). The query is only known per
@@ -12,5 +13,10 @@ export async function generateMetadata(props: PageProps<"/category-filtered/[...
 
 export default async function CategoryFilteredPage(props: PageProps<"/category-filtered/[...slugs]">) {
 	const [{ slugs }, query] = await Promise.all([props.params, props.searchParams]);
-	return <CategoryView slugs={slugs} filters={activeParams(CATEGORY_LISTING_PARAMS, query)} />;
+	return (
+		<>
+			<NotFoundGuard missing={categoryMissing(slugs)} />
+			<CategoryView slugs={slugs} filters={activeParams(CATEGORY_LISTING_PARAMS, query)} />
+		</>
+	);
 }

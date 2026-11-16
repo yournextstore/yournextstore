@@ -1,5 +1,4 @@
 import { cacheLife } from "next/cache";
-import { Suspense } from "react";
 import { ProductGrid } from "@/components/sections/product-grid";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
@@ -14,15 +13,8 @@ async function getRelatedProducts(productId: string) {
 	return data;
 }
 
-export function RelatedProducts(props: { productId: string }) {
-	return (
-		<Suspense>
-			<RelatedProductsContent {...props} />
-		</Suspense>
-	);
-}
-
-async function RelatedProductsContent({ productId }: { productId: string }) {
+// No <Suspense>: the read is cached, and a boundary would move the grid out of <main> into a hidden block (AGENTS.md).
+export async function RelatedProducts({ productId }: { productId: string }) {
 	const related = await getRelatedProducts(productId);
 
 	if (related.length === 0) return null;

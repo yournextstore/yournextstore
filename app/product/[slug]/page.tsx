@@ -2,8 +2,6 @@ import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { AddToCartButton } from "@/app/product/[slug]/add-to-cart-button";
 import { BundleBuilder } from "@/app/product/[slug]/bundle-builder";
 import { MediaGallery } from "@/app/product/[slug]/media-gallery";
@@ -11,6 +9,7 @@ import { ProductFeatures } from "@/app/product/[slug]/product-features";
 import { ProductReviews } from "@/app/product/[slug]/product-reviews";
 import { RelatedProducts } from "@/app/product/[slug]/related-products";
 import { sortVariantsByOptions } from "@/app/product/[slug]/variant-order";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
@@ -111,12 +110,15 @@ const getProductPageData = async (slug: string) => {
 // answers 404 with the not-found page inside the layout, not a 200 behind an already-sent shell (AGENTS.md).
 export const ensureStatic = "navigation";
 
-// Listed addresses prerender in full: the boundary resolves at build time, so no fallback ever shows.
+// The body renders straight into <main>; only the 404 check sits in a boundary (components/not-found-guard.tsx).
 export default function ProductPage(props: Parameters<typeof ProductPageContent>[0]) {
 	return (
-		<Suspense fallback={null}>
+		<>
+			<NotFoundGuard
+				missing={props.params.then(async ({ slug }) => !(await getProductPageData(slug)).product)}
+			/>
 			<ProductPageContent {...props} />
-		</Suspense>
+		</>
 	);
 }
 
@@ -124,8 +126,9 @@ async function ProductPageContent({ params }: { params: Promise<{ slug: string }
 	const { slug } = await params;
 	const { product, reviews, restockNotificationsEnabled, brand } = await getProductPageData(slug);
 
+	// NotFoundGuard answers the 404; throwing here, above any boundary, would drop the header and footer.
 	if (!product) {
-		notFound();
+		return null;
 	}
 
 	const reviewSummary = reviews?.summary ?? null;

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -40,14 +39,14 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-// Listed addresses still prerender in full (the boundary resolves at build time, so no fallback shows). An address
-// added later streams in behind the prerendered chrome, so `notFound()` there renders the not-found page inside the
-// layout instead of a bare error document.
+// The body renders straight into <main>; only the 404 check (the tool is switched off) sits in a boundary
+// (components/not-found-guard.tsx).
 export default function BlogPage() {
 	return (
-		<Suspense fallback={null}>
+		<>
+			<NotFoundGuard missing={isStoreToolEnabled("blog").then((enabled) => !enabled)} />
 			<BlogPageContent />
-		</Suspense>
+		</>
 	);
 }
 
@@ -56,8 +55,9 @@ async function BlogPageContent() {
 	tagKinds("post");
 	cacheLife("hours");
 
+	// NotFoundGuard answers the 404; throwing here, above any boundary, would drop the header and footer.
 	if (!(await isStoreToolEnabled("blog"))) {
-		notFound();
+		return null;
 	}
 
 	const { data: posts } = await commerce.postBrowse({ active: true, limit: POSTS_LIMIT });

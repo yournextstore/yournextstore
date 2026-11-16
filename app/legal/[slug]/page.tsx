@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import { tagKinds } from "@/lib/cache-tags";
 import { getAllLegalPages, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
@@ -51,12 +50,13 @@ const getLegalPage = async (slug: string) => {
 // answers 404 with the not-found page inside the layout, not a 200 behind an already-sent shell (AGENTS.md).
 export const ensureStatic = "navigation";
 
-// Listed addresses prerender in full: the boundary resolves at build time, so no fallback ever shows.
+// The body renders straight into <main>; only the 404 check sits in a boundary (components/not-found-guard.tsx).
 export default function LegalPage(props: Parameters<typeof LegalPageContent>[0]) {
 	return (
-		<Suspense fallback={null}>
+		<>
+			<NotFoundGuard missing={props.params.then(async ({ slug }) => !(await getLegalPage(slug)))} />
 			<LegalPageContent {...props} />
-		</Suspense>
+		</>
 	);
 }
 
@@ -64,8 +64,9 @@ async function LegalPageContent({ params }: { params: Promise<{ slug: string }> 
 	const { slug } = await params;
 	const page = await getLegalPage(slug);
 
+	// NotFoundGuard answers the 404; throwing here, above any boundary, would drop the header and footer.
 	if (!page) {
-		notFound();
+		return null;
 	}
 
 	return (

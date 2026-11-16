@@ -1,5 +1,5 @@
-import { Suspense } from "react";
-import { CategoryView, categoryMetadata } from "@/app/category/[...slugs]/category-view";
+import { CategoryView, categoryMetadata, categoryMissing } from "@/app/category/[...slugs]/category-view";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import { getAllCategories, isStaticSlug, PLACEHOLDER_SLUG, withPlaceholder } from "@/lib/catalog-paths";
 
 // Known categories prerender in full (lib/catalog-paths.ts). This route never reads the query: filters and pages go
@@ -22,12 +22,13 @@ export async function generateMetadata(props: PageProps<"/category/[...slugs]">)
 // rules out reading the query here; a client-side visit to a filtered or paged URL still reaches the server.
 export const ensureStatic = "navigation";
 
-// Listed addresses prerender in full: the boundary resolves at build time, so no fallback ever shows.
+// The body renders straight into <main>; only the 404 check sits in a boundary (components/not-found-guard.tsx).
 export default function CategoryPage(props: Parameters<typeof CategoryPageContent>[0]) {
 	return (
-		<Suspense fallback={null}>
+		<>
+			<NotFoundGuard missing={props.params.then(({ slugs }) => categoryMissing(slugs))} />
 			<CategoryPageContent {...props} />
-		</Suspense>
+		</>
 	);
 }
 

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { try_ } from "safe-try";
+import { NotFoundGuard } from "@/components/not-found-guard";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	Breadcrumb,
@@ -78,12 +77,15 @@ const getBlogPostData = async (slug: string) => {
 // answers 404 with the not-found page inside the layout, not a 200 behind an already-sent shell (AGENTS.md).
 export const ensureStatic = "navigation";
 
-// Listed addresses prerender in full: the boundary resolves at build time, so no fallback ever shows.
+// The body renders straight into <main>; only the 404 check sits in a boundary (components/not-found-guard.tsx).
 export default function BlogPostPage(props: Parameters<typeof BlogPostPageContent>[0]) {
 	return (
-		<Suspense fallback={null}>
+		<>
+			<NotFoundGuard
+				missing={props.params.then(async ({ slug }) => !(await getBlogPostData(slug))?.active)}
+			/>
 			<BlogPostPageContent {...props} />
-		</Suspense>
+		</>
 	);
 }
 
@@ -91,8 +93,9 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 	const { slug } = await params;
 	const post = await getBlogPostData(slug);
 
+	// NotFoundGuard answers the 404; throwing here, above any boundary, would drop the header and footer.
 	if (!post?.active) {
-		notFound();
+		return null;
 	}
 
 	const baseUrl = getCanonicalUrl();
