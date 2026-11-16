@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { commerce } from "@/lib/commerce";
 import { apiStructuredData, JsonLdScript } from "@/lib/json-ld";
 import { formatMoney } from "@/lib/money";
-import { cartDisplaySubtotal, displayPrice, orderDisplayShipping } from "@/lib/pricing";
+import { displayPrice } from "@/lib/pricing";
 import { getStoreConfig } from "@/lib/store-config";
 import { getProductThumbnail } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
@@ -45,7 +45,7 @@ export default function OrderSuccessPage(props: { params: Promise<{ id: string }
 
 const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
 	const { id } = await params;
-	const { currency, locale, taxBehavior } = await getStoreConfig();
+	const { currency, locale, taxBehavior: storeTaxBehavior } = await getStoreConfig();
 	const order = await commerce.orderGet({ id });
 
 	if (!order) {
@@ -55,39 +55,22 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 	const { lineItems, shippingAddress, shipping, customer } = order.orderData;
 	const courses = order.courses ?? [];
 	const invoice = orderInvoice(order);
+	const money = (amount: number) => formatMoney({ amount: BigInt(Math.round(amount)), currency, locale });
 
-	// The order's own totals are authoritative — they are what the customer was charged,
-	// already net or gross per the store's tax behaviour. Fall back to a line-item sum
-	// only when the order predates them (or the store prices through Stripe Tax).
-	const apiSubtotal = cartDisplaySubtotal(order.orderData, taxBehavior);
-	const subtotal =
-		apiSubtotal !== null
-			? BigInt(Math.round(apiSubtotal))
-			: lineItems.reduce(
-					(acc, item) => acc + BigInt(displayPrice(item.productVariant, taxBehavior)) * BigInt(item.quantity),
-					BigInt(0),
-				);
-
-	const shippingCost = orderDisplayShipping(order.orderData, taxBehavior);
-
-	// An inclusive store's prices already hold the tax, so it is stated rather than added.
-	const includedTax =
-		taxBehavior === "inclusive" && order.orderData.totalTax
-			? BigInt(Math.round(order.orderData.totalTax))
-			: null;
-
-	// Only an exclusive store adds tax on top of what it displayed; an inclusive one has
-	// it inside the subtotal already.
-	const taxAmount =
-		taxBehavior === "exclusive" && order.orderData.totalTax
-			? BigInt(Math.round(order.orderData.totalTax))
-			: null;
-
-	const apiTotal = order.orderData.total;
-	const total =
-		apiTotal !== null && apiTotal !== undefined
-			? BigInt(Math.round(apiTotal))
-			: subtotal + shippingCost + (taxAmount ?? BigInt(0));
+	// The order's own totals, printed as stored: with tax when the store showed prices with tax
+	// (as the order recorded it), without otherwise.
+	// `shippingNet` and `discountCodes` are newer than the pinned commerce-kit types.
+	const orderData: typeof order.orderData & {
+		shippingNet?: number | null;
+		discountCodes?: Array<{ code: string; amountNet: number; amountGross: number }> | null;
+	} = order.orderData;
+	const taxIncluded = (orderData.taxBehavior ?? storeTaxBehavior) === "inclusive";
+	const pick = <T,>(net: T, gross: T) => (taxIncluded ? gross : net);
+	const subtotal = pick(orderData.subtotalNet, orderData.subtotalGross);
+	const shippingCost = pick(orderData.shippingNet ?? null, orderData.shippingGross);
+	const discountCodes = orderData.discountCodes ?? [];
+	const totalTax = orderData.totalTax;
+	const charged = orderData.totalGross ?? orderData.total;
 
 	const orderJsonLd = apiStructuredData(order);
 
@@ -141,35 +124,37 @@ const OrderDetails = async ({ params }: { params: Promise<{ id: string }> }) => 
 					))}
 				</div>
 
-				{/* Order Summary */}
-				<div className="bg-secondary/30 px-6 py-4 space-y-2">
-					<div className="flex items-center justify-between text-sm">
-						<span className="text-muted-foreground">Subtotal</span>
-						<span>{formatMoney({ amount: subtotal, currency, locale })}</span>
+				{/* Order Summary: the order's stored totals, printed as they come. */}
+				{subtotal !== null && charged !== null && (
+					<div className="bg-secondary/30 px-6 py-4 space-y-2">
+						<div className="flex items-center justify-between text-sm">
+							<span className="text-muted-foreground">Subtotal</span>
+							<span>{money(subtotal)}</span>
+						</div>
+						{discountCodes.map((entry) => (
+							<div key={entry.code} className="flex items-center justify-between text-sm">
+								<span className="text-muted-foreground">Discount ({entry.code})</span>
+								<span>−{money(pick(entry.amountNet, entry.amountGross))}</span>
+							</div>
+						))}
+						{shipping && shippingCost !== null && (
+							<div className="flex items-center justify-between text-sm">
+								<span className="text-muted-foreground">Shipping ({shipping.name})</span>
+								<span>{money(shippingCost)}</span>
+							</div>
+						)}
+						{totalTax !== null && totalTax > 0 && (
+							<div className="flex items-center justify-between text-sm">
+								<span className="text-muted-foreground">{taxIncluded ? "Includes tax" : "Tax"}</span>
+								<span>{money(totalTax)}</span>
+							</div>
+						)}
+						<div className="flex items-center justify-between font-semibold pt-2 border-t border-border">
+							<span>Total</span>
+							<span>{money(charged)}</span>
+						</div>
 					</div>
-					{shipping && (
-						<div className="flex items-center justify-between text-sm">
-							<span className="text-muted-foreground">Shipping ({shipping.name})</span>
-							<span>{formatMoney({ amount: shippingCost, currency, locale })}</span>
-						</div>
-					)}
-					{taxAmount !== null && (
-						<div className="flex items-center justify-between text-sm">
-							<span className="text-muted-foreground">Tax</span>
-							<span>{formatMoney({ amount: taxAmount, currency, locale })}</span>
-						</div>
-					)}
-					{includedTax !== null && (
-						<div className="flex items-center justify-between text-sm">
-							<span className="text-muted-foreground">Includes tax</span>
-							<span>{formatMoney({ amount: includedTax, currency, locale })}</span>
-						</div>
-					)}
-					<div className="flex items-center justify-between font-semibold pt-2 border-t border-border">
-						<span>Total</span>
-						<span>{formatMoney({ amount: total, currency, locale })}</span>
-					</div>
-				</div>
+				)}
 			</div>
 
 			{/* Invoice (YNS-5560): the store's own invoice once it is issued, usually once the order is

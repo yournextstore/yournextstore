@@ -5,7 +5,6 @@ import {
 	displayPrice,
 	displayTierPrice,
 	listingPrice,
-	orderDisplayShipping,
 	priceRange,
 } from "@/lib/pricing";
 
@@ -146,23 +145,4 @@ test("listingPrice strikes through the cheapest variant's price before a promoti
 		),
 	).toEqual({ amount: 8000n, from: true, compareAt: 10000n });
 	expect(listingPrice([{ price: "1400", originalPrice: "1400" }], "exclusive")?.compareAt).toBeNull();
-});
-
-test("orderDisplayShipping shows free delivery as 0 even though the rate lists a price", () => {
-	const shipping = { price: "1220", priceGross: "1500" };
-	expect(orderDisplayShipping({ shipping, shippingGross: 0 }, "inclusive")).toBe(0n);
-	expect(orderDisplayShipping({ shipping, shippingGross: 0 }, "exclusive")).toBe(0n);
-});
-
-test("orderDisplayShipping shows the charged delivery cost in the store's basis", () => {
-	const shipping = { price: "1220", priceGross: "1500" };
-	expect(orderDisplayShipping({ shipping, shippingGross: 1500 }, "inclusive")).toBe(1500n);
-	expect(orderDisplayShipping({ shipping, shippingGross: 1500 }, "exclusive")).toBe(1220n);
-});
-
-test("orderDisplayShipping falls back to the rate when the order has no shipping total", () => {
-	const shipping = { price: "1220", priceGross: "1500" };
-	expect(orderDisplayShipping({ shipping, shippingGross: null }, "inclusive")).toBe(1500n);
-	expect(orderDisplayShipping({ shipping: { price: "1220" } }, "exclusive")).toBe(1220n);
-	expect(orderDisplayShipping({ shipping: null, shippingGross: 1500 }, "inclusive")).toBe(0n);
 });
