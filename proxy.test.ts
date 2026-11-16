@@ -171,3 +171,29 @@ test("runs only for agents on page addresses, so browsers' page views skip the p
 	expect(runs("/logo.svg", "text/plain")).toBe(false);
 	expect(runs("/checkout", BROWSER)).toBe(true);
 });
+
+test("tells the platform's scripts the shopper's country, so the cookie banner can follow it", async () => {
+	const response = await proxy(
+		new NextRequest("https://acme.example/_public/tracking/v1/runtime.js", {
+			headers: { "x-vercel-ip-country": "DE" },
+		}),
+	);
+
+	const rewrite = new URL(response.headers.get("x-middleware-rewrite") ?? "");
+	expect(rewrite.searchParams.get("store")).toBe("acme");
+	expect(rewrite.searchParams.get("country")).toBe("DE");
+});
+
+test("names no country for a script request whose country the edge did not see", async () => {
+	const response = await proxy(new NextRequest("https://acme.example/_public/kit.js"));
+
+	expect(new URL(response.headers.get("x-middleware-rewrite") ?? "").searchParams.has("country")).toBe(false);
+});
+
+test("tells checkout and account pages the shopper's country from the edge, never from the browser", async () => {
+	const located = await checkoutRequest({ "x-vercel-ip-country": "PL" });
+	expect(forwardedValue(located, "x-yns-shopper-country")).toBe("PL");
+
+	const forged = await checkoutRequest({ "x-yns-shopper-country": "US" });
+	expect(forwardedValue(forged, "x-yns-shopper-country")).toBeNull();
+});

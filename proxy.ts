@@ -84,6 +84,8 @@ const DIGITAL_ASSETS_PREFIX = "/digital-assets/";
 // PayNow only accepts a notification address under the shop's registered domain, so the platform
 // registers `/api/paynow/<storeId>/webhooks` here and this forwards it to the same platform path.
 const PAYNOW_WEBHOOK_PREFIX = "/api/paynow/";
+const EDGE_COUNTRY_HEADER = "x-vercel-ip-country";
+const SHOPPER_COUNTRY_HEADER = "x-yns-shopper-country";
 
 export async function proxy(request: NextRequest) {
 	// Platform-owned scripts under /_public/ — forwarded verbatim (plus the store, so the
@@ -94,6 +96,9 @@ export async function proxy(request: NextRequest) {
 		const { subdomain, publicUrl } = await getSubdomainPublicUrl();
 		const destination = new URL(request.nextUrl.pathname, publicUrl);
 		destination.searchParams.set("store", subdomain);
+		// The cookie banner can be limited to some countries; only this edge sees the shopper's.
+		const country = request.headers.get(EDGE_COUNTRY_HEADER);
+		if (country) destination.searchParams.set("country", country);
 		return NextResponse.rewrite(destination);
 	}
 
@@ -142,6 +147,11 @@ export async function proxy(request: NextRequest) {
 		// This header marks the proxy as one that forwards; the platform only uses it to
 		// *tighten* the check, so it grants nothing if forged.
 		requestHeaders.set("x-yns-forwarded-origin", "1");
+		// The shopper's country, for checkout's cookie banner and delivery country. Only this
+		// edge sees it: the platform's own geo headers name this edge, not the shopper.
+		const country = request.headers.get(EDGE_COUNTRY_HEADER);
+		requestHeaders.delete(SHOPPER_COUNTRY_HEADER);
+		if (country) requestHeaders.set(SHOPPER_COUNTRY_HEADER, country);
 
 		const url = new URL(`/${subdomain}${request.nextUrl.pathname}${request.nextUrl.search}`, destinationUrl);
 		url.searchParams.set("auth", "0");
