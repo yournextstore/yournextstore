@@ -23,6 +23,9 @@ async function getBlogState() {
 	return { enabled: true, posts: await getAllPosts().catch(() => []) };
 }
 
+// A product's first images are its main ones. Listing every image made a 1,000-product catalogue's sitemap 10 MB.
+const MAX_IMAGES_PER_PRODUCT = 5;
+
 // The newest of a list's dates, or undefined for an empty list (the entry then has no <lastmod>).
 function newest(dates: string[]) {
 	const times = dates.map((date) => new Date(date).getTime()).filter((time) => !Number.isNaN(time));
@@ -67,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		lastModified: new Date(p.updatedAt),
 		changeFrequency: "weekly",
 		priority: 0.8,
-		images: p.images.length > 0 ? p.images : undefined,
+		images: p.images.length > 0 ? p.images.slice(0, MAX_IMAGES_PER_PRODUCT) : undefined,
 	}));
 
 	const collectionRoutes: MetadataRoute.Sitemap = collections.map((c) => ({
