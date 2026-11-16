@@ -24,6 +24,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/sonner";
 import { commerce, getCanonicalUrl, getStoreFaviconUrl, meGetCached } from "@/lib/commerce";
 import { StoreJsonLd } from "@/lib/json-ld";
+import { siteVerificationMetadata } from "@/lib/site-verification";
 import { getStoreConfig } from "@/lib/store-config";
 
 const geistSans = Geist({
@@ -53,6 +54,8 @@ async function getStoreMetadata(): Promise<Metadata> {
 	const storeLogo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
 	const ogImage = me.store.settings?.ogimage || storeLogo || "/logo.svg";
+	// Search Console and Bing Webmaster Tools ownership tags, from Settings → SEO in the admin.
+	const verification = siteVerificationMetadata(me.store.settings);
 
 	return {
 		title: {
@@ -97,6 +100,7 @@ async function getStoreMetadata(): Promise<Metadata> {
 			apple: [{ url: faviconUrl, sizes: "180x180" }],
 		},
 		manifest: "/manifest.webmanifest",
+		...(verification ? { verification } : {}),
 	};
 }
 
