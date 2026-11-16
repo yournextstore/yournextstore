@@ -12,9 +12,13 @@ const settings: { logo: { imageUrl: string }; socials?: Record<string, string | 
 const me = { store: { name: "Acme", settings } };
 mock.module("@/lib/commerce", () => ({ ...commerceModule, meGetCached: async () => me }));
 
-const { apiStructuredData, buildProductBreadcrumbJsonLd, JsonLdScript, StoreJsonLd } = await import(
-	"@/lib/json-ld"
-);
+const {
+	apiStructuredData,
+	buildProductBreadcrumbJsonLd,
+	buildSearchResultsJsonLd,
+	JsonLdScript,
+	StoreJsonLd,
+} = await import("@/lib/json-ld");
 
 const product = (variants: Array<{ price: string; stock: number | null }>) =>
 	({
@@ -78,4 +82,38 @@ test("organization has no sameAs without a valid social profile", async () => {
 
 	delete settings.socials;
 	expect(await storeOrganization()).not.toHaveProperty("sameAs");
+});
+
+test("a results page declares the query and its products the way the platform's tracking reads them", () => {
+	const results = buildSearchResultsJsonLd("sencha", [
+		{ id: "prod_1", name: "Sencha", variants: [{ id: "var_1", sku: "SENCHA-50" }] },
+		{ id: "prod_2", name: "Matcha", variants: [{ id: "var_2", sku: null }] },
+	]);
+	expect(results).toEqual({
+		"@context": "https://schema.org",
+		"@type": "SearchResultsPage",
+		mainEntity: {
+			"@type": "SearchAction",
+			actionStatus: "CompletedActionStatus",
+			query: "sencha",
+			result: {
+				"@type": "ItemList",
+				itemListElement: [
+					{
+						"@type": "ListItem",
+						position: 1,
+						item: { "@type": "Product", productID: "prod_1", name: "Sencha", sku: "SENCHA-50" },
+					},
+					{
+						"@type": "ListItem",
+						position: 2,
+						item: { "@type": "Product", productID: "prod_2", name: "Matcha", sku: "var_2" },
+					},
+				],
+			},
+		},
+	});
+	expect(buildSearchResultsJsonLd("nothing", [])).toMatchObject({
+		mainEntity: { query: "nothing", result: { itemListElement: [] } },
+	});
 });

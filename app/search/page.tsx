@@ -5,6 +5,7 @@ import { ProductCard } from "@/components/product-card";
 import { SearchPageInput } from "@/components/search/search-page-input";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
+import { buildSearchResultsJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { ActiveFilters, CategorySidebar, MobileControls, SortSelect } from "./search-controls";
 import { SearchPagination } from "./search-pagination";
 import { getSortFromParams, sortToBrowseParams } from "./sort";
@@ -80,9 +81,12 @@ async function SearchResults({
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
+	const searchJsonLd = <JsonLdScript data={buildSearchResultsJsonLd(q, result.data)} />;
+
 	if (result.data.length === 0) {
 		return (
 			<div>
+				{searchJsonLd}
 				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
 				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
 					Nothing matched &ldquo;{q}&rdquo;
@@ -96,6 +100,7 @@ async function SearchResults({
 
 	return (
 		<div>
+			{searchJsonLd}
 			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
 				{result.data.map((product, index) => (
 					<ProductCard key={product.id} product={product} priority={index === 0} />

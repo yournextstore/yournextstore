@@ -40,8 +40,9 @@ They are updated by platform releases only — the platform's tooling **rejects 
 them, and any out-of-band change is restored to the platform version on every save**.
 
 Storefront code makes no tracking calls. The platform tracking runtime reports page views, product
-and collection views, cart changes, checkouts and purchases by itself, from the page's JSON-LD and
-the cart, and forwards them to the store's trackers once consent allows. Three rules keep it working:
+and collection views, searches, cart views, cart changes, checkouts and purchases by itself, from
+the page's JSON-LD and the cart, and forwards them to the store's trackers once consent allows.
+Three rules keep it working:
 
 - Render the `structuredData` the API returns, as-is, with `JsonLdScript` and `apiStructuredData`
   from `lib/json-ld.tsx`: product pages (`product.structuredData`), collection pages
@@ -50,7 +51,10 @@ the cart, and forwards them to the store's trackers once consent allows. Three r
   nodes completely (reviews, the collection's product list and the blog post's author included),
   so never build your own `Product`, `CollectionPage`, `BlogPosting` or `Order` node and never add
   fields to the API's. The template owns the store-level nodes (`Organization`, `WebSite`, `Store`
-  in `StoreJsonLd`) and the breadcrumbs.
+  in `StoreJsonLd`) and the breadcrumbs. Two things have no API node, so the template declares them:
+  the search page renders `buildSearchResultsJsonLd(query, products)` (a `SearchAction` with the
+  query and the products shown, by id), and whatever shows the cart, a page or the open drawer,
+  carries `data-yns-view="cart"` while it is on screen.
 - Never add tracker snippets (fbq, gtag, GTM, pixels) to template code, and never report an event
   yourself: a cart add needs no call, the runtime re-reads the cart after the server action. A
   shopper's email from a sign-up goes to `visitor({ email })` from `commerce-kit/tracking`; a

@@ -32,7 +32,11 @@ export function CartSidebar() {
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
-			<SheetContent className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
+			{/* Marks the open cart for the platform's tracking, which reports it as a cart view. */}
+			<SheetContent
+				data-yns-view="cart"
+				className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg"
+			>
 				<SheetHeader className="border-b border-border pb-4">
 					<SheetTitle className="flex items-center gap-2">
 						Your Cart

@@ -86,6 +86,48 @@ export function buildCategoryBreadcrumbJsonLd(
 	};
 }
 
+type SearchedProduct = {
+	id: string;
+	name: string;
+	variants?: ReadonlyArray<{ id: string; sku: string | null }>;
+};
+
+/**
+ * The search a results page shows, which the platform's tracking reports: a `SearchAction` with the query and, as
+ * its result, the products on the page by id (`productID`, and the first variant's `sku || id`, as on a product
+ * page). The API has no node for a search, and the page is not indexed, so these product nodes are only references.
+ */
+export function buildSearchResultsJsonLd(
+	query: string,
+	products: ReadonlyArray<SearchedProduct>,
+): Record<string, unknown> {
+	return {
+		"@context": "https://schema.org",
+		"@type": "SearchResultsPage",
+		mainEntity: {
+			"@type": "SearchAction",
+			actionStatus: "CompletedActionStatus",
+			query,
+			result: {
+				"@type": "ItemList",
+				itemListElement: products.map((product, index) => {
+					const variant = product.variants?.[0];
+					return {
+						"@type": "ListItem",
+						position: index + 1,
+						item: {
+							"@type": "Product",
+							productID: product.id,
+							name: product.name,
+							...(variant ? { sku: variant.sku || variant.id } : {}),
+						},
+					};
+				}),
+			},
+		},
+	};
+}
+
 // The store's social profiles, for `sameAs`. The admin fields are free text, so only a full https address counts:
 // a handle or a bare domain is not a link, and `email` is an address, not a profile.
 function socialProfileUrls(socials: Record<string, string | null | undefined> | null | undefined) {
