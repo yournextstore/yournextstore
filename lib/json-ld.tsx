@@ -1,4 +1,4 @@
-import type { APICollectionGetByIdResult, APIPostGetByIdResult, APIProductGetByIdResult } from "commerce-kit";
+import type { APICollectionGetByIdResult, APIProductGetByIdResult } from "commerce-kit";
 import { getCanonicalUrl, meGetCached } from "@/lib/commerce";
 
 function getBaseUrl(): string {
@@ -12,7 +12,7 @@ export function JsonLdScript({ data }: { data: object }) {
 }
 
 /**
- * The schema.org JSON-LD the API generates for a product, collection or order page, rendered as-is.
+ * The schema.org JSON-LD the API generates for a product, collection, blog post or order page, rendered as-is.
  * The platform's tracking reads it to report views and purchases. Read through a guard because the
  * pinned commerce-kit types may not carry the field yet.
  */
@@ -109,27 +109,6 @@ async function getStoreOrganization() {
 		...(logo ? { logo } : {}),
 		...(ogImage ? { image: ogImage } : {}),
 		...(sameAs.length > 0 ? { sameAs } : {}),
-	};
-}
-
-// Posts carry no author, so the store stands in as both author and publisher.
-export async function buildBlogPostingJsonLd(
-	post: NonNullable<APIPostGetByIdResult>,
-): Promise<Record<string, unknown>> {
-	const organization = await getStoreOrganization();
-	const url = `${getBaseUrl()}/blog/${post.slug}`;
-	return {
-		"@context": "https://schema.org",
-		"@type": "BlogPosting",
-		headline: post.title,
-		url,
-		mainEntityOfPage: { "@type": "WebPage", "@id": url },
-		datePublished: post.publishedAt ?? post.createdAt,
-		dateModified: post.updatedAt,
-		author: organization,
-		publisher: organization,
-		...(post.image ? { image: post.image } : {}),
-		...(post.seo?.description ? { description: post.seo.description } : {}),
 	};
 }
 

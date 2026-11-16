@@ -16,7 +16,7 @@ import { tagKinds } from "@/lib/cache-tags";
 import { getAllPosts, slugParams } from "@/lib/catalog-paths";
 import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
-import { buildBlogPostingJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { apiStructuredData, JsonLdScript } from "@/lib/json-ld";
 import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -100,7 +100,7 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 
 	const baseUrl = getCanonicalUrl();
 	const publishedAt = post.publishedAt ?? post.createdAt;
-	const articleJsonLd = await buildBlogPostingJsonLd(post);
+	const articleJsonLd = apiStructuredData(post);
 
 	const breadcrumbJsonLd = {
 		"@context": "https://schema.org",
@@ -114,7 +114,7 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 
 	return (
 		<article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-			<JsonLdScript data={articleJsonLd} />
+			{articleJsonLd && <JsonLdScript data={articleJsonLd} />}
 			<JsonLdScript data={breadcrumbJsonLd} />
 
 			{/* Header */}

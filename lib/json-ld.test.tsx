@@ -12,8 +12,9 @@ const settings: { logo: { imageUrl: string }; socials?: Record<string, string | 
 const me = { store: { name: "Acme", settings } };
 mock.module("@/lib/commerce", () => ({ ...commerceModule, meGetCached: async () => me }));
 
-const { apiStructuredData, buildBlogPostingJsonLd, buildProductBreadcrumbJsonLd, JsonLdScript } =
-	await import("@/lib/json-ld");
+const { apiStructuredData, buildProductBreadcrumbJsonLd, JsonLdScript, StoreJsonLd } = await import(
+	"@/lib/json-ld"
+);
 
 const product = (variants: Array<{ price: string; stock: number | null }>) =>
 	({
@@ -48,34 +49,12 @@ test("product breadcrumb links the category page", () => {
 	expect(itemListElement[1]?.name).toBe("Shoes");
 	expect(itemListElement[1]?.item).toEndWith("/category/shoes");
 });
-
-test("blog posting names the store as author and publisher", async () => {
-	const post = {
-		slug: "hello",
-		title: "Hello",
-		image: null,
-		createdAt: "2026-01-01T00:00:00.000Z",
-		updatedAt: "2026-01-02T00:00:00.000Z",
-		publishedAt: null,
-		seo: null,
-	} as unknown as Parameters<typeof buildBlogPostingJsonLd>[0];
-	const jsonLd = await buildBlogPostingJsonLd(post);
-	const organization = { "@type": "Organization", name: "Acme", logo: "https://cdn.example/logo.png" };
-	expect(jsonLd).toMatchObject({
-		"@type": "BlogPosting",
-		datePublished: "2026-01-01T00:00:00.000Z",
-		author: organization,
-		publisher: organization,
-	});
-	expect(jsonLd.mainEntityOfPage).toMatchObject({ "@type": "WebPage", "@id": jsonLd.url });
-	expect(jsonLd.image).toBeUndefined();
-});
-
-const blogPost = {
-	slug: "hello",
-	title: "Hello",
-	createdAt: "2026-01-01T00:00:00.000Z",
-} as unknown as Parameters<typeof buildBlogPostingJsonLd>[0];
+// The store's Organization, as the layout renders it: the first of StoreJsonLd's nodes.
+const storeOrganization = async () => {
+	const html = renderToString(await StoreJsonLd());
+	const json = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1] ?? "{}";
+	return JSON.parse(json) as Record<string, unknown>;
+};
 
 test("organization lists the store's https social profiles as sameAs", async () => {
 	settings.socials = {
@@ -87,14 +66,16 @@ test("organization lists the store's https social profiles as sameAs", async () 
 		linkedin: null,
 		email: "https://acme.example/contact",
 	};
-	const { publisher } = await buildBlogPostingJsonLd(blogPost);
-	expect(publisher).toMatchObject({ sameAs: ["https://instagram.com/acme", "https://facebook.com/acme"] });
+	expect(await storeOrganization()).toMatchObject({
+		"@type": "Organization",
+		sameAs: ["https://instagram.com/acme", "https://facebook.com/acme"],
+	});
 });
 
 test("organization has no sameAs without a valid social profile", async () => {
 	settings.socials = { instagram: "@acme", facebook: null };
-	expect((await buildBlogPostingJsonLd(blogPost)).publisher).not.toHaveProperty("sameAs");
+	expect(await storeOrganization()).not.toHaveProperty("sameAs");
 
 	delete settings.socials;
-	expect((await buildBlogPostingJsonLd(blogPost)).publisher).not.toHaveProperty("sameAs");
+	expect(await storeOrganization()).not.toHaveProperty("sameAs");
 });
