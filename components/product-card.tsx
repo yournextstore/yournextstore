@@ -66,7 +66,6 @@ export async function ProductCard({
 				{singleVariant && (
 					<QuickAddButton
 						variantId={singleVariant.id}
-						variantSku={"sku" in singleVariant ? singleVariant.sku : null}
 						variantPrice={singleVariant.price}
 						variantPriceGross={"priceGross" in singleVariant ? singleVariant.priceGross : null}
 						variantImages={singleVariant.images}

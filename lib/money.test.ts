@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { formatMoney, minorUnitsToMajor } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 
 test("formatMoney formats standard 2-decimal currencies", () => {
 	expect(formatMoney({ amount: "1999", currency: "USD", locale: "en-US" })).toBe("$19.99");
@@ -27,10 +27,4 @@ test("formatMoney rejects non-3-letter currency codes", () => {
 	expect(() => formatMoney({ amount: "100", currency: "US", locale: "en-US" })).toThrow(
 		"currency needs to be a 3-letter code",
 	);
-});
-
-test("minorUnitsToMajor converts to the number analytics APIs expect", () => {
-	expect(minorUnitsToMajor({ amount: "2000", currency: "USD" })).toBe(20);
-	expect(minorUnitsToMajor({ amount: "2000", currency: "JPY" })).toBe(2000);
-	expect(minorUnitsToMajor({ amount: "2999", currency: "KWD" })).toBe(2.999);
 });

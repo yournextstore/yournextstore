@@ -1,17 +1,17 @@
 "use client";
 
+import { visitor } from "commerce-kit/tracking";
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { subscribeToNewsletter } from "@/app/newsletter/action";
 import { NewsletterConsent } from "@/components/newsletter-consent";
-import { trackIdentify } from "@/lib/track";
 
 export function Newsletter() {
 	const [state, action, isPending] = useActionState(subscribeToNewsletter, null);
 	const [marketingConsent, setMarketingConsent] = useState(false);
 
 	useEffect(() => {
-		if (state?.success && state.email) trackIdentify(state.email);
+		if (state?.success && state.email) visitor({ email: state.email });
 	}, [state]);
 
 	return (

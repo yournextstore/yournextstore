@@ -1,13 +1,5 @@
-import type {
-	APICollectionGetByIdResult,
-	APIPostGetByIdResult,
-	APIProductGetByIdResult,
-	APIProductReviewsBrowseResult,
-} from "commerce-kit";
+import type { APICollectionGetByIdResult, APIPostGetByIdResult, APIProductGetByIdResult } from "commerce-kit";
 import { getCanonicalUrl, meGetCached } from "@/lib/commerce";
-import { minorUnitsToMajor } from "@/lib/money";
-import { priceRange } from "@/lib/pricing";
-import { getStoreConfig } from "@/lib/store-config";
 
 function getBaseUrl(): string {
 	return getCanonicalUrl();
@@ -15,83 +7,18 @@ function getBaseUrl(): string {
 
 // A plain child, no dangerouslySetInnerHTML: React escapes `<script` and `</script` inside a script's text when it
 // renders on the server (as `<script`), so a product name can't end the tag or trap its closing one.
-export function JsonLdScript({ data }: { data: Record<string, unknown> }) {
+export function JsonLdScript({ data }: { data: object }) {
 	return <script type="application/ld+json">{JSON.stringify(data)}</script>;
 }
 
-export async function buildProductJsonLd(
-	product: APIProductGetByIdResult,
-	reviews: APIProductReviewsBrowseResult | null,
-	brandName: string | null,
-): Promise<Record<string, unknown>> {
-	const { currency: storeCurrency, taxBehavior } = await getStoreConfig();
-	// schema.org `price` must be the price the shopper sees on the page — gross on an
-	// inclusive store, net on an exclusive one. Same rule the platform storefront emits.
-	const { min, max } = priceRange(product.variants, taxBehavior);
-	const currency = storeCurrency.toUpperCase();
-	// Minor units per the currency's decimals: 1999 is ¥1999, not ¥19.99.
-	const lowPrice = minorUnitsToMajor({ amount: min, currency });
-	const highPrice = minorUnitsToMajor({ amount: max, currency });
-	const url = `${getBaseUrl()}/product/${product.slug}`;
-	// `stock: null` means the variant doesn't track inventory.
-	const availability = product.variants.some((variant) => variant.stock === null || (variant.stock ?? 0) > 0)
-		? "https://schema.org/InStock"
-		: "https://schema.org/OutOfStock";
-
-	const jsonLd: Record<string, unknown> = {
-		"@context": "https://schema.org",
-		"@type": "Product",
-		name: product.name,
-		description: product.summary,
-		image: product.images,
-		sku: product.variants[0]?.sku ?? product.id,
-		brand: brandName ? { "@type": "Brand", name: brandName } : undefined,
-		// One price is one Offer, however many variants share it (sizes of the same shirt): Google's merchant listings
-		// read `price`, and an AggregateOffer with lowPrice equal to highPrice says less.
-		offers:
-			min === max
-				? {
-						"@type": "Offer",
-						url,
-						priceCurrency: currency,
-						price: lowPrice,
-						availability,
-					}
-				: {
-						"@type": "AggregateOffer",
-						url,
-						lowPrice,
-						highPrice,
-						priceCurrency: currency,
-						offerCount: product.variants.length,
-						availability,
-					},
-	};
-
-	if (reviews && reviews.summary.reviewCount > 0) {
-		jsonLd.aggregateRating = {
-			"@type": "AggregateRating",
-			ratingValue: reviews.summary.averageRating,
-			reviewCount: reviews.summary.reviewCount,
-			bestRating: 5,
-			worstRating: 1,
-		};
-
-		jsonLd.review = reviews.data.map((r) => ({
-			"@type": "Review",
-			author: { "@type": "Person", name: r.author },
-			datePublished: r.createdAt,
-			reviewRating: {
-				"@type": "Rating",
-				ratingValue: r.rating,
-				bestRating: 5,
-				worstRating: 1,
-			},
-			reviewBody: r.content,
-		}));
-	}
-
-	return jsonLd;
+/**
+ * The schema.org JSON-LD the API generates for a product, collection or order page, rendered as-is.
+ * The platform's tracking reads it to report views and purchases. Read through a guard because the
+ * pinned commerce-kit types may not carry the field yet.
+ */
+export function apiStructuredData(record: object): object | null {
+	const data = "structuredData" in record ? record.structuredData : null;
+	return typeof data === "object" && data !== null ? data : null;
 }
 
 export function buildProductBreadcrumbJsonLd(product: APIProductGetByIdResult): Record<string, unknown> {
@@ -117,31 +44,6 @@ export function buildProductBreadcrumbJsonLd(product: APIProductGetByIdResult): 
 		"@context": "https://schema.org",
 		"@type": "BreadcrumbList",
 		itemListElement: items,
-	};
-}
-
-export function buildCollectionJsonLd(collection: APICollectionGetByIdResult): Record<string, unknown> {
-	const baseUrl = getBaseUrl();
-
-	return {
-		"@context": "https://schema.org",
-		"@type": "CollectionPage",
-		name: collection.name,
-		description:
-			typeof collection.description === "string" ? collection.description : `${collection.name} collection`,
-		image: collection.image ?? undefined,
-		// Plain links, not Product: Google rejects a Product snippet without offers, and the
-		// product page carries the full Product.
-		mainEntity: {
-			"@type": "ItemList",
-			numberOfItems: collection.productCollections.length,
-			itemListElement: collection.productCollections.map((pc, index) => ({
-				"@type": "ListItem",
-				position: index + 1,
-				name: pc.product.name,
-				url: `${baseUrl}/product/${pc.product.slug}`,
-			})),
-		},
 	};
 }
 

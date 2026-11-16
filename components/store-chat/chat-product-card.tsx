@@ -11,7 +11,6 @@ import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice } from "@/lib/pricing";
-import { trackAddToCart } from "@/lib/track";
 
 export type ChatProduct = {
 	productId: string;
@@ -80,14 +79,6 @@ export function ChatProductCard({
 			productId: product.productId,
 			variantId: selectedVariant.id,
 		});
-		// Same storefront analytics contract as QuickAddButton — a cart add from chat
-		// must reach the store's trackers like any other.
-		trackAddToCart(
-			{ id: selectedVariant.id, sku: selectedVariant.sku, price: String(selectedVariant.price) },
-			product.name,
-			1,
-		);
-
 		openCart();
 		// Same optimistic flow as QuickAddButton: instant local item, then replace with
 		// the server cart inside the transition that keeps Checkout disabled meanwhile.

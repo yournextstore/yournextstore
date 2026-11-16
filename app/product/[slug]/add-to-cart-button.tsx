@@ -16,7 +16,6 @@ import { useVolumePricing, VolumePricingDisplay, type VolumeTier } from "@/app/p
 import { useStoreConfig } from "@/components/store-config-provider";
 import { formatMoney } from "@/lib/money";
 import { displayPrice, priceRange, type TaxBehavior } from "@/lib/pricing";
-import { trackAddToCart } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
 // Every net price below has a gross twin; which of the pair a shopper sees is the store's
@@ -182,8 +181,6 @@ export function AddToCartButton({
 		const properties = giftCardProperties(new FormData(e.currentTarget));
 		const key = lineKey(variantId, planId, properties);
 		const previousQuantity = items.find((item) => itemKey(item) === key)?.quantity ?? 0;
-
-		trackAddToCart(selectedVariant, product.name, addedQuantity);
 
 		openCart();
 		setQuantity(1);

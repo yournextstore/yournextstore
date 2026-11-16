@@ -5,9 +5,6 @@ import { renderToString } from "react-dom/server";
 // lib/commerce asserts YNS_API_KEY at import time — stub it before the dynamic import.
 process.env.YNS_API_KEY ??= "test-key";
 
-const storeConfig = { currency: "usd", locale: "en-US", taxBehavior: "exclusive" as const };
-mock.module("@/lib/store-config", () => ({ getStoreConfig: async () => storeConfig }));
-
 const commerceModule = await import("@/lib/commerce");
 const settings: { logo: { imageUrl: string }; socials?: Record<string, string | null> } = {
 	logo: { imageUrl: "https://cdn.example/logo.png" },
@@ -15,7 +12,7 @@ const settings: { logo: { imageUrl: string }; socials?: Record<string, string | 
 const me = { store: { name: "Acme", settings } };
 mock.module("@/lib/commerce", () => ({ ...commerceModule, meGetCached: async () => me }));
 
-const { buildBlogPostingJsonLd, buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } =
+const { apiStructuredData, buildBlogPostingJsonLd, buildProductBreadcrumbJsonLd, JsonLdScript } =
 	await import("@/lib/json-ld");
 
 const product = (variants: Array<{ price: string; stock: number | null }>) =>
@@ -29,74 +26,6 @@ const product = (variants: Array<{ price: string; stock: number | null }>) =>
 		variants: variants.map((variant, index) => ({ ...variant, sku: `sku-${index}` })),
 	}) as unknown as APIProductGetByIdResult;
 
-test("product offer prices follow the currency's decimals", async () => {
-	storeConfig.currency = "jpy";
-	const jpy = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null, null);
-	expect(jpy.offers).toMatchObject({ "@type": "Offer", price: 1999, priceCurrency: "JPY" });
-
-	storeConfig.currency = "usd";
-	const usd = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null, null);
-	expect(usd.offers).toMatchObject({ price: 19.99, priceCurrency: "USD" });
-});
-
-test("aggregate offer reads availability from the variants", async () => {
-	storeConfig.currency = "usd";
-	const someInStock = await buildProductJsonLd(
-		product([
-			{ price: "1999", stock: 0 },
-			{ price: "2500", stock: null },
-		]),
-		null,
-		null,
-	);
-	expect(someInStock.offers).toMatchObject({
-		"@type": "AggregateOffer",
-		lowPrice: 19.99,
-		highPrice: 25,
-		availability: "https://schema.org/InStock",
-	});
-
-	const soldOut = await buildProductJsonLd(
-		product([
-			{ price: "1999", stock: 0 },
-			{ price: "2500", stock: 0 },
-		]),
-		null,
-		null,
-	);
-	expect(soldOut.offers).toMatchObject({ availability: "https://schema.org/OutOfStock" });
-	expect(soldOut.brand).toBeUndefined();
-});
-
-test("variants that share one price make a single Offer", async () => {
-	storeConfig.currency = "usd";
-	const jsonLd = await buildProductJsonLd(
-		product([
-			{ price: "1999", stock: 2 },
-			{ price: "1999", stock: 0 },
-			{ price: "1999", stock: null },
-		]),
-		null,
-		null,
-	);
-	expect(jsonLd.offers).toMatchObject({ "@type": "Offer", price: 19.99 });
-	expect((jsonLd.offers as { url: string }).url).toEndWith("/product/sneaker");
-});
-
-test("aggregate offer links the product page", async () => {
-	storeConfig.currency = "usd";
-	const jsonLd = await buildProductJsonLd(
-		product([
-			{ price: "1999", stock: 1 },
-			{ price: "2500", stock: 1 },
-		]),
-		null,
-		null,
-	);
-	expect(jsonLd.offers).toMatchObject({ "@type": "AggregateOffer", offerCount: 2 });
-	expect((jsonLd.offers as { url: string }).url).toEndWith("/product/sneaker");
-});
-
 test("a product name can't end the JSON-LD script tag", () => {
 	const html = renderToString(<JsonLdScript data={{ name: "</script><!--<script>alert(1)" }} />);
 	expect(html.match(/<script/gi)).toHaveLength(1);
@@ -105,10 +34,11 @@ test("a product name can't end the JSON-LD script tag", () => {
 	expect(JSON.parse(json)).toEqual({ name: "</script><!--<script>alert(1)" });
 });
 
-test("product names its brand, not its category", async () => {
-	storeConfig.currency = "usd";
-	const jsonLd = await buildProductJsonLd(product([{ price: "1999", stock: 3 }]), null, "Kiln Studio");
-	expect(jsonLd.brand).toEqual({ "@type": "Brand", name: "Kiln Studio" });
+test("the API's structured data is rendered as the API sent it, or not at all", () => {
+	const order = { "@context": "https://schema.org", "@type": "Order", orderNumber: "ord_1" };
+	expect(apiStructuredData({ id: "ord_1", structuredData: order })).toBe(order);
+	expect(apiStructuredData({ id: "ord_1", structuredData: null })).toBeNull();
+	expect(apiStructuredData({ id: "ord_1" })).toBeNull();
 });
 
 test("product breadcrumb links the category page", () => {

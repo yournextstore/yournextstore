@@ -7,7 +7,7 @@ import { getStoreConfig } from "@/lib/store-config";
 type NewsletterState = {
 	success: boolean;
 	message: string;
-	/** Echoed on success for lib/track.tsx. */
+	/** Echoed on success so the page can pass it to the tracking `visitor()`. */
 	email?: string;
 	error?: string;
 } | null;

@@ -1,56 +1,21 @@
 // ─── DO NOT REMOVE ──────────────────────────────────────────────────────────
-// GDPR cookie consent banner. Entry point + server logic in ./cookie-consent.tsx.
+// GDPR cookie consent banner: design only. Whether this visitor must be asked,
+// the consent cookie and Google Consent Mode belong to the platform tracking
+// runtime; the banner shows when `bannerVisible` and answers through `set`.
 // ────────────────────────────────────────────────────────────────────────────
 "use client";
 
+import { useConsent } from "commerce-kit/tracking/react";
 import { XIcon } from "lucide-react";
-import { use, useState } from "react";
-import { browser } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { notifyConsentChanged } from "@/lib/track";
-
-// Must match CONSENT_COOKIE in ./cookie-consent.tsx
-const CONSENT_COOKIE = "yns-cookie-consent";
-
-const recordChoice = (choice: "accepted" | "declined") => {
-	document.cookie = `${CONSENT_COOKIE}=${choice}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-	const state = choice === "accepted" ? "granted" : "denied";
-	window.dataLayer = window.dataLayer || [];
-	window.dataLayer.push({
-		event: "consent_update",
-		ad_storage: state,
-		ad_user_data: state,
-		ad_personalization: state,
-		analytics_storage: state,
-	});
-	// Nudges the platform storefront kit to re-read the cookie and start its
-	// trackers without a reload.
-	notifyConsentChanged();
-};
-
-declare global {
-	interface Window {
-		dataLayer?: Array<Record<string, unknown>>;
-	}
-}
 
 export const CookieConsentBanner = () => {
-	// Renders only in the browser (the prerender keeps the Suspense fallback), so the
-	// visitor's choice is read here and the page stays static.
-	use(browser("The consent choice is a browser cookie."));
-	const [hidden, setHidden] = useState(() =>
-		document.cookie.split("; ").some((cookie) => cookie.startsWith(`${CONSENT_COOKIE}=`)),
-	);
-	if (hidden) return null;
+	const { bannerVisible, set } = useConsent();
+	if (!bannerVisible) return null;
 
-	const onAccept = () => {
-		recordChoice("accepted");
-		setHidden(true);
-	};
-	const onDecline = () => {
-		recordChoice("declined");
-		setHidden(true);
-	};
+	const onAccept = () => set({ analytics: true, marketing: true, preferences: true, sale_of_data: true });
+	const onDecline = () =>
+		set({ analytics: false, marketing: false, preferences: false, sale_of_data: false });
 
 	return (
 		// z-[45]: above the "Made with YNS" badge, the chat launcher and the newsletter launcher (z-40 at

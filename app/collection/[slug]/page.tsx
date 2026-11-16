@@ -17,7 +17,7 @@ import {
 import { tagKinds } from "@/lib/cache-tags";
 import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
-import { buildCollectionBreadcrumbJsonLd, buildCollectionJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { apiStructuredData, buildCollectionBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { YNSMedia } from "@/lib/yns-media";
 
 const COLLECTION_PRODUCTS_LIMIT = 100;
@@ -160,9 +160,11 @@ async function CollectionPageContent({ params }: { params: PageProps<"/collectio
 		return null;
 	}
 
+	const collectionJsonLd = apiStructuredData(collection);
+
 	return (
 		<>
-			<JsonLdScript data={buildCollectionJsonLd(collection)} />
+			{collectionJsonLd && <JsonLdScript data={collectionJsonLd} />}
 			<JsonLdScript data={buildCollectionBreadcrumbJsonLd(collection)} />
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
 				<Breadcrumb>

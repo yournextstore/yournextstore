@@ -6,11 +6,9 @@ import { addToCart } from "@/app/cart/actions";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { trackAddToCart } from "@/lib/track";
 
 type QuickAddButtonProps = {
 	variantId: string;
-	variantSku?: string | null;
 	variantPrice: string;
 	/** Gross twin of `variantPrice`, so the optimistic cart line matches the store's tax behaviour. */
 	variantPriceGross?: string | null;
@@ -25,7 +23,6 @@ type QuickAddButtonProps = {
 
 export function QuickAddButton({
 	variantId,
-	variantSku,
 	variantPrice,
 	variantPriceGross,
 	variantImages,
@@ -36,8 +33,6 @@ export function QuickAddButton({
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-
-		trackAddToCart({ id: variantId, sku: variantSku, price: variantPrice }, product.name, 1);
 
 		openCart();
 

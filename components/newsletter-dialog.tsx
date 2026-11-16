@@ -1,5 +1,6 @@
 "use client";
 
+import { visitor } from "commerce-kit/tracking";
 import { Loader2Icon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
@@ -9,7 +10,6 @@ import { NewsletterConsent } from "@/components/newsletter-consent";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { trackIdentify } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "yns-newsletter-popup-dismissed";
@@ -104,7 +104,7 @@ export function NewsletterDialog({ settings }: NewsletterDialogProps) {
 			formData.set("marketingConsent", marketingConsent ? "on" : "off");
 			const result = await subscribeToNewsletter(null, formData);
 			if (result?.success) {
-				trackIdentify(email);
+				visitor({ email });
 				setStep("success");
 				localStorage.setItem(STORAGE_KEY, "true");
 			} else {

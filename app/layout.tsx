@@ -14,7 +14,7 @@ import { CartSidebar } from "@/app/cart/cart-sidebar";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
-import { CookieConsent } from "@/components/cookie-consent";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
 import { NewsletterDialog } from "@/components/newsletter-dialog";
 import { SearchInput } from "@/components/search/search-input";
@@ -215,10 +215,8 @@ export default async function RootLayout({
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				{/* DO NOT REMOVE / REORDER: required for GDPR + GTM Consent Mode v2. Must stay at top of <body>. */}
-				<Suspense>
-					<CookieConsent />
-				</Suspense>
+				{/* DO NOT REMOVE: the GDPR cookie banner. */}
+				<CookieConsentBanner />
 				<Suspense>
 					<StoreJsonLd />
 				</Suspense>
