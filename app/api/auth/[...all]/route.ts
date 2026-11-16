@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSubdomainPublicUrl } from "@/lib/platform-address";
+import { getSubdomainPublicUrl } from "@/lib/commerce";
 
 async function handler(request: NextRequest) {
 	// better-auth lives on the apex (global users), not the tenant subdomain — on a

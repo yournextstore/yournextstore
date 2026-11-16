@@ -1,7 +1,52 @@
+import { Commerce } from "commerce-kit";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { markdownRewritePath } from "./lib/markdown";
-import { getSubdomainPublicUrl } from "./lib/platform-address";
+
+// Where the platform serves this store: every branch below forwards there, the checkout included.
+//
+// Keep this lookup inside this file, and keep `next/cache` and lib/commerce.ts out of it. The proxy
+// runs outside Next's cache: `"use cache"` has no effect here, and `cacheTag()` or `cacheLife()`
+// throws, which answers 500 on every forwarded address (proxy-address.test.ts). This is also one of
+// the platform-managed files, copied into stores by itself, so it cannot lean on newer store code.
+type PlatformAddress = { subdomain: string; publicUrl: string };
+
+/** From the environment: a fixed value, with no network call. */
+const addressFromEnvironment = (): PlatformAddress | null => {
+	const tenant = process.env.NEXT_PUBLIC_YNS_API_TENANT;
+	if (!tenant) return null;
+	const tenantUrl = new URL(tenant);
+	const [subdomain, ...base] = tenantUrl.host.split(".");
+	const apiHost = base.join(".");
+	if (!subdomain || !apiHost) return null;
+	// Preserve the tenant's scheme/port so local http backends work (not just https).
+	return { subdomain, publicUrl: `${tenantUrl.protocol}//${apiHost}` };
+};
+
+const addressFromApi = async (): Promise<PlatformAddress> => {
+	const {
+		store: { subdomain },
+		publicUrl,
+	} = await Commerce({
+		token: process.env.YNS_API_KEY,
+		endpoint: process.env.YNS_API_URL || undefined,
+	}).meGet();
+	return { subdomain, publicUrl };
+};
+
+// The API answer never changes within a deployment, so one call per server instance is enough.
+// A failed call is not kept: the next request tries again.
+let apiAddress: Promise<PlatformAddress> | null = null;
+
+const getSubdomainPublicUrl = async (): Promise<PlatformAddress> => {
+	const fixed = addressFromEnvironment();
+	if (fixed) return fixed;
+	apiAddress ??= addressFromApi().catch((error) => {
+		apiAddress = null;
+		throw error;
+	});
+	return apiAddress;
+};
 
 // /account is the platform-rendered shopper account area (unified sign-in); the platform
 // handles unauthenticated access itself, so it is proxied like /checkout, never guarded here.

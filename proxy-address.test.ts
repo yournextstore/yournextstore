@@ -45,9 +45,7 @@ test("asks the API for the address once, not on every request", async () => {
 
 test("the proxy's own files never reach for Next's cache", async () => {
 	// lib/commerce.ts labels its cached reads; importing it here would put those calls on this path.
-	const sources = await Promise.all(
-		["proxy.ts", "lib/platform-address.ts", "lib/markdown.ts"].map((file) => Bun.file(file).text()),
-	);
+	const sources = await Promise.all(["proxy.ts", "lib/markdown.ts"].map((file) => Bun.file(file).text()));
 	const imported = sources.flatMap((source) =>
 		[...source.matchAll(/from "([^"]+)"/g)].map((match) => match[1]),
 	);
