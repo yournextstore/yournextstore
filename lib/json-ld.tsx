@@ -184,17 +184,29 @@ export function buildCategoryBreadcrumbJsonLd(
 	};
 }
 
+// The store's social profiles, for `sameAs`. The admin fields are free text, so only a full https address counts:
+// a handle or a bare domain is not a link, and `email` is an address, not a profile.
+function socialProfileUrls(socials: Record<string, string | null | undefined> | null | undefined) {
+	return Object.entries(socials ?? {}).flatMap(([network, value]) => {
+		const url = value?.trim();
+		if (network === "email" || !url || !URL.canParse(url)) return [];
+		return new URL(url).protocol === "https:" ? [url] : [];
+	});
+}
+
 async function getStoreOrganization() {
 	const me = await meGetCached();
 	const logo =
 		typeof me.store.settings?.logo === "string" ? me.store.settings.logo : me.store.settings?.logo?.imageUrl;
 	const ogImage = me.store.settings?.ogimage || undefined;
+	const sameAs = socialProfileUrls(me.store.settings?.socials);
 	return {
 		"@type": "Organization",
 		name: me.store.name || "Your Next Store",
 		url: getBaseUrl(),
 		...(logo ? { logo } : {}),
 		...(ogImage ? { image: ogImage } : {}),
+		...(sameAs.length > 0 ? { sameAs } : {}),
 	};
 }
 

@@ -9,7 +9,10 @@ const storeConfig = { currency: "usd", locale: "en-US", taxBehavior: "exclusive"
 mock.module("@/lib/store-config", () => ({ getStoreConfig: async () => storeConfig }));
 
 const commerceModule = await import("@/lib/commerce");
-const me = { store: { name: "Acme", settings: { logo: { imageUrl: "https://cdn.example/logo.png" } } } };
+const settings: { logo: { imageUrl: string }; socials?: Record<string, string | null> } = {
+	logo: { imageUrl: "https://cdn.example/logo.png" },
+};
+const me = { store: { name: "Acme", settings } };
 mock.module("@/lib/commerce", () => ({ ...commerceModule, meGetCached: async () => me }));
 
 const { buildBlogPostingJsonLd, buildProductBreadcrumbJsonLd, buildProductJsonLd, JsonLdScript } =
@@ -136,4 +139,32 @@ test("blog posting names the store as author and publisher", async () => {
 	});
 	expect(jsonLd.mainEntityOfPage).toMatchObject({ "@type": "WebPage", "@id": jsonLd.url });
 	expect(jsonLd.image).toBeUndefined();
+});
+
+const blogPost = {
+	slug: "hello",
+	title: "Hello",
+	createdAt: "2026-01-01T00:00:00.000Z",
+} as unknown as Parameters<typeof buildBlogPostingJsonLd>[0];
+
+test("organization lists the store's https social profiles as sameAs", async () => {
+	settings.socials = {
+		instagram: "https://instagram.com/acme",
+		facebook: " https://facebook.com/acme ",
+		x: "@acme",
+		youtube: "http://youtube.com/@acme",
+		tiktok: "tiktok.com/@acme",
+		linkedin: null,
+		email: "https://acme.example/contact",
+	};
+	const { publisher } = await buildBlogPostingJsonLd(blogPost);
+	expect(publisher).toMatchObject({ sameAs: ["https://instagram.com/acme", "https://facebook.com/acme"] });
+});
+
+test("organization has no sameAs without a valid social profile", async () => {
+	settings.socials = { instagram: "@acme", facebook: null };
+	expect((await buildBlogPostingJsonLd(blogPost)).publisher).not.toHaveProperty("sameAs");
+
+	delete settings.socials;
+	expect((await buildBlogPostingJsonLd(blogPost)).publisher).not.toHaveProperty("sameAs");
 });
