@@ -24,6 +24,7 @@ import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, buildProductBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { productSeoFromPatterns } from "@/lib/seo-patterns";
 import { cn } from "@/lib/utils";
 
 function StarRow({ rating }: { rating: number }) {
@@ -42,7 +43,7 @@ function StarRow({ rating }: { rating: number }) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
 	"use cache";
-	tagKinds("product");
+	tagKinds("store", "product");
 	cacheLife("hours");
 	const { slug } = await params;
 	const product = await productGetCached(slug);
@@ -51,13 +52,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		return { title: "Product Not Found", robots: { index: false, follow: true } };
 	}
 
-	const seoTitle = product.seo?.title || product.name;
-	const seoDescription = product.seo?.description || product.summary || undefined;
+	// A store-wide pattern (Settings → SEO) stands in where the product has no SEO title or description of its own.
+	const me = await meGetCached().catch(() => null);
+	const fromPattern = productSeoFromPatterns(me?.store.settings, {
+		product_name: product.name,
+		category: product.category?.name ?? "",
+		store_name: me?.store.name ?? "",
+		year: String(new Date().getFullYear()),
+	});
+	const patternTitle = product.seo?.title ? undefined : fromPattern.title;
+	const seoTitle = product.seo?.title || patternTitle || product.name;
+	const seoDescription = product.seo?.description || fromPattern.description || product.summary || undefined;
 	const canonical = product.seo?.canonical || `/product/${product.slug}`;
 	const image = product.images[0];
 
 	return {
-		title: seoTitle,
+		// A pattern is the whole title: the merchant writes the store name into it where they want it, so the
+		// layout's "— store name" ending is left off.
+		title: patternTitle ? { absolute: patternTitle } : seoTitle,
 		description: seoDescription,
 		alternates: { canonical },
 		...hiddenFromSearchMetadata(product),
