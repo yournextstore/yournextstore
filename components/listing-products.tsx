@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { notFound } from "next/navigation";
 import { ListingPagination } from "@/components/listing-pagination";
 import { ProductCard } from "@/components/product-card";
 import { tagKinds } from "@/lib/cache-tags";
@@ -38,6 +39,11 @@ export async function getListingPage({ filters, category, order }: ListingQuery)
 /** Product grid and pagination shared by `/products` and category pages. */
 export async function ListingProducts({ basePath, ...query }: ListingQuery & { basePath: string }) {
 	const { currentPage, result, totalPages } = await getListingPage(query);
+
+	// A page number past the last page is not a page: answer 404 instead of an empty listing a crawler can index.
+	if (currentPage > 1 && currentPage > totalPages) {
+		notFound();
+	}
 
 	if (result.data.length === 0) {
 		return (
