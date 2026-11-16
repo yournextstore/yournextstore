@@ -173,10 +173,15 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
   outside `<main>`. It happens to a boundary that resolved at build time too, once the document
   passes 12,800 bytes (see above). Render cached sections directly, the way the related products on
   a product page do; keep boundaries for request-time reads.
-- **The URL query is read in the browser.** Client components that need it (selected variant,
-  gallery) use `useUrlQuery()` from `lib/url-query.ts` instead of `useSearchParams()`, and write it
-  with `setUrlQuery()`. The prerendered page renders the default and switches after hydration;
-  `useSearchParams()` would turn the component into a per-request render behind a fallback.
+- **The URL query is read in the browser.** Client components that need it use `useUrlQuery()` from
+  `lib/url-query.ts` instead of `useSearchParams()`, and write the address with `setUrlQuery()`. The
+  prerendered page renders the default and switches after hydration; `useSearchParams()` would turn
+  the component into a per-request render behind a fallback.
+- **The chosen variant lives after `#`.** The variant selector writes `/product/roma#Colour=Black`
+  (`variantHash()`), and the selector, the gallery and `useSelectedVariant` read it with
+  `useVariantQuery()`, which also accepts the older `?Colour=Black` form that ads, feeds and shared
+  links still carry. A query string is a separate address for a crawler; what follows `#` is not.
+  A link to one variant (the product card of a single-variant product) uses the `#` form too.
 - **Listings: static default view, filtered views on their own route.** `/products` and
   `/category/…` never read the query, so they prerender. When a listing parameter (filter, sort,
   page) is present, `next.config.ts` rewrites the request (`listingRewrites()` in

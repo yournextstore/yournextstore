@@ -24,12 +24,39 @@ const watchHistory = () => {
 const subscribe = (notify: () => void) => {
 	watchHistory();
 	window.addEventListener("popstate", notify);
+	// An address typed or pasted with a new `#…` on the same page changes nothing but the hash.
+	window.addEventListener("hashchange", notify);
 	window.addEventListener(URL_CHANGE, notify);
 	return () => {
 		window.removeEventListener("popstate", notify);
+		window.removeEventListener("hashchange", notify);
 		window.removeEventListener(URL_CHANGE, notify);
 	};
 };
+
+/**
+ * The chosen variant as it stands in an address: after `#` (`#Colour=Black&Size=M`), which is how the product
+ * page writes it, or in the query (`?Colour=Black`), which older links, ads and product feeds still use. A hash
+ * with no `=` is an ordinary anchor (`#reviews`) and says nothing about the variant.
+ */
+export const variantQueryOf = (hash: string, search: string) =>
+	hash.includes("=") ? hash.replace(/^#/, "") : search.replace(/^\?/, "");
+
+/** The variant part of a product address: `#Colour=Black&Size=M`, or nothing when no option is chosen. */
+export const variantHash = (params: URLSearchParams) => (params.size > 0 ? `#${params.toString()}` : "");
+
+/**
+ * The chosen variant read from the address in the browser, like `useUrlQuery`. Search engines treat every query
+ * string as a separate address to crawl and drop everything after `#`, so the choice lives after `#`.
+ */
+export function useVariantQuery(): URLSearchParams {
+	const query = useSyncExternalStore(
+		subscribe,
+		() => variantQueryOf(window.location.hash, window.location.search),
+		() => "",
+	);
+	return new URLSearchParams(query);
+}
 
 /**
  * The page's query string read from `location.search` instead of `useSearchParams()`. A prerendered page renders

@@ -1,6 +1,6 @@
 "use client";
 
-import { useUrlQuery } from "@/lib/url-query";
+import { useVariantQuery } from "@/lib/url-query";
 
 type VariantLike = {
 	combinations: {
@@ -14,11 +14,12 @@ type VariantLike = {
 };
 
 /**
- * Derives the selected variant from `?<variantType.label>=<value>` params; partial links still resolve. Reads the
- * query in the browser (`useUrlQuery`), so the product page stays fully prerendered.
+ * Derives the selected variant from the address: `#<variantType.label>=<value>`, or the same after `?` on an older
+ * link; partial links still resolve. Reads it in the browser (`useVariantQuery`), so the product page stays fully
+ * prerendered.
  */
 export function useSelectedVariant<T extends VariantLike>(variants: T[]): T | undefined {
-	const searchParams = useUrlQuery();
+	const searchParams = useVariantQuery();
 
 	if (variants.length === 1) {
 		return variants[0];

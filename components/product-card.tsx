@@ -57,7 +57,9 @@ export async function ProductCard({
 		for (const combination of onlyVariant.combinations) {
 			params.set(combination.variantValue.variantType.label, combination.variantValue.value);
 		}
-		return `?${params.toString()}`;
+		// After `#`, the way the product page writes a chosen variant (lib/url-query.ts): a `?…` link on every
+		// listing would hand crawlers a second address for the same product.
+		return `#${params.toString()}`;
 	})();
 
 	return (

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { setUrlQuery, useUrlQuery } from "@/lib/url-query";
+import { setUrlQuery, useVariantQuery, variantHash } from "@/lib/url-query";
 import { cn } from "@/lib/utils";
 
 type VariantValue = {
@@ -83,7 +83,7 @@ function processVariants(variants: Variant[]) {
 }
 
 export function VariantSelector({ variants }: VariantSelectorProps) {
-	const searchParams = useUrlQuery();
+	const searchParams = useVariantQuery();
 	const pathname = usePathname();
 	const variantGroups = processVariants(variants);
 
@@ -110,14 +110,22 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 			}
 			return acc;
 		}, new URLSearchParams());
-		// History API instead of router.push: the page doesn't depend on the query, so no server round trip.
-		setUrlQuery(`${pathname}?${params.toString()}`);
+		// History API instead of router.push: the page doesn't depend on the address, so no server round trip. The
+		// choice goes after `#`: a query string is a separate address for a crawler, and what follows `#` is not.
+		setUrlQuery(`${pathname}${variantHash(params)}`);
 	};
 
-	// Auto-redirect to first variant when no URL params exist (for multi-variant products). Checks the live address:
-	// the hydration render reads an empty query, and this effect runs before the re-render that sees the real one.
+	// Auto-redirect to first variant when the address names none (for multi-variant products). Checks the live address:
+	// the hydration render reads an empty one, and this effect runs before the re-render that sees the real one.
 	useEffect(() => {
-		if (variants.length <= 1 || searchParams.size > 0 || window.location.search.length > 1) return;
+		if (
+			variants.length <= 1 ||
+			searchParams.size > 0 ||
+			window.location.search.length > 1 ||
+			window.location.hash.includes("=")
+		) {
+			return;
+		}
 
 		const firstVariant = variants[0];
 		if (!firstVariant) return;
@@ -125,7 +133,7 @@ export function VariantSelector({ variants }: VariantSelectorProps) {
 		firstVariant.combinations.forEach((c) => {
 			params.set(c.variantValue.variantType.label, c.variantValue.value);
 		});
-		setUrlQuery(`${pathname}?${params.toString()}`, { replace: true });
+		setUrlQuery(`${pathname}${variantHash(params)}`, { replace: true });
 	}, [variants, searchParams.size, pathname]);
 
 	const groupsWithChoices = variantGroups.filter((group) => group.options.length > 1);

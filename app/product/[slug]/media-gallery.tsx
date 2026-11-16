@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useState } from "react";
 import { useSelectedVariant } from "@/app/product/[slug]/use-selected-variant";
 import { Button } from "@/components/ui/button";
-import { useUrlQuery } from "@/lib/url-query";
+import { useVariantQuery } from "@/lib/url-query";
 import { cn, isVideoUrl } from "@/lib/utils";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -28,7 +28,7 @@ type MediaGalleryProps = {
 };
 
 export function MediaGallery({ images, productName, variants }: MediaGalleryProps) {
-	const searchParams = useUrlQuery();
+	const searchParams = useVariantQuery();
 
 	// The gallery always shows the full image set (product + every variant image). When a
 	// variant is selected we don't filter the list — that would hide the other thumbnails —
