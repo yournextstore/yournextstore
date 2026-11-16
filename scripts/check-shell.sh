@@ -6,6 +6,13 @@
 # paints blank white until the server responds. See AGENTS.md, "The prerendered
 # shell".
 #
+# The page's own content must be in place too: the first <h1> may not come after
+# </main> or inside a streamed segment. A <Suspense> around a page body does
+# that even when the body resolved at build time, because React moves a resolved
+# boundary into a hidden segment once the document passes 12,800 bytes, and a
+# crawler that runs no scripts then reads an empty <main>. See AGENTS.md,
+# "Prerendered catalog pages".
+#
 # Usage: scripts/check-shell.sh [file-or-url ...]   (default: .next/server/app/**/*.html)
 #        YNS_SHELL_CHECK=warn   report failures, exit 0
 #        YNS_SHELL_CHECK=off    skip the check entirely
@@ -97,6 +104,8 @@ for TARGET in ${TARGETS+"${TARGETS[@]}"}; do
 	# One document is often a single line, so -m1 alone still yields every match on it.
 	HEADER_AT="$(grep -b -o -m1 -E '<header|role="banner"' "$FILE" | cut -d: -f1 | head -n1 || true)"
 	STREAM_AT="$(grep -b -o -m1 '<div hidden id="S:' "$FILE" | cut -d: -f1 | head -n1 || true)"
+	MAIN_END_AT="$(grep -b -o -m1 '</main>' "$FILE" | cut -d: -f1 | head -n1 || true)"
+	H1_AT="$(grep -b -o -m1 '<h1' "$FILE" | cut -d: -f1 | head -n1 || true)"
 
 	if [ -z "$HEADER_AT" ]; then
 		printf 'FAIL  %s  no chrome in the prerendered shell\n' "$LABEL"
@@ -104,8 +113,14 @@ for TARGET in ${TARGETS+"${TARGETS[@]}"}; do
 	elif [ -n "$STREAM_AT" ] && [ "$HEADER_AT" -gt "$STREAM_AT" ]; then
 		printf 'FAIL  %s  header@%s is inside a streamed segment (stream@%s)\n' "$LABEL" "$HEADER_AT" "$STREAM_AT"
 		FAILED=$((FAILED + 1))
+	elif [ -n "$H1_AT" ] && [ -n "$STREAM_AT" ] && [ "$H1_AT" -gt "$STREAM_AT" ]; then
+		printf 'FAIL  %s  h1@%s is inside a streamed segment (stream@%s), not in <main>\n' "$LABEL" "$H1_AT" "$STREAM_AT"
+		FAILED=$((FAILED + 1))
+	elif [ -n "$H1_AT" ] && [ -n "$MAIN_END_AT" ] && [ "$H1_AT" -gt "$MAIN_END_AT" ]; then
+		printf 'FAIL  %s  h1@%s comes after </main>@%s\n' "$LABEL" "$H1_AT" "$MAIN_END_AT"
+		FAILED=$((FAILED + 1))
 	else
-		printf 'ok    %s  header@%s stream@%s\n' "$LABEL" "$HEADER_AT" "${STREAM_AT:-none}"
+		printf 'ok    %s  header@%s h1@%s stream@%s\n' "$LABEL" "$HEADER_AT" "${H1_AT:-none}" "${STREAM_AT:-none}"
 	fi
 done
 
@@ -116,8 +131,8 @@ fi
 
 cat >&2 <<'MSG'
 
-check-shell: the chrome is missing from the prerendered shell of the documents
-marked FAIL above. The usual causes:
+check-shell: the documents marked FAIL above are missing the chrome from their
+prerendered shell, or have their content outside <main>. The usual causes:
 
   1. a <Suspense> around the children/chrome wrapper in app/layout.tsx — the
      boundary alone streams the chrome out of the shell, even when everything
@@ -127,6 +142,10 @@ marked FAIL above. The usual causes:
   3. a client component in the chrome reading usePathname() or useSearchParams()
      without its own <Suspense> around it (see SearchInput); on a listing page,
      controls that read the URL belong inside the grid's boundary.
+  4. (h1 failures) a <Suspense> around a page body or around cached data — React
+     moves a resolved boundary into a hidden segment at the end of the HTML once
+     the document passes 12,800 bytes. Render the body directly; a page that can
+     be missing keeps only its 404 check in a boundary (NotFoundGuard).
 
 See AGENTS.md, "The prerendered shell". YNS_SHELL_CHECK=warn downgrades this to
 a warning, YNS_SHELL_CHECK=off skips it.
