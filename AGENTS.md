@@ -34,13 +34,31 @@ next.config.ts        # Next.js config
 
 ## Platform-managed files — DO NOT MODIFY
 
-`instrumentation-client.ts`, `lib/track.tsx`, and `proxy.ts` carry the platform integration
-(analytics kit injection, the commerce event contract, the `/_public` + `/checkout` proxies).
+`instrumentation-client.ts` and `proxy.ts` carry the platform integration (`startTracking()` from
+`commerce-kit/tracking` plus the `/_public/kit.js` injection, the `/_public` + `/checkout` proxies).
 They are updated by platform releases only — the platform's tooling **rejects edits to
-them, and any out-of-band change is restored to the platform version on every save**. Trackers, consent handling, and event forwarding live in
-a platform-served script (`/_public/kit.js`, generated per store), so **never** add tracker
-snippets (fbq, gtag, GTM, pixels) to template code. To track a commerce event from new UI,
-use the exports of `lib/track.tsx` (`trackAddToCart`, `TrackProductView`).
+them, and any out-of-band change is restored to the platform version on every save**.
+
+Storefront code makes no tracking calls. The platform tracking runtime reports page views, product
+and collection views, cart changes, checkouts and purchases by itself, from the page's JSON-LD and
+the cart, and forwards them to the store's trackers once consent allows. Three rules keep it working:
+
+- Render the `structuredData` the API returns, as-is, with `JsonLdScript` and `apiStructuredData`
+  from `lib/json-ld.tsx`: product pages (`product.structuredData`), collection pages
+  (`collection.structuredData`), blog posts (`post.structuredData`) and the order confirmation
+  page (`order.structuredData`). Each schema.org node has one owner: the API owns these entity
+  nodes completely (reviews, the collection's product list and the blog post's author included),
+  so never build your own `Product`, `CollectionPage`, `BlogPosting` or `Order` node and never add
+  fields to the API's. The template owns the store-level nodes (`Organization`, `WebSite`, `Store`
+  in `StoreJsonLd`) and the breadcrumbs.
+- Never add tracker snippets (fbq, gtag, GTM, pixels) to template code, and never report an event
+  yourself: a cart add needs no call, the runtime re-reads the cart after the server action. A
+  shopper's email from a sign-up goes to `visitor({ email })` from `commerce-kit/tracking`; a
+  store-specific event goes to `publish(name, data)`.
+- The cookie banner (`components/cookie-consent-banner.tsx`) is design only: it renders when
+  `useConsent()` from `commerce-kit/tracking/react` says `bannerVisible`, and answers through
+  `set(...)` with all four purposes (`analytics`, `marketing`, `preferences`, `sale_of_data`). It
+  writes no cookie and no Consent Mode signal itself; the runtime does.
 
 Newsletter unsubscribe and confirmation pages, digital downloads, and payment/carrier webhooks
 live on the platform domain, not here — never add `/unsubscribe`, `/confirm-subscription`,
@@ -73,7 +91,7 @@ There is **no auth in this app**. Shopper sign-in happens exclusively through th
 
 ## The prerendered shell
 
-`cacheComponents` is on. Everything the root layout awaits before rendering the chrome ends up in the prerendered shell; anything request-time (`cookies()`, `headers()`, `searchParams`) takes it back out. So `app/layout.tsx` awaits **only cached reads**, and nothing per visitor is read on the server at all: `CartProvider` loads the cart in the browser from `GET /api/cart` (`app/api/cart/route.ts`, never cached) after hydration, once per full page load, and the consent script and banner read their cookie in the browser (`use(browser())` inside the banner's own Suspense boundary).
+`cacheComponents` is on. Everything the root layout awaits before rendering the chrome ends up in the prerendered shell; anything request-time (`cookies()`, `headers()`, `searchParams`) takes it back out. So `app/layout.tsx` awaits **only cached reads**, and nothing per visitor is read on the server at all: `CartProvider` loads the cart in the browser from `GET /api/cart` (`app/api/cart/route.ts`, never cached) after hydration, once per full page load, and the cookie banner renders nothing on the server and appears in the browser once `useConsent()` says so.
 
 Do not hoist a request-time read above the chrome. The layout's Suspense boundaries have no fallback, so the cost is not a spinner: the shell prerenders empty and the page paints blank white until the server responds. That stays invisible during soft navigation (the old UI remains on screen) and is glaring on any full document load.
 
@@ -177,7 +195,7 @@ empty, which `scripts/check-shell.sh` skips.
 - `cookies()`, `headers()` and server-side `searchParams`;
 - a `cacheLife` whose expire is under 5 minutes, stale under 30 seconds, or revalidate 0.
 
-Per-visitor data loads in the browser inside `<Suspense>` instead, the way the cart and the consent
+Per-visitor data loads in the browser instead, the way the cart and the consent
 banner do. `next build --debug-prerender` prints full stack traces. A page that must render per
 request drops the export line rather than working around the check.
 

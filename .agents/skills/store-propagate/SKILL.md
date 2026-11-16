@@ -1,6 +1,6 @@
 ---
 name: store-propagate
-description: Push the template's three platform-managed files (proxy.ts, lib/track.tsx, instrumentation-client.ts) to the store repos (yns-store-* in the tenants orgs). Publishing restores those files from each store's own main, so a commit there is the only way a change to them reaches existing stores. Use for "propagate proxy.ts", "update the managed files in every store", "roll out a proxy change", after landing a template change to one of those files. Every other template change reaches a store through the Upgrade button (the platform's upgrade-storefront skill), not this skill. Takes an optional list of store subdomains; defaults to every builder store.
+description: Push the template's two platform-managed files (proxy.ts, instrumentation-client.ts) to the store repos (yns-store-* in the tenants orgs). Publishing restores those files from each store's own main, so a commit there is the only way a change to them reaches existing stores. Use for "propagate proxy.ts", "update the managed files in every store", "roll out a proxy change", after landing a template change to one of those files. Every other template change reaches a store through the Upgrade button (the platform's upgrade-storefront skill), not this skill. Takes an optional list of store subdomains; defaults to every builder store.
 ---
 
 # Push the platform-managed files to store repos
@@ -10,7 +10,7 @@ fails, record it and move on to the next.
 
 ## What this is for, and what it isn't
 
-- Three files in every store are platform-managed: `proxy.ts`, `lib/track.tsx` and
+- Two files in every store are platform-managed: `proxy.ts` and
   `instrumentation-client.ts` (the platform's `MANAGED_STOREFRONT_PATHS`). Every publish puts them
   back to the store repo's own `main`, so neither Elliot nor the Upgrade button can change them. A
   commit on the store's `main` is the only way, and this skill makes it.
@@ -45,7 +45,7 @@ fails, record it and move on to the next.
 ## Per store
 
 1. Clone into a temp dir: `gh repo clone <org>/yns-store-<subdomain> <tmp> -- --depth=1`.
-2. Copy the three files from this repo's `origin/main` over the store's copies. A store that lacks
+2. Copy the two files from this repo's `origin/main` over the store's copies. A store that lacks
    one gets it.
 3. Nothing differs: skip the store and report it as `current`.
 4. `bun install`, `bun next typegen`, then `bun tsc --noEmit`. A failure means **don't push**:

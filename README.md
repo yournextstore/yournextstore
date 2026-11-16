@@ -114,7 +114,7 @@ bun $UPGRADE --store <store dir> --record  # after a full refresh: write .yns/te
 Don't merge or rebase a store onto the template. Its `main` is published, and Design's version
 history restores published versions by their commit.
 
-The three platform-managed files (`proxy.ts`, `lib/track.tsx`, `instrumentation-client.ts`) are the
+The two platform-managed files (`proxy.ts`, `instrumentation-client.ts`) are the
 exception: every publish restores them from the store's own `main`, so a change to them goes out to
 every store with the [`store-propagate`](.agents/skills/store-propagate/SKILL.md) skill.
 
