@@ -100,6 +100,9 @@ async function getStoreMetadata(): Promise<Metadata> {
 			apple: [{ url: faviconUrl, sizes: "180x180" }],
 		},
 		manifest: "/manifest.webmanifest",
+		// iOS Safari turns long digit runs (tax IDs, phone numbers) into tel: links before
+		// hydration, which React reports as a mismatch.
+		formatDetection: { telephone: false },
 		...(verification ? { verification } : {}),
 	};
 }
