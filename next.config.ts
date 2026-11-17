@@ -3,6 +3,11 @@ import { listingRewrites } from "./lib/listing-routes";
 
 const isProd = process.env.NODE_ENV === "production";
 
+const positiveIntOr = (value: string | undefined, fallback: number) => {
+	const parsed = Number(value);
+	return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
 const nextConfig: NextConfig = {
 	/* config options here */
 	allowedDevOrigins: ["*.vercel.run", "*.yns.store", "*.yns.cx"],
@@ -16,6 +21,12 @@ const nextConfig: NextConfig = {
 		turbopackRustReactCompiler: true,
 		typedEnv: true,
 		serverComponentsHmrCache: false,
+		// Every prerendered page calls the Store API, and the build renders workers × pages-per-worker pages at once.
+		// Next's default is one worker per host core minus one (11 on a 12-core build host, whatever the container's
+		// CPU quota) × 8 pages, so a large store sent ~88 API calls at a time and could slow every other store down.
+		// The build host can override both with NEXT_BUILD_WORKERS and NEXT_BUILD_PAGE_CONCURRENCY.
+		cpus: positiveIntOr(process.env.NEXT_BUILD_WORKERS, 4),
+		staticGenerationMaxConcurrency: positiveIntOr(process.env.NEXT_BUILD_PAGE_CONCURRENCY, 8),
 	},
 	images: {
 		// Blob media URLs carry a random suffix, so a new photo is a new URL: optimized copies can live a year instead
