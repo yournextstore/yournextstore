@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { CookieSettingsLink } from "@/components/cookie-consent-banner";
 import { PaymentMethods } from "@/components/payment-methods";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce, meGetCached } from "@/lib/commerce";
@@ -162,7 +163,12 @@ export async function Footer() {
 
 				{/* Bottom bar */}
 				<div className="py-6 border-t border-border flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<p className="text-sm text-muted-foreground">&copy; {year} Your Next Store. All rights reserved.</p>
+					<div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+						<p className="text-sm text-muted-foreground">
+							&copy; {year} Your Next Store. All rights reserved.
+						</p>
+						<CookieSettingsLink />
+					</div>
 					<PaymentMethods />
 				</div>
 			</div>

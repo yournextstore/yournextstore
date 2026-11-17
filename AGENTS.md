@@ -62,7 +62,9 @@ Three rules keep it working:
 - The cookie banner (`components/cookie-consent-banner.tsx`) is design only: it renders when
   `useConsent()` from `commerce-kit/tracking/react` says `bannerVisible`, and answers through
   `set(...)` with all four purposes (`analytics`, `marketing`, `preferences`, `sale_of_data`). It
-  writes no cookie and no Consent Mode signal itself; the runtime does.
+  writes no cookie and no Consent Mode signal itself; the runtime does. Its `CookieSettingsLink`
+  (in the footer) calls `open()` so a shopper can change the answer; `reopened` says the banner is
+  showing again over an answer already given.
 
 Newsletter unsubscribe and confirmation pages, digital downloads, and payment/carrier webhooks
 live on the platform domain, not here — never add `/unsubscribe`, `/confirm-subscription`,
