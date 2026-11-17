@@ -18,6 +18,7 @@ import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, JsonLdScript } from "@/lib/json-ld";
+import { postAuthorLine, postAuthorOf } from "@/lib/post-author";
 import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -35,18 +36,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	const seoTitle = post.seo?.title || post.title;
 	const seoDescription = post.seo?.description || undefined;
 	const canonical = post.seo?.canonical || `/blog/${post.slug}`;
+	const author = postAuthorOf(post);
 
 	return {
 		title: seoTitle,
 		description: seoDescription,
 		alternates: { canonical },
 		...hiddenFromSearchMetadata(post),
+		// <meta name="author"> and article:author, when the store shows its authors.
+		...(author ? { authors: [{ name: author.name }] } : {}),
 		openGraph: {
 			type: "article",
 			title: seoTitle,
 			description: seoDescription,
 			url: canonical,
 			publishedTime: post.publishedAt ?? post.createdAt,
+			...(author ? { authors: [author.name] } : {}),
 			images: post.image ? [{ url: post.image, alt: post.title }] : undefined,
 		},
 		twitter: {
@@ -103,6 +108,7 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 	const baseUrl = getCanonicalUrl();
 	const publishedAt = post.publishedAt ?? post.createdAt;
 	const articleJsonLd = apiStructuredData(post);
+	const author = postAuthorOf(post);
 
 	const breadcrumbJsonLd = {
 		"@context": "https://schema.org",
@@ -143,6 +149,8 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 						</span>
 					)}
 					<time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
+					{/* The byline: only when the store shows its authors (lib/post-author.ts). */}
+					{author && <span className="text-foreground">By {postAuthorLine(author)}</span>}
 				</div>
 				<h1 className="mt-4 text-4xl font-medium tracking-tight text-balance">{post.title}</h1>
 			</div>
@@ -166,6 +174,14 @@ async function BlogPostPageContent({ params }: { params: Promise<{ slug: string 
 			<div className="prose prose-sm dark:prose-invert max-w-none tiptap-content">
 				<TiptapRenderer content={post.content} />
 			</div>
+
+			{/* About the author: what the structured data says about them is on the page too. */}
+			{author?.bio && (
+				<aside className="mt-12 border-t border-border pt-6 text-sm">
+					<p className="font-medium text-foreground">{postAuthorLine(author)}</p>
+					<p className="mt-1 text-muted-foreground">{author.bio}</p>
+				</aside>
+			)}
 
 			{/* Footer nav */}
 			<div className="mt-16 border-t border-border pt-8">
