@@ -1,5 +1,5 @@
 import { expect, mock, test } from "bun:test";
-import { createRetryingFetch } from "@/lib/commerce-fetch";
+import { BUILD_HEADER, createRetryingFetch, withBuildMarker } from "@/lib/commerce-fetch";
 
 const URL_ = "https://yns.cx/api/v1/products/cheese";
 
@@ -67,4 +67,40 @@ test("does not retry an error that isn't a network failure", async () => {
 
 	await expect(fetch(URL_, { method: "GET" })).rejects.toThrow("boom");
 	expect(fetchImpl).toHaveBeenCalledTimes(1);
+});
+
+const BUILD_ID = "019a8f3e-5c2d-7b41-9e0a-3d6f2b8c1a47";
+
+test("marks every call with the build that sent it", async () => {
+	const { fetchImpl } = setup(respond(200), respond(200));
+	const fetch = withBuildMarker(fetchImpl, BUILD_ID);
+	const callerHeaders = { "Content-Type": "application/json" };
+
+	await fetch(URL_, { method: "GET", headers: callerHeaders });
+	await fetch(URL_, { method: "POST", body: "{}" });
+
+	const sent = fetchImpl.mock.calls.map(([, init]) => new Headers(init.headers));
+	expect(sent.map((headers) => headers.get(BUILD_HEADER))).toEqual([BUILD_ID, BUILD_ID]);
+	expect(sent[0]?.get("Content-Type")).toBe("application/json");
+	// The caller's headers object is left as it was.
+	expect(callerHeaders).toEqual({ "Content-Type": "application/json" });
+});
+
+test("sends calls unchanged outside a build", async () => {
+	const { fetchImpl } = setup(respond(200));
+
+	await withBuildMarker(fetchImpl, undefined)(URL_, { method: "GET" });
+
+	expect(new Headers(fetchImpl.mock.calls[0]?.[1].headers).has(BUILD_HEADER)).toBe(false);
+});
+
+test("a marked read still retries, with the header on every attempt", async () => {
+	const { fetchImpl, sleep } = setup(respond(503), respond(200));
+	const fetch = createRetryingFetch(withBuildMarker(fetchImpl, BUILD_ID), { sleep });
+
+	expect((await fetch(URL_, { method: "GET" })).status).toBe(200);
+	expect(fetchImpl.mock.calls.map(([, init]) => new Headers(init.headers).get(BUILD_HEADER))).toEqual([
+		BUILD_ID,
+		BUILD_ID,
+	]);
 });

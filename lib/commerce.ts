@@ -2,7 +2,7 @@ import { Commerce } from "commerce-kit";
 import { cacheLife } from "next/cache";
 import { try_ } from "safe-try";
 import { tagKinds } from "@/lib/cache-tags";
-import { createRetryingFetch } from "@/lib/commerce-fetch";
+import { createRetryingFetch, withBuildMarker } from "@/lib/commerce-fetch";
 import { invariant } from "@/lib/invariant";
 
 // Override the API host (defaults to yns.store / yns.cx by key prefix). Useful for
@@ -35,8 +35,11 @@ const fetchWithTimings = process.env.DEBUG_COMMERCE
 		}
 	: undefined;
 
-// Every read retries a short Store API failure (429, 5xx, a dropped connection) before the SDK sees it.
-const commerceFetch = createRetryingFetch(fetchWithTimings ?? ((url, init) => fetch(url, init)));
+// Every read retries a short Store API failure (429, 5xx, a dropped connection) before the SDK sees it. During a
+// build on our build machines, every call also names the build that sent it (`withBuildMarker`).
+const commerceFetch = createRetryingFetch(
+	withBuildMarker(fetchWithTimings ?? ((url, init) => fetch(url, init)), process.env.BUILD_ID),
+);
 
 const client = Commerce({
 	token: process.env.YNS_API_KEY,

@@ -55,3 +55,20 @@ export const createRetryingFetch = (
 	};
 	return (url, init) => attemptFetch(url, init, 0);
 };
+
+/** The header that tells the platform a Store API call came from a storefront build, not a shopper. */
+export const BUILD_HEADER = "x-yns-build";
+
+/**
+ * Marks every Store API call with the build that sent it, so the platform can see how much of its traffic
+ * comes from builds. `buildId` is our build machines' `BUILD_ID` (the build job's id). It is unset on Vercel's
+ * runtime and on Vercel-built deploys, and then calls go out unchanged. The platform only logs the header.
+ */
+export const withBuildMarker = (fetchImpl: CommerceFetch, buildId: string | undefined): CommerceFetch =>
+	buildId
+		? (url, init) => {
+				const headers = new Headers(init.headers);
+				headers.set(BUILD_HEADER, buildId);
+				return fetchImpl(url, { ...init, headers });
+			}
+		: fetchImpl;
