@@ -86,6 +86,7 @@ view never runs the proxy.
 - Format prices with `formatMoney` from `lib/money.ts`
 - No manual `useMemo`/`useCallback`: the React Compiler memoizes components (`reactCompiler` in `next.config.ts`)
 - Show accepted payment methods with `PaymentMethods` from `components/payment-methods.tsx` (official marks from `commerce-kit/payment-icons`, keyed by Stripe payment method type, e.g. `blik`, `p24`, `apple_pay`). Never draw, type out or copy payment brand logos; render it from a Server Component
+- Search box suggestions come from the platform's keyless `GET /_public/suggest?q=…` (`fetchSearchSuggestions` in `lib/search-suggest.ts`), which the browser and the CDN cache. Never fetch them through a Server Action: an action is a POST that nothing caches, and Next runs one at a time per client. The `/search` results page is separate and reads `productBrowse` on the server
 - Use functional array methods (`map`, `filter`, `reduce`), not loops
 - No `any` types; rely on type inference; minimal return type annotations
 - **Always quote paths** with special characters in shell commands: `rg "term" "app/(auth)/login"`
