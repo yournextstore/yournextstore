@@ -159,7 +159,12 @@ export async function CategoryView({ slugs, filters }: { slugs: string[]; filter
 						</div>
 					)}
 
-					<ListingProducts basePath={`/category/${canonicalPath}`} filters={filters} category={slug} />
+					<ListingProducts
+						basePath={`/category/${canonicalPath}`}
+						filters={filters}
+						category={slug}
+						trackedCategoryId={category.id}
+					/>
 				</div>
 			</div>
 		</div>

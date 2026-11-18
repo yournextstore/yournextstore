@@ -55,6 +55,15 @@ Three rules keep it working:
   the search page renders `buildSearchResultsJsonLd(query, products)` (a `SearchAction` with the
   query and the products shown, by id), and whatever shows the cart, a page or the open drawer,
   carries `data-yns-view="cart"` while it is on screen.
+- Search and listing analytics read `data-yns-*` attributes, also with no calls. The list element
+  carries `data-yns-list` (`search` on the results page, `autocomplete` on the suggestions, `category`
+  on a category page) with `data-yns-query`, `data-yns-results` (the total, not the page),
+  `data-yns-page`, `data-yns-sort`, `data-yns-filters` (JSON: `{"brand":["acme"]}`) and, for a
+  category, `data-yns-list-key` (its id). Each product in it carries `data-yns-item` (product id)
+  and `data-yns-position` (1-based across pages): `ProductCard` sets both from `listPosition`.
+  Add-to-cart buttons carry `data-yns-add-to-cart` (product id) and `data-yns-variant`. Mark the
+  autocomplete list only once the answer for the typed query is on screen. Keep these when you
+  restyle a page: without them the store's search reports go empty.
 - Never add tracker snippets (fbq, gtag, GTM, pixels) to template code, and never report an event
   yourself: a cart add needs no call, the runtime re-reads the cart after the server action. A
   shopper's email from a sign-up goes to `visitor({ email })` from `commerce-kit/tracking`; a

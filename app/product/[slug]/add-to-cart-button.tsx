@@ -304,9 +304,12 @@ export function AddToCartButton({
 					) : (
 						<form onSubmit={handleSubmit}>
 							{isGiftCard && <GiftCardFields />}
+							{/* data-yns-*: the platform kit credits this add to cart to the list the product was clicked in. */}
 							<button
 								type="submit"
 								disabled={!selectedVariant || isOutOfStock}
+								data-yns-add-to-cart={product.id}
+								data-yns-variant={selectedVariant?.id}
 								className="w-full h-14 bg-foreground text-background py-4 px-8 rounded-full text-base font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								{buttonText}

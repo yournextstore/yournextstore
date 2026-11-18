@@ -18,9 +18,15 @@ type FullProduct = NonNullable<APIProductGetByIdResult>;
 export async function ProductCard({
 	product,
 	priority = false,
+	listPosition,
 }: {
 	product: BrowseProduct | CollectionProduct | FullProduct;
 	priority?: boolean;
+	/**
+	 * The card's 1-based place in a tracked list (`data-yns-list`: search results, a category page). The platform
+	 * kit reads it with the product id to record impressions and clicks; cards outside such a list leave it out.
+	 */
+	listPosition?: number;
 }) {
 	const variants = "variants" in product ? product.variants : null;
 	const allImages = [
@@ -63,7 +69,11 @@ export async function ProductCard({
 	})();
 
 	return (
-		<IntentLink href={`/product/${product.slug}${variantSearch}`} className="group">
+		<IntentLink
+			href={`/product/${product.slug}${variantSearch}`}
+			className="group"
+			{...(listPosition ? { "data-yns-item": product.id, "data-yns-position": listPosition } : {})}
+		>
 			<div className="relative aspect-square bg-secondary rounded-2xl overflow-hidden mb-4">
 				{singleVariant && (
 					<QuickAddButton

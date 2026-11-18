@@ -82,10 +82,19 @@ async function SearchResults({
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
 	const searchJsonLd = <JsonLdScript data={buildSearchResultsJsonLd(q, result.data)} />;
+	// The same search for the platform kit's search analytics: the list, then each card's product and place in it.
+	const listMarks = {
+		"data-yns-list": "search",
+		"data-yns-query": q,
+		"data-yns-results": result.meta.count,
+		"data-yns-page": currentPage,
+		"data-yns-sort": sort,
+		...(category ? { "data-yns-filters": JSON.stringify({ category: [category] }) } : {}),
+	};
 
 	if (result.data.length === 0) {
 		return (
-			<div>
+			<div {...listMarks}>
 				{searchJsonLd}
 				<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">No results</p>
 				<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
@@ -99,11 +108,16 @@ async function SearchResults({
 	}
 
 	return (
-		<div>
+		<div {...listMarks}>
 			{searchJsonLd}
 			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
 				{result.data.map((product, index) => (
-					<ProductCard key={product.id} product={product} priority={index === 0} />
+					<ProductCard
+						key={product.id}
+						product={product}
+						priority={index === 0}
+						listPosition={(currentPage - 1) * PRODUCTS_PER_PAGE + index + 1}
+					/>
 				))}
 			</div>
 			<SearchPagination

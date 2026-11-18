@@ -21,6 +21,12 @@ export function Suggestions({
 		c;
 	const showSkeleton = open && !hasFetched && isFetching;
 	const showEmpty = open && hasFetched && !isFetching && !hasResults;
+	// For the platform kit's search analytics: marked only once the answer for this query is on screen, so a
+	// half-typed query or a stale list is never recorded as a search.
+	const listMarks =
+		open && hasFetched && !isFetching && trimmed
+			? { "data-yns-list": "autocomplete", "data-yns-query": trimmed, "data-yns-results": suggestions.length }
+			: {};
 
 	return (
 		<div
@@ -28,6 +34,7 @@ export function Suggestions({
 			role="listbox"
 			aria-label="Search suggestions"
 			className="flex max-h-96 flex-col overflow-y-auto"
+			{...listMarks}
 		>
 			{showSkeleton
 				? [0, 1, 2].map((i) => (
@@ -50,6 +57,8 @@ export function Suggestions({
 						role="option"
 						id={`${listboxId}-${item.id}`}
 						aria-selected={isActive}
+						data-yns-item={item.id}
+						data-yns-position={idx + 1}
 						onMouseEnter={() => setHighlight(idx)}
 						onClick={() => onPick(item.slug)}
 						className={`flex items-center gap-4 border-b border-border py-3 text-left transition-opacity ${
