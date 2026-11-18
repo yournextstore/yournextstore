@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { type SearchSuggestion, searchSuggest } from "@/app/search-suggest";
+import { fetchSearchSuggestions, type SearchSuggestion } from "@/lib/search-suggest";
 
 const DEBOUNCE_MS = 200;
 const MIN_QUERY_LENGTH = 2;
@@ -14,7 +14,9 @@ const suggestionCache = new Map<string, SearchSuggestion[]>();
 async function getSuggestions(query: string): Promise<SearchSuggestion[]> {
 	const cached = suggestionCache.get(query);
 	if (cached) return cached;
-	const items = await searchSuggest(query);
+	const items = await fetchSearchSuggestions(query);
+	// A failed fetch shows no suggestions this time and is asked again on the next keystroke.
+	if (!items) return [];
 	if (suggestionCache.size >= SUGGESTION_CACHE_LIMIT) {
 		const oldest = suggestionCache.keys().next().value;
 		if (oldest !== undefined) suggestionCache.delete(oldest);
