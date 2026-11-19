@@ -131,19 +131,40 @@ async function SearchResults({
 		);
 	}
 
+	// Products found by meaning rather than by the query's words follow the others, under their own
+	// heading, on stores with search by meaning on.
+	const found = result.data.filter((product) => !isRelated(product));
+	const related = result.data.filter(isRelated);
+	const grid = (products: typeof result.data, offset: number) => (
+		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+			{products.map((product, index) => (
+				<ProductCard
+					key={product.id}
+					product={product}
+					priority={offset + index === 0}
+					listPosition={(currentPage - 1) * PRODUCTS_PER_PAGE + offset + index + 1}
+				/>
+			))}
+		</div>
+	);
+
 	return (
 		<div {...listMarks}>
 			{searchJsonLd}
-			<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
-				{result.data.map((product, index) => (
-					<ProductCard
-						key={product.id}
-						product={product}
-						priority={index === 0}
-						listPosition={(currentPage - 1) * PRODUCTS_PER_PAGE + index + 1}
-					/>
-				))}
-			</div>
+			{found.length > 0 ? grid(found, 0) : null}
+			{related.length > 0 ? (
+				<section className={found.length > 0 ? "mt-16 border-t border-border pt-10 sm:mt-20" : undefined}>
+					<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+						{found.length > 0 ? "Related products" : <>Nothing matched &ldquo;{q}&rdquo; exactly</>}
+					</p>
+					{found.length > 0 ? null : (
+						<h2 className="mt-3 max-w-2xl text-3xl font-medium leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+							Related products
+						</h2>
+					)}
+					<div className="mt-8">{grid(related, found.length)}</div>
+				</section>
+			) : null}
 			<SearchPagination
 				currentPage={currentPage}
 				totalPages={totalPages}
@@ -153,6 +174,11 @@ async function SearchResults({
 			/>
 		</div>
 	);
+}
+
+/** Found by meaning, not by the query's words: the API marks it `related` (YNS-6158). */
+function isRelated(product: object) {
+	return "related" in product && product.related === true;
 }
 
 function EmptyQuery({ categories }: { categories: { id: string; slug: string; name: string }[] }) {
