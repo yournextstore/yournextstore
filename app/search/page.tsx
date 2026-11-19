@@ -133,8 +133,8 @@ async function SearchResults({
 
 	// Products found by meaning rather than by the query's words follow the others, under their own
 	// heading, on stores with search by meaning on.
-	const found = result.data.filter((product) => !isRelated(product));
-	const related = result.data.filter(isRelated);
+	const found = result.data.filter((product) => !product.related);
+	const related = result.data.filter((product) => product.related);
 	const grid = (products: typeof result.data, offset: number) => (
 		<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
 			{products.map((product, index) => (
@@ -174,11 +174,6 @@ async function SearchResults({
 			/>
 		</div>
 	);
-}
-
-/** Found by meaning, not by the query's words: the API marks it `related` (YNS-6158). */
-function isRelated(product: object) {
-	return "related" in product && product.related === true;
 }
 
 function EmptyQuery({ categories }: { categories: { id: string; slug: string; name: string }[] }) {
