@@ -122,10 +122,13 @@ export function CategorySidebar({
 	categories,
 	activeCategory,
 	totalCount,
+	counts,
 }: {
 	categories: Category[];
 	activeCategory?: string;
 	totalCount: number;
+	/** Results per category slug, from the API's filter counts; absent when they could not be read. */
+	counts?: Record<string, number>;
 }) {
 	const searchParams = useSearchParams();
 
@@ -145,6 +148,7 @@ export function CategorySidebar({
 						href={buildUrl(searchParams, { category: c.slug })}
 						isActive={c.slug === activeCategory}
 						label={c.name}
+						count={counts?.[c.slug]}
 					/>
 				))}
 			</ul>
@@ -157,11 +161,14 @@ export function MobileControls({
 	activeCategory,
 	sort,
 	totalCount,
+	counts,
 }: {
 	categories: Category[];
 	activeCategory?: string;
 	sort: SortKey;
 	totalCount: number;
+	/** Results per category slug, as in `CategorySidebar`. */
+	counts?: Record<string, number>;
 }) {
 	const searchParams = useSearchParams();
 	const [open, setOpen] = useState(false);
@@ -211,6 +218,7 @@ export function MobileControls({
 								href={buildUrl(searchParams, { category: c.slug })}
 								isActive={c.slug === activeCategory}
 								label={c.name}
+								count={counts?.[c.slug]}
 								size="md"
 								onClick={close}
 							/>

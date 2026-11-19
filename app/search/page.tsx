@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ProductCard } from "@/components/product-card";
 import { SearchPageInput } from "@/components/search/search-page-input";
 import { tagKinds } from "@/lib/cache-tags";
@@ -32,6 +33,29 @@ async function getActiveCategories() {
 	cacheLife("hours");
 	const { data } = await commerce.categoriesBrowse({ active: true, limit: 50 });
 	return data.filter((c) => !c.parentId).map((c) => ({ id: c.id, slug: c.slug, name: c.name }));
+}
+
+// How many results each category would leave (YNS-6090). Counts are disjunctive: with a category picked, the others
+// still say what switching would show. Absent rather than failing the page when the filters cannot be read.
+async function getCategoryCounts({ q, category }: { q: string; category?: string }) {
+	"use cache";
+	tagKinds("product", "category");
+	cacheLife("minutes");
+	const filters = await commerce
+		.productFilters({ query: q, ...(category ? { category } : {}) })
+		.catch(() => null);
+	return filters ? Object.fromEntries(filters.categories.map((c) => [c.slug, c.count ?? 0])) : undefined;
+}
+
+type SearchResult = Awaited<ReturnType<typeof searchProducts>>;
+
+/** The product a SKU or EAN search names, with its variant picked the way the product page reads it. */
+function productHref(match: { slug: string; id: string; variantId: string }, data: SearchResult["data"]) {
+	const variant = data.find((p) => p.id === match.id)?.variants.find((v) => v.id === match.variantId);
+	const options = new URLSearchParams(
+		(variant?.combinations ?? []).map((c) => [c.variantValue.variantType.label, c.variantValue.value]),
+	).toString();
+	return `/product/${match.slug}${options ? `#${options}` : ""}`;
 }
 
 // One browse serves both the header count and the results grid: the second call with the
@@ -178,12 +202,24 @@ const SearchContent = async ({
 	const { q, page, sort: sortParam, category } = await searchParams;
 	const query = q?.trim() ?? "";
 	const sort = getSortFromParams(sortParam);
-	const [categories, totalCount] = await Promise.all([
+	const [categories, result, counts] = await Promise.all([
 		getActiveCategories(),
-		query
-			? searchProducts({ q: query, page, sort, category }).then(({ meta }) => meta.count)
-			: Promise.resolve(0),
+		query ? searchProducts({ q: query, page, sort, category }) : Promise.resolve(null),
+		query ? getCategoryCounts({ q: query, category }) : Promise.resolve(undefined),
 	]);
+	const totalCount = result?.meta.count ?? 0;
+	// What the query names exactly (YNS-6089): a SKU or EAN opens its product; a brand or category gets a link.
+	const match = result?.meta.match ?? null;
+	if (match?.type === "product" && !page && !category) {
+		redirect(productHref(match, result?.data ?? []));
+	}
+	const matchHref =
+		match?.type === "brand"
+			? `/products?brand=${encodeURIComponent(match.slug)}`
+			: match?.type === "category"
+				? `/category/${match.slug}`
+				: null;
+	const correctedQuery = result?.meta.correctedQuery ?? null;
 
 	return (
 		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
@@ -202,6 +238,19 @@ const SearchContent = async ({
 								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 									{query}
 								</h1>
+								{correctedQuery ? (
+									<p className="mt-4 text-sm text-muted-foreground">
+										Showing results for <span className="text-foreground">{correctedQuery}</span>
+									</p>
+								) : null}
+								{match && matchHref && match.type !== "product" ? (
+									<Link
+										href={matchHref}
+										className="mt-4 inline-flex border-b border-foreground/30 pb-0.5 text-sm text-foreground transition-colors hover:border-foreground"
+									>
+										Go to {match.name} →
+									</Link>
+								) : null}
 								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
 										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
@@ -220,12 +269,18 @@ const SearchContent = async ({
 						activeCategory={category}
 						sort={sort}
 						totalCount={totalCount}
+						counts={counts}
 					/>
 
 					<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
 						<aside className="hidden sm:block">
 							<div className="sticky top-24">
-								<CategorySidebar categories={categories} activeCategory={category} totalCount={totalCount} />
+								<CategorySidebar
+									categories={categories}
+									activeCategory={category}
+									totalCount={totalCount}
+									counts={counts}
+								/>
 							</div>
 						</aside>
 						<SearchResults q={query} page={page} sort={sort} category={category} />

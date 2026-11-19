@@ -17,7 +17,7 @@
         "ai": "7.0.173",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
-        "commerce-kit": "0.79.0",
+        "commerce-kit": "0.80.0",
         "lucide-react": "1.74.0",
         "next": "16.4.6",
         "next-themes": "0.4.6",
@@ -491,7 +491,7 @@
 
     "commander": ["commander@14.0.3", "", {}, "sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw=="],
 
-    "commerce-kit": ["commerce-kit@0.79.0", "", { "dependencies": { "@vercel/blob": "^2.8.2" }, "peerDependencies": { "react": "^19", "react-dom": "^19", "typescript": "^6.0.3 || ^7.0.0" }, "optionalPeers": ["react", "react-dom", "typescript"] }, "sha512-p8s49hD7g7XnsqTTXd30XA1km6mgC3xKrdGlaE1hSP7hoo91u+gEAaZL2v6Hmg/aSnDC6eWFk4YZMuBs0Ielrw=="],
+    "commerce-kit": ["commerce-kit@0.80.0", "", { "dependencies": { "@vercel/blob": "^2.8.2" }, "peerDependencies": { "react": "^19", "react-dom": "^19", "typescript": "^6.0.3 || ^7.0.0" }, "optionalPeers": ["react", "react-dom", "typescript"] }, "sha512-xyxAOPMpRYB9nZ/G8+B7wQN4SFEKiSY5rp3GCynYetAv3Sovnii3F3kDP2uksQaJr6LNqJyz7BA55ZXtKjPYEg=="],
 
     "conf": ["conf@10.2.0", "", { "dependencies": { "ajv": "^8.6.3", "ajv-formats": "^2.1.1", "atomically": "^1.7.0", "debounce-fn": "^4.0.0", "dot-prop": "^6.0.1", "env-paths": "^2.2.1", "json-schema-typed": "^7.0.3", "onetime": "^5.1.2", "pkg-up": "^3.1.0", "semver": "^7.3.5" } }, "sha512-8fLl9F04EJqjSqH+QjITQfJF8BrOVaYr1jewVgSRAEWePfxT0sku4w2hrGQ60BC/TNLGQ2pgxNlTbWQmMPFvXg=="],
 
