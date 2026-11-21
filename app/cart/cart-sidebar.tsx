@@ -35,7 +35,7 @@ export function CartSidebar() {
 			{/* Marks the open cart for the platform's tracking, which reports it as a cart view. */}
 			<SheetContent
 				data-yns-view="cart"
-				className="flex flex-col data-[side=right]:w-full data-[side=right]:sm:max-w-lg"
+				className="flex flex-col overflow-y-auto data-[side=right]:h-dvh data-[side=right]:w-full data-[side=right]:sm:max-w-lg"
 			>
 				<SheetHeader className="border-b border-border pb-4">
 					<SheetTitle className="flex items-center gap-2">
@@ -64,7 +64,12 @@ export function CartSidebar() {
 					</div>
 				) : (
 					<>
-						<ScrollArea className="flex-1 px-4">
+						{/* The item list takes the space left by the header and footer and scrolls on its own,
+						    so Checkout stays on screen however many items there are. A flex item won't shrink
+						    below its content by default (`min-height: auto`), which pushed the footer off the
+						    drawer; `min-h-40` replaces that floor with one item's height, and on a viewport too
+						    short even for that the drawer itself scrolls (`overflow-y-auto` above). */}
+						<ScrollArea className="min-h-40 flex-1 px-4">
 							<div className="divide-y divide-border">
 								{items.map((item) => (
 									<CartItem key={itemKey(item)} item={item} />
@@ -72,7 +77,7 @@ export function CartSidebar() {
 							</div>
 						</ScrollArea>
 
-						<SheetFooter className="border-t border-border pt-4 mt-auto">
+						<SheetFooter className="shrink-0 border-t border-border pt-4 mt-auto">
 							<div className="w-full space-y-4">
 								<DiscountCodeField />
 								{discount ? (
