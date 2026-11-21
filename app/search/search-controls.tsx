@@ -185,7 +185,9 @@ export function MobileControls({
 						Filter{active ? ` · ${active.name}` : ""} / {activeSort?.label}
 					</span>
 				</SheetTrigger>
-				<SheetContent side="bottom" className="rounded-t-2xl p-6">
+				{/* The category list is as long as the store's catalog: cap the sheet below the viewport
+				    and let it scroll, or a long list pushes its end off screen with no way to reach it. */}
+				<SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-2xl p-6">
 					<SheetTitle className="text-2xl font-medium tracking-tight">Refine</SheetTitle>
 
 					<h3 className="mt-6 mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">Sort</h3>
