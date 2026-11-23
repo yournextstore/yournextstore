@@ -60,6 +60,10 @@ fails, record it and move on to the next.
 Run a few stores at a time, each in its own temp dir, and publish a few at a time too: every publish
 builds a store. End with one table: store · files changed · pushed, published, current or error.
 
+Nothing records this run. The platform's daily `managed-files` cron reads every store's `main` and posts
+each paying store whose managed files still differ from this repo's `main` to Slack, so a store you
+report as `error` (or skip) stays on that list until it matches.
+
 ## Live spot-check (optional, when the invoker names expectations)
 
 After the publish, check what the change promises with
