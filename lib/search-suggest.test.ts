@@ -18,14 +18,46 @@ afterEach(() => {
 
 const item = { id: "p1", name: "Classic Tee", slug: "classic-tee", image: null, summary: "Soft cotton" };
 
-test("asks the platform's keyless suggest endpoint with a GET", async () => {
-	answer(async () => Response.json({ items: [item] }));
+test("asks the platform's keyless suggest endpoint with a GET, for queries, categories, brands and prices", async () => {
+	answer(async () =>
+		Response.json({
+			items: [{ ...item, variants: [{ price: "1000", priceGross: "1230", junk: 1 }, { nope: true }] }],
+			queries: ["tee white", 7],
+			categories: [
+				{ id: "c1", name: "Tees", slug: "tees", path: ["clothes", "tees"] },
+				{ id: "c2", name: "Old", slug: "old" },
+				{ name: "broken" },
+			],
+			brands: [{ id: "b1", name: "Teeco", slug: "teeco", image: null }],
+		}),
+	);
 
-	expect(await fetchSearchSuggestions("tee & co")).toEqual([item]);
-	expect(requested).toEqual(["/_public/suggest?q=tee%20%26%20co"]);
+	expect(await fetchSearchSuggestions("tee & co")).toEqual({
+		// Only the price fields are kept.
+		products: [{ ...item, variants: [{ price: "1000", priceGross: "1230" }] }],
+		queries: ["tee white"],
+		categories: [
+			{ id: "c1", name: "Tees", slug: "tees", path: ["clothes", "tees"] },
+			// No path from the platform: the category's own slug.
+			{ id: "c2", name: "Old", slug: "old", path: ["old"] },
+		],
+		brands: [{ id: "b1", name: "Teeco", slug: "teeco" }],
+	});
+	expect(requested).toEqual(["/_public/suggest?q=tee+%26+co&include=queries%2Ccategories%2Cbrands%2Cprice"]);
 });
 
-test("returns null, not an empty list, when the suggestions could not be fetched", async () => {
+test("reads an older platform's answer: products only, without prices", async () => {
+	answer(async () => Response.json({ items: [item] }));
+
+	expect(await fetchSearchSuggestions("tee")).toEqual({
+		products: [{ ...item, variants: [] }],
+		queries: [],
+		categories: [],
+		brands: [],
+	});
+});
+
+test("returns null, not empty suggestions, when they could not be fetched", async () => {
 	answer(async () => new Response("Bad gateway", { status: 502 }));
 	expect(await fetchSearchSuggestions("tee")).toBeNull();
 

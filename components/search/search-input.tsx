@@ -24,15 +24,15 @@ export function SearchInput() {
 	const iconListboxId = useId();
 	const inlineListboxId = useId();
 
-	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, () => {
+	const { pick, handleSubmit } = makeNavHandlers(c, () => {
 		setIconOpen(false);
 		setInlineOpen(false);
 		iconInputRef.current?.blur();
 		inlineInputRef.current?.blur();
 	});
 
-	const iconPanelOpen = iconOpen && c.enoughChars;
-	const inlinePanelOpen = inlineOpen && c.enoughChars;
+	const iconPanelOpen = iconOpen && c.showPanel;
+	const inlinePanelOpen = inlineOpen && c.showPanel;
 
 	return (
 		<>
@@ -63,12 +63,8 @@ export function SearchInput() {
 								placeholder="Search products"
 								value={c.query}
 								onChange={(e) => c.setQuery(e.target.value)}
-								onKeyDown={makeKeyHandler(
-									c,
-									iconPanelOpen,
-									() => setIconOpen(false),
-									() => goToSearch(c.query),
-								)}
+								onFocus={c.activate}
+								onKeyDown={makeKeyHandler(c, iconPanelOpen, () => setIconOpen(false), pick)}
 								role="combobox"
 								aria-expanded={iconPanelOpen}
 								aria-controls={iconListboxId}
@@ -81,13 +77,7 @@ export function SearchInput() {
 					</form>
 					{iconPanelOpen ? (
 						<div className="mt-2">
-							<Suggestions
-								listboxId={iconListboxId}
-								open={iconPanelOpen}
-								c={c}
-								onPick={goToProduct}
-								onSeeAll={() => goToSearch(c.query)}
-							/>
+							<Suggestions listboxId={iconListboxId} open={iconPanelOpen} c={c} onPick={pick} />
 						</div>
 					) : null}
 				</PopoverContent>
@@ -111,13 +101,11 @@ export function SearchInput() {
 								c.setQuery(e.target.value);
 								setInlineOpen(true);
 							}}
-							onFocus={() => setInlineOpen(true)}
-							onKeyDown={makeKeyHandler(
-								c,
-								inlinePanelOpen,
-								() => setInlineOpen(false),
-								() => goToSearch(c.query),
-							)}
+							onFocus={() => {
+								setInlineOpen(true);
+								c.activate();
+							}}
+							onKeyDown={makeKeyHandler(c, inlinePanelOpen, () => setInlineOpen(false), pick)}
 							role="combobox"
 							aria-expanded={inlinePanelOpen}
 							aria-controls={inlineListboxId}
@@ -134,13 +122,7 @@ export function SearchInput() {
 						initialFocus={false}
 						className="w-[min(22rem,calc(100vw-2rem))] rounded-2xl border-border bg-popover p-1.5 shadow-lg"
 					>
-						<Suggestions
-							listboxId={inlineListboxId}
-							open={inlinePanelOpen}
-							c={c}
-							onPick={goToProduct}
-							onSeeAll={() => goToSearch(c.query)}
-						/>
+						<Suggestions listboxId={inlineListboxId} open={inlinePanelOpen} c={c} onPick={pick} />
 					</PopoverContent>
 				</Popover>
 			</form>

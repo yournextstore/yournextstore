@@ -3,32 +3,68 @@
 import { useRouter } from "next/navigation";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { fetchSearchSuggestions, type SearchSuggestion } from "@/lib/search-suggest";
+import {
+	fetchSearchSuggestions,
+	type SearchSuggestion,
+	type SearchSuggestions,
+	type SuggestedBrand,
+	type SuggestedCategory,
+} from "@/lib/search-suggest";
 
 const DEBOUNCE_MS = 200;
 const MIN_QUERY_LENGTH = 2;
 const SUGGESTION_CACHE_LIMIT = 32;
 
-const suggestionCache = new Map<string, SearchSuggestion[]>();
+const NO_SUGGESTIONS: SearchSuggestions = { products: [], queries: [], categories: [], brands: [] };
 
-async function getSuggestions(query: string): Promise<SearchSuggestion[]> {
+const suggestionCache = new Map<string, SearchSuggestions>();
+
+async function getSuggestions(query: string): Promise<SearchSuggestions> {
 	const cached = suggestionCache.get(query);
 	if (cached) return cached;
-	const items = await fetchSearchSuggestions(query);
+	const suggestions = await fetchSearchSuggestions(query);
 	// A failed fetch shows no suggestions this time and is asked again on the next keystroke.
-	if (!items) return [];
+	if (!suggestions) return NO_SUGGESTIONS;
 	if (suggestionCache.size >= SUGGESTION_CACHE_LIMIT) {
 		const oldest = suggestionCache.keys().next().value;
 		if (oldest !== undefined) suggestionCache.delete(oldest);
 	}
-	suggestionCache.set(query, items);
-	return items;
+	suggestionCache.set(query, suggestions);
+	return suggestions;
 }
+
+/** One row of the suggestions, in the order the arrow keys move through them. */
+export type SuggestionOption =
+	| { kind: "query"; key: string; query: string }
+	| { kind: "category"; key: string; category: SuggestedCategory }
+	| { kind: "brand"; key: string; brand: SuggestedBrand }
+	| { kind: "product"; key: string; product: SearchSuggestion; position: number }
+	| { kind: "seeAll"; key: string };
+
+const optionsOf = (suggestions: SearchSuggestions, seeAll: boolean): SuggestionOption[] => [
+	// By place, not text: an element id cannot hold the query's spaces.
+	...suggestions.queries.map((query, index) => ({ kind: "query" as const, key: `query-${index}`, query })),
+	...suggestions.categories.map((category) => ({
+		kind: "category" as const,
+		key: `category-${category.id}`,
+		category,
+	})),
+	...suggestions.brands.map((brand) => ({ kind: "brand" as const, key: `brand-${brand.id}`, brand })),
+	...suggestions.products.map((product, index) => ({
+		kind: "product" as const,
+		key: `product-${product.id}`,
+		product,
+		position: index + 1,
+	})),
+	...(seeAll ? [{ kind: "seeAll" as const, key: "see-all" }] : []),
+];
 
 export function useSearchController(initialQuery: string) {
 	const router = useRouter();
 	const [query, setQuery] = useState(initialQuery);
-	const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+	// Focused at least once: only then is the empty box worth its popular queries and products.
+	const [active, setActive] = useState(false);
+	const [suggestions, setSuggestions] = useState<SearchSuggestions>(NO_SUGGESTIONS);
 	const [hasFetched, setHasFetched] = useState(false);
 	const [highlight, setHighlight] = useState(-1);
 	const [isFetching, startFetch] = useTransition();
@@ -36,28 +72,41 @@ export function useSearchController(initialQuery: string) {
 
 	const trimmed = query.trim();
 	const enoughChars = trimmed.length >= MIN_QUERY_LENGTH;
-	const hasResults = suggestions.length > 0;
-	const seeAllIndex = enoughChars ? suggestions.length : -1;
-	const lastIndex = seeAllIndex >= 0 ? seeAllIndex : suggestions.length - 1;
+	const emptyBox = trimmed === "";
+	// What to ask for: the typed query, the empty box once focused, or nothing for a single letter.
+	const target = enoughChars ? trimmed : emptyBox && active ? "" : null;
+	const hasResults =
+		suggestions.products.length +
+			suggestions.queries.length +
+			suggestions.categories.length +
+			suggestions.brands.length >
+		0;
+	const options = optionsOf(suggestions, enoughChars && hasResults);
+	const lastIndex = options.length - 1;
+	// The empty box opens only when there is something to show; a typed query always does.
+	const showPanel = enoughChars || (emptyBox && active && hasFetched && hasResults);
 
 	useEffect(() => {
-		if (!enoughChars) {
-			setSuggestions([]);
+		const requestId = ++requestIdRef.current;
+		if (target === null) {
+			setSuggestions(NO_SUGGESTIONS);
 			setHasFetched(false);
 			return;
 		}
-		const requestId = ++requestIdRef.current;
-		const timer = setTimeout(() => {
-			startFetch(async () => {
-				const items = await getSuggestions(trimmed);
-				if (requestId !== requestIdRef.current) return;
-				setSuggestions(items);
-				setHasFetched(true);
-				setHighlight(-1);
-			});
-		}, DEBOUNCE_MS);
+		const timer = setTimeout(
+			() => {
+				startFetch(async () => {
+					const next = await getSuggestions(target);
+					if (requestId !== requestIdRef.current) return;
+					setSuggestions(next);
+					setHasFetched(true);
+					setHighlight(-1);
+				});
+			},
+			target ? DEBOUNCE_MS : 0,
+		);
 		return () => clearTimeout(timer);
-	}, [trimmed, enoughChars]);
+	}, [target]);
 
 	useEffect(() => {
 		if (!enoughChars) return;
@@ -67,7 +116,9 @@ export function useSearchController(initialQuery: string) {
 	return {
 		query,
 		setQuery,
+		activate: () => setActive(true),
 		suggestions,
+		options,
 		hasFetched,
 		hasResults,
 		highlight,
@@ -75,7 +126,7 @@ export function useSearchController(initialQuery: string) {
 		isFetching,
 		trimmed,
 		enoughChars,
-		seeAllIndex,
+		showPanel,
 		lastIndex,
 		router,
 	};
@@ -83,7 +134,12 @@ export function useSearchController(initialQuery: string) {
 
 export type Controller = ReturnType<typeof useSearchController>;
 
-export function makeKeyHandler(c: Controller, open: boolean, onClose: () => void, onSeeAll: () => void) {
+export function makeKeyHandler(
+	c: Controller,
+	open: boolean,
+	onClose: () => void,
+	onPick: (option: SuggestionOption) => void,
+) {
 	return (e: KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Escape") {
 			onClose();
@@ -96,12 +152,31 @@ export function makeKeyHandler(c: Controller, open: boolean, onClose: () => void
 		} else if (e.key === "ArrowUp") {
 			e.preventDefault();
 			c.setHighlight((h) => (h <= 0 ? c.lastIndex : h - 1));
-		} else if (e.key === "Enter" && c.highlight === c.seeAllIndex) {
-			e.preventDefault();
-			onSeeAll();
+		} else if (e.key === "Enter") {
+			const picked = c.options[c.highlight];
+			if (picked) {
+				e.preventDefault();
+				onPick(picked);
+			}
 		}
 	};
 }
+
+/** Where a suggestion leads: a brand has no page of its own, so it is searched for. */
+export const suggestionHref = (option: SuggestionOption, query: string) => {
+	switch (option.kind) {
+		case "query":
+			return `/search?q=${encodeURIComponent(option.query)}`;
+		case "category":
+			return `/category/${option.category.path.map(encodeURIComponent).join("/")}`;
+		case "brand":
+			return `/search?q=${encodeURIComponent(option.brand.name)}`;
+		case "product":
+			return `/product/${option.product.slug}`;
+		case "seeAll":
+			return `/search?q=${encodeURIComponent(query.trim())}`;
+	}
+};
 
 export function makeNavHandlers(c: Controller, onClose: () => void) {
 	const goToSearch = (q: string) => {
@@ -110,22 +185,21 @@ export function makeNavHandlers(c: Controller, onClose: () => void) {
 		c.router.push(`/search?q=${encodeURIComponent(value)}`);
 		onClose();
 	};
-	const goToProduct = (slug: string) => {
-		c.router.push(`/product/${slug}`);
+	const pick = (option: SuggestionOption) => {
+		c.router.push(suggestionHref(option, c.query));
 		onClose();
 	};
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		const picked = c.highlight >= 0 ? c.suggestions[c.highlight] : null;
-		if (picked) goToProduct(picked.slug);
+		const picked = c.options[c.highlight];
+		if (picked) pick(picked);
 		else goToSearch(c.query);
 	};
-	return { goToSearch, goToProduct, handleSubmit };
+	return { goToSearch, pick, handleSubmit };
 }
 
 export function getActiveId(listboxId: string, c: Controller, open: boolean) {
 	if (!open || c.highlight < 0) return undefined;
-	if (c.highlight === c.seeAllIndex) return `${listboxId}-see-all`;
-	const item = c.suggestions[c.highlight];
-	return item ? `${listboxId}-${item.id}` : undefined;
+	const option = c.options[c.highlight];
+	return option ? `${listboxId}-${option.key}` : undefined;
 }

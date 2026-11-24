@@ -19,9 +19,9 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 		inputRef.current?.blur();
 		onNavigate();
 	};
-	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, close);
+	const { pick, handleSubmit } = makeNavHandlers(c, close);
 
-	const panelOpen = c.enoughChars;
+	const panelOpen = c.showPanel;
 
 	return (
 		<search>
@@ -42,7 +42,8 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 						placeholder="Search products"
 						value={c.query}
 						onChange={(e) => c.setQuery(e.target.value)}
-						onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}
+						onFocus={c.activate}
+						onKeyDown={makeKeyHandler(c, panelOpen, close, pick)}
 						role="combobox"
 						aria-expanded={panelOpen}
 						aria-controls={listboxId}
@@ -55,13 +56,7 @@ export function MobileSearchInput({ onNavigate }: { onNavigate: () => void }) {
 				</div>
 				{panelOpen ? (
 					<div className="mt-3 border-t border-border pt-1">
-						<Suggestions
-							listboxId={listboxId}
-							open={panelOpen}
-							c={c}
-							onPick={goToProduct}
-							onSeeAll={() => goToSearch(c.query)}
-						/>
+						<Suggestions listboxId={listboxId} open={panelOpen} c={c} onPick={pick} />
 					</div>
 				) : null}
 			</form>

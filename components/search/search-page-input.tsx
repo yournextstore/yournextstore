@@ -20,9 +20,9 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 		setInteractive(false);
 		inputRef.current?.blur();
 	};
-	const { goToSearch, goToProduct, handleSubmit } = makeNavHandlers(c, close);
+	const { pick, handleSubmit } = makeNavHandlers(c, close);
 
-	const panelOpen = interactive && c.enoughChars;
+	const panelOpen = interactive && c.showPanel;
 
 	return (
 		<search>
@@ -42,13 +42,16 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 						name="q"
 						placeholder="Search the store"
 						value={c.query}
-						onFocus={() => setInteractive(true)}
+						onFocus={() => {
+							setInteractive(true);
+							c.activate();
+						}}
 						onBlur={() => setTimeout(() => setInteractive(false), 120)}
 						onChange={(e) => {
 							setInteractive(true);
 							c.setQuery(e.target.value);
 						}}
-						onKeyDown={makeKeyHandler(c, panelOpen, close, () => goToSearch(c.query))}
+						onKeyDown={makeKeyHandler(c, panelOpen, close, pick)}
 						role="combobox"
 						aria-expanded={panelOpen}
 						aria-controls={listboxId}
@@ -61,13 +64,7 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 				</div>
 				{panelOpen ? (
 					<div className="mt-4 border-t border-border pt-2">
-						<Suggestions
-							listboxId={listboxId}
-							open={panelOpen}
-							c={c}
-							onPick={goToProduct}
-							onSeeAll={() => goToSearch(c.query)}
-						/>
+						<Suggestions listboxId={listboxId} open={panelOpen} c={c} onPick={pick} />
 					</div>
 				) : null}
 			</form>
