@@ -1,5 +1,6 @@
 "use server";
 
+import { checkBotId } from "botid/server";
 import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
 
@@ -19,6 +20,13 @@ export async function sendContactMessage(_prev: ContactState, formData: FormData
 
 	if (!message || typeof message !== "string" || message.trim().length === 0) {
 		return { success: false, message: "", error: "Please enter a message." };
+	}
+
+	// A bot gets the shopper's answer, so it can't tell it was turned away, and its message never
+	// reaches the store's inbox. The browser half is <BotIdClient> in the root layout.
+	const { isBot } = await checkBotId();
+	if (isBot) {
+		return { success: true, message: "Thanks for reaching out! We'll get back to you soon." };
 	}
 
 	const [error] = await try_(commerce.contactMessageCreate({ email, message }));
