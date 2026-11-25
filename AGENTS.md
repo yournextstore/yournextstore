@@ -194,6 +194,12 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
   `useVariantQuery()`, which also accepts the older `?Colour=Black` form that ads, feeds and shared
   links still carry. A query string is a separate address for a crawler; what follows `#` is not.
   A link to one variant (the product card of a single-variant product) uses the `#` form too.
+- **Catalogue addresses are fixed.** Products live at `/product/<slug>` and categories at
+  `/category/<slug>`, nowhere else, also when a merchant or an imported shop asks for short root
+  addresses. Never add a root dynamic route (`app/[slug]`, `app/[...path]`) that renders a product or
+  a category: every view would pay a lookup to guess what the slug is, and the default category view
+  could no longer prerender. Old addresses from a migrated shop get permanent redirects to the long
+  form (`next.config.ts`); a root route may only redirect. `app/catalog-addresses.test.ts` enforces it.
 - **Listings: static default view, filtered views on their own route.** `/products` and
   `/category/…` never read the query, so they prerender. When a listing parameter (filter, sort,
   page) is present, `next.config.ts` rewrites the request (`listingRewrites()` in
