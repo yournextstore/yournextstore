@@ -7,7 +7,8 @@ import { SearchPageInput } from "@/components/search/search-page-input";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import { buildSearchResultsJsonLd, JsonLdScript } from "@/lib/json-ld";
-import { ActiveFilters, CategorySidebar, MobileControls, SortSelect } from "./search-controls";
+import { ActiveFilters, FilterSidebar, MobileControls, SortSelect } from "./search-controls";
+import { type SearchFilters, searchFiltersFrom, toBrowseFilters } from "./search-filters";
 import { SearchPagination } from "./search-pagination";
 import { getSortFromParams, sortToBrowseParams } from "./sort";
 
@@ -35,16 +36,14 @@ async function getActiveCategories() {
 	return data.filter((c) => !c.parentId).map((c) => ({ id: c.id, slug: c.slug, name: c.name }));
 }
 
-// How many results each category would leave (YNS-6090). Counts are disjunctive: with a category picked, the others
-// still say what switching would show. Absent rather than failing the page when the filters cannot be read.
-async function getCategoryCounts({ q, category }: { q: string; category?: string }) {
+// Every filter of the search with how many results each value would leave (YNS-6090). Counts are disjunctive: with a
+// value picked, the others in its group still say what switching would show. Null rather than failing the page when
+// the filters cannot be read.
+async function getSearchFacets({ q, filters }: { q: string; filters: SearchFilters }) {
 	"use cache";
-	tagKinds("product", "category");
+	tagKinds("product", "category", "brand");
 	cacheLife("minutes");
-	const filters = await commerce
-		.productFilters({ query: q, ...(category ? { category } : {}) })
-		.catch(() => null);
-	return filters ? Object.fromEntries(filters.categories.map((c) => [c.slug, c.count ?? 0])) : undefined;
+	return commerce.productFilters({ query: q, ...toBrowseFilters(filters) }).catch(() => null);
 }
 
 type SearchResult = Awaited<ReturnType<typeof searchProducts>>;
@@ -64,12 +63,12 @@ async function searchProducts({
 	q,
 	page,
 	sort,
-	category,
+	filters,
 }: {
 	q: string;
 	page?: string;
 	sort: ReturnType<typeof getSortFromParams>;
-	category?: string;
+	filters: SearchFilters;
 }) {
 	"use cache";
 	tagKinds("product");
@@ -81,7 +80,7 @@ async function searchProducts({
 		limit: PRODUCTS_PER_PAGE,
 		offset: (currentPage - 1) * PRODUCTS_PER_PAGE,
 		...sortToBrowseParams(sort),
-		...(category ? { category } : {}),
+		...toBrowseFilters(filters),
 	});
 }
 
@@ -89,19 +88,19 @@ async function SearchResults({
 	q,
 	page,
 	sort,
-	category,
+	filters,
 }: {
 	q: string;
 	page?: string;
 	sort: ReturnType<typeof getSortFromParams>;
-	category?: string;
+	filters: SearchFilters;
 }) {
 	"use cache";
 	tagKinds("product");
 	cacheLife("minutes");
 
 	const currentPage = Math.max(1, Number(page) || 1);
-	const result = await searchProducts({ q, page, sort, category });
+	const result = await searchProducts({ q, page, sort, filters });
 
 	const totalPages = Math.ceil(result.meta.count / PRODUCTS_PER_PAGE);
 
@@ -113,7 +112,13 @@ async function SearchResults({
 		"data-yns-results": result.meta.count,
 		"data-yns-page": currentPage,
 		"data-yns-sort": sort,
-		...(category ? { "data-yns-filters": JSON.stringify({ category: [category] }) } : {}),
+		...(Object.keys(filters).length
+			? {
+					"data-yns-filters": JSON.stringify(
+						Object.fromEntries(Object.entries(filters).map(([key, value]) => [key, value.split(",")])),
+					),
+				}
+			: {}),
 	};
 
 	if (result.data.length === 0) {
@@ -170,7 +175,7 @@ async function SearchResults({
 				totalPages={totalPages}
 				query={q}
 				sort={sort}
-				category={category}
+				filters={filters}
 			/>
 		</div>
 	);
@@ -209,29 +214,28 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 // the results are ready, with no skeleton.
 export const instant = false;
 
-export default function SearchPage(props: {
-	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
-}) {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default function SearchPage(props: { searchParams: SearchParams }) {
 	return <SearchContent searchParams={props.searchParams} />;
 }
 
-const SearchContent = async ({
-	searchParams,
-}: {
-	searchParams: Promise<{ q?: string; page?: string; sort?: string; category?: string }>;
-}) => {
-	const { q, page, sort: sortParam, category } = await searchParams;
-	const query = q?.trim() ?? "";
-	const sort = getSortFromParams(sortParam);
-	const [categories, result, counts] = await Promise.all([
+const SearchContent = async ({ searchParams }: { searchParams: SearchParams }) => {
+	const params = await searchParams;
+	const single = (key: string) => (typeof params[key] === "string" ? params[key] : undefined);
+	const query = single("q")?.trim() ?? "";
+	const page = single("page");
+	const sort = getSortFromParams(single("sort"));
+	const filters = searchFiltersFrom(params);
+	const [categories, result, facets] = await Promise.all([
 		getActiveCategories(),
-		query ? searchProducts({ q: query, page, sort, category }) : Promise.resolve(null),
-		query ? getCategoryCounts({ q: query, category }) : Promise.resolve(undefined),
+		query ? searchProducts({ q: query, page, sort, filters }) : Promise.resolve(null),
+		query ? getSearchFacets({ q: query, filters }) : Promise.resolve(null),
 	]);
 	const totalCount = result?.meta.count ?? 0;
 	// What the query names exactly (YNS-6089): a SKU or EAN opens its product; a brand or category gets a link.
 	const match = result?.meta.match ?? null;
-	if (match?.type === "product" && !page && !category) {
+	if (match?.type === "product" && !page && Object.keys(filters).length === 0) {
 		redirect(productHref(match, result?.data ?? []));
 	}
 	const matchHref =
@@ -276,7 +280,7 @@ const SearchContent = async ({
 									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
 										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
 									</span>
-									<ActiveFilters categories={categories} activeCategory={category} />
+									<ActiveFilters categories={categories} facets={facets} filters={filters} />
 								</div>
 							</div>
 							<div className="hidden sm:block">
@@ -287,24 +291,24 @@ const SearchContent = async ({
 
 					<MobileControls
 						categories={categories}
-						activeCategory={category}
+						facets={facets}
+						filters={filters}
 						sort={sort}
 						totalCount={totalCount}
-						counts={counts}
 					/>
 
 					<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
 						<aside className="hidden sm:block">
 							<div className="sticky top-24">
-								<CategorySidebar
+								<FilterSidebar
 									categories={categories}
-									activeCategory={category}
+									facets={facets}
+									filters={filters}
 									totalCount={totalCount}
-									counts={counts}
 								/>
 							</div>
 						</aside>
-						<SearchResults q={query} page={page} sort={sort} category={category} />
+						<SearchResults q={query} page={page} sort={sort} filters={filters} />
 					</div>
 				</>
 			) : (

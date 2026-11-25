@@ -1,21 +1,24 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { SearchFilters } from "./search-filters";
 
 function buildSearchUrl({
 	query,
 	page,
 	sort,
-	category,
+	filters,
 }: {
 	query: string;
 	page: number;
 	sort?: string;
-	category?: string;
+	filters: SearchFilters;
 }) {
 	const params = new URLSearchParams({ q: query });
 	if (page > 1) params.set("page", String(page));
 	if (sort && sort !== "newest") params.set("sort", sort);
-	if (category) params.set("category", category);
+	for (const [key, value] of Object.entries(filters)) {
+		if (value) params.set(key, value);
+	}
 	return `/search?${params.toString()}`;
 }
 
@@ -24,18 +27,18 @@ export function SearchPagination({
 	totalPages,
 	query,
 	sort,
-	category,
+	filters,
 }: {
 	currentPage: number;
 	totalPages: number;
 	query: string;
 	sort?: string;
-	category?: string;
+	filters: SearchFilters;
 }) {
 	if (totalPages <= 1) return null;
-	const prevHref = currentPage > 1 ? buildSearchUrl({ query, page: currentPage - 1, sort, category }) : null;
+	const prevHref = currentPage > 1 ? buildSearchUrl({ query, page: currentPage - 1, sort, filters }) : null;
 	const nextHref =
-		currentPage < totalPages ? buildSearchUrl({ query, page: currentPage + 1, sort, category }) : null;
+		currentPage < totalPages ? buildSearchUrl({ query, page: currentPage + 1, sort, filters }) : null;
 
 	return (
 		<nav
