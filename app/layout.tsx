@@ -11,13 +11,13 @@ import Link from "next/link";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { CartProvider } from "@/app/cart/cart-context";
-import { CartSidebar } from "@/app/cart/cart-sidebar";
+import { CartSidebarLoader } from "@/app/cart/cart-sidebar-loader";
 import { CartButton } from "@/app/cart-button";
 import { Footer } from "@/app/footer";
 import { Navbar, type NavLink } from "@/app/navbar";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { ErrorOverlayRemover, NavigationReporter } from "@/components/devtools";
-import { NewsletterDialog } from "@/components/newsletter-dialog";
+import { NewsletterDialogLoader } from "@/components/newsletter-dialog-loader";
 import { SearchInput } from "@/components/search/search-input";
 import { StoreChatSection } from "@/components/store-chat/store-chat-section";
 import { StoreConfigProvider } from "@/components/store-config-provider";
@@ -184,7 +184,7 @@ async function CartProviderWrapper({ children }: { children: React.ReactNode }) 
 					<main className="flex-1">{children}</main>
 					<Footer />
 				</div>
-				<CartSidebar />
+				<CartSidebarLoader />
 				{/* Inside CartProvider on purpose: add-to-cart from chat uses the cart context.
 			    Also renders the "Made with YNS" badge so badge and launcher share one dock. */}
 				<Suspense>
@@ -206,7 +206,7 @@ async function NewsletterPopupSection() {
 	if (!me.store.settings?.enabledTools?.newsletterPopup) {
 		return null;
 	}
-	return <NewsletterDialog settings={me.store.settings?.newsletterPopup} />;
+	return <NewsletterDialogLoader settings={me.store.settings?.newsletterPopup} />;
 }
 
 export default async function RootLayout({
