@@ -1,5 +1,6 @@
 "use server";
 
+import { checkBotId } from "botid/server";
 import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
 import { getStoreConfig } from "@/lib/store-config";
@@ -30,6 +31,13 @@ export async function subscribeToNewsletter(
 			message: "",
 			error: "Please accept marketing permissions to subscribe.",
 		};
+	}
+
+	// A bot gets the shopper's answer, so it can't tell it was turned away, and no email is echoed
+	// back to tracking. The browser half is <BotIdClient> in the root layout.
+	const { isBot } = await checkBotId();
+	if (isBot) {
+		return { success: true, message: "Thanks for subscribing!" };
 	}
 
 	// The signup's language: the confirmation and welcome emails are sent in it.

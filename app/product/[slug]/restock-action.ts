@@ -1,5 +1,6 @@
 "use server";
 
+import { checkBotId } from "botid/server";
 import { try_ } from "safe-try";
 import { commerce } from "@/lib/commerce";
 
@@ -21,6 +22,11 @@ export async function subscribeToRestock(_prev: RestockState, formData: FormData
 
 	if (!email || typeof email !== "string" || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
 		return { success: false, message: "", error: "Please enter a valid email." };
+	}
+
+	const { isBot } = await checkBotId();
+	if (isBot) {
+		return { success: true, message: "Done! We'll email you when this item is back in stock." };
 	}
 
 	const [error, result] = await try_(

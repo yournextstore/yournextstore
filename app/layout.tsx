@@ -1,6 +1,7 @@
 import { tagKinds } from "@/lib/cache-tags";
 import "@/app/globals.css";
 
+import { BotIdClient } from "botid/client";
 import { UserRound } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
@@ -221,6 +222,12 @@ export default async function RootLayout({
 	return (
 		// suppressHydrationWarning: next-themes sets the theme class on <html> before hydration.
 		<html lang={lang} suppressHydrationWarning>
+			<head>
+				{/* Server actions post to whatever page their form sits on, so every POST carries the BotID
+				    challenge; the signup actions call checkBotId(). Outside any Suspense boundary on
+				    purpose: it is an inline script, and a streamed one never runs. */}
+				<BotIdClient protect={[{ path: "/*", method: "POST" }]} />
+			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				{/* DO NOT REMOVE: the GDPR cookie banner. */}
 				<CookieConsentBanner />
