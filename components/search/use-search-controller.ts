@@ -18,19 +18,39 @@ const SUGGESTION_CACHE_LIMIT = 32;
 const NO_SUGGESTIONS: SearchSuggestions = { products: [], queries: [], categories: [], brands: [] };
 
 const suggestionCache = new Map<string, SearchSuggestions>();
+const pendingSuggestions = new Map<string, Promise<SearchSuggestions | null>>();
 
 async function getSuggestions(query: string): Promise<SearchSuggestions> {
 	const cached = suggestionCache.get(query);
 	if (cached) return cached;
-	const suggestions = await fetchSearchSuggestions(query);
+	// One request per query at a time: a focus during the idle prefetch waits for that request.
+	const pending = pendingSuggestions.get(query) ?? fetchSearchSuggestions(query);
+	pendingSuggestions.set(query, pending);
+	const suggestions = await pending.finally(() => pendingSuggestions.delete(query));
 	// A failed fetch shows no suggestions this time and is asked again on the next keystroke.
 	if (!suggestions) return NO_SUGGESTIONS;
 	if (suggestionCache.size >= SUGGESTION_CACHE_LIMIT) {
-		const oldest = suggestionCache.keys().next().value;
+		// The empty box's answer stays: it is what every focus of the empty field shows.
+		const oldest = [...suggestionCache.keys()].find((key) => key !== "");
 		if (oldest !== undefined) suggestionCache.delete(oldest);
 	}
 	suggestionCache.set(query, suggestions);
 	return suggestions;
+}
+
+const PREFETCH_FALLBACK_MS = 1500;
+const prefetch = { scheduled: false };
+
+/**
+ * Asks for the empty box's suggestions once per page load, when the browser is idle, so focusing
+ * the empty field shows them at once. Kept in memory across client-side navigation.
+ */
+function prefetchEmptyBox() {
+	if (prefetch.scheduled) return;
+	prefetch.scheduled = true;
+	const run = () => void getSuggestions("");
+	if ("requestIdleCallback" in window) window.requestIdleCallback(run, { timeout: 3000 });
+	else setTimeout(run, PREFETCH_FALLBACK_MS);
 }
 
 /** One row of the suggestions, in the order the arrow keys move through them. */
@@ -93,6 +113,14 @@ export function useSearchController(initialQuery: string) {
 			setHasFetched(false);
 			return;
 		}
+		// Asked before (or prefetched): shown at once, without the debounce or a request.
+		const cached = suggestionCache.get(target);
+		if (cached) {
+			setSuggestions(cached);
+			setHasFetched(true);
+			setHighlight(-1);
+			return;
+		}
 		const timer = setTimeout(
 			() => {
 				startFetch(async () => {
@@ -107,6 +135,8 @@ export function useSearchController(initialQuery: string) {
 		);
 		return () => clearTimeout(timer);
 	}, [target]);
+
+	useEffect(prefetchEmptyBox, []);
 
 	useEffect(() => {
 		if (!enoughChars) return;
