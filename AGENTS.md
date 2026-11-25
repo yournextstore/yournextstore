@@ -61,7 +61,9 @@ Three rules keep it working:
   `data-yns-page`, `data-yns-sort`, `data-yns-filters` (JSON: `{"brand":["acme"]}`) and, for a
   category, `data-yns-list-key` (its id). Each product in it carries `data-yns-item` (product id)
   and `data-yns-position` (1-based across pages): `ProductCard` sets both from `listPosition`.
-  Add-to-cart buttons carry `data-yns-add-to-cart` (product id) and `data-yns-variant`. Mark the
+  Add-to-cart buttons carry `data-yns-add-to-cart` (product id) and `data-yns-variant`. The cart's
+  remove button, and its minus button while the quantity is 1, carry `data-yns-remove-from-cart`
+  (product id) and `data-yns-variant`. Mark the
   autocomplete list only once the answer for the typed query is on screen. Keep these when you
   restyle a page: without them the store's search reports go empty.
 - Never add tracker snippets (fbq, gtag, GTM, pixels) to template code, and never report an event

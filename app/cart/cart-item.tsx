@@ -141,6 +141,8 @@ export function CartItem({ item }: CartItemProps) {
 					<button
 						type="button"
 						onClick={handleRemove}
+						data-yns-remove-from-cart={product.id}
+						data-yns-variant={productVariant.id}
 						disabled={isPending}
 						className="shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:pointer-events-none disabled:opacity-50"
 						aria-label="Remove item"
@@ -160,6 +162,9 @@ export function CartItem({ item }: CartItemProps) {
 						<button
 							type="button"
 							onClick={handleDecrement}
+							// At 1 the line goes away, which search analytics counts as a removal.
+							data-yns-remove-from-cart={quantity <= 1 ? product.id : undefined}
+							data-yns-variant={quantity <= 1 ? productVariant.id : undefined}
 							className="shrink-0 flex h-7 w-7 items-center justify-center rounded-l-full hover:bg-secondary transition-colors"
 							aria-label="Decrease quantity"
 						>
