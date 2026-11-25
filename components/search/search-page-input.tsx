@@ -71,3 +71,18 @@ export function SearchPageInput({ initialQuery }: { initialQuery: string }) {
 		</search>
 	);
 }
+
+/** The search box's frame while the query is read, so the page keeps its shape. */
+export function SearchPageInputFallback() {
+	return (
+		<div className="relative border-b border-foreground/30" aria-hidden="true">
+			<Search
+				className="pointer-events-none absolute left-0 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground/60"
+				strokeWidth={1.5}
+			/>
+			<div className="flex h-14 items-center pl-8 text-2xl font-medium tracking-tight text-foreground/40 sm:text-3xl">
+				Search the store
+			</div>
+		</div>
+	);
+}

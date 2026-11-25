@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { ProductCard } from "@/components/product-card";
-import { SearchPageInput } from "@/components/search/search-page-input";
+import { SearchPageInput, SearchPageInputFallback } from "@/components/search/search-page-input";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce } from "@/lib/commerce";
 import { buildSearchResultsJsonLd, JsonLdScript } from "@/lib/json-ld";
@@ -210,20 +211,68 @@ function EmptyQuery({ categories }: { categories: { id: string; slug: string; na
 	);
 }
 
-// Results depend on the query, so the page renders in full per request: a navigation keeps the current view until
-// the results are ready, with no skeleton.
-export const instant = false;
-
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default function SearchPage(props: { searchParams: SearchParams }) {
-	return <SearchContent searchParams={props.searchParams} />;
+const queryFrom = (params: Awaited<SearchParams>) => (typeof params.q === "string" ? params.q.trim() : "");
+
+/**
+ * The page frame is in the prerendered shell, so a search paints at once and a link to one can prefetch it. Only what
+ * reads the query waits for the request: the search box (a moment) and the results (the search itself).
+ */
+export default function SearchPage({ searchParams }: { searchParams: SearchParams }) {
+	return (
+		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
+				<div className="mx-auto max-w-3xl">
+					<Suspense fallback={<SearchPageInputFallback />}>
+						<SearchBox searchParams={searchParams} />
+					</Suspense>
+				</div>
+			</div>
+			<Suspense fallback={<ResultsSkeleton />}>
+				<SearchContent searchParams={searchParams} />
+			</Suspense>
+		</section>
+	);
+}
+
+async function SearchBox({ searchParams }: { searchParams: SearchParams }) {
+	return <SearchPageInput initialQuery={queryFrom(await searchParams)} />;
+}
+
+function ResultsSkeleton() {
+	return (
+		<div aria-busy="true" aria-live="polite">
+			<span className="sr-only">Searching…</span>
+			<div className="pt-10 pb-8 sm:pt-14 sm:pb-12">
+				<div className="h-3 w-24 animate-pulse rounded bg-muted" />
+				<div className="mt-4 h-10 w-64 max-w-full animate-pulse rounded bg-muted sm:h-14" />
+				<div className="mt-5 h-3 w-20 animate-pulse rounded bg-muted" />
+			</div>
+			<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
+				<div className="hidden flex-col gap-3 sm:flex">
+					{Array.from({ length: 6 }, (_, index) => (
+						<div key={index} className="h-4 animate-pulse rounded bg-muted" />
+					))}
+				</div>
+				<div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-14 lg:grid-cols-3 lg:gap-x-8">
+					{Array.from({ length: 6 }, (_, index) => (
+						<div key={index}>
+							<div className="aspect-square animate-pulse rounded-2xl bg-secondary" />
+							<div className="mt-4 h-4 w-3/4 animate-pulse rounded bg-muted" />
+							<div className="mt-2 h-4 w-1/3 animate-pulse rounded bg-muted" />
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	);
 }
 
 const SearchContent = async ({ searchParams }: { searchParams: SearchParams }) => {
 	const params = await searchParams;
 	const single = (key: string) => (typeof params[key] === "string" ? params[key] : undefined);
-	const query = single("q")?.trim() ?? "";
+	const query = queryFrom(params);
 	const page = single("page");
 	const sort = getSortFromParams(single("sort"));
 	const filters = searchFiltersFrom(params);
@@ -246,74 +295,64 @@ const SearchContent = async ({ searchParams }: { searchParams: SearchParams }) =
 				: null;
 	const correctedQuery = result?.meta.correctedQuery ?? null;
 
-	return (
-		<section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-			<div className="pt-8 pb-4 sm:pt-12 sm:pb-6">
-				<div className="mx-auto max-w-3xl">
-					<SearchPageInput initialQuery={query} />
-				</div>
-			</div>
-
-			{query ? (
-				<>
-					<header className="pt-10 pb-8 sm:pt-14 sm:pb-12">
-						<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-							<div>
-								<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
-								<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-									{query}
-								</h1>
-								{correctedQuery ? (
-									<p className="mt-4 text-sm text-muted-foreground">
-										Showing results for <span className="text-foreground">{correctedQuery}</span>
-									</p>
-								) : null}
-								{match && matchHref && match.type !== "product" ? (
-									<Link
-										href={matchHref}
-										className="mt-4 inline-flex border-b border-foreground/30 pb-0.5 text-sm text-foreground transition-colors hover:border-foreground"
-									>
-										Go to {match.name} →
-									</Link>
-								) : null}
-								<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-									<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
-										{totalCount} {totalCount === 1 ? "piece" : "pieces"}
-									</span>
-									<ActiveFilters categories={categories} facets={facets} filters={filters} />
-								</div>
-							</div>
-							<div className="hidden sm:block">
-								<SortSelect value={sort} />
-							</div>
+	return query ? (
+		<>
+			<header className="pt-10 pb-8 sm:pt-14 sm:pb-12">
+				<div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+					<div>
+						<p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Results for</p>
+						<h1 className="mt-3 max-w-[14ch] text-4xl font-medium leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+							{query}
+						</h1>
+						{correctedQuery ? (
+							<p className="mt-4 text-sm text-muted-foreground">
+								Showing results for <span className="text-foreground">{correctedQuery}</span>
+							</p>
+						) : null}
+						{match && matchHref && match.type !== "product" ? (
+							<Link
+								href={matchHref}
+								className="mt-4 inline-flex border-b border-foreground/30 pb-0.5 text-sm text-foreground transition-colors hover:border-foreground"
+							>
+								Go to {match.name} →
+							</Link>
+						) : null}
+						<div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+							<span className="text-xs uppercase tracking-[0.18em] tabular-nums text-muted-foreground">
+								{totalCount} {totalCount === 1 ? "piece" : "pieces"}
+							</span>
+							<ActiveFilters categories={categories} facets={facets} filters={filters} />
 						</div>
-					</header>
-
-					<MobileControls
-						categories={categories}
-						facets={facets}
-						filters={filters}
-						sort={sort}
-						totalCount={totalCount}
-					/>
-
-					<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
-						<aside className="hidden sm:block">
-							<div className="sticky top-24">
-								<FilterSidebar
-									categories={categories}
-									facets={facets}
-									filters={filters}
-									totalCount={totalCount}
-								/>
-							</div>
-						</aside>
-						<SearchResults q={query} page={page} sort={sort} filters={filters} />
 					</div>
-				</>
-			) : (
-				<EmptyQuery categories={categories} />
-			)}
-		</section>
+					<div className="hidden sm:block">
+						<SortSelect value={sort} />
+					</div>
+				</div>
+			</header>
+
+			<MobileControls
+				categories={categories}
+				facets={facets}
+				filters={filters}
+				sort={sort}
+				totalCount={totalCount}
+			/>
+
+			<div className="grid gap-x-10 gap-y-12 pt-8 sm:grid-cols-[180px_1fr] sm:gap-x-12 sm:pt-0 lg:grid-cols-[200px_1fr] lg:gap-x-16">
+				<aside className="hidden sm:block">
+					<div className="sticky top-24">
+						<FilterSidebar
+							categories={categories}
+							facets={facets}
+							filters={filters}
+							totalCount={totalCount}
+						/>
+					</div>
+				</aside>
+				<SearchResults q={query} page={page} sort={sort} filters={filters} />
+			</div>
+		</>
+	) : (
+		<EmptyQuery categories={categories} />
 	);
 };
