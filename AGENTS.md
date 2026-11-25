@@ -200,8 +200,8 @@ Every page a shopper can land on renders without a skeleton or spinner. Four rul
   a category: every view would pay a lookup to guess what the slug is, and the default category view
   could no longer prerender. Old addresses from a migrated shop get permanent redirects to the long
   form (`next.config.ts`); a root route may only redirect. `app/catalog-addresses.test.ts` enforces it.
-  A store's Vercel project routes and bulk redirects run before the app, and a local build never
-  sees them: check them before changing addresses.
+  A store's redirects (platform admin, Settings → Redirects) run before the app, and a local build
+  never sees them: check them before changing addresses, and change them there, not in Vercel.
 - **Listings: static default view, filtered views on their own route.** `/products` and
   `/category/…` never read the query, so they prerender. When a listing parameter (filter, sort,
   page) is present, `next.config.ts` rewrites the request (`listingRewrites()` in
