@@ -1,3 +1,4 @@
+import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 import { listingRewrites } from "./lib/listing-routes";
 
@@ -64,4 +65,6 @@ const nextConfig: NextConfig = {
 	},
 };
 
-export default nextConfig;
+// BotID's browser challenge and its proxy are served from this domain through the rewrites withBotId adds;
+// without them <BotIdClient> gets no token, and checkBotId() treats every signup as a bot's.
+export default withBotId(nextConfig);
