@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { SearchFilters } from "./search-filters";
+import { DEFAULT_SORT } from "./sort";
 
 function buildSearchUrl({
 	query,
@@ -15,7 +16,7 @@ function buildSearchUrl({
 }) {
 	const params = new URLSearchParams({ q: query });
 	if (page > 1) params.set("page", String(page));
-	if (sort && sort !== "newest") params.set("sort", sort);
+	if (sort && sort !== DEFAULT_SORT) params.set("sort", sort);
 	for (const [key, value] of Object.entries(filters)) {
 		if (value) params.set(key, value);
 	}

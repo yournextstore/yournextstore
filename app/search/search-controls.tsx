@@ -12,7 +12,7 @@ import { encodeCustomFieldFilter, parseCustomFieldFilter } from "@/lib/custom-fi
 import { formatMoney } from "@/lib/money";
 import { encodeVts, parseVts } from "@/lib/vts";
 import type { SearchFilters } from "./search-filters";
-import { SORT_OPTIONS, type SortKey } from "./sort";
+import { DEFAULT_SORT, SORT_OPTIONS, type SortKey } from "./sort";
 
 type Category = { id: string; slug: string; name: string };
 
@@ -55,6 +55,9 @@ const toggledCustomField = (filters: SearchFilters, field: string, option: strin
 		[field]: options.includes(option) ? options.filter((o) => o !== option) : [...options, option],
 	});
 };
+
+/** The default sort stays out of the URL. */
+const sortParam = (value: string) => (value === DEFAULT_SORT ? null : value);
 
 /** A value the shopper can still reach: it leaves results, or it is the one picked now. */
 const reachable = (count: number | undefined, isActive: boolean) =>
@@ -361,7 +364,7 @@ export function SortSelect({ value }: { value: SortKey }) {
 					value={value}
 					disabled={isPending}
 					onChange={(e) => {
-						const url = buildUrl(searchParams, { sort: e.target.value });
+						const url = buildUrl(searchParams, { sort: sortParam(e.target.value) });
 						startTransition(() => router.push(url));
 					}}
 					className="appearance-none border-0 border-b border-foreground/30 bg-transparent pr-5 pb-0.5 text-sm font-medium normal-case tracking-normal text-foreground focus:border-foreground focus:outline-none"
@@ -422,7 +425,7 @@ export function MobileControls({
 						{SORT_OPTIONS.map((opt) => (
 							<FilterRow
 								key={opt.value}
-								href={buildUrl(searchParams, { sort: opt.value })}
+								href={buildUrl(searchParams, { sort: sortParam(opt.value) })}
 								isActive={opt.value === sort}
 								label={opt.label}
 								size="md"
