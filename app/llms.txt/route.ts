@@ -1,10 +1,13 @@
 import { cacheLife } from "next/cache";
 import { tagKinds } from "@/lib/cache-tags";
 import { commerce, getCanonicalUrl, meGetCached } from "@/lib/commerce";
+import { richTextPlain, singleLine, truncateAtWord } from "@/lib/seo-text";
 
 const FEATURED_PRODUCTS = 30;
 const FEATURED_COLLECTIONS = 15;
 const FEATURED_POSTS = 20;
+// A list item is one line: a longer summary is cut at a word rather than spilling into the next item.
+const ITEM_SUMMARY_MAX = 300;
 
 export async function GET() {
 	return new Response(await getLlmsTxt(), {
@@ -25,7 +28,7 @@ async function getLlmsTxt() {
 	const baseUrl = getCanonicalUrl();
 	const me = await meGetCached();
 	const storeName = me.store.name || "Your Next Store";
-	const storeDescription = me.store.settings?.storeDescription || "An e-commerce store.";
+	const storeDescription = singleLine(me.store.settings?.storeDescription || "") || "An e-commerce store.";
 	const blogEnabled = me.store.settings?.enabledTools?.blog ?? false;
 	const contactFormEnabled = me.store.settings?.enabledTools?.contactForm ?? false;
 
@@ -69,7 +72,10 @@ async function getLlmsTxt() {
 		sections.push("## Collections");
 		sections.push("");
 		for (const c of collections.data) {
-			sections.push(`- [${c.name}](${baseUrl}/collection/${c.slug}): ${c.name} collection.`);
+			const summary = truncateAtWord(richTextPlain(c.description), ITEM_SUMMARY_MAX);
+			sections.push(
+				`- [${singleLine(c.name)}](${baseUrl}/collection/${c.slug})${summary ? `: ${summary}` : ""}`,
+			);
 		}
 		sections.push("");
 	}
@@ -78,8 +84,10 @@ async function getLlmsTxt() {
 		sections.push("## Featured products");
 		sections.push("");
 		for (const p of products.data) {
-			const summary = p.summary?.trim() || `${p.name} — available at ${storeName}.`;
-			sections.push(`- [${p.name}](${baseUrl}/product/${p.slug}): ${summary}`);
+			const name = singleLine(p.name);
+			const summary =
+				truncateAtWord(p.summary ?? "", ITEM_SUMMARY_MAX) || `${name} — available at ${storeName}.`;
+			sections.push(`- [${name}](${baseUrl}/product/${p.slug}): ${summary}`);
 		}
 		sections.push("");
 	}

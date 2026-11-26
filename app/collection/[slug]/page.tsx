@@ -19,6 +19,7 @@ import { getAllCollections, slugParams } from "@/lib/catalog-paths";
 import { commerce, getStoreSeo } from "@/lib/commerce";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, buildCollectionBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { metaDescription, richTextPlain } from "@/lib/seo-text";
 import { YNSMedia } from "@/lib/yns-media";
 
 const COLLECTION_PRODUCTS_LIMIT = 100;
@@ -36,9 +37,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 	const { storeName } = await getStoreSeo();
 	const description =
-		typeof collection.description === "string"
-			? collection.description
-			: `Shop the ${collection.name} collection at ${storeName}.`;
+		metaDescription(richTextPlain(collection.description)) ??
+		`Shop the ${collection.name} collection at ${storeName}.`;
 	const canonical = `/collection/${collection.slug}`;
 
 	return {

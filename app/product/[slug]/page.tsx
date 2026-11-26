@@ -25,6 +25,7 @@ import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, buildProductBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
 import { productSeoFromPatterns } from "@/lib/seo-patterns";
+import { metaDescription } from "@/lib/seo-text";
 import { cn } from "@/lib/utils";
 
 function StarRow({ rating }: { rating: number }) {
@@ -62,7 +63,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	});
 	const patternTitle = product.seo?.title ? undefined : fromPattern.title;
 	const seoTitle = product.seo?.title || patternTitle || product.name;
-	const seoDescription = product.seo?.description || fromPattern.description || product.summary || undefined;
+	const seoDescription = metaDescription(
+		product.seo?.description || fromPattern.description || product.summary,
+	);
 	const canonical = product.seo?.canonical || `/product/${product.slug}`;
 	const image = product.images[0];
 

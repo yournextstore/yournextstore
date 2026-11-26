@@ -19,6 +19,7 @@ import { formatDate } from "@/lib/dates";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, JsonLdScript } from "@/lib/json-ld";
 import { postAuthorLine, postAuthorOf } from "@/lib/post-author";
+import { metaDescription } from "@/lib/seo-text";
 import { isStoreToolEnabled } from "@/lib/store-tools";
 import { YNSMedia } from "@/lib/yns-media";
 
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	}
 
 	const seoTitle = post.seo?.title || post.title;
-	const seoDescription = post.seo?.description || undefined;
+	const seoDescription = metaDescription(post.seo?.description);
 	const canonical = post.seo?.canonical || `/blog/${post.slug}`;
 	const author = postAuthorOf(post);
 
