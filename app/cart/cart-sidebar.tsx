@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, ShoppingBag } from "lucide-react";
+import { type MouseEvent, useEffect, useState } from "react";
 import { useCart } from "@/app/cart/cart-context";
 import { CartItem } from "@/app/cart/cart-item";
 import { itemKey } from "@/app/cart/cart-math";
@@ -20,10 +21,51 @@ import {
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
+// A click on a checkout link while a cart write is in flight waits for the write, then leaves:
+// loading /checkout before the server has the item would show an empty cart. The links stay
+// clickable meanwhile; only the clicked one shows the wait.
+function useCheckoutAfterWrite(isMutating: boolean, itemCount: number) {
+	const [pending, setPending] = useState<{ link: string; href: string } | null>(null);
+
+	useEffect(() => {
+		if (isMutating || !pending) {
+			return;
+		}
+		if (itemCount > 0) {
+			window.location.assign(pending.href);
+		} else {
+			// The write failed and left nothing to check out.
+			setPending(null);
+		}
+	}, [isMutating, pending, itemCount]);
+
+	useEffect(() => {
+		// Back from checkout restores this page from bfcache with the wait still showing.
+		const onPageShow = (event: PageTransitionEvent) => {
+			if (event.persisted) {
+				setPending(null);
+			}
+		};
+		window.addEventListener("pageshow", onPageShow);
+		return () => window.removeEventListener("pageshow", onPageShow);
+	}, []);
+
+	return {
+		waiting: (link: string) => pending?.link === link,
+		onClick: (link: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+			if (isMutating) {
+				event.preventDefault();
+				setPending({ link, href: event.currentTarget.href });
+			}
+		},
+	};
+}
+
 export function CartSidebar() {
 	const { currency, locale, language, taxBehavior } = useStoreConfig();
 	const { cart, isOpen, closeCart, items, itemCount, subtotal, isMutating } = useCart();
 	const discount = cartDiscountOf(cart, taxBehavior);
+	const checkout = useCheckoutAfterWrite(isMutating, itemCount);
 
 	// `?lang=` tells the platform which language version the shopper is leaving from, so the hosted
 	// checkout and everything after it (order, emails) speak it even for a cart made before the
@@ -109,24 +151,14 @@ export function CartSidebar() {
 								</p>
 								{/* Keep this a plain <a>, never <Link>/router.push: /checkout is proxied to a
 								    different Next.js zone (yns.store). A soft RSC nav 500s the cross-zone request.
-								    While a cart write is in flight, block the link: a full navigation now would
-								    load /checkout before the item is committed server-side and show an empty cart. */}
+								    A click during a cart write waits for it (useCheckoutAfterWrite). */}
 								<a
 									href={checkoutUrl}
-									aria-disabled={isMutating}
-									tabIndex={isMutating ? -1 : undefined}
-									onClick={(e) => {
-										if (isMutating) {
-											e.preventDefault();
-										}
-									}}
-									className={cn(
-										buttonVariants(),
-										"w-full h-12 text-base font-medium",
-										isMutating && "pointer-events-none opacity-60",
-									)}
+									aria-busy={checkout.waiting("checkout") || undefined}
+									onClick={checkout.onClick("checkout")}
+									className={cn(buttonVariants(), "w-full h-12 text-base font-medium")}
 								>
-									{isMutating ? (
+									{checkout.waiting("checkout") ? (
 										<>
 											<Loader2 className="h-4 w-4 animate-spin" />
 											Updating…
