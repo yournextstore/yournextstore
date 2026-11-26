@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useId, useState } from "react";
-import { applyDiscountCode, removeDiscountCode } from "@/app/cart/actions";
+import { applyDiscountCode, removeDiscountCode } from "@/app/cart/cart-api";
 import { type Cart, useCart } from "@/app/cart/cart-context";
 import { appliedCouponOf } from "@/app/cart/discount-code";
 import { useStoreConfig } from "@/components/store-config-provider";

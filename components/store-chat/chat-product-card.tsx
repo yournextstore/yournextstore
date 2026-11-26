@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { addToCart } from "@/app/cart/actions";
+import { addToCart } from "@/app/cart/cart-api";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";

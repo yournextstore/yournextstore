@@ -2,7 +2,7 @@
 
 import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import { addToCart } from "@/app/cart/actions";
+import { addToCart } from "@/app/cart/cart-api";
 import { useCart } from "@/app/cart/cart-context";
 import { itemKey, lineKey } from "@/app/cart/cart-math";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";

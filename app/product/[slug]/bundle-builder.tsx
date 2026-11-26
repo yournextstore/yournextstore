@@ -5,7 +5,7 @@ import { CheckIcon, MinusIcon, PlusIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import { addBundleToCart } from "@/app/cart/actions";
+import { addBundleToCart } from "@/app/cart/cart-api";
 import { useCart } from "@/app/cart/cart-context";
 import { useStoreConfig } from "@/components/store-config-provider";
 import { Badge } from "@/components/ui/badge";

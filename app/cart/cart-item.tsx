@@ -3,7 +3,7 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRef, useTransition } from "react";
-import { setCartQuantity } from "@/app/cart/actions";
+import { setCartQuantity } from "@/app/cart/cart-api";
 import { type Cart, type CartLineItem, getLineItemUnitPrice, useCart } from "@/app/cart/cart-context";
 import { itemKey, lineOptions, lineProperties, planLabel } from "@/app/cart/cart-math";
 import { useStoreConfig } from "@/components/store-config-provider";
