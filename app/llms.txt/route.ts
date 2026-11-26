@@ -53,6 +53,10 @@ async function getLlmsTxt() {
 		`This is the AI-discovery index for ${storeName}. It lists the store's most relevant pages and products to help LLMs and AI search engines understand and cite the catalog.`,
 	);
 	sections.push("");
+	sections.push(
+		"Every product, collection and blog post page, and the home page, also answers in Markdown: add `.md` to its address (`/index.md` for the home page) or request it with `Accept: text/markdown`.",
+	);
+	sections.push("");
 
 	sections.push("## Main pages");
 	sections.push("");

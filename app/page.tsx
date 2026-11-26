@@ -3,9 +3,10 @@ import { About } from "@/components/sections/about";
 import { Hero } from "@/components/sections/hero";
 import { Newsletter } from "@/components/sections/newsletter";
 import { ProductGrid } from "@/components/sections/product-grid";
+import { markdownAlternate } from "@/lib/markdown";
 
 export const metadata: Metadata = {
-	alternates: { canonical: "/" },
+	alternates: { canonical: "/", types: markdownAlternate("/") },
 };
 
 export default function Home() {

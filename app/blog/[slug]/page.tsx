@@ -18,6 +18,7 @@ import { commerce, getCanonicalUrl } from "@/lib/commerce";
 import { formatDate } from "@/lib/dates";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, JsonLdScript } from "@/lib/json-ld";
+import { markdownAlternate } from "@/lib/markdown";
 import { postAuthorLine, postAuthorOf } from "@/lib/post-author";
 import { metaDescription } from "@/lib/seo-text";
 import { isStoreToolEnabled } from "@/lib/store-tools";
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 	return {
 		title: seoTitle,
 		description: seoDescription,
-		alternates: { canonical },
+		alternates: { canonical, types: markdownAlternate(`/blog/${post.slug}`) },
 		...hiddenFromSearchMetadata(post),
 		// <meta name="author"> and article:author, when the store shows its authors.
 		...(author ? { authors: [{ name: author.name }] } : {}),

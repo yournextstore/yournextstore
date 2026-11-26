@@ -91,3 +91,10 @@ export const markdownRewritePath = (request: Request) => {
 	}).toString();
 	return query ? `${path}?${query}` : path;
 };
+
+/**
+ * The page's Markdown address, for `alternates.types` in its metadata: a `<link rel="alternate"
+ * type="text/markdown">` tells an agent the Markdown version exists without it having to guess.
+ */
+export const markdownAlternate = (path: string) =>
+	pageRoute(path) ? { "text/markdown": path === "/" ? "/index.md" : `${path}.md` } : undefined;

@@ -24,6 +24,7 @@ import { getAllProducts, slugParams } from "@/lib/catalog-paths";
 import { commerce, meGetCached, productGetCached } from "@/lib/commerce";
 import { hiddenFromSearchMetadata } from "@/lib/hidden-from-search";
 import { apiStructuredData, buildProductBreadcrumbJsonLd, JsonLdScript } from "@/lib/json-ld";
+import { markdownAlternate } from "@/lib/markdown";
 import { productSeoFromPatterns } from "@/lib/seo-patterns";
 import { metaDescription } from "@/lib/seo-text";
 import { cn } from "@/lib/utils";
@@ -74,7 +75,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 		// layout's "— store name" ending is left off.
 		title: patternTitle ? { absolute: patternTitle } : seoTitle,
 		description: seoDescription,
-		alternates: { canonical },
+		alternates: { canonical, types: markdownAlternate(`/product/${product.slug}`) },
 		...hiddenFromSearchMetadata(product),
 		openGraph: {
 			type: "website",
