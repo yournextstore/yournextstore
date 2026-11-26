@@ -205,6 +205,21 @@ function promoteHeaderRows(nodes: Node[]): Node[] {
 	});
 }
 
+/**
+ * Body content renders under the page's own `<h1>` (the product, collection or post name), so a level-1
+ * heading inside it would give the page a second one. Merchants and imports use it for a section title.
+ */
+function demotePageTitleHeadings(nodes: Node[]): Node[] {
+	return nodes.map((node) => {
+		const content = node.content && demotePageTitleHeadings(node.content);
+		const demoted =
+			node.type === "heading" && node.attrs?.level === 1
+				? { ...node, attrs: { ...node.attrs, level: 2 } }
+				: node;
+		return content ? { ...demoted, content } : demoted;
+	});
+}
+
 // Passed as `unhandledNode`/`unhandledMark`: without them a node or mark with no matching
 // extension makes the whole render throw and the article comes out blank.
 function passThrough({ children }: { children?: ReactNode | ReactNode[] }): ReactNode {
@@ -217,8 +232,8 @@ export function TiptapRenderer({ content }: { content: JSONContent | null | unde
 	const children = root.content;
 	if (!Array.isArray(children) || children.length === 0) return null;
 
-	const prunedChildren = promoteHeaderRows(
-		pruneEmptyNodes(liftNestedBlocks(stripPastedTypography(children))),
+	const prunedChildren = demotePageTitleHeadings(
+		promoteHeaderRows(pruneEmptyNodes(liftNestedBlocks(stripPastedTypography(children)))),
 	);
 	if (prunedChildren.length === 0) return null;
 	const pruned: TiptapJSONContent = { ...root, content: prunedChildren };
