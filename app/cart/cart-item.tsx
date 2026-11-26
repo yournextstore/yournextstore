@@ -38,8 +38,8 @@ export function CartItem({ item }: CartItemProps) {
 	// quantity (safe thanks to mode "set"), one request in flight per line, and each
 	// transition stays open until the queue drains so the value never flickers back.
 	const updateQuantity = (action: Parameters<typeof dispatch>[0], target: number) => {
-		// Mirror this line's pending window onto the cart-wide `isMutating` flag so the
-		// Checkout link stays blocked while the write is in flight. `done` resolves when
+		// Mirror this line's pending window onto the cart-wide `isMutating` flag so a
+		// Checkout click waits for the write in flight. `done` resolves when
 		// the local transition finishes; the work itself only runs once.
 		const { promise: done, resolve: resolveDone } = Promise.withResolvers<void>();
 		startMutation(async () => {

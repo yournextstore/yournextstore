@@ -36,8 +36,8 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-// A GET, not a server action: the router runs a page's actions one at a time, so an action
-// read would hold back the shopper's first add to cart. `no-store` here AND the route's
+// A GET route, not a server action, like the cart writes in `cart-api.ts`: the router runs a
+// page's actions one at a time. `no-store` here AND the route's
 // `Cache-Control: private, no-store`: Back after a checkout must never restore the paid cart.
 // Rejects on a failed or non-OK response, so every caller keeps the cart it has.
 async function fetchCart() {

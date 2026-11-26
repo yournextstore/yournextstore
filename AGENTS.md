@@ -67,9 +67,10 @@ Three rules keep it working:
   autocomplete list only once the answer for the typed query is on screen. Keep these when you
   restyle a page: without them the store's search reports go empty.
 - Never add tracker snippets (fbq, gtag, GTM, pixels) to template code, and never report an event
-  yourself: a cart add needs no call, the runtime re-reads the cart after the server action. A
-  shopper's email from a sign-up goes to `visitor({ email })` from `commerce-kit/tracking`; a
-  store-specific event goes to `publish(name, data)`.
+  yourself: a cart add needs no call, the runtime re-reads the cart after every same-origin write
+  request (the `/api/cart/*` POST included). A shopper's email from a sign-up goes to
+  `visitor({ email })` from `commerce-kit/tracking`; a store-specific event goes to
+  `publish(name, data)`.
 - The cookie banner (`components/cookie-consent-banner.tsx`) is design only: it renders when
   `useConsent()` from `commerce-kit/tracking/react` says `bannerVisible`, and answers through
   `set(...)` with all four purposes (`analytics`, `marketing`, `preferences`, `sale_of_data`). It
@@ -98,6 +99,7 @@ view never runs the proxy.
 - No manual `useMemo`/`useCallback`: the React Compiler memoizes components (`reactCompiler` in `next.config.ts`)
 - Show accepted payment methods with `PaymentMethods` from `components/payment-methods.tsx` (official marks from `commerce-kit/payment-icons`, keyed by Stripe payment method type, e.g. `blik`, `p24`, `apple_pay`). Never draw, type out or copy payment brand logos; render it from a Server Component
 - Search box suggestions come from the platform's keyless `GET /_public/suggest?q=…` (`fetchSearchSuggestions` in `lib/search-suggest.ts`), which the browser and the CDN cache. Never fetch them through a Server Action: an action is a POST that nothing caches, and Next runs one at a time per client. The `/search` results page is separate and reads `productBrowse` on the server
+- Cart writes (add, bundle, quantity, discount code) go through the `app/api/cart/*` route handlers via `app/cart/cart-api.ts`, never a Server Action: setting the `yns_cart` cookie in an action makes Next re-render the whole current page before the action answers, and Next runs one action at a time per client. `cart-api.ts` queues the writes so they land in order. The drawer's Checkout link stays clickable during a write; a click waits for it, then leaves
 - Use functional array methods (`map`, `filter`, `reduce`), not loops
 - No `any` types; rely on type inference; minimal return type annotations
 - **Always quote paths** with special characters in shell commands: `rg "term" "app/(auth)/login"`
