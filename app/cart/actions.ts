@@ -1,11 +1,13 @@
 "use server";
 
-import { type APICartCreateBody, YNSAPIError } from "commerce-kit";
-import { try_ } from "safe-try";
-import { refusedCodeMessage } from "@/app/cart/discount-code";
-import { commerce } from "@/lib/commerce";
-import { getCartCookieJson, setCartCookie } from "@/lib/cookies";
-import { getStoreConfig } from "@/lib/store-config";
+import type { APICartCreateBody } from "commerce-kit";
+import {
+	addCartBundle,
+	addCartLine,
+	applyCartDiscount,
+	removeCartDiscount,
+	setCartLineQuantity,
+} from "@/lib/cart";
 
 export async function addToCart(
 	variantId: string,
@@ -13,164 +15,29 @@ export async function addToCart(
 	subscriptionPlanId?: string | null,
 	properties?: APICartCreateBody["properties"],
 ) {
-	const [cartCookie, { language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
-	// Which language version the shopper is on: the platform keeps it on the cart so checkout,
-	// the order and its emails speak it. Omitted when the store never set a default language.
-	const locale = language ?? undefined;
-
-	// The yns_cart cookie can point at a cartId that no longer exists server-side
-	// (expired, store re-seeded, old session). cartUpsert then throws "Cart not found";
-	// retry once with a FRESH cart so the add always lands. No revalidatePath — the
-	// client syncs from this action's returned cart (cartGet hits a read replica and
-	// can return the pre-write cart, dropping the just-added line).
-	let [error, cart] = await try_(
-		commerce.cartUpsert({
-			cartId: cartCookie?.id,
-			variantId,
-			quantity,
-			subscriptionPlanId,
-			locale,
-			properties,
-		}),
-	);
-	// The platform refuses bad line properties (a gift card's recipient, say) with a 400 whose
-	// message is written for the shopper; a fresh cart would be refused the same way.
-	if (properties && error instanceof YNSAPIError && error.status === 400) {
-		return { success: false, cart: null, error: error.message };
-	}
-	if (error) {
-		[error, cart] = await try_(
-			commerce.cartUpsert({ variantId, quantity, subscriptionPlanId, locale, properties }),
-		);
-		if (error) {
-			console.error("cart: addToCart failed after fresh-cart retry", {
-				variantId,
-				quantity,
-				subscriptionPlanId,
-				error,
-			});
-			return { success: false, cart: null };
-		}
-	}
-
-	if (!cart) {
-		return { success: false, cart: null };
-	}
-
-	if (cart.id !== cartCookie?.id) {
-		await setCartCookie({ id: cart.id });
-	}
-
-	return { success: true, cart };
+	return addCartLine(variantId, quantity, subscriptionPlanId, properties);
 }
 
 export async function addBundleToCart(
 	bundleId: string,
 	selections: Array<{ variantId: string; groupId: string; quantity: number }>,
 ) {
-	const [cartCookie, { currency, language }] = await Promise.all([getCartCookieJson(), getStoreConfig()]);
-
-	const [error, cart] = await try_(
-		commerce.cartAddBundle({
-			cartId: cartCookie?.id,
-			bundleId,
-			selections,
-			currency,
-			locale: language ?? undefined,
-		}),
-	);
-
-	if (error) {
-		// The SDK throws on a 4xx; surface a readable message. Precise per-group validation
-		// is handled client-side in the bundle builder — this is the server backstop.
-		console.error("cart: addBundleToCart failed", { bundleId, error });
-		const message = error instanceof Error ? error.message : "Could not add bundle to cart";
-		return { success: false as const, error: message };
-	}
-
-	if (!cart) {
-		return { success: false as const, error: "Could not add bundle to cart" };
-	}
-
-	if (cart.id !== cartCookie?.id) {
-		await setCartCookie({ id: cart.id });
-	}
-
-	return { success: true as const, cart };
+	return addCartBundle(bundleId, selections);
 }
 
-// Set the absolute quantity of one line: a variant on a plan (none for one-time) with its own properties.
 export async function setCartQuantity(
 	variantId: string,
 	quantity: number,
 	subscriptionPlanId?: string | null,
 	properties?: APICartCreateBody["properties"],
 ) {
-	const cartCookie = await getCartCookieJson();
-
-	if (!cartCookie?.id) {
-		return { success: false, cart: null };
-	}
-
-	// mode "set" replaces the line quantity atomically; 0 removes the item
-	const [error, cart] = await try_(
-		commerce.cartUpsert({
-			cartId: cartCookie.id,
-			variantId,
-			quantity: Math.max(quantity, 0),
-			subscriptionPlanId,
-			mode: "set",
-			properties,
-		}),
-	);
-	if (error) {
-		console.error("cart: setCartQuantity failed", {
-			cartId: cartCookie.id,
-			variantId,
-			quantity,
-			subscriptionPlanId,
-			error,
-		});
-		return { success: false, cart: null };
-	}
-	return { success: true, cart };
+	return setCartLineQuantity(variantId, quantity, subscriptionPlanId, properties);
 }
 
-const REMOVE_CODE_FAILED = "Couldn't remove the code. Try again.";
-
 export async function applyDiscountCode(rawCode: string, itemCount: number) {
-	const code = rawCode.trim();
-	const cartCookie = await getCartCookieJson();
-	if (!code || !cartCookie?.id) {
-		return { success: false as const, error: "Add something to your cart first" };
-	}
-
-	const [error, cart] = await try_(commerce.cartCouponApply({ cartId: cartCookie.id, code }));
-	if (!error) {
-		return { success: true as const, cart };
-	}
-
-	// The SDK only passes on "Coupon cannot be applied", so read the coupon to say why.
-	const [couponError, coupon] = await try_(commerce.couponGet({ idOrCode: code }));
-	if (couponError) {
-		console.error("cart: applyDiscountCode failed", { cartId: cartCookie.id, error, couponError });
-		return { success: false as const, error: "Couldn't apply the code. Try again." };
-	}
-	return { success: false as const, error: refusedCodeMessage(coupon, itemCount, new Date()) };
+	return applyCartDiscount(rawCode, itemCount);
 }
 
 export async function removeDiscountCode() {
-	const cartCookie = await getCartCookieJson();
-	if (!cartCookie?.id) {
-		return { success: false as const, error: REMOVE_CODE_FAILED };
-	}
-
-	const [error] = await try_(commerce.cartCouponRemove({ cartId: cartCookie.id }));
-	if (error) {
-		console.error("cart: removeDiscountCode failed", { cartId: cartCookie.id, error });
-		return { success: false as const, error: REMOVE_CODE_FAILED };
-	}
-	// The remove endpoint answers `{ ok }`; the drawer needs the re-priced cart.
-	const [, cart] = await try_(commerce.cartGet({ cartId: cartCookie.id }));
-	return { success: true as const, cart };
+	return removeCartDiscount();
 }
